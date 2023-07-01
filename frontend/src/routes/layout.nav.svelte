@@ -1,0 +1,177 @@
+<script>
+	import { scale } from 'svelte/transition';
+	import { backInOut } from 'svelte/easing';
+
+	import { page } from '$app/stores';
+	import { _user, module } from '$lib/store.js';
+
+	import SVG from '$lib/comp/svg.svelte';
+	import Login from '$lib/module/login.svelte';
+
+	$: segment = $page.url.pathname || undefined;
+</script>
+
+<nav>
+	<a href="/" class:active={segment == '/'}>
+		{#if segment == '/'}
+			<SVG type="home_active" size="15" />
+		{:else}
+			<SVG type="home" size="15" />
+		{/if}
+		Home
+	</a>
+	<a href="/shop" class:active={segment == '/shop'}>
+		{#if segment == '/shop'}
+			<SVG type="shop_active" size="15" />
+		{:else}
+			<SVG type="shop" size="15" />
+		{/if}
+		Shop
+	</a>
+	<a href="/save" class:active={segment == '/save'}>
+		{#if segment == '/save'}
+			<SVG type="like_active" size="15" />
+		{:else}
+			<SVG type="like" size="15" />
+		{/if}
+		Save
+		{#if $_user && $_user.saves.length > 0}
+			{#key $_user.saves.length}
+				<div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
+					{$_user.saves.length}
+				</div>
+			{/key}
+		{/if}
+	</a>
+	<a href="/cart" class:active={segment == '/cart'}>
+		{#if segment == '/cart'}
+			<SVG type="cart_active" size="15" />
+		{:else}
+			<SVG type="cart" size="15" />
+		{/if}
+		Cart
+		{#if $_user && $_user.cart.length > 0}
+			{#key $_user.cart.length}
+				<div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
+					{$_user.cart.length}
+				</div>
+			{/key}
+		{/if}
+	</a>
+
+	{#if $_user && $_user.login}
+		<a href="/account" class:active={segment == '/account'}>
+			{#if segment == '/account'}
+				<SVG type="user_active" size="15" />
+			{:else}
+				<SVG type="user" size="15" />
+			{/if}
+			User
+			<div class="circle account">✓</div>
+		</a>
+	{:else}
+		<div
+			class="login"
+			on:click={() => {
+				$module = {
+					module: Login,
+					data: {
+						return_url: $page.url.pathname
+					}
+				};
+			}}
+		>
+			{#if segment == '/account'}
+				<SVG type="user_active" size="15" />
+			{:else}
+				<SVG type="user" size="15" />
+			{/if}
+			Login
+		</div>
+	{/if}
+</nav>
+
+<style>
+	nav {
+		display: flex;
+		background: var(--foreground);
+		box-shadow: var(--shad1);
+		height: var(--headerHeight);
+	}
+
+	@media screen and (min-width: 800px) {
+		nav {
+			box-shadow: unset;
+		}
+	}
+
+	a,
+	.login {
+		position: relative;
+
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+
+		padding: var(--gap1);
+
+		width: 100%;
+		height: 100%;
+
+		color: var(--font1);
+		fill: var(--font1);
+
+		font-size: small;
+		text-decoration: none;
+
+		transition: var(--trans1);
+	}
+	.login {
+		cursor: pointer;
+	}
+	.active {
+		background-color: var(--background);
+	}
+
+	.login:hover,
+	a:hover {
+		background: var(--background);
+	}
+	.circle {
+		--size: 16px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		position: absolute;
+		top: 5px;
+		right: calc(50% - (var(--size) * 1.4));
+
+		width: var(--size);
+		height: var(--size);
+
+		color: var(--light_color);
+
+		font-size: x-small;
+		border-radius: 50%;
+		background-color: var(--color1);
+	}
+	/* .account {
+		background-color: var(--color1);
+	} */
+
+	@media screen and (min-width: 800px) {
+		.circle {
+			position: unset;
+		}
+
+		.login,
+		a {
+			flex-direction: unset;
+			padding: var(--gap2);
+		}
+	}
+</style>

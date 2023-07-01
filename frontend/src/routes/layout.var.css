@@ -1,0 +1,44 @@
+:root {
+	--overlay: rgba(0, 0, 0, 0.8);
+	--light_color: white;
+	--midtone: gray;
+	
+	--color1: #1d9bf0;
+	--color2: #146ca8;
+	--color3: #f05950;
+	--color4: red;
+	--color5: #04AA6D;
+	--color6: goldenrod;
+
+	--gap1: 8px;
+	--gap2: 16px;
+	--gap3: 24px;
+
+	--brad1: 4px;
+	--shad1: 0 0 8px rgba(0, 0, 0, 0.282);
+
+	--trans1: all 0.2s ease-in-out;
+
+	--headerHeight: 60px;
+}
+
+* {
+	transition-property: background-color, border-color, opacity, outline;
+	transition-duration: 0.2s;
+	transition-timing-function: ease-in-out;
+}
+
+main {
+	--font1: black;
+	--font2: rgb(63, 63, 63);
+
+	--foreground: white;
+	--background: rgb(210, 210, 210);
+}
+main.dark {
+	--font1: white;
+	--font2: rgb(210, 210, 210);
+	
+	--foreground: rgb(24, 24, 24);
+	--background: rgb(46, 46, 46);
+}

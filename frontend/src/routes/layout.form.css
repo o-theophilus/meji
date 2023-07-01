@@ -1,0 +1,88 @@
+label {
+	width: fit-content;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap2);
+
+	width: 100%;
+}
+
+.inputGroup {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap1);
+
+	color: var(--font1);
+}
+
+.horizontal {
+	flex-direction: row;
+}
+
+.category {
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+.category input {
+	width: unset;
+}
+
+label.button {
+	display: flex;
+	align-items: center;
+	gap: var(--gap1);
+	flex-shrink: 0;
+
+	padding: var(--gap1);
+	border-radius: var(--brad1);
+	border: 2px solid var(--background);
+
+	cursor: pointer;
+}
+
+form input,
+form select,
+form textarea {
+	width: 100%;
+
+	padding: var(--gap2);
+	border-radius: var(--brad1);
+	border: 2px solid var(--background);
+
+	color: var(--font1);
+	background-color: var(--background);
+}
+
+label.button:hover,
+form input:hover,
+form select:hover,
+form textarea:hover {
+	border-color: var(--midtone);
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+	border-color: var(--color1);
+	background-color: var(--foreground);
+
+}
+
+form textarea {
+	display: block;
+	resize: none;
+	height: 160px;
+}
+
+form a, form .link {
+	width: fit-content;
+
+	color: var(--color1);
+	text-decoration: none;
+	font-weight: 500;
+
+	cursor: pointer;
+}
