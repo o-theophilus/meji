@@ -1,22 +1,22 @@
 <script>
-	import { api_url, _user } from '$lib/store.js';
+	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	const submit = async () => {
-		$_user.setting.theme = $_user.setting.theme == 'light' ? 'dark' : 'light';
+		$user.setting.theme = $user.setting.theme == 'light' ? 'dark' : 'light';
 
-		const _resp = await fetch(`${api_url}setting`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/setting`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ theme: $_user.setting.theme })
+			body: JSON.stringify({ theme: $user.setting.theme })
 		});
 	};
 </script>
 
-{#if $_user}
+{#if $user}
 	<section
 		on:keydown
 		on:click={() => {
@@ -24,7 +24,7 @@
 		}}
 	>
 		<div class="block">
-			<div class="switch" class:dark={$_user.setting.theme == 'dark'}>
+			<div class="switch" class:dark={$user.setting.theme == 'dark'}>
 				<div class="state">☼</div>
 				<div class="state">☾</div>
 			</div>

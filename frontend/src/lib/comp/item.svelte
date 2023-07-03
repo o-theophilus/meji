@@ -1,6 +1,4 @@
 <script>
-	import { user } from '$lib/store.js';
-
 	import Rating from './item.rating.svelte';
 	import Add_Cart from './item.add_cart.svelte';
 	import Save from './item.save.svelte';
@@ -14,19 +12,6 @@
 	};
 	export let view_list = false;
 
-	// let user = {};
-
-	$: {
-		// user = $user ? $user : user;
-		item.save = false;
-		for (let i in user.saves) {
-			if (user.saves[i].key == item.key) {
-				item.save = true;
-				break;
-			}
-		}
-	}
-
 	let rating = 0;
 	if (item.feedbacks) {
 		for (let i in item.feedbacks) {
@@ -38,9 +23,12 @@
 
 <section class="item" class:view_list>
 	<a href="/{item.alias}">
-		<img src={`${item.photos[0]}/thumbnail` || ''} alt={item.name} onerror="this.src='/image/item.png'" />
+		<img
+			src={`${item.photos[0]}/thumbnail` || ''}
+			alt={item.name}
+			onerror="this.src='/image/item.png'"
+		/>
 	</a>
-
 
 	<div class="details_control">
 		<a href="/{item.alias}">
@@ -66,9 +54,11 @@
 				</div>
 			</div>
 		</a>
+
+		
 		<div class="control">
 			<Add_Cart {item} type="2" />
-			<Save {item} type="2" />
+			<Save {item} type="2" on:unsaved on:done/>
 		</div>
 	</div>
 </section>
@@ -98,6 +88,9 @@
 		width: 100%;
 		height: 100%;
 		border-radius: var(--brad1);
+		aspect-ratio: 1/1;
+		background-image: url('/image/item.png');
+		background-size: cover;
 	}
 
 	.details_control {

@@ -1,46 +1,73 @@
 from flask import Blueprint, jsonify
 from .tools import token_to_user, now
-from .schema import user_schema
-from .database import database
+from .schema import user_schema, item_schema
+from .database import database, query
 
 bp = Blueprint("save", __name__)
 
 
-@bp.put("/save/<key>")
-def put(key):
-    data = database()
+def saved_items(saves, db):
+    items = []
+    for save in saves:
+        item = query({"type": "item", "key": save["key"]}, db=db)
+        if item:
+            items.append(item_schema(item, db))
 
-    user = token_to_user(data)
+    return items
+
+
+@bp.get("/save")
+def get_saved_items():
+    db = database()
+
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
-    wasSaved = False
-    saves = []
+    return jsonify({
+        "status": 200,
+        "items": saved_items(user["saves"], db)
+    })
+
+
+@bp.post("/save/<key>")
+def save_item(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 401,
+            "error": "invalid token"
+        })
+
+    item = query({"type": "item", "key": key}, db=db)
+    if not item:
+        return jsonify({
+            "status": 401,
+            "error": "invalid request"
+        })
+
+    item_removed = False
     for save in user["saves"]:
         if save["key"] == key:
-            wasSaved = True
-        else:
-            saves.append(save)
+            item_removed = True
+            user["saves"].remove(save)
+            break
 
-    if wasSaved:
-        user["saves"] = saves
-    else:
-        item = query("item", "key", key, data)
-        save = {
-            "key": item["key"],
+    if not item_removed:
+        user["saves"].append({
+            "key": key,
             "date": now()
-        }
-        user["saves"].append(save)
+        })
 
     user = database(user)
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
+        "user": user_schema(user, db),
+        "items": saved_items(user["saves"], db)
     })

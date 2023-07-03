@@ -3,7 +3,7 @@
 	import { backInOut } from 'svelte/easing';
 
 	import { page } from '$app/stores';
-	import { _user, module } from '$lib/store.js';
+	import { user, module } from '$lib/store.js';
 
 	import SVG from '$lib/comp/svg.svelte';
 	import Login from '$lib/module/login.svelte';
@@ -35,10 +35,11 @@
 			<SVG type="like" size="15" />
 		{/if}
 		Save
-		{#if $_user && $_user.saves.length > 0}
-			{#key $_user.saves.length}
-				<div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
-					{$_user.saves.length}
+		{#if $user && $user.saves.length > 0}
+			{#key $user.saves.length}
+				<!-- <div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}> -->
+				<div class="circle">
+					{$user.saves.length}
 				</div>
 			{/key}
 		{/if}
@@ -50,16 +51,17 @@
 			<SVG type="cart" size="15" />
 		{/if}
 		Cart
-		{#if $_user && $_user.cart.length > 0}
-			{#key $_user.cart.length}
-				<div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
-					{$_user.cart.length}
+		{#if $user && $user.cart.length > 0}
+			{#key $user.cart.length}
+				<!-- <div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}> -->
+				<div class="circle">
+					{$user.cart.length}
 				</div>
 			{/key}
 		{/if}
 	</a>
 
-	{#if $_user && $_user.login}
+	{#if $user && $user.login}
 		<a href="/account" class:active={segment == '/account'}>
 			{#if segment == '/account'}
 				<SVG type="user_active" size="15" />
@@ -70,7 +72,7 @@
 			<div class="circle account">✓</div>
 		</a>
 	{:else}
-		<div
+		<button
 			class="login"
 			on:click={() => {
 				$module = {
@@ -81,13 +83,9 @@
 				};
 			}}
 		>
-			{#if segment == '/account'}
-				<SVG type="user_active" size="15" />
-			{:else}
-				<SVG type="user" size="15" />
-			{/if}
+			<SVG type="user" size="15" />
 			Login
-		</div>
+		</button>
 	{/if}
 </nav>
 
@@ -120,6 +118,8 @@
 		width: 100%;
 		height: 100%;
 
+		border: none;
+		background-color: transparent;
 		color: var(--font1);
 		fill: var(--font1);
 

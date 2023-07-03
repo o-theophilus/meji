@@ -23,9 +23,8 @@
 		}}
 	/>
 {:else}
-	<div
+	<button
 		class="cart"
-		on:keypress
 		on:click|stopPropagation={() => {
 			$module = {
 				module: Variation,
@@ -34,18 +33,20 @@
 		}}
 	>
 		<SVG type="cart_active" />
-	</div>
+	</button>
 {/if}
 
 <style>
-	div {
-		padding: var(--gap1);
+	button {
 		width: 100%;
+		border: none;
+		padding: var(--gap1);
 
-		text-align: center;
+		background-color: transparent;
 		fill: var(--midtone);
+		cursor: pointer;
 	}
-	div:hover {
+	button:hover {
 		background-color: var(--background);
 	}
 </style>

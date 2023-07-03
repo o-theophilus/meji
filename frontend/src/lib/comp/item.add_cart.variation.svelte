@@ -33,7 +33,7 @@
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}cart/${item.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/${item.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

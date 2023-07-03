@@ -11,17 +11,14 @@
 	import Checkout from './checkout.svelte';
 	import Item from './item.svelte';
 
-	export let user = {
-		cart: []
-	};
-	$: user = $user ? $user : user;
+	$: $user = $user ? $user : $user;
 	let total = 0;
 	let error = '';
 
 	$: {
 		total = 0;
-		for (const i in user.cart) {
-			total += user.cart[i].quantity * user.cart[i].price;
+		for (const i in $user.cart) {
+			total += $user.cart[i].quantity * $user.cart[i].price;
 		}
 	}
 	const change = async (item, quantity) => {
@@ -86,7 +83,7 @@
 <Card>
 	<Title title="Cart" />
 	<Body>
-		{#each user.cart as item, i (i)}
+		{#each $user.cart as item, i (i)}
 			<!-- <div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 			</div> -->
 			<Item
@@ -102,7 +99,7 @@
 			no item here
 		{/each}
 	</Body>
-	{#if user.cart.length > 0}
+	{#if $user.cart.length > 0}
 		<Checkout {total} />
 	{/if}
 </Card>

@@ -2,44 +2,63 @@
 	import Button from '$lib/comp/button.svelte';
 	import SVG from '$lib/comp/svg.svelte';
 
-	import { user } from '$lib/store.js';
+	import { user, save_queue } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
+	import { createEventDispatcher } from 'svelte';
+
+	let emit = createEventDispatcher();
 
 	export let item;
 	let _type = 1;
 	export { _type as type };
 
 	const submit = async () => {
-		if (item.save) {
-			$user.saves = $user.saves.filter((i) => i.key != item.key);
+		if (item.saved) {
+			$user.saves = $user.saves.filter((i) => i != item.key);
+			emit('unsaved');
 		} else {
-			$user.saves.push(item);
+			$user.saves.push(item['key']);
 			$user = $user;
 		}
 
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}save/${item.key}`, {
-			method: 'put',
+		$save_queue.push(item['key']);
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save/${item.key}`, {
+			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			}
 		});
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		resp = await resp.json();
 
-			if (resp.status == 200) {
-				$user = resp.data.user;
-			} else {
-				new Error(resp.message);
+		if (resp.status == 200) {
+			$save_queue = $save_queue.filter((x) => x != item['key']);
+			console.log($save_queue.length);
+			if ($save_queue.length == 0) {
+				$user = resp.user;
+				emit('done', { items: resp.items });
 			}
+		} else {
+			new Error(resp.message);
 		}
 	};
+
+	$: {
+		item.saved = false;
+		for (let i in $user.saves) {
+			if ($user.saves[i] == item.key) {
+				item.saved = true;
+				break;
+			}
+		}
+	}
 </script>
 
 {#if _type == 1}
 	<Button
-		color={item.save ? 'var(--color2)' : ''}
+		color={item.saved ? 'var(--color2)' : ''}
 		icon="like_active"
 		icon_size="12"
 		on:click={() => {
@@ -47,23 +66,30 @@
 		}}
 	/>
 {:else}
-	<div class:save={item.save} on:keypress on:click|stopPropagation={submit}>
+	<button
+		class:save={item.saved}
+		on:click|stopPropagation={() => {
+			submit();
+		}}
+	>
 		<SVG type="like_active" />
-	</div>
+	</button>
 {/if}
 
 <style>
-	div {
-		padding: var(--gap1);
+	button {
 		width: 100%;
+		border: none;
+		padding: var(--gap1);
 
-		text-align: center;
+		background-color: transparent;
 		fill: var(--midtone);
+		cursor: pointer;
 	}
-	div:hover {
+	button:hover {
 		background-color: var(--background);
 	}
-	div.save {
+	button.save {
 		fill: var(--color1);
 	}
 </style>

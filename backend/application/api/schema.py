@@ -8,11 +8,6 @@ from uuid import uuid4
 
 def user_schema(user, db):
     user["saves"] = sorted(user["saves"], key=lambda d: d["date"])
-    saves = []
-    for save in user["saves"]:
-        item = query("item", "key", save["key"], db)
-        if item:
-            saves.append(item_schema(item, db))
 
     user["cart"] = sorted(user["cart"], key=lambda d: d["date"])
     cart = []
@@ -44,7 +39,7 @@ def user_schema(user, db):
         "status": user["status"],
         "login": user["login"],
 
-        "saves": saves,
+        "saves": [save["key"] for save in user["saves"]],
         "cart": cart,
     }
 

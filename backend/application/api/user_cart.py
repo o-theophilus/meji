@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now
-from .database import database
+from .database import database, query
 from .schema import user_schema, log_template
 from uuid import uuid4
 
@@ -9,16 +9,16 @@ bp = Blueprint("cart", __name__)
 
 @bp.post("/cart/<key>")
 def post(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
-    item = query("item", "key", key, data)
+    item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
             "status": 401,
@@ -32,7 +32,7 @@ def post(key):
     ):
         return jsonify({
             "status": 401,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     def _user():
@@ -63,28 +63,25 @@ def post(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
+        "user": user_schema(user, db)
     })
 
 
 @bp.delete("/cart/<key>")
 def delete(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
     if "variation" not in request.json:
         return jsonify({
             "status": 401,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     temp = []
@@ -100,43 +97,40 @@ def delete(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
+        "user": user_schema(user, db)
     })
 
 
 @bp.post("/order")
 def cart_to_order():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
     if not user["login"]:
         return jsonify({
-            "status": 102,
-            "message": "please login"
+            "status": 401,
+            "error": "please login"
         })
 
     if user["cart"] == []:
         return jsonify({
             "status": 401,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     delivery_fee = 1500
     total_items = 0
     for cart in user["cart"]:
-        item = query("item", "key", cart["key"], data)
+        item = query("item", "key", cart["key"], db)
         if not item:
             return jsonify({
-                "status": 201,
-                "message": "item not found"
+                "status": 401,
+                "error": "item not found"
             })
         total_items += item["price"] * cart["quantity"]
 
@@ -189,9 +183,6 @@ def cart_to_order():
     return jsonify({
 
         "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data),
-            "order_key": order["key"]
-        }
+        "user": user_schema(user, db),
+        "order_key": order["key"]
     })

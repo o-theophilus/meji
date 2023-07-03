@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .schema import user_schema
 from .tools import token_to_user
-from .database import database
+from .database import database, query
 from math import ceil
 import re
 
@@ -10,7 +10,7 @@ bp = Blueprint("user_get", __name__)
 
 
 def user_master(
-    data=[],
+    db=[],
     user_key="",
     size=24, status="confirm",
     order="date", order_dir="dsc",
@@ -49,12 +49,9 @@ def user_master(
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "users": [user_schema(user, data) for user in users],
-            "page_no": page_no,
-            "total_page": total_page
-        }
+        "users": [user_schema(user, db) for user in users],
+        "page_no": page_no,
+        "total_page": total_page
     })
 
 
@@ -65,14 +62,14 @@ def get():
     user = token_to_user(data)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 401,
+            "error": "unauthorised access"
         })
 
     status = request.args.get("status")
@@ -98,32 +95,29 @@ def get():
 
 @bp.get("/user/<key>")
 def get_one(key):
-    data = database()
+    db = database()
 
-    me = token_to_user(data)
+    me = token_to_user(db)
     if not me:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
     if "admin" not in me["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 401,
+            "error": "unauthorised access"
         })
 
-    user = query("user", "key", key, data)
+    user = query({"type": "user", "key": key}, db=db)
     if not user or me["key"] == user["key"]:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 401,
+            "error": "invalid token"
         })
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user)
-        }
+        "user": user_schema(user)
     })
