@@ -1,5 +1,5 @@
 <script>
-	import Quantity from '$lib/comp/quantity.svelte';
+	import Quantity from '$lib/quantity.svelte';
 	import Value from '$lib/comp/variation_value.svelte';
 
 	export let item;
@@ -35,7 +35,7 @@
 				<span class="price">
 					₦{item.price.toLocaleString()}
 				</span>
-				<Quantity quantity={item.quantity} on:mod on:del />
+				<Quantity quantity={item.quantity} on:done />
 			</div>
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>

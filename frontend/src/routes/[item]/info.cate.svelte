@@ -7,7 +7,7 @@
 
 	import Category from './_category.svelte';
 
-	export let item;
+	export let item
 </script>
 
 {#if item.categories.length > 0 || ($user && $user.roles.includes('admin'))}

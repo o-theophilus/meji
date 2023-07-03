@@ -9,7 +9,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Header from './layout.header.svelte';
-	import Footer from '$lib/footer/index.svelte';
+	import Footer from './layout.footer.svelte';
 	import Nav from './layout.nav.svelte';
 
 	import Module from '$lib/module/module.svelte';

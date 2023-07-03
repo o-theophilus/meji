@@ -7,7 +7,7 @@
 	import Card from '$lib/comp/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body_item.svelte';
-	import Item from '$lib/comp/item.svelte';
+	import Item from '$lib/item/item.svelte';
 
 	import Search from '$lib/comp/search.svelte';
 	import View from '$lib/comp/page_view.svelte';

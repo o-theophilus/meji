@@ -12,7 +12,7 @@ def user_schema(user, db):
     user["cart"] = sorted(user["cart"], key=lambda d: d["date"])
     cart = []
     for _cart in user["cart"]:
-        item = query("item", "key", _cart["key"], db)
+        item = query({"type": "item", "key": _cart["key"]}, db=db)
         if item:
             item = item_schema(item, db)
             item["variation"] = _cart["variation"]
@@ -99,7 +99,7 @@ def item_schema(item, db):
         "desc": item["desc"],
         "spec": item["spec"],
 
-        "variation_options": item["variation_options"],
+        "variations": item["variations"],
 
         "photos": photos,
         "thumbnail": thumbnail,

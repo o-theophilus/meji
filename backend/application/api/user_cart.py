@@ -7,8 +7,8 @@ from uuid import uuid4
 bp = Blueprint("cart", __name__)
 
 
-@bp.post("/cart/<key>")
-def post(key):
+@bp.post("/cart")
+def add_to_cart():
     db = database()
 
     user = token_to_user(db)
@@ -18,81 +18,48 @@ def post(key):
             "error": "invalid token"
         })
 
-    item = query({"type": "item", "key": key}, db=db)
-    if not item:
-        return jsonify({
-            "status": 401,
-            "message": "invalid request"
-        })
-
     if (
-        "variation" not in request.json
+        "key" not in request.json
+        or not request.json["key"]
+        or "variation" not in request.json
         or "quantity" not in request.json
-        or not request.json["quantity"]
     ):
         return jsonify({
             "status": 401,
             "error": "invalid request"
         })
 
-    def _user():
-        for cart_item in user["cart"]:
-            if (
-                cart_item["key"] == item["key"] and
-                cart_item["variation"] == request.json["variation"]
-            ):
-                if (
-                    "operation" in request.json
-                    and request.json["operation"]
-                ):
-                    cart_item["quantity"] += request.json["quantity"]
-                else:
-                    cart_item["quantity"] = request.json["quantity"]
-                return
-
-        cart = {
-            "key": item["key"],
-            "date": now(),
-            "variation": request.json["variation"],
-            "quantity": request.json["quantity"]
-        }
-        user["cart"].append(cart)
-
-    _user()
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, db)
-    })
-
-
-@bp.delete("/cart/<key>")
-def delete(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
-
-    if "variation" not in request.json:
+    item = query({"type": "item", "key": request.json["key"]}, db=db)
+    if not item:
         return jsonify({
             "status": 401,
             "error": "invalid request"
         })
 
-    temp = []
-    for cart in user["cart"]:
-        if (
-            cart["key"] != key
-            or cart["variation"] != request.json["variation"]
-        ):
-            temp.append(cart)
+    variation = request.json["variation"]
+    quantity = int(request.json["quantity"])
 
-    user["cart"] = temp
+    exist = False
+    for ci in user["cart"]:
+        if ci["key"] == item["key"] and ci["variation"] == variation:
+            exist = True
+
+            if quantity < 1:
+                user["cart"].remove(ci)
+                break
+            elif "ops" in request.json and request.json["ops"] == "add":
+                quantity += ci["quantity"]
+            ci["quantity"] = quantity
+            break
+
+    if not exist:
+        user["cart"].append({
+            "key": item["key"],
+            "date": now(),
+            "variation": variation,
+            "quantity": quantity
+        })
+
     user = database(user)
 
     return jsonify({

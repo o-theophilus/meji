@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import Rating from './rating_star.svelte';
+	import Rating from '$lib/item/rating.svelte';
 	import { user } from '$lib/store.js';
 
 	let emit = createEventDispatcher();

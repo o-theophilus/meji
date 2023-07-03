@@ -17,25 +17,25 @@
 			$user.saves = $user.saves.filter((i) => i != item.key);
 			emit('unsaved');
 		} else {
-			$user.saves.push(item['key']);
+			$user.saves.push(item.key);
 			$user = $user;
 		}
 
-		$save_queue.push(item['key']);
+		$save_queue.push(item.key);
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
-			}
+			},
+			body: JSON.stringify({ saves: $user.saves })
 		});
 
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			$save_queue = $save_queue.filter((x) => x != item['key']);
-			console.log($save_queue.length);
+			$save_queue = $save_queue.filter((x) => x != item.key);
 			if ($save_queue.length == 0) {
 				$user = resp.user;
 				emit('done', { items: resp.items });

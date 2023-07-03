@@ -9,7 +9,6 @@
 	import AddPhoto from './_photo_add.svelte';
 
 	export let item;
-
 	let index = 0;
 </script>
 
@@ -45,13 +44,13 @@
 		{#if item.photos.length > 1}
 			<div class="slide">
 				{#each item.photos as photo, i}
-					<img
-						src={photo}
-						alt={item.name}
+					<button
 						on:click={() => {
 							index = i;
 						}}
-					/>
+					>
+						<img src={photo} alt={item.name} />
+					</button>
 				{/each}
 			</div>
 		{/if}
@@ -79,6 +78,10 @@
 		gap: var(--gap1);
 		flex-wrap: wrap;
 	}
+	.slide button {
+		border: none;
+		background-color: transparent;
+	}
 	.slide img {
 		--size: 50px;
 		width: var(--size);
@@ -87,6 +90,7 @@
 
 		border: 2px solid var(--background);
 		border-radius: var(--brad1);
+		object-fit: cover;
 
 		transition: var(--trans1);
 	}

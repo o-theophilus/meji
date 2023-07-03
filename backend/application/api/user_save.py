@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now
 from .schema import user_schema, item_schema
 from .database import database, query
@@ -33,8 +33,8 @@ def get_saved_items():
     })
 
 
-@bp.post("/save/<key>")
-def save_item(key):
+@bp.post("/save")
+def save_item():
     db = database()
 
     user = token_to_user(db)
@@ -44,26 +44,22 @@ def save_item(key):
             "error": "invalid token"
         })
 
-    item = query({"type": "item", "key": key}, db=db)
-    if not item:
-        return jsonify({
-            "status": 401,
-            "error": "invalid request"
-        })
+    new_saves = request.json["saves"]
+    saves = []
+    for item in user["saves"]:
+        if item["key"] in new_saves:
+            saves.append(item)
+            new_saves.remove(item["key"])
 
-    item_removed = False
-    for save in user["saves"]:
-        if save["key"] == key:
-            item_removed = True
-            user["saves"].remove(save)
-            break
+    for key in new_saves:
+        item = query({"type": "item", "key": key}, db=db)
+        if item:
+            saves.append({
+                "key": key,
+                "date": now()
+            })
 
-    if not item_removed:
-        user["saves"].append({
-            "key": key,
-            "date": now()
-        })
-
+    user["saves"] = saves
     user = database(user)
 
     return jsonify({

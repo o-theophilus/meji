@@ -6,12 +6,12 @@
 	import { module } from '$lib/store.js';
 	import { state } from '$lib/page_state.js';
 
-	import Meta from '$lib/comp/meta.svelte';
+	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
 	import Card from '$lib/comp/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body_item.svelte';
-	import Item from '$lib/comp/item.svelte';
+	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/comp/button.svelte';
 
 	import Category from './page.cate.svelte';

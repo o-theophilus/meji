@@ -1,7 +1,7 @@
 <script>
-	import Rating from '$lib/comp/rating_star.svelte';
+	import Rating from '$lib/item/rating.svelte';
 
-	export let item = {};
+	export let item;
 
 	let rating = 0;
 	if (item.feedbacks) {

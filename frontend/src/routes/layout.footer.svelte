@@ -1,6 +1,6 @@
 <script>
-	import Nav from './nav.svelte';
-	import Copy from './copy.svelte';
+	import Nav from './layout.footer.nav.svelte';
+	import Copy from './layout.footer.copy.svelte';
 </script>
 
 <footer>

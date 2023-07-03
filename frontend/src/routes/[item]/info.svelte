@@ -2,10 +2,10 @@
 	import { user, module } from '$lib/store.js';
 
 	import Body from '$lib/comp/card_body.svelte';
-	import Price from './info_price.svelte';
-	import Rating from './info_rating.svelte';
-	import Cate from './info_cate.svelte';
-	import Save from '$lib/comp/item_save.svelte';
+	import Price from './info.price.svelte';
+	import Rating from './info.rating.svelte';
+	import Cate from './info.cate.svelte';
+	import Save from '$lib/item/save.svelte';
 	import Button from '$lib/comp/button.svelte';
 
 	import Edit from './_edit.svelte';

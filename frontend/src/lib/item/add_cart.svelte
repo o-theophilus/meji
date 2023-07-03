@@ -3,7 +3,7 @@
 
 	import Button from '$lib/comp/button.svelte';
 	import SVG from '$lib/comp/svg.svelte';
-	import Variation from '$lib/comp/item.add_cart.variation.svelte';
+	import Variation from './add_cart__variation.svelte';
 
 	export let item = {};
 	let _type = 1;

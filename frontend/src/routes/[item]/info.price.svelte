@@ -2,21 +2,19 @@
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
-	import { currency } from '$lib/store.js';
-
 	import Button from '$lib/comp/button.svelte';
 
-	export let item = {};
+	export let item;
 	let show_details = false;
 </script>
 
 <div class="cost">
 	<div class="price">
-		{currency(item.price)}
+		₦{item.price.toLocaleString()}
 	</div>
 	{#if item.old_price}
 		<div class="old_price">
-			{currency(item.old_price)}
+			₦{item.old_price.toLocaleString()}
 			<div class="strike" />
 		</div>
 		<div class="discount">
@@ -36,10 +34,10 @@
 {#if show_details}
 	<dir class="details" transition:slide|local={{ delay: 0, duration: 200, easing: quintOut }}>
 		<div>Maximum Price</div>
-		<div>{currency(item.old_price)}</div>
+		<div>₦{item.old_price.toLocaleString()}</div>
 
 		<div>Selling Price</div>
-		<div>{currency(item.price)}</div>
+		<div>₦{item.price.toLocaleString()}</div>
 
 		<div>Discount</div>
 		<div>{(((item.old_price - item.price) * 100) / item.old_price).toFixed(0)}% off</div>
@@ -47,12 +45,12 @@
 		<div class="hr" />
 
 		<div>Total</div>
-		<div>{currency(item.price)}</div>
+		<div>₦{item.price.toLocaleString()}</div>
 
 		<div class="hr" />
 
 		<div>Overall save</div>
-		<div>{currency(item.old_price - item.price)}</div>
+		<div>₦{(item.old_price - item.price).toLocaleString()}</div>
 	</dir>
 {/if}
 

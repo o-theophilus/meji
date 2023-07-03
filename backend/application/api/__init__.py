@@ -4,7 +4,7 @@ from .user import unused_anon
 # from .auth import omni
 from deta import Deta
 from os import environ
-from . import dd
+from .database import database
 
 
 bp = Blueprint("api", __name__)
@@ -51,7 +51,15 @@ def copy_db():
 
 @bp.get("/fix")
 def fix():
-    dd.file_list()
+    db = database()
+
+    items = []
+    for item in db:
+        if item["type"] == "item":
+            item["variations"] = item.pop("variation_options")
+            items.append(item)
+
+    database(items)
 
     return jsonify({
         "status": 200,

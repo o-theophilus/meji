@@ -6,11 +6,9 @@
 	export let quantity = 1;
 
 	const change = () => {
-		if (quantity > 0) {
-			emit('mod', quantity);
-		} else {
+		emit('done', { quantity });
+		if (quantity < 1) {
 			quantity = 1;
-			emit('del');
 		}
 	};
 

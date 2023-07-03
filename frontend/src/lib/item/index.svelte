@@ -1,7 +1,7 @@
 <script>
-	import Rating from './item.rating.svelte';
-	import Add_Cart from './item.add_cart.svelte';
-	import Save from './item.save.svelte';
+	import Rating from './rating.svelte';
+	import Add_Cart from './add_cart.svelte';
+	import Save from './save.svelte';
 
 	export let item = {
 		name: '[item name]',
