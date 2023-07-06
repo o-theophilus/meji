@@ -8,7 +8,7 @@
 	import Card from '$lib/comp/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body_item.svelte';
-	import Item from '$lib/comp/item.svelte';
+	import Item from '$lib/item/index.svelte';
 	// import Pagination from '$lib/comp/pagination.svelte';
 
 	export let data;

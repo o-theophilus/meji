@@ -55,7 +55,7 @@ def item_schema(item, db):
 
     photos = sorted(item["photos"], key=lambda d: d["order"])
     photos = [
-        f"{request.host_url}/photos/{x['key']}" for x in photos]
+        f"{request.host_url}photos/{x['key']}" for x in photos]
 
     feedbacks = []
     user_keys = [x["user_key"] for x in item["feedbacks"]]
@@ -82,10 +82,6 @@ def item_schema(item, db):
             if user_keys == []:
                 break
 
-    thumbnail = None
-    if item["photos"] != []:
-        f"{request.host_url}/{item['photos'][0]['key']}"
-
     return {
         "key": item["key"],
 
@@ -102,7 +98,6 @@ def item_schema(item, db):
         "variations": item["variations"],
 
         "photos": photos,
-        "thumbnail": thumbnail,
         "status": item["status"],
 
         "categories": categories,
@@ -236,22 +231,20 @@ def item_template(
 
 
 def log_template(
-    for_,
     user,
-    entity,
     action,
-    status=None,
-    note=None,
+    entity,
+    status=200,
+    misc=None,
 ):
     return {
         "key": uuid4().hex,
         "date": now(),
         "type": "log",
 
-        "for": for_,
-        "user_key": user,
-        "entity_key": entity,
-        "action": action,
+        "user": user,
+        "action": action,  # what the user did
+        "entity": entity,
         "status": status,
-        "note": note
+        "misc": misc
     }

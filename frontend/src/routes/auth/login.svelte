@@ -2,10 +2,10 @@
 	import { user, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from './form.svelte';
+	import Form from '$lib/module/form.svelte';
 	import Forgot from './forgot.svelte';
 	import Signup from './signup.svelte';
-	import Info from './info.svelte';
+	import Info from '$lib/module/info.svelte';
 	import Button from '$lib/comp/button.svelte';
 
 	import Email from './login_email_template.svelte';

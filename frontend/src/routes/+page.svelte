@@ -19,10 +19,10 @@
 	import About from './page.about.svelte';
 	import Top from './page.to_top.svelte';
 
-	import Login from '$lib/module/login.svelte';
-	import Password from '$lib/module/change_password.svelte';
-	import Email from '$lib/module/change_email.svelte';
-	import Confirm from '$lib/module/confirm.svelte';
+	import Login from './auth/login.svelte';
+	import Password from './auth/change_password.svelte';
+	import Email from './auth/change_email.svelte';
+	import Confirm from './auth/confirm.svelte';
 
 	export let data;
 	let { group } = data;

@@ -1,5 +1,5 @@
 <script>
-	import Item from '$lib/comp/item.svelte';
+	import Item from '$lib/item/index.svelte';
 	import Rating from '$lib/comp/rating.svelte';
 	import ItemRating from '$lib/comp/item.rating.svelte';
 	import Variation from '$lib/comp/item.add_cart.variation.svelte';

@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
 # import database
-from .user import unused_anon
 # from .auth import omni
 from deta import Deta
 from os import environ
@@ -8,15 +7,6 @@ from .database import database
 
 
 bp = Blueprint("api", __name__)
-
-
-@bp.route("/")
-def index():
-    # omni()
-    return jsonify({
-        "status": 200,
-        "message": "Welcome to MEJI API"
-    })
 
 
 @bp.post("/cron")
@@ -65,3 +55,38 @@ def fix():
         "status": 200,
         "error": "successful"
     })
+
+
+def unused_anon():
+    data = database()
+
+    keys = []
+    for row in data:
+        if (
+            row["type"] == "user"
+            and row["status"] == "anon"
+            and row["saves"] == []
+            and row["cart"] == []
+        ):
+            created = datetime.strptime(row["date_c"], '%Y-%m-%dT%H:%M:%S')
+            _24hour_ago = datetime.now() - timedelta(days=1)
+
+            if created < _24hour_ago:
+                keys.append(row["key"])
+
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+        "data": {
+            "keys": keys
+        }
+    })
+
+
+def file_list():
+    paths = drive().list()["names"]
+
+    for x in paths:
+        photo = drive().get(x)
+        drive().put(f"photos/{x.split('/')[1]}", photo)
+        drive().delete(x)

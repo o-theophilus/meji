@@ -1,51 +1,59 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 from .tools import token_to_user
 from .schema import item_schema, category_schema, log_template
 from math import ceil
 from .database import database, query
+from .storage import storage
 # from .photo import photo_url
 import re
 
 bp = Blueprint("item_get", __name__)
 
 
-@bp.get("/item/<alias>")
-def item(alias):
-    db = database()
+@bp.get("/photos/<key>")
+@bp.get("/photos/<key>/<thumbnail>")
+def get_photo(key, thumbnail=False):
+    photo = storage(key, thumbnail=True)
+    return send_file(photo, mimetype="image/jpg")
 
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
 
-    item = query({"type": "item", "alias": alias}, db=db)
-    if not item:
-        return jsonify({
-            "status": 401,
-            "error": "invalid request"
-        })
+# @bp.get("/item/<alias>")
+# def item(alias):
+#     db = database()
 
-    ads = {}
-    if "ads" in item and item["ads"] != {}:
-        ads = {
-            f'{"xxx"}{item["ads"]["300x300"]}',
-            f'{"xxx"}{item["ads"]["300x600"]}',
-            f'{"xxx"}{item["ads"]["600x300"]}',
-            f'{"xxx"}{item["ads"]["900x300"]}'
-        }
+#     user = token_to_user(db)
+#     if not user:
+#         return jsonify({
+#             "status": 401,
+#             "error": "invalid token"
+#         })
 
-    categories = query({"type": "category"}, True, db)
-    categories = sorted(categories, key=lambda d: d['order'])
-    categories = [x["name"] for x in categories]
+#     item = query({"type": "item", "alias": alias}, db=db)
+#     if not item:
+#         return jsonify({
+#             "status": 401,
+#             "error": "invalid request"
+#         })
 
-    return jsonify({
-        "status": 200,
-        "item": item_schema(item, db),
-        "categories": categories,
-        "ads": ads
-    })
+#     ads = {}
+#     if "ads" in item and item["ads"] != {}:
+#         ads = {
+#             f'{request.host_url}/photos/{item["ads"]["300x300"]}',
+#             f'{request.host_url}/photos/{item["ads"]["300x600"]}',
+#             f'{request.host_url}/photos/{item["ads"]["600x300"]}',
+#             f'{request.host_url}/photos/{item["ads"]["900x300"]}'
+#         }
+
+#     categories = query({"type": "category"}, True, db)
+#     categories = sorted(categories, key=lambda d: d['order'])
+#     categories = [x["name"] for x in categories]
+
+#     return jsonify({
+#         "status": 200,
+#         "item": item_schema(item, db),
+#         "categories": categories,
+#         "ads": ads
+#     })
 
 
 @bp.get("/item_info/<alias>")
@@ -65,60 +73,46 @@ def item_info(alias):
             "status": 401,
             "error": "invalid request"
         })
-
-# ****************************************
-# ****************************************
-# ****************************************
-
-    # if item["status"] == "live":
+    # make sure item is live
 
     database(
         log_template(
-            "voucher",
             user["key"],
-            item["key"],
             "view_item",
-            200,
+            item["key"],
         ))
 
-# ****************************************
-# ****************************************
-# ****************************************
+    user_views = query({
+        "type": "log",
+        "user": user["key"],
+        "action": "view_item"
+    }, many=True, db=db)
 
-    logs = []
-    # logs = get_logs("user_key", user["key"], "action", "view_item", db)
-    _temp = []
-    _logs = []
-    for row in logs:
-        if row["entity_key"] not in _temp and row["entity_key"] != item["key"]:
-            _temp.append(row["entity_key"])
-            _logs.append(row)
-
-    logs = sorted(_logs, key=lambda d: d["date"], reverse=True)
+    user_views = sorted(user_views, key=lambda d: d["date"], reverse=True)
 
     recently = []
-    for row in logs:
-        _item = query({"type": "item", "key": row["entity_key"]}, db=db)
-        if _item and _item["status"] == "live":
+    picked = []
+    for row in user_views:
+        _item = query({"type": "item", "key": row["entity"]}, db=db)
+        if (
+            _item
+            and _item["key"] not in picked
+            and _item["key"] != item["key"]
+            and _item["status"] == "live"
+        ):
             recently.append(item_schema(_item, db))
+            picked.append(_item["key"])
 
-    recently = {
-        "name": "Recently Viewed",
-        "items": recently[:6]
-    }
-
-# ****************************************
-# ****************************************
-# ****************************************
-
-    #     "name": "Similar Items",
-    #     "name": "Customers who viewed this also viewed",
-    #     "name": "You may also like",
+        if len(recently) >= 6:
+            break
 
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
-        "group": [recently]
+        "recently_viewed": recently
+        # "Similar Items",
+        # "Customers who viewed this also viewed",
+        # "You may also like",
     })
 
 

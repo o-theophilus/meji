@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Form from './form.svelte';
+	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/comp/password_checker.svelte';
 	import Button from '$lib/comp/button.svelte';
 

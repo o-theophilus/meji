@@ -1,22 +1,22 @@
 @font-face {
 	font-family: "tisa";
-	src: url(/font/TisaSansPro-Light.woff2);
+	src: url(/font/TisaSansPro-Light.ttf);
 	font-weight: 300;
   }
 @font-face {
 	font-family: "tisa";
-	src: url(/font/TisaSansPro-Regular.woff2);
+	src: url(/font/TisaSansPro-Regular.ttf);
 	font-weight: 400;
   }
 
 @font-face {
 	font-family: "tisa";
-	src: url(/font/TisaSansPro-Bold.woff2);
+	src: url(/font/TisaSansPro-Bold.ttf);
 	font-weight: 500;
   }
 @font-face {
 	font-family: "tisa";
-	src: url(/font/TisaSansPro-Black.woff2);
+	src: url(/font/TisaSansPro-Black.ttf);
 	font-weight: 600;
   }
 

@@ -2,7 +2,7 @@
 	import { module, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from './form.svelte';
+	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/comp/button.svelte';
 
 	import Info from '$lib/module/info.svelte';

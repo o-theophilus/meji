@@ -2,7 +2,7 @@
 	import { module } from '$lib/store.js';
 	import { onMount } from 'svelte';
 
-	import Login from '$lib/module/login.svelte';
+	import Login from './login.svelte';
 	import Info from '$lib/module/info.svelte';
 
 	export let data;

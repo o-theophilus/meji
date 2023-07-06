@@ -3,11 +3,11 @@
 	import { user, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from './form.svelte';
+	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/comp/password_checker.svelte';
 	import Button from '$lib/comp/button.svelte';
 	import Login from './login.svelte';
-	import Info from './info.svelte';
+	import Info from '$lib/module/info.svelte';
 
 	import Email from './signup_email_template.svelte';
 	let email;

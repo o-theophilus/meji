@@ -3,9 +3,9 @@
 
 	import { module } from '$lib/store.js';
 
-	import Form from './form.svelte';
+	import Form from '$lib/module/form.svelte';
 	import Login from './login.svelte';
-	import Info from './info.svelte';
+	import Info from '$lib/module/info.svelte';
 	import Signup from './signup.svelte';
 	import MD from '$lib/comp/marked.svelte';
 	import Button from '$lib/comp/button.svelte';

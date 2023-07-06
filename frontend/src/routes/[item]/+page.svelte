@@ -15,8 +15,7 @@
 
 	export let data;
 	let { item } = data;
-	console.log(item);
-	let { group } = data;
+	let { recently_viewed } = data;
 
 	$: if ($_tick) {
 		item = $_tick;
@@ -45,21 +44,15 @@
 		</div>
 	</section>
 
-	{#if group.length > 0}
-		<section>
-			{#each group as x}
-				{#if x.items && x.items.length > 0}
-					<Card>
-						<Title title={x.name} />
-						<Body grid>
-							{#each x.items as item (item.key)}
-								<Item {item} />
-							{/each}
-						</Body>
-					</Card>
-				{/if}
-			{/each}
-		</section>
+	{#if recently_viewed && recently_viewed.length > 0}
+		<Card>
+			<Title title="Recently Viewed" />
+			<Body grid>
+				{#each recently_viewed as item (item.key)}
+					<Item {item} />
+				{/each}
+			</Body>
+		</Card>
 	{/if}
 </section>
 

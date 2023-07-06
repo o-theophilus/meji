@@ -2,8 +2,8 @@
 	import { page } from '$app/stores';
 	import { user, module } from '$lib/store.js';
 
-	import Login from '$lib/module/login.svelte';
-	import Signup from '$lib/module/signup.svelte';
+	import Login from './auth/login.svelte';
+	import Signup from './auth/signup.svelte';
 	import Button from '$lib/comp/button.svelte';
 </script>
 
