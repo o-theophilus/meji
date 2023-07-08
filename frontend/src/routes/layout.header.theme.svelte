@@ -17,7 +17,7 @@
 </script>
 
 {#if $user}
-	<section
+	<button
 		on:keydown
 		on:click={() => {
 			submit();
@@ -29,15 +29,17 @@
 				<div class="state">☾</div>
 			</div>
 		</div>
-	</section>
+	</button>
 {/if}
 
 <style>
-	section {
+	button {
+		border: none;
+		padding: var(--gap2);
+
+		background-color: transparent;
 		color: var(--font2);
 		cursor: pointer;
-
-		padding: var(--gap2);
 	}
 	.block {
 		--size: 20px;

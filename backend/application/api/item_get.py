@@ -24,14 +24,14 @@ def get_photo(key, thumbnail=False):
 #     user = token_to_user(db)
 #     if not user:
 #         return jsonify({
-#             "status": 401,
+#             "status": 400,
 #             "error": "invalid token"
 #         })
 
 #     item = query({"type": "item", "alias": alias}, db=db)
 #     if not item:
 #         return jsonify({
-#             "status": 401,
+#             "status": 400,
 #             "error": "invalid request"
 #         })
 
@@ -63,14 +63,14 @@ def item_info(alias):
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     item = query({"type": "item", "alias": alias}, db=db)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
     # make sure item is live
@@ -182,7 +182,7 @@ def home():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
@@ -239,7 +239,7 @@ def shop():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 

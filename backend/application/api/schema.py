@@ -248,3 +248,19 @@ def log_template(
         "status": status,
         "misc": misc
     }
+
+
+def otp_template(
+    user,
+    entity,
+    otp,
+):
+    return {
+        "key": uuid4().hex,
+        "date": now(),
+        "type": "otp",
+
+        "user": user,
+        "entity": entity,
+        "otp": otp,
+    }

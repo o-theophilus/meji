@@ -1,6 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import Template from '$lib/comp/email_template.svelte';
+	import Template from '$lib/email_template.svelte';
 </script>
 
 <Template>

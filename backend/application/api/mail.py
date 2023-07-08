@@ -6,15 +6,14 @@ mail = Mail()
 
 
 def send_mail(to, subject, body):
-    # if current_app.config["ENV"] == "development":
-    #     print(body)
-    # else:
-    msg = Message(
-        subject,
-        recipients=[to],
-        html=body
-    )
-    mail.send(msg)
+    if current_app.config["DEBUG"]:
+        print(body)
+    else:
+        mail.send(Message(
+            subject,
+            recipients=[to],
+            html=body
+        ))
 
 
 def notify(subject, mail_body, plain_body):

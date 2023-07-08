@@ -12,7 +12,7 @@ margin: auto;
 		"
 	>
 		<img
-			src="http://meji.ng/favicon.png"
+			src="/favicon.png"
 			alt="Meji Logo"
 			style="
 		width: 30px;

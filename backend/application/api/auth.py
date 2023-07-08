@@ -21,7 +21,7 @@ def init():
 
     if not user:
         temp = uuid4().hex
-        user = database(user_template(temp, temp, temp))
+        user = database(user_template("anon", temp, temp))
         token = token_tool().dumps(user["key"])
 
     return jsonify({
@@ -38,18 +38,18 @@ def signup():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if (
         user["login"]
         or user["status"] != "anon"
-        or "mail_content" not in request.json
-        or not request.json["mail_content"]
+        or "email_template" not in request.json
+        or not request.json["email_template"]
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -88,23 +88,23 @@ def signup():
 
     if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
             **error
         })
 
     user["name"] = request.json["name"]
     user["email"] = request.json["email"]
     user["password"] = generate_password_hash(
-        request.json["password"], method="sha256")  # scrypt
-    user["status"] = "not_confirm"
+        request.json["password"], method="scrypt")
     user["date_u"] = now(),
 
     user = database(user)
 
     send_mail(
         user["email"],
-        "Welcome!",
-        request.json['mail_content'].format(
+        "Welcome to Meji! Please Confirm Your Email to Get Started",
+        request.json['email_template'].format(
+            name=user["name"],
             token=token_tool().dumps(
                 user["key"]
             )
@@ -113,8 +113,43 @@ def signup():
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        # "user": user_schema(user, db)
     })
+
+
+@bp.get("/confirm/<token>")
+def confirm_email(token):
+    db = database()
+
+    print(token)
+    try:
+        token = token_tool().loads(
+            token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
+    except Exception:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    user = query({"type": "user", "key": token}, db=db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    output = {
+        "status": 200,
+        "user": user_schema(user, db)
+    }
+
+    if user["status"] == "confirm":
+        output['error'] = "email has already been confirmed"
+    else:
+        user["status"] = "confirm"
+        user = database(user)
+
+    return jsonify(output)
 
 
 @bp.post("/login")
@@ -124,17 +159,18 @@ def login():
     anon_user = token_to_user(db)
     if not anon_user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if (
-        anon_user["status"] != "anon"
-        or "mail_content" not in request.json
-        or not request.json["mail_content"]
+        anon_user["login"]
+        or "email_template" not in request.json
+        or not request.json["email_template"]
     ):
+        print(anon_user["status"])
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -146,26 +182,26 @@ def login():
 
     if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
             **error
         })
 
-    user = query("user", "email", request.json["email"], db)
+    user = query({'type': "user", "email": request.json["email"]}, db=db)
 
     if (
         not user
         or not check_password_hash(user["password"], request.json["password"])
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "your email or password is incorrect"
         })
 
     if user["status"] != "confirm":
         send_mail(
             user["email"],
-            "Welcome!",
-            request.json['mail_content'].format(
+            "Welcome to Meji! Please Confirm Your Email to Get Started",
+            request.json['email_template'].format(
                 name=user["name"],
                 token=token_tool().dumps(
                     user["key"]
@@ -173,25 +209,25 @@ def login():
             ))
 
         return jsonify({
-            "status": 401,
-            "user": user_schema(user, db)
+            "status": 400,
+            "error": "not confirmed"
         })
 
-    def copy(y):
-        keys = [x["key"] for x in user[y]]
-        for x in anon_user[y]:
-            if x["key"] not in keys:
-                user[y].append(x)
-    copy("cart")
-    copy("saves")
+    if anon_user['key'] != user['key']:
+        def copy(y):
+            keys = [x["key"] for x in user[y]]
+            for x in anon_user[y]:
+                if x["key"] not in keys:
+                    user[y].append(x)
+        copy("cart")
+        copy("saves")
+        database(anon_user, True)
 
     user["login"] = True
     user = database(user)
-    database(anon_user, True)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db),
         "token": token_tool().dumps(user["key"])
     })
 
@@ -201,17 +237,22 @@ def logout():
     db = database()
 
     user = token_to_user(db)
-    if user:
-        user["login"] = False
-        database(user)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
 
+    user["login"] = False
     temp = uuid4().hex
-    user = database(user_template(temp, temp, temp))
+    anon_user = user_template("anon", temp, temp)
+    anon_user["setting"]["theme"] = user["setting"]["theme"]
+    database([user, anon_user])
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db),
-        "token": token_tool().dumps(user["key"])
+        "user": user_schema(anon_user, db),
+        "token": token_tool().dumps(anon_user["key"])
     })
 
 
@@ -220,12 +261,12 @@ def forgot_password():
     db = database()
 
     if (
-       "mail_content" not in request.json
-        or not request.json["mail_content"]
+       "email_template" not in request.json
+        or not request.json["email_template"]
        ):
         return jsonify({
-            "status": 401,
-            "message": "invalid request"
+            "status": 400,
+            "error": "invalid request"
         })
 
     error = None
@@ -235,21 +276,21 @@ def forgot_password():
         error = "please enter a valid email"
     if error:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": error
         })
 
     user = query("user", "email", request.json["email"], db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "there is no user registered with this email"
         })
 
     send_mail(
         user["email"],
         "Welcome!",
-        request.json['mail_content'].format(
+        request.json['email_template'].format(
             token=token_tool().dumps(
                 user["key"]
             ),
@@ -270,14 +311,14 @@ def change_password(token):
             token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
     except Exception:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     user = query({"type": "user", "key": token}, db=db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
@@ -308,12 +349,12 @@ def change_password(token):
 
     if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
             **error
         })
 
     user["password"] = generate_password_hash(
-        request.json["password"], method="sha256")  # scrypt
+        request.json["password"], method="scrypt")
     database(user)
 
     return jsonify({
@@ -330,7 +371,7 @@ def omni():
     if not user:
         password = generate_password_hash(
             "1234",
-            method="sha256"
+            method="scrypt"
         )
         # user["roles"] = ["admin", "dashboard", "omni"]
         database(user_template(

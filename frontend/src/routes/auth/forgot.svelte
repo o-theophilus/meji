@@ -11,7 +11,7 @@
 	import Button from '$lib/comp/button.svelte';
 
 	import Email from './forgot_email_template.svelte';
-	let email;
+	let email_template;
 
 	let message = 'Please enter your email below to send a password reset link to your email.';
 
@@ -31,7 +31,7 @@
 	};
 
 	const submit = async () => {
-		form.mail_content = email.innerHTML;
+		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
 		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}password_forgot`, {
 			method: 'POST',
@@ -45,17 +45,15 @@
 			if (resp.status == 200) {
 				$module = {
 					module: Info,
-					data: {
-						status: 'good',
-						title: 'Password Recovery Email Sent',
-						message: `A password recovery message has been sent to your email`,
-						button: [
-							{
-								name: 'Ok',
-								icon: 'ok'
-							}
-						]
-					}
+					status: 200,
+					title: 'Password Recovery Email Sent',
+					message: `A password recovery message has been sent to your email`,
+					button: [
+						{
+							name: 'Ok',
+							icon: 'ok'
+						}
+					]
 				};
 			} else {
 				error = resp.message;
@@ -73,7 +71,7 @@
 		<MD md={message} />
 	</svelte:fragment>
 
-	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
+	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup">
 			<label for="email"> Email: </label>
 			<input type="email" bind:value={form.email} id="email" placeholder="Your email here" />
@@ -85,36 +83,42 @@
 		</div>
 
 		<div class="inputGroup horizontal">
-			<Button class="primary" name="Send" />
+			<Button
+				class="primary"
+				name="Send"
+				on:click={() => {
+					validate();
+				}}
+			/>
 		</div>
 
 		<div class="inputGroup">
 			<p>
-				Don't have an account? <span
+				Don't have an account?
+				<Button
 					class="link"
-					on:keypress
+					name="Signup"
 					on:click={() => {
 						$module = { module: Signup };
-					}}>Signup</span
-				>
+					}}
+				/>
 			</p>
 		</div>
 		<div class="inputGroup">
 			<p>
-				Remember your password? <span
+				Remember your password?
+				<Button
 					class="link"
-					on:keypress
+					name="Login"
 					on:click={() => {
-						$module = {
-							module: Login
-						};
-					}}>Login</span
-				>
+						$module = { module: Login };
+					}}
+				/>
 			</p>
 		</div>
 	</form>
 </Form>
 
-<div bind:this={email} style="display: none;">
+<div bind:this={email_template} style="display: none;">
 	<Email />
 </div>

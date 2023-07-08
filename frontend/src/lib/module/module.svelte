@@ -9,13 +9,7 @@
 {#if $module}
 	<section>
 		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
-			<div
-				class="close"
-				on:keypress
-				on:click={() => {
-					$module = '';
-				}}
-			>
+			<div class="pos">
 				<Button
 					icon="close"
 					icon_size="12"
@@ -52,7 +46,7 @@
 		position: relative;
 	}
 
-	.close {
+	.pos {
 		position: absolute;
 		top: -10px;
 		right: -10px;

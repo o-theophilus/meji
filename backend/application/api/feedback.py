@@ -20,7 +20,7 @@ def user_feedback_for_item(key):
     item = query("item", "alias", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -88,7 +88,7 @@ def post(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

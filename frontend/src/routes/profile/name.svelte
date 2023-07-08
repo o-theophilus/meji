@@ -1,5 +1,5 @@
 <script>
-	import { tick, module } from '$lib/store.js';
+	import { portal, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/comp/button.svelte';
@@ -7,22 +7,20 @@
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
 
-	export let data;
-	let error;
-
-	let name = data.user.name;
+	let error = {};
+	let name = $module.user.name;
 
 	const validate = async () => {
-		error = '';
+		error = {};
 		if (!name) {
-			error = 'This field is required';
+			error.name = 'This field is required';
 		}
 
-		!error && submit();
+		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}user_name/${data.user.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -30,30 +28,28 @@
 			},
 			body: JSON.stringify({ name })
 		});
+		resp = await resp.json();
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		if (resp.status == 200) {
+			$portal = resp.user;
 
-			if (resp.status == 200) {
-				tick(resp.data.user);
-
-				$module = {
-					module: Info,
-					data: {
-						status: 'good',
-						title: '# Details Changed',
-						message: `Your name has been changed successfully`,
-						button: [
-							{
-								name: 'Ok',
-								icon: 'ok'
-							}
-						]
+			$module = {
+				module: Info,
+				status: 200,
+				title: '# Details Changed',
+				message: `Your name has been changed successfully`,
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
 					}
-				};
-			} else {
-				error = resp.message;
-			}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 </script>
@@ -67,9 +63,9 @@
 		<div class="inputGroup">
 			<label for="name"> Fullname: </label>
 			<input type="text" bind:value={name} id="name" placeholder="Your fullname here" />
-			{#if error}
+			{#if error.name}
 				<p class="error">
-					{error}
+					{error.name}
 				</p>
 			{/if}
 		</div>

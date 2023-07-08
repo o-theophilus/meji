@@ -62,13 +62,13 @@ def submit_address(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -108,19 +108,19 @@ def submit_account(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if "value" not in request.json:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -167,23 +167,23 @@ def place_order(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if (
-        "mail_content" not in request.json
-        or not request.json["mail_content"]
+        "email_template" not in request.json
+        or not request.json["email_template"]
         or "reference" not in request.json
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -230,7 +230,7 @@ def place_order(key):
 
         ):
             return jsonify({
-                "status": 401,
+                "status": 400,
                 "message": "invalid transaction"
             })
 
@@ -239,7 +239,7 @@ def place_order(key):
 
     notify(
         "New Order",
-        request.json["mail_content"],
+        request.json["email_template"],
         f"""
         User: {user['email']},\n
         Order Key: {order['key']},\n
@@ -289,25 +289,25 @@ def status(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     _order_user = query("user", "key", order["user_key"], data)
     if not _order_user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if (
         "status" not in request.json
         or not request.json["status"]
-        or "mail_content" not in request.json
+        or "email_template" not in request.json
         or order["status"] == "pending"
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -317,7 +317,7 @@ def status(key):
 
     if i < 0 or i > len(status) - 1:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -346,7 +346,7 @@ def status(key):
             subject = "Thank you"
 
         send_mail(_order_user["email"], subject,
-                  request.json["mail_content"])
+                  request.json["email_template"])
 
     return jsonify({
         "status": 200,
@@ -377,7 +377,7 @@ def date(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

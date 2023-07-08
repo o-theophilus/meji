@@ -46,7 +46,7 @@
 		formData.append('file', image_file);
 		formData.append('type', $user.type);
 
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}photouser/${$user.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/photouser/${$user.key}`, {
 			method: 'POST',
 			headers: {
 				Authorization: $token

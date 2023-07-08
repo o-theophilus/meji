@@ -1,5 +1,5 @@
 <script>
-	import { user, module } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
@@ -8,24 +8,23 @@
 	import Info from '$lib/module/info.svelte';
 	import Button from '$lib/comp/button.svelte';
 
-	import Email from './login_email_template.svelte';
-	let email;
+	import Email from './confirm_email_template.svelte';
+	let email_template;
 
-	export let data;
 	let message = 'Get access to your Cart, Saved Items, Orders, Wishlist and Recommendations.';
 	let return_url = '/';
 
 	let form = {};
 	let error = {};
 
-	if (data?.message) {
-		message = data.message;
+	if ($module?.message) {
+		message = $module.message;
 	}
-	if (data?.return_url) {
-		return_url = data.return_url;
+	if ($module?.return_url) {
+		return_url = $module.return_url;
 	}
-	if (data?.email) {
-		form.email = data.email;
+	if ($module?.email) {
+		form.email = $module.email;
 	}
 
 	const validate = async () => {
@@ -41,8 +40,9 @@
 	};
 
 	const submit = async () => {
-		form.mail_content = email.innerHTML;
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}login`, {
+		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/login`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -51,30 +51,29 @@
 			body: JSON.stringify(form)
 		});
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		resp = await resp.json();
 
-			if (resp.status == 200) {
-				$token = resp.data.token;
-				document.location = return_url;
-			} else if (resp.status == 201 && resp.message == 'not confirmed') {
-				$module = {
-					module: Info,
-					data: {
-						status: 'good',
-						title: 'Confirmation Email Sent',
-						message: `Your email has not been confirmed. A confirmation message has been sent to your email: ${resp.data.user.email}.`,
-						button: [
-							{
-								name: 'Ok',
-								icon: 'ok'
-							}
-						]
+		if (resp.status == 200) {
+			$token = resp.token;
+			document.location = return_url;
+		} else if (resp.status == 401 && resp.error == 'not confirmed') {
+			$module = {
+				module: Info,
+				status: 200,
+				title: 'Confirmation Email Sent',
+				message: `Your email has not been confirmed. A confirmation message has been sent to your email: ${resp.user.email}.`,
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
 					}
-				};
-			} else {
-				error.form = resp.message;
-			}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 </script>
@@ -88,10 +87,10 @@
 		{@html message}
 	</svelte:fragment>
 
-	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		{#if error.form}
+	<form on:submit|preventDefault novalidate autocomplete="off">
+		{#if error.error}
 			<p class="error error--cap">
-				{error.form}
+				{error.error}
 			</p>
 		{/if}
 		<div class="inputGroup">
@@ -123,33 +122,41 @@
 		</div> -->
 
 		<div class="inputGroup horizontal">
-			<Button class="primary" name="Login" />
+			<Button
+				class="primary"
+				name="Login"
+				on:click={() => {
+					validate();
+				}}
+			/>
 		</div>
 		<div class="inputGroup">
 			<p>
-				Don't have an account? <span
+				Don't have an account?
+				<Button
 					class="link"
-					on:keypress
+					name="Signup"
 					on:click={() => {
 						$module = { module: Signup };
-					}}>Signup</span
-				>
+					}}
+				/>
 			</p>
 		</div>
 		<div class="inputGroup">
 			<p>
-				Forgot password? <span
+				Forgot password?
+				<Button
 					class="link"
-					on:keypress
+					name="Recover"
 					on:click={() => {
 						$module = { module: Forgot };
-					}}>Recover</span
-				>
+					}}
+				/>
 			</p>
 		</div>
 	</form>
 </Form>
 
-<div bind:this={email} style="display: none;">
-	<!-- <Email /> -->
+<div bind:this={email_template} style="display: none;">
+	<Email />
 </div>

@@ -1,6 +1,4 @@
-<script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
-
+<!-- <script context="module">
 	export async function load({ fetch, session, url }) {
 		if (session.user.login) {
 			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/activity`, {
@@ -33,7 +31,7 @@
 			redirect: `/?module=login&return_url=${url.pathname}`
 		};
 	}
-</script>
+</script> -->
 
 <script>
 	import { user } from '$lib/store.js';

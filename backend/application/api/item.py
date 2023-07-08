@@ -103,7 +103,7 @@ def put(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -184,7 +184,7 @@ def variation(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -234,14 +234,14 @@ def change_status(key):
 
     if "status" not in request.json or not request.json["status"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -285,7 +285,7 @@ def delete(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -306,13 +306,13 @@ def post_item(key):
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if 'file' not in request.files or 'id' not in request.form:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -321,14 +321,14 @@ def post_item(key):
     ext = file.filename.split(".")[-1]
     if ext.lower() not in ['jpg', 'png', 'gif']:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid file type"
         })
 
     item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -339,7 +339,7 @@ def post_item(key):
 
     if len(item["photos"]) == 10:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "max image reached"
         })
     item["photos"].append(photo)
@@ -359,20 +359,20 @@ def rearrange(key):
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if "photos" not in request.json or not request.json["photos"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
     item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -399,14 +399,14 @@ def delete_(key):
         or not request.json["active_photo"]
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
     item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 

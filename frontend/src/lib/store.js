@@ -16,6 +16,7 @@ export const _tick = writable("");
 export const tick = (data)=> {
 	_tick.set(data);
 }
+export const portal = writable();
 
 export const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export const months = [

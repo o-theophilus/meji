@@ -99,14 +99,14 @@ def placement(key):
 
     if "placement" not in request.json or not request.json["placement"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -176,7 +176,7 @@ def photo_ads(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -220,7 +220,7 @@ def photo_remove_ads(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

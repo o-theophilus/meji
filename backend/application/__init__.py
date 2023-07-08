@@ -8,7 +8,6 @@ from .api import user
 from .api import user_get
 from .api import user_save
 from .api import user_cart
-from .api import confirm
 from .api import order
 from .api import order_get
 from .api import voucher
@@ -41,7 +40,6 @@ def create_app(config_file="config.py"):
     app.register_blueprint(user_get.bp)
     app.register_blueprint(user_save.bp)
     app.register_blueprint(user_cart.bp)
-    app.register_blueprint(confirm.bp)
     app.register_blueprint(order.bp)
     app.register_blueprint(order_get.bp)
     app.register_blueprint(voucher.bp)

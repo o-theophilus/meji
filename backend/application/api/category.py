@@ -57,7 +57,7 @@ def get(name):
     category = query("category", "name", name, data)
     if not category:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -147,7 +147,7 @@ def item_edit_cate(key):
     item = query("item", "key", key, data)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -214,7 +214,7 @@ def edit(key):
     category = query("category", "key", key, data)
     if not category:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -268,13 +268,13 @@ def rearrange(key):
     category = query("category", "key", key, data)
     if not category:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     if "dir" not in request.json or not request.json["dir"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -330,7 +330,7 @@ def delete(key):
     category = query("category", "key",  key, data)
     if not category:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

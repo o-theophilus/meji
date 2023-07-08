@@ -62,13 +62,13 @@ def get():
     user = token_to_user(data)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "unauthorised access"
         })
 
@@ -100,20 +100,20 @@ def get_one(key):
     me = token_to_user(db)
     if not me:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if "admin" not in me["roles"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "unauthorised access"
         })
 
     user = query({"type": "user", "key": key}, db=db)
     if not user or me["key"] == user["key"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 

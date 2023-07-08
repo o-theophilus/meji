@@ -1,5 +1,5 @@
 <script>
-	import { user, module } from '$lib/store.js';
+	import { portal, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/comp/button.svelte';
@@ -7,20 +7,20 @@
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
 
-	let error;
-	let phone = $user.phone;
+	let error = {};
+	let phone = $module.user.phone;
 
 	const validate = async () => {
-		error = '';
+		error = {};
 		if (!phone) {
-			error = 'This field is required';
+			error.phone = 'This field is required';
 		}
 
-		!error && submit();
+		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}user_phone`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -28,30 +28,28 @@
 			},
 			body: JSON.stringify({ phone })
 		});
+		resp = await resp.json();
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		if (resp.status == 200) {
+			$portal = resp.user;
 
-			if (resp.status == 200) {
-				$user = resp.data.user;
-
-				$module = {
-					module: Info,
-					data: {
-						status: 'good',
-						title: '# Details Changed',
-						message: `Your phone number has been changed successfully`,
-						button: [
-							{
-								name: 'Ok',
-								icon: 'ok'
-							}
-						]
+			$module = {
+				module: Info,
+				status: 200,
+				title: '# Details Changed',
+				message: `Your phone number has been changed successfully`,
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
 					}
-				};
-			} else {
-				error = resp.message;
-			}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 </script>
@@ -65,9 +63,9 @@
 		<div class="inputGroup">
 			<label for="phone"> Phone: </label>
 			<input type="tel" bind:value={phone} id="phone" placeholder="Your phone here" />
-			{#if error}
+			{#if error.phone}
 				<p class="error">
-					{error}
+					{error.phone}
 				</p>
 			{/if}
 		</div>

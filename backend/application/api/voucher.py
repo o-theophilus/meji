@@ -34,7 +34,7 @@ def get(key):
     voucher = query("voucher", "key", key, data)
     if not voucher:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -236,14 +236,14 @@ def put(key):
 
     if "status" not in request.json or not request.json["status"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
     voucher = query("voucher", "key", key, data)
     if not voucher:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

@@ -20,8 +20,8 @@
 	import Top from './page.to_top.svelte';
 
 	import Login from './auth/login.svelte';
-	import Password from './auth/change_password.svelte';
-	import Email from './auth/change_email.svelte';
+	import Password from './profile/setting/password.svelte';
+	import Email from './profile/email.svelte';
 	import Confirm from './auth/confirm.svelte';
 
 	export let data;
@@ -30,37 +30,38 @@
 	let { ads } = data;
 
 	onMount(() => {
-		if ($page.url.searchParams.get('module') == 'login') {
-			let return_url = `/${$page.url.searchParams.get('return_url')}`;
-			window.history.replaceState('', '', '/');
-			$module = {
-				module: Login,
-				data: {
-					message: 'Please login to access your profile',
-					return_url
-				}
-			};
-		}
-
-		let _module = $page.url.searchParams.get('module');
-		if (_module && ['password', 'email', 'confirm'].includes(_module)) {
-			let token = $page.url.searchParams.get('token');
-			window.history.replaceState('', '', '/');
-
-			let mod;
-			if (_module == 'password') {
-				mod = Password;
-			} else if (_module == 'email') {
-				mod = Email;
-			} else if (_module == 'confirm') {
-				mod = Confirm;
+		if ($page.url.searchParams.has('module')) {
+			let _module = {};
+			switch ($page.url.searchParams.get('module')) {
+				case 'password':
+					_module.module = Password;
+					break;
+				case 'email':
+					_module.module = Email;
+					break;
+				case 'confirm':
+					_module.module = Confirm;
+					break;
+				case 'login':
+					_module.module = Login;
+					break;
 			}
-			$module = {
-				module: mod,
-				data: {
-					token
-				}
-			};
+
+			if ($page.url.searchParams.has('return_url')) {
+				_module.return_url = `/${$page.url.searchParams.get('return_url')}`;
+			}
+			if ($page.url.searchParams.has('token')) {
+				_module.token = $page.url.searchParams.get('token');
+			}
+			if ($page.url.searchParams.has('message')) {
+				_module.message = $page.url.searchParams.get('message');
+			}
+			if ($page.url.searchParams.has('email')) {
+				_module.email = $page.url.searchParams.get('email');
+			}
+
+			$module = _module;
+			window.history.replaceState(history.state, '', '/');
 		}
 	});
 </script>
@@ -72,28 +73,30 @@
 	<Ads {ads} />
 	<Category {categories} />
 
-	{#each group as x}
-		{#if x.items.length > 0}
-			<div id={x.name.toLowerCase().replace(' ', '_')} />
-			<Card>
-				<Title title={x.name}>
-					<Button
-						class="tiny link"
-						name="view all >"
-						on:click={() => {
-							$state['shop'].order = x.query.order;
-							goto(`/shop`);
-						}}
-					/>
-				</Title>
-				<Body grid>
-					{#each x.items as item (item.key)}
-						<Item {item} />
-					{/each}
-				</Body>
-			</Card>
-		{/if}
-	{/each}
+	{#if group}
+		{#each group as x}
+			{#if x.items.length > 0}
+				<div id={x.name.toLowerCase().replace(' ', '_')} />
+				<Card>
+					<Title title={x.name}>
+						<Button
+							class="tiny link"
+							name="view all >"
+							on:click={() => {
+								$state['shop'].order = x.query.order;
+								goto(`/shop`);
+							}}
+						/>
+					</Title>
+					<Body grid>
+						{#each x.items as item (item.key)}
+							<Item {item} />
+						{/each}
+					</Body>
+				</Card>
+			{/if}
+		{/each}
+	{/if}
 
 	<div id="about" />
 	<About />

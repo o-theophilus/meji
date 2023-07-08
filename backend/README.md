@@ -6,6 +6,7 @@ rename item alias to slug
 create default super user
 rename db from meji to live
 rename db from dev to test
+address api: https://www.geoapify.com/tutorials
 
 
 http://localhost:3000/order/resp/

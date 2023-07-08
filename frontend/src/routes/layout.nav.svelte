@@ -62,14 +62,14 @@
 	</a>
 
 	{#if $user && $user.login}
-		<a href="/account" class:active={segment == '/account'}>
-			{#if segment == '/account'}
+		<a href="/profile" class:active={segment == '/profile'}>
+			{#if segment == '/profile'}
 				<SVG type="user_active" size="15" />
 			{:else}
 				<SVG type="user" size="15" />
 			{/if}
 			User
-			<div class="circle account">✓</div>
+			<div class="circle profile">✓</div>
 		</a>
 	{:else}
 		<button
@@ -159,9 +159,6 @@
 		border-radius: 50%;
 		background-color: var(--color1);
 	}
-	/* .account {
-		background-color: var(--color1);
-	} */
 
 	@media screen and (min-width: 800px) {
 		.circle {

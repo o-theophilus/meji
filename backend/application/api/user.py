@@ -1,12 +1,14 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now, token_tool
 from werkzeug.security import check_password_hash
-from .schema import user_schema
+from .schema import user_schema, otp_template, user_template
 from .database import database, query
 from .mail import send_mail
 import re
 from werkzeug.security import generate_password_hash
 from .storage import storage
+import random
+from uuid import uuid4
 
 
 bp = Blueprint("user", __name__)
@@ -19,217 +21,13 @@ def get(key):
     user = query({"type": "user", "key": key}, db=db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
     return jsonify({
         "status": 200,
         "user": user_schema(user, db)
-    })
-
-
-@ bp.put("/user_name/<key>")
-def edit_name(key):
-    db = database()
-
-    me = token_to_user(db)
-    if not me:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
-
-    user = None
-    if me["key"] == key:
-        user = me
-    elif "admin" in me["roles"]:
-        user = query({"type": "user", "key": key}, db=db)
-        if not user:
-            return jsonify({
-                "status": 401,
-                "error": "invalid request"
-            })
-    else:
-        return jsonify({
-            "status": 401,
-            "error": "invalid request"
-        })
-
-    if "name" not in request.json or not request.json["name"]:
-        return jsonify({
-            "status": 401,
-            "error": "this field is required"
-        })
-
-    user["name"] = request.json["name"]
-    user["date_u"] = now(),
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, db)
-    })
-
-
-@ bp.put("/user_phone")
-def edit_phone():
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
-
-    if "phone" not in request.json or not request.json["phone"]:
-        return jsonify({
-            "status": 401,
-            "error": "this field is required"
-        })
-
-    user["phone"] = request.json["phone"]
-    user["date_u"] = now(),
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, db)
-    })
-
-
-@ bp.put("/user_address")
-def edit_address():
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
-
-    error = {}
-    if "address" not in request.json or not request.json["address"]:
-        error["address"] = "this field is required"
-    if "state" not in request.json or not request.json["state"]:
-        error["state"] = "this field is required"
-    if "country" not in request.json or not request.json["country"]:
-        error["country"] = "this field is required"
-    if "local_area" not in request.json or not request.json["local_area"]:
-        error["local_area"] = "this field is required"
-    if "postal_code" not in request.json or not request.json["postal_code"]:
-        error["postal_code"] = "this field is required"
-
-    if error != {}:
-        return jsonify({
-            "status": 401,
-            **error
-        })
-
-    user["address"] = {
-        "address": request.json["address"],
-        "state": request.json["state"],
-        "country": request.json["country"],
-        "local_area": request.json["local_area"],
-        "postal_code": request.json["postal_code"],
-    }
-    user["date_u"] = now(),
-
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, db)
-    })
-
-
-@bp.post("/photo_user/<key>")
-def post_user(key):
-    data = database
-
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
-
-    if user["key"] != key:
-        return jsonify({
-            "status": 401,
-            "message": "invalid request"
-        })
-
-    if 'file' not in request.files:
-        return jsonify({
-            "status": 401,
-            "message": "invalid request"
-        })
-
-    file = request.files["file"]
-
-    ext = file.filename.split(".")[-1]
-    if ext.lower() not in ['jpg', 'png', 'gif']:
-        return jsonify({
-            "status": 201,
-            "message": "invalid file type"
-        })
-
-    storage(user['photo'], delete=True)
-    user["photo"] = storage(file)
-
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
-    })
-
-
-@bp.delete("/photo_user/<key>")
-def delete_user(key):
-    data = database
-
-    me = token_to_user(data)
-    if not me:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
-
-    user = None
-    if me["key"] == key:
-        user = me
-    elif "admin" in me["roles"]:
-        user = query("user", "key", key, data)
-        if not user:
-            return jsonify({
-                "status": 401,
-                "message": "invalid request"
-            })
-    else:
-        return jsonify({
-            "status": 401,
-            "message": "invalid request"
-        })
-
-    if user["photo"]:
-
-        storage(user["photo"], delete=True)
-        user['photo'] = None
-        user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
     })
 
 
@@ -240,7 +38,7 @@ def post():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
@@ -257,73 +55,80 @@ def post():
     })
 
 
-@bp.post("/email")
-def email():
+@ bp.put("/user/<key>")
+def edit_user(key):
     db = database()
 
     user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
-
     if (
-        "mail_content" not in request.json
-        or not request.json["mail_content"]
+        not user
+        or (
+            user["key"] != key
+            and "admin" not in user["roles"]
+        )
     ):
         return jsonify({
-            "status": 401,
-            "error": "invalid request"
-        })
-
-    token = token_tool().dumps(user["key"])
-    mail = request.json['mail_content'].format(token=token)
-    send_mail(user["email"], "Welcome!", mail)
-
-    return jsonify({
-        "status": 200,
-        "error": "email change email sent",
-    })
-
-
-@bp.post("/email/<token>")
-def email_(token):
-    db = database()
-
-    try:
-        token = token_tool().loads(
-            token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
-    except Exception:
-        return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
-    user = token_to_user(db)
-    token_user = query({"type": "user", "key": token}, db=db)
-    if not token_user or not user or token_user["key"] != user["key"]:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
+    if user["key"] != key:
+        user = query({"type": "user", "key": key}, db=db)
+        if not user:
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
 
-    error = None
-    if "email" not in request.json or not request.json["email"]:
-        error = "This field is required"
-    elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
-        error = "Please enter a valid email"
-    elif user["email"] == request.json["email"]:
-        error = "please use a different email form your current email"
-    elif query({"type": "user", "email": request.json["email"]}, db=db):
-        error = "email is already in use"
-    if error:
+    error = {}
+
+    if "name" in request.json:
+        if request.json["name"]:
+            user["name"] = request.json["name"]
+        else:
+            error['name'] = "this field is required"
+
+    if "phone" in request.json:
+        if request.json["phone"]:
+            user["phone"] = request.json["phone"]
+        else:
+            error['phone'] = "this field is required"
+
+    if (
+        "line" in request.json
+        or "state" in request.json
+        or "country" in request.json
+        or "local_area" in request.json
+        or "postal_code" in request.json
+    ):
+        if request.json["line"]:
+            user["address"]["line"] = request.json["line"]
+        else:
+            error["line"] = "this field is required"
+        if request.json["state"]:
+            user["address"]["state"] = request.json["state"]
+        else:
+            error["state"] = "this field is required"
+        if request.json["country"]:
+            user["address"]["country"] = request.json["country"]
+        else:
+            error["country"] = "this field is required"
+        if request.json["local_area"]:
+            user["address"]["local_area"] = request.json["local_area"]
+        else:
+            error["local_area"] = "this field is required"
+        if request.json["postal_code"]:
+            user["address"]["postal_code"] = request.json["postal_code"]
+        else:
+            error["postal_code"] = "this field is required"
+
+    if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
             **error
         })
 
-    user["email"] = request.json["email"]
+    user["date_u"] = now(),
     user = database(user)
 
     return jsonify({
@@ -332,55 +137,183 @@ def email_(token):
     })
 
 
-@bp.post("/password")
-def password():
-    db = database
+@bp.post("/email_otp")
+def send_email_otp():
+    db = database()
 
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if (
-       "mail_content" not in request.json
-        or not request.json["mail_content"]
-       ):
+        "email" not in request.json
+        or not request.json["email"]
+        or "email_template" not in request.json
+        or not request.json["email_template"]
+    ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
-    token = token_tool().dumps(user["key"])
-    mail = request.json['mail_content'].format(token=token)
-    send_mail(user["email"], "Welcome!", mail)
+    if user["email"] == request.json["email"]:
+        return jsonify({
+            "status": 400,
+            "email": "please use a different email form your current email"
+        })
+
+    exist = query({"type": "user", "email": request.json["email"]}, db=db)
+    if exist:
+        return jsonify({
+            "status": 400,
+            "email": "email is already in use"
+        })
+
+    otps = query({"type": "otp", "user": user['key']}, many=True, db=db)
+    database(otps, delete=True)
+
+    otp_1 = str(random.randint(1000, 9999))
+    otp_2 = str(random.randint(1000, 9999))
+
+    database([
+        otp_template(
+            user['key'],
+            user['email'],
+            otp_1
+        ),
+        otp_template(
+            user['key'],
+            request.json["email"],
+            otp_2
+        )
+    ])
+
+    send_mail(
+        user["email"],
+        "Email Change Confirmation - One-Time Password (OTP)",
+        request.json['email_template'].format(
+            otp=otp_1
+        )
+    )
+    send_mail(
+        request.json["email"],
+        "Email Change Confirmation - One-Time Password (OTP)",
+        request.json['email_template'].format(
+            otp=otp_2
+        )
+    )
 
     return jsonify({
-        "status": 200,
+        "status": 200
     })
 
 
-@bp.post("/password/<token>")
-def password_(token):
-    db = database
-
-    try:
-        token = token_tool().loads(
-            token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
-    except Exception:
-        return jsonify({
-            "status": 401,
-            "error": "invalid token"
-        })
+@bp.post("/email")
+def email():
+    db = database()
 
     user = token_to_user(db)
-    token_user = query({"type": "user", "key": token}, db=db)
-    if not token_user or not user or token_user["key"] != user["key"]:
+
+    error = {}
+    if "email" not in request.json or not request.json["email"]:
+        error["email"] = "This field is required"
+    elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
+        error["email"] = "Please enter a valid email"
+    elif user["email"] == request.json["email"]:
+        error["email"] = "please use a different email form your current email"
+    elif query({"type": "user", "email": request.json["email"]}, db=db):
+        error["email"] = "email is already in use"
+
+    if "otp_1" not in request.json or not request.json["otp_1"]:
+        error["otp_1"] = "This field is required"
+    else:
+        otp_1 = query(
+            {"type": "otp", "user": user['key'],
+                "entity": user['email'], "otp": request.json["otp_1"]},
+            db=db)
+
+        if not otp_1:
+            error["otp_1"] = "invalid OTP"
+
+    if "otp_2" not in request.json or not request.json["otp_2"]:
+        error["otp_2"] = "This field is required"
+    else:
+        otp_2 = query(
+            {"type": "otp", "user": user['key'],
+                "entity": request.json["email"], "otp": request.json["otp_2"]},
+            db=db)
+        if not otp_2:
+            error["otp_2"] = "invalid OTP"
+
+    if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
+            **error
+        })
+
+    user["email"] = request.json["email"]
+    user = database(user)
+    database(otp_1, delete=True)
+    database(otp_2, delete=True)
+
+    return jsonify({
+        "status": 200,
+        "user": user_schema(user, db)
+    })
+
+
+@bp.post("/password_otp")
+def send_password_otp():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
             "error": "invalid token"
         })
+
+    if (
+        "email_template" not in request.json
+        or not request.json["email_template"]
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    otps = query({"type": "otp", "user": user['key']}, many=True, db=db)
+    database(otps, delete=True)
+
+    otp = str(random.randint(1000, 9999))
+
+    database(otp_template(
+        user['key'],
+        user['email'],
+        otp
+    ))
+
+    send_mail(
+        user["email"],
+        "Password Change Confirmation - One-Time Password (OTP)",
+        request.json['email_template'].format(
+            otp=otp
+        )
+    )
+
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.post("/password")
+def password():
+    db = database()
+
+    user = token_to_user(db)
 
     error = {}
     if "password" not in request.json or not request.json["password"]:
@@ -398,27 +331,128 @@ def password_(token):
         error["password"
               ] = "New password should be different from old password"
 
-    if "confirm" not in request.json or not request.json["confirm"]:
-        error["confirm"] = "This field is required"
+    if (
+        "confirm_password" not in request.json
+        or not request.json["confirm_password"]
+    ):
+        error["confirm_password"] = "This field is required"
     elif (
             request.json["password"]
             and "password" not in error
-            and request.json["confirm"] != request.json["password"]
+            and request.json["confirm_password"] != request.json["password"]
     ):
-        error["confirm"] = 'Password and confirm password does not match'
+        error["confirm_password"] = """Password and confirm_password password
+         does not match"""
+
+    if "otp" not in request.json or not request.json["otp"]:
+        error["otp"] = "This field is required"
+    else:
+        otp = query(
+            {"type": "otp", "user": user['key'],
+                "entity": user['email'], "otp": request.json["otp"]},
+            db=db)
+
+        if not otp:
+            error["otp"] = "invalid OTP"
 
     if error != {}:
         return jsonify({
-            "status": 401,
+            "status": 400,
             **error
         })
 
     user["password"] = generate_password_hash(
-        request.json["password"], method="sha256")  # scrypt
-    database(user)
+        request.json["password"], method="scrypt")
+    user = database(user)
+    database(otp, delete=True)
+
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.post("/user_photo/<key>")
+def change_photo(key):
+    data = database
+
+    user = token_to_user(data)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if user["key"] != key:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if 'file' not in request.files:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    file = request.files["file"]
+
+    ext = file.filename.split(".")[-1]
+    if ext.lower() not in ['jpg', 'png', 'gif']:
+        return jsonify({
+            "status": 400,
+            "error": "invalid file type"
+        })
+
+    storage(user['photo'], delete=True)
+    user["photo"] = storage(file)
+
+    user = database(user)
 
     return jsonify({
         "status": 200,
+        "user": user_schema(user, data)
+    })
+
+
+@bp.delete("/user_photo/<key>")
+def delete_photo(key):
+    data = database
+
+    me = token_to_user(data)
+    if not me:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    user = None
+    if me["key"] == key:
+        user = me
+    elif "admin" in me["roles"]:
+        user = query("user", "key", key, data)
+        if not user:
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
+    else:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if user["photo"]:
+
+        storage(user["photo"], delete=True)
+        user['photo'] = None
+        user = database(user)
+
+    return jsonify({
+        "status": 200,
+        "error": "successful",
+        "data": {
+            "user": user_schema(user, data)
+        }
     })
 
 
@@ -429,26 +463,31 @@ def delete():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
     if not request.json["password"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "this field is required"
         })
 
     if not check_password_hash(user["password"], request.json["password"]):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "incorrect password"
         })
 
-    user["key"] = "deleted"
-    user = database(user)
+    user["status"] = "deleted"
+    user["login"] = False
+    temp = uuid4().hex
+    anon_user = user_template("anon", temp, temp)
+    anon_user["setting"]["theme"] = user["setting"]["theme"]
+    database([user, anon_user])
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(anon_user, db),
+        "token": token_tool().dumps(anon_user["key"])
     })

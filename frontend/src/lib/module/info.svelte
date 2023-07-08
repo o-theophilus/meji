@@ -1,5 +1,4 @@
 <script>
-	import { goto } from '$app/navigation';
 	import { module } from '$lib/store.js';
 
 	import Card from '$lib/comp/card.svelte';
@@ -7,45 +6,32 @@
 	import Body from '$lib/comp/card_body.svelte';
 	import Marked from '$lib/comp/marked.svelte';
 	import Button from '$lib/comp/button.svelte';
-
-	export let data;
-	let title = data?.title ? data.title : 'no title';
-	let message = data?.message ? data.message : 'no message';
-	let status = data?.status;
 </script>
 
 <Card>
 	<div
 		class="title"
-		class:good={status == 'good'}
-		class:bad={status == 'bad'}
-		class:caution={status == 'warning'}
+		class:good={$module.status == 200}
+		class:bad={$module.status == 401}
+		class:caution={$module.status == 201}
 	>
-		{#if status == 'good'}
+		{#if $module.status == 200}
 			<SVG type="check" size="20" />
-		{:else if status == 'bad'}
+		{:else if $module.status == 401}
 			<SVG type="close" />
-		{:else if status == 'warning'}
+		{:else if $module.status == 201}
 			<SVG type="info" size="20" />
 		{/if}
-		{title}
+		{$module?.title || 'no title'}
 	</div>
 	<div class="body">
 		<Body>
-			<Marked md={message} />
-			{#each data?.button as button}
-				<Button
-					name={button.name}
-					icon={button.icon}
-					on:click={() => {
-						if (button.href) {
-							goto(button.href);
-						} else {
-							$module = '';
-						}
-					}}
-				/>
-			{/each}
+			<Marked md={$module?.message || 'no message'} />
+			{#if $module.button}
+				{#each $module.button as b}
+					<Button name={b.name} icon={b.icon} on:click={b.fn} />
+				{/each}
+			{/if}
 		</Body>
 	</div>
 </Card>

@@ -32,17 +32,15 @@
 		onCancel: () => {
 			$module = {
 				module: Info,
-				data: {
-					status: 'bad',
-					title: 'Payment Canceled',
-					message: `The payment process was canceled`,
-					button: [
-						{
-							name: 'Ok',
-							icon: 'ok'
-						}
-					]
-				}
+				status: 401,
+				title: 'Payment Canceled',
+				message: `The payment process was canceled`,
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok'
+					}
+				]
 			};
 		}
 	};
@@ -98,17 +96,15 @@
 
 				$module = {
 					module: Info,
-					data: {
-						status: 'good',
-						title: 'Successful',
-						message: `Your order was placed succcessfully`,
-						button: [
-							{
-								name: 'Ok',
-								icon: 'ok'
-							}
-						]
-					}
+					status: 200,
+					title: 'Successful',
+					message: `Your order was placed succcessfully`,
+					button: [
+						{
+							name: 'Ok',
+							icon: 'ok'
+						}
+					]
 				};
 			} else {
 				error = resp.message;

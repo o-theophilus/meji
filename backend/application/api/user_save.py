@@ -23,7 +23,7 @@ def get_saved_items():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
@@ -40,7 +40,7 @@ def save_item():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 

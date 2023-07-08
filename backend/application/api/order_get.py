@@ -107,7 +107,7 @@ def get_one(key):
     order = query("order", "key", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 
@@ -157,7 +157,7 @@ def get_ref(key):
     order = query("order", "pay_reference", key, data)
     if not order:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "message": "invalid request"
         })
 

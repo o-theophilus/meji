@@ -92,6 +92,7 @@
 		border-bottom: 2px solid var(--background);
 	}
 	.link {
+		display: inline;
 		padding: 0;
 		color: var(--color1);
 		background-color: transparent;

@@ -8,7 +8,7 @@
 	import Body from '$lib/comp/card_body_item.svelte';
 	import Button from '$lib/comp/button.svelte';
 
-	import Login from '$lib/module/login.svelte';
+	import Login from '../auth/login.svelte';
 
 	export let total = 0;
 	let error;

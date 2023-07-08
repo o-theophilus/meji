@@ -14,7 +14,7 @@ def add_to_cart():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
 
@@ -25,14 +25,14 @@ def add_to_cart():
         or "quantity" not in request.json
     ):
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
     item = query({"type": "item", "key": request.json["key"]}, db=db)
     if not item:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -75,18 +75,18 @@ def cart_to_order():
     user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid token"
         })
     if not user["login"]:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "please login"
         })
 
     if user["cart"] == []:
         return jsonify({
-            "status": 401,
+            "status": 400,
             "error": "invalid request"
         })
 
@@ -96,7 +96,7 @@ def cart_to_order():
         item = query("item", "key", cart["key"], db)
         if not item:
             return jsonify({
-                "status": 401,
+                "status": 400,
                 "error": "item not found"
             })
         total_items += item["price"] * cart["quantity"]

@@ -1,31 +1,42 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { user, module } from '$lib/store.js';
+	import { module, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/comp/password_checker.svelte';
 	import Button from '$lib/comp/button.svelte';
-	import Login from './login.svelte';
-	import Info from '$lib/module/info.svelte';
 
-	import Email from './confirm_email_template.svelte';
-	let email_template;
+	import Email from './password_email_template.svelte';
+	import Info from '$lib/module/info.svelte';
 
 	let form = {};
 	let error = {};
+	let email_template;
+	let message;
+
+	const request_otp = async () => {
+		error = {};
+		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/password_otp`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify(form)
+		});
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			message = 'emails containing the OTP has been sent to your email';
+		} else {
+			error = resp;
+		}
+	};
 
 	const validate = async () => {
 		error = {};
-		if (!form.name) {
-			error.name = 'This field is required';
-		}
-
-		if (!form.email) {
-			error.email = 'This field is required';
-		} else if (!/\S+@\S+\.\S+/.test(form.email)) {
-			error.email = 'Please enter a valid email';
-		}
 
 		if (!form.password) {
 			error.password = 'This field is required';
@@ -40,19 +51,21 @@
 				'Password must include at least 1 lowercase letter, 1 uppercase letter, 1 number and must contain 8 - 18 characters';
 		}
 
-		if (!form.confirm) {
-			error.confirm = 'This field is required';
-		} else if (form.password && form.password !== form.confirm && !error.password) {
-			error.confirm = 'Password and confirm password does not match';
+		if (!form.confirm_password) {
+			error.confirm_password = 'This field is required';
+		} else if (form.password && !error.password && form.password !== form.confirm_password) {
+			error.confirm_password = 'Password and confirm password does not match';
+		}
+
+		if (!form.otp) {
+			error.otp = 'This field is required';
 		}
 
 		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/password`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -61,14 +74,14 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		console.log(resp);
 
 		if (resp.status == 200) {
-			goto('/');
 			$module = {
 				module: Info,
 				status: 200,
-				title: 'Confirmation Email Sent',
-				message: `A confirmation message has been sent to your email`,
+				title: 'Password Changed',
+				message: 'Your password has been changed successfully.',
 				button: [
 					{
 						name: 'Ok',
@@ -87,39 +100,12 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Signup to this site</div>
+		<div class="title">Reset Password</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
-		<p>This is the 'Signup' page. There's not much here.</p>
-	</svelte:fragment>
+	<svelte:fragment slot="desc">Reset your password.</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
-		{#if error.error}
-			<p class="error">
-				{error.error}
-			</p>
-		{/if}
-
-		<div class="inputGroup">
-			<label for="name"> Fullname: </label>
-			<input type="text" bind:value={form.name} id="name" placeholder="Your fullname here" />
-			{#if error.name}
-				<p class="error">
-					{error.name}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup">
-			<label for="email"> Email: </label>
-			<input type="email" bind:value={form.email} id="email" placeholder="Your email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
 		<div class="inputGroup">
 			<label for="password"> Password: </label>
 			<input
@@ -136,17 +122,41 @@
 				</p>
 			{/if}
 		</div>
+
 		<div class="inputGroup">
 			<label for="confirm"> Confirm Password: </label>
 			<input
 				type="password"
-				bind:value={form.confirm}
+				bind:value={form.confirm_password}
 				id="confirm"
 				placeholder="Your password here"
 			/>
-			{#if error.confirm}
+			{#if error.confirm_password}
 				<p class="error">
-					{error.confirm}
+					{error.confirm_password}
+				</p>
+			{/if}
+		</div>
+
+		<Button
+			class="primary"
+			name="Request OTPs"
+			on:click={() => {
+				request_otp();
+			}}
+		/>
+		{#if message}
+			<div class="inputGroup">
+				{message}
+			</div>
+		{/if}
+
+		<div class="inputGroup">
+			<label for="otp"> OTP: </label>
+			<input type="text" bind:value={form.otp} id="otp" placeholder="your OTP here" />
+			{#if error.otp}
+				<p class="error">
+					{error.otp}
 				</p>
 			{/if}
 		</div>
@@ -154,29 +164,15 @@
 		<div class="inputGroup horizontal">
 			<Button
 				class="primary"
-				name="Signup"
+				name="Submit"
 				on:click={() => {
 					validate();
 				}}
 			/>
 		</div>
-		<div class="inputGroup">
-			<p>
-				Already have an account?
-				<Button
-					class="link"
-					name="Login"
-					on:click={() => {
-						$module = {
-							module: Login
-						};
-					}}
-				/>
-			</p>
-		</div>
 	</form>
 </Form>
 
 <div bind:this={email_template} style="display: none;">
-	<Email />
+	<Email name={$user.name} />
 </div>
