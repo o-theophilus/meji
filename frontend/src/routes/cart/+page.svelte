@@ -5,9 +5,8 @@
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
+	import Meta from '$lib/meta.svelte';
+	import Card from '$lib/card.svelte';
 	import Checkout from './checkout.svelte';
 	import Item from './item.svelte';
 
@@ -52,14 +51,12 @@
 	};
 </script>
 
-<svelte:head>
-	<title>Cart | Meji</title>
-</svelte:head>
+<Meta title="Cart" description="Cart" />
 
 {error}
 <Card>
-	<Title title="Cart" />
-	<Body>
+	<div class="title">Cart</div>
+	<div class="items">
 		{#each $user.cart as item (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 				<Item
@@ -72,8 +69,23 @@
 		{:else}
 			no item here
 		{/each}
-	</Body>
+	</div>
 	{#if $user.cart.length > 0}
 		<Checkout {total} />
 	{/if}
 </Card>
+
+<style>
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.items {
+		display: grid;
+		gap: var(--sp2);
+
+		margin-top: var(--sp4);
+	}
+</style>

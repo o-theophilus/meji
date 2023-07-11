@@ -8,20 +8,18 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
+	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Category from './page.cate.svelte';
+	import Category_All from './page.cate.all.svelte';
 	import Hero from './page.hero.svelte';
 	import About from './page.about.svelte';
 	import Top from './page.to_top.svelte';
 
 	import Login from './auth/login.svelte';
-	import Password from './profile/setting/password.svelte';
-	import Email from './profile/email.svelte';
+	import Password from './auth/password.svelte';
 	import Confirm from './auth/confirm.svelte';
 
 	export let data;
@@ -35,9 +33,6 @@
 			switch ($page.url.searchParams.get('module')) {
 				case 'password':
 					_module.module = Password;
-					break;
-				case 'email':
-					_module.module = Email;
 					break;
 				case 'confirm':
 					_module.module = Confirm;
@@ -68,44 +63,92 @@
 
 <Meta title="Home" description="Home" />
 
-<section>
-	<Hero />
-	<Ads {ads} />
-	<Category {categories} />
+<Hero />
+<Ads {ads} />
 
-	{#if group}
-		{#each group as x}
-			{#if x.items.length > 0}
-				<div id={x.name.toLowerCase().replace(' ', '_')} />
-				<Card>
-					<Title title={x.name}>
-						<Button
-							class="tiny link"
-							name="view all >"
-							on:click={() => {
-								$state['shop'].order = x.query.order;
-								goto(`/shop`);
-							}}
-						/>
-					</Title>
-					<Body grid>
-						{#each x.items as item (item.key)}
-							<Item {item} />
-						{/each}
-					</Body>
-				</Card>
-			{/if}
-		{/each}
-	{/if}
+{#if categories.length > 0}
+	<div id="category" />
+	<Card>
+		<div class="title">
+			Categories
+			<Button
+				class="link"
+				name="view all >"
+				on:click={() => {
+					$module = {
+						module: Category_All,
+						categories
+					};
+				}}
+			/>
+		</div>
 
-	<div id="about" />
-	<About />
-</section>
+		<div class="items" class:grid={true}>
+			{#each categories.slice(0, 6) as category}
+				<Category {category} />
+			{/each}
+		</div>
+	</Card>
+{/if}
+
+{#if group}
+	{#each group as x}
+		{#if x.items.length > 0}
+			<div id={x.name.toLowerCase().replace(' ', '_')} />
+			<Card>
+				<div class="title">
+					{x.name}
+					<Button
+						class="link"
+						name="view all >"
+						on:click={() => {
+							$state['shop'].order = x.query.order;
+							goto(`/shop`);
+						}}
+					/>
+				</div>
+
+				<div class="items" class:grid={true}>
+					{#each x.items as item (item.key)}
+						<Item {item} />
+					{/each}
+				</div>
+			</Card>
+		{/if}
+	{/each}
+{/if}
+
+<div id="about" />
+<About />
+
 <Top />
 
 <style>
-	section {
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.items {
 		display: grid;
-		gap: var(--gap2);
+		gap: var(--sp2);
+		grid-template-columns: 1fr;
+
+		margin-top: var(--sp4);
+		color: var(--ac1);
+	}
+	.grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	@media screen and (min-width: 700px) {
+		.grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media screen and (min-width: 1000px) {
+		.grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
 	}
 </style>

@@ -3,16 +3,19 @@
 	--light_color: white;
 	--midtone: gray;
 	
-	--color1: #1d9bf0;
-	--color2: #146ca8;
-	--color3: #f05950;
-	--color4: red;
-	--color5: #04AA6D;
-	--color6: goldenrod;
+	--cl1: #1d9bf0;
+	--cl2: #146ca8;
+	--cl3: #f05950;
+	--cl4: red;
+	--cl5: #04AA6D;
+	--cl6: goldenrod;
 
-	--gap1: 8px;
-	--gap2: 16px;
-	--gap3: 24px;
+	--sp0: 4px;
+	--sp1: 8px;
+	--sp2: 16px;
+	--sp3: 24px;
+	--sp4: 32px;
+	--sp5: 48px;
 
 	--brad1: 4px;
 	--shad1: 0 0 8px rgba(0, 0, 0, 0.282);
@@ -20,25 +23,31 @@
 	--trans1: all 0.2s ease-in-out;
 
 	--headerHeight: 60px;
-}
-
-* {
+	
 	transition-property: background-color, border-color, opacity, outline;
 	transition-duration: 0.2s;
 	transition-timing-function: ease-in-out;
+	
+	--ac1_: black;
+	--ac2_: rgb(32, 32, 32);
+	--ac3_: gray;
+	--ac4_: rgb(210, 210, 210);
+	--ac5_: white;
 }
+
+
 
 main {
-	--font1: black;
-	--font2: rgb(63, 63, 63);
-
-	--foreground: white;
-	--background: rgb(210, 210, 210);
+	--ac1: var(--ac1_);
+	--ac2: var(--ac2_);
+	--ac3: var(--ac3_);
+	--ac4: var(--ac4_);
+	--ac5: var(--ac5_);
 }
 main.dark {
-	--font1: white;
-	--font2: rgb(210, 210, 210);
-	
-	--foreground: rgb(24, 24, 24);
-	--background: rgb(46, 46, 46);
+	--ac1: white;
+	--ac2: rgb(185, 185, 185);
+	--ac3: gray;
+	--ac4: rgb(46, 46, 46);
+	--ac5: rgb(24, 24, 24);
 }

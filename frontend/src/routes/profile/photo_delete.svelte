@@ -1,8 +1,8 @@
 <script>
 	import { token } from '$lib/cookie.js';
-	import {  module, tick } from '$lib/store.js';
+	import { module, tick } from '$lib/store.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Info from '$lib/module/info.svelte';
 
 	export let user;

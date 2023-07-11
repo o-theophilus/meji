@@ -48,10 +48,10 @@
 
 		font-size: x-small;
 
-		padding: 0 var(--gap1);
+		padding: 0 var(--sp1);
 		border-radius: calc(var(--size) / 2);
 
 		color: var(--light_color);
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

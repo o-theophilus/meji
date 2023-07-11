@@ -11,13 +11,13 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
 		width: 100%;
 
-		color: var(--font1);
+		color: var(--ac1);
 
-		padding: var(--gap2);
-		/* border-top: 2px solid var(--background); */
+		padding: var(--sp2);
+		/* border-top: 2px solid var(--ac5); */
 	}
 </style>

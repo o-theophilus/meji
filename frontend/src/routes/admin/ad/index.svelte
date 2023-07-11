@@ -43,7 +43,7 @@
 	import { token } from '$lib/cookie.js';
 	import { user } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body_item.svelte';
 	import Item from './_item.svelte';

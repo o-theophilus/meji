@@ -92,7 +92,7 @@
 <style>
 	nav {
 		display: flex;
-		background: var(--foreground);
+		background: var(--ac5);
 		box-shadow: var(--shad1);
 		height: var(--headerHeight);
 	}
@@ -113,15 +113,15 @@
 		justify-content: center;
 		gap: 4px;
 
-		padding: var(--gap1);
+		padding: var(--sp1);
 
 		width: 100%;
 		height: 100%;
 
 		border: none;
 		background-color: transparent;
-		color: var(--font1);
-		fill: var(--font1);
+		color: var(--ac1);
+		fill: var(--ac1);
 
 		font-size: small;
 		text-decoration: none;
@@ -132,12 +132,12 @@
 		cursor: pointer;
 	}
 	.active {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 
 	.login:hover,
 	a:hover {
-		background: var(--background);
+		background: var(--ac5);
 	}
 	.circle {
 		--size: 16px;
@@ -157,7 +157,7 @@
 
 		font-size: x-small;
 		border-radius: 50%;
-		background-color: var(--color1);
+		background-color: var(--cl1);
 	}
 
 	@media screen and (min-width: 800px) {
@@ -168,7 +168,7 @@
 		.login,
 		a {
 			flex-direction: unset;
-			padding: var(--gap2);
+			padding: var(--sp2);
 		}
 	}
 </style>

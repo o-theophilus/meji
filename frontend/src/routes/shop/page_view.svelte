@@ -6,8 +6,8 @@
 
 	import { page_name, state } from '$lib/page_state.js';
 
-	import Button from '$lib/comp/button.svelte';
-	import View from './page_item_view.svelte';
+	import Button from '$lib/button.svelte';
+	import View from '../../lib/comp/page_item_view.svelte';
 
 	let emit = createEventDispatcher();
 
@@ -59,30 +59,27 @@
 
 <style>
 	* {
-		color: var(--font1);
+		color: var(--ac1);
 	}
 
 	section {
 		display: flex;
-		justify-content: flex-end;
+		/* justify-content: flex-end; */
 		align-items: center;
+		gap: var(--sp2);
 
-		gap: var(--gap2);
+		/* margin-top: var(--sp2); */
 
-		padding: var(--gap2);
-		/* border-top: 2px solid var(--background); */
-
-		color: var(--font1);
-		/* background-color: var(--background); */
+		color: var(--ac1);
 	}
 
 	select {
-		background-color: var(--foreground);
+		background-color: var(--ac4);
 		border: none;
 	}
 
 	.dir {
 		cursor: pointer;
-		padding: var(--gap1);
+		padding: var(--sp1);
 	}
 </style>

@@ -5,14 +5,15 @@
 	// import { user } from '$lib/store.js';
 	// import { state, page_name } from '$lib/page_state.js';
 
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
+	import Meta from '$lib/meta.svelte';
+	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
-	// import Pagination from '$lib/comp/pagination.svelte';
+	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
 	export let { items } = data;
+
+	let total_page = 10;
 
 	// $page_name = 'save';
 	// let size = 24;
@@ -25,13 +26,14 @@
 	};
 </script>
 
-<svelte:head>
-	<title>Saved | Meji</title>
-</svelte:head>
+<Meta title="Saved" description="Saved" />
+
+<Pagination {total_page} />
 
 <Card>
-	<Title title="Saved" />
-	<Body grid>
+	<div class="title">Saved</div>
+
+	<div class="items" class:grid={true}>
 		{#each items as item (item.key)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 				<Item
@@ -47,6 +49,35 @@
 		{:else}
 			no saved item
 		{/each}
-	</Body>
-	<!-- <Pagination {total_page} /> -->
+	</div>
 </Card>
+
+<style>
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.items {
+		display: grid;
+		gap: var(--sp2);
+		grid-template-columns: 1fr;
+
+		margin-top: var(--sp4);
+		color: var(--ac1);
+	}
+	.grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	@media screen and (min-width: 700px) {
+		.grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media screen and (min-width: 1000px) {
+		.grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+</style>

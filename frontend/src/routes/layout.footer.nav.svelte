@@ -10,12 +10,12 @@
 	}
 
 	a {
-		color: var(--font1);
+		color: var(--ac1);
 		text-decoration: none;
 
 		border-bottom: 2px solid transparent;
 	}
 	a:hover {
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 </style>

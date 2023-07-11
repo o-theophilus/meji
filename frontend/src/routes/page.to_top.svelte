@@ -2,7 +2,7 @@
 	import { scale } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	const go = (name) => {
 		document.querySelector(`#${name}`).scrollIntoView({
@@ -33,7 +33,7 @@
 		position: sticky;
 		bottom: var(--headerHeight);
 
-		padding: var(--gap2);
+		padding: var(--sp2);
 
 		display: flex;
 		justify-content: flex-end;

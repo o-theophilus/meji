@@ -26,8 +26,8 @@
 		display: flex;
 		align-items: center;
 
-		gap: var(--gap1);
+		gap: var(--sp1);
 
-		color: var(--font2);
+		color: var(--ac2);
 	}
 </style>

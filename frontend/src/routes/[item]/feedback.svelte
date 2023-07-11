@@ -8,7 +8,7 @@
 	import Rating from '$lib/comp/rating.svelte';
 
 	import HR from '$lib/comp/hr.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/comp/button_fold.svelte';
 
 	export let item;
@@ -60,7 +60,7 @@
 <style>
 	section {
 		display: grid;
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 	.title {
 		font-weight: 500;

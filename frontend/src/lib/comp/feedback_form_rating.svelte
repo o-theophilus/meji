@@ -30,7 +30,7 @@
 		flex-direction: row-reverse;
 
 		width: fit-content;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	.svg {
 		display: flex;
@@ -40,10 +40,10 @@
 	}
 
 	.svg.active {
-		fill: var(--color6);
+		fill: var(--cl6);
 	}
 	.svg.active ~ .svg {
-		fill: var(--color6);
+		fill: var(--cl6);
 	}
 
 	.svg:hover {

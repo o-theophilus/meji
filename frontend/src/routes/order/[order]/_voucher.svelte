@@ -2,7 +2,7 @@
 	import { user, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Form from '$lib/module/form.svelte';
 
 	let error = '';

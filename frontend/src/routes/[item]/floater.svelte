@@ -3,7 +3,7 @@
 
 	import Body from '$lib/comp/card_body_fold.svelte';
 	import HR from '$lib/comp/hr.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Chat from './floater.chat.svelte';
@@ -38,7 +38,7 @@
 	.floater {
 		position: sticky;
 		bottom: var(--headerHeight);
-		background-color: var(--foreground);
+		background-color: var(--ac4);
 	}
 
 	@media screen and (min-width: 800px) {

@@ -2,10 +2,10 @@
 	import { user, tick } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Ordered_Email from './_ordered_email_template.svelte';
 	import Delivered_Email from './_delivered_email_template.svelte';
@@ -108,10 +108,10 @@
 
 <style>
 	.active {
-		color: var(--color1);
+		color: var(--cl1);
 		font-weight: 500;
 	}
 	.cancelled.active {
-		color: var(--color4);
+		color: var(--cl4);
 	}
 </style>

@@ -34,7 +34,7 @@
 <style>
 	section {
 		display: flex;
-		gap: var(--gap3);
+		gap: var(--sp3);
 		font-weight: 500;
 		justify-content: right;
 

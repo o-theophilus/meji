@@ -3,7 +3,7 @@
 	import { backInOut } from 'svelte/easing';
 
 	import { module } from '$lib/store.js';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 </script>
 
 {#if $module}
@@ -36,7 +36,7 @@
 		position: fixed;
 		inset: 0;
 
-		padding: calc(var(--gap3) * 2) var(--gap3);
+		padding: calc(var(--sp3) * 2) var(--sp3);
 		overflow-y: auto;
 
 		background-color: var(--overlay);

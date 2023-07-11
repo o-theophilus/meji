@@ -4,7 +4,7 @@
 	import { tick, module } from '$lib/store.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Rating from './feedback_form_rating.svelte';
 
 	export let data;

@@ -34,6 +34,6 @@
 
 <style>
 	* {
-		color: var(--font1);
+		color: var(--ac1);
 	}
 </style>

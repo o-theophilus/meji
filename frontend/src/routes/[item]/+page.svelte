@@ -1,17 +1,16 @@
 <script>
-	import { _tick } from '$lib/store.js';
+	import { _tick, user } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
+	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
 	import Desc from './desc.svelte';
-	import Spec from './spec.svelte';
 	import Feedback from './feedback.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Floater from './floater.svelte';
+
+	import Button from '$lib/button.svelte';
 
 	export let data;
 	let { item } = data;
@@ -21,70 +20,104 @@
 		item = $_tick;
 		$_tick = '';
 	}
+
+	let edit_mode = true;
 </script>
 
 <Meta title={item.name} description={item.desc} image={item.thumbnail} />
 
-<section class="whole">
-	<section class="details">
-		<div class="block left">
+<Card>
+	<div class="title">
+		Item Details
+		{#if $user && $user.roles.includes('admin')}
+			<Button
+				name="Edit Mode: {edit_mode ? 'On' : 'Off'}"
+				class="tiny"
+				icon="edit"
+				icon_size="12"
+				on:click={() => {
+					edit_mode = !edit_mode;
+				}}
+			/>
+		{/if}
+	</div>
+
+	<section class="block">
+		<div class="photo">
 			<Photo {item} />
 		</div>
-		<div class="block">
-			<Card>
-				<div class="block2">
-					<Info {item} />
-					<Desc {item} />
-					<Spec {item} />
-					<Feedback {item} />
-					<Floater {item} />
-				</div>
-			</Card>
-			<slot />
+
+		<div>
+			<Info {item} />
+			<Desc {item} />
+			<Feedback {item} />
+			<Floater {item} />
 		</div>
 	</section>
+</Card>
 
-	{#if recently_viewed && recently_viewed.length > 0}
-		<Card>
-			<Title title="Recently Viewed" />
-			<Body grid>
-				{#each recently_viewed as item (item.key)}
-					<Item {item} />
-				{/each}
-			</Body>
-		</Card>
-	{/if}
-</section>
+{#if recently_viewed && recently_viewed.length > 0}
+	<Card>
+		<div class="title">Recently Viewed</div>
+		<div class="items" class:grid={true}>
+			{#each recently_viewed as item (item.key)}
+				<Item {item} />
+			{/each}
+		</div>
+	</Card>
+{/if}
 
 <style>
-	.whole {
-		display: grid;
-		gap: var(--gap3);
-	}
-	.details {
-		gap: var(--gap1);
-		display: flex;
-		flex-direction: column;
-	}
 	.block {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap3);
-
+		gap: var(--sp2);
+	}
+	.block > div {
 		width: 100%;
 	}
 
 	@media screen and (min-width: 800px) {
-		.details {
+		.block {
 			flex-direction: unset;
 			position: relative;
+			
+			margin-top: var(--sp2);
 		}
 
-		.left {
+		.photo {
 			position: sticky;
-			top: var(--gap1);
+			top: var(--sp2);
 
 			align-self: flex-start;
+		}
+	}
+
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.items {
+		display: grid;
+		gap: var(--sp2);
+		grid-template-columns: 1fr;
+
+		margin-top: var(--sp4);
+		color: var(--ac1);
+	}
+	.grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	@media screen and (min-width: 700px) {
+		.grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media screen and (min-width: 1000px) {
+		.grid {
+			grid-template-columns: repeat(4, 1fr);
 		}
 	}
 </style>

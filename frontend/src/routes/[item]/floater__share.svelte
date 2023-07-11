@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { module } from '$lib/store.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	let { item } = $module;
 	let text = `Check Out: ${item.name}`;
@@ -60,16 +60,16 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
-		padding: var(--gap3);
-		color: var(--font1);
-		background-color: var(--foreground);
+		padding: var(--sp3);
+		color: var(--ac1);
+		background-color: var(--ac4);
 	}
 	.block {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 </style>

@@ -6,13 +6,13 @@
 </script>
 
 {#if $loading}
-<section>
-	<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
-		<div class="circle" />
-	</div>
-</section>
-
+	<section>
+		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
+			<div class="circle" />
+		</div>
+	</section>
 {/if}
+
 <style>
 	section {
 		display: flex;
@@ -21,7 +21,7 @@
 		position: fixed;
 		inset: 0;
 
-		padding: var(--gap1);
+		padding: var(--sp1);
 	}
 
 	.block {

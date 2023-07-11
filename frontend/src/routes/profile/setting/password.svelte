@@ -4,7 +4,7 @@
 
 	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/comp/password_checker.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Email from './password_email_template.svelte';
 	import Info from '$lib/module/info.svelte';

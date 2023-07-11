@@ -1,7 +1,7 @@
 <script>
 	import { currency, module } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
 	import HR from '$lib/comp/hr.svelte';
@@ -19,7 +19,7 @@
 		};
 	};
 
-	let total_items = order.info.total_items + order.info.delivery_fee
+	let total_items = order.info.total_items + order.info.delivery_fee;
 </script>
 
 <Card>
@@ -56,10 +56,7 @@
 		{/if}
 
 		<HR />
-		<Total
-			title="Pay"
-			value={total_items - order.info.account}
-		/>
+		<Total title="Pay" value={total_items - order.info.account} />
 	</Body>
 </Card>
 

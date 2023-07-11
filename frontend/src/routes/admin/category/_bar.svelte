@@ -2,7 +2,7 @@
 	import { user, module } from '$lib/store.js';
 
 	import Body from '$lib/comp/card_body.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Add from './_add.svelte';
 </script>
@@ -26,6 +26,6 @@
 <style>
 	.block {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 </style>

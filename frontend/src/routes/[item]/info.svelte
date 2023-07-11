@@ -6,7 +6,7 @@
 	import Rating from './info.rating.svelte';
 	import Cate from './info.cate.svelte';
 	import Save from '$lib/item/save.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Edit from './_edit.svelte';
 	import Status from './_status.svelte';

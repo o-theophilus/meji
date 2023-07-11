@@ -21,7 +21,7 @@
 
 <style>
 	section {
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 		display: flex;
 
 		border-radius: var(--brad1);
@@ -31,7 +31,7 @@
 	}
 
 	section:hover {
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 
 	img {
@@ -41,6 +41,6 @@
 		object-fit: cover;
 	}
 	.details {
-		padding: var(--gap2);
+		padding: var(--sp2);
 	}
 </style>

@@ -5,7 +5,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	let date = new Date();
 	date.setDate(date.getDate() + 30);

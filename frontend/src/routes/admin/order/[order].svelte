@@ -38,7 +38,7 @@
 <script>
 	import { _tick } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
 
@@ -104,15 +104,15 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 
-		margin-top: var(--gap1);
+		margin-top: var(--sp1);
 	}
 
 	.wide {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 
 		width: 100%;
 	}
@@ -123,7 +123,7 @@
 	@media screen and (min-width: 800px) {
 		section {
 			flex-direction: unset;
-			/* gap: var(--gap1); */
+			/* gap: var(--sp1); */
 		}
 	}
 </style>

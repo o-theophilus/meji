@@ -1,7 +1,7 @@
 <script>
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg.svelte';
 	import Variation from './add_cart__variation.svelte';
 
@@ -40,13 +40,13 @@
 	button {
 		width: 100%;
 		border: none;
-		padding: var(--gap1);
+		padding: var(--sp1);
 
 		background-color: transparent;
 		fill: var(--midtone);
 		cursor: pointer;
 	}
 	button:hover {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

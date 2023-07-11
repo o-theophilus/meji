@@ -2,9 +2,9 @@
 	import { currency, user, module, tick, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Body from '$lib/comp/card_body.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Info from '$lib/module/info.svelte';
 
@@ -32,7 +32,7 @@
 		onCancel: () => {
 			$module = {
 				module: Info,
-				status: 401,
+				status: 400,
 				title: 'Payment Canceled',
 				message: `The payment process was canceled`,
 				button: [
@@ -153,7 +153,7 @@
 		font-size: small;
 	}
 	a {
-		color: var(--color1);
+		color: var(--cl1);
 		text-decoration: none;
 		font-weight: 500;
 	}

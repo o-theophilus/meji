@@ -4,7 +4,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import HR from '$lib/comp/hr.svelte';
 
 	import Add from './_photo_add.svelte';
@@ -172,11 +172,11 @@
 	.slide {
 		display: flex;
 		justify-content: center;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		flex-wrap: wrap;
 
-		/* border: 2px solid var(--background); */
-		/* padding: var(--gap3); */
+		/* border: 2px solid var(--ac5); */
+		/* padding: var(--sp3); */
 	}
 	.slide > * {
 		display: flex;
@@ -188,7 +188,7 @@
 		height: var(--size);
 		cursor: pointer;
 
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 		border-radius: var(--brad1);
 
 		transition: var(--trans1);
@@ -198,6 +198,6 @@
 		transform: scale(1.1);
 	}
 	.slide > *.active {
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 </style>

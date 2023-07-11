@@ -3,7 +3,7 @@
 	import { user } from '$lib/store.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	let password;
 	let error = {};
@@ -31,7 +31,6 @@
 
 		if (resp.status == 200) {
 			$token = resp.data.token;
-			$user = resp.data.user;
 			document.location = '/';
 		} else {
 			error = resp;

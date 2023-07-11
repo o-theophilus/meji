@@ -35,10 +35,10 @@
 <style>
 	button {
 		border: none;
-		padding: var(--gap2);
+		padding: var(--sp2);
 
 		background-color: transparent;
-		color: var(--font2);
+		color: var(--ac2);
 		cursor: pointer;
 	}
 	.block {
@@ -68,6 +68,6 @@
 		justify-content: center;
 		align-items: center;
 
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

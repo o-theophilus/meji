@@ -6,7 +6,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	export let data;
 	let { item } = data;
@@ -199,16 +199,16 @@
 
 <style>
 	.variation {
-		padding: var(--gap1);
+		padding: var(--sp1);
 		border-radius: var(--brad1);
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 	}
 
 	.value_area {
 		display: flex;
 		flex-wrap: wrap;
 
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	.value {
 		gap: 0;
@@ -234,8 +234,8 @@
 
 		font-size: small;
 
-		padding: 0 var(--gap1);
+		padding: 0 var(--sp1);
 		border-radius: calc(var(--size) / 2);
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

@@ -303,13 +303,13 @@
 
 <style>
 	.content {
-		padding: var(--gap3);
+		padding: var(--sp3);
 	}
 
 	.slide {
 		display: flex;
 		justify-content: center;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		flex-wrap: wrap;
 	}
 	.slide > * {
@@ -332,12 +332,12 @@
 		transform: scale(1.1);
 	}
 	.slide > *.active {
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 	img {
 		border: 2px solid transparent;
 	}
 	.dragover {
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 </style>

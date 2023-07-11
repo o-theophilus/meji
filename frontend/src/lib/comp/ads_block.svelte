@@ -70,7 +70,7 @@
 		bottom: 24px;
 
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		justify-content: center;
 
 		width: 100%;
@@ -84,7 +84,7 @@
 
 		border-radius: var(--size);
 
-		background-color: var(--color1);
+		background-color: var(--cl1);
 
 		transition: var(--trans1);
 	}

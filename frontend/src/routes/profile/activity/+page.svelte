@@ -36,7 +36,7 @@
 <script>
 	import { user } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
 

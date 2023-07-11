@@ -1,7 +1,7 @@
 <script>
 	import { user, currency, tick, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Form from '$lib/module/form.svelte';
 
 	export let data;

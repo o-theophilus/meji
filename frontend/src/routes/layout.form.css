@@ -5,7 +5,7 @@ label {
 form {
 	display: flex;
 	flex-direction: column;
-	gap: var(--gap2);
+	gap: var(--sp2);
 
 	width: 100%;
 }
@@ -13,9 +13,9 @@ form {
 .inputGroup {
 	display: flex;
 	flex-direction: column;
-	gap: var(--gap1);
+	gap: var(--sp1);
 
-	color: var(--font1);
+	color: var(--ac1);
 }
 
 .horizontal {
@@ -33,12 +33,12 @@ form {
 label.button {
 	display: flex;
 	align-items: center;
-	gap: var(--gap1);
+	gap: var(--sp1);
 	flex-shrink: 0;
 
-	padding: var(--gap1);
+	padding: var(--sp1);
 	border-radius: var(--brad1);
-	border: 2px solid var(--background);
+	border: 2px solid var(--ac5);
 
 	cursor: pointer;
 }
@@ -48,12 +48,12 @@ form select,
 form textarea {
 	width: 100%;
 
-	padding: var(--gap2);
+	padding: var(--sp2);
 	border-radius: var(--brad1);
-	border: 2px solid var(--background);
+	border: 2px solid var(--ac5);
 
-	color: var(--font1);
-	background-color: var(--background);
+	color: var(--ac1);
+	background-color: var(--ac5);
 }
 
 label.button:hover,
@@ -66,8 +66,8 @@ form textarea:hover {
 form input:focus,
 form select:focus,
 form textarea:focus {
-	border-color: var(--color1);
-	background-color: var(--foreground);
+	border-color: var(--cl1);
+	background-color: var(--ac4);
 
 }
 
@@ -80,7 +80,7 @@ form textarea {
 form a, form .link {
 	width: fit-content;
 
-	color: var(--color1);
+	color: var(--cl1);
 	text-decoration: none;
 	font-weight: 500;
 

@@ -55,10 +55,9 @@
 			</div>
 		</a>
 
-		
 		<div class="control">
 			<Add_Cart {item} type="2" />
-			<Save {item} type="2" on:unsaved on:done/>
+			<Save {item} type="2" on:unsaved on:done />
 		</div>
 	</div>
 </section>
@@ -68,18 +67,18 @@
 		display: flex;
 		flex-direction: column;
 
-		border-bottom: 2px solid var(--background);
+		border-bottom: 2px solid var(--ac5);
 		overflow: hidden;
 
 		transition: var(--trans1);
 	}
 	.item:hover {
 		transform: scale(1.02);
-		border-color: var(--color1);
+		border-color: var(--cl1);
 	}
 	a {
 		text-decoration: none;
-		color: var(--font1);
+		color: var(--ac1);
 
 		height: 100%;
 	}
@@ -103,12 +102,12 @@
 	.details {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
-		padding: var(--gap1);
+		gap: var(--sp1);
+		padding: var(--sp1);
 	}
 	.row2 {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		justify-content: space-between;
 		height: 30px;
 	}
@@ -119,7 +118,7 @@
 
 	@media screen and (min-width: 500px) {
 		.details {
-			padding: var(--gap1) var(--gap2);
+			padding: var(--sp1) var(--sp2);
 		}
 	}
 
@@ -133,11 +132,11 @@
 		flex-wrap: wrap;
 
 		align-items: center;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	.price {
 		font-weight: 500;
-		color: var(--color3);
+		color: var(--cl3);
 	}
 
 	.old_price {
@@ -154,7 +153,7 @@
 		height: 1px;
 
 		transform: rotate(-10deg);
-		background: var(--color4);
+		background: var(--cl4);
 	}
 
 	.view_list {
@@ -168,7 +167,7 @@
 	}
 
 	.view_list .details {
-		padding: var(--gap1) var(--gap2);
+		padding: var(--sp1) var(--sp2);
 	}
 
 	.view_list .name {

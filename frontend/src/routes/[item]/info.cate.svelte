@@ -3,11 +3,11 @@
 	import { state } from '$lib/page_state.js';
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Category from './_category.svelte';
 
-	export let item
+	export let item;
 </script>
 
 {#if item.categories.length > 0 || ($user && $user.roles.includes('admin'))}
@@ -49,6 +49,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 </style>

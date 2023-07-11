@@ -109,7 +109,7 @@
 
 	:global(.marked hr) {
 		border: none;
-		border-top: 2px solid var(--background);
+		border-top: 2px solid var(--ac5);
 	}
 	:global(.marked > :first-child) {
 		margin-top: 0;
@@ -121,11 +121,11 @@
 	/* costom */
 	:global(.marked .column) {
 		display: grid;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	:global(.marked .row) {
 		display: flex;
 		justify-content: space-between;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 </style>

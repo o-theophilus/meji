@@ -1,6 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	export let item;
 

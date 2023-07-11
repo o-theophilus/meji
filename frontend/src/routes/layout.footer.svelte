@@ -6,22 +6,22 @@
 <footer>
 	<Nav />
 	<Copy />
+	<br />
+	<br />
 </footer>
-
-
 
 <style>
 	footer {
-		color: var(--font1);
+		color: var(--ac1);
 
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 
 		width: 100%;
 		max-width: 800px;
 
-		padding: var(--gap3) var(--gap2);
+		padding: var(--sp3) var(--sp2);
 
 		margin: auto;
 	}

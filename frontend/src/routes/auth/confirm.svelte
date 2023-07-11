@@ -8,35 +8,39 @@
 	onMount(async () => {
 		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/confirm/${$module.token}`);
-		$loading = false;
 		resp = await resp.json();
+		$loading = false;
 
-		if (resp.status == 200) {
-			$module = {
-				module: Login,
-				message: resp.error || 'your email confirmation was successful.',
-				email: resp.user.email
-			};
-		} else {
-			$module = {
-				module: Info,
-				status: 401,
-				title: `Invalid or Expired Token`,
-				message: `
-**Invalid or Expired Token**;
-There was an error while reading the token.
+		let title = 'Email Confirmed';
+		let message =
+			resp.status == 200 && resp.error ? resp.error : 'your email confirmation was successful.';
 
-Please try again repeacting the action.`,
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
-			};
+		if (resp.status != 200) {
+			title = 'Invalid or Expired Token';
+			message = `
+	**Invalid or Expired Token**;
+	There was an error while reading the token.
+	
+	Please Login again to repeat the process.`;
 		}
+
+		$module = {
+			module: Info,
+			status: resp.status,
+			title,
+			message,
+			button: [
+				{
+					name: 'Login',
+					icon: 'ok',
+					fn: () => {
+						$module = {
+							module: Login,
+							email: resp.user.email
+						};
+					}
+				}
+			]
+		};
 	});
 </script>

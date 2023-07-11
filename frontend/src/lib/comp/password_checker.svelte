@@ -14,7 +14,7 @@
 <style>
 	section {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 
 		border-radius: var(--brad1);
 		overflow: hidden;
@@ -24,6 +24,6 @@
 		color: var(--midtone);
 	}
 	.active {
-		color: var(--color5);
+		color: var(--cl5);
 	}
 </style>

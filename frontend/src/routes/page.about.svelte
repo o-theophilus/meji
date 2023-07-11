@@ -1,124 +1,111 @@
-<script context="module">
-	import { loading } from '$lib/store.js';
-
-	export async function load({ fetch, session }) {
-		loading.set(true);
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}home`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: session.token
-			}
-		});
-
-		if (_resp.ok) {
-			loading.set(false);
-			let resp = await _resp.json();
-
-			return {
-				props: {
-					group: resp.data.group,
-					categories: resp.data.categories,
-					ads: resp.data.ads
-				}
-			};
-		}
-	}
-</script>
-
 <script>
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
-
+	import Card from '$lib/card.svelte';
 	import SVG from '$lib/comp/svg.svelte';
 </script>
 
 <Card>
-	<Title title="About Us" />
-	<Body>
-		<section>
-			<div class="first">
-				<span>Meji</span> is your No. 1 trusted online shopping store in Nigeria where you can
-				purchase a wide range of products on the go. Products which includes fashion items for men,
-				women, and children; and more. What more? You can have them delivered directly to you.
-				<span> Meji </span> guarantees you the safest online shopping payment method, allowing you to
-				make stress free payments.
-			</div>
+	<div class="title">About Us</div>
 
-			<div class="second">
-				<div class="card">
-					<SVG size="28" type="time" />
-					<span class="title"> 24/7 Services </span>
-					<p>Shop online anytime anyday and pay with great ease.</p>
-				</div>
-				<div class="card">
-					<SVG size="28" type="change" />
-					<span class="title"> Exchange Opportunities </span>
-					<p>
-						Shopping online is easy and convenient with <span> Meji </span>.
-					</p>
-				</div>
-				<div class="card">
-					<SVG size="28" type="offer" />
-					<span class="title"> More Than Offer </span>
-					<p>
-						Whatever it is you wish to buy,
-						<span> Meji </span> offers you all and lots more at prices which you can trust.
-					</p>
-				</div>
+	<section>
+		<div class="row_1">
+			Meji is your No. 1 trusted online shopping destination in Nigeria. At Meji, we provide you
+			with a seamless shopping experience, offering a wide range of products right at your
+			fingertips. Whether you're looking for fashion items for men, women, or children, or searching
+			for other essentials, we've got you covered.
+		</div>
+
+		<div class="row_2">
+			<div>
+				<SVG size="28" type="change" />
+				<br />
+				<span> Convenience Delivered </span>
+				<p>
+					We understand the value of time and convenience. That's why Meji offers you the ease of
+					shopping from anywhere, at any time. Our user-friendly platform allows you to browse and
+					purchase your desired items with just a few clicks. Plus, we ensure swift and reliable
+					delivery directly to your doorstep.
+				</p>
 			</div>
-		</section>
-	</Body>
+			<div>
+				<SVG size="28" type="offer" />
+				<br />
+				<span> Secure Payment Solutions </span>
+				<p>
+					At Meji, your security is our top priority. With our trusted online shopping payment
+					methods, you can enjoy stress-free transactions. We prioritize the safety of your personal
+					and financial information, allowing you to shop with peace of mind.
+				</p>
+			</div>
+			<div>
+				<SVG size="28" type="time" />
+				<br />
+				<span> 24/7 Services </span>
+				<p>
+					We're dedicated to serving you around the clock. Shop online anytime, any day, and
+					experience our exceptional customer service. Our team is here to assist you with any
+					inquiries or support you may need throughout your shopping journey.
+				</p>
+			</div>
+		</div>
+	</section>
 </Card>
 
 <style>
+	.title {
+		font-weight: 600;
+	}
+
 	section {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--gap2);
 
+		margin-top: var(--sp4);
 		text-align: center;
 	}
 
-	.first {
+	.row_1 {
 		max-width: 300px;
-		padding: var(--gap3) 0;
-
 		font-size: large;
+		/* font-weight: 300; */
 	}
 
-	.second {
+	.row_2 {
 		display: flex;
 		justify-content: center;
-		/* align-items: center; */
 		flex-direction: column;
-		gap: calc(var(--gap2) * 2);
+		gap: var(--sp4);
 
-		fill: var(--color1);
+		margin: var(--sp4) 0;
+		fill: var(--cl1);
 	}
 
-	.card {
+	.row_2 div {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--gap1);
 
+		color: var(--ac2);
 		max-width: 300px;
 	}
 
 	span {
 		font-weight: 500;
+		color: var(--ac1);
+	}
+	p {
+		font-size: small;
 	}
 
 	@media screen and (min-width: 800px) {
-		.first {
+		.row_1 {
 			max-width: 500px;
 		}
-		.second {
-			gap: var(--gap3);
+		.row_2 {
 			flex-direction: unset;
+		}
+		.row_2 div {
+			max-width: 200px;
 		}
 	}
 </style>

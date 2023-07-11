@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Quantity from '$lib/quantity.svelte';
 
 	let { item } = $module;
@@ -158,13 +158,13 @@
 	}
 
 	section {
-		color: var(--font2);
-		background-color: var(--foreground);
-		gap: var(--gap2);
+		color: var(--ac2);
+		background-color: var(--ac4);
+		gap: var(--sp2);
 	}
 
 	.property {
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	span {
 		font-weight: 500;
@@ -174,7 +174,7 @@
 	.value_row {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	button {
@@ -193,19 +193,19 @@
 
 		font-size: small;
 
-		padding: 0 var(--gap1);
+		padding: 0 var(--sp1);
 		border-radius: calc(var(--size) / 2);
 
 		color: var(--light_color);
 	}
 
 	.value {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 
 	.active {
 		font-weight: 500;
-		outline: 2px solid var(--font2);
+		outline: 2px solid var(--ac2);
 		outline-offset: 2px;
 	}
 
@@ -213,6 +213,6 @@
 		color: var(--midtone);
 	}
 	.size.active {
-		color: var(--color1);
+		color: var(--cl1);
 	}
 </style>

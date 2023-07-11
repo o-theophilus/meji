@@ -4,7 +4,7 @@
 	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	export let item;
 
@@ -64,13 +64,13 @@
 <style>
 	.item {
 		display: flex;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
 		height: 100%;
 
-		background: var(--foreground);
+		background: var(--ac4);
 		border-radius: var(--brad1);
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 		overflow: hidden;
 
 		cursor: pointer;
@@ -94,7 +94,7 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 	@media screen and (min-width: 500px) {
 	}

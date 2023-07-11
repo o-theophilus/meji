@@ -24,7 +24,7 @@
 	section {
 		display: flex;
 
-		gap: var(--gap2);
+		gap: var(--sp2);
 		align-items: center;
 	}
 	.left {
@@ -39,7 +39,7 @@
 		align-items: center;
 		justify-content: center;
 
-		fill: var(--color6);
+		fill: var(--cl6);
 	}
 	.bar {
 		/* display: flex; */
@@ -47,7 +47,7 @@
 		height: 20px;
 		width: 100%;
 
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 		border-radius: var(--brad1);
 
 		overflow: hidden;
@@ -55,6 +55,6 @@
 	.fill {
 		height: 100%;
 
-		background: var(--color6);
+		background: var(--cl6);
 	}
 </style>

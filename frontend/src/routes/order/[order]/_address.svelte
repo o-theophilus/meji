@@ -8,7 +8,7 @@
 	import countries from '$lib/countries.js';
 
 	import HR from '$lib/comp/hr.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/comp/button_fold.svelte';
 	import Form from '$lib/module/form.svelte';
 
@@ -257,7 +257,7 @@
 	.suggestion {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 
 	.title {
@@ -267,12 +267,12 @@
 		justify-content: space-between;
 		align-items: center;
 
-		color: var(--font1);
+		color: var(--ac1);
 	}
 
 	.body {
-		padding: var(--gap1);
-		background-color: var(--background);
+		padding: var(--sp1);
+		background-color: var(--ac5);
 	}
 
 	p {

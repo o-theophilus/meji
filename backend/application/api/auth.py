@@ -77,14 +77,16 @@ def signup():
         letter, 1 uppercase letter, 1 number and must contain 8 - 18
         characters"""
 
-    if "confirm" not in request.json or not request.json["confirm"]:
-        error["confirm"] = "This field is required"
+    if "confirm_password" not in request.json or not request.json[
+            "confirm_password"]:
+        error["confirm_password"] = "This field is required"
     elif (
             request.json["password"]
             and "password" not in error
-            and request.json["confirm"] != request.json["password"]
+            and request.json["confirm_password"] != request.json["password"]
     ):
-        error["confirm"] = 'password and confirm password does not match'
+        error["confirm_password"] = """password and confirm password does not
+        match"""
 
     if error != {}:
         return jsonify({
@@ -121,7 +123,6 @@ def signup():
 def confirm_email(token):
     db = database()
 
-    print(token)
     try:
         token = token_tool().loads(
             token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
@@ -280,7 +281,7 @@ def forgot_password():
             "error": error
         })
 
-    user = query("user", "email", request.json["email"], db)
+    user = query({"type": "user", "email": request.json["email"]}, db=db)
     if not user:
         return jsonify({
             "status": 400,
@@ -338,14 +339,16 @@ def change_password(token):
         error["password"
               ] = "new password should be different from old password"
 
-    if "confirm" not in request.json or not request.json["confirm"]:
-        error["confirm"] = "this field is required"
+    if "confirm_password" not in request.json or not request.json[
+            "confirm_password"]:
+        error["confirm_password"] = "this field is required"
     elif (
             request.json["password"]
             and "password" not in error
-            and request.json["confirm"] != request.json["password"]
+            and request.json["confirm_password"] != request.json["password"]
     ):
-        error["confirm"] = 'password and confirm password does not match'
+        error["confirm_password"] = """password and confirm password does not
+         match"""
 
     if error != {}:
         return jsonify({
@@ -363,17 +366,18 @@ def change_password(token):
     })
 
 
-def omni():
+@bp.get("/admin_init")
+def admin():
     db = database()
     email = current_app.config["MAIL_DEFAULT_SENDER"][1]
 
     user = query({"type": "user", "email": email}, db=db)
     if not user:
-        password = generate_password_hash(
-            "1234",
-            method="scrypt"
-        )
-        # user["roles"] = ["admin", "dashboard", "omni"]
-        database(user_template(
-            "Meji Admin", email, password
-        ))
+        user = user_template("Meji Admin", email, '1234')
+        user["status"] = "confirm"
+        user["roles"] = ["admin", "dashboard", "omni"]
+        database(user)
+
+    return jsonify({
+        "status": 200
+    })

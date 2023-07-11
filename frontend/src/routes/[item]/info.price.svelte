@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	export let item;
 	let show_details = false;
@@ -60,12 +60,12 @@
 		flex-wrap: wrap;
 
 		align-items: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 	.price {
 		font-weight: 500;
 		font-size: 1.2rem;
-		color: var(--color3);
+		color: var(--cl3);
 	}
 
 	.old_price {
@@ -81,7 +81,7 @@
 		height: 1px;
 
 		transform: rotate(-10deg);
-		background: var(--color4);
+		background: var(--cl4);
 	}
 	.discount {
 		color: var(--midtone);
@@ -89,12 +89,12 @@
 
 	.details {
 		display: grid;
-		gap: var(--gap1) var(--gap3);
+		gap: var(--sp1) var(--sp3);
 		grid-template-columns: 1fr auto;
 
-		padding: var(--gap2);
-		background-color: var(--background);
-		border-radius: var(--gap1);
+		padding: var(--sp2);
+		background-color: var(--ac5);
+		border-radius: var(--sp1);
 
 		font-size: x-small;
 		width: 100%;

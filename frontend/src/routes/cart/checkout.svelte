@@ -6,7 +6,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Body from '$lib/comp/card_body_item.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Login from '../auth/login.svelte';
 
@@ -77,6 +77,6 @@
 	}
 	.amount {
 		font-size: 1.2rem;
-		color: var(--color3);
+		color: var(--cl3);
 	}
 </style>

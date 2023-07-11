@@ -4,7 +4,7 @@
 
 	import Login from './auth/login.svelte';
 	import Signup from './auth/signup.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 </script>
 
 {#if !$user?.login}
@@ -42,12 +42,12 @@
 <style>
 	section {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	@media screen and (min-width: 800px) {
 		section {
-			padding-left: var(--gap1);
+			padding-left: var(--sp1);
 		}
 
 		.login {

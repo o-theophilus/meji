@@ -13,29 +13,29 @@
 <style>
 	.divider:not(:first-child) {
 		height: 2px;
-		background-color: var(--background);
-		margin: 0 var(--gap2);
+		background-color: var(--ac5);
+		margin: 0 var(--sp2);
 	}
 
 	section {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
-		padding: var(--gap2);
+		padding: var(--sp2);
 	}
 	.title {
 		font-weight: bold;
-		color: var(--font1);
+		color: var(--ac1);
 	}
 	.color {
-		color: var(--color1);
+		color: var(--cl1);
 	}
 	.right {
 		display: flex;
 		align-items: center;
-		gap: var(--gap1);
+		gap: var(--sp1);
 
 		flex-shrink: 0;
 	}

@@ -40,7 +40,7 @@
 <style>
 	.grid {
 		display: grid;
-		gap: var(--gap1) var(--gap3);
+		gap: var(--sp1) var(--sp3);
 		grid-template-columns: repeat(5, 1fr);
 		grid-template-columns: auto 1fr auto auto auto;
 	}
@@ -57,7 +57,7 @@
 		text-align: right;
 	}
 	a {
-		color: var(--font1);
+		color: var(--ac1);
 		text-decoration: none;
 	}
 	.name {

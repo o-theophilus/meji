@@ -6,16 +6,20 @@
 	import Forgot from './forgot.svelte';
 	import Signup from './signup.svelte';
 	import Info from '$lib/module/info.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Email from './confirm_email_template.svelte';
 	let email_template;
 
-	let message = 'Get access to your Cart, Saved Items, Orders, Wishlist and Recommendations.';
-	let return_url = '/';
-
 	let form = {};
 	let error = {};
+
+	if ($module.email) {
+		form.email = $module.email;
+	}
+
+	let message = 'Get access to your Cart, Saved Items, Orders, Wishlist and Recommendations.';
+	let return_url = '/';
 
 	if ($module?.message) {
 		message = $module.message;
@@ -56,7 +60,7 @@
 		if (resp.status == 200) {
 			$token = resp.token;
 			document.location = return_url;
-		} else if (resp.status == 401 && resp.error == 'not confirmed') {
+		} else if (resp.error == 'not confirmed') {
 			$module = {
 				module: Info,
 				status: 200,
@@ -137,7 +141,10 @@
 					class="link"
 					name="Signup"
 					on:click={() => {
-						$module = { module: Signup };
+						$module = {
+							module: Signup,
+							email: form.email
+						};
 					}}
 				/>
 			</p>
@@ -149,7 +156,10 @@
 					class="link"
 					name="Recover"
 					on:click={() => {
-						$module = { module: Forgot };
+						$module = {
+							module: Forgot,
+							email: form.email
+						};
 					}}
 				/>
 			</p>

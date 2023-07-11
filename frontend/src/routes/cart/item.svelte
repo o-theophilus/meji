@@ -47,12 +47,12 @@
 		position: relative;
 
 		display: flex;
-		gap: var(--gap2);
+		gap: var(--sp2);
 		align-items: center;
 	}
 	section:not(:last-child) {
-		border-bottom: solid 2px var(--background);
-		padding-bottom: var(--gap2);
+		border-bottom: solid 2px var(--ac5);
+		padding-bottom: var(--sp2);
 	}
 
 	.img,
@@ -64,16 +64,16 @@
 	.details {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		width: 100%;
 	}
 	a {
 		text-decoration: none;
-		color: var(--font1);
+		color: var(--ac1);
 	}
 
 	.name {
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	.extreme {
@@ -81,6 +81,6 @@
 	}
 
 	.price {
-		color: var(--color3);
+		color: var(--cl3);
 	}
 </style>

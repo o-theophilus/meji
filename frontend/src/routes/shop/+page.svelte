@@ -4,32 +4,21 @@
 	import { state } from '$lib/page_state.js';
 
 	import Meta from '$lib/meta.svelte';
-	import Card from '$lib/comp/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
+	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 
-	import Search from '$lib/comp/search.svelte';
-	import View from '$lib/comp/page_view.svelte';
-	import Pagination from '$lib/comp/pagination.svelte';
-	import Status from '$lib/comp/status_bar.svelte';
-	import Button from '$lib/comp/button.svelte';
-	import Button_Fold from '$lib/comp/button_fold.svelte';
-
-	import Add from './add.svelte';
+	import Status_Bar from './status_bar.svelte';
+	import Category_Bar from './category_bar.svelte';
+	import Search from './search.svelte';
+	import View from './page_view.svelte';
+	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
 	let { categories } = data;
 	let { items } = data;
 	let { total_page } = data;
 
-	let bar_items = [
-		{ name: 'live', icon: 'none' },
-		{ name: 'draft', icon: 'none' },
-		{ name: 'delete', icon: 'none' }
-	];
-
-	let open = false;
+	let open = true;
 
 	const submit = async () => {
 		$loading = true;
@@ -60,101 +49,65 @@
 
 <Meta title="Shop" description="Shop" />
 
+<Category_Bar {categories} />
+<Search
+	on:ok={() => {
+		pagination.init();
+		submit();
+	}}
+/>
+<Status_Bar />
+
+<Pagination {total_page} />
+
 <Card>
-	<Title title="Shop">
-		<Button_Fold
-			{open}
-			on:click={() => {
-				open = !open;
-			}}
-		/>
-	</Title>
+	<div class="title">
+		Shop
 
-	<!-- <View
-		show_view={open}
-		on:ok={() => {
-			open = false;
-			submit();
-		}}
-	/> -->
-
-	<!-- <Search
-		on:ok={() => {
-			pagination.init();
-			submit();
-		}}
-	/> -->
-
-	{#if $user && $user.roles.includes('admin')}
-		<Status
-			{bar_items}
+		<View
+			show_view={open}
 			on:ok={() => {
-				pagination.init();
+				open = false;
 				submit();
 			}}
-		>
-			<svelte:fragment slot="after">
-				<Button
-					icon="add"
-					icon_size="12"
-					name="Add"
-					class="tiny primary"
-					on:click={() => {
-						$module = {
-							module: Add
-						};
-					}}
-				/>
-			</svelte:fragment>
-		</Status>
-	{/if}
+		/>
+	</div>
 
-	<Status
-		on:ok={() => {
-			pagination.init();
-			submit();
-		}}
-	>
-		<svelte:fragment slot="before">
-			<Button
-				name="all"
-				class="tag"
-				active={!$state.shop.category}
-				on:click={() => {
-					$state.shop.category = '';
-					pagination.init();
-					submit();
-				}}
-			/>
-			{#each categories as category}
-				<Button
-					name={category.name}
-					class="tag"
-					active={$state.shop.category == category.name}
-					on:click={() => {
-						$state.shop.category = category.name;
-						pagination.init();
-						submit();
-					}}
-				/>
-			{/each}
-		</svelte:fragment>
-	</Status>
-
-	<Body grid={$user.setting.item_view != 'list'}>
+	<div class="items" class:grid={true}>
 		{#each items as item (item.key)}
 			<Item {item} view_list={$user.setting.item_view == 'list'} />
 		{:else}
 			no item here
 		{/each}
-	</Body>
-
-	<!-- <svelte:component
-		this={Pagination}
-		bind:this={pagination}
-		{total_page}
-		on:ok={() => {
-			submit();
-		}}
-	/> -->
+	</div>
 </Card>
+
+<style>
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.items {
+		display: grid;
+		gap: var(--sp2);
+		grid-template-columns: 1fr;
+
+		margin-top: var(--sp4);
+		color: var(--ac1);
+	}
+	.grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	@media screen and (min-width: 700px) {
+		.grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media screen and (min-width: 1000px) {
+		.grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+</style>

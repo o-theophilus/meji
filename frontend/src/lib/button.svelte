@@ -54,15 +54,15 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
 		border: none;
-		padding: var(--gap2);
+		padding: var(--sp2);
 		border-radius: var(--brad1);
 
-		background-color: var(--background);
-		color: var(--font2);
-		fill: var(--font2);
+		background-color: var(--ac5);
+		color: var(--ac2);
+		fill: var(--ac2);
 
 		text-decoration: none;
 		font-weight: 500;
@@ -73,34 +73,34 @@
 
 	.active,
 	.primary {
-		background-color: var(--color1);
+		background-color: var(--cl1);
 		color: var(--light_color);
 		fill: var(--light_color);
 	}
 	.secondary {
 		background-color: transparent;
 		color: var(--midtone);
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 	}
 
 	.tertiary {
 		padding: 0;
 		border-radius: 0;
-		color: var(--font1);
+		color: var(--ac1);
 
 		background-color: transparent;
-		border-bottom: 2px solid var(--background);
+		border-bottom: 2px solid var(--ac5);
 	}
 	.link {
 		display: inline;
 		padding: 0;
-		color: var(--color1);
+		color: var(--cl1);
 		background-color: transparent;
 	}
 
 	.tiny {
-		gap: var(--gap1);
-		padding: var(--gap1);
+		gap: var(--sp1);
+		padding: var(--sp1);
 		font-size: small;
 	}
 	.tag {
@@ -144,31 +144,31 @@
 	}
 
 	:hover {
-		background-color: var(--color1);
+		background-color: var(--cl1);
 		color: var(--light_color);
 		fill: var(--light_color);
 	}
 
 	.active:hover,
 	.primary:hover {
-		background-color: var(--color2);
+		background-color: var(--cl2);
 	}
 	.tertiary:hover {
 		background-color: transparent;
-		border-color: var(--color1);
-		color: var(--color1);
+		border-color: var(--cl1);
+		color: var(--cl1);
 	}
 	.secondary:hover {
 		background-color: transparent;
-		color: var(--color1);
-		border: 2px solid var(--color1);
+		color: var(--cl1);
+		border: 2px solid var(--cl1);
 	}
 
 	.hover_red:hover {
-		background-color: var(--color4);
+		background-color: var(--cl4);
 	}
 	.link:hover {
 		background-color: transparent;
-		color: var(--color2);
+		color: var(--cl2);
 	}
 </style>

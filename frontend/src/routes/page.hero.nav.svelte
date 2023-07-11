@@ -61,9 +61,9 @@
 <style>
 	section {
 		display: flex;
-		gap: var(--gap2);
-		padding: var(--gap3);
-		padding-top: calc(var(--gap3) * 2);
+		gap: var(--sp2);
+		padding: var(--sp3);
+		padding-top: calc(var(--sp3) * 2);
 
 		justify-content: center;
 		font-weight: 500;
@@ -77,6 +77,6 @@
 	}
 
 	button:hover {
-		color: var(--color1);
+		color: var(--cl1);
 	}
 </style>

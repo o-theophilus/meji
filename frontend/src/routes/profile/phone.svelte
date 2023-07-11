@@ -2,7 +2,7 @@
 	import { portal, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';

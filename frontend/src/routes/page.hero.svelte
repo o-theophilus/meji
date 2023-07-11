@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import SVG from './page.svg.svelte';
 	import Nav from './page.hero.nav.svelte';
 </script>
@@ -47,18 +47,18 @@
 <style>
 	section {
 		/* --primary: var(--midtone); */
-		--primary: var(--background);
-		--secondary: var(--color3);
+		--primary: var(--ac5);
+		--secondary: var(--cl3);
 
 		position: relative;
 
-		left: calc(-1 * var(--gap1));
-		width: calc(100% + var(--gap1) * 2);
+		left: calc(-1 * var(--sp1));
+		width: calc(100% + var(--sp1) * 2);
 
 		overflow: hidden;
 
 		background: linear-gradient(var(--primary) 50%, transparent 50%);
-		color: var(--font1);
+		color: var(--ac1);
 		box-shadow: inset 0 7px 9px -7px rgba(0, 0, 0, 0.5);
 	}
 	@media screen and (min-width: 1200px) {
@@ -80,7 +80,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: var(--gap3);
+		gap: var(--sp3);
 
 		width: min(100%, 1000px);
 
@@ -95,7 +95,7 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	.desc,
@@ -106,7 +106,7 @@
 		font-size: 2rem;
 		font-weight: 600;
 
-		color: var(--color1);
+		color: var(--cl1);
 	}
 	.desc {
 		width: 100%;
@@ -123,7 +123,7 @@
 		flex-direction: column;
 		align-items: center;
 
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	img {
@@ -176,7 +176,7 @@
 		flex-direction: column;
 
 		background-color: var(--secondary);
-		padding: var(--gap1);
+		padding: var(--sp1);
 
 		color: var(--light_color);
 
@@ -186,7 +186,7 @@
 
 	.customer_img {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		align-items: center;
 	}
 	.customer_img img {
@@ -214,7 +214,7 @@
 		}
 
 		.second {
-			padding-top: var(--gap3);
+			padding-top: var(--sp3);
 		}
 		.second .btn {
 			display: none;

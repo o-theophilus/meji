@@ -9,13 +9,13 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
-		color: var(--font1);
+		color: var(--ac1);
 
-		padding: var(--gap2);
+		padding: var(--sp2);
 	}
 	.body:not(:first-child) {
-		border-top: 2px solid var(--background);
+		border-top: 2px solid var(--ac5);
 	}
 </style>

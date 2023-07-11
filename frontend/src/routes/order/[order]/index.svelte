@@ -42,14 +42,14 @@
 <script>
 	import { user, module } from '$lib/store.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 
 	import Breakdown from './_comp/breakdown.svelte';
 	import Action from './_comp/action.svelte';
 	import Status from './_comp/status.svelte';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import Form from './_address.svelte';
 
 	import Address from '$lib/comp/order_address.svelte';
@@ -113,12 +113,12 @@
 	.block {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
 		width: 100%;
 	}
 	section {
-		margin-top: var(--gap2);
+		margin-top: var(--sp2);
 	}
 
 	@media screen and (min-width: 800px) {

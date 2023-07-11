@@ -1,5 +1,5 @@
 <script>
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
 
@@ -29,7 +29,7 @@
 <style>
 	.grid {
 		display: grid;
-		gap: var(--gap1) var(--gap3);
+		gap: var(--sp1) var(--sp3);
 		grid-template-columns: 1fr auto;
 	}
 
@@ -41,7 +41,7 @@
 		text-align: center;
 	}
 	a {
-		color: var(--font1);
+		color: var(--ac1);
 		text-decoration: none;
 	}
 </style>

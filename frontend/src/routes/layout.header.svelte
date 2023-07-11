@@ -23,7 +23,7 @@
 
 <style>
 	header {
-		background-color: var(--foreground);
+		background-color: var(--ac5);
 		box-shadow: var(--shad1);
 	}
 	.block {
@@ -33,7 +33,7 @@
 
 		width: min(100%, 1200px);
 		height: var(--headerHeight);
-		padding: 0 var(--gap1);
+		padding: 0 var(--sp1);
 
 		margin: auto;
 	}
@@ -43,19 +43,19 @@
 
 		display: flex;
 		align-items: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
-		height: calc(var(--headerHeight) - var(--gap2));
+		height: calc(var(--headerHeight) - var(--sp2));
 
-		color: var(--font1);
-		fill: var(--color1);
+		color: var(--ac1);
+		fill: var(--cl1);
 		text-decoration: none;
 	}
 
 	.right {
 		display: flex;
 		align-items: center;
-		/* gap: var(--gap2); */
+		/* gap: var(--sp2); */
 	}
 	.nav {
 		display: none;
@@ -64,7 +64,7 @@
 
 	@media screen and (min-width: 800px) {
 		.block {
-			padding: 0 var(--gap3);
+			padding: 0 var(--sp3);
 		}
 		.nav {
 			display: unset;

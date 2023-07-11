@@ -46,11 +46,11 @@
 		display: flex;
 		flex-direction: column;
 
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 	section:not(:last-child) {
-		padding-bottom: var(--gap2);
-		border-bottom: 2px solid var(--background);
+		padding-bottom: var(--sp2);
+		border-bottom: 2px solid var(--ac5);
 	}
 
 	.details,
@@ -58,12 +58,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--gap2);
+		gap: var(--sp2);
 	}
 	.info {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gap1);
+		gap: var(--sp1);
 	}
 
 	.img {

@@ -1,35 +1,20 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { user, module } from '$lib/store.js';
+	import { module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/comp/password_checker.svelte';
 	import Button from '$lib/button.svelte';
-	import Login from './login.svelte';
-	import Info from '$lib/module/info.svelte';
 
-	import Email from './confirm_email_template.svelte';
-	let email_template;
+	import Info from '$lib/module/info.svelte';
+	import Login from './login.svelte';
+	import Forgot from './forgot.svelte';
 
 	let form = {};
 	let error = {};
 
-	if ($module.email) {
-		form.email = $module.email;
-	}
-
 	const validate = async () => {
 		error = {};
-		if (!form.name) {
-			error.name = 'This field is required';
-		}
-
-		if (!form.email) {
-			error.email = 'This field is required';
-		} else if (!/\S+@\S+\.\S+/.test(form.email)) {
-			error.email = 'Please enter a valid email';
-		}
 
 		if (!form.password) {
 			error.password = 'This field is required';
@@ -46,7 +31,7 @@
 
 		if (!form.confirm_password) {
 			error.confirm_password = 'This field is required';
-		} else if (form.password && form.password !== form.confirm_password && !error.password) {
+		} else if (form.password && !error.password && form.password !== form.confirm_password) {
 			error.confirm_password = 'Password and confirm password does not match';
 		}
 
@@ -54,9 +39,8 @@
 	};
 
 	const submit = async () => {
-		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
+		$loading = 'loading . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/forgot_password/${$module.token}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -65,20 +49,46 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		console.log(resp);
+		$loading = false;
 
 		if (resp.status == 200) {
-			goto('/');
 			$module = {
 				module: Info,
 				status: 200,
-				title: 'Confirmation Email Sent',
-				message: `A confirmation message has been sent to your email`,
+				title: 'Password Changed',
+				message: 'Your password has been changed successfully.',
 				button: [
 					{
-						name: 'Ok',
+						name: 'Login',
 						icon: 'ok',
 						fn: () => {
-							$module = '';
+							$module = {
+								module: Login,
+								email: resp.user.email
+							};
+						}
+					}
+				]
+			};
+		} else if (resp.error == 'invalid token') {
+			$module = {
+				module: Info,
+				status: 400,
+				title: 'Invalid or Expired Token',
+				message: `
+**Invalid or Expired Token**;
+There was an error while reading the token.
+
+Please try repeacting the action again.`,
+				button: [
+					{
+						name: 'Try Again',
+						icon: 'ok',
+						fn: () => {
+							$module = {
+								module: Forgot
+							};
 						}
 					}
 				]
@@ -91,39 +101,12 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Signup to this site</div>
+		<div class="title">Reset Password</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
-		<p>This is the 'Signup' page. There's not much here.</p>
-	</svelte:fragment>
+	<svelte:fragment slot="desc">Reset your password.</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
-		{#if error.error}
-			<p class="error">
-				{error.error}
-			</p>
-		{/if}
-
-		<div class="inputGroup">
-			<label for="name"> Fullname: </label>
-			<input type="text" bind:value={form.name} id="name" placeholder="Your fullname here" />
-			{#if error.name}
-				<p class="error">
-					{error.name}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup">
-			<label for="email"> Email: </label>
-			<input type="email" bind:value={form.email} id="email" placeholder="Your email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
 		<div class="inputGroup">
 			<label for="password"> Password: </label>
 			<input
@@ -140,6 +123,7 @@
 				</p>
 			{/if}
 		</div>
+
 		<div class="inputGroup">
 			<label for="confirm"> Confirm Password: </label>
 			<input
@@ -158,30 +142,11 @@
 		<div class="inputGroup horizontal">
 			<Button
 				class="primary"
-				name="Signup"
+				name="Submit"
 				on:click={() => {
 					validate();
 				}}
 			/>
 		</div>
-		<div class="inputGroup">
-			<p>
-				Already have an account?
-				<Button
-					class="link"
-					name="Login"
-					on:click={() => {
-						$module = {
-							module: Login,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
 	</form>
 </Form>
-
-<div bind:this={email_template} style="display: none;">
-	<Email />
-</div>

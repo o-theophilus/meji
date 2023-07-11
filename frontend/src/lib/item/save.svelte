@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg.svelte';
 
 	import { user, save_queue } from '$lib/store.js';
@@ -58,7 +58,7 @@
 
 {#if _type == 1}
 	<Button
-		color={item.saved ? 'var(--color2)' : ''}
+		color={item.saved ? 'var(--cl2)' : ''}
 		icon="like_active"
 		icon_size="12"
 		on:click={() => {
@@ -80,16 +80,16 @@
 	button {
 		width: 100%;
 		border: none;
-		padding: var(--gap1);
+		padding: var(--sp1);
 
 		background-color: transparent;
 		fill: var(--midtone);
 		cursor: pointer;
 	}
 	button:hover {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 	button.save {
-		fill: var(--color1);
+		fill: var(--cl1);
 	}
 </style>

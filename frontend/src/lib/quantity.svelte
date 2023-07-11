@@ -62,10 +62,10 @@
 		display: flex;
 		align-items: center;
 
-		border: 2px solid var(--background);
+		border: 2px solid var(--ac5);
 		border-radius: var(--brad1);
 
-		padding: 0 var(--gap1);
+		padding: 0 var(--sp1);
 		width: min-content;
 	}
 	button,
@@ -73,7 +73,7 @@
 		width: var(--size);
 		height: var(--size);
 
-		color: var(--font2);
+		color: var(--ac2);
 		background: none;
 		border: none;
 	}
@@ -81,7 +81,7 @@
 		position: absolute;
 		visibility: hidden;
 
-		padding: var(--gap1);
+		padding: var(--sp1);
 	}
 	button {
 		--size: 24px;
@@ -89,7 +89,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 
 		width: var(--size);
 		height: var(--size);
@@ -97,17 +97,17 @@
 		border-radius: 50%;
 	}
 	input {
-		padding: var(--gap1);
+		padding: var(--sp1);
 	}
 	button:hover {
-		background-color: var(--color1);
+		background-color: var(--cl1);
 		color: var(--light_color);
 	}
 
 	input:hover {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 	input:focus {
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

@@ -16,7 +16,7 @@
 		display: flex;
 		align-items: center;
 
-		fill: var(--color6);
+		fill: var(--cl6);
 	}
 	section {
 		display: flex;
@@ -30,6 +30,6 @@
 		padding: 4px;
 		border-radius: var(--brad1);
 
-		background-color: var(--background);
+		background-color: var(--ac5);
 	}
 </style>

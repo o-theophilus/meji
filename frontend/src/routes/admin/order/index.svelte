@@ -41,10 +41,10 @@
 	import { token } from '$lib/cookie.js';
 	import { state } from '$lib/page_state.js';
 
-	import Card from '$lib/comp/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Search from '$lib/comp/search.svelte';
 	import Status from '$lib/comp/status_bar.svelte';

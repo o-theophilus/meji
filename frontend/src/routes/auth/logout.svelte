@@ -2,7 +2,7 @@
 	import { token } from '$lib/cookie.js';
 	import { user } from '$lib/store.js';
 
-	import Button from '$lib/comp/button.svelte';
+	import Button from '$lib/button.svelte';
 
 	const submit = async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
@@ -16,7 +16,6 @@
 
 		if (resp.status == 200) {
 			$token = resp.token;
-			$user = resp.user;
 			document.location = '/';
 		}
 	};

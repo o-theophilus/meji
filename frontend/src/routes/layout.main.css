@@ -75,14 +75,14 @@ h6 {
 }
 
 .error {
-	color: var(--color4);
+	color: var(--cl4);
 	font-size: 0.8rem;
 }
 
 .h {
 	display: flex;
 	align-items: center;
-	gap: var(--gap2);
+	gap: var(--sp2);
 	flex-wrap: wrap;
 }
 .h.space {

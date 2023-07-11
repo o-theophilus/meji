@@ -32,11 +32,11 @@
 
 	.title_block {
 		display: flex;
-		gap: var(--gap1);
+		gap: var(--sp1);
 		flex-direction: column;
 
-		padding: var(--gap3);
-		background-color: var(--color1);
+		padding: var(--sp3);
+		background-color: var(--cl1);
 
 		color: var(--light_color);
 	}
@@ -47,7 +47,7 @@
 	}
 
 	.form {
-		padding: var(--gap3);
-		background-color: var(--foreground);
+		padding: var(--sp3);
+		background-color: var(--ac4);
 	}
 </style>

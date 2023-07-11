@@ -42,8 +42,7 @@
 <style>
 	main {
 		position: relative;
-		/* background: var(--background); */
-		background: var(--foreground);
+		background: var(--ac4);
 	}
 
 	.page {
@@ -51,8 +50,7 @@
 		min-height: calc(100vh - var(--headerHeight) * 2);
 
 		margin: auto;
-		padding: var(--gap1);
-		padding-top: 0;
+		padding: 0 var(--sp2);
 	}
 	.nav {
 		position: sticky;

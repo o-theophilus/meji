@@ -11,13 +11,13 @@
 		display: grid;
 		justify-content: center;
 		align-items: center;
-		gap: var(--gap2);
+		gap: var(--sp2);
 		grid-template-columns: 1fr;
 
-		color: var(--font1);
+		color: var(--ac1);
 
-		padding: var(--gap2);
-		border-top: 2px solid var(--background);
+		padding: var(--sp2);
+		border-top: 2px solid var(--ac5);
 	}
 	.grid {
 		grid-template-columns: repeat(2, 1fr);
