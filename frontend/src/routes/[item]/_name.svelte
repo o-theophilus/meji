@@ -5,8 +5,7 @@
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
 
-	export let data;
-	let { item } = data;
+	let { item } = $module;
 
 	item.old_price = item.old_price ? item.old_price : undefined;
 	let error = {};
@@ -57,9 +56,9 @@
 				tick(resp.data.item);
 				$module = '';
 
-				let { alias } = resp.data.item;
-				if (item.alias != alias) {
-					window.history.replaceState('', '', `/${alias}`);
+				let { slug } = resp.data.item;
+				if (item.slug != slug) {
+					window.history.replaceState('', '', `/${slug}`);
 				}
 			} else {
 				error = resp.message;
@@ -110,14 +109,11 @@
 		</div>
 
 		<div class="inputGroup">
-			<label for="desc"> Description: </label>
-			<textarea type="text" bind:value={item.desc} id="desc" placeholder="Description here" />
+			<label for="info"> Information: </label>
+			<textarea type="text" bind:value={item.info} id="info" placeholder="Information here" />
 		</div>
 
-		<div class="inputGroup">
-			<label for="spec"> Specification: </label>
-			<textarea type="text" bind:value={item.spec} id="spec" placeholder="Specification here" />
-		</div>
+
 
 		<div class="inputGroup horizontal">
 			<Button class="primary" name="Submit" />

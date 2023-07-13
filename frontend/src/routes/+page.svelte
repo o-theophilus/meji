@@ -12,8 +12,8 @@
 	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/button.svelte';
 
-	import Category from './page.cate.svelte';
-	import Category_All from './page.cate.all.svelte';
+	import Tag from './page.tag.svelte';
+	import Tag_All from './page.tagall.svelte';
 	import Hero from './page.hero.svelte';
 	import About from './page.about.svelte';
 	import Top from './page.to_top.svelte';
@@ -24,7 +24,7 @@
 
 	export let data;
 	let { group } = data;
-	let { categories } = data;
+	let { tags } = data;
 	let { ads } = data;
 
 	onMount(() => {
@@ -66,26 +66,26 @@
 <Hero />
 <Ads {ads} />
 
-{#if categories.length > 0}
-	<div id="category" />
+{#if tags.length > 0}
+	<div id="tag" />
 	<Card>
 		<div class="title">
-			Categories
+			tags
 			<Button
 				class="link"
 				name="view all >"
 				on:click={() => {
 					$module = {
-						module: Category_All,
-						categories
+						module: Tag_All,
+						tags
 					};
 				}}
 			/>
 		</div>
 
 		<div class="items" class:grid={true}>
-			{#each categories.slice(0, 6) as category}
-				<Category {category} />
+			{#each tags.slice(0, 6) as tag}
+				<Tag {tag} />
 			{/each}
 		</div>
 	</Card>

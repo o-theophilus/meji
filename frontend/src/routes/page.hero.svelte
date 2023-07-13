@@ -14,7 +14,7 @@
 	<div class="block">
 		<div class="first">
 			<div class="title">Shopping made easy</div>
-			<p class="desc">
+			<p class="info">
 				Whoever said money can't buy happiness basically didn't know where to go shopping.
 			</p>
 			<div class="btn">
@@ -98,7 +98,7 @@
 		gap: var(--sp1);
 	}
 
-	.desc,
+	.info,
 	.title {
 		text-align: center;
 	}
@@ -108,7 +108,7 @@
 
 		color: var(--cl1);
 	}
-	.desc {
+	.info {
 		width: 100%;
 		max-width: 300px;
 	}
@@ -202,11 +202,11 @@
 			align-items: unset;
 		}
 
-		.desc,
+		.info,
 		.title {
 			text-align: unset;
 		}
-		.desc {
+		.info {
 			font-size: 1.2rem;
 		}
 		.first .btn {

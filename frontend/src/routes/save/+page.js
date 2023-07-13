@@ -13,8 +13,8 @@ export const load = async ({ fetch, url }) => {
 	// 	if (value[_page_name].search) {
 	// 		backend.searchParams.set('search', value[_page_name].search);
 	// 	}
-	// 	if (value[_page_name].category) {
-	// 		backend.searchParams.set('category', value[_page_name].category);
+	// 	if (value[_page_name].tag) {
+	// 		backend.searchParams.set('tag', value[_page_name].tag);
 	// 	}
 	// 	if (value[_page_name].status) {
 	// 		backend.searchParams.set('status', value[_page_name].status);

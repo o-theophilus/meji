@@ -19,7 +19,7 @@
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category/${data.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag/${data.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -32,7 +32,7 @@
 			let resp = await _resp.json();
 
 			if (resp.status == 200) {
-				tick(resp.data.categories);
+				tick(resp.data.tags);
 			} else if (resp.status == 201) {
 				error.name = resp.message;
 			} else {
@@ -42,7 +42,7 @@
 	};
 
 	const del = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category/${data.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag/${data.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -54,7 +54,7 @@
 			let resp = await _resp.json();
 
 			if (resp.status == 200) {
-				tick(resp.data.categories);
+				tick(resp.data.tags);
 			} else {
 				error.form = resp.message;
 			}
@@ -64,7 +64,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Category</div>
+		<div class="title">Edit tag</div>
 	</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">

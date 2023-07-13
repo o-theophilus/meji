@@ -2,7 +2,7 @@ import { writable, get } from 'svelte/store';
 
 let default_page = {
 	search: '',
-	category: '',
+	tag: '',
 	status: '',
 	page_no: 1,
 	order: ['date', 'dsc']
@@ -28,8 +28,8 @@ export const page_name = writable();
 // 	if (page.search) {
 // 		query += `&search=${page.search}`;
 // 	}
-// 	if (page.category) {
-// 		query += `&category=${page.category}`;
+// 	if (page.tag) {
+// 		query += `&tag=${page.tag}`;
 // 	}
 // 	if (page.status) {
 // 		query += `&status=${page.status}`;

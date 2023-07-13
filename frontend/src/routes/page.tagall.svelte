@@ -10,23 +10,23 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Categories</div>
+		<div class="title">tags</div>
 	</svelte:fragment>
 
 	<div class="h">
-		{#each $module.categories as category}
+		{#each $module.tags as tag}
 			<Button
-				name={category.name}
+				name={tag.name}
 				class="tiny"
 				on:click={() => {
 					$state['shop'].search = '';
-					$state['shop'].category = category.name;
+					$state['shop'].tag = tag.name;
 					$state['shop'].page_no = 1;
 					$module = '';
 					goto('/shop');
 				}}
 			>
-				<SVG type={category.icon} size="20" />
+				<SVG type={tag.icon} size="20" />
 			</Button>
 		{/each}
 	</div>

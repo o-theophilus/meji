@@ -144,7 +144,7 @@
 			let resp = await _resp.json();
 
 			if (resp.status == 200) {
-				goto(`/${item.alias}`);
+				goto(`/${item.slug}`);
 			} else if (resp.status == 201) {
 				error = resp.message;
 			} else {

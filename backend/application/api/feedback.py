@@ -17,7 +17,7 @@ def user_feedback_for_item(key):
             "message": "invalid token"
         })
 
-    item = query("item", "alias", key, data)
+    item = query("item", "slug", key, data)
     if not item:
         return jsonify({
             "status": 400,

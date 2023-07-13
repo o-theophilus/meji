@@ -60,7 +60,7 @@
 		padding: var(--sp2);
 		border-radius: var(--brad1);
 
-		background-color: var(--ac5);
+		background-color: var(--ac4);
 		color: var(--ac2);
 		fill: var(--ac2);
 

@@ -40,7 +40,7 @@
 
 <Form>
 	<svelte:fragment slot="title">Delete Account</svelte:fragment>
-	<svelte:fragment slot="desc">Are you sure you want to delete account?</svelte:fragment>
+	<svelte:fragment slot="info">Are you sure you want to delete account?</svelte:fragment>
 	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup">
 			<label for="password"> Password: </label>

@@ -4,9 +4,9 @@ import os
 
 
 def base():
-    name = "meji"  # live
+    name = "live"
     if current_app.config["DEBUG"]:
-        name = "dev"  # test
+        name = "test"
     return Deta(os.environ["DETA_KEY"]).Base(name)
 
 
@@ -48,8 +48,8 @@ def database(x=None, delete=False, db=None):
     if type(x) == list:
         resps = []
         while len(x) > 0:
-            resp = base().put_many(x[:25])
-            resps.append(resp)
+            base().put_many(x[:25])
+            # resps.append(resp)
             x = x[25:]
 
         return resps

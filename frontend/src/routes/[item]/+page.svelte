@@ -5,10 +5,8 @@
 	import Item from '$lib/item/index.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
-	import Desc from './desc.svelte';
-	import Feedback from './feedback.svelte';
+
 	import Meta from '$lib/meta.svelte';
-	import Floater from './floater.svelte';
 
 	import Button from '$lib/button.svelte';
 
@@ -24,7 +22,7 @@
 	let edit_mode = true;
 </script>
 
-<Meta title={item.name} description={item.desc} image={item.thumbnail} />
+<Meta title={item.name} description={item.info} image={item.thumbnail} />
 
 <Card>
 	<div class="title">
@@ -44,14 +42,10 @@
 
 	<section class="block">
 		<div class="photo">
-			<Photo {item} />
+			<Photo {item} {edit_mode} />
 		</div>
-
 		<div>
-			<Info {item} />
-			<Desc {item} />
-			<Feedback {item} />
-			<Floater {item} />
+			<Info {item} {edit_mode} />
 		</div>
 	</section>
 </Card>
@@ -72,6 +66,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp2);
+		margin-top: var(--sp3);
 	}
 	.block > div {
 		width: 100%;
@@ -81,8 +76,6 @@
 		.block {
 			flex-direction: unset;
 			position: relative;
-			
-			margin-top: var(--sp2);
 		}
 
 		.photo {

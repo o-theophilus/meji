@@ -66,7 +66,7 @@
 		<div class="title">Forgot Password</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		Please enter your email below to send a password reset link to your email.
 	</svelte:fragment>
 

@@ -1,6 +1,6 @@
 <script>
 	import SVG from '$lib/comp/svg.svelte';
-	import Bar from './rating.bar.svelte';
+	import Bar from '../rating.bar.svelte';
 
 	export let feedback = [];
 

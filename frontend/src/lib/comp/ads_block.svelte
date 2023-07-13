@@ -27,7 +27,7 @@
 			alt={ads[index].name}
 			on:keypress
 			on:click={() => {
-				goto(`/${ads[index].alias}`);
+				goto(`/${ads[index].slug}`);
 			}}
 		/>
 

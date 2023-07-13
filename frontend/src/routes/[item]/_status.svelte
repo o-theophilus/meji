@@ -39,7 +39,7 @@
 		<div class="title">Change Status</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		Status - {item.status}
 	</svelte:fragment>
 

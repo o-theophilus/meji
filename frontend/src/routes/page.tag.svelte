@@ -4,20 +4,20 @@
 
 	import SVG from '$lib/comp/svg2.svelte';
 
-	export let category = {};
+	export let tag = {};
 </script>
 
 <button
 	on:click={() => {
 		// $state['shop'].search = '';
-		// $state['shop'].category = cate.name;
+		// $state['shop'].tag = cate.name;
 		// $state['shop'].page_no = 1;
 		goto('/shop');
 	}}
 >
-	<SVG type={category.icon} size="30" />
+	<SVG type={tag.icon} size="30" />
 	<div>
-		{category.name}
+		{tag.name}
 	</div>
 </button>
 

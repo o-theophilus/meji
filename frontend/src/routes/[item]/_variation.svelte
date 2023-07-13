@@ -10,13 +10,13 @@
 
 	export let data;
 	let { item } = data;
-	let { variation_options } = item;
+	let { variation } = item;
 
 	let in_variation;
 
 	let in_values = {};
-	for (let i in variation_options) {
-		in_values[i] = variation_options[i].join(', ');
+	for (let i in variation) {
+		in_values[i] = variation[i].join(', ');
 	}
 
 	const add_variation = () => {
@@ -26,25 +26,25 @@
 
 		in_variation = in_variation.toLowerCase();
 
-		for (let i in variation_options) {
+		for (let i in variation) {
 			if (i == in_variation) {
 				in_variation = '';
 				return;
 			}
 		}
 
-		variation_options[in_variation] = [];
+		variation[in_variation] = [];
 		in_variation = '';
 	};
 
 	const delete_variation = (Variation_name) => {
 		let temp = {};
-		for (let i in variation_options) {
+		for (let i in variation) {
 			if (i != Variation_name) {
-				temp[i] = variation_options[i];
+				temp[i] = variation[i];
 			}
 		}
-		variation_options = temp;
+		variation = temp;
 	};
 
 	const update_value = (Variation_name) => {
@@ -53,16 +53,16 @@
 		for (let i in temp1) {
 			temp2.push(temp1[i].trim());
 		}
-		variation_options[Variation_name] = temp2;
+		variation[Variation_name] = temp2;
 	};
 
 	let error;
 	const validate = () => {
 		error = '';
 
-		if (variation_options.length > 0) {
-			for (let i in variation_options) {
-				if (variation_options[i].length < 1) {
+		if (variation.length > 0) {
+			for (let i in variation) {
+				if (variation[i].length < 1) {
 					error = 'Empty property value';
 				}
 			}
@@ -78,7 +78,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ variation_options })
+			body: JSON.stringify({ variation })
 		});
 
 		if (_resp.ok) {
@@ -126,7 +126,7 @@
 			</div>
 		</div>
 
-		{#each Object.entries(variation_options) as [key, values], i (i)}
+		{#each Object.entries(variation) as [key, values], i (i)}
 			<div
 				class="inputGroup variation"
 				div

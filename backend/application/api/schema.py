@@ -45,13 +45,13 @@ def user_schema(user, db):
 
 
 def item_schema(item, db):
-    categories = []
+    tags = []
 
     for row in db:
-        if row["type"] == "category" and item["key"] in row["items"]:
-            categories.append(row)
-    categories = sorted(categories, key=lambda d: d["order"])
-    categories = [category["name"] for category in categories]
+        if row["type"] == "tag" and item["key"] in row["items"]:
+            tags.append(row)
+    tags = sorted(tags, key=lambda d: d["order"])
+    tags = [tag["name"] for tag in tags]
 
     photos = sorted(item["photos"], key=lambda d: d["order"])
     photos = [
@@ -88,19 +88,18 @@ def item_schema(item, db):
         "date_c": item["date_c"],
         "date_u": item["date_u"],
 
-        "alias": item["alias"],
+        "slug": item["slug"],
         "name": item["name"],
         "price": item["price"],
         "old_price": item["old_price"],
-        "desc": item["desc"],
-        "spec": item["spec"],
+        "info": item["info"],
 
         "variations": item["variations"],
 
         "photos": photos,
         "status": item["status"],
 
-        "categories": categories,
+        "tags": tags,
         "feedbacks": feedbacks,
     }
 
@@ -112,7 +111,7 @@ def order_schema(order, db):
         if item:
             item = item_schema(item, db)
             items.append({
-                "alias": item["alias"],
+                "slug": item["slug"],
                 # "key": item["key"],
                 "name": item["name"],
                 "price": item["price"],
@@ -150,12 +149,12 @@ def feedback_schema(fb):
     }
 
 
-def category_schema(category):
+def tag_schema(tag):
     return {
-        "key": category["key"],
-        "name": category["name"],
-        "icon": category["icon"],
-        "count": len(category["items"])
+        "key": tag["key"],
+        "name": tag["name"],
+        "icon": tag["icon"],
+        "count": len(tag["items"])
     }
 
 
@@ -170,7 +169,7 @@ def user_template(
         "type": "user",
         "date_c": now(),
         "date_u": now(),
-        "status": "anon",
+        "status": "anonymous",
 
         "name": name,
         "email": email,
@@ -201,11 +200,10 @@ def user_template(
 
 def item_template(
     name,
-    alias,
+    slug,
     price,
     old_price,
-    desc,
-    spec
+    info
 ):
     return {
         "key": uuid4().hex,
@@ -216,16 +214,15 @@ def item_template(
         "date_u": now(),
 
         "name": name,
-        "alias": alias,
+        "slug": slug,
         "price": price,
         "old_price": old_price,
-        "desc": desc,
-        "spec": spec,
+        "info": info,
         "photos": [],
         "ads": {},
 
         "available_quantity": 0,
-        "variation_options": {},
+        "variation": {},
         "feedbacks": [],
     }
 

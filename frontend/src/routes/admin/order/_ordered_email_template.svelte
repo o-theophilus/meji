@@ -43,7 +43,7 @@
 	text-decoration: none;
 	color: #1d9bf0;
 	"
-			href="{$page.url.origin}/{item.alias}"
+			href="{$page.url.origin}/{item.slug}"
 			target="_blank"
 		>
 			<img

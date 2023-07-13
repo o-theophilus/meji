@@ -48,7 +48,7 @@
 		<div class="title">Add Voucher</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>Add to your balance.</p>
 	</svelte:fragment>
 

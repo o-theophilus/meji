@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify
 # from .auth import omni
 from deta import Deta
 from os import environ
-from .database import database
+from .database import database, query
+from datetime import datetime
 
 
 bp = Blueprint("api", __name__)
@@ -24,14 +25,20 @@ def cron():
     })
 
 
-@bp.post("/copy_db")
+@bp.get("/copy_db")
 def copy_db():
-    from_ = Deta(environ["DETA_KEY"]).Base("dev")
-    to_ = Deta(environ["DETA_KEY"]).Base("dev")
+    source = Deta(environ["DETA_KEY"]).Base("meji")
+    target = Deta(environ["DETA_KEY"]).Base("live")
 
-    while len(from_) != 0:
-        to_.put_many(from_[:25])
-        from_ = from_[25:]
+    res = source.fetch()
+    entities = res.items
+    while res.last:
+        res = source.fetch(last=res.last)
+        entities += res.items
+
+    while len(entities) > 0:
+        target.put_many(entities[:25])
+        entities = entities[25:]
 
     return jsonify({
         "status": 200,
@@ -43,17 +50,36 @@ def copy_db():
 def fix():
     db = database()
 
-    items = []
-    for item in db:
-        if item["type"] == "item":
-            item["variations"] = item.pop("variation_options")
-            items.append(item)
+    edited = []
+    for x in db:
+        if x["type"] == "item":
+            flag = False
+            if "variation_options" in x:
+                x["variations"] = x.pop("variation_options")
+                flag = True
+            if "alias" in x:
+                x["slug"] = x.pop("alias")
+                flag = True
+            if "desc" in x:
+                x["info"] = x.pop("desc")
+                flag = True
+            if "spec" in x:
+                del x["spec"]
+            if flag:
+                edited.append(x)
 
-    database(items)
+        elif x["type"] == "user" and x["status"] == "anon":
+            x["status"] == "anonymous"
+            edited.append(x)
+
+        elif x["type"] == "category":
+            x["type"] = "tag"
+            edited.append(x)
+
+    database(edited)
 
     return jsonify({
-        "status": 200,
-        "error": "successful"
+        "status": 200
     })
 
 

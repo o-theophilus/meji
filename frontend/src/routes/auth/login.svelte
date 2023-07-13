@@ -87,7 +87,7 @@
 		<div class="title">Login to your account</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		{@html message}
 	</svelte:fragment>
 

@@ -11,9 +11,9 @@
 
 	let error = '';
 
-	let all_categories = [...item.categories];
+	let all_tags = [...item.tags];
 	onMount(async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag`, {
 			method: 'get',
 			headers: {
 				'Content-Type': 'application/json',
@@ -25,13 +25,13 @@
 			let resp = await _resp.json();
 
 			if (resp.status == 200) {
-				for (let i in resp.data.categories) {
-					let name = resp.data.categories[i].name;
-					if (!all_categories.includes(name)) {
-						all_categories.push(name);
+				for (let i in resp.data.tags) {
+					let name = resp.data.tags[i].name;
+					if (!all_tags.includes(name)) {
+						all_tags.push(name);
 					}
 				}
-				all_categories = all_categories;
+				all_tags = all_tags;
 			} else {
 				error = resp.message;
 			}
@@ -40,9 +40,9 @@
 
 	const submit = async () => {
 		error = '';
-		item.categories = clean_up();
+		item.tags = clean_up();
 
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category/${item.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag/${item.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -63,10 +63,10 @@
 		}
 	};
 
-	let in_category = item.categories.join(', ');
+	let in_tag = item.tags.join(', ');
 
 	const clean_up = () => {
-		let temp = in_category.split(',');
+		let temp = in_tag.split(',');
 		let cate_list = [];
 		for (let i in temp) {
 			temp[i] = temp[i].trim().toLowerCase();
@@ -76,7 +76,7 @@
 		}
 		return cate_list;
 	};
-	const add_category = (cate) => {
+	const add_tag = (cate) => {
 		let cate_list = clean_up();
 
 		cate = cate.trim().toLowerCase();
@@ -84,37 +84,37 @@
 			cate_list.push(cate);
 		}
 
-		in_category = cate_list.join(', ');
+		in_tag = cate_list.join(', ');
 	};
 </script>
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Item Categories</div>
+		<div class="title">Edit Item tags</div>
 	</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup">
-			<label for="category"> Categories: </label>
-			<textarea type="text" bind:value={in_category} id="category" placeholder="Category here" />
+			<label for="tag"> tags: </label>
+			<textarea type="text" bind:value={in_tag} id="tag" placeholder="tag here" />
 			<div class="inputGroup horizontal">
 				<Button
 					class="tiny"
 					name="Clean"
 					on:click={() => {
-						add_category('');
+						add_tag('');
 					}}
 				/>
 			</div>
 		</div>
 
-		<div class="inputGroup category">
-			{#each all_categories as category}
+		<div class="inputGroup tag">
+			{#each all_tags as tag}
 				<Button
-					name={category}
+					name={tag}
 					class="tiny"
 					on:click={() => {
-						add_category(category);
+						add_tag(tag);
 					}}
 				/>
 			{/each}

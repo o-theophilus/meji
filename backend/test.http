@@ -26,29 +26,11 @@ content-type: application/json
 
 ###
 
-
-### Init
-post https://staging-api-test.kwik.delivery/vendor_login HTTP/1.1
+#Copy
+get  {{host}}/copy_db HTTP/1.1
 content-type: application/json
+Authorization: {{Authorization}}
 
-{
-    "domain_name": "staging-client-panel.kwik.delivery",
-    "email": "theophilus.ogbolu@gmail.com",
-    "password": "thehipsoul",
-    "api_login" :1
-}
-###
-
-### Init
-post https://staging-api-test.kwik.delivery/vendor_login HTTP/1.1
-content-type: application/json
-
-{
-    "domain_name": "staging-client-panel.kwik.delivery",
-    "email": "theophilus.ogbolu@gmail.com",
-    "password": "thehipsoul",
-    "api_login" :1
-}
 ###
 
 #Fix

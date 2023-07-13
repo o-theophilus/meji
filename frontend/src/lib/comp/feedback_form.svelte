@@ -57,7 +57,7 @@
 		<div class="title">Add Feeedback</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>{item.name}</p>
 	</svelte:fragment>
 

@@ -15,7 +15,7 @@
 		<Button class="wide2" name="Order" href="/admin/order" />
 		<Button class="wide2" name="Ad" href="/admin/ad" />
 		<Button class="wide2" name="Voucher" href="/admin/voucher" />
-		<Button class="wide2" name="Category" href="/admin/category" />
+		<Button class="wide2" name="tag" href="/admin/tag" />
 		<Button class="wide2" name="User" href="/admin/user" />
 	</Body>
 </Card>

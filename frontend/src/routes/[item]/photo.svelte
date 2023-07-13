@@ -9,6 +9,8 @@
 	import AddPhoto from './_photo_add.svelte';
 
 	export let item;
+	export let edit_mode = false;
+
 	let index = 0;
 </script>
 
@@ -34,7 +36,7 @@
 				}}
 				tooltip="{item.photos.length == 0 ? 'Add' : 'Edit'} Photo"
 			/>
-			<Button icon="logo" icon_size="12" class="tiny" href="/{item.alias}/ads" tooltip="Ads" />
+			<Button icon="logo" icon_size="12" class="tiny" href="/{item.slug}/ads" tooltip="Ads" />
 		</div>
 	{/if}
 </div>

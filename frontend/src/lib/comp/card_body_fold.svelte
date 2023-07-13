@@ -3,9 +3,9 @@
 	import { elasticInOut } from 'svelte/easing';
 </script>
 
-<section transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
 	<slot>No Item</slot>
-</section>
+</div>
 
 <style>
 	section {

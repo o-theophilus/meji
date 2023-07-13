@@ -59,7 +59,7 @@
 		<div class="title">Account Amount</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">Enter amount to deduct from your account</svelte:fragment>
+	<svelte:fragment slot="info">Enter amount to deduct from your account</svelte:fragment>
 
 	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
 		<div class="inputGroup horizontal">

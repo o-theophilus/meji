@@ -79,7 +79,7 @@
 		<div class="title">Add Photo</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>Select photo</p>
 	</svelte:fragment>
 

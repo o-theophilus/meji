@@ -22,11 +22,11 @@ form {
 	flex-direction: row;
 }
 
-.category {
+.tag {
 	flex-direction: row;
 	flex-wrap: wrap;
 }
-.category input {
+.tag input {
 	width: unset;
 }
 

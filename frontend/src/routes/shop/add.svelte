@@ -53,7 +53,7 @@
 		if (_resp.ok) {
 			let resp = await _resp.json();
 			if (resp.status == 200) {
-				goto(`/${resp.data.item.alias}`);
+				goto(`/${resp.data.item.slug}`);
 				$module = '';
 			} else {
 				error = resp.message;
@@ -67,7 +67,7 @@
 		<div class="title">Add Item</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>Add a new item</p>
 	</svelte:fragment>
 
@@ -108,13 +108,8 @@
 		</div>
 
 		<div class="inputGroup">
-			<label for="desc"> Description: </label>
-			<textarea type="text" bind:value={form.desc} id="desc" placeholder="Description here" />
-		</div>
-
-		<div class="inputGroup">
-			<label for="spec"> Specification: </label>
-			<textarea type="text" bind:value={form.spec} id="spec" placeholder="Specification here" />
+			<label for="info"> Description: </label>
+			<textarea type="text" bind:value={form.info} id="info" placeholder="Description here" />
 		</div>
 
 		<div class="inputGroup horizontal">

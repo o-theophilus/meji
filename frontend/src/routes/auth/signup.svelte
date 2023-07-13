@@ -94,7 +94,7 @@
 		<div class="title">Signup to this site</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>This is the 'Signup' page. There's not much here.</p>
 	</svelte:fragment>
 

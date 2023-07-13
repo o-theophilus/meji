@@ -104,7 +104,7 @@ Please try repeacting the action again.`,
 		<div class="title">Reset Password</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">Reset your password.</svelte:fragment>
+	<svelte:fragment slot="info">Reset your password.</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup">

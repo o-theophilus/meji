@@ -90,7 +90,7 @@
 		<div class="title">Manage Photo</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">
+	<svelte:fragment slot="info">
 		<p>Add, Remove, Reorder Photos</p>
 	</svelte:fragment>
 

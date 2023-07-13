@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, send_file
 from .tools import token_to_user
-from .schema import item_schema, category_schema, log_template
+from .schema import item_schema, tag_schema, log_template
 from math import ceil
 from .database import database, query
 from .storage import storage
@@ -17,8 +17,8 @@ def get_photo(key, thumbnail=False):
     return send_file(photo, mimetype="image/jpg")
 
 
-# @bp.get("/item/<alias>")
-# def item(alias):
+# @bp.get("/item/<slug>")
+# def item(slug):
 #     db = database()
 
 #     user = token_to_user(db)
@@ -28,7 +28,7 @@ def get_photo(key, thumbnail=False):
 #             "error": "invalid token"
 #         })
 
-#     item = query({"type": "item", "alias": alias}, db=db)
+#     item = query({"type": "item", "slug": slug}, db=db)
 #     if not item:
 #         return jsonify({
 #             "status": 400,
@@ -44,20 +44,20 @@ def get_photo(key, thumbnail=False):
 #             f'{request.host_url}/photos/{item["ads"]["900x300"]}'
 #         }
 
-#     categories = query({"type": "category"}, True, db)
-#     categories = sorted(categories, key=lambda d: d['order'])
-#     categories = [x["name"] for x in categories]
+#     tags = query({"type": "tag"}, True, db)
+#     tags = sorted(tags, key=lambda d: d['order'])
+#     tags = [x["name"] for x in tags]
 
 #     return jsonify({
 #         "status": 200,
 #         "item": item_schema(item, db),
-#         "categories": categories,
+#         "tags": tags,
 #         "ads": ads
 #     })
 
 
-@bp.get("/item_info/<alias>")
-def item_info(alias):
+@bp.get("/item_info/<slug>")
+def item_info(slug):
     db = database()
 
     user = token_to_user(db)
@@ -67,7 +67,7 @@ def item_info(alias):
             "error": "invalid token"
         })
 
-    item = query({"type": "item", "alias": alias}, db=db)
+    item = query({"type": "item", "slug": slug}, db=db)
     if not item:
         return jsonify({
             "status": 400,
@@ -120,14 +120,14 @@ def item_master(
     db=[],
     status="live",
     search="",
-    category="",
+    tag="",
     order=["date", "dsc"],
     page_no=1,
     size=24,
 ):
 
-    if category:
-        category = query({"type": "category", "name": category}, db=db)
+    if tag:
+        tag = query({"type": "tag", "name": tag}, db=db)
 
     items = []
     for row in db:
@@ -135,17 +135,17 @@ def item_master(
             row["type"] == "item"
             and row["status"] == status
         ):
-            if search and category:
+            if search and tag:
                 if (
                     re.search(search, row["name"], re.IGNORECASE)
-                    and row["key"] in category["items"]
+                    and row["key"] in tag["items"]
                 ):
                     items.append(row)
             elif search:
                 if re.search(search, row["name"], re.IGNORECASE):
                     items.append(row)
-            elif category:
-                if row["key"] in category["items"]:
+            elif tag:
+                if row["key"] in tag["items"]:
                     items.append(row)
             else:
                 items.append(row)
@@ -196,7 +196,7 @@ def home():
             ):
                 ads.append({
                     "name": row["name"],
-                    "alias": row["alias"],
+                    "slug": row["slug"],
                     "ads": {
                         f'{"xxx"}/{row["ads"]["300x300"]}',
                         f'{"xxx"}/{row["ads"]["300x600"]}',
@@ -205,14 +205,14 @@ def home():
                     }
                 })
 
-    categories = query({"type": "category"}, True, db)
-    categories = sorted(categories, key=lambda d: d['order'])
-    categories = [category_schema(x) for x in categories if x["items"] != []]
+    tags = query({"type": "tag"}, True, db)
+    tags = sorted(tags, key=lambda d: d['order'])
+    tags = [tag_schema(x) for x in tags if x["items"] != []]
 
     return jsonify({
         "status": 200,
         "ads": ads,
-        "categories": categories,
+        "tags": tags,
         "group": [
             #     "name": "Featured",
             #     "name": "Recommended",
@@ -252,17 +252,17 @@ def shop():
         ) else "live",
         search=request.args[
             "search"] if "search" in request.args else "",
-        category=request.args[
-            "category"] if "category" in request.args else "",
+        tag=request.args[
+            "tag"] if "tag" in request.args else "",
         order=request.args["order"].split(
             ',') if "order" in request.args else ["date", "dsc"],
         page_no=int(request.args[
             "page_no"]) if "page_no" in request.args else 1,
     ).json
 
-    categories = query({"type": "category"}, True, db)
-    categories = sorted(categories, key=lambda d: d['order'])
-    categories = [category_schema(x) for x in categories if x["items"] != []]
+    tags = query({"type": "tag"}, True, db)
+    tags = sorted(tags, key=lambda d: d['order'])
+    tags = [tag_schema(x) for x in tags if x["items"] != []]
 
-    out["categories"] = categories
+    out["tags"] = tags
     return out

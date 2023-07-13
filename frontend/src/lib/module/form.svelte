@@ -1,7 +1,7 @@
 <section>
 	<div class="title_block">
 		<div class="title"><slot name="title" /></div>
-		<slot name="desc" />
+		<slot name="info" />
 	</div>
 	<div class="form">
 		<slot />

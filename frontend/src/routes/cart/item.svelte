@@ -24,7 +24,7 @@
 	</div>
 	<div class="details">
 		<div class="h name">
-			<a href="/{item.alias}">
+			<a href="/{item.slug}">
 				{item.name}
 			</a>
 			<Value variation={item.variation} />

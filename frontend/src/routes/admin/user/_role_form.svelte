@@ -14,7 +14,7 @@
 
 	const submit = async () => {
 		error = '';
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category/${user.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag/${user.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -42,7 +42,7 @@
 	</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup category">
+		<div class="inputGroup tag">
 			{#each roles as role}
 				<label class="button" for={role}>
 					<input type="checkbox" id={role} value={role} />

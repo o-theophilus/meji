@@ -22,7 +22,7 @@
 </script>
 
 <section class="item" class:view_list>
-	<a href="/{item.alias}">
+	<a href="/{item.slug}">
 		<img
 			src={`${item.photos[0]}/thumbnail` || ''}
 			alt={item.name}
@@ -31,7 +31,7 @@
 	</a>
 
 	<div class="details_control">
-		<a href="/{item.alias}">
+		<a href="/{item.slug}">
 			<div class="details">
 				<div class="name">
 					{item.name}

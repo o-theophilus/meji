@@ -482,7 +482,7 @@ def delete():
     user["status"] = "deleted"
     user["login"] = False
     temp = uuid4().hex
-    anon_user = user_template("anon", temp, temp)
+    anon_user = user_template("anonymous", temp, temp)
     anon_user["setting"]["theme"] = user["setting"]["theme"]
     database([user, anon_user])
 

@@ -3,7 +3,7 @@
 <style>
 	.hr {
 		height: 2px;
-		background: var(--ac5);
+		background: var(--ac4);
 		width: 100%;
 	}
 </style>

@@ -19,7 +19,7 @@
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}category`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -32,7 +32,7 @@
 			let resp = await _resp.json();
 
 			if (resp.status == 200) {
-				tick(resp.data.categories);
+				tick(resp.data.tags);
 			} else {
 				error = resp.message;
 			}
@@ -42,7 +42,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Add Category</div>
+		<div class="title">Add tag</div>
 	</svelte:fragment>
 
 	<form on:submit|preventDefault={validate} novalidate autocomplete="off">

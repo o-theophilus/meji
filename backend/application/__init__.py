@@ -17,7 +17,7 @@ from .api import item_get
 from .api import item_ad
 from .api import feedback
 
-from .api import category
+from .api import tag
 
 
 def create_app(config_file="config.py"):
@@ -49,6 +49,6 @@ def create_app(config_file="config.py"):
     app.register_blueprint(item_ad.bp)
     app.register_blueprint(feedback.bp)
 
-    app.register_blueprint(category.bp)
+    app.register_blueprint(tag.bp)
 
     return app

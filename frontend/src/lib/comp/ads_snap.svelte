@@ -28,7 +28,7 @@
 				src={ad.ads['300x300']}
 				alt={ad.name}
 				on:click={() => {
-					goto(`/${ads[index].alias}`);
+					goto(`/${ads[index].slug}`);
 				}}
 			/>
 		{/each}

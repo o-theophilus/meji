@@ -8,13 +8,13 @@
 	import Item from '$lib/item/index.svelte';
 
 	import Status_Bar from './status_bar.svelte';
-	import Category_Bar from './category_bar.svelte';
+	import Tag_Bar from './tag_bar.svelte';
 	import Search from './search.svelte';
 	import View from './page_view.svelte';
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
-	let { categories } = data;
+	let { tags } = data;
 	let { items } = data;
 	let { total_page } = data;
 
@@ -49,7 +49,7 @@
 
 <Meta title="Shop" description="Shop" />
 
-<Category_Bar {categories} />
+<Tag_Bar {tags} />
 <Search
 	on:ok={() => {
 		pagination.init();

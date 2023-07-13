@@ -16,7 +16,7 @@ def ads_schema(item):
 
     return {
         "key": item["key"],
-        "alias": item["alias"],
+        "slug": item["slug"],
         "name": item["name"],
 
         "photos": photos,

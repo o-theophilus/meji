@@ -16,10 +16,10 @@
 	</button>
 	<button
 		on:click={() => {
-			go('category');
+			go('tag');
 		}}
 	>
-		Categories
+		tags
 	</button>
 	<button
 		on:click={() => {

@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
-from .schema import category_schema, item_schema
+from .schema import tag_schema, item_schema
 from uuid import uuid4
 from .database import database
 
 
-bp = Blueprint("category", __name__)
+bp = Blueprint("tag", __name__)
 
 
-@bp.get("/category")
+@bp.get("/tag")
 def get_all():
     data = database()
 
@@ -25,19 +25,19 @@ def get_all():
             "message": "unauthorised access"
         })
 
-    # categories = get_categories(data)
-    categories = []
+    # tags = get_tags(data)
+    tags = []
 
     return jsonify({
         "status": 200,
         "message": "successful",
         "data": {
-            "categories": [category_schema(x) for x in categories]
+            "tags": [tag_schema(x) for x in tags]
         }
     })
 
 
-@ bp.get("/category/<name>")
+@ bp.get("/tag/<name>")
 def get(name):
     data = database()
 
@@ -54,8 +54,8 @@ def get(name):
             "message": "unauthorised access"
         })
 
-    category = query("category", "name", name, data)
-    if not category:
+    tag = query("tag", "name", name, data)
+    if not tag:
         return jsonify({
             "status": 400,
             "message": "invalid request"
@@ -65,12 +65,12 @@ def get(name):
         "status": 200,
         "message": "successful",
         "data": {
-            "category": category_schema(category)
+            "tag": tag_schema(tag)
         }
     })
 
 
-@ bp.post("/category")
+@ bp.post("/tag")
 def add_new():
     data = database()
 
@@ -93,41 +93,41 @@ def add_new():
             "message": "this field is required"
         })
 
-    cate_with_name = query("category", "name", request.json["name"], data)
+    cate_with_name = query("tag", "name", request.json["name"], data)
     if cate_with_name:
         return jsonify({
             "status": 201,
             "message": "name in use"
         })
 
-    category = {
+    tag = {
         "key": uuid4().hex,
         "name": request.json["name"],
         "icon": request.json["name"],
         "items": [],
-        "type": "category",
+        "type": "tag",
         "order": 1000000
     }
 
     if "icon" in request.json and request.json["icon"]:
-        category["icon"] = request.json["icon"]
+        tag["icon"] = request.json["icon"]
 
-    category = database(category)
-    # categories = get_categories(data)
-    categories = []
-    categories = [*categories, category]
+    tag = database(tag)
+    # tags = get_tags(data)
+    tags = []
+    tags = [*tags, tag]
 
     return jsonify({
         "status": 200,
         "message": "successful",
         "data": {
-            # "category": category_schema(category),
-            "categories": [category_schema(x) for x in categories]
+            # "tag": tag_schema(tag),
+            "tags": [tag_schema(x) for x in tags]
         }
     })
 
 
-@ bp.post("/category/<key>")
+@ bp.post("/tag/<key>")
 def item_edit_cate(key):
     data = database()
 
@@ -151,32 +151,32 @@ def item_edit_cate(key):
             "message": "invalid request"
         })
 
-    categories = []
-    cates_ = request.json["categories"]
+    tags = []
+    cates_ = request.json["tags"]
     for row in data:
-        if row["type"] == "category":
+        if row["type"] == "tag":
             if row["name"] in cates_:
                 cates_.remove(row["name"])
                 if item["key"] not in row["items"]:
                     row["items"] = [*row["items"], item["key"]]
-                    categories.append(row)
+                    tags.append(row)
 
             elif item["key"] in row["items"]:
                 row["items"] = [x for x in row["items"] if x != item["key"]]
-                categories.append(row)
+                tags.append(row)
 
     for name in cates_:
-        category = {
+        tag = {
             "key": uuid4().hex,
             "name": name,
             "icon": name,
             "items": [item["key"]],
-            "type": "category",
+            "type": "tag",
             "order": 1000000
         }
-        categories.append(category)
+        tags.append(tag)
 
-    database([*categories])
+    database([*tags])
 
     data = database()
     return jsonify({
@@ -188,7 +188,7 @@ def item_edit_cate(key):
     })
 
 
-@bp.put("/category/<key>")
+@bp.put("/tag/<key>")
 def edit(key):
     data = database()
 
@@ -211,44 +211,44 @@ def edit(key):
             "message": "this field is required"
         })
 
-    category = query("category", "key", key, data)
-    if not category:
+    tag = query("tag", "key", key, data)
+    if not tag:
         return jsonify({
             "status": 400,
             "message": "invalid request"
         })
 
-    cate_with_name = query("category", "name", request.json["name"], data)
-    if cate_with_name and category["key"] != cate_with_name["key"]:
+    cate_with_name = query("tag", "name", request.json["name"], data)
+    if cate_with_name and tag["key"] != cate_with_name["key"]:
         return jsonify({
             "status": 201,
             "message": "name in use"
         })
 
-    category["name"] = request.json["name"]
+    tag["name"] = request.json["name"]
     if "icon" in request.json and request.json["icon"]:
-        category["icon"] = request.json["icon"]
+        tag["icon"] = request.json["icon"]
 
-    category = database(category)
-    # categories = get_categories(data)
-    categories = []
+    tag = database(tag)
+    # tags = get_tags(data)
+    tags = []
 
-    _categories = []
-    for x in categories:
-        if x["key"] == category["key"]:
-            x = category
-        _categories.append(x)
+    _tags = []
+    for x in tags:
+        if x["key"] == tag["key"]:
+            x = tag
+        _tags.append(x)
 
     return jsonify({
         "status": 200,
         "message": "successful",
         "data": {
-            "categories": [category_schema(x) for x in _categories]
+            "tags": [tag_schema(x) for x in _tags]
         }
     })
 
 
-@bp.put("/category_/<key>")
+@bp.put("/tag_/<key>")
 def rearrange(key):
     data = database()
 
@@ -265,8 +265,8 @@ def rearrange(key):
             "message": "unauthorised access"
         })
 
-    category = query("category", "key", key, data)
-    if not category:
+    tag = query("tag", "key", key, data)
+    if not tag:
         return jsonify({
             "status": 400,
             "message": "invalid request"
@@ -278,9 +278,9 @@ def rearrange(key):
             "message": "invalid request"
         })
 
-    # categories = get_categories(data)
-    categories = []
-    temp_list = [x["key"] for x in categories]
+    # tags = get_tags(data)
+    tags = []
+    temp_list = [x["key"] for x in tags]
 
     i = temp_list.index(key)
     if request.json["dir"] == "down":
@@ -294,23 +294,23 @@ def rearrange(key):
     temp_list.remove(key)
     temp_list.insert(i, key)
 
-    for x in categories:
+    for x in tags:
         x["order"] = temp_list.index(x["key"])
 
-    categories = sorted(categories, key=lambda d: d['order'])
+    tags = sorted(tags, key=lambda d: d['order'])
     # Limit to 25
-    database(categories)
+    database(tags)
 
     return jsonify({
         "status": 200,
         "message": "successful",
         "data": {
-            "categories": [category_schema(x) for x in categories]
+            "tags": [tag_schema(x) for x in tags]
         }
     })
 
 
-@bp.delete("/category/<key>")
+@bp.delete("/tag/<key>")
 def delete(key):
     data = database()
 
@@ -327,23 +327,23 @@ def delete(key):
             "message": "unauthorised access"
         })
 
-    category = query("category", "key",  key, data)
-    if not category:
+    tag = query("tag", "key",  key, data)
+    if not tag:
         return jsonify({
             "status": 400,
             "message": "invalid request"
         })
 
-    db.rem(category)
+    db.rem(tag)
 
-    # categories = get_categories(data)
-    categories = []
-    categories = [x for x in categories if x["key"] != category["key"]]
+    # tags = get_tags(data)
+    tags = []
+    tags = [x for x in tags if x["key"] != tag["key"]]
 
     return jsonify({
         "status": 200,
         "message": "successful",
         "data": {
-            "categories": [category_schema(x) for x in categories]
+            "tags": [tag_schema(x) for x in tags]
         }
     })

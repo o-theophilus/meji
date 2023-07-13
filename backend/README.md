@@ -1,11 +1,13 @@
 # Todo
+* brename status anon to anonymous 
+* rename item alias to slug
+* rename category to tag
+* remove item spec
+<!-- rename db from meji to live -->
+<!-- rename db from dev to test -->
 - [ ] Concurrency
 - [ ] review reserve words for item names
-rename status anon to anonymous
-rename item alias to slug
 create default super user
-rename db from meji to live
-rename db from dev to test
 address api: https://www.geoapify.com/tutorials
 
 

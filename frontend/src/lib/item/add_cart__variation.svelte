@@ -17,9 +17,9 @@
 
 	// const init = () => {
 	// 	let temp = {};
-	// 	for (let i in variation_options) {
-	// 		if (variation_options[i].length == 1) {
-	// 			temp[i] = variation_options[i][0];
+	// 	for (let i in variation) {
+	// 		if (variation[i].length == 1) {
+	// 			temp[i] = variation[i][0];
 	// 		} else {
 	// 			temp[i] = '';
 	// 		}

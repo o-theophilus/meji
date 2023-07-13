@@ -106,7 +106,7 @@
 		<div class="title">Change Email</div>
 	</svelte:fragment>
 
-	<svelte:fragment slot="desc">Change your account Email.</svelte:fragment>
+	<svelte:fragment slot="info">Change your account Email.</svelte:fragment>
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup">Current Email: {$module.user.email}</div>

@@ -19,7 +19,7 @@
 			{i + 1}
 		</div>
 		<div class="h name">
-			<a href="/{item.alias}">
+			<a href="/{item.slug}">
 				{item.name}
 			</a>
 

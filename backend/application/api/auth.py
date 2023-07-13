@@ -21,7 +21,7 @@ def init():
 
     if not user:
         temp = uuid4().hex
-        user = database(user_template("anon", temp, temp))
+        user = database(user_template("anonymous", temp, temp))
         token = token_tool().dumps(user["key"])
 
     return jsonify({
@@ -44,7 +44,7 @@ def signup():
 
     if (
         user["login"]
-        or user["status"] != "anon"
+        or user["status"] != "anonymous"
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
@@ -246,7 +246,7 @@ def logout():
 
     user["login"] = False
     temp = uuid4().hex
-    anon_user = user_template("anon", temp, temp)
+    anon_user = user_template("anonymous", temp, temp)
     anon_user["setting"]["theme"] = user["setting"]["theme"]
     database([user, anon_user])
 

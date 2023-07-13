@@ -82,7 +82,7 @@
 	let pagination;
 	let bar_items = [
 		{ name: 'confirm', icon: 'none' },
-		{ name: 'anon', icon: 'none' },
+		{ name: 'anonymous', icon: 'none' },
 		{ name: 'block', icon: 'none' },
 		{ name: 'delete', icon: 'none' },
 		{ name: 'report', icon: 'none' }

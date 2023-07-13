@@ -12,35 +12,35 @@
 		$state[$page_name][query] = status;
 		emit('ok');
 	};
-	export let categories = [];
+	export let tags = [];
 </script>
 
-{#if $user && $user.roles.includes('admin')}
+<!-- {#if $user && $user.roles.includes('admin')} -->
 	<div class="block">
 		<Button
 			name="all"
 			class="tag"
-			active={!$state.shop.category}
+			active={!$state.shop.tag}
 			on:click={() => {
-				$state.shop.category = '';
+				$state.shop.tag = '';
 				// pagination.init();
 				submit();
 			}}
 		/>
-		{#each categories as category}
+		{#each tags as tag}
 			<Button
-				name={category.name}
+				name={tag.name}
 				class="tag"
-				active={$state.shop.category == category.name}
+				active={$state.shop.tag == tag.name}
 				on:click={() => {
-					$state.shop.category = category.name;
+					$state.shop.tag = tag.name;
 					// pagination.init();
 					submit();
 				}}
 			/>
 		{/each}
 	</div>
-{/if}
+<!-- {/if} -->
 
 <style>
 	.block {

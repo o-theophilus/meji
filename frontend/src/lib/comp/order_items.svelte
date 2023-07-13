@@ -14,7 +14,7 @@
 			<div class="th">qty</div>
 			{#each order.items as item, i}
 				<div class="text">
-					<a href="/{item.alias}">
+					<a href="/{item.slug}">
 						{item.name}
 					</a>
 				</div>

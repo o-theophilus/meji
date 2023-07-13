@@ -48,30 +48,26 @@ def post():
             "message": error
         })
 
-    alias = re.sub('-+', '-', re.sub(
+    slug = re.sub('-+', '-', re.sub(
         '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
 
-    item = query("item", "alias", alias, data)
-    if item or alias in reserved_words:
-        alias = f"{alias}-{str(uuid4().hex)[:10]}"
+    item = query("item", "slug", slug, data)
+    if item or slug in reserved_words:
+        slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
     old_price = None
     if "old_price" in request.json and request.json["old_price"]:
         old_price = request.json["old_price"]
-    desc = None
-    if "desc" in request.json and request.json["desc"]:
-        desc = request.json["desc"]
-    spec = None
-    if "spec" in request.json and request.json["spec"]:
-        spec = request.json["spec"]
+    info = None
+    if "info" in request.json and request.json["info"]:
+        info = request.json["info"]
 
     database(item_template(
         request.json["name"],
-        alias,
+        slug,
         request.json["price"],
         old_price,
-        desc,
-        spec
+        info,
     ))
 
     return jsonify({
@@ -130,28 +126,26 @@ def put(key):
             "message": error
         })
 
-    alias = re.sub('-+', '-', re.sub(
+    slug = re.sub('-+', '-', re.sub(
         '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
 
-    alias_in_use = query("item", "alias", alias, data)
+    slug_in_use = query("item", "slug", slug, data)
 
     if (
-        (alias_in_use and alias_in_use['key'] != item["key"])
-        or alias in reserved_words
+        (slug_in_use and slug_in_use['key'] != item["key"])
+        or slug in reserved_words
     ):
-        alias = f"{alias}-{str(uuid4().hex)[:10]}"
+        slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
-    item["alias"] = alias
+    item["slug"] = slug
     item["name"] = request.json["name"]
     item["price"] = request.json["price"]
     item["date_u"] = now()
 
     if "old_price" in request.json and request.json["old_price"]:
         item["old_price"] = request.json["old_price"]
-    if "desc" in request.json and request.json["desc"]:
-        item["desc"] = request.json["desc"]
-    if "spec" in request.json and request.json["spec"]:
-        item["spec"] = request.json["spec"]
+    if "info" in request.json and request.json["info"]:
+        item["info"] = request.json["info"]
 
     database(item)
 
@@ -164,7 +158,7 @@ def put(key):
     })
 
 
-@bp.put("/item_variation/<key>")
+@bp.put("/variation/<key>")
 def variation(key):
     data = database()
 
@@ -188,13 +182,13 @@ def variation(key):
             "message": "invalid request"
         })
 
-    if "variation_options" not in request.json:
+    if "variation" not in request.json:
         return jsonify({
             "status": 201,
             "message": "This field is required"
         })
 
-    variation = request.json["variation_options"]
+    variation = request.json["variation"]
     if variation != {}:
         for key in variation:
             if len(variation[key]) < 1:
@@ -203,7 +197,7 @@ def variation(key):
                     "message":  'Empty property value'
                 })
 
-    item["variation_options"] = variation
+    item["variation"] = variation
     database(item)
 
     return jsonify({

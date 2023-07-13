@@ -35,7 +35,7 @@
 <section
 	class="item"
 	on:click={() => {
-		goto(`/${item.alias}`);
+		goto(`/${item.slug}`);
 	}}
 >
 	<div class="img">
