@@ -49,7 +49,6 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
-		console.log(resp);
 		$loading = false;
 
 		if (resp.status == 200) {

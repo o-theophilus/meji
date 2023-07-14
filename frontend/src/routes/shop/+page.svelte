@@ -7,8 +7,8 @@
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 
-	import Status_Bar from './status_bar.svelte';
-	import Tag_Bar from './tag_bar.svelte';
+	import Status_Bar from './status.svelte';
+	import Tag_Bar from './tag.svelte';
 	import Search from './search.svelte';
 	import View from './page_view.svelte';
 	import Pagination from '$lib/pagination.svelte';

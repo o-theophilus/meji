@@ -55,7 +55,7 @@ def fix():
         if x["type"] == "item":
             flag = False
             if "variation_options" in x:
-                x["variations"] = x.pop("variation_options")
+                x["variation"] = x.pop("variation_options")
                 flag = True
             if "alias" in x:
                 x["slug"] = x.pop("alias")
@@ -65,6 +65,15 @@ def fix():
                 flag = True
             if "spec" in x:
                 del x["spec"]
+                flag = True
+            if "tags" not in x:
+                tags = []
+                for row in db:
+                    if row["type"] == "tag" and x["key"] in row["items"]:
+                        tags.append(row["name"])
+                x["tags"] = tags
+                flag = True
+
             if flag:
                 edited.append(x)
 

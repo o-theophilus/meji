@@ -8,11 +8,28 @@ from .database import database
 bp = Blueprint("tag", __name__)
 
 
+@bp.get("/tag_all")
+def all():
+    db = database()
+
+    tags = []
+    for row in db:
+        if row["type"] == "item":
+            tags += row["tags"]
+
+    tags = list(set(tags))
+
+    return jsonify({
+        "status": 200,
+        "tags": tags
+    })
+
+
 @bp.get("/tag")
 def get_all():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -25,13 +42,13 @@ def get_all():
             "message": "unauthorised access"
         })
 
-    # tags = get_tags(data)
+    # tags = get_tags(db)
     tags = []
 
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "tags": [tag_schema(x) for x in tags]
         }
     })
@@ -39,9 +56,9 @@ def get_all():
 
 @ bp.get("/tag/<name>")
 def get(name):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -54,7 +71,7 @@ def get(name):
             "message": "unauthorised access"
         })
 
-    tag = query("tag", "name", name, data)
+    tag = query("tag", "name", name, db)
     if not tag:
         return jsonify({
             "status": 400,
@@ -64,7 +81,7 @@ def get(name):
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "tag": tag_schema(tag)
         }
     })
@@ -72,9 +89,9 @@ def get(name):
 
 @ bp.post("/tag")
 def add_new():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -93,7 +110,7 @@ def add_new():
             "message": "this field is required"
         })
 
-    cate_with_name = query("tag", "name", request.json["name"], data)
+    cate_with_name = query("tag", "name", request.json["name"], db)
     if cate_with_name:
         return jsonify({
             "status": 201,
@@ -113,14 +130,14 @@ def add_new():
         tag["icon"] = request.json["icon"]
 
     tag = database(tag)
-    # tags = get_tags(data)
+    # tags = get_tags(db)
     tags = []
     tags = [*tags, tag]
 
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             # "tag": tag_schema(tag),
             "tags": [tag_schema(x) for x in tags]
         }
@@ -129,9 +146,9 @@ def add_new():
 
 @ bp.post("/tag/<key>")
 def item_edit_cate(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -144,7 +161,7 @@ def item_edit_cate(key):
             "message": "unauthorised access"
         })
 
-    item = query("item", "key", key, data)
+    item = query("item", "key", key, db)
     if not item:
         return jsonify({
             "status": 400,
@@ -153,7 +170,7 @@ def item_edit_cate(key):
 
     tags = []
     cates_ = request.json["tags"]
-    for row in data:
+    for row in db:
         if row["type"] == "tag":
             if row["name"] in cates_:
                 cates_.remove(row["name"])
@@ -178,21 +195,21 @@ def item_edit_cate(key):
 
     database([*tags])
 
-    data = database()
+    db = database()
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
+        "db": {
+            "item": item_schema(item, db)
         }
     })
 
 
 @bp.put("/tag/<key>")
 def edit(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -211,14 +228,14 @@ def edit(key):
             "message": "this field is required"
         })
 
-    tag = query("tag", "key", key, data)
+    tag = query("tag", "key", key, db)
     if not tag:
         return jsonify({
             "status": 400,
             "message": "invalid request"
         })
 
-    cate_with_name = query("tag", "name", request.json["name"], data)
+    cate_with_name = query("tag", "name", request.json["name"], db)
     if cate_with_name and tag["key"] != cate_with_name["key"]:
         return jsonify({
             "status": 201,
@@ -230,7 +247,7 @@ def edit(key):
         tag["icon"] = request.json["icon"]
 
     tag = database(tag)
-    # tags = get_tags(data)
+    # tags = get_tags(db)
     tags = []
 
     _tags = []
@@ -242,7 +259,7 @@ def edit(key):
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "tags": [tag_schema(x) for x in _tags]
         }
     })
@@ -250,9 +267,9 @@ def edit(key):
 
 @bp.put("/tag_/<key>")
 def rearrange(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -265,7 +282,7 @@ def rearrange(key):
             "message": "unauthorised access"
         })
 
-    tag = query("tag", "key", key, data)
+    tag = query("tag", "key", key, db)
     if not tag:
         return jsonify({
             "status": 400,
@@ -278,7 +295,7 @@ def rearrange(key):
             "message": "invalid request"
         })
 
-    # tags = get_tags(data)
+    # tags = get_tags(db)
     tags = []
     temp_list = [x["key"] for x in tags]
 
@@ -304,7 +321,7 @@ def rearrange(key):
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "tags": [tag_schema(x) for x in tags]
         }
     })
@@ -312,9 +329,9 @@ def rearrange(key):
 
 @bp.delete("/tag/<key>")
 def delete(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -327,7 +344,7 @@ def delete(key):
             "message": "unauthorised access"
         })
 
-    tag = query("tag", "key",  key, data)
+    tag = query("tag", "key",  key, db)
     if not tag:
         return jsonify({
             "status": 400,
@@ -336,14 +353,14 @@ def delete(key):
 
     db.rem(tag)
 
-    # tags = get_tags(data)
+    # tags = get_tags(db)
     tags = []
     tags = [x for x in tags if x["key"] != tag["key"]]
 
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "tags": [tag_schema(x) for x in tags]
         }
     })

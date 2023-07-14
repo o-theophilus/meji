@@ -6,7 +6,6 @@ export const load = async ({ parent, fetch, url }) => {
 	let  a = await parent();
 	
 	if(!a.locals.user.login){
-		console.log(url);
 		throw redirect(307, `/?module=login&return_url=${url.pathname}`);
 	}
 	else if(!a.locals.user.roles.includes('admin')){

@@ -10,285 +10,185 @@ bp = Blueprint("item", __name__)
 
 
 @bp.post("/item")
-def post():
-    data = database()
+def add_new():
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
-    error = {}
     if "name" not in request.json or not request.json["name"]:
-        error["name"] = "This field is required"
-
-    if "price" not in request.json or not request.json["price"]:
-        error["price"] = "This field is required"
-    elif type(request.json["price"]) != int or request.json["price"] < 1:
-        error["price"] = "Please enter a valid price"
-
-    if "old_price" in request.json and request.json["old_price"]:
-        if (type(request.json["old_price"]) != int or
-           request.json["old_price"] < 0):
-            error["old_price"] = "Please enter a valid price"
-        if (request.json["price"] >= request.json["old_price"]):
-            error["old_price"] = 'Old price should be greater than Price'
-
-    if error != {}:
         return jsonify({
-            "status": 201,
-            "message": error
+            "status": 400,
+            "error": "this field is required"
         })
 
     slug = re.sub('-+', '-', re.sub(
         '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
 
-    item = query("item", "slug", slug, data)
+    item = query({"type": "item", "slug": slug}, db=db)
     if item or slug in reserved_words:
         slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
-    old_price = None
-    if "old_price" in request.json and request.json["old_price"]:
-        old_price = request.json["old_price"]
-    info = None
-    if "info" in request.json and request.json["info"]:
-        info = request.json["info"]
-
-    database(item_template(
+    item = database(item_template(
         request.json["name"],
-        slug,
-        request.json["price"],
-        old_price,
-        info,
+        slug
     ))
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
-        }
+        "item": item_schema(item, db)
     })
 
 
 @bp.put("/item/<key>")
-def put(key):
-    data = database()
+def edit_item(key):
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
-    item = query("item", "key", key, data)
+    item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     error = {}
 
-    if "name" not in request.json or not request.json["name"]:
-        error["name"] = "This field is required"
+    if "name" in request.json:
+        if not request.json["name"]:
+            error["name"] = "this field is required"
+        else:
+            item["name"] = request.json["name"]
 
-    if "price" not in request.json or not request.json["price"]:
-        error["price"] = "This field is required"
-    elif type(request.json["price"]) != int or request.json["price"] < 1:
-        error["price"] = "Please enter a valid price"
+            slug = re.sub('-+', '-', re.sub(
+                '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
+            slug_in_use = query({"type": "item", "slug": slug}, db=db)
+            if ((slug_in_use and slug_in_use['key'] != item["key"])
+                    or slug in reserved_words):
+                slug = f"{slug}-{str(uuid4().hex)[:10]}"
+            item["slug"] = slug
 
-    if "old_price" in request.json and request.json["old_price"]:
-        if (type(request.json["old_price"]) != int or
-           request.json["old_price"] < 0):
-            error["old_price"] = "Please enter a valid price"
-        if (request.json["price"] >= request.json["old_price"]):
-            error["old_price"] = 'Old price should be greater than Price'
+    if "price" in request.json:
+        item["price"] = None
+
+        if request.json["price"]:
+            if (
+                type(request.json["price"]) not in [int, float]
+                or request.json["price"] < 0
+            ):
+                error["price"] = "please enter a valid price"
+            else:
+                item["price"] = request.json["price"]
+
+    if "old_price" in request.json:
+        item["old_price"] = None
+
+        if item["price"] and request.json["old_price"]:
+            if (
+                type(request.json["old_price"]) not in [int, float]
+                or request.json["old_price"] < 0
+            ):
+                error["old_price"] = "please enter a valid price"
+            elif request.json["old_price"] <= request.json["price"]:
+                error["old_price"] = 'old price should be greater than price'
+            else:
+                item["old_price"] = request.json["old_price"]
+
+    if "info" in request.json:
+        item["info"] = request.json["info"]
+
+    if "variation" in request.json:
+        if type(request.json["variation"]) != dict:
+            error["variation"] = "this field is required"
+        else:
+            variation = request.json["variation"]
+            for key in variation:
+                if type(variation[key]) != list or len(variation[key]) == 0:
+                    del variation[key]
+            item["variation"] = variation
+
+    if "tags" in request.json:
+        if type(request.json["tags"]) != list:
+            error["tags"] = "this field is required"
+        else:
+            item["tags"] = request.json["tags"]
+
+    if "status" in request.json:
+        if not request.json["status"]:
+            error["status"] = "this field is required"
+        elif request.json["status"] == "live" and len(item["photos"]) == 0:
+            error["status"] = "no photo"
+        elif request.json["status"] == "live" and item["price"] == 0:
+            error["status"] = "add price"
+        else:
+            item["status"] = request.json["status"]
 
     if error != {}:
         return jsonify({
-            "status": 201,
-            "message": error
+            "status": 400,
+            **error
         })
 
-    slug = re.sub('-+', '-', re.sub(
-        '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
-
-    slug_in_use = query("item", "slug", slug, data)
-
-    if (
-        (slug_in_use and slug_in_use['key'] != item["key"])
-        or slug in reserved_words
-    ):
-        slug = f"{slug}-{str(uuid4().hex)[:10]}"
-
-    item["slug"] = slug
-    item["name"] = request.json["name"]
-    item["price"] = request.json["price"]
     item["date_u"] = now()
-
-    if "old_price" in request.json and request.json["old_price"]:
-        item["old_price"] = request.json["old_price"]
-    if "info" in request.json and request.json["info"]:
-        item["info"] = request.json["info"]
-
     database(item)
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
-        }
+        "item": item_schema(item, db)
     })
 
 
-@bp.put("/variation/<key>")
-def variation(key):
-    data = database()
+# @bp.delete("/item/<key>")
+# def delete(key):
+#     db = database()
 
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
+#     user = token_to_user(db)
+#     if not user:
+#         return jsonify({
+#             "status": 400,
+#             "error": "invalid token"
+#         })
 
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
-        })
+#     if "admin" not in user["roles"]:
+#         return jsonify({
+#             "status": 400,
+#             "error": "unauthorised access"
+#         })
 
-    item = query("item", "key", key, data)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
+#     item = query({"type": "item", "key": key}, db=db)
+#     if not item:
+#         return jsonify({
+#             "status": 400,
+#             "error": "invalid request"
+#         })
 
-    if "variation" not in request.json:
-        return jsonify({
-            "status": 201,
-            "message": "This field is required"
-        })
+#     database(key, delete=True)
 
-    variation = request.json["variation"]
-    if variation != {}:
-        for key in variation:
-            if len(variation[key]) < 1:
-                return jsonify({
-                    "status": 201,
-                    "message":  'Empty property value'
-                })
-
-    item["variation"] = variation
-    database(item)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
-        }
-    })
-
-
-@bp.put("/item_/<key>")
-def change_status(key):
-    data = database()
-
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
-        })
-
-    if "status" not in request.json or not request.json["status"]:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
-
-    item = query("item", "key", key, data)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
-
-    if request.json["status"] == "live" and item["photos"] == []:
-        return jsonify({
-            "status": 201,
-            "message": "no photo"
-        })
-
-    item["status"] = request.json["status"]
-    item["date_u"] = now()
-
-    item = database(item)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
-        }
-    })
-
-
-@bp.delete("/item/<key>")
-def delete(key):
-    data = database()
-
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
-        })
-
-    item = query("item", "key", key, data)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
-
-    database.rem(key)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful"
-    })
+#     return jsonify({
+#         "status": 200
+#     })
 
 # Photo #########################
 

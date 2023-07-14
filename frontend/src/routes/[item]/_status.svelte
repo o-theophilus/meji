@@ -1,18 +1,17 @@
 <script>
 	import { module, tick } from '$lib/store.js';
-
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
 
-	export let data;
-	let { item } = data;
+	let { item } = $module;
+	let error = {};
+	let status_ = ['live', 'draft', 'delete'];
 
-	let error;
-
-	const change_state = async (status) => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}item_/${item.key}`, {
+	const submit = async (status) => {
+		error = {};
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item_/${item.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -20,16 +19,13 @@
 			},
 			body: JSON.stringify({ status })
 		});
+		resp = await resp.json();
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
-
-			if (resp.status == 200) {
-				tick(resp.data.item);
-				$module = '';
-			} else {
-				error = resp.message;
-			}
+		if (resp.status == 200) {
+			tick(resp.item);
+			$module = '';
+		} else {
+			error = resp;
 		}
 	};
 </script>
@@ -45,34 +41,20 @@
 
 	<form on:submit|preventDefault novalidate autocomplete="off">
 		<div class="inputGroup horizontal">
-			{#if 'live' != item.status && item.photos.length > 0}
-				<Button
-					name={'Go Live'}
-					on:click={() => {
-						change_state('live');
-					}}
-				/>
-			{/if}
-			{#if 'draft' != item.status}
-				<Button
-					name={'Draft'}
-					on:click={() => {
-						change_state('draft');
-					}}
-				/>
-			{/if}
-			{#if 'delete' != item.status}
-				<Button
-					name={'Delete'}
-					on:click={() => {
-						change_state('delete');
-					}}
-				/>
-			{/if}
+			{#each status_ as s}
+				{#if s != item.status && item.photos.length > 0}
+					<Button
+						name={s.charAt(0).toUpperCase() + s.slice(1)}
+						on:click={() => {
+							submit(s);
+						}}
+					/>
+				{/if}
+			{/each}
 
-			{#if error}
+			{#if error.error}
 				<p class="error">
-					{error}
+					{error.error}
 				</p>
 			{/if}
 		</div>

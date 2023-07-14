@@ -7,10 +7,10 @@
 	import Quantity from '$lib/quantity.svelte';
 
 	let { item } = $module;
-	let { variations } = item;
+	let { variation } = item;
 
 	let error = {};
-	let variation = {};
+	let vars_ = {};
 	let quantity = 1;
 
 	const proc = (v) => v.split(':');
@@ -31,9 +31,9 @@
 	const validate = () => {
 		error = {};
 
-		let keys = Object.keys(variations);
+		let keys = Object.keys(variation);
 		for (let i in keys) {
-			if (!variation[keys[i]]) {
+			if (!vars_[keys[i]]) {
 				error[keys[i]] = `Please select a ${keys[i]}`;
 			}
 		}
@@ -50,7 +50,7 @@
 			body: JSON.stringify({
 				key: item.key,
 				quantity,
-				variation,
+				variation: vars_,
 				ops: 'add'
 			})
 		});
@@ -81,7 +81,7 @@
 				</p>
 			{/if} -->
 
-		{#each Object.entries(variations) as [key, values]}
+		{#each Object.entries(variation) as [key, values]}
 			{#if values.length > 1}
 				<div class="property">
 					<span>{key}</span>
@@ -91,9 +91,9 @@
 							{#if key == 'size'}
 								<button
 									class="size"
-									class:active={variation[key] == value}
+									class:active={vars_[key] == value}
 									on:click={() => {
-										variation[key] = value;
+										vars_[key] = value;
 									}}
 								>
 									{value}
@@ -102,9 +102,9 @@
 								<button
 									class="value"
 									style:background-color={value}
-									class:active={variation[key] == value}
+									class:active={vars_[key] == value}
 									on:click={() => {
-										variation[key] = value;
+										vars_[key] = value;
 									}}
 								>
 									{proc(value)[0]}

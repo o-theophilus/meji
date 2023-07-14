@@ -4,7 +4,7 @@
 	import { state, page_name } from '$lib/page_state.js';
 
 	import Button from '$lib/button.svelte';
-	import Add from './add.svelte';
+	import Add from './_add.svelte';
 
 	let emit = createEventDispatcher();
 

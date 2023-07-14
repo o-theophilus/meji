@@ -20,6 +20,7 @@
 					}}
 				/>
 			</div>
+
 			<div class="content">
 				<svelte:component this={$module.module} />
 			</div>
@@ -29,12 +30,12 @@
 
 <style>
 	section {
-		display: grid;
-		align-items: center;
-		justify-content: center;
-
 		position: fixed;
 		inset: 0;
+
+		display: grid;
+		align-items: center;
+		/* justify-content: center; */
 
 		padding: calc(var(--sp3) * 2) var(--sp3);
 		overflow-y: auto;
@@ -44,6 +45,7 @@
 
 	.block {
 		position: relative;
+		/* width: fit-content; */
 	}
 
 	.pos {
@@ -53,9 +55,12 @@
 	}
 
 	.content {
-		box-shadow: var(--shad1);
+		/* width: 100%; */
+		/* max-width: 500px; */
 		border-radius: var(--brad1);
+
 		overflow: hidden;
-		width: 100%;
+
+		box-shadow: var(--shad1);
 	}
 </style>

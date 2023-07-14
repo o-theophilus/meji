@@ -2,94 +2,115 @@
 	import { flip } from 'svelte/animate';
 	import { backInOut } from 'svelte/easing';
 
-	import { module, tick } from '$lib/store.js';
+	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
+	import IG from '$lib/input_group.svelte';
+	import Info from '$lib/module/info.svelte';
 
-	export let data;
-	let { item } = data;
-	let { variation } = item;
-
-	let in_variation;
-
-	let in_values = {};
-	for (let i in variation) {
-		in_values[i] = variation[i].join(', ');
+	let { item } = $module;
+	let variation = { ...item.variation };
+	for (const key in variation) {
+		variation[key] = variation[key].join(', ');
 	}
+	let error = {};
+	let input;
 
-	const add_variation = () => {
-		if (!in_variation) {
+	const add_key = () => {
+		error = {};
+		if (!input) {
+			error.variation = 'this field is required';
 			return;
 		}
 
-		in_variation = in_variation.toLowerCase();
+		input = input.toLowerCase();
 
 		for (let i in variation) {
-			if (i == in_variation) {
-				in_variation = '';
+			if (i == input) {
+				error.variation = 'already available';
 				return;
 			}
 		}
 
-		variation[in_variation] = [];
-		in_variation = '';
+		variation[input] = '';
+		input = '';
 	};
 
-	const delete_variation = (Variation_name) => {
+	const delete_key = (to_remove) => {
 		let temp = {};
 		for (let i in variation) {
-			if (i != Variation_name) {
+			if (i != to_remove) {
 				temp[i] = variation[i];
 			}
 		}
 		variation = temp;
 	};
 
-	const update_value = (Variation_name) => {
-		let temp1 = in_values[Variation_name].split(',');
-		let temp2 = [];
-		for (let i in temp1) {
-			temp2.push(temp1[i].trim());
-		}
-		variation[Variation_name] = temp2;
+	const clean_value = (key) => {
+		let a = variation[key];
+		a = a.replace(/\r?\n/g, ',');
+		a = a.replace(/\s+/g, ' ');
+		a = a.toLowerCase();
+		a = a.split(',');
+		a = a.map((i) => i.trim());
+		a = a.filter(Boolean);
+		a = a.filter((v, i, l) => l.indexOf(v) === i);
+		a = a.join(', ');
+		variation[key] = a;
 	};
 
-	let error;
 	const validate = () => {
-		error = '';
+		error = {};
 
-		if (variation.length > 0) {
-			for (let i in variation) {
-				if (variation[i].length < 1) {
-					error = 'Empty property value';
-				}
+		for (let key in variation) {
+			if (!variation[key]) {
+				error[key] = 'empty value';
 			}
 		}
 
-		!error && submit();
+		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}item_variation/${item.key}`, {
+		let temp = { ...variation };
+		for (let key in temp) {
+			temp[key] = temp[key].split(', ');
+		}
+
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ variation })
+			body: JSON.stringify({ variation: temp })
 		});
+		resp = await resp.json();
+		$loading = false;
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		if (resp.status == 200) {
+			$portal = resp.item;
 
-			if (resp.status == 200) {
-				tick(resp.data.item);
-				$module = '';
-			} else {
-				error = resp.message;
-			}
+			$module = {
+				module: Info,
+				status: 200,
+				title: '# Details Changed',
+				message: 'item variation has been changed successfully',
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
+					}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 
@@ -98,144 +119,55 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Variation</div>
+		<b>Edit Variation</b>
 	</svelte:fragment>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="key">Variation</label>
-			<div class="inputGroup horizontal">
-				<input
-					type="text"
-					id="key"
-					placeholder="Variation here"
-					bind:value={in_variation}
-					on:keypress={(e) => {
-						if (e.key == 'Enter') {
-							add_variation();
-						}
-					}}
-				/>
-				<Button
-					class="primary"
-					name="Submit"
-					on:click={() => {
-						add_variation();
-					}}
-				/>
-			</div>
-		</div>
+	<IG name="variation" {error} let:id>
+		<input
+			bind:value={input}
+			on:keypress={(e) => {
+				if (e.key == 'Enter') {
+					add_key;
+				}
+			}}
+			{id}
+			type="text"
+			placeholder="variation here"
+		/>
+		<Button class="primary" name="Add" on:click={add_key} />
+	</IG>
 
-		{#each Object.entries(variation) as [key, values], i (i)}
-			<div
-				class="inputGroup variation"
-				div
-				animate:flip={{ delay: 0, duration: 250, easing: backInOut }}
-			>
-				<div class="h space">
-					<label for={key}>
-						<span>
-							{key}
-						</span>
-					</label>
-					<div class="h">
-						<Button
-							icon="close"
-							icon_size="10"
-							class="tiny hover_red"
-							on:click={() => {
-								delete_variation(key);
-							}}
-						/>
-					</div>
-				</div>
-
-				<div class="inputGroup horizontal">
-					<input
-						type="text"
-						id={key}
-						placeholder="value here"
-						bind:value={in_values[key]}
-						on:input={(e) => {
-							update_value(key);
-						}}
-					/>
-				</div>
-
-				<div class="value_area">
-					{#each values as value, j (j)}
-						<div class="h value" animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
-							{#if key == 'size'}
-								<button>
-									{value}
-								</button>
-							{:else}
-								<button class="default" style:background-color={proc(value)[1]}>
-									{proc(value)[0]}
-								</button>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			</div>
-		{/each}
-
-		{#if error}
-			<p class="error">
-				{error}
-			</p>
-		{/if}
-		<div class="inputGroup horizontal">
+	{#each Object.entries(variation) as [key, value], i (i)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 			<Button
-				class="primary"
-				name="Submit"
+				icon="close"
+				icon_size="10"
+				class="tiny hover_red"
 				on:click={() => {
-					validate();
+					delete_key(key);
 				}}
 			/>
+
+			<IG name={key} {error} let:id>
+				<textarea
+					bind:value={variation[key]}
+					on:blur={() => {
+						clean_value(key);
+					}}
+					{id}
+					placeholder="Information here"
+				/>
+			</IG>
 		</div>
-	</form>
+	{/each}
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+	{/if}
+	<Button class="primary" name="Submit" on:click={validate} />
 </Form>
 
 <style>
-	.variation {
-		padding: var(--sp1);
-		border-radius: var(--brad1);
-		border: 2px solid var(--ac5);
-	}
-
-	.value_area {
-		display: flex;
-		flex-wrap: wrap;
-
-		gap: var(--sp1);
-	}
-	.value {
-		gap: 0;
-	}
-	span {
-		font-weight: 500;
-		text-transform: capitalize;
-	}
-
-	button {
-		--size: 30px;
-
-		all: unset;
-		cursor: pointer;
-		box-sizing: border-box;
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		min-width: var(--size);
-		height: var(--size);
-
-		font-size: small;
-
-		padding: 0 var(--sp1);
-		border-radius: calc(var(--size) / 2);
-		background-color: var(--ac5);
-	}
 </style>

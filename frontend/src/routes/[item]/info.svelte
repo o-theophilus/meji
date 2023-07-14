@@ -15,8 +15,10 @@
 
 	import Status from './_status.svelte';
 	import Name from './_name.svelte';
+	import Edit_Price from './_price.svelte';
+	import Info from './_info.svelte';
 	import Variation from './_variation.svelte';
-	import tag from './_tag.svelte';
+	import Tag from './_tag.svelte';
 	import Share from './_share.svelte';
 
 	export let item = {};
@@ -46,7 +48,7 @@
 </script>
 
 {#if edit_mode}
-	<div class="h">
+	<div class="horizontal">
 		Status: {item.status}
 
 		<Button
@@ -66,25 +68,81 @@
 	<br />
 {/if}
 
-<div class="name h">
+<div class="horizontal bold">
 	{item.name}
 
+	<div class="horizontal">
+		<Save {item} />
+
+		{#if edit_mode}
+			<Button
+				icon="edit"
+				class="tiny"
+				icon_size="12"
+				on:click={() => {
+					$module = {
+						module: Name,
+						item
+					};
+				}}
+				tooltip="Edit Details"
+			/>
+		{/if}
+	</div>
+</div>
+
+<div class="horizontal">
+	{#each item.tags as tag, i}
+		{#if i > 0},{/if}
+		{tag}
+		<!-- <Button
+				name={tag}
+				class="tag"
+				on:click={() => {
+					// $state['shop'].search = '';
+					// $state['shop'].tag = tag;
+					// $state['shop'].page_no = 1;
+					// goto('/shop');
+				}}
+				/> -->
+	{/each}
 	{#if edit_mode}
+		{#if item.tags.length == 0}
+			Tags
+		{/if}
 		<Button
 			icon="edit"
-			class="tiny"
 			icon_size="12"
+			class="tiny"
 			on:click={() => {
 				$module = {
-					module: Name,
+					module: Tag,
 					item
 				};
 			}}
-			tooltip="Edit Details"
+			tooltip="Edit Item tag"
 		/>
+	{/if}
+</div>
+
+<br />
+
+{#if edit_mode}
+	<div class="horizontal">
+		Variation
+		<br />
+
+		{#each Object.entries(item.variation) as [key, values], i (i)}
+			{key}:
+			{#each values as value, i}
+				{#if i > 0},{/if}
+				{value}
+			{/each}
+			<br />
+		{/each}
 
 		<Button
-			icon="logo"
+			icon="edit"
 			class="tiny"
 			icon_size="12"
 			on:click={() => {
@@ -95,52 +153,27 @@
 			}}
 			tooltip="Edit Variation"
 		/>
-	{/if}
-
-	<div class="save">
-		<Save {item} />
 	</div>
-</div>
-
-<br />
-
-{#if item.tags.length > 0 || edit_mode}
-	<div class="tags">
-		{#each item.tags as tag, i}
-			{#if i > 0},{/if}
-			{tag}
-			<!-- <Button
-				name={tag}
-				class="tag"
-				on:click={() => {
-					// $state['shop'].search = '';
-					// $state['shop'].tag = tag;
-					// $state['shop'].page_no = 1;
-					// goto('/shop');
-				}}
-			/> -->
-		{/each}
-		{#if edit_mode}
-			<Button
-				icon="edit"
-				icon_size="12"
-				class="tiny"
-				on:click={() => {
-					$module = {
-						module: tag,
-						data: {
-							item
-						}
-					};
-				}}
-				tooltip="Edit Item tag"
-			/>
-		{/if}
-	</div>
+	<br />
 {/if}
 
-<br />
-<Price {item} />
+<div class="horizontal">
+	<Price {item} />
+	{#if edit_mode}
+		<Button
+			icon="edit"
+			icon_size="12"
+			class="tiny"
+			on:click={() => {
+				$module = {
+					module: Edit_Price,
+					item
+				};
+			}}
+			tooltip="Edit Item tag"
+		/>
+	{/if}
+</div>
 
 {#if item.feedbacks && item.feedbacks.length > 0}
 	<br />
@@ -153,14 +186,30 @@
 {/if}
 
 <br />
-<div class="title">
+
+<div class="horizontal bold">
 	Details
-	<Button
-		open={open_info}
-		on:click={() => {
-			open_info = !open_info;
-		}}
-	/>
+	<div class="horizontal">
+		<Button
+			on:click={() => {
+				open_info = !open_info;
+			}}
+		/>
+		{#if edit_mode}
+			<Button
+				icon="edit"
+				icon_size="12"
+				class="tiny"
+				on:click={() => {
+					$module = {
+						module: Info,
+						item
+					};
+				}}
+				tooltip="Edit Item tag"
+			/>
+		{/if}
+	</div>
 </div>
 {#if open_info}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
@@ -175,11 +224,10 @@
 
 <br />
 
-<div class="title">
+<div class="horizontal bold">
 	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback
 
 	<Button
-		open={open_feedback}
 		on:click={() => {
 			open_feedback = !open_feedback;
 		}}
@@ -218,8 +266,8 @@
 {/if}
 
 <div class="floater">
-	<div class="h space">
-		<div class="h">
+	<div class="horizontal">
+		<div class="horizontal">
 			<Add_Cart {item} />
 			<Button
 				name="Chat"
@@ -242,29 +290,16 @@
 </div>
 
 <style>
-	.name {
-		position: relative;
-		font-weight: 500;
-	}
-
-	.save {
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
-
-	.title {
-		font-weight: 600;
+	.horizontal {
 		display: flex;
 		justify-content: space-between;
+		gap: var(--sp1);
 		align-items: center;
+		flex-wrap: wrap;
 	}
 
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--sp1);
+	.bold {
+		font-weight: 600;
 	}
 
 	.rating {

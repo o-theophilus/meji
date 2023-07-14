@@ -1,5 +1,4 @@
 from flask import request
-# from .photo import photo_url
 from .database import query
 from .tools import now
 from werkzeug.security import generate_password_hash
@@ -45,14 +44,6 @@ def user_schema(user, db):
 
 
 def item_schema(item, db):
-    tags = []
-
-    for row in db:
-        if row["type"] == "tag" and item["key"] in row["items"]:
-            tags.append(row)
-    tags = sorted(tags, key=lambda d: d["order"])
-    tags = [tag["name"] for tag in tags]
-
     photos = sorted(item["photos"], key=lambda d: d["order"])
     photos = [
         f"{request.host_url}photos/{x['key']}" for x in photos]
@@ -94,12 +85,12 @@ def item_schema(item, db):
         "old_price": item["old_price"],
         "info": item["info"],
 
-        "variations": item["variations"],
+        "variation": item["variation"],
 
         "photos": photos,
         "status": item["status"],
 
-        "tags": tags,
+        "tags": item["tags"],
         "feedbacks": feedbacks,
     }
 
@@ -200,10 +191,7 @@ def user_template(
 
 def item_template(
     name,
-    slug,
-    price,
-    old_price,
-    info
+    slug
 ):
     return {
         "key": uuid4().hex,
@@ -215,14 +203,15 @@ def item_template(
 
         "name": name,
         "slug": slug,
-        "price": price,
-        "old_price": old_price,
-        "info": info,
+        "price": 0,
+        "old_price": 0,
+        "info": '',
         "photos": [],
+        "tags": [],
         "ads": {},
+        "variation": {},
 
         "available_quantity": 0,
-        "variation": {},
         "feedbacks": [],
     }
 

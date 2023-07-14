@@ -1,138 +1,133 @@
 <script>
 	import { onMount } from 'svelte';
-	import { tick, module } from '$lib/store.js';
+	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
+	import IG from '$lib/input_group.svelte';
+	import Info from '$lib/module/info.svelte';
 
-	export let data;
-	let { item } = data;
+	let { item } = $module;
+	let tags = item.tags.join(', ');
+	let all_tags = [];
+	let all_tags_btn = [];
+	let error = {};
 
-	let error = '';
-
-	let all_tags = [...item.tags];
 	onMount(async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag_all`, {
 			method: 'get',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			}
 		});
+		resp = await resp.json();
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
-
-			if (resp.status == 200) {
-				for (let i in resp.data.tags) {
-					let name = resp.data.tags[i].name;
-					if (!all_tags.includes(name)) {
-						all_tags.push(name);
-					}
-				}
-				all_tags = all_tags;
-			} else {
-				error = resp.message;
-			}
+		if (resp.status == 200) {
+			all_tags = resp.tags;
+			clean_value();
+		} else {
+			error = resp;
 		}
 	});
 
 	const submit = async () => {
-		error = '';
-		item.tags = clean_up();
+		error = {};
 
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}tag/${item.key}`, {
-			method: 'post',
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(item)
+			body: JSON.stringify({ tags: tags.split(', ').filter(Boolean) })
 		});
+		resp = await resp.json();
+		$loading = false;
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		if (resp.status == 200) {
+			$portal = resp.item;
 
-			if (resp.status == 200) {
-				tick(resp.data.item);
-				$module = '';
-			} else {
-				error = resp.message;
-			}
+			$module = {
+				module: Info,
+				status: 200,
+				title: '# Details Changed',
+				message: 'item tags has been changed successfully',
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
+					}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 
-	let in_tag = item.tags.join(', ');
+	const clean_value = (tag = '') => {
+		tags = `${tags}, ${tag}`;
+		tags = tags.replace(/\r?\n/g, ',');
+		tags = tags.replace(/\s+/g, ' ');
+		tags = tags.toLowerCase();
+		tags = tags.split(',');
+		tags = tags.map((i) => i.trim());
+		tags = tags.filter(Boolean);
+		tags = tags.filter((v, i, l) => l.indexOf(v) === i);
+		tags = tags.join(', ');
 
-	const clean_up = () => {
-		let temp = in_tag.split(',');
-		let cate_list = [];
-		for (let i in temp) {
-			temp[i] = temp[i].trim().toLowerCase();
-			if (temp[i] && !cate_list.includes(temp[i])) {
-				cate_list.push(temp[i]);
-			}
-		}
-		return cate_list;
-	};
-	const add_tag = (cate) => {
-		let cate_list = clean_up();
-
-		cate = cate.trim().toLowerCase();
-		if (cate && !cate_list.includes(cate)) {
-			cate_list.push(cate);
-		}
-
-		in_tag = cate_list.join(', ');
+		all_tags_btn = all_tags.filter((i) => !tags.split(', ').includes(i));
 	};
 </script>
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Item tags</div>
+		<b>Edit Tag</b>
 	</svelte:fragment>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="tag"> tags: </label>
-			<textarea type="text" bind:value={in_tag} id="tag" placeholder="tag here" />
-			<div class="inputGroup horizontal">
-				<Button
-					class="tiny"
-					name="Clean"
-					on:click={() => {
-						add_tag('');
-					}}
-				/>
-			</div>
-		</div>
+	<IG name="tags" {error} let:id>
+		<textarea
+			bind:value={tags}
+			on:blur={() => {
+				clean_value();
+			}}
+			{id}
+			placeholder="Tags here"
+		/>
+	</IG>
 
-		<div class="inputGroup tag">
-			{#each all_tags as tag}
-				<Button
-					name={tag}
-					class="tiny"
-					on:click={() => {
-						add_tag(tag);
-					}}
-				/>
-			{/each}
-		</div>
-		{#if error}
-			<p class="error">
-				{error}
-			</p>
-		{/if}
-
-		<div class="inputGroup horizontal">
+	<div class="tags">
+		{#each all_tags_btn as tag}
 			<Button
-				class="primary"
-				name="Submit"
+				class="tiny"
+				name={tag}
 				on:click={() => {
-					submit();
+					clean_value(tag);
 				}}
 			/>
-		</div>
-	</form>
+		{:else}
+			loading all tags . . .
+		{/each}
+	</div>
+	<br />
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+	<Button class="primary" name="Submit" on:click={submit} />
 </Form>
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp1);
+	}
+</style>

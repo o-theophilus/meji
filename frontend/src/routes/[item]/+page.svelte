@@ -1,5 +1,5 @@
 <script>
-	import { _tick, user } from '$lib/store.js';
+	import { _tick, user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
@@ -14,12 +14,13 @@
 	let { item } = data;
 	let { recently_viewed } = data;
 
-	$: if ($_tick) {
-		item = $_tick;
-		$_tick = '';
+	$: if ($portal) {
+		item = $portal;
+		$portal = '';
 	}
 
 	let edit_mode = true;
+	$loading = false;
 </script>
 
 <Meta title={item.name} description={item.info} image={item.thumbnail} />

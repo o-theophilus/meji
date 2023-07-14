@@ -32,9 +32,7 @@ button {
 html{
 	user-select: none;
 }
-/* body{
-	overflow: hidden;
-} */
+
 * {
 	margin: 0;
 	padding: 0;
@@ -42,16 +40,6 @@ html{
 	box-sizing: border-box;
 	outline: none;
 	-webkit-tap-highlight-color: transparent;
-}
-
-input[type='number']::-webkit-outer-spin-button,
-input[type='number']::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
-}
-
-input[type='number'] {
-	-moz-appearance: textfield;
 }
 
 
@@ -76,15 +64,5 @@ h6 {
 
 .error {
 	color: var(--cl4);
-	font-size: 0.8rem;
-}
-
-.h {
-	display: flex;
-	align-items: center;
-	gap: var(--sp2);
-	flex-wrap: wrap;
-}
-.h.space {
-	justify-content: space-between;
+	font-size: small;
 }

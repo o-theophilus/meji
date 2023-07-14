@@ -1,53 +1,51 @@
 <section>
-	<div class="title_block">
-		<div class="title"><slot name="title" /></div>
-		<slot name="info" />
+	<div class="title">
+		<slot name="title" />
 	</div>
-	<div class="form">
+	<form on:submit|preventDefault novalidate autocomplete="off">
 		<slot />
-	</div>
+	</form>
 </section>
 
 <style>
 	section {
+		margin: auto;
+
 		display: flex;
 		flex-direction: column;
-
-		width: 100%;
-		max-width: 500px;
+		/* min-width: 100%; */
+		/* width: 500px; */
+		/* width: min(100%, 500px); */
+	}
+	form {
+		background-color: var(--ac5);
 	}
 
 	@media screen and (min-width: 800px) {
 		section {
-			max-width: 800px;
+			/* max-width: 800px; */
 			flex-direction: unset;
 		}
-		.title_block {
+		.title {
 			width: 300px;
 		}
-		.form {
+		form {
 			width: 100%;
 		}
 	}
 
-	.title_block {
-		display: flex;
-		gap: var(--sp1);
-		flex-direction: column;
-
-		padding: var(--sp3);
-		background-color: var(--cl1);
-
-		color: var(--light_color);
-	}
-
 	.title {
-		font-size: 1.2rem;
-		font-weight: bold;
+		padding: var(--sp3);
+
+		background-color: var(--cl1);
+		color: var(--light_color);
+
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp1);
 	}
 
-	.form {
+	form {
 		padding: var(--sp3);
-		background-color: var(--ac4);
 	}
 </style>
