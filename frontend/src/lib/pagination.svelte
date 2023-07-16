@@ -114,14 +114,14 @@
 		font-weight: 500;
 		margin-right: 2px;
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		border: 2px solid var(--ac5);
 
 		color: var(--ac1);
 	}
 
 	input:hover {
-		border-color: var(--midtone);
+		border-color: var(--ac3);
 	}
 	input:focus {
 		border-color: var(--cl1);

@@ -29,11 +29,11 @@
 		/>
 		{#each tags as tag}
 			<Button
-				name={tag.name}
+				name={tag}
 				class="tag"
-				active={$state.shop.tag == tag.name}
+				active={$state.shop.tag == tag}
 				on:click={() => {
-					$state.shop.tag = tag.name;
+					$state.shop.tag = tag;
 					// pagination.init();
 					submit();
 				}}

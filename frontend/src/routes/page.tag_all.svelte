@@ -10,30 +10,33 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">tags</div>
+		<b>Tags</b>
 	</svelte:fragment>
 
-	<div class="h">
+	<div class="tags">
 		{#each $module.tags as tag}
 			<Button
-				name={tag.name}
+				name={tag}
 				class="tiny"
 				on:click={() => {
-					$state['shop'].search = '';
-					$state['shop'].tag = tag.name;
-					$state['shop'].page_no = 1;
-					$module = '';
-					goto('/shop');
+					// $state['shop'].search = '';
+					// $state['shop'].tag = tag.name;
+					// $state['shop'].page_no = 1;
+					// $module = '';
+					// goto('/shop');
 				}}
 			>
-				<SVG type={tag.icon} size="20" />
+				<SVG type={tag} size="20" />
 			</Button>
 		{/each}
 	</div>
 </Form>
 
 <style>
-	.h {
-		justify-content: center;
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp1);
+		/* justify-content: center; */
 	}
 </style>

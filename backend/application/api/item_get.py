@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request, send_file
 from .tools import token_to_user
-from .schema import item_schema, tag_schema, log_template
+from .schema import item_schema, log_template
 from math import ceil
 from .database import database, query
 from .storage import storage
-# from .photo import photo_url
+from .tag import all_tags
 import re
 
 bp = Blueprint("item_get", __name__)
@@ -13,50 +13,11 @@ bp = Blueprint("item_get", __name__)
 @bp.get("/photos/<key>")
 @bp.get("/photos/<key>/<thumbnail>")
 def get_photo(key, thumbnail=False):
-    photo = storage(key, thumbnail=True)
+    photo = storage(key, thumbnail=thumbnail)
     return send_file(photo, mimetype="image/jpg")
 
 
-# @bp.get("/item/<slug>")
-# def item(slug):
-#     db = database()
-
-#     user = token_to_user(db)
-#     if not user:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid token"
-#         })
-
-#     item = query({"type": "item", "slug": slug}, db=db)
-#     if not item:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
-
-#     ads = {}
-#     if "ads" in item and item["ads"] != {}:
-#         ads = {
-#             f'{request.host_url}/photos/{item["ads"]["300x300"]}',
-#             f'{request.host_url}/photos/{item["ads"]["300x600"]}',
-#             f'{request.host_url}/photos/{item["ads"]["600x300"]}',
-#             f'{request.host_url}/photos/{item["ads"]["900x300"]}'
-#         }
-
-#     tags = query({"type": "tag"}, True, db)
-#     tags = sorted(tags, key=lambda d: d['order'])
-#     tags = [x["name"] for x in tags]
-
-#     return jsonify({
-#         "status": 200,
-#         "item": item_schema(item, db),
-#         "tags": tags,
-#         "ads": ads
-#     })
-
-
-@bp.get("/item_info/<slug>")
+@bp.get("/item/<slug>")
 def item_info(slug):
     db = database()
 
@@ -205,14 +166,10 @@ def home():
                     }
                 })
 
-    tags = query({"type": "tag"}, True, db)
-    tags = sorted(tags, key=lambda d: d['order'])
-    tags = [tag_schema(x) for x in tags if x["items"] != []]
-
     return jsonify({
         "status": 200,
         "ads": ads,
-        "tags": tags,
+        "tags": all_tags(db).json["tags"],
         "group": [
             #     "name": "Featured",
             #     "name": "Recommended",
@@ -260,9 +217,5 @@ def shop():
             "page_no"]) if "page_no" in request.args else 1,
     ).json
 
-    tags = query({"type": "tag"}, True, db)
-    tags = sorted(tags, key=lambda d: d['order'])
-    tags = [tag_schema(x) for x in tags if x["items"] != []]
-
-    out["tags"] = tags
+    out["tags"] = all_tags(db).json["tags"]
     return out

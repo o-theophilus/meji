@@ -51,7 +51,7 @@
 		padding: 0 var(--sp1);
 		border-radius: calc(var(--size) / 2);
 
-		color: var(--light_color);
+		color: var(--ac5_);
 		background-color: var(--ac5);
 	}
 </style>

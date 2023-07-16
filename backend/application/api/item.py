@@ -140,7 +140,7 @@ def edit_item(key):
             error["status"] = "this field is required"
         elif request.json["status"] == "live" and len(item["photos"]) == 0:
             error["status"] = "no photo"
-        elif request.json["status"] == "live" and item["price"] == 0:
+        elif request.json["status"] == "live" and not item["price"]:
             error["status"] = "add price"
         else:
             item["status"] = request.json["status"]
@@ -159,36 +159,6 @@ def edit_item(key):
         "item": item_schema(item, db)
     })
 
-
-# @bp.delete("/item/<key>")
-# def delete(key):
-#     db = database()
-
-#     user = token_to_user(db)
-#     if not user:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid token"
-#         })
-
-#     if "admin" not in user["roles"]:
-#         return jsonify({
-#             "status": 400,
-#             "error": "unauthorised access"
-#         })
-
-#     item = query({"type": "item", "key": key}, db=db)
-#     if not item:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
-
-#     database(key, delete=True)
-
-#     return jsonify({
-#         "status": 200
-#     })
 
 # Photo #########################
 

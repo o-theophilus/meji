@@ -310,7 +310,7 @@
 		cursor: pointer;
 	}
 	img {
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		height: fit-content;
 	}
 	._30 {

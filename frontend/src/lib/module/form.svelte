@@ -38,7 +38,7 @@
 		padding: var(--sp3);
 
 		background-color: var(--cl1);
-		color: var(--light_color);
+		color: var(--ac5_);
 
 		display: flex;
 		flex-direction: column;

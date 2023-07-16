@@ -43,8 +43,8 @@
 		gap: var(--sp2);
 
 		padding: var(--sp2);
-		color: var(--light_color);
-		fill: var(--light_color);
+		color: var(--ac5_);
+		fill: var(--ac5_);
 	}
 
 	.body {

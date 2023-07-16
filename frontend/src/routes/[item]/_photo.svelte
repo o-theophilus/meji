@@ -1,22 +1,41 @@
 <script>
-	import { module, tick } from '$lib/store.js';
-
+	import { module, loading, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
-	import HR from '$lib/comp/hr.svelte';
+	import Form from '$lib/module/form.svelte';
 
-	import Add from './_photo_add.svelte';
-
-	export let data;
-	let { item } = data;
-	item.active_photo = item.photos.length > 0 ? item.photos[0] : '/image/item.png';
+	let { item } = $module;
+	export let count = 10;
 
 	let init_order = [...item.photos];
-	let order_changed = false;
 
-	let error = '';
+	let order_changed = false;
+	let show_left_btn = true;
+	let show_right_btn = true;
+
+	let input;
+	let files = [];
+	let excess_files = [];
+	let invalid_files = [];
+
+	let dragover = false;
+	let error = {};
+
+	const make_active = (photo = '', clear_error = true) => {
+		if (clear_error) {
+			error = {};
+		}
+		show_left_btn = true;
+		show_right_btn = true;
+		item.active_photo = photo || item.photos[0] || '/image/item.png';
+		let i = item.photos.indexOf(item.active_photo);
+		if (i == item.photos.length - 1) {
+			show_right_btn = false;
+		} else if (i == 0) {
+			show_left_btn = false;
+		}
+	};
 
 	const compare_order = () => {
 		order_changed = false;
@@ -35,6 +54,7 @@
 			item.photos.splice(index + 1, 0, item.active_photo);
 
 			item = item;
+			make_active(item.active_photo);
 			compare_order();
 		}
 	};
@@ -46,158 +66,278 @@
 			item.photos.splice(index - 1, 0, item.active_photo);
 
 			item = item;
+			make_active(item.active_photo);
 			compare_order();
 		}
 	};
 
-	const submit = async (method) => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}photo_item/${item.key}`, {
+	const reorder_delete = async (method) => {
+		error = {};
+
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: method,
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(item)
+			body: JSON.stringify({
+				photos: item.photos,
+				active_photo: item.active_photo
+			})
 		});
+		resp = await resp.json();
+		console.log(resp);
+		$loading = false;
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
+		if (resp.status == 200) {
+			resp.item.active_photo = item.active_photo;
+			item = resp.item;
 
-			if (resp.status == 200) {
-				let _temp = item.active_photo;
-				item = resp.data.item;
-				tick(item);
+			$portal = item;
+			init_order = [...item.photos];
+			order_changed = false;
 
-				item.active_photo = _temp;
-				if (method == 'delete') {
-					item.active_photo = '/image/item.png';
-					if (item.photos.length > 0) {
-						item.active_photo = item.photos[0];
-					}
-				}
-
-				init_order = [...item.photos];
-				order_changed = false;
-			} else {
-				error = resp.message;
+			if (method == 'delete') {
+				make_active();
 			}
+		} else {
+			error = resp;
 		}
 	};
+
+	const on_input = () => {
+		files = [];
+		excess_files = [];
+		invalid_files = [];
+		error = {};
+
+		for (let i = 0; i < input.files.length; i++) {
+			let file = input.files[i];
+			let [media, type] = file.type.split('/');
+			if (media == 'image' && !['svg+xml', 'x-icon'].includes(type)) {
+				if (files.length < count - item.photos.length) {
+					files.push(file);
+				} else {
+					excess_files.push(file.name);
+				}
+			} else {
+				invalid_files.push(file.name);
+			}
+		}
+
+		files.length > 0 && upload_input();
+
+		if (excess_files.length > 0) {
+			error.error = `
+			<strong>
+				Excess File${excess_files.length > 1 ? 's' : ''}:
+			</strong>
+			<br/>
+			${excess_files.join(', ')}`;
+		}
+		if (invalid_files.length > 0) {
+			error.error = `${excess_files.length > 0 ? `${error.error}<br/><br/>` : ''}
+
+			<strong>
+				Invalid File${invalid_files.length > 1 ? 's' : ''}:
+			</strong>
+			<br/>
+			${invalid_files.join(', ')}`;
+		}
+	};
+
+	const upload_input = async () => {
+		let formData = new FormData();
+		for (let i in files) {
+			formData.append('files', files[i]);
+		}
+
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
+			method: 'post',
+			headers: {
+				Authorization: $token
+			},
+			body: formData
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+			resp.item.active_photo = item.active_photo;
+			item = resp.item;
+
+			$portal = item;
+			error.error = resp.error;
+		} else {
+			error = resp;
+		}
+	};
+
+	make_active();
 </script>
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Manage Photo</div>
+		<b>Manage Photo</b>
 	</svelte:fragment>
 
-	<svelte:fragment slot="info">
-		<p>Add, Remove, Reorder Photos</p>
-	</svelte:fragment>
+	<button
+		class:dragover
+		on:click={() => {
+			input.click();
+		}}
+		on:dragover|preventDefault={() => {
+			dragover = true;
+		}}
+		on:dragenter
+		on:dragleave|preventDefault={() => {
+			dragover = false;
+		}}
+		on:drop|preventDefault={(e) => {
+			dragover = false;
+			input.files = e.dataTransfer.files;
+			on_input();
+		}}
+	>
+		<img src={item.active_photo} alt={item.title} onerror="this.src='/image/item.png'" />
+	</button>
+	<input
+		style:display="none"
+		type="file"
+		accept="image/*"
+		multiple
+		bind:this={input}
+		on:change={(e) => {
+			on_input();
+		}}
+	/>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<img src={item.active_photo} alt={item.name} />
-		{#if item.photos.length > 1}
-			<div class="slide">
-				{#each item.photos as photo}
+	<br />
+	<br />
+
+	{#if item.photos.length > 1}
+		<div class="row">
+			{#each item.photos as photo}
+				<button
+					on:click={() => {
+						make_active(photo);
+					}}
+				>
 					<img
-						src={photo}
+						src="{photo}/200"
 						alt={item.name}
 						class:active={item.active_photo == photo}
-						on:click={() => {
-							item.active_photo = photo;
-						}}
+						onerror="this.src='/image/item.png'"
 					/>
-				{/each}
-			</div>
+				</button>
+			{/each}
+		</div>
+	{/if}
 
-			<HR />
+	{#if error.error}
+		<span class="error">
+			{@html error.error}
+		</span>
+	{/if}
 
-			{#if error}
-				<p class="error">
-					{error}
-				</p>
-			{/if}
-
-			<div class="inputGroup horizontal">
-				<Button name="Left" on:click={order_left} />
-				<Button name="Right" on:click={order_right} />
-				{#if order_changed}
-					<Button
-						name="Accept"
-						on:click={() => {
-							submit('put');
-						}}
-					/>
-				{/if}
-			</div>
-		{/if}
-
-		<HR />
-
-		<div class="inputGroup horizontal">
-			{#if item.photos.length < 10}
+	{#if item.photos.length > 1}
+		<br />
+		<div class="row">
+			{#if show_left_btn}
 				<Button
-					name="Add"
-					class="primary"
+					name="<<"
 					on:click={() => {
-						$module = {
-							module: Add,
-							data: {
-								item
-							}
-						};
+						order_left();
 					}}
 				/>
 			{/if}
-
-			{#if item.photos.length > 0}
+			{#if show_right_btn}
 				<Button
-					name="Remove"
+					name=">>"
 					on:click={() => {
-						submit('delete');
+						order_right();
+					}}
+				/>
+			{/if}
+			{#if order_changed}
+				<Button
+					name="Save Order"
+					on:click={() => {
+						reorder_delete('put');
 					}}
 				/>
 			{/if}
 		</div>
-	</form>
+	{/if}
+
+	<br />
+
+	<div class="row">
+		{#if item.photos.length < count}
+			<Button
+				name="Add ({count - item.photos.length})"
+				class="primary"
+				on:click={() => {
+					input.click();
+				}}
+			/>
+		{/if}
+
+		{#if item.photos.length > 0}
+			<Button
+				name="Remove"
+				on:click={() => {
+					reorder_delete('delete');
+				}}
+			/>
+		{/if}
+	</div>
 </Form>
 
 <style>
-	img {
+	button {
 		width: 100%;
-
-		border-radius: var(--brad1);
+		padding: 0;
+		background-color: transparent;
+		cursor: pointer;
+		border: 2px solid var(--ac3);
+		border-radius: var(--sp1);
+	}
+	button:hover,
+	.dragover {
+		border-color: var(--cl1);
 	}
 
-	.slide {
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.row {
 		display: flex;
 		justify-content: center;
 		gap: var(--sp1);
 		flex-wrap: wrap;
-
-		/* border: 2px solid var(--ac5); */
-		/* padding: var(--sp3); */
 	}
-	.slide > * {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 
-		--size: 50px;
+	.row button {
+		--size: 80px;
 		width: var(--size);
 		height: var(--size);
-		cursor: pointer;
 
-		border: 2px solid var(--ac5);
-		border-radius: var(--brad1);
+		/* border: 2px solid var(--ac3); */
+		border: 2px solid transparent;
+		border-radius: var(--sp0);
+		/* padding: var(--sp0); */
 
 		transition: var(--trans1);
 	}
-	.slide > *:hover {
-		border-color: var(--midtone);
-		transform: scale(1.1);
-	}
-	.slide > *.active {
+
+	.row button:hover {
 		border-color: var(--cl1);
+		transform: scale(1.1);
 	}
 </style>

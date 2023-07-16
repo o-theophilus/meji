@@ -24,7 +24,7 @@
 		border: 2px solid var(--ac5);
 		display: flex;
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		overflow: hidden;
 
 		cursor: pointer;

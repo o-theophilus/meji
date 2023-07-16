@@ -13,7 +13,7 @@
 	import Button from '$lib/button.svelte';
 
 	import Tag from './page.tag.svelte';
-	import Tag_All from './page.tagall.svelte';
+	import Tag_All from './page.tag_all.svelte';
 	import Hero from './page.hero.svelte';
 	import About from './page.about.svelte';
 	import Top from './page.to_top.svelte';

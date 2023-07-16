@@ -1,12 +1,8 @@
 <script>
-	import { user, module } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 
-	import Card from '$lib/card.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
-
 	import Photo from './_photo.svelte';
-	import AddPhoto from './_photo_add.svelte';
 
 	export let item;
 	export let edit_mode = false;
@@ -15,28 +11,24 @@
 </script>
 
 <div class="img">
-	<img src={item.photos.length > 0 ? item.photos[index] : '/image/item.png'} alt={item.name} />
-	{#if $user && $user.roles.includes('admin')}
-		<div class="h edit">
+	<img
+		src={item.photos.length > 0 ? item.photos[index] : '/image/item.png'}
+		alt={item.name}
+		onerror="this.src='/image/item.png'"
+	/>
+	{#if edit_mode}
+		<div class="edit">
 			<Button
 				icon={item.photos.length == 0 ? 'add' : 'edit'}
 				icon_size="12"
 				class="tiny"
 				on:click={() => {
-					let _module = Photo;
-					if (item.photos.length == 0) {
-						_module = AddPhoto;
-					}
 					$module = {
-						module: _module,
-						data: {
-							item
-						}
+						module: Photo,
+						item
 					};
 				}}
-				tooltip="{item.photos.length == 0 ? 'Add' : 'Edit'} Photo"
 			/>
-			<Button icon="logo" icon_size="12" class="tiny" href="/{item.slug}/ads" tooltip="Ads" />
 		</div>
 	{/if}
 </div>
@@ -49,7 +41,7 @@
 					index = i;
 				}}
 			>
-				<img src={photo} alt={item.name} />
+				<img src="{photo}/200" alt={item.name} onerror="this.src='/image/item.png'" />
 			</button>
 		{/each}
 	</div>
@@ -61,7 +53,7 @@
 		height: auto;
 	}
 	img {
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		width: 100%;
 	}
 	.edit {
@@ -87,13 +79,13 @@
 		cursor: pointer;
 
 		border: 2px solid var(--ac5);
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		object-fit: cover;
 
 		transition: var(--trans1);
 	}
 	.slide img:hover {
-		border-color: var(--midtone);
+		border-color: var(--ac3);
 		transform: scale(1.1);
 	}
 </style>

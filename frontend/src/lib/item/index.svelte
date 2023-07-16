@@ -24,7 +24,7 @@
 <section class="item" class:view_list>
 	<a href="/{item.slug}">
 		<img
-			src={`${item.photos[0]}/thumbnail` || ''}
+			src={`${item.photos[0]}/200` || '/image/item.png'}
 			alt={item.name}
 			onerror="this.src='/image/item.png'"
 		/>
@@ -86,7 +86,7 @@
 	img {
 		width: 100%;
 		height: 100%;
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		aspect-ratio: 1/1;
 		background-image: url('/image/item.png');
 		background-size: cover;
@@ -142,7 +142,7 @@
 	.old_price {
 		font-size: small;
 		position: relative;
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 	.strike {
 		position: absolute;

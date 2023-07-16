@@ -5,6 +5,7 @@
 * remove item spec
 <!-- rename db from meji to live -->
 <!-- rename db from dev to test -->
+delete row["type"] == "category"
 - [ ] Concurrency
 - [ ] review reserve words for item names
 create default super user

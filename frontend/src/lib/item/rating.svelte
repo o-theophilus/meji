@@ -28,7 +28,7 @@
 		width: fit-content;
 
 		padding: 4px;
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 
 		background-color: var(--ac5);
 	}

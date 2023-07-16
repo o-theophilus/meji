@@ -69,7 +69,7 @@
 		height: 100%;
 
 		background: var(--ac4);
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		border: 2px solid var(--ac5);
 		overflow: hidden;
 
@@ -77,7 +77,7 @@
 		transition: var(--trans1);
 	}
 	.item:hover {
-		border-color: var(--midtone);
+		border-color: var(--ac3);
 	}
 
 	img {

@@ -1,15 +1,4 @@
 :root {
-	--overlay: rgba(0, 0, 0, 0.8);
-	--light_color: white;
-	--midtone: gray;
-	
-	--cl1: #1d9bf0;
-	--cl2: #146ca8;
-	--cl3: #f05950;
-	--cl4: red;
-	--cl5: #04AA6D;
-	--cl6: goldenrod;
-
 	--sp0: 4px;
 	--sp1: 8px;
 	--sp2: 16px;
@@ -17,17 +6,22 @@
 	--sp4: 32px;
 	--sp5: 48px;
 
-	--brad1: 4px;
 	--shad1: 0 0 8px rgba(0, 0, 0, 0.282);
-
 	--trans1: all 0.2s ease-in-out;
-
 	--headerHeight: 60px;
 	
 	transition-property: background-color, border-color, opacity, outline;
 	transition-duration: 0.2s;
 	transition-timing-function: ease-in-out;
 	
+	--cl1: #1d9bf0;
+	--cl2: #146ca8;
+	--cl3: #f05950;
+	--cl4: red;
+	--cl5: #04AA6D;
+	--cl6: goldenrod;
+	--overlay: rgba(0, 0, 0, 0.8);
+
 	--ac1_: black;
 	--ac2_: rgb(32, 32, 32);
 	--ac3_: gray;

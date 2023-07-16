@@ -83,7 +83,7 @@
 		padding: var(--sp1);
 
 		background-color: transparent;
-		fill: var(--midtone);
+		fill: var(--ac3);
 		cursor: pointer;
 	}
 	button:hover {

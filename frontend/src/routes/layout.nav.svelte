@@ -153,7 +153,7 @@
 		width: var(--size);
 		height: var(--size);
 
-		color: var(--light_color);
+		color: var(--ac5_);
 
 		font-size: x-small;
 		border-radius: 50%;

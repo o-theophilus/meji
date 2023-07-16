@@ -68,7 +68,7 @@
 
 		padding: var(--sp2);
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		border: 2px solid var(--ac5);
 		/* box-shadow: var(--shad1); */
 	}

@@ -196,7 +196,7 @@
 		padding: 0 var(--sp1);
 		border-radius: calc(var(--size) / 2);
 
-		color: var(--light_color);
+		color: var(--ac5_);
 	}
 
 	.value {
@@ -210,7 +210,7 @@
 	}
 
 	.size {
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 	.size.active {
 		color: var(--cl1);

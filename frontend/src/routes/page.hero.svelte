@@ -46,7 +46,7 @@
 
 <style>
 	section {
-		/* --primary: var(--midtone); */
+		/* --primary: var(--ac3); */
 		--primary: var(--ac5);
 		--secondary: var(--cl3);
 
@@ -145,7 +145,7 @@
 		width: 100px;
 		height: var(--height);
 
-		color: var(--light_color);
+		color: var(--ac5_);
 
 		border-radius: calc(var(--height) / 2);
 		font-size: 1.2rem;
@@ -178,9 +178,9 @@
 		background-color: var(--secondary);
 		padding: var(--sp1);
 
-		color: var(--light_color);
+		color: var(--ac5_);
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		font-size: small;
 	}
 

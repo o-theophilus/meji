@@ -106,7 +106,7 @@
 	img {
 		width: 100%;
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 
 		cursor: pointer;
 	}

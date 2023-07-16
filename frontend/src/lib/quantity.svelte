@@ -63,7 +63,7 @@
 		align-items: center;
 
 		border: 2px solid var(--ac5);
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 
 		padding: 0 var(--sp1);
 		width: min-content;
@@ -101,7 +101,7 @@
 	}
 	button:hover {
 		background-color: var(--cl1);
-		color: var(--light_color);
+		color: var(--ac5_);
 	}
 
 	input:hover {

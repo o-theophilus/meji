@@ -81,8 +81,25 @@ def fix():
             x["status"] == "anonymous"
             edited.append(x)
 
-        elif x["type"] == "category":
-            x["type"] = "tag"
+        # elif x["type"] == "category":
+        #     x["type"] = "tag"
+        #     edited.append(x)
+
+    database(edited)
+
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.get("/fix_photo")
+def fix_photo():
+    db = database()
+
+    edited = []
+    for x in db:
+        if x["type"] == "item":
+            x["photos"] = [y['key'] for y in x["photos"]]
             edited.append(x)
 
     database(edited)

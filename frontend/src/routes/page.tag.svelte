@@ -4,7 +4,7 @@
 
 	import SVG from '$lib/comp/svg2.svelte';
 
-	export let tag = {};
+	export let tag = '';
 </script>
 
 <button
@@ -15,9 +15,9 @@
 		goto('/shop');
 	}}
 >
-	<SVG type={tag.icon} size="30" />
+	<SVG type={tag.toLowerCase()} size="30" />
 	<div>
-		{tag.name}
+		{tag}
 	</div>
 </button>
 
@@ -37,7 +37,7 @@
 		color: var(--ac2);
 		fill: var(--ac2);
 		background-color: transparent;
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		cursor: pointer;
 		text-align: center;
 		text-transform: capitalize;

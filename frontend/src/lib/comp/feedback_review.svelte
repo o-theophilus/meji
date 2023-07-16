@@ -89,6 +89,6 @@
 
 	.date {
 		font-size: x-small;
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 </style>

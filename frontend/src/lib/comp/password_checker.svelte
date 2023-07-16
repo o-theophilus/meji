@@ -16,12 +16,12 @@
 		display: flex;
 		gap: var(--sp1);
 
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		overflow: hidden;
 	}
 	div {
 		font-size: x-small;
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 	.active {
 		color: var(--cl5);

@@ -74,7 +74,7 @@
 
 	.old_price {
 		position: relative;
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 	.strike {
 		position: absolute;
@@ -88,7 +88,7 @@
 		background: var(--cl4);
 	}
 	.discount {
-		color: var(--midtone);
+		color: var(--ac3);
 	}
 
 	.details {
@@ -106,6 +106,6 @@
 	.hr {
 		grid-column: 1/3;
 		height: 2px;
-		background-color: var(--midtone);
+		background-color: var(--ac3);
 	}
 </style>

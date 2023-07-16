@@ -58,7 +58,7 @@
 
 		border: none;
 		padding: var(--sp2);
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 
 		background-color: var(--ac4);
 		color: var(--ac2);
@@ -74,12 +74,12 @@
 	.active,
 	.primary {
 		background-color: var(--cl1);
-		color: var(--light_color);
-		fill: var(--light_color);
+		color: var(--ac5_);
+		fill: var(--ac5_);
 	}
 	.secondary {
 		background-color: transparent;
-		color: var(--midtone);
+		color: var(--ac3);
 		border: 2px solid var(--ac5);
 	}
 
@@ -145,8 +145,8 @@
 
 	:hover {
 		background-color: var(--cl1);
-		color: var(--light_color);
-		fill: var(--light_color);
+		color: var(--ac5_);
+		fill: var(--ac5_);
 	}
 
 	.active:hover,

@@ -108,7 +108,7 @@
 	{/each}
 	{#if edit_mode}
 		{#if item.tags.length == 0}
-			Tags
+			No tag
 		{/if}
 		<Button
 			icon="edit"
@@ -219,10 +219,16 @@
 			No information
 		{/if}
 	</div>
-	<br />
 {/if}
 
 <br />
+
+{#if edit_mode}
+	<div class="horizontal">
+		<Button name="Manage ads" class="link" href="/{item.slug}/ads" />
+	</div>
+	<br />
+{/if}
 
 <div class="horizontal bold">
 	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback

@@ -15,7 +15,7 @@
 	let error = {};
 
 	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag_all`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`, {
 			method: 'get',
 			headers: {
 				'Content-Type': 'application/json',

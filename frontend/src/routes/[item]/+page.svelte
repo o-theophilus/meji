@@ -11,8 +11,8 @@
 	import Button from '$lib/button.svelte';
 
 	export let data;
-	let { item } = data;
-	let { recently_viewed } = data;
+	$: item = data.item;
+	$: recently_viewed = data.recently_viewed;
 
 	$: if ($portal) {
 		item = $portal;

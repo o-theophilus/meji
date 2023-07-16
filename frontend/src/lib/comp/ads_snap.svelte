@@ -40,7 +40,7 @@
 		display: flex;
 		position: relative;
 		box-shadow: var(--shad1);
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 		/* overflow: hidden; */
 		overflow: scroll;
 		scroll-snap-type: x mandatory;

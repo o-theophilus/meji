@@ -57,7 +57,7 @@
 	.content {
 		/* width: 100%; */
 		/* max-width: 500px; */
-		border-radius: var(--brad1);
+		border-radius: var(--sp0);
 
 		overflow: hidden;
 

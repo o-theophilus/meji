@@ -44,9 +44,7 @@ def user_schema(user, db):
 
 
 def item_schema(item, db):
-    photos = sorted(item["photos"], key=lambda d: d["order"])
-    photos = [
-        f"{request.host_url}photos/{x['key']}" for x in photos]
+    photos = [f"{request.host_url}photos/{x}" for x in item["photos"]]
 
     feedbacks = []
     user_keys = [x["user_key"] for x in item["feedbacks"]]
@@ -137,15 +135,6 @@ def feedback_schema(fb):
         "rating": fb["rating"],
         "review": fb["review"],
         "date": fb["date_c"],
-    }
-
-
-def tag_schema(tag):
-    return {
-        "key": tag["key"],
-        "name": tag["name"],
-        "icon": tag["icon"],
-        "count": len(tag["items"])
     }
 
 
