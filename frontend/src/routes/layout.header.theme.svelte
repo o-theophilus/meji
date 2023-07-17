@@ -25,8 +25,8 @@
 	>
 		<div class="block">
 			<div class="switch" class:dark={$user.setting.theme == 'dark'}>
-				<div class="state">☼</div>
-				<div class="state">☾</div>
+				<div>☼</div>
+				<div>☾</div>
 			</div>
 		</div>
 	</button>
@@ -48,7 +48,13 @@
 
 		height: var(--size);
 		width: var(--size);
+
+		border-radius: 50%;
 	}
+	.block:hover {
+		background-color: var(--ac4);
+	}
+	
 	.switch {
 		position: absolute;
 		top: 0;
@@ -58,16 +64,12 @@
 	.dark {
 		top: -100%;
 	}
-	.state {
+	.switch div {
 		width: var(--size);
 		height: var(--size);
-
-		border-radius: 50%;
 
 		display: flex;
 		justify-content: center;
 		align-items: center;
-
-		background-color: var(--ac5);
 	}
 </style>

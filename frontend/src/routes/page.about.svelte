@@ -66,7 +66,7 @@
 
 	.row_1 {
 		max-width: 300px;
-		font-size: large;
+		/* font-size: large; */
 		/* font-weight: 300; */
 	}
 
@@ -98,9 +98,7 @@
 	}
 
 	@media screen and (min-width: 800px) {
-		.row_1 {
-			max-width: 500px;
-		}
+	
 		.row_2 {
 			flex-direction: unset;
 		}

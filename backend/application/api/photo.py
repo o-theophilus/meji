@@ -1,10 +1,17 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 from .tools import token_to_user
 from .schema import user_schema, item_schema
 from .database import database, query
 from .storage import storage
 
 bp = Blueprint("photo", __name__)
+
+
+@bp.get("/photos/<key>")
+@bp.get("/photos/<key>/<thumbnail>")
+def get_photo(key, thumbnail=False):
+    photo = storage(key, thumbnail=thumbnail)
+    return send_file(photo, mimetype="image/jpg")
 
 
 @bp.post("/photo/<key>")

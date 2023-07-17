@@ -43,7 +43,6 @@
 		});
 		resp = await resp.json();
 		$loading = false;
-		console.log(resp);
 
 		if (resp.status == 200) {
 			$portal = resp.item;
@@ -87,5 +86,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" name="Submit" on:click={submit} />
+	<Button class="primary" name="Submit" on:click={validate} />
 </Form>

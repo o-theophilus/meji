@@ -1,9 +1,7 @@
 <script>
-	import { scale } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
-
 	import { page } from '$app/stores';
 	import { user, module } from '$lib/store.js';
+	import { state } from '$lib/page_state.js';
 
 	import SVG from '$lib/comp/svg.svelte';
 	import Login from './auth/login.svelte';
@@ -20,7 +18,7 @@
 		{/if}
 		Home
 	</a>
-	<a href="/shop" class:active={segment == '/shop'}>
+	<a href="/shop{$state.shop || ''}" class:active={segment == '/shop'}>
 		{#if segment == '/shop'}
 			<SVG type="shop_active" size="15" />
 		{:else}
@@ -28,7 +26,7 @@
 		{/if}
 		Shop
 	</a>
-	<a href="/save" class:active={segment == '/save'}>
+	<a href="/save{$state.save || ''}" class:active={segment == '/save'}>
 		{#if segment == '/save'}
 			<SVG type="like_active" size="15" />
 		{:else}
@@ -37,7 +35,6 @@
 		Save
 		{#if $user && $user.saves.length > 0}
 			{#key $user.saves.length}
-				<!-- <div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}> -->
 				<div class="circle">
 					{$user.saves.length}
 				</div>
@@ -53,7 +50,6 @@
 		Cart
 		{#if $user && $user.cart.length > 0}
 			{#key $user.cart.length}
-				<!-- <div class="circle" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}> -->
 				<div class="circle">
 					{$user.cart.length}
 				</div>
@@ -92,7 +88,7 @@
 <style>
 	nav {
 		display: flex;
-		background: var(--ac5);
+		background-color: var(--ac5);
 		box-shadow: var(--shad1);
 		height: var(--headerHeight);
 	}
@@ -137,7 +133,7 @@
 
 	.login:hover,
 	a:hover {
-		background: var(--ac5);
+		background: var(--ac4);
 	}
 	.circle {
 		--size: 16px;

@@ -12,7 +12,10 @@ def all_tags(db=None):
 
     tags = []
     for row in db:
-        if row["type"] == "item":
+        if (
+            row["type"] == "item"
+            and row["status"] == "live"
+        ):
             tags += row["tags"]
 
     tags = list(set(tags))

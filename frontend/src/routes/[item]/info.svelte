@@ -6,7 +6,9 @@
 	import { page } from '$app/stores';
 
 	import Button from '$lib/button.svelte';
+	import Button_Fold from '$lib/button_fold.svelte';
 	import Price from './info.price.svelte';
+	import Discount from './info.price.discount.svelte';
 	import Rating from '$lib/item/rating.svelte';
 	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Review from '$lib/comp/feedback_review.svelte';
@@ -44,12 +46,15 @@
 	export let edit_mode = false;
 	let open_info = true && item.info;
 	let open_feedback = item.feedbacks && item.feedbacks.length > 0;
+	let open_discount = false;
 	let review_lenght = 3;
 </script>
 
 {#if edit_mode}
 	<div class="horizontal">
-		Status: {item.status}
+		<span>
+			Status: <span class="bold">{item.status}</span>
+		</span>
 
 		<Button
 			icon="edit"
@@ -68,8 +73,8 @@
 	<br />
 {/if}
 
-<div class="horizontal bold">
-	{item.name}
+<div class="horizontal">
+	<b>{item.name} </b>
 
 	<div class="horizontal">
 		<Save {item} />
@@ -92,10 +97,15 @@
 </div>
 
 <div class="horizontal">
-	{#each item.tags as tag, i}
-		{#if i > 0},{/if}
-		{tag}
-		<!-- <Button
+	<div>
+		{#if edit_mode}
+			<span class="bold"> Tags: </span>
+		{/if}
+		<span class="f2">
+			{#each item.tags as tag, i}
+				{#if i > 0},{/if}
+				{tag}
+				<!-- <Button
 				name={tag}
 				class="tag"
 				on:click={() => {
@@ -105,11 +115,14 @@
 					// goto('/shop');
 				}}
 				/> -->
-	{/each}
+			{/each}
+		</span>
+	</div>
+
 	{#if edit_mode}
-		{#if item.tags.length == 0}
-			No tag
-		{/if}
+		<!-- {#if item.tags.length == 0} -->
+		<!-- No tag -->
+		<!-- {/if} -->
 		<Button
 			icon="edit"
 			icon_size="12"
@@ -128,18 +141,18 @@
 <br />
 
 {#if edit_mode}
-	<div class="horizontal">
-		Variation
-		<br />
-
-		{#each Object.entries(item.variation) as [key, values], i (i)}
-			{key}:
-			{#each values as value, i}
-				{#if i > 0},{/if}
-				{value}
-			{/each}
-			<br />
-		{/each}
+	<div class="horizontal nowrap">
+		<div>
+			<span class="bold"> Variation: </span>
+			<span class="f2">
+				{#each Object.entries(item.variation) as [key, values], i (i)}
+					{key}: [{#each values as value, i}
+						{value}{#if i < values.length - 1},{/if}
+					{/each}]
+					<!-- <br /> -->
+				{/each}
+			</span>
+		</div>
 
 		<Button
 			icon="edit"
@@ -159,21 +172,39 @@
 
 <div class="horizontal">
 	<Price {item} />
-	{#if edit_mode}
-		<Button
-			icon="edit"
-			icon_size="12"
-			class="tiny"
-			on:click={() => {
-				$module = {
-					module: Edit_Price,
-					item
-				};
-			}}
-			tooltip="Edit Item tag"
-		/>
-	{/if}
+
+	<div class="horizontal">
+		{#if item.old_price}
+			<Button
+				icon="info"
+				class="tiny"
+				icon_size="8"
+				on:click={() => {
+					open_discount = !open_discount;
+				}}
+			/>
+		{/if}
+		{#if edit_mode}
+			<Button
+				icon="edit"
+				icon_size="12"
+				class="tiny"
+				on:click={() => {
+					$module = {
+						module: Edit_Price,
+						item
+					};
+				}}
+				tooltip="Edit Item tag"
+			/>
+		{/if}
+	</div>
 </div>
+{#if item.old_price && open_discount}
+	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+		<Discount {item} />
+	</div>
+{/if}
 
 {#if item.feedbacks && item.feedbacks.length > 0}
 	<br />
@@ -190,7 +221,8 @@
 <div class="horizontal bold">
 	Details
 	<div class="horizontal">
-		<Button
+		<Button_Fold
+			open={open_info}
 			on:click={() => {
 				open_info = !open_info;
 			}}
@@ -212,7 +244,7 @@
 	</div>
 </div>
 {#if open_info}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+	<div class="f2" transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
 		{#if item.info}
 			<Md md={item.info} />
 		{:else}
@@ -223,17 +255,11 @@
 
 <br />
 
-{#if edit_mode}
-	<div class="horizontal">
-		<Button name="Manage ads" class="link" href="/{item.slug}/ads" />
-	</div>
-	<br />
-{/if}
-
 <div class="horizontal bold">
 	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback
 
-	<Button
+	<Button_Fold
+		open={open_feedback}
 		on:click={() => {
 			open_feedback = !open_feedback;
 		}}
@@ -262,10 +288,12 @@
 				/>
 			{/if}
 		{:else}
-			There is no feedback yet.
-			<br />
-			<br />
-			Only logged in customers who have purchased this item may leave a review.
+			<span class="f2">
+				There is no feedback yet.
+				<br />
+				<br />
+				Only logged in customers who have purchased this item may leave a review.
+			</span>
 		{/if}
 	</div>
 	<br />
@@ -303,9 +331,16 @@
 		align-items: center;
 		flex-wrap: wrap;
 	}
+	.nowrap {
+		flex-wrap: unset;
+	}
 
 	.bold {
-		font-weight: 600;
+		font-weight: 500;
+		text-transform: capitalize;
+	}
+	.f2 {
+		color: var(--ac2);
 	}
 
 	.rating {

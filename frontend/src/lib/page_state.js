@@ -1,44 +1,29 @@
 import { writable, get } from 'svelte/store';
+import { page } from '$app/stores';
+import { invalidate } from '$app/navigation';
 
-let default_page = {
-	search: '',
-	tag: '',
-	status: '',
-	page_no: 1,
-	order: ['date', 'dsc']
+export const state = writable({})
+export const set_state = (pn, key, value) => {
+    let _page = get(page);
+    _page.url.searchParams.set(key, value);
+
+    if (key == 'tag' && value == 'all') {
+        value = '';
+    }
+    if (value == '') {
+        _page.url.searchParams.delete(key);
+    }
+
+    window.history.pushState(history.state, '', _page.url.href);
+
+    let temp = get(state)
+    temp[pn] = _page.url.search
+    state.set(temp)
+    
+    invalidate(() => true);
 };
-export const state = writable({
-		shop: {...default_page, status: "live"},
-		save: { ...default_page },
-		users: { ...default_page, status: "confirm"},
-		ad: { ...default_page },
-		orders: {...default_page, status: "ordered"}
-	}
-)
 
-export const page_name = writable();
-// export const get_query = (name) => {
-// 	page_name.set(name);
-// 	let query = '';
-// 	let page = get(state)[name]
-	
-// 	query += `&page_no=${page.page_no}`;
-// 	query += `&order=${page.order}`;
 
-// 	if (page.search) {
-// 		query += `&search=${page.search}`;
-// 	}
-// 	if (page.tag) {
-// 		query += `&tag=${page.tag}`;
-// 	}
-// 	if (page.status) {
-// 		query += `&status=${page.status}`;
-// 	}
 
-	
-// 	if (query) {
-// 		query = `?${query.substring(1)}`;
-// 	}
-	
-// 	return query;
-// };
+export const page_name = writable("")
+

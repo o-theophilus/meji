@@ -1,20 +1,12 @@
-from flask import Blueprint, jsonify, request, send_file
+from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .schema import item_schema, log_template
 from math import ceil
 from .database import database, query
-from .storage import storage
 from .tag import all_tags
 import re
 
 bp = Blueprint("item_get", __name__)
-
-
-@bp.get("/photos/<key>")
-@bp.get("/photos/<key>/<thumbnail>")
-def get_photo(key, thumbnail=False):
-    photo = storage(key, thumbnail=thumbnail)
-    return send_file(photo, mimetype="image/jpg")
 
 
 @bp.get("/item/<slug>")
@@ -87,29 +79,17 @@ def item_master(
     size=24,
 ):
 
-    if tag:
-        tag = query({"type": "tag", "name": tag}, db=db)
-
     items = []
     for row in db:
-        if (
-            row["type"] == "item"
-            and row["status"] == status
-        ):
-            if search and tag:
-                if (
-                    re.search(search, row["name"], re.IGNORECASE)
-                    and row["key"] in tag["items"]
-                ):
-                    items.append(row)
-            elif search:
-                if re.search(search, row["name"], re.IGNORECASE):
-                    items.append(row)
-            elif tag:
-                if row["key"] in tag["items"]:
-                    items.append(row)
-            else:
-                items.append(row)
+        if row["type"] != "item":
+            continue
+        if status and row["status"] != status:
+            continue
+        if search and not re.search(search, row["name"], re.IGNORECASE):
+            continue
+        if tag and tag not in row["tags"]:
+            continue
+        items.append(row)
 
     if order[0] == "date":
         order[0] = "date_c"

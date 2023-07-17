@@ -66,3 +66,56 @@ h6 {
 	color: var(--cl4);
 	font-size: small;
 }
+
+/*************************** form ***************************/ 
+
+label {
+	width: fit-content;
+	text-transform: capitalize;
+	color: var(--ac1);
+}
+
+
+input,
+select,
+textarea {
+	width: 100%;
+
+	padding: var(--sp2);
+	border-radius: var(--sp0);
+	border: 2px solid var(--ac4);
+
+	background-color: transparent;
+	color: var(--ac1);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+	border-color: var(--ac3);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: var(--cl1);
+	/* background-color: var(--ac4); */
+	
+}
+
+option{
+	background-color: var(--ac5);
+}
+
+textarea {
+	display: block;
+	resize: none;
+	height: 160px;
+}
+
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}

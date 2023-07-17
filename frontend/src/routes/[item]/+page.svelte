@@ -1,14 +1,15 @@
 <script>
+	import { slide } from 'svelte/transition';
+	import { elasticInOut } from 'svelte/easing';
 	import { _tick, user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
-
 	import Meta from '$lib/meta.svelte';
-
 	import Button from '$lib/button.svelte';
+	import Button_Fold from '$lib/button_fold.svelte';
 
 	export let data;
 	$: item = data.item;
@@ -19,11 +20,12 @@
 		$portal = '';
 	}
 
-	let edit_mode = true;
+	let edit_mode = false;
+	let open_recent = true;
 	$loading = false;
 </script>
 
-<Meta title={item.name} description={item.info} image={item.thumbnail} />
+<Meta title={item?.name} description={item.info} image={item.thumbnail} />
 
 <Card>
 	<div class="title">
@@ -53,12 +55,29 @@
 
 {#if recently_viewed && recently_viewed.length > 0}
 	<Card>
-		<div class="title">Recently Viewed</div>
-		<div class="items" class:grid={true}>
-			{#each recently_viewed as item (item.key)}
-				<Item {item} />
-			{/each}
+		<div class="title">
+			Recently Viewed
+			{#if $user && $user.roles.includes('admin')}
+				<Button_Fold
+					open={open_recent}
+					on:click={() => {
+						open_recent = !open_recent;
+					}}
+				/>
+			{/if}
 		</div>
+
+		{#if open_recent}
+			<div
+				class="items"
+				class:grid={true}
+				transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}
+			>
+				{#each recently_viewed as item (item.key)}
+					<Item {item} />
+				{/each}
+			</div>
+		{/if}
 	</Card>
 {/if}
 
@@ -66,7 +85,7 @@
 	.block {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp2);
+		gap: var(--sp3);
 		margin-top: var(--sp3);
 	}
 	.block > div {
@@ -91,6 +110,7 @@
 		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
 	.items {

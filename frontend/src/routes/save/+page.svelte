@@ -28,7 +28,7 @@
 
 <Meta title="Saved" description="Saved" />
 
-<Pagination {total_page} />
+<!-- <Pagination {total_page} /> -->
 
 <Card>
 	<div class="title">Saved</div>

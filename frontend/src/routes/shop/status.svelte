@@ -1,47 +1,38 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
-	import { user, module } from '$lib/store.js';
-	import { state, page_name } from '$lib/page_state.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { user, module, set_state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import Add from './_add.svelte';
 
-	let emit = createEventDispatcher();
+	export let page_name = '';
+	let status = 'live';
 
-	const submit = (status) => {
-		$state[$page_name][query] = status;
-		emit('ok');
-	};
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('status')) {
+			status = params.get('status');
+		}
+	});
 </script>
 
 {#if $user && $user.roles.includes('admin')}
 	<div class="block">
 		<div class="left">
-			<Button
-				name={'live'}
-				class="tiny"
-				active={$state[$page_name]['status'] == 'live'}
-				on:click={() => {
-					submit('live');
-				}}
-			/>
-			<Button
-				name={'draft'}
-				class="tiny"
-				active={$state[$page_name]['status'] == 'draft'}
-				on:click={() => {
-					submit('draft');
-				}}
-			/>
-			<Button
-				name={'delete'}
-				class="tiny"
-				active={$state[$page_name]['status'] == 'delete'}
-				on:click={() => {
-					submit('delete');
-				}}
-			/>
+			{#each ['live', 'draft', 'delete'] as s}
+				<Button
+					name={s}
+					class="tiny"
+					active={status == s}
+					on:click={() => {
+						status = s;
+						set_state(page_name, 'status', s != 'live' ? s : '');
+					}}
+				/>
+			{/each}
 		</div>
+		
 		<Button
 			icon="add"
 			icon_size="12"

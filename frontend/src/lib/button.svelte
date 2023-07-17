@@ -12,6 +12,7 @@
 	let clas = '';
 	export { clas as class };
 	export let target = '';
+	export let disabled = false;
 
 	// let icon_only = !(name || $$slots);
 	let icon_only = !name;
@@ -34,6 +35,7 @@
 	</a>
 {:else}
 	<button
+		{disabled}
 		class={clas}
 		class:active
 		class:icon_only
@@ -69,6 +71,13 @@
 
 		width: fit-content;
 		cursor: pointer;
+	}
+
+	button:disabled {
+		opacity: 0.5;
+		background-color: var(--ac4);
+		cursor: unset;
+		color: var(--ac2);
 	}
 
 	.active,

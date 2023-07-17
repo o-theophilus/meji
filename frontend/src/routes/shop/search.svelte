@@ -1,17 +1,40 @@
 <script>
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
-	import { createEventDispatcher } from 'svelte';
 
-	let emit = createEventDispatcher();
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('tag')) {
+			tag = params.get('tag');
+		}
+		if (params.has('search')) {
+			search = params.get('search');
+		}
+	});
 
-	let search;
-
-	const submit = (v) => {
-		emit('ok', { search });
-	};
+	export let tags = [];
+	export let page_name = '';
+	let tag = 'all';
+	let search = '';
 </script>
 
 <section>
+	<select
+		bind:value={tag}
+		on:change={() => {
+			set_state(page_name, 'tag', tag != 'all' ? tag : '');
+		}}
+	>
+		<option value="all" selected>all</option>
+		{#each tags as x}
+			<option value={x}>
+				{x}
+			</option>
+		{/each}
+	</select>
+
 	<div class="search_area">
 		<input
 			type="text"
@@ -19,7 +42,7 @@
 			bind:value={search}
 			on:keypress={(e) => {
 				if (e.key == 'Enter') {
-					submit(search);
+					set_state(page_name, 'search', search);
 				}
 			}}
 		/>
@@ -31,7 +54,7 @@
 					icon_size="15"
 					class="tiny"
 					on:click={() => {
-						submit('');
+						set_state(page_name, 'search', '');
 					}}
 				/>
 				✖
@@ -45,7 +68,7 @@
 		icon_size="15"
 		class="tiny"
 		on:click={() => {
-			submit(search);
+			set_state(page_name, 'search', search);
 		}}
 	/>
 </section>
@@ -57,6 +80,12 @@
 		margin-top: var(--sp2);
 	}
 
+	select,
+	option {
+		text-transform: capitalize;
+		width: unset;
+	}
+
 	.search_area {
 		display: flex;
 		gap: var(--sp1);
@@ -66,25 +95,13 @@
 		width: 100%;
 	}
 
+	select,
 	input {
-		width: 100%;
-		height: var(--sp2);
-
-		padding: var(--sp2);
-		padding-right: 60px;
-
-		border-radius: var(--sp0);
-		border: 2px solid transparent;
-
-		color: var(--ac1);
-		background-color: var(--ac3);
+		border: 2px solid var(--ac3);
 	}
-	input:hover {
-		border-color: var(--cl1);
-	}
+	select:focus,
 	input:focus {
 		border-color: var(--cl1);
-		background-color: var(--ac5);
 	}
 
 	.clear {

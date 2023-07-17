@@ -1,22 +1,41 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
+import { page } from '$app/stores';
+import { invalidate } from '$app/navigation';
 
 export const showHeader = writable(true);
 export const openMobileMenu = writable(false);
 export const isMobile = writable(true);
-
 export const showAvatarPanel = writable(false);
-export const module = writable();
-
-
-export const loading = writable(false);
-
-export const user = writable();
-
 export const _tick = writable("");
 export const tick = (data)=> {
 	_tick.set(data);
 }
+
+export const module = writable();
+export const loading = writable(false);
+export const user = writable();
 export const portal = writable();
+
+export const state = writable({})
+export const set_state = (pn, key, value) => {
+    let _page = get(page);
+    _page.url.searchParams.set(key, value);
+
+    if (value == '') {
+        _page.url.searchParams.delete(key);
+    }
+    if (['tag', 'search', "status"].includes(key)) {
+        _page.url.searchParams.delete("page_no");
+    }
+
+    window.history.pushState(history.state, '', _page.url.href);
+
+    let temp = get(state)
+    temp[pn] = _page.url.search
+    state.set(temp)
+    
+    invalidate(() => true);
+};
 
 export const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export const months = [

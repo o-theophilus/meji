@@ -1,88 +1,94 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
-	import { loading } from '$lib/store.js';
-	import { state, page_name } from '$lib/page_state.js';
-
-	import Body from '$lib/comp/card_body.svelte';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 
-	let emit = createEventDispatcher();
-
-	export let total_page;
-	let value = $state[$page_name].page_no;
-
-	const goto_page = async (p) => {
-		if (p < 1) {
-			p = 1;
-		} else if (p > total_page) {
-			p = total_page;
-		}
-
-		$state[$page_name].page_no = p;
-		value = p;
-		emit('ok');
-	};
-
-	export const init = async () => {
-		$state[$page_name].page_no = 1;
-		value = 1;
-	};
-
+	let page_no = 1;
+	let page_no_temp = 1;
 	let width;
-	let width2;
+	export let total_page = 1;
+	export let page_name = '';
+
+	const normalise = (value) => {
+		if (value < 1) {
+			value = 1;
+		} else if (value > total_page) {
+			value = total_page;
+		}
+		return value;
+	};
+
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('page_no')) {
+			page_no = page_no_temp = normalise(params.get('page_no'));
+		}
+	});
+
+	const submit = (value) => {
+		value = normalise(value);
+		page_no = page_no_temp = value;
+		set_state(page_name, 'page_no', value);
+	};
 </script>
 
 {#if total_page > 1}
-	<section class:loading={$loading}>
-		{#if $state[$page_name].page_no > 1}
+	<section>
+		{#if page_no > 1}
 			<Button
+				class="tiny"
 				name="❮ prev"
-				class="link"
-				color="var(--ac2)"
 				on:click={() => {
-					goto_page($state[$page_name].page_no - 1);
+					submit(page_no - 1);
 				}}
 			/>
 		{/if}
 
 		<div class="input">
-			<span class="helper" bind:clientWidth={width}>
-				{value}
-			</span>
 			<input
-				style:width="calc({width}px + {width2}px)"
-				size="0"
-				type="number"
-				bind:value
+				style:width="{width}px"
+				type="text"
+				oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+				bind:value={page_no_temp}
 				on:keypress={(e) => {
 					if (e.key == 'Enter') {
-						goto_page(value);
+						submit(page_no_temp);
 					}
 				}}
 			/>
-			<div class="total" bind:clientWidth={width2}>
-				of {total_page}
+			<div class="total">
+				/ {total_page}
 			</div>
 		</div>
 
-		{#if $state[$page_name].page_no != value}
+		<div class="width_helper" bind:clientWidth={width}>
+			<span>
+				{#if page_no_temp}
+					{page_no_temp}
+				{:else}
+					0
+				{/if}
+			</span>
+			// {total_page}
+		</div>
+
+		{#if page_no_temp != page_no}
 			<Button
+				class="tiny"
 				name="go ❯❯"
-				class="link"
-				color="var(--ac2)"
 				on:click={() => {
-					goto_page(value);
+					submit(page_no_temp);
 				}}
 			/>
 		{/if}
 
-		{#if $state[$page_name].page_no < total_page}
+		{#if page_no < total_page}
 			<Button
+				class="tiny"
 				name="next ❯"
-				class="link"
-				color="var(--ac2)"
 				on:click={() => {
-					goto_page($state[$page_name].page_no + 1);
+					submit(parseInt(page_no) + 1);
 				}}
 			/>
 		{/if}
@@ -95,48 +101,30 @@
 		justify-content: center;
 		gap: var(--sp1);
 
-		margin-top: var(--sp2);
-	}
-	.loading {
-		opacity: 0.5;
+		margin: var(--sp2);
 	}
 
 	.input {
 		position: relative;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 	}
-
 	input {
-		padding: var(--sp1);
-
-		background: transparent;
-		font-weight: 500;
-		margin-right: 2px;
-
-		border-radius: var(--sp0);
-		border: 2px solid var(--ac5);
-
-		color: var(--ac1);
+		border: 2px solid var(--ac3);
 	}
 
-	input:hover {
-		border-color: var(--ac3);
-	}
-	input:focus {
-		border-color: var(--cl1);
-	}
 	.total {
 		position: absolute;
-		right: calc(var(--sp1) + 4px);
+		right: var(--sp2);
 		pointer-events: none;
-		font-size: small;
+		color: var(--ac2);
 	}
 
-	.helper {
+	.width_helper {
 		position: absolute;
 		visibility: hidden;
-
-		padding: calc(var(--sp1) + 4px);
+		padding: var(--sp2);
+		display: inline-block;
 	}
 </style>
