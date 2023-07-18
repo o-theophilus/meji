@@ -2,9 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-
 	import { module } from '$lib/store.js';
-	import { state } from '$lib/page_state.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
@@ -102,7 +100,7 @@
 						class="link"
 						name="view all >"
 						on:click={() => {
-							$state['shop'].order = x.query.order;
+							// $state['shop'].order = x.query.order;
 							goto(`/shop`);
 						}}
 					/>

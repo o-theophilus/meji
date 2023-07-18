@@ -1,7 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import { user, module } from '$lib/store.js';
-	import { state } from '$lib/page_state.js';
+	import { user, module, state } from '$lib/store.js';
 
 	import SVG from '$lib/comp/svg.svelte';
 	import Login from './auth/login.svelte';

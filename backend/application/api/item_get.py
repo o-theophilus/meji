@@ -79,6 +79,7 @@ def item_master(
     size=24,
 ):
 
+    print(status)
     items = []
     for row in db:
         if row["type"] != "item":

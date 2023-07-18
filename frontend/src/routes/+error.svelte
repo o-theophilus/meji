@@ -1,20 +1,19 @@
 <script>
-	import Group from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
+	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import Meta from '$lib/meta.svelte';
 
 	import { page } from '$app/stores';
 </script>
 
-<svelte:head>
-	<title>{$page.status} Error | Meji</title>
-</svelte:head>
+<Meta title="Error" description="Error" />
 
-<Group>
-	<Title title="{$page.status} Error" />
-	<Body>
+<Card>
+	<div class="title">{$page.status}</div>
+	<div class="body">
 		{@html $page.error.message}
+		<br />
+		<br />
 
 		<Button
 			name="Home"
@@ -23,5 +22,14 @@
 				document.location = '/';
 			}}
 		/>
-	</Body>
-</Group>
+	</div>
+</Card>
+
+<style>
+	.title {
+		font-weight: 600;
+	}
+	.body {
+		margin-top: var(--sp4);
+	}
+</style>

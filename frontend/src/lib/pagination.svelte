@@ -4,9 +4,7 @@
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 
-	let page_no = 1;
-	let page_no_temp = 1;
-	let width;
+	let page_no, page_no_temp, width;
 	export let total_page = 1;
 	export let page_name = '';
 
@@ -29,8 +27,13 @@
 	const submit = (value) => {
 		value = normalise(value);
 		page_no = page_no_temp = value;
-		set_state(page_name, 'page_no', value);
+		set_state(page_name, 'page_no', value != 1 ? value : '');
 	};
+
+	$: {
+		total_page;
+		page_no = page_no_temp = 1;
+	}
 </script>
 
 {#if total_page > 1}

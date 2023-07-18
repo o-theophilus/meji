@@ -39,7 +39,11 @@
 				<div class="row2">
 					<div class="cost">
 						<div class="price">
-							₦{item.price.toLocaleString()}
+							{#if item.price}
+								₦{item.price.toLocaleString()}
+							{:else}
+								Nil
+							{/if}
 						</div>
 						{#if item.old_price}
 							<div class="old_price">

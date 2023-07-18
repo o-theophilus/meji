@@ -1,7 +1,7 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { elasticInOut } from 'svelte/easing';
-	import { _tick, user, loading, portal } from '$lib/store.js';
+	import { user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';

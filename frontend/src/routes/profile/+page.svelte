@@ -1,5 +1,5 @@
 <script>
-	import { user, _tick, module, portal } from '$lib/store.js';
+	import { user, module, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';

@@ -19,7 +19,6 @@
 </script>
 
 <Meta title="Shop" description="Shop" />
-
 <Status_Bar {page_name} />
 <Search {page_name} {tags} />
 <Pagination {page_name} {total_page} />
@@ -28,13 +27,7 @@
 	<div class="title">
 		Shop
 
-		<!-- <View
-			show_view={open}
-			on:ok={() => {
-				open = false;
-				submit();
-			}}
-		/> -->
+		<!-- <View /> -->
 	</div>
 
 	<div class="items" class:grid={true}>

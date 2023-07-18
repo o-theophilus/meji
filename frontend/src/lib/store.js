@@ -2,10 +2,6 @@ import { writable, get } from 'svelte/store';
 import { page } from '$app/stores';
 import { invalidate } from '$app/navigation';
 
-export const showHeader = writable(true);
-export const openMobileMenu = writable(false);
-export const isMobile = writable(true);
-export const showAvatarPanel = writable(false);
 export const _tick = writable("");
 export const tick = (data)=> {
 	_tick.set(data);
@@ -17,7 +13,7 @@ export const user = writable();
 export const portal = writable();
 
 export const state = writable({})
-export const set_state = (pn, key, value) => {
+export const set_state = (page_name, key, value) => {
     let _page = get(page);
     _page.url.searchParams.set(key, value);
 
@@ -31,8 +27,9 @@ export const set_state = (pn, key, value) => {
     window.history.pushState(history.state, '', _page.url.href);
 
     let temp = get(state)
-    temp[pn] = _page.url.search
+    temp[page_name] = _page.url.search
     state.set(temp)
+    loading.set(true)
     
     invalidate(() => true);
 };

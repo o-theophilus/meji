@@ -1,9 +1,17 @@
 import { get } from 'svelte/store';
+import { state,loading } from "$lib/store.js"
 import { token } from "$lib/cookie.js"
 
 export const load = async ({ fetch, url }) => {
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/save`)
-	
+	if (url.search){	
+		let temp = get(state)
+		temp.save = url.search
+		state.set(temp)
+
+		backend.search = url.search
+	}
+
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -11,8 +19,10 @@ export const load = async ({ fetch, url }) => {
 			Authorization: get(token)
 		}
 	});
-
 	resp = await resp.json();
+	loading.set(false)
+
+
 	if (resp.status == 200) {
 		return resp
     }

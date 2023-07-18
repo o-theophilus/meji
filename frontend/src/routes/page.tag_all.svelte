@@ -1,7 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { module } from '$lib/store.js';
-	import { state } from '$lib/page_state.js';
+	import { state } from '$lib/store.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';

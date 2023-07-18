@@ -2,9 +2,6 @@
 	import { flip } from 'svelte/animate';
 	import { backInOut } from 'svelte/easing';
 
-	// import { user } from '$lib/store.js';
-	// import { state, page_name } from '$lib/page_state.js';
-
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
@@ -12,14 +9,7 @@
 
 	export let data;
 	export let { items } = data;
-
 	let total_page = 10;
-
-	// $page_name = 'save';
-	// let size = 24;
-	// $: start = ($state[$page_name].page_no - 1) * size;
-	// $: total_page = Math.ceil($user.saves.length / size);
-	// $: items = $user.saves.slice(start, start + size);
 
 	const unsaved = async (key) => {
 		items = items.filter((i) => i.key != key);
@@ -27,8 +17,7 @@
 </script>
 
 <Meta title="Saved" description="Saved" />
-
-<!-- <Pagination {total_page} /> -->
+<Pagination page_name="save" {total_page} />
 
 <Card>
 	<div class="title">Saved</div>
