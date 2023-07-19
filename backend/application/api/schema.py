@@ -10,17 +10,17 @@ def user_schema(user, db):
 
     user["cart"] = sorted(user["cart"], key=lambda d: d["date"])
     cart = []
-    for _cart in user["cart"]:
-        item = query({"type": "item", "key": _cart["key"]}, db=db)
+    for x in user["cart"]:
+        item = query({"type": "item", "key": x["key"]}, db=db)
         if item:
             item = item_schema(item, db)
-            item["variation"] = _cart["variation"]
-            item["quantity"] = _cart["quantity"]
+            item["variation"] = x["variation"]
+            item["quantity"] = x["quantity"]
             cart.append(item)
 
     photo = None
     if user["photo"]:
-        photo = f"{request.host_url}/{user['photo']}"
+        photo = f"{request.host_url}photos/{user['photo']}"
 
     return {
         "key": user["key"],
@@ -38,7 +38,7 @@ def user_schema(user, db):
         "status": user["status"],
         "login": user["login"],
 
-        "saves": [save["key"] for save in user["saves"]],
+        "saves": [x["key"] for x in user["saves"]],
         "cart": cart,
     }
 

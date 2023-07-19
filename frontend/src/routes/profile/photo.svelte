@@ -1,0 +1,158 @@
+<script>
+	import { loading, portal, user } from '$lib/store.js';
+	import { token } from '$lib/cookie.js';
+	import Button from '$lib/button.svelte';
+
+	export let edit_mode = false;
+	let error = {};
+	let input;
+	let dragover = false;
+
+	const validate = () => {
+		error = {};
+		let file = input.files[0];
+
+		let [media, type] = file.type.split('/');
+		if (media != 'image' || ['svg+xml', 'x-icon'].includes(type)) {
+			error.error = 'invalid file';
+		}
+
+		Object.keys(error).length === 0 && submit(file);
+	};
+
+	const submit = async (file) => {
+		let formData = new FormData();
+		formData.append('file', file);
+
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
+			method: 'post',
+			headers: {
+				Authorization: $token
+			},
+			body: formData
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+			$user = resp.user;
+			error.error = resp.error;
+		} else {
+			error = resp;
+		}
+	};
+
+	const remove = async () => {
+		error = {};
+
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
+			method: 'delete',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+			$user.photo = '';
+		} else {
+			error = resp;
+		}
+	};
+</script>
+
+<button
+	class:dragover
+	class:edit_mode
+	on:click={() => {
+		if (edit_mode) {
+			input.click();
+		}
+	}}
+	on:dragover|preventDefault={() => {
+		dragover = true;
+	}}
+	on:dragenter
+	on:dragleave|preventDefault={() => {
+		dragover = false;
+	}}
+	on:drop={(e) => {
+		dragover = false;
+		if (edit_mode) {
+			e.preventDefault();
+			input.files = e.dataTransfer.files;
+			validate();
+		}
+	}}
+>
+	<img
+		src={$user.photo || '/image/user.png'}
+		alt={$user.name}
+		onerror="this.src='/image/user.png'"
+	/>
+</button>
+<input
+	style:display="none"
+	type="file"
+	accept="image/*"
+	bind:this={input}
+	on:change={(e) => {
+		validate();
+	}}
+/>
+
+<br />
+
+{#if edit_mode}
+	{#if error.error}
+		<br />
+		<span class="error">
+			{@html error.error}
+		</span>
+		<br />
+	{/if}
+
+	<br />
+	{#if !$user.photo}
+		<Button
+			name="Add"
+			class="primary tiny"
+			on:click={() => {
+				input.click();
+			}}
+		/>
+	{:else}
+		<Button
+			name="Remove"
+			class="tiny"
+			on:click={() => {
+				remove('delete');
+			}}
+		/>
+	{/if}
+	<br />
+{/if}
+
+<style>
+	button {
+		width: 100%;
+		padding: 0;
+		border: 2px solid transparent;
+		border-radius: var(--sp1);
+
+		overflow: hidden;
+	}
+	button.edit_mode:hover,
+	.dragover.edit_mode {
+		border-color: var(--cl1);
+		cursor: pointer;
+	}
+
+	img {
+		width: 100%;
+	}
+</style>

@@ -3,12 +3,12 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
+	import IG from '$lib/input_group.svelte';
 
 	let error = {};
-	let name = $module.user.name;
+	let {name} = $module.user;
 
 	const validate = async () => {
 		error = {};
@@ -56,24 +56,14 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Name</div>
+		<b>Edit Name</b>
 	</svelte:fragment>
 
-	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="name"> Fullname: </label>
-			<input type="text" bind:value={name} id="name" placeholder="Your fullname here" />
-			{#if error.name}
-				<p class="error">
-					{error.name}
-				</p>
-			{/if}
-		</div>
+	<IG name="name" {error} let:id>
+		<input bind:value={name} {id} type="text" placeholder="Your fullname here" />
+	</IG>
 
-		<div class="inputGroup horizontal">
-			<Button name="Save" class="primary" />
-		</div>
-	</form>
+	<Button name="Save" class="primary" on:click={validate} />
 </Form>
 
 <style>

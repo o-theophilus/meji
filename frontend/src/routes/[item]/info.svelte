@@ -1,9 +1,9 @@
 <script>
-	import { user, module } from '$lib/store.js';
 	import { slide } from 'svelte/transition';
 	import { elasticInOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { user, module, loading } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/button_fold.svelte';
@@ -104,17 +104,15 @@
 		<span class="f2">
 			{#each item.tags as tag, i}
 				{#if i > 0},{/if}
-				{tag}
-				<!-- <Button
-				name={tag}
-				class="tag"
-				on:click={() => {
-					// $state['shop'].search = '';
-					// $state['shop'].tag = tag;
-					// $state['shop'].page_no = 1;
-					// goto('/shop');
-				}}
-				/> -->
+				<Button
+					name={tag}
+					class="link"
+					on:click={() => {
+						$loading = true;
+						$module = '';
+						goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
+					}}
+				/>
 			{/each}
 		</span>
 	</div>

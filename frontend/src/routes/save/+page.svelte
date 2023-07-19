@@ -17,7 +17,6 @@
 </script>
 
 <Meta title="Saved" description="Saved" />
-<Pagination page_name="save" {total_page} />
 
 <Card>
 	<div class="title">Saved</div>
@@ -40,6 +39,8 @@
 		{/each}
 	</div>
 </Card>
+
+<Pagination page_name="save" {total_page} />
 
 <style>
 	.title {

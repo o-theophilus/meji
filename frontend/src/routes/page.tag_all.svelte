@@ -1,11 +1,12 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { module } from '$lib/store.js';
-	import { state } from '$lib/store.js';
+	import { module, loading } from '$lib/store.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg2.svelte';
+
+	let { tags } = $module;
 </script>
 
 <Form>
@@ -14,16 +15,14 @@
 	</svelte:fragment>
 
 	<div class="tags">
-		{#each $module.tags as tag}
+		{#each tags as tag}
 			<Button
 				name={tag}
 				class="tiny"
 				on:click={() => {
-					// $state['shop'].search = '';
-					// $state['shop'].tag = tag.name;
-					// $state['shop'].page_no = 1;
-					// $module = '';
-					// goto('/shop');
+					$loading = true;
+					$module = '';
+					goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
 				}}
 			>
 				<SVG type={tag} size="20" />
@@ -37,6 +36,5 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
-		/* justify-content: center; */
 	}
 </style>

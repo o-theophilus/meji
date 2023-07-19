@@ -1,6 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	// import { state } from '$lib/page_state.js';
+	import { loading } from '$lib/store.js';
 
 	import SVG from '$lib/comp/svg2.svelte';
 
@@ -9,10 +9,8 @@
 
 <button
 	on:click={() => {
-		// $state['shop'].search = '';
-		// $state['shop'].tag = cate.name;
-		// $state['shop'].page_no = 1;
-		goto('/shop');
+		$loading = true;
+		goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
 	}}
 >
 	<SVG type={tag.toLowerCase()} size="30" />

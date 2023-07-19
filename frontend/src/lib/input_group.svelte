@@ -2,6 +2,7 @@
 	import SVG from '$lib/comp/svg.svelte';
 
 	export let name;
+	export let label = '';
 	export let svg = '';
 	export let error = {};
 	let id = name.split(' ').join('_');
@@ -10,7 +11,7 @@
 <div class="inputGroup" class:svgi={!!svg}>
 	<slot name="label" />
 	{#if !$$slots.label}
-		<label for={id}>{name}</label>
+		<label for={id}>{label || name}</label>
 	{/if}
 	{#if error[name]}
 		<span class="error">

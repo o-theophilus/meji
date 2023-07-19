@@ -7,6 +7,7 @@
 <!-- rename db from dev to test -->
 delete row["type"] == "category"
 prevent the use of "all" as tag
+add rating so shop sort
 - [ ] Concurrency
 - [ ] review reserve words for item names
 create default super user

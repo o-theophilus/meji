@@ -2,18 +2,28 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now
 from .schema import user_schema, item_schema
 from .database import database, query
+from math import ceil
 
 bp = Blueprint("save", __name__)
 
 
-def saved_items(saves, db):
+def saved_items(saves, db, page_no=1, size=24):
     items = []
-    for save in saves:
-        item = query({"type": "item", "key": save["key"]}, db=db)
-        if item:
-            items.append(item_schema(item, db))
+    saves = [x["key"] for x in saves]
+    for x in db:
+        if x["type"] == "item" and x["key"] in saves:
+            items.append(item_schema(x, db))
 
-    return items
+    total_page = ceil(len(items) / size)
+
+    start = (page_no - 1) * size
+    stop = start + size
+    items = items[start: stop]
+
+    return {
+        "items": items,
+        "total_page": total_page
+    }
 
 
 @bp.get("/save")
@@ -29,7 +39,7 @@ def get_saved_items():
 
     return jsonify({
         "status": 200,
-        "items": saved_items(user["saves"], db)
+        **saved_items(user["saves"], db)
     })
 
 
@@ -65,5 +75,5 @@ def save_item():
     return jsonify({
         "status": 200,
         "user": user_schema(user, db),
-        "items": saved_items(user["saves"], db)
+        **saved_items(user["saves"], db)
     })

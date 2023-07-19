@@ -4,13 +4,13 @@
 	import countries from '$lib/countries.js';
 
 	import Button from '$lib/button.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
 
 	let error = {};
 
-	let address = $module.user.address;
+	let address = { ...$module.user.address };
 	address.country = address.country ? address.country : 'Nigeria';
 	address.state = address.state ? address.state : 'Lagos';
 
@@ -51,7 +51,7 @@
 
 			$module = {
 				module: Info,
-				status: 'good',
+				status: '200',
 				title: '# Details Changed',
 				message: `Your address has been changed successfully`,
 				button: [
@@ -82,25 +82,21 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Address</div>
+		<b>Edit Address</b>
 	</svelte:fragment>
 
 	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="address"> Address: </label>
-			<input type="text" bind:value={address.line} id="address" placeholder="Your address here" />
-			{#if error.line}
-				<p class="error">
-					{error.line}
-				</p>
-			{/if}
-		</div>
+		<IG name="line" {error} let:id>
+			<svelte:fragment slot="label">
+				<label for="address"> Address </label>
+			</svelte:fragment>
+			<input bind:value={address.line} id="address" type="text" placeholder="Your address here" />
+		</IG>
 
-		<div class="inputGroup">
-			<label for="country"> Country: </label>
+		<IG name="country" {error} let:id>
 			<select
 				bind:value={address.country}
-				id="country"
+				{id}
 				on:input={() => {
 					address.state = '';
 				}}
@@ -112,60 +108,42 @@
 					</option>
 				{/each}
 			</select>
-			{#if error.country}
-				<p class="error">
-					{error.country}
-				</p>
-			{/if}
-		</div>
+		</IG>
 
-		<div class="inputGroup">
-			<label for="state"> State: </label>
-			<select bind:value={address.state} id="state">
+		<IG name="state" {error} let:id>
+			<select bind:value={address.state} {id}>
 				<option value="" selected default hidden> Select state </option>
 				{#each states as state}
 					<option value={state.name}> {state.name} </option>
 				{/each}
 			</select>
-			{#if error.state}
-				<p class="error">
-					{error.state}
-				</p>
-			{/if}
-		</div>
+		</IG>
 
-		<div class="inputGroup">
-			<label for="local_area"> Local Government Area: </label>
+		<IG name="local_area" {error} let:id>
+			<svelte:fragment slot="label">
+				<label for="local_area"> Local Government Area: </label>
+			</svelte:fragment>
 			<input
 				type="text"
 				bind:value={address.local_area}
 				id="local_area"
 				placeholder="Your local government area here"
 			/>
-			{#if error.local_area}
-				<p class="error">
-					{error.local_area}
-				</p>
-			{/if}
-		</div>
-		<div class="inputGroup">
-			<label for="postal_code"> Postal Code: </label>
+		</IG>
+
+		<IG name="postal_code" {error} let:id>
+			<svelte:fragment slot="label">
+				<label for="postal_code"> Postal Code: </label>
+			</svelte:fragment>
 			<input
 				type="text"
 				bind:value={address.postal_code}
 				id="postal_code"
 				placeholder="Your postal code here"
 			/>
-			{#if error.postal_code}
-				<p class="error">
-					{error.postal_code}
-				</p>
-			{/if}
-		</div>
+		</IG>
 
-		<div class="inputGroup horizontal">
-			<Button name="Save" class="primary" />
-		</div>
+		<Button name="Save" class="primary" on:click={validate} />
 	</form>
 </Form>
 

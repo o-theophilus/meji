@@ -68,7 +68,7 @@
 	<div id="tag" />
 	<Card>
 		<div class="title">
-			tags
+			Tags
 			<Button
 				class="link"
 				name="view all >"

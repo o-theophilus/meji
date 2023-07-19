@@ -1,80 +1,72 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
-	import { state } from '$lib/store.js';
+	import { set_state } from '$lib/store.js';
 	import { user } from '$lib/store.js';
-
+	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 
-	let input_order = ['date', 'name', 'price', 'discount']; // 'rating'
-
-	let order = '';
-	let order_dir = '';
-
-	const direct = () => {
-		// order_dir = order_dir == 'asc' ? 'dsc' : 'asc';
-	};
-	const eee = () => {
-		//wewe
-	};
-
 	export let page_name = '';
-	let item_view = 'grid';
-	if ($user) {
-		item_view = $user.setting.item_view;
-	}
+	let sort = ['date', 'dsc'];
+
+	let sorts = {
+		date: ['old-new', 'new-old'],
+		name: ['z-a', 'a-z'],
+		price: ['hi-lo', 'lo-hi'],
+		discount: ['hi-lo', 'lo-hi']
+		// 'rating'
+	};
+
+	const save_view = async () => {
+		$user.setting.item_view = $user.setting.item_view == 'grid' ? 'list' : 'grid';
+		const resp = await fetch(`${import.meta.env.VITE_BACKEND}/setting`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify({ item_view: $user.setting.item_view })
+		});
+	};
+	const direct = () => {
+		sort[1] = sort[1] == 'dsc' ? 'asc' : 'dsc';
+	};
+	const submit = () => {
+		let a = sort.join(',');
+		if (a == 'date,dsc') {
+			a = '';
+		}
+		set_state(page_name, 'sort', a);
+	};
 </script>
 
-<section transition:slide|local={{ delay: 0, duration: 200, easing: backInOut }}>
-	<div on:click={submit}>{item_view}</div>
+<section class="line">
+	<Button name={$user.setting.item_view} class="tiny" on:click={save_view} />
 
 	|
-	
-	<label>
-		order:
-		<select bind:value={order}>
-			{#each input_order as value}
-				<option {value}>
-					{value}
+
+	<span class="line">
+		sort:
+		<select bind:value={sort[0]}>
+			{#each Object.entries(sorts) as [key, value]}
+				<option value={key}>
+					{key}
 				</option>
 			{/each}
 		</select>
-		|
-	</label>
-	<div class="dir" on:click={direct}>{order_dir == 'asc' ? '↓' : '↑'}</div>
+	</span>
 
+	<!-- <Button name={sort[1] == 'dsc' ? '↑' : '↓'} class="tiny" on:click={direct} /> -->
 	<Button
-		name="Ok"
+		name={sort[1] == 'dsc' ? sorts[sort[0]][0] : sorts[sort[0]][1]}
 		class="tiny"
-		on:click={() => {
-			eee();
-		}}
+		on:click={direct}
 	/>
+	<Button name="Ok" class="tiny" on:click={submit} />
 </section>
 
 <style>
-	* {
-		color: var(--ac1);
-	}
-
-	section {
+	.line {
 		display: flex;
-		/* justify-content: flex-end; */
 		align-items: center;
 		gap: var(--sp2);
-
-		/* margin-top: var(--sp2); */
-
-		color: var(--ac1);
-	}
-
-	select {
-		background-color: var(--ac4);
-		border: none;
-	}
-
-	.dir {
-		cursor: pointer;
-		padding: var(--sp1);
 	}
 </style>

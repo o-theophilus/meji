@@ -21,13 +21,11 @@
 <Meta title="Shop" description="Shop" />
 <Status_Bar {page_name} />
 <Search {page_name} {tags} />
-<Pagination {page_name} {total_page} />
 
 <Card>
 	<div class="title">
-		Shop
-
-		<!-- <View /> -->
+		<b> Shop </b>
+		<View {page_name} />
 	</div>
 
 	<div class="items" class:grid={true}>
@@ -39,11 +37,14 @@
 	</div>
 </Card>
 
+<Pagination {page_name} {total_page} />
+
+
 <style>
 	.title {
-		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
 	.items {

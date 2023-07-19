@@ -12,7 +12,6 @@
 	let show_right_btn = true;
 
 	let input;
-	let files = [];
 	let excess_files = [];
 	let invalid_files = [];
 
@@ -58,7 +57,7 @@
 			compare_order();
 		}
 	};
-
+	
 	const order_left = () => {
 		let index = item.photos.indexOf(active_photo);
 		if (index > 0) {
@@ -73,7 +72,7 @@
 
 	const reorder_delete = async (method) => {
 		error = {};
-
+		
 		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: method,
@@ -91,11 +90,9 @@
 
 		if (resp.status == 200) {
 			item = resp.item;
-
-			$portal = item;
 			init_order = [...item.photos];
 			order_changed = false;
-
+			
 			if (method == 'delete') {
 				make_active(item.photos[0]);
 			}
@@ -103,9 +100,9 @@
 			error = resp;
 		}
 	};
-
+	
 	const on_input = () => {
-		files = [];
+		let files = [];
 		excess_files = [];
 		invalid_files = [];
 		error = {};
@@ -124,7 +121,7 @@
 			}
 		}
 
-		files.length > 0 && upload_input();
+		files.length > 0 && upload_input(files);
 
 		if (excess_files.length > 0) {
 			error.error = `
@@ -145,7 +142,7 @@
 		}
 	};
 
-	const upload_input = async () => {
+	const upload_input = async (files) => {
 		let formData = new FormData();
 		for (let i in files) {
 			formData.append('files', files[i]);
@@ -164,8 +161,7 @@
 
 		if (resp.status == 200) {
 			item = resp.item;
-
-			$portal = item;
+			init_order = [...item.photos];
 			error.error = resp.error;
 		} else {
 			error = resp;

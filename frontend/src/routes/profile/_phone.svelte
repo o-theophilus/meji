@@ -3,17 +3,17 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
 
 	let error = {};
-	let phone = $module.user.phone;
+	let { phone } = $module.user;
 
 	const validate = async () => {
 		error = {};
 		if (!phone) {
-			error.phone = 'This field is required';
+			error.phone = 'this field is required';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -56,24 +56,13 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Edit Phone Number</div>
+		<b>Edit Phone Number</b>
 	</svelte:fragment>
+	<IG name="phone" {error} let:id>
+		<input bind:value={phone} {id} type="tel" placeholder="Your phone here" />
+	</IG>
 
-	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="phone"> Phone: </label>
-			<input type="tel" bind:value={phone} id="phone" placeholder="Your phone here" />
-			{#if error.phone}
-				<p class="error">
-					{error.phone}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup horizontal">
-			<Button name="Save" class="primary" />
-		</div>
-	</form>
+	<Button name="Save" class="primary" on:click={validate} />
 </Form>
 
 <style>

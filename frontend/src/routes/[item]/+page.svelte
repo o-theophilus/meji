@@ -5,11 +5,11 @@
 
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
-	import Photo from './photo.svelte';
-	import Info from './info.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/button_fold.svelte';
+	import Photo from './photo.svelte';
+	import Info from './info.svelte';
 
 	export let data;
 	$: item = data.item;

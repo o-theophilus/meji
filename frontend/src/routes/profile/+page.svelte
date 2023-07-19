@@ -4,16 +4,15 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 
-	import Logout from '../auth/logout.svelte';
 	import Button from '$lib/button.svelte';
+	import Logout from '../auth/logout.svelte';
 
-	import Edit_Photo from './photo_edit.svelte';
-	import Delete_Photo from './photo_delete.svelte';
-	import Edit_Name from './name.svelte';
-	import Edit_Email from './email.svelte';
-	import Edit_Phone from './phone.svelte';
-	import Edit_Address from './address.svelte';
-	import Add_Voucher from './add_voucher.svelte';
+	import Photo from './photo.svelte';
+	import Edit_Name from './_name.svelte';
+	import Edit_Email from './_email.svelte';
+	import Edit_Phone from './_phone.svelte';
+	import Edit_Address from './_address.svelte';
+	import Add_Voucher from './_voucher.svelte';
 
 	$: if ($portal) {
 		$user = $portal;
@@ -43,37 +42,14 @@
 
 	<div class="block">
 		<div class="photo">
-			<div class="photo_area">
-				<img src={$user.photo ? $user.photo : '/image/user.png'} alt={$user.name} />
-
-				<div class="edit">
-					{#if edit_mode}
-						{#if $user.photo}
-							<Delete_Photo {user} />
-						{/if}
-						<Button
-							class="tiny"
-							icon="edit"
-							icon_size="12"
-							on:click={() => {
-								$module = {
-									module: Edit_Photo,
-									user: $user
-								};
-							}}
-						/>
-					{/if}
-				</div>
-			</div>
+			<Photo {edit_mode} />
 		</div>
 
-		<div class="details">
-			<div class="h space">
-				<p>
-					<span> Fullname: </span>
-					<br />
+		<div>
+			<div class="horizontal space">
+				<b>
 					{$user.name}
-				</p>
+				</b>
 				{#if edit_mode}
 					<Button
 						class="tiny"
@@ -90,18 +66,14 @@
 			</div>
 
 			<br />
-			<br />
 
-			<div class="h space">
-				<p>
-					<span> Phone: </span>
-					<br />
-					{#if $user.phone}
-						{$user.phone}
-					{:else}
-						No Phone
-					{/if}
-				</p>
+			<div class="details">
+				<span class="bold"> Phone: </span>
+				{#if $user.phone}
+					{$user.phone}
+				{:else}
+					No Phone
+				{/if}
 				{#if edit_mode}
 					<Button
 						class="tiny"
@@ -114,27 +86,35 @@
 							};
 						}}
 					/>
+				{:else}
+					<div />
 				{/if}
-			</div>
 
-			<br />
-			<br />
+				<span class="bold"> Email: </span>
+				{$user.email}
+				{#if edit_mode}
+					<Button
+						class="tiny"
+						icon="edit"
+						icon_size="12"
+						on:click={() => {
+							$module = {
+								module: Edit_Email,
+								user: $user
+							};
+						}}
+					/>
+				{:else}
+					<div />
+				{/if}
 
-			<div class="h space">
-				<p>
-					<span> Address: </span>
-					<br />
-					{#if $user.address.line && $user.address.local_area && $user.address.state && $user.address.country && $user.address.postal_code}
-						{$user.address.line}, {$user.address.local_area} , {$user.address.state} , {$user
-							.address.country}.
-						<br /><br />
-						<span> Postal Code: </span>
-						<br />
-						{$user.address.postal_code}
-					{:else}
-						No Address
-					{/if}
-				</p>
+				<span class="bold"> Address: </span>
+				{#if $user.address.line && $user.address.local_area && $user.address.state && $user.address.country && $user.address.postal_code}
+					{$user.address.line}, {$user.address.local_area}, {$user.address.state}, {$user.address
+						.country}.
+				{:else}
+					No Address
+				{/if}
 
 				{#if edit_mode}
 					<Button
@@ -148,39 +128,21 @@
 							};
 						}}
 					/>
+				{:else}
+					<div />
+				{/if}
+
+				{#if $user.address.line && $user.address.local_area && $user.address.state && $user.address.country && $user.address.postal_code}
+					<span class="bold"> Postal Code: </span>
+					{$user.address.postal_code}
 				{/if}
 			</div>
 
 			<br />
-			<br />
 
-			<div class="h space">
+			<div class="horizontal">
 				<p>
-					<span> Email: </span>
-					<br />
-					{$user.email}
-				</p>
-				{#if edit_mode}
-					<Button
-						class="tiny"
-						icon="edit"
-						icon_size="12"
-						on:click={() => {
-							$module = {
-								module: Edit_Email,
-								user: $user
-							};
-						}}
-					/>
-				{/if}
-			</div>
-
-			<br />
-			<br />
-
-			<div class="h">
-				<p>
-					<span> Account: </span>
+					<span class="bold"> Account: </span>
 					<br />
 					Balance: ₦{$user.acc_balance.toLocaleString()}
 				</p>
@@ -199,17 +161,15 @@
 			</div>
 
 			<br />
-			<br />
 
-			<div class="h">
+			<div class="horizontal">
 				<Button class="tiny" name="Orders" href="/order" />
 				<Button class="tiny" name="* Activity" href="/profile/activity" />
 			</div>
 
 			<br />
-			<br />
 
-			<div class="h">
+			<div class="horizontal">
 				{#if me}
 					{#if edit_mode}
 						<Button
@@ -220,13 +180,12 @@
 							href="/profile/setting"
 						/>
 					{/if}
+					{#if $user.roles.includes('admin')}
+						<Button class="tiny" name="Admin" href="/admin" />
+					{/if}
 					<Logout />
 				{/if}
 			</div>
-
-			{#if $user.roles.includes('admin')}
-				<Button class="tiny" name="Admin" href="/admin" />
-			{/if}
 		</div>
 	</div>
 </Card>
@@ -236,10 +195,11 @@
 		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
 	.block {
-		gap: var(--sp2);
+		gap: var(--sp3);
 		display: flex;
 		flex-direction: column;
 
@@ -249,35 +209,29 @@
 		width: 100%;
 	}
 
-	.photo {
-		position: relative;
-	}
-	img {
-		width: 100%;
-		border-radius: var(--sp0);
-	}
-
-	span {
+	.bold {
 		font-weight: 500;
 	}
 
-	.edit {
-		position: relative;
-		bottom: var(--sp2);
-		right: var(--sp2);
-
+	.horizontal {
 		display: flex;
-		justify-content: flex-end;
 		gap: var(--sp1);
+		align-items: center;
+		flex-wrap: wrap;
 	}
+	.space {
+		justify-content: space-between;
+	}
+
+	.details {
+		display: grid;
+		gap: 0 var(--sp2);
+		grid-template-columns: max-content auto min-content;
+	}
+
 	@media screen and (min-width: 800px) {
 		.block {
 			flex-direction: unset;
-		}
-
-		.photo_area {
-			position: sticky;
-			top: var(--sp2);
 		}
 	}
 </style>

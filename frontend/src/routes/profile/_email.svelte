@@ -1,17 +1,18 @@
 <script>
-	import { module, portal, user } from '$lib/store.js';
+	import { module, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/module/info.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Email from './email_email_template.svelte';
 
 	let form = {};
 	let error = {};
 	let email_template;
-	let message;
+	let message = '';
+	let { user } = $module;
 
 	const validate_request_otp = () => {
 		error = {};
@@ -20,8 +21,8 @@
 		if (!form.email) {
 			error.email = 'This field is required';
 		} else if (!/\S+@\S+\.\S+/.test(form.email)) {
-			error.email = 'Please enter a valid email';
-		} else if (form.email == $module.user.email) {
+			error.email = 'please enter a valid email';
+		} else if (form.email == user.email) {
 			error.email = 'please use a different email form your current email';
 		}
 
@@ -103,65 +104,46 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Change Email</div>
+		<b>Change Email</b>
+		Change your account Email.
 	</svelte:fragment>
 
-	<svelte:fragment slot="info">Change your account Email.</svelte:fragment>
+	<span class="f1">Current Email: {user.email}</span>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">Current Email: {$module.user.email}</div>
+	<br />
+	<br />
 
-		<div class="inputGroup">
-			<label for="email"> New Email: </label>
-			<input type="email" bind:value={form.email} id="email" placeholder="your new email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
-		<Button
-			class="primary"
-			name="Request OTPs"
-			on:click={() => {
-				validate_request_otp();
-			}}
-		/>
-		{#if message}
-			<div class="inputGroup">
-				{message}
-			</div>
-		{/if}
-		<div class="inputGroup">
-			<label for="otp_1"> Current Email OTP: </label>
-			<input type="text" bind:value={form.otp_1} id="otp_1" placeholder="your OTP here" />
-			{#if error.otp_1}
-				<p class="error">
-					{error.otp_1}
-				</p>
-			{/if}
-		</div>
+	<IG name="email" label="New Email" {error} let:id>
+		<input type="email" bind:value={form.email} id="email" placeholder="your new email here" />
+	</IG>
 
-		<div class="inputGroup">
-			<label for="otp_2"> New Email OTP: </label>
-			<input type="text" bind:value={form.otp_2} id="otp_2" placeholder="your OTP here" />
-			{#if error.otp_2}
-				<p class="error">
-					{error.otp_2}
-				</p>
-			{/if}
-		</div>
+	<Button class="primary" name="Request OTPs" on:click={validate_request_otp} />
+	{#if message}
+		<br />
+		<span class="f1">
+			{message}
+		</span>
+		<br />
+	{/if}
+	<br />
 
-		<Button
-			class="primary"
-			name="Submit"
-			on:click={() => {
-				validate();
-			}}
-		/>
-	</form>
+	<IG name="otp_1" label="Current Email OTP" {error} let:id>
+		<input type="text" bind:value={form.otp_1} id="otp_1" placeholder="your OTP here" />
+	</IG>
+
+	<IG name="otp_2" label="New Email OTP" {error} let:id>
+		<input type="text" bind:value={form.otp_2} id="otp_2" placeholder="your OTP here" />
+	</IG>
+
+	<Button class="primary" name="Submit" on:click={validate} />
 </Form>
 
 <div bind:this={email_template} style="display: none;">
-	<Email name={$user.name} />
+	<Email name={user.name} />
 </div>
+
+<style>
+	.f1 {
+		color: var(--ac2);
+	}
+</style>

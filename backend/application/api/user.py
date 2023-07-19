@@ -14,21 +14,21 @@ from uuid import uuid4
 bp = Blueprint("user", __name__)
 
 
-@bp.get("/user/<key>")
-def get(key):
-    db = database()
+# @bp.get("/user/<key>")
+# def get(key):
+#     db = database()
 
-    user = query({"type": "user", "key": key}, db=db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
+#     user = query({"type": "user", "key": key}, db=db)
+#     if not user:
+#         return jsonify({
+#             "status": 400,
+#             "error": "invalid request"
+#         })
 
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, db)
-    })
+#     return jsonify({
+#         "status": 200,
+#         "user": user_schema(user, db)
+#     })
 
 
 @bp.post("/setting")
@@ -42,16 +42,21 @@ def post():
             "error": "invalid token"
         })
 
-    if "theme" in request.json and request.json["theme"]:
+    if (
+        "theme" in request.json
+        and request.json["theme"] in ["dark", "light"]
+    ):
         user["setting"]["theme"] = request.json["theme"]
-    if "item_view" in request.json and request.json["item_view"]:
+    if (
+        "item_view" in request.json
+        and request.json["item_view"] in ["grid", "list"]
+    ):
         user["setting"]["item_view"] = request.json["item_view"]
 
     user = database(user)
 
     return jsonify({
-        "status": 200,
-        "user": user_schema(user, db),
+        "status": 200
     })
 
 
@@ -69,7 +74,7 @@ def edit_user(key):
     ):
         return jsonify({
             "status": 400,
-            "error": "invalid token"
+            "error": "unauthorised access"
         })
 
     if user["key"] != key:
@@ -83,16 +88,16 @@ def edit_user(key):
     error = {}
 
     if "name" in request.json:
-        if request.json["name"]:
-            user["name"] = request.json["name"]
-        else:
+        if not request.json["name"]:
             error['name'] = "this field is required"
+        else:
+            user["name"] = request.json["name"]
 
     if "phone" in request.json:
-        if request.json["phone"]:
-            user["phone"] = request.json["phone"]
-        else:
+        if not request.json["phone"]:
             error['phone'] = "this field is required"
+        else:
+            user["phone"] = request.json["phone"]
 
     if (
         "line" in request.json
@@ -101,26 +106,26 @@ def edit_user(key):
         or "local_area" in request.json
         or "postal_code" in request.json
     ):
-        if request.json["line"]:
-            user["address"]["line"] = request.json["line"]
-        else:
+        if not request.json["line"]:
             error["line"] = "this field is required"
-        if request.json["state"]:
-            user["address"]["state"] = request.json["state"]
         else:
+            user["address"]["line"] = request.json["line"]
+        if not request.json["state"]:
             error["state"] = "this field is required"
-        if request.json["country"]:
-            user["address"]["country"] = request.json["country"]
         else:
+            user["address"]["state"] = request.json["state"]
+        if not request.json["country"]:
             error["country"] = "this field is required"
-        if request.json["local_area"]:
-            user["address"]["local_area"] = request.json["local_area"]
         else:
+            user["address"]["country"] = request.json["country"]
+        if not request.json["local_area"]:
             error["local_area"] = "this field is required"
-        if request.json["postal_code"]:
-            user["address"]["postal_code"] = request.json["postal_code"]
         else:
+            user["address"]["local_area"] = request.json["local_area"]
+        if not request.json["postal_code"]:
             error["postal_code"] = "this field is required"
+        else:
+            user["address"]["postal_code"] = request.json["postal_code"]
 
     if error != {}:
         return jsonify({
@@ -371,91 +376,6 @@ def password():
     })
 
 
-@bp.post("/user_photo/<key>")
-def change_photo(key):
-    data = database
-
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if user["key"] != key:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if 'file' not in request.files:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    file = request.files["file"]
-
-    ext = file.filename.split(".")[-1]
-    if ext.lower() not in ['jpg', 'png', 'gif']:
-        return jsonify({
-            "status": 400,
-            "error": "invalid file type"
-        })
-
-    storage(user['photo'], delete=True)
-    user["photo"] = storage(file)
-
-    user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user, data)
-    })
-
-
-@bp.delete("/user_photo/<key>")
-def delete_photo(key):
-    data = database
-
-    me = token_to_user(data)
-    if not me:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    user = None
-    if me["key"] == key:
-        user = me
-    elif "admin" in me["roles"]:
-        user = query("user", "key", key, data)
-        if not user:
-            return jsonify({
-                "status": 400,
-                "error": "invalid request"
-            })
-    else:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if user["photo"]:
-
-        storage(user["photo"], delete=True)
-        user['photo'] = None
-        user = database(user)
-
-    return jsonify({
-        "status": 200,
-        "error": "successful",
-        "data": {
-            "user": user_schema(user, data)
-        }
-    })
-
-
 @ bp.delete("/user")
 def delete():
     db = database()
@@ -490,4 +410,60 @@ def delete():
         "status": 200,
         "user": user_schema(anon_user, db),
         "token": token_tool().dumps(anon_user["key"])
+    })
+
+
+@bp.post("/user_photo")
+def add_photo():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if 'file' not in request.files:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    file = request.files["file"]
+    media, format = file.content_type.split("/")
+    if media != "image" or format in ['svg+xml', 'x-icon']:
+        return jsonify({
+            "status": 400,
+            "error": "invalid file"
+        })
+
+    if user["photo"]:
+        storage(user["photo"], delete=True)
+    user["photo"] = storage(file)
+    database(user)
+
+    return jsonify({
+        "status": 200,
+        "user": user_schema(user, db)
+    })
+
+
+@bp.delete("/user_photo")
+def delete_photo():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    storage(user["photo"].split("/")[-1], delete=True)
+    user["photo"] = None
+    database(user)
+
+    return jsonify({
+        "status": 200
     })

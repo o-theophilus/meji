@@ -3,10 +3,38 @@ from .tools import token_to_user
 from .schema import item_schema, log_template
 from math import ceil
 from .database import database, query
-from .tag import all_tags
 import re
 
 bp = Blueprint("item_get", __name__)
+
+
+@bp.get("/tags")
+def all_tags(db=None):
+    if not db:
+        db = database()
+
+    tags = []
+    for row in db:
+        if (
+            row["type"] == "item"
+            and row["status"] == "live"
+        ):
+            tags += row["tags"]
+
+    freq = {}
+    for x in tags:
+        if x in freq:
+            freq[x] += 1
+        else:
+            freq[x] = 1
+
+    freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)
+    tags = [x for x, _ in freq]
+
+    return jsonify({
+        "status": 200,
+        "tags": tags
+    })
 
 
 @bp.get("/item/<slug>")
@@ -26,7 +54,12 @@ def item_info(slug):
             "status": 400,
             "error": "invalid request"
         })
-    # make sure item is live
+
+    if item["status"] != "live" and "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorised access"
+        })
 
     database(
         log_template(
@@ -74,12 +107,11 @@ def item_master(
     status="live",
     search="",
     tag="",
-    order=["date", "dsc"],
+    sort=["date", "dsc"],
     page_no=1,
     size=24,
 ):
 
-    print(status)
     items = []
     for row in db:
         if row["type"] != "item":
@@ -92,17 +124,18 @@ def item_master(
             continue
         items.append(row)
 
-    if order[0] == "date":
-        order[0] = "date_c"
-    elif order[0] == "discount":
+    if sort[0] == "date":
+        sort[0] = "date_c"
+    elif sort[0] == "discount":
         for item in items:
             item["discount"] = 0
             if item["old_price"]:
-                item["discount"] = (item["old_price"] -
-                                    item["price"]) * 100 / item["old_price"]
+                item["discount"] = (
+                    item["old_price"] - item["price"]
+                ) * 100 / item["old_price"]
 
     items = sorted(
-        items, key=lambda d: d[order[0]], reverse=order[1] == "dsc")
+        items, key=lambda d: d[sort[0]], reverse=sort[1] == "dsc")
 
     total_page = ceil(len(items) / size)
 
@@ -110,11 +143,10 @@ def item_master(
     stop = start + size
     items = items[start: stop]
 
-    return jsonify({
-        "status": 200,
+    return {
         "items": [item_schema(item, db) for item in items],
         "total_page": total_page
-    })
+    }
 
 
 @ bp.get("/home")
@@ -129,44 +161,51 @@ def home():
         })
 
     ads = []
-    for row in db:
-        if "ads" in row:
-            if (
-                row["type"] == "item"
-                and row["ads"] != {}
-                and "home" in row["ads"]["placement"]
-            ):
-                ads.append({
-                    "name": row["name"],
-                    "slug": row["slug"],
-                    "ads": {
-                        f'{"xxx"}/{row["ads"]["300x300"]}',
-                        f'{"xxx"}/{row["ads"]["300x600"]}',
-                        f'{"xxx"}/{row["ads"]["600x300"]}',
-                        f'{"xxx"}/{row["ads"]["900x300"]}'
-                    }
-                })
+    for x in db:
+        if (
+            x["type"] == "item"
+            and "ads" in x
+            and x["ads"] != {}
+            and "home" in x["ads"]["placement"]
+        ):
+            ads.append({
+                "name": x["name"],
+                "slug": x["slug"],
+                "ads": {
+                    f'{"xxx"}/{x["ads"]["300x300"]}',
+                    f'{"xxx"}/{x["ads"]["300x600"]}',
+                    f'{"xxx"}/{x["ads"]["600x300"]}',
+                    f'{"xxx"}/{x["ads"]["900x300"]}'
+                }
+            })
+
+    group = [
+        {
+            "name": "New Arrivals",
+            "sort": ["date", "dsc"]
+        },
+        {
+            "name": "Offers",
+            "sort": ["discount", "dsc"]
+        }
+    ]
 
     return jsonify({
         "status": 200,
         "ads": ads,
         "tags": all_tags(db).json["tags"],
         "group": [
-            #     "name": "Featured",
-            #     "name": "Recommended",
             {
-                "name": "New Arrivals",
-                "query": {"order": ["date",  "dsc"]},
-                "items": item_master(size=6, order=[
-                    "date", "dsc"], db=db).json["items"]
-            },
-            {
-                "name": "Offers",
-                "query": {"order": ["discount",  "dsc"]},
-                "items": item_master(size=6, order=[
-                    "discount", "dsc"], db=db).json["items"]
-            },
-        ],
+                "name": x["name"],
+                "sort": x["sort"],
+                "items": item_master(
+                    size=6,
+                    sort=x["sort"],
+                    db=db
+                )["items"]
+            } for x in group
+
+        ]
     })
 
 
@@ -181,22 +220,23 @@ def shop():
             "error": "invalid token"
         })
 
-    out = item_master(
-        db=db,
-        status=request.args["status"] if (
-            "status" in request.args
-            and request.args["status"]
-            and "admin" in user["roles"]
-        ) else "live",
-        search=request.args[
-            "search"] if "search" in request.args else "",
-        tag=request.args[
-            "tag"] if "tag" in request.args else "",
-        order=request.args["order"].split(
-            ',') if "order" in request.args else ["date", "dsc"],
-        page_no=int(request.args[
-            "page_no"]) if "page_no" in request.args else 1,
-    ).json
-
-    out["tags"] = all_tags(db).json["tags"]
-    return out
+    return jsonify({
+        "status": 200,
+        "tags": all_tags(db).json["tags"],
+        **item_master(
+            db=db,
+            status=request.args["status"] if (
+                "status" in request.args
+                and request.args["status"]
+                and "admin" in user["roles"]
+            ) else "live",
+            search=request.args[
+                "search"] if "search" in request.args else "",
+            tag=request.args[
+                "tag"] if "tag" in request.args else "",
+            sort=request.args["sort"].split(
+                ',') if "sort" in request.args else ["date", "dsc"],
+            page_no=int(request.args[
+                "page_no"]) if "page_no" in request.args else 1,
+        )
+    })
