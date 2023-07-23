@@ -1,17 +1,19 @@
 <script>
 	import { flip } from 'svelte/animate';
 	import { backInOut } from 'svelte/easing';
-
-	import { user } from '$lib/store.js';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { user, module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
-	import Checkout from './checkout.svelte';
 	import Item from './item.svelte';
+	import Button from '$lib/button.svelte';
+	import Login from '../auth/login.svelte';
 
 	let total = 0;
-	let error = '';
+	let error = {};
 
 	$: {
 		total = 0;
@@ -19,59 +21,74 @@
 			total += $user.cart[i].quantity * $user.cart[i].price;
 		}
 	}
-	const change = async (item, quantity) => {
-		item.quantity = quantity;
 
-		if (item.quantity > 0) {
-			for (const i in $user.cart) {
-				if ($user.cart[i].key == item.key && $user.cart[i].variation == item.variation) {
-					$user.cart[i] = item;
-					break;
-				}
+	const login = async () => {
+		$module = {
+			module: Login,
+			data: {
+				message: 'please login to checkout',
+				return_url: $page.url.pathname
 			}
-		} else {
-			$user.cart = $user.cart.filter((i) => i.key != item.key || i.variation != item.variation);
-		}
+		};
+	};
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify(item)
-		});
-
-		resp = await resp.json();
-		if (resp.status == 200) {
-			$user = resp.user;
+	const submit = async () => {
+		if (!$user.login) {
+			login();
 		} else {
-			error = resp.error;
+			$loading = true;
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: $token
+				}
+			});
+			resp = await resp.json();
+			$loading = false;
+
+			if (resp.status == 200) {
+				$user = resp.user;
+				goto(`/order/${resp.order_key}`);
+			} else {
+				error = resp;
+			}
 		}
 	};
 </script>
 
 <Meta title="Cart" description="Cart" />
 
-{error}
 <Card>
 	<div class="title">Cart</div>
 	<div class="items">
 		{#each $user.cart as item (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
-				<Item
-					{item}
-					on:done={(e) => {
-						change(item, e.detail.quantity);
-					}}
-				/>
+				<Item {item} />
 			</div>
 		{:else}
 			no item here
 		{/each}
 	</div>
+
 	{#if $user.cart.length > 0}
-		<Checkout {total} />
+		<div class="total_amount">
+			<div class="total">Total Amount</div>
+			<div class="amount">
+				₦{total.toLocaleString()}
+			</div>
+		</div>
+
+		<br />
+
+		<Button name="Checkout" icon="cart_out" class="primary" on:click={submit} />
+
+		{#if error.error}
+			<br />
+			<span class="error">
+				{error.error}
+			</span>
+		{/if}
 	{/if}
 </Card>
 
@@ -87,5 +104,24 @@
 		gap: var(--sp2);
 
 		margin-top: var(--sp4);
+	}
+
+	.total_amount {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		margin-top: var(--sp3);
+		padding-top: var(--sp2);
+		border-top: 2px solid var(--ac4);
+	}
+
+	.total,
+	.amount {
+		font-weight: 500;
+	}
+	.amount {
+		font-size: 1.2rem;
+		color: var(--cl3);
 	}
 </style>

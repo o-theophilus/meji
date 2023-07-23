@@ -4,7 +4,7 @@ from .schema import user_schema, item_schema
 from .database import database, query
 from math import ceil
 
-bp = Blueprint("save", __name__)
+bp = Blueprint("save_cart", __name__)
 
 
 def saved_items(saves, db, page_no=1, size=24):
@@ -76,4 +76,65 @@ def save_item():
         "status": 200,
         "user": user_schema(user, db),
         **saved_items(user["saves"], db)
+    })
+
+
+@bp.post("/cart")
+def add_to_cart():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if (
+        "key" not in request.json
+        or not request.json["key"]
+        or "variation" not in request.json
+        or "quantity" not in request.json
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    item = query({"type": "item", "key": request.json["key"]}, db=db)
+    if not item:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    variation = request.json["variation"]
+    quantity = int(request.json["quantity"])
+
+    exist = False
+    for x in user["cart"]:
+        if x["key"] == item["key"] and x["variation"] == variation:
+            exist = True
+
+            if quantity < 1:
+                user["cart"].remove(x)
+                break
+            elif "ops" in request.json and request.json["ops"] == "add":
+                quantity += x["quantity"]
+            x["quantity"] = quantity
+            break
+
+    if not exist:
+        user["cart"].append({
+            "key": item["key"],
+            "date": now(),
+            "variation": variation,
+            "quantity": quantity
+        })
+
+    user = database(user)
+
+    return jsonify({
+        "status": 200,
+        "user": user_schema(user, db)
     })

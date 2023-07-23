@@ -163,8 +163,8 @@ def edit_item(key):
 # Photo #########################
 
 
-@bp.post("/photo_item/<key>")
-def post_item(key):
+@bp.post("/photo/<key>")
+def post_many(key):
     db = database()
 
     user = token_to_user(db)
@@ -174,50 +174,52 @@ def post_item(key):
             "error": "invalid token"
         })
 
-    if 'file' not in request.files or 'id' not in request.form:
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorised access"
+        })
+
+    item = query({"typw": "item", "key": key}, db=db)
+    if 'files' not in request.files or not item:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    file = request.files["file"]
+    files = []
+    bad_files = []
+    for file in request.files.getlist("files"):
+        media, format = file.content_type.split("/")
+        if media != "image" or format in ['svg+xml', 'x-icon']:
+            bad_files.append(file)
+        else:
+            files.append(file)
 
-    ext = file.filename.split(".")[-1]
-    if ext.lower() not in ['jpg', 'png', 'gif']:
+    if files == []:
         return jsonify({
             "status": 400,
-            "error": "invalid file type"
+            "error": ', '.join([x.name for x in bad_files])
         })
 
-    item = query({"type": "item", "key": key}, db=db)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
+    trim = 10 - len(item["photos"])
+    bad_files += files[trim:]
+    files = files[:trim]
 
-    photo = {
-        "key": storage(file),
-        "order": len(item["photos"]),
-    }
-
-    if len(item["photos"]) == 10:
-        return jsonify({
-            "status": 400,
-            "error": "max image reached"
-        })
-    item["photos"].append(photo)
-
-    item = database(item)
+    for file in files:
+        item["photos"].append(storage(file))
+    database(item)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db)
+        "item": item_schema(item, db),
+        "error": ', '.join([x.name for x in bad_files])
     })
 
 
-@bp.put("/photo_item/<key>")
-def rearrange(key):
+@bp.put("/photo/<key>")
+def arrange(key):
+
     db = database()
 
     user = token_to_user(db)
@@ -227,67 +229,71 @@ def rearrange(key):
             "error": "invalid token"
         })
 
-    if "photos" not in request.json or not request.json["photos"]:
+    if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "invalid request"
+            "error": "unauthorised access"
         })
+
+    def fix(arr):
+        return [p.split("/")[-1] for p in arr]
 
     item = query({"type": "item", "key": key}, db=db)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    photo_keys = request.json["photos"]
-    photo_keys = [key.split("/")[-1] for key in photo_keys]
-
-    for photo in item["photos"]:
-        photo["order"] = photo_keys.index(photo["key"])
-
-    item = database(item)
-
-    return jsonify({
-        "status": 200,
-        "item": item_schema(item, db)
-    })
-
-
-@bp.delete("/photo_item/<key>")
-def delete_(key):
-    db = database()
-
     if (
-        "active_photo" not in request.json
-        or not request.json["active_photo"]
+        not item
+        or "photos" not in request.json
+        or type(request.json["photos"]) != list
+        or set(item["photos"]) != set(fix(request.json["photos"]))
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
+    item["photos"] = fix(request.json["photos"])
+    database(item)
+
+    return jsonify({
+        "status": 200,
+        "item": item_schema(item, db)
+    })
+
+
+@bp.delete("/photo/<key>")
+def delete(key):
+
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorised access"
+        })
+
+    file_name = request.json["active_photo"].split("/")[-1]
     item = query({"type": "item", "key": key}, db=db)
-    if not item:
+
+    if (
+        not item
+        or "active_photo" not in request.json
+        or not request.json["active_photo"]
+        or file_name not in item["photos"]
+    ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    temp = []
-    i = 0
-
-    active_photo = request.json["active_photo"].split("/")[-1]
-
-    for photo in sorted(item["photos"], key=lambda d: d['order']):
-        if photo["key"] != active_photo:
-            photo["order"] = i
-            i += 1
-            temp.append(photo)
-
-    storage.rem(active_photo)
-    item["photos"] = temp
-    item = database(item)
+    item["photos"].remove(file_name)
+    storage(file_name, delete=True)
+    database(item)
 
     return jsonify({
         "status": 200,

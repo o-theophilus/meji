@@ -77,7 +77,7 @@
 		<input bind:value={item.price} {id} type="number" placeholder="Price here" />
 	</IG>
 
-	<IG name="old_price" {error} let:id>
+	<IG name="old price" {error} let:id>
 		<input bind:value={item.old_price} {id} type="number" placeholder="Old price here" />
 	</IG>
 	{#if error.error}

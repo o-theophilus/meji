@@ -17,16 +17,16 @@
 	--cl1: #1d9bf0;
 	--cl2: #146ca8;
 	--cl3: #f05950;
-	--cl4: red;
+	--cl4: #ff0000;
 	--cl5: #04AA6D;
 	--cl6: goldenrod;
 	--overlay: rgba(0, 0, 0, 0.8);
 
-	--ac1_: black;
-	--ac2_: rgb(80, 80, 80);
-	--ac3_: gray;
-	--ac4_: rgb(210, 210, 210);
-	--ac5_: white;
+	--ac1_: #000000;
+	--ac2_: #505050;
+	--ac3_: #808080;
+	--ac4_: #d2d2d2;
+	--ac5_: #ffffff;
 }
 
 
@@ -39,9 +39,9 @@ main {
 	--ac5: var(--ac5_);
 }
 main.dark {
-	--ac1: white;
-	--ac2: rgb(185, 185, 185);
-	--ac3: gray;
-	--ac4: rgb(46, 46, 46);
-	--ac5: rgb(24, 24, 24);
+	--ac1: #ffffff;
+	--ac2: #b9b9b9;
+	--ac3: #808080;
+	--ac4: #2e2e2e;
+	--ac5: #181818;
 }

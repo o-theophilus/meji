@@ -111,7 +111,7 @@
 				}}
 			/>
 		{:else}
-			loading all tags . . .
+			<span class="f2"> loading all tags . . . </span>
 		{/each}
 	</div>
 	<br />
@@ -129,5 +129,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
+	}
+	.f2{
+		color: var(--ac2);
 	}
 </style>

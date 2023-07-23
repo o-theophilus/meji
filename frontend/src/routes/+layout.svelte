@@ -2,17 +2,14 @@
 	import './layout.var.css';
 	import './layout.main.css';
 
-	// import { onMount } from 'svelte';
-
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Header from './layout.header.svelte';
 	import Footer from './layout.footer.svelte';
 	import Nav from './layout.nav.svelte';
-
-	import Module from '$lib/module/module.svelte';
-	import Loading from '$lib/comp/loading.svelte';
+	import Module from './layout.module.svelte';
+	import Loading from './layout.loading.svelte';
 
 	export let data;
 	$user = data.locals.user;

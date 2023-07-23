@@ -2,11 +2,97 @@ from flask import Blueprint, jsonify, request, current_app
 from .tools import token_to_user, now
 from .mail import notify, send_mail
 from .schema import order_schema, user_schema, log_template
-from .database import database
+from .database import database, query
 from uuid import uuid4
 import requests
 
 bp = Blueprint("order", __name__)
+
+
+@bp.post("/order")
+def cart_to_order():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+    if not user["login"]:
+        return jsonify({
+            "status": 400,
+            "error": "please login"
+        })
+
+    if user["cart"] == []:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    delivery_fee = 1500
+    total_items = 0
+    for cart in user["cart"]:
+        item = query("item", "key", cart["key"], db)
+        if not item:
+            return jsonify({
+                "status": 400,
+                "error": "item not found"
+            })
+        total_items += item["price"] * cart["quantity"]
+
+    order = {
+        "key": str(uuid4().hex)[:10],
+        "user_key": user["key"],
+        "v": uuid4().hex,
+        "type": "order",
+        "pay_reference": None,
+
+        "date_c": now(),
+        "date_u": now(),
+
+        "recipient": {
+            "name": user["name"],
+            "phone": user["phone"],
+            "address": {
+                "line": None,
+                "country": None,
+                "state": None,
+                "local_area": None,
+                "postal_code": None,
+            },
+        },
+
+        "cart": user["cart"],
+
+        "status": "pending",
+        "delivery_date": f"{now(4).split('T')[0]}T10:00",
+
+        "info": {
+            "delivery_fee": delivery_fee,
+            "total_items": total_items,
+            "account": 0,
+        },
+    }
+
+    log = log_template(
+        user["key"],
+        "ordered",
+        order["key"],
+        200
+    )
+
+    user["cart"] = []
+
+    database([user, order, log])
+
+    return jsonify({
+
+        "status": 200,
+        "user": user_schema(user, db),
+        "order_key": order["key"]
+    })
 
 
 @bp.put("/order/<key>")

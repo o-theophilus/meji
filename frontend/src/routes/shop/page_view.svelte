@@ -46,7 +46,7 @@
 	<span class="line">
 		sort:
 		<select bind:value={sort[0]}>
-			{#each Object.entries(sorts) as [key, value]}
+			{#each Object.keys(sorts) as key}
 				<option value={key}>
 					{key}
 				</option>

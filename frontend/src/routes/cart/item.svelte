@@ -1,41 +1,85 @@
 <script>
-	import Quantity from '$lib/quantity.svelte';
-	import Value from '$lib/comp/variation_value.svelte';
+	import { user } from '$lib/store.js';
+	import { token } from '$lib/cookie.js';
+
+	import Quantity from '$lib/item/quantity.svelte';
+	import Value from '$lib/item/variation_value.svelte';
 
 	export let item;
+	let error = {};
+	let timeoutId;
 
-	const proc = (v) => v.split(':');
+	const change = async (item) => {
+		error = {};
 
-	let color = '';
-	if (item.variation.color) {
-		color = item.variation.color;
-	}
-	if (item.variation.type) {
-		let _c = proc(item.variation.type)[1];
-		if (_c) {
-			color = _c;
+		if (item.quantity > 0) {
+			for (const i in $user.cart) {
+				if ($user.cart[i].key == item.key && $user.cart[i].variation == item.variation) {
+					$user.cart[i] = item;
+					break;
+				}
+			}
+		} else {
+			$user.cart = $user.cart.filter((i) => i.key != item.key || i.variation != item.variation);
 		}
-	}
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify(item)
+		});
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			$user = resp.user;
+		} else {
+			error = resp;
+		}
+	};
 </script>
 
 <section>
-	<div class="img">
-		<img src={item.photos.length > 0 ? item.photos[0] : '/image/item.png'} alt={item.name} />
-	</div>
+	<a href="/{item.slug}">
+		<img
+			src={`${item.photos[0]}/200` || '/image/item.png'}
+			alt={item.name}
+			onerror="this.src='/image/item.png'"
+		/>
+	</a>
 	<div class="details">
-		<div class="h name">
-			<a href="/{item.slug}">
-				{item.name}
-			</a>
-			<Value variation={item.variation} />
-		</div>
+		<a href="/{item.slug}">
+			{item.name}
+		</a>
 
-		<div class="h extreme">
-			<div class="h">
+		{#if Object.keys(item.variation).length > 0}
+			<div class="line">
+				{#each Object.entries(item.variation) as [key, value]}
+					<div class="line ppt">
+						{key}: <Value {value} />
+					</div>
+				{/each}
+			</div>
+			<br />
+		{/if}
+
+		<div class="line space">
+			<div class="line">
 				<span class="price">
 					₦{item.price.toLocaleString()}
 				</span>
-				<Quantity quantity={item.quantity} on:done />
+				<Quantity
+					quantity={item.quantity}
+					on:done={(e) => {
+						item.quantity = e.detail.quantity;
+						clearTimeout(timeoutId);
+						timeoutId = setTimeout(() => {
+							change(item);
+						}, 1000);
+					}}
+				/>
 			</div>
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>
@@ -44,43 +88,42 @@
 
 <style>
 	section {
-		position: relative;
-
 		display: flex;
-		gap: var(--sp2);
+		gap: var(--sp3);
 		align-items: center;
 	}
-	section:not(:last-child) {
-		border-bottom: solid 2px var(--ac5);
-		padding-bottom: var(--sp2);
-	}
 
-	.img,
 	img {
 		height: 100px;
 		width: 100px;
-		object-fit: cover;
+
+		border-radius: var(--sp1);
 	}
 	.details {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp1);
 		width: 100%;
 	}
-	a {
-		text-decoration: none;
-		color: var(--ac1);
-	}
 
-	.name {
-		gap: var(--sp1);
+	.line {
+		display: flex;
+		align-items: center;
+		gap: 0 var(--sp2);
+		flex-wrap: wrap;
 	}
-
-	.extreme {
+	.space {
 		justify-content: space-between;
 	}
 
+	a {
+		text-decoration: none;
+		color: var(--ac1);
+		font-weight: 500;
+	}
 	.price {
 		color: var(--cl3);
+	}
+
+	.ppt {
+		gap: var(--sp0);
+		color: var(--ac2);
 	}
 </style>

@@ -86,10 +86,7 @@
 	</svelte:fragment>
 
 	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		<IG name="line" {error} let:id>
-			<svelte:fragment slot="label">
-				<label for="address"> Address </label>
-			</svelte:fragment>
+		<IG name="line" label="Address" {error} let:id>
 			<input bind:value={address.line} id="address" type="text" placeholder="Your address here" />
 		</IG>
 
@@ -119,10 +116,7 @@
 			</select>
 		</IG>
 
-		<IG name="local_area" {error} let:id>
-			<svelte:fragment slot="label">
-				<label for="local_area"> Local Government Area: </label>
-			</svelte:fragment>
+		<IG name="local_area" label="Local Government Area" {error} let:id>
 			<input
 				type="text"
 				bind:value={address.local_area}
@@ -131,10 +125,7 @@
 			/>
 		</IG>
 
-		<IG name="postal_code" {error} let:id>
-			<svelte:fragment slot="label">
-				<label for="postal_code"> Postal Code: </label>
-			</svelte:fragment>
+		<IG name="postal_code" label="Postal Code" {error} let:id>
 			<input
 				type="text"
 				bind:value={address.postal_code}

@@ -15,14 +15,6 @@
 	let clientWidth;
 </script>
 
-<!-- <button
-	on:click={() => {
-		qty = 0;
-		change();
-	}}
->
-	x
-</button> -->
 <section>
 	<button
 		on:click={() => {
@@ -35,14 +27,18 @@
 
 	<input
 		type="number"
-		style:width="{clientWidth}px"
+		style:width="calc({clientWidth}px + 4px)"
 		bind:value={quantity}
 		on:change={() => {
 			change();
 		}}
 	/>
 	<div class="helper" bind:clientWidth>
-		{quantity}
+		{#if quantity}
+			{quantity}
+		{:else}
+			0
+		{/if}
 	</div>
 	<button
 		on:click={() => {
@@ -57,57 +53,44 @@
 <style>
 	section {
 		position: relative;
-		--size: 40px;
+		gap: var(--sp0);
 
 		display: flex;
 		align-items: center;
-
-		border: 2px solid var(--ac5);
-		border-radius: var(--sp0);
-
-		padding: 0 var(--sp1);
-		width: min-content;
 	}
-	button,
-	input {
-		width: var(--size);
-		height: var(--size);
 
-		color: var(--ac2);
-		background: none;
-		border: none;
-	}
-	.helper {
-		position: absolute;
-		visibility: hidden;
-
-		padding: var(--sp1);
-	}
-	button {
-		--size: 24px;
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: var(--sp2);
-
-		width: var(--size);
-		height: var(--size);
-
-		border-radius: 50%;
-	}
 	input {
 		padding: var(--sp1);
-	}
-	button:hover {
-		background-color: var(--cl1);
-		color: var(--ac5_);
-	}
-
-	input:hover {
-		background-color: var(--ac5);
 	}
 	input:focus {
 		background-color: var(--ac5);
+	}
+	.helper {
+		position: absolute;
+		padding: var(--sp1);
+		visibility: hidden;
+	}
+
+	button {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		--size: 24px;
+		width: var(--size);
+		height: var(--size);
+
+		border: none;
+		color: var(--ac2);
+		background-color: var(--ac4);
+		border-radius: 50%;
+
+		cursor: pointer;
+
+	}
+
+	button:hover {
+		background-color: var(--cl1);
+		color: var(--ac5_);
 	}
 </style>

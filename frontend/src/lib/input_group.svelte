@@ -13,9 +13,9 @@
 	{#if !$$slots.label}
 		<label for={id}>{label || name}</label>
 	{/if}
-	{#if error[name]}
+	{#if error[id]}
 		<span class="error">
-			{error[name]}
+			{error[id]}
 		</span>
 	{/if}
 	<slot {id} />

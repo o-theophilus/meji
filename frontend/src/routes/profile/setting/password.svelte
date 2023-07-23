@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Password from '$lib/comp/password_checker.svelte';
+	import Password from '$lib/password_checker.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Email from './password_email_template.svelte';

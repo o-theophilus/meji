@@ -113,8 +113,6 @@
 			error = resp;
 		}
 	};
-
-	const proc = (v) => v.split(':');
 </script>
 
 <Form>
@@ -137,7 +135,7 @@
 		<Button class="primary" name="Add" on:click={add_key} />
 	</IG>
 
-	{#each Object.entries(variation) as [key, value], i (i)}
+	{#each Object.keys(variation) as key, i (i)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 			<Button
 				icon="close"

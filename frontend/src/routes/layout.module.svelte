@@ -35,7 +35,7 @@
 
 		display: grid;
 		align-items: center;
-		/* justify-content: center; */
+		justify-content: center;
 
 		padding: calc(var(--sp3) * 2) var(--sp3);
 		overflow-y: auto;
@@ -45,7 +45,7 @@
 
 	.block {
 		position: relative;
-		/* width: fit-content; */
+		margin: auto;
 	}
 
 	.pos {
@@ -56,11 +56,9 @@
 
 	.content {
 		/* width: 100%; */
-		/* max-width: 500px; */
+		max-width: 500px;
 		border-radius: var(--sp0);
-
 		overflow: hidden;
-
 		box-shadow: var(--shad1);
 	}
 </style>

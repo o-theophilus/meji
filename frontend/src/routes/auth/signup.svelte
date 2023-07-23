@@ -1,10 +1,10 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { user, module } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/module/form.svelte';
-	import Password from '$lib/comp/password_checker.svelte';
+	import Password from '$lib/password_checker.svelte';
 	import Button from '$lib/button.svelte';
 	import Login from './login.svelte';
 	import Info from '$lib/module/info.svelte';

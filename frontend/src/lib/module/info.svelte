@@ -1,40 +1,35 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Card from '$lib/card.svelte';
 	import SVG from '$lib/comp/svg.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Marked from '$lib/comp/marked.svelte';
 	import Button from '$lib/button.svelte';
 </script>
 
-<Card>
-	<div
-		class="title"
-		class:good={$module.status == 200}
-		class:bad={$module.status == 400}
-		class:caution={$module.status == 201}
-	>
-		{#if $module.status == 200}
-			<SVG type="check" size="20" />
-		{:else if $module.status == 400}
-			<SVG type="close" />
-		{:else if $module.status == 201}
-			<SVG type="info" size="20" />
-		{/if}
-		{$module?.title || 'no title'}
-	</div>
-	<div class="body">
-		<Body>
-			<Marked md={$module?.message || 'no message'} />
-			{#if $module.button}
-				{#each $module.button as b}
-					<Button name={b.name} icon={b.icon} on:click={b.fn} />
-				{/each}
-			{/if}
-		</Body>
-	</div>
-</Card>
+<div
+	class="title"
+	class:good={$module.status == 200}
+	class:bad={$module.status == 400}
+	class:caution={$module.status == 201}
+>
+	{#if $module.status == 200}
+		<SVG type="check" size="20" />
+	{:else if $module.status == 400}
+		<SVG type="close" />
+	{:else if $module.status == 201}
+		<SVG type="info" size="20" />
+	{/if}
+	{$module?.title || 'no title'}
+</div>
+<div class="body">
+	<Marked md={$module?.message || 'no message'} />
+	{#if $module.button}
+		<br />
+		{#each $module.button as b}
+			<Button name={b.name} icon={b.icon} on:click={b.fn} />
+		{/each}
+	{/if}
+</div>
 
 <style>
 	.title {
@@ -48,7 +43,9 @@
 	}
 
 	.body {
-		background: var(--ac4);
+		background: var(--ac5);
+		padding: var(--sp3);
+		color: var(--ac2);
 	}
 
 	.good {

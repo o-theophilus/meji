@@ -1,13 +1,19 @@
-from flask import Blueprint, jsonify
-# import database
-# from .auth import omni
+from flask import Blueprint, jsonify, send_file
+from .storage import storage, drive
 from deta import Deta
 from os import environ
-from .database import database, query
-from datetime import datetime
+from .database import database  # , query
+from datetime import datetime, timedelta
 
 
 bp = Blueprint("api", __name__)
+
+
+@bp.get("/photos/<key>")
+@bp.get("/photos/<key>/<thumbnail>")
+def get_photo(key, thumbnail=False):
+    photo = storage(key, thumbnail=thumbnail)
+    return send_file(photo, mimetype="image/jpg")
 
 
 @bp.post("/cron")

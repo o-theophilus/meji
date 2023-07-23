@@ -9,21 +9,11 @@
 
 <style>
 	section {
-		margin: auto;
-
 		display: flex;
 		flex-direction: column;
-		/* min-width: 100%; */
-		/* width: 500px; */
-		/* width: min(100%, 500px); */
 	}
-	form {
-		background-color: var(--ac5);
-	}
-
 	@media screen and (min-width: 800px) {
 		section {
-			/* max-width: 800px; */
 			flex-direction: unset;
 		}
 		.title {
@@ -32,6 +22,11 @@
 		form {
 			width: 100%;
 		}
+	}
+
+	form {
+		background-color: var(--ac5);
+		padding: var(--sp3);
 	}
 
 	.title {
@@ -43,9 +38,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp1);
-	}
-
-	form {
-		padding: var(--sp3);
 	}
 </style>
