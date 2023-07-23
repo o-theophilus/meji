@@ -1,5 +1,5 @@
 <script>
-	import { user, loading } from '$lib/store.js';
+	import { user } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
@@ -28,9 +28,9 @@
 		<View {page_name} />
 	</div>
 
-	<div class="items" class:grid={true}>
+	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
-			<Item {item} view_list={$user.setting.item_view == 'list'} />
+			<Item {item} />
 		{:else}
 			no item here
 		{/each}
@@ -39,33 +39,10 @@
 
 <Pagination {page_name} {total_page} />
 
-
 <style>
 	.title {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-	}
-
-	.items {
-		display: grid;
-		gap: var(--sp2);
-		grid-template-columns: 1fr;
-
-		margin-top: var(--sp4);
-		color: var(--ac1);
-	}
-	.grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@media screen and (min-width: 700px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media screen and (min-width: 1000px) {
-		.grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
 	}
 </style>

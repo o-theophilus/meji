@@ -218,7 +218,7 @@ def log_template(
         "type": "log",
 
         "user": user,
-        "action": action,  # what the user did
+        "action": action,
         "entity": entity,
         "status": status,
         "misc": misc

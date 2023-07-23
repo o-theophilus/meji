@@ -1,4 +1,5 @@
 <script>
+	import { user } from '$lib/store.js';
 	import Rating from './rating.svelte';
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
@@ -10,7 +11,6 @@
 		price: 0,
 		old_price: 0
 	};
-	export let view_list = false;
 
 	let rating = 0;
 	if (item.feedbacks) {
@@ -21,7 +21,7 @@
 	}
 </script>
 
-<section class="item" class:view_list>
+<section class="item" class:view_list={$user.setting.item_view == 'list'}>
 	<a href="/{item.slug}">
 		<img
 			src={`${item.photos[0]}/200` || '/image/item.png'}
@@ -70,6 +70,7 @@
 	.item {
 		display: flex;
 		flex-direction: column;
+		/* align-items: center; */
 
 		border-bottom: 2px solid var(--ac5);
 		overflow: hidden;
@@ -84,14 +85,13 @@
 		text-decoration: none;
 		color: var(--ac1);
 
-		height: 100%;
 	}
 
 	img {
 		width: 100%;
-		height: 100%;
-		border-radius: var(--sp0);
 		aspect-ratio: 1/1;
+		border-radius: var(--sp0);
+		
 		background-image: url('/image/item.png');
 		background-size: cover;
 	}
@@ -162,12 +162,12 @@
 
 	.view_list {
 		flex-direction: unset;
-		height: 200px;
 	}
-
+	
 	.view_list img {
 		width: unset;
-		height: 100%;
+		/* height: 100%; */
+		height: 120px;
 	}
 
 	.view_list .details {

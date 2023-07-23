@@ -50,7 +50,7 @@
 
 		<div class="input">
 			<input
-				style:width="{width}px"
+				style:width="calc({width}px + 4px)"
 				type="text"
 				oninput="this.value = this.value.replace(/[^0-9]/g, '')"
 				bind:value={page_no_temp}
@@ -73,7 +73,7 @@
 					0
 				{/if}
 			</span>
-			// {total_page}
+			/ {total_page}
 		</div>
 
 		{#if page_no_temp != page_no}

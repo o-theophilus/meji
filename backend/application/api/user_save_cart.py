@@ -7,7 +7,12 @@ from math import ceil
 bp = Blueprint("save_cart", __name__)
 
 
-def saved_items(saves, db, page_no=1, size=24):
+def saved_items(
+    db,
+    saves,
+    page_no=1,
+    size=24
+):
     items = []
     saves = [x["key"] for x in saves]
     for x in db:
@@ -39,7 +44,7 @@ def get_saved_items():
 
     return jsonify({
         "status": 200,
-        **saved_items(user["saves"], db)
+        **saved_items(db, user["saves"])
     })
 
 
@@ -75,7 +80,7 @@ def save_item():
     return jsonify({
         "status": 200,
         "user": user_schema(user, db),
-        **saved_items(user["saves"], db)
+        **saved_items(db, user["saves"])
     })
 
 

@@ -69,8 +69,8 @@
 
 		{#if open_recent}
 			<div
-				class="items"
-				class:grid={true}
+				class="item_area"
+				class:list={$user.setting.item_view == 'list'}
 				transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}
 			>
 				{#each recently_viewed as item (item.key)}
@@ -111,27 +111,5 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-	}
-
-	.items {
-		display: grid;
-		gap: var(--sp2);
-		grid-template-columns: 1fr;
-
-		margin-top: var(--sp4);
-		color: var(--ac1);
-	}
-	.grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@media screen and (min-width: 700px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media screen and (min-width: 1000px) {
-		.grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
 	}
 </style>

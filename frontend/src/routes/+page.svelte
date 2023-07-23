@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { module } from '$lib/store.js';
+	import { module, user } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
@@ -81,7 +81,7 @@
 			/>
 		</div>
 
-		<div class="items" class:grid={true}>
+		<div class="item_area" class:grid={true}>
 			{#each tags.slice(0, 6) as tag}
 				<Tag {tag} />
 			{/each}
@@ -106,7 +106,7 @@
 					/>
 				</div>
 
-				<div class="items" class:grid={true}>
+				<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 					{#each x.items as item (item.key)}
 						<Item {item} />
 					{/each}
@@ -126,27 +126,5 @@
 		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
-	}
-
-	.items {
-		display: grid;
-		gap: var(--sp2);
-		grid-template-columns: 1fr;
-
-		margin-top: var(--sp4);
-		color: var(--ac1);
-	}
-	.grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@media screen and (min-width: 700px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media screen and (min-width: 1000px) {
-		.grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
 	}
 </style>

@@ -67,6 +67,28 @@ h6 {
 	font-size: small;
 }
 
+.item_area {
+	display: grid;
+	gap: var(--sp2);
+	grid-template-columns: repeat(2, 1fr);
+	
+	margin-top: var(--sp4);
+	color: var(--ac1);
+}
+@media screen and (min-width: 700px) {
+	.grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+@media screen and (min-width: 1000px) {
+	.grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+.list{
+	grid-template-columns: 1fr;
+}
+
 /*************************** form ***************************/ 
 
 label {

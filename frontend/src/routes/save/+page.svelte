@@ -1,4 +1,5 @@
 <script>
+	import { user } from '$lib/store.js';
 	import { flip } from 'svelte/animate';
 	import { backInOut } from 'svelte/easing';
 
@@ -9,7 +10,7 @@
 
 	export let data;
 	export let { items } = data;
-	let total_page = 10;
+	let { total_page } = data;
 
 	const unsaved = async (key) => {
 		items = items.filter((i) => i.key != key);
@@ -19,9 +20,9 @@
 <Meta title="Saved" description="Saved" />
 
 <Card>
-	<div class="title">Saved</div>
+	<b> Saved </b>
 
-	<div class="items" class:grid={true}>
+	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 				<Item
@@ -43,31 +44,4 @@
 <Pagination page_name="save" {total_page} />
 
 <style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.items {
-		display: grid;
-		gap: var(--sp2);
-		grid-template-columns: 1fr;
-
-		margin-top: var(--sp4);
-		color: var(--ac1);
-	}
-	.grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@media screen and (min-width: 700px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media screen and (min-width: 1000px) {
-		.grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
 </style>

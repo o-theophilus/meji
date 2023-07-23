@@ -87,7 +87,7 @@
 		cursor: pointer;
 	}
 	button:hover {
-		background-color: var(--ac5);
+		background-color: var(--ac4);
 	}
 	button.save {
 		fill: var(--cl1);
