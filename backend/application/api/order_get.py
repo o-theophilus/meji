@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .schema import order_schema
-from .database import database
+from .database import database, query
 from math import ceil
 
 bp = Blueprint("order_get", __name__)
@@ -9,19 +9,19 @@ bp = Blueprint("order_get", __name__)
 
 @bp.get("/order")
 def get_all():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
     size = 24
@@ -30,7 +30,7 @@ def get_all():
     page_no = int(request.args.get("page_no"))
 
     orders = []
-    for row in data:
+    for row in db:
         if row["type"] == "order":
             if status and search:
                 if row["status"] == status:
@@ -54,61 +54,55 @@ def get_all():
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "orders": [order_schema(order, data) for order in orders],
-            "total_page": total_page
-        }
+        "orders": [order_schema(order, db) for order in orders],
+        "total_page": total_page
     })
 
 
 @bp.get("/order_/<key>")
 def get_for_user(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if user["key"] != key and "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
     orders = []
-    for row in data:
+    for row in db:
         if row["type"] == "order" and row["user_key"] == user["key"]:
             orders.append(row)
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "orders": [order_schema(order, data) for order in orders]
-        }
+        "orders": [order_schema(order, db) for order in orders]
     })
 
 
 @bp.get("/order/<key>")
 def get_one(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if order["info"]["account"] > user["acc_balance"]:
@@ -117,17 +111,17 @@ def get_one(key):
         order = database(order)
 
     pr = []
-    for row in data:
+    for x in db:
         if (
-            row["type"] == "order"
-            and row["user_key"] == user["key"]
-            and row["status"] == "delivered"
+            x["type"] == "order"
+            and x["user_key"] == user["key"]
+            and x["status"] == "delivered"
         ):
             pr.append({
-                "name": row["recipient"]["name"],
-                "phone": row["recipient"]["phone"],
-                "address": row["recipient"]["address"],
-                "date": row["date_u"],
+                "name": x["recipient"]["name"],
+                "phone": x["recipient"]["phone"],
+                "address": x["recipient"]["address"],
+                "date": x["date_u"],
             })
 
     pr = sorted(pr, key=lambda d: d['date'])
@@ -135,36 +129,30 @@ def get_one(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data),
-            "previous_recipients": pr,
-        }
+        "order": order_schema(order, db),
+        "previous_recipients": pr,
     })
 
 
 @bp.get("/order_ref/<key>")
 def get_ref(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
-    order = query("order", "pay_reference", key, data)
+    order = query({"type": "order", "pay_reference": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data),
-        }
+        "order": order_schema(order, db),
     })

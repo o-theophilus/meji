@@ -1,14 +1,14 @@
 <script>
-	import { currency, module } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
 	import Body from '$lib/comp/card_body.svelte';
 	import HR from '$lib/comp/hr.svelte';
 	import Item from './breakdown_item.svelte';
-	import Voucher from '../_voucher.svelte';
+	import Voucher from './_voucher.svelte';
 	import Total from './breakdown_total.svelte';
-	import Account from '../_account.svelte';
+	import Account from './_account.svelte';
 
 	export let order;
 	export let user;
@@ -39,7 +39,7 @@
 		/>
 		{#if user.acc_balance > 0}
 			<Total
-				title={`Acc. Bal (${currency(user.acc_balance)})`}
+				title={`Acc. Bal ₦(${user.acc_balance.toLocaleString()})`}
 				value={order.info.account}
 				u_title
 				u_value

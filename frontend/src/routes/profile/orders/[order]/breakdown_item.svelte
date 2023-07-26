@@ -1,11 +1,7 @@
 <script>
-	import { currency } from '$lib/store.js';
-
-	import Value from '$lib/comp/variation_value.svelte';
+	import Value from '$lib/item/variation_value.svelte';
 
 	export let items;
-
-	const proc = (v) => v.split(':');
 </script>
 
 <div class="grid">
@@ -23,16 +19,22 @@
 				{item.name}
 			</a>
 
-			<Value variation={item.variation} />
+			{#each Object.entries(item.variation) as [key, value]}
+				<div class="line ppt">
+					{key}: <Value {value} />
+				</div>
+			{/each}
+
+			<!-- <Value variation={item.variation} /> -->
 		</div>
 		<div class="price">
-			{currency(item.price)}
+			₦{item.price.toLocaleString()}
 		</div>
 		<div class="num">
 			{item.quantity}
 		</div>
 		<div class="price">
-			{currency(item.price * item.quantity)}
+			₦{item.price * item.quantity.toLocaleString()}
 		</div>
 	{/each}
 </div>

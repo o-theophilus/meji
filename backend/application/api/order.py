@@ -31,10 +31,9 @@ def cart_to_order():
             "error": "invalid request"
         })
 
-    delivery_fee = 1500
     total_items = 0
     for cart in user["cart"]:
-        item = query("item", "key", cart["key"], db)
+        item = query({"type": "item", "key": cart["key"]}, db=db)
         if not item:
             return jsonify({
                 "status": 400,
@@ -70,7 +69,7 @@ def cart_to_order():
         "delivery_date": f"{now(4).split('T')[0]}T10:00",
 
         "info": {
-            "delivery_fee": delivery_fee,
+            "delivery_fee": 1500,
             "total_items": total_items,
             "account": 0,
         },
@@ -90,20 +89,19 @@ def cart_to_order():
     return jsonify({
 
         "status": 200,
-        "user": user_schema(user, db),
         "order_key": order["key"]
     })
 
 
 @bp.put("/order/<key>")
 def submit_address(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     error = {}
@@ -141,21 +139,21 @@ def submit_address(key):
 
     if error != {}:
         return jsonify({
-            "status": 201,
-            "message": error
+            "status": 400,
+            **error
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     order["recipient"]["name"] = request.json["name"]
@@ -173,41 +171,38 @@ def submit_address(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data)
-        }
+        "order": order_schema(order, db)
     })
 
 
 @bp.put("/order_/<key>")
 def submit_account(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if "value" not in request.json:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     error = None
@@ -222,8 +217,8 @@ def submit_account(key):
         error = "negative amount not allowed"
     if error:
         return jsonify({
-            "status": 201,
-            "message": error
+            "status": 400,
+            **error
         })
 
     order["info"]["account"] = request.json["value"]
@@ -232,35 +227,32 @@ def submit_account(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data)
-        }
+        "order": order_schema(order, db)
     })
 
 
 @bp.post("/order/<key>")
 def place_order(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if order["status"] != "pending":
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if (
@@ -270,7 +262,7 @@ def place_order(key):
     ):
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if (
@@ -284,8 +276,8 @@ def place_order(key):
         or not order["recipient"]["address"]["postal_code"]
     ):
         return jsonify({
-            "status": 201,
-            "message": "invalid delivery address"
+            "status": 400,
+            "error": "invalid delivery address"
         })
 
     total_pay = order["info"]["total_items"] + order["info"]["delivery_fee"]
@@ -317,7 +309,7 @@ def place_order(key):
         ):
             return jsonify({
                 "status": 400,
-                "message": "invalid transaction"
+                "error": "invalid transaction"
             })
 
     order["status"] = "ordered"
@@ -347,43 +339,40 @@ def place_order(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data),
-            "user": user_schema(user, data)
-        }
+        "order": order_schema(order, db),
+        "user": user_schema(user, db)
     })
 
 
 @bp.put("/order_status/<key>")
 def status(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db=db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
-    _order_user = query("user", "key", order["user_key"], data)
+    _order_user = query({"type": "user", "key": order["user_key"]}, db=db)
     if not _order_user:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if (
@@ -394,7 +383,7 @@ def status(key):
     ):
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     status = ['pending', 'ordered', 'processing', 'enroute', 'delivered']
@@ -404,7 +393,7 @@ def status(key):
     if i < 0 or i > len(status) - 1:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     order["status"] = status[i]
@@ -421,7 +410,7 @@ def status(key):
 
     database([order, log])
 
-    _order = order_schema(order, data)
+    _order = order_schema(order, db)
 
     if (
         request.json["status"] == "next"
@@ -436,35 +425,32 @@ def status(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": _order
-        }
+        "order": _order
     })
 
 
 @bp.put("/order_date/<key>")
 def date(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorised access"
+            "status": 400,
+            "error": "unauthorised access"
         })
 
-    order = query("order", "key", key, data)
+    order = query({"type": "order", "key": key}, db)
     if not order:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     error = {}
@@ -477,8 +463,8 @@ def date(key):
 
     if error != {}:
         return jsonify({
-            "status": 201,
-            "message": error
+            "status": 400,
+            **error
         })
 
     date = f"{request.json['date']}T{request.json['time']}"
@@ -499,8 +485,5 @@ def date(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "order": order_schema(order, data)
-        }
+        "order": order_schema(order, db)
     })

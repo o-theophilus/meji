@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now, token_tool
 from werkzeug.security import check_password_hash
-from .schema import user_schema, otp_template, user_template
+from .schema import user_schema, otp_template
+from .auth import user_template
 from .database import database, query
 from .mail import send_mail
 import re

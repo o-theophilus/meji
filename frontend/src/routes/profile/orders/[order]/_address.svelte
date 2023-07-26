@@ -9,7 +9,7 @@
 
 	import HR from '$lib/comp/hr.svelte';
 	import Button from '$lib/button.svelte';
-	import Button_Fold from '$lib/comp/button_fold.svelte';
+	import Button_Fold from '$lib/button_fold.svelte';
 	import Form from '$lib/module/form.svelte';
 
 	export let data;

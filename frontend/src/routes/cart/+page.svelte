@@ -48,8 +48,8 @@
 			$loading = false;
 
 			if (resp.status == 200) {
-				$user = resp.user;
-				goto(`/order/${resp.order_key}`);
+				$user.cart = [];
+				goto(`/profile/orders/${resp.order_key}`);
 			} else {
 				error = resp;
 			}

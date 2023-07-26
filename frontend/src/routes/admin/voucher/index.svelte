@@ -1,9 +1,7 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
-
 	export async function load({ fetch, session, url }) {
 		if (session.user.login) {
-			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}voucher`, {
+			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher`, {
 				method: 'get',
 				headers: {
 					'Content-Type': 'application/json',
@@ -43,8 +41,6 @@
 
 	import Bar from './_bar.svelte';
 
-	import { currency } from '$lib/store.js';
-
 	export let vouchers;
 </script>
 
@@ -58,7 +54,10 @@
 	<Body>
 		{#each vouchers as v}
 			<div>
-				<Button name="{v.key} - {currency(v.value)} - {v.status}" href="/admin/voucher/{v.key}" />
+				<Button
+					name="{v.key} - ₦{v.value.toLocaleString()} - {v.status}"
+					href="/admin/voucher/{v.key}"
+				/>
 			</div>
 		{:else}
 			no voucher

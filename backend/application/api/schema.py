@@ -1,7 +1,6 @@
 from flask import request
 from .database import query
 from .tools import now
-from werkzeug.security import generate_password_hash
 from uuid import uuid4
 
 
@@ -18,10 +17,6 @@ def user_schema(user, db):
             item["quantity"] = x["quantity"]
             cart.append(item)
 
-    photo = None
-    if user["photo"]:
-        photo = f"{request.host_url}photos/{user['photo']}"
-
     return {
         "key": user["key"],
 
@@ -29,7 +24,8 @@ def user_schema(user, db):
         "email": user["email"],
         "phone": user["phone"],
         "address": user["address"],
-        "photo": photo,
+        "photo": (f"{request.host_url}photos/{user['photo']}"
+                  if user["photo"] else None),
 
         "acc_balance": user["acc_balance"],
 
@@ -54,7 +50,7 @@ def item_schema(item, db):
                 if feedback["user_key"] == row["key"]:
                     photo = None
                     if row["photo"]:
-                        photo = f"{request.host_url}/{row['photo']}"
+                        photo = f"{request.host_url}photos/{row['photo']}"
 
                     feedbacks.append({
                         "user_key": row["key"],
@@ -95,24 +91,21 @@ def item_schema(item, db):
 
 def order_schema(order, db):
     items = []
-    for cart in order["cart"]:
-        item = db.get("item", "key", cart["key"], db)
+    for x in order["cart"]:
+        item = query({"type": "item", "key": x["key"]}, db=db)
         if item:
-            item = item_schema(item, db)
             items.append({
                 "slug": item["slug"],
-                # "key": item["key"],
                 "name": item["name"],
                 "price": item["price"],
-                "photo": item["photos"][0] if "photos" in item and len(
-                    item["photos"]) >= 1 else "",
-                "variation": cart["variation"],
-                "quantity": cart["quantity"],
+                "photo": (f"{request.host_url}photos/{item['photos'][0]}"
+                          if len(item["photos"]) >= 1 else ""),
+                "variation": x["variation"],
+                "quantity": x["quantity"],
             })
 
-    date = f"{now(4).split('T')[0]}T10:00"
-    test = "delivery_date" in order
-    order["delivery_date"] = order["delivery_date"] if test else date
+    if "delivery_date" not in order:
+        order["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
     return {
         "key": order["key"],
@@ -135,73 +128,6 @@ def feedback_schema(fb):
         "rating": fb["rating"],
         "review": fb["review"],
         "date": fb["date_c"],
-    }
-
-
-def user_template(
-        name,
-        email,
-        password
-):
-    return {
-        "key": uuid4().hex,
-        "v": uuid4().hex,
-        "type": "user",
-        "date_c": now(),
-        "date_u": now(),
-        "status": "anonymous",
-
-        "name": name,
-        "email": email,
-        "phone": None,
-        "password": generate_password_hash(
-            password,
-            method="scrypt"
-        ),
-        "address": {
-            "line": None,
-            "country": None,
-            "state": None,
-            "local_area": None,
-            "postal_code": None,
-        },
-        "photo": None,
-        "acc_balance": 0,
-        "saves": [],
-        "cart": [],
-        "roles": [],  # admin, supplier,
-        "login": False,
-        "setting": {
-            "item_view": "grid",
-            "theme": "light"
-        },
-    }
-
-
-def item_template(
-    name,
-    slug
-):
-    return {
-        "key": uuid4().hex,
-        "v": uuid4().hex,
-        "type": "item",
-        "status": "draft",
-        "date_c": now(),
-        "date_u": now(),
-
-        "name": name,
-        "slug": slug,
-        "price": 0,
-        "old_price": 0,
-        "info": '',
-        "photos": [],
-        "tags": [],
-        "ads": {},
-        "variation": {},
-
-        "available_quantity": 0,
-        "feedbacks": [],
     }
 
 

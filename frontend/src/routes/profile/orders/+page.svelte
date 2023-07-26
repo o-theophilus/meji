@@ -1,9 +1,8 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
 
 	export async function load({ fetch, session, url }) {
 		if (session.user.login) {
-			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}order_/${session.user.key}`, {
+			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_/${session.user.key}`, {
 				method: 'get',
 				headers: {
 					'Content-Type': 'application/json',

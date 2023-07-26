@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, current_app
 from .tools import (
     token_tool, token_to_user, now)
 from .mail import send_mail
-from .schema import user_schema, user_template
+from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
 import re
@@ -10,6 +10,46 @@ from uuid import uuid4
 
 
 bp = Blueprint("auth", __name__)
+
+
+def user_template(
+        name,
+        email,
+        password
+):
+    return {
+        "key": uuid4().hex,
+        "v": uuid4().hex,
+        "type": "user",
+        "date_c": now(),
+        "date_u": now(),
+        "status": "anonymous",
+
+        "name": name,
+        "email": email,
+        "phone": None,
+        "password": generate_password_hash(
+            password,
+            method="scrypt"
+        ),
+        "address": {
+            "line": None,
+            "country": None,
+            "state": None,
+            "local_area": None,
+            "postal_code": None,
+        },
+        "photo": None,
+        "acc_balance": 0,
+        "saves": [],
+        "cart": [],
+        "roles": [],  # admin, supplier,
+        "login": False,
+        "setting": {
+            "item_view": "grid",
+            "theme": "light"
+        },
+    }
 
 
 @bp.post("/init")

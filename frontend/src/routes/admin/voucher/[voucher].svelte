@@ -1,9 +1,9 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
+	
 
 	export async function load({ fetch, session, params, url }) {
 		if (session.user.login) {
-			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}voucher/${params.voucher}`, {
+			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${params.voucher}`, {
 				method: 'get',
 				headers: {
 					'Content-Type': 'application/json',
@@ -43,7 +43,6 @@
 	import Button from '$lib/button.svelte';
 
 	import { token } from '$lib/cookie.js';
-	import { currency } from '$lib/store.js';
 
 	export let voucher;
 	export let logs;
@@ -80,7 +79,7 @@
 	<Body>
 		Code: {voucher.key}
 		<br />
-		Value: {currency(voucher.value)}
+		Value: ₦{voucher.value.toLocaleString()}
 		<br />
 		Validity: {voucher.validity}
 		<br />

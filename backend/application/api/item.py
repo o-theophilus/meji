@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import reserved_words, token_to_user, now
-from .schema import item_schema, item_template
+from .schema import item_schema
 import re
 from uuid import uuid4
 from .database import database, query
@@ -39,10 +39,27 @@ def add_new():
     if item or slug in reserved_words:
         slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
-    item = database(item_template(
-        request.json["name"],
-        slug
-    ))
+    item = database({
+        "key": uuid4().hex,
+        "v": uuid4().hex,
+        "type": "item",
+        "status": "draft",
+        "date_c": now(),
+        "date_u": now(),
+
+        "name": request.json["name"],
+        "slug": slug,
+        "price": 0,
+        "old_price": 0,
+        "info": '',
+        "photos": [],
+        "tags": [],
+        "ads": {},
+        "variation": {},
+
+        "available_quantity": 0,
+        "feedbacks": [],
+    })
 
     return jsonify({
         "status": 200,

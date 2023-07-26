@@ -1,5 +1,5 @@
 <script>
-	import { currency, user, module, tick, loading } from '$lib/store.js';
+	import { user, module, tick, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
@@ -122,7 +122,7 @@
 		<div class="horizontal">
 			<Button
 				class={complete_address ? 'primary' : ''}
-				name="Place Order {pay > 0 ? `(Pay ${currency(pay)})` : ''}"
+				name="Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}"
 				on:click={() => {
 					validate();
 				}}

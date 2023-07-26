@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 
 	import { days, months, ordinal_suffix_of } from '$lib/store.js';
-	import Template from '$lib/comp/email_template.svelte';
+	import Template from '$lib/email_template.svelte';
 
 	export let order;
 	export let user = {};

@@ -1,5 +1,5 @@
 <script>
-	import { user, currency, tick, module } from '$lib/store.js';
+	import { user, tick, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 	import Form from '$lib/module/form.svelte';
@@ -15,9 +15,9 @@
 		if (!Number(value) && value != 0) {
 			error = 'invalid amount';
 		} else if (value > $user.acc_balance) {
-			error = `amount larger than available balance (${currency($user.acc_balance)})`;
+			error = `amount larger than available balance (₦${$user.acc_balance.toLocaleString()})`;
 		} else if (value > pay) {
-			error = `amount larger than total cost (${currency(pay)})`;
+			error = `amount larger than total cost (₦${pay.toLocaleString()})`;
 		} else if (value < 0) {
 			error = 'negative amount not allowed';
 		}

@@ -1,7 +1,5 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import { currency } from '$lib/store.js';
-
 	let emit = createEventDispatcher();
 
 	export let title;
@@ -27,7 +25,7 @@
 			emit('value');
 		}}
 	>
-		{currency(value)}
+		₦{value.toLocaleString()}
 	</div>
 </section>
 

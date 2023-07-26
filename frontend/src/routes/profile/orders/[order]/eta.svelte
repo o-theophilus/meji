@@ -1,10 +1,8 @@
 <script>
 	import { module, days, months, ordinal_suffix_of } from '$lib/store.js';
 
-	import Card from './card.svelte';
-	import Title from './card_title.svelte';
-	import Body from './card_body.svelte';
-	import Button from './button.svelte';
+	import Card from '$lib/card.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Form from './order_eta_form.svelte';
 
@@ -31,7 +29,9 @@
 </script>
 
 <Card>
-	<Title title="Estimated time of delivery">
+	<div class="title">
+		Estimated time of delivery
+
 		{#if order.status == 'ordered' && admin}
 			<Button
 				class="primary"
@@ -48,22 +48,21 @@
 				}}
 			/>
 		{/if}
-	</Title>
-	<Body>
-		<p>
-			To be delivered on or before
-			<span>
-				{days[_date.getDay()]},
-				{ordinal_suffix_of(_date.getDate())} of
-				{months[_date.getMonth()]}
-				{_date.getFullYear()}
-			</span>
-			. Time:
-			<span>
-				{period_of_day}
-			</span>.
-		</p>
-	</Body>
+	</div>
+
+	<p>
+		To be delivered on or before
+		<span>
+			{days[_date.getDay()]},
+			{ordinal_suffix_of(_date.getDate())} of
+			{months[_date.getMonth()]}
+			{_date.getFullYear()}
+		</span>
+		. Time:
+		<span>
+			{period_of_day}
+		</span>.
+	</p>
 </Card>
 
 <style>
