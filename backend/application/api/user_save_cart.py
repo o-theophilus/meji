@@ -9,7 +9,7 @@ bp = Blueprint("save_cart", __name__)
 
 def saved_items(
     db,
-    saves,
+    saves=[],
     page_no=1,
     size=24
 ):
@@ -44,7 +44,7 @@ def get_saved_items():
 
     return jsonify({
         "status": 200,
-        **saved_items(db, user["saves"])
+        **saved_items(db, user["saves"] if user else [])
     })
 
 

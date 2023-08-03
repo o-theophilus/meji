@@ -81,7 +81,7 @@
 			/>
 		</div>
 
-		<div class="item_area" class:grid={true}>
+		<div class="item_area">
 			{#each tags.slice(0, 6) as tag}
 				<Tag {tag} />
 			{/each}
@@ -89,32 +89,30 @@
 	</Card>
 {/if}
 
-{#if group}
-	{#each group as x}
-		{#if x.items.length > 0}
-			<div id={x.name.toLowerCase().replace(' ', '_')} />
-			<Card>
-				<div class="title">
-					{x.name}
-					<Button
-						class="link"
-						name="view all >"
-						on:click={() => {
-							// $state['shop'].order = x.query.order;
-							goto(`/shop`);
-						}}
-					/>
-				</div>
+{#each group as x}
+	{#if x.items.length > 0}
+		<div id={x.name.toLowerCase().replace(' ', '_')} />
+		<Card>
+			<div class="title">
+				{x.name}
+				<Button
+					class="link"
+					name="view all >"
+					on:click={() => {
+						// $state['shop'].order = x.query.order;
+						goto(`/shop`);
+					}}
+				/>
+			</div>
 
-				<div class="item_area" class:list={$user.setting.item_view == 'list'}>
-					{#each x.items as item (item.key)}
-						<Item {item} />
-					{/each}
-				</div>
-			</Card>
-		{/if}
-	{/each}
-{/if}
+			<div class="item_area" class:list={$user.setting.item_view == 'list'}>
+				{#each x.items as item (item.key)}
+					<Item {item} />
+				{/each}
+			</div>
+		</Card>
+	{/if}
+{/each}
 
 <div id="about" />
 <About />

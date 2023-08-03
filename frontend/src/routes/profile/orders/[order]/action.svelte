@@ -2,13 +2,9 @@
 	import { user, module, tick, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Card from '$lib/card.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
-
 	import Info from '$lib/module/info.svelte';
-
-	import Email from './_email_template.svelte';
+	import Email from './action.email_template.svelte';
 	let email;
 
 	export let order;
@@ -117,27 +113,23 @@
 	<script src="https://js.paystack.co/v2/inline.js"></script>
 </svelte:head>
 
-<Card>
-	<Body>
-		<div class="horizontal">
-			<Button
-				class={complete_address ? 'primary' : ''}
-				name="Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-		{#if error}
-			<p class="error">
-				{error}
-			</p>
-		{/if}
-		<p class="terms">
-			by clicking the order button, you have accepred our <a href="/terms">terms and conditions</a>
-		</p>
-	</Body>
-</Card>
+<div class="horizontal">
+	<Button
+		class={complete_address ? 'primary' : ''}
+		name="Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}"
+		on:click={() => {
+			validate();
+		}}
+	/>
+</div>
+{#if error}
+	<p class="error">
+		{error}
+	</p>
+{/if}
+<p class="terms">
+	by clicking the order button, you have accepred our <a href="/terms">terms and conditions</a>
+</p>
 
 <div bind:this={email} style="display: none;">
 	<Email {order} user={$user} />

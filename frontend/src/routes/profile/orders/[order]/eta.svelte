@@ -1,10 +1,8 @@
 <script>
 	import { module, days, months, ordinal_suffix_of } from '$lib/store.js';
 
-	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
-
-	import Form from './order_eta_form.svelte';
+	import Form from './eta__form.svelte';
 
 	export let order;
 	export let admin = false;
@@ -28,45 +26,49 @@
 	}
 </script>
 
-<Card>
-	<div class="title">
-		Estimated time of delivery
+<div class="title">
+	<b> Estimated time of delivery </b>
 
-		{#if order.status == 'ordered' && admin}
-			<Button
-				class="primary"
-				icon="edit"
-				on:click={() => {
-					$module = {
-						module: Form,
-						data: {
-							key: order.key,
-							date,
-							time
-						}
-					};
-				}}
-			/>
-		{/if}
-	</div>
+	{#if order.status == 'ordered' && admin}
+		<Button
+			class="primary"
+			icon="edit"
+			on:click={() => {
+				$module = {
+					module: Form,
+					data: {
+						key: order.key,
+						date,
+						time
+					}
+				};
+			}}
+		/>
+	{/if}
+</div>
 
-	<p>
-		To be delivered on or before
-		<span>
-			{days[_date.getDay()]},
-			{ordinal_suffix_of(_date.getDate())} of
-			{months[_date.getMonth()]}
-			{_date.getFullYear()}
-		</span>
-		. Time:
-		<span>
-			{period_of_day}
-		</span>.
-	</p>
-</Card>
+<p>
+	To be delivered on or before
+	<span class="bold">
+		{days[_date.getDay()]},
+		{ordinal_suffix_of(_date.getDate())} of
+		{months[_date.getMonth()]}
+		{_date.getFullYear()}
+	</span>
+	. Time:
+	<span class="bold">
+		{period_of_day}
+	</span>.
+</p>
 
 <style>
-	span {
+	.title {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.bold {
 		font-weight: 500;
 	}
 </style>

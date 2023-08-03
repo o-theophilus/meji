@@ -152,14 +152,6 @@ def item_master(
 @ bp.get("/home")
 def home():
     db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
     ads = []
     for x in db:
         if (
@@ -212,13 +204,7 @@ def home():
 @bp.get("/shop")
 def shop():
     db = database()
-
     user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
 
     return jsonify({
         "status": 200,
@@ -228,6 +214,7 @@ def shop():
             status=request.args["status"] if (
                 "status" in request.args
                 and request.args["status"]
+                and user
                 and "admin" in user["roles"]
             ) else "live",
             search=request.args[

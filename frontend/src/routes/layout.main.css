@@ -76,12 +76,12 @@ h6 {
 	color: var(--ac1);
 }
 @media screen and (min-width: 700px) {
-	.grid {
+	.item_area {
 		grid-template-columns: repeat(3, 1fr);
 	}
 }
 @media screen and (min-width: 1000px) {
-	.grid {
+	.item_area {
 		grid-template-columns: repeat(4, 1fr);
 	}
 }
