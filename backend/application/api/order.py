@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request, current_app
 from .tools import token_to_user, now
-from .mail import notify, send_mail
+from .mail import send_mail
 from .schema import order_schema, user_schema, log_template
 from .database import database, query
 from uuid import uuid4
 import requests
+import os
 
 bp = Blueprint("order", __name__)
 
@@ -175,6 +176,60 @@ def submit_address(key):
     })
 
 
+@bp.put("/order_date/<key>")
+def date(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorised access"
+        })
+
+    order = query({"type": "order", "key": key}, db=db)
+    if not order:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = {}
+
+    if "date" not in request.json or not request.json["date"]:
+        error["date"] = "this field is required"
+
+    if "time" not in request.json or not request.json["time"]:
+        error["time"] = "this field is required"
+
+    if error != {}:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
+    order["date_u"] = now()
+    log = log_template(
+        user["key"],
+        "change_delivery_date",
+        order["key"]
+    )
+
+    database([order, log])
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order, db)
+    })
+
+
 @bp.put("/order_/<key>")
 def submit_account(key):
     db = database()
@@ -284,28 +339,27 @@ def place_order(key):
     total_pay -= order["info"]["account"]
 
     if (total_pay > 0):
-        ref = request.json["reference"]
         resp = requests.get(
-            f'https://api.paystack.co/transaction/verify/{ref}',
+            f"https://api.paystack.co/transaction/verify/\
+            {request.json['reference']}",
             headers={
                 'Content-Type': 'application/json',
-                "Authorization": current_app.config["PAYSTACK_KEY"]
+                "Authorization": os.environ["PAYSTACK_KEY"]
             }
         )
-        pay_info = resp.json()
+        resp = resp.json()
 
         if (
-            not pay_info["status"]
-            or "data" not in pay_info
-            or "status" not in pay_info["data"]
-            or "reference" not in pay_info["data"]
-            or "amount" not in pay_info["data"]
-            or "currency" not in pay_info["data"]
-            or pay_info["data"]["status"] != "success"
-            or pay_info["data"]["reference"] != request.json["reference"]
-            or pay_info["data"]["amount"]/100 != total_pay
-            or pay_info["data"]["currency"] != "NGN"
-
+            not resp["status"]
+            or "data" not in resp
+            or "status" not in resp["data"]
+            or resp["data"]["status"] != "success"
+            or "reference" not in resp["data"]
+            or resp["data"]["reference"] != request.json["reference"]
+            or "amount" not in resp["data"]
+            or resp["data"]["amount"]/100 != total_pay
+            or "currency" not in resp["data"]
+            or resp["data"]["currency"] != "NGN"
         ):
             return jsonify({
                 "status": 400,
@@ -313,29 +367,21 @@ def place_order(key):
             })
 
     order["status"] = "ordered"
-    user["acc_balance"] -= order["info"]["account"]
-
-    notify(
-        "New Order",
-        request.json["email_template"],
-        f"""
-        User: {user['email']},\n
-        Order Key: {order['key']},\n
-        Payment Status: {order['status']}
-        """
-    )
-
-    log = log_template(
-        "order",
-        user["key"],
-        order["key"],
-        "place_order",
-        200,
-        order['status']
-    )
-
     order["date_u"] = now()
+    user["acc_balance"] -= order["info"]["account"]
+    log = log_template(
+        user["key"],
+        "ordered",
+        order["key"],
+    )
+
     database([user, order, log])
+
+    send_mail(
+        current_app.config["MAIL_DEFAULT_SENDER"][1],
+        "New Order",
+        request.json["email_template"]
+    )
 
     return jsonify({
         "status": 200,
@@ -426,64 +472,4 @@ def status(key):
     return jsonify({
         "status": 200,
         "order": _order
-    })
-
-
-@bp.put("/order_date/<key>")
-def date(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorised access"
-        })
-
-    order = query({"type": "order", "key": key}, db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    error = {}
-
-    if "date" not in request.json or not request.json["date"]:
-        error["date"] = "this field is required"
-
-    if "time" not in request.json or not request.json["time"]:
-        error["time"] = "this field is required"
-
-    if error != {}:
-        return jsonify({
-            "status": 400,
-            **error
-        })
-
-    date = f"{request.json['date']}T{request.json['time']}"
-    order["delivery_date"] = date
-
-    order["date_u"] = now()
-
-    log = log_template
-    log["key"] = uuid4().hex
-    log["for"] = "order"
-    log["user_key"] = user["key"]
-    log["entity_key"] = order["key"]
-    log["action"] = "change_delivery_date"
-    log["result"] = "successful"
-    log["note"] = date
-
-    database([order, log])
-
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db)
     })

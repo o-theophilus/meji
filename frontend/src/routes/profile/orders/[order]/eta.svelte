@@ -1,21 +1,17 @@
 <script>
-	import { module, days, months, ordinal_suffix_of } from '$lib/store.js';
+	import { user, module, days, months, ordinal_suffix_of } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
-	import Form from './eta__form.svelte';
+	import Form from './__eta_form.svelte';
 
 	export let order;
-	export let admin = false;
+	let date_time, dt, period_of_day;
 
-	let date, _date, time, period_of_day;
 	$: {
-		let date_time = order.delivery_date.split('T');
-		date = date_time[0];
-		_date = new Date(date);
-		time = date_time[1];
-
-		let hour = parseInt(time.split(':')[0]);
-
+		date_time = order.delivery_date.split('T');
+		dt = new Date(date_time[0]);
+		
+		let hour = parseInt(date_time[1].split(':')[0]);
 		if (hour < 12) {
 			period_of_day = 'Morning';
 		} else if (hour < 16) {
@@ -26,21 +22,19 @@
 	}
 </script>
 
-<div class="title">
-	<b> Estimated time of delivery </b>
+<div class="bold">
+	Estimated time of delivery
 
-	{#if order.status == 'ordered' && admin}
+	{#if order.status == 'ordered' && $user.roles.includes('admin')}
 		<Button
-			class="primary"
-			icon="edit"
+			name="Edit"
+			class="link"
 			on:click={() => {
 				$module = {
 					module: Form,
-					data: {
-						key: order.key,
-						date,
-						time
-					}
+					key: order.key,
+					date: date_time[0],
+					time: date_time[1]
 				};
 			}}
 		/>
@@ -50,10 +44,10 @@
 <p>
 	To be delivered on or before
 	<span class="bold">
-		{days[_date.getDay()]},
-		{ordinal_suffix_of(_date.getDate())} of
-		{months[_date.getMonth()]}
-		{_date.getFullYear()}
+		{days[dt.getDay()]},
+		{ordinal_suffix_of(dt.getDate())} of
+		{months[dt.getMonth()]}
+		{dt.getFullYear()}
 	</span>
 	. Time:
 	<span class="bold">
@@ -62,12 +56,9 @@
 </p>
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
+	p {
+		color: var(--ac2);
 	}
-
 	.bold {
 		font-weight: 500;
 	}

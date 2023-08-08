@@ -6,7 +6,7 @@
 	import Info from '$lib/module/info.svelte';
 	import Signup from './signup.svelte';
 	import Button from '$lib/button.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Email from './forgot_email_template.svelte';
 	let email_template;
 
@@ -63,65 +63,47 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Forgot Password</div>
-	</svelte:fragment>
-
-	<svelte:fragment slot="info">
+		<b>Forgot Password</b>
 		Please enter your email below to send a password reset link to your email.
 	</svelte:fragment>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="email"> Email: </label>
-			<input type="email" bind:value={form.email} id="email" placeholder="Your email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
+	<IG name="email" {error} let:id>
+		<input bind:value={form.email} {id} type="email" placeholder="Your email here" />
+	</IG>
 
-		<div class="inputGroup horizontal">
-			<Button
-				class="primary"
-				name="Send"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
+	<Button
+		class="primary"
+		name="Send"
+		on:click={() => {
+			validate();
+		}}
+	/>
 
-		<div class="inputGroup">
-			<p>
-				Don't have an account?
-				<Button
-					class="link"
-					name="Signup"
-					on:click={() => {
-						$module = {
-							module: Signup,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
-		<div class="inputGroup">
-			<p>
-				Remember your password?
-				<Button
-					class="link"
-					name="Login"
-					on:click={() => {
-						$module = {
-							module: Login,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
-	</form>
+	<br />
+	Don't have an account?
+	<Button
+		class="link"
+		name="Signup"
+		on:click={() => {
+			$module = {
+				module: Signup,
+				email: form.email
+			};
+		}}
+	/>
+
+	<br />
+	Remember your password?
+	<Button
+		class="link"
+		name="Login"
+		on:click={() => {
+			$module = {
+				module: Login,
+				email: form.email
+			};
+		}}
+	/>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

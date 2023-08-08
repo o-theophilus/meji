@@ -34,13 +34,7 @@ def saved_items(
 @bp.get("/save")
 def get_saved_items():
     db = database()
-
     user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
 
     return jsonify({
         "status": 200,

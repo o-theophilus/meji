@@ -8,7 +8,7 @@
 	import Button from '$lib/button.svelte';
 	import Login from './login.svelte';
 	import Info from '$lib/module/info.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Email from './confirm_email_template.svelte';
 	let email_template;
 
@@ -91,95 +91,54 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Signup to this site</div>
+		<b> Signup to this site </b>
+		This is the 'Signup' page. There's not much here.
 	</svelte:fragment>
 
-	<svelte:fragment slot="info">
-		<p>This is the 'Signup' page. There's not much here.</p>
-	</svelte:fragment>
+	<IG name="name" label="Fullname" {error} let:id>
+		<input bind:value={form.name} {id} type="text" placeholder="Fullname here" />
+	</IG>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		{#if error.error}
-			<p class="error">
-				{error.error}
-			</p>
-		{/if}
+	<IG name="email" {error} let:id>
+		<input bind:value={form.email} {id} type="email" placeholder="Email here" />
+	</IG>
 
-		<div class="inputGroup">
-			<label for="name"> Fullname: </label>
-			<input type="text" bind:value={form.name} id="name" placeholder="Your fullname here" />
-			{#if error.name}
-				<p class="error">
-					{error.name}
-				</p>
-			{/if}
-		</div>
+	<IG name="password" {error} let:id>
+		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+		<Password password={form.password} />
+	</IG>
 
-		<div class="inputGroup">
-			<label for="email"> Email: </label>
-			<input type="email" bind:value={form.email} id="email" placeholder="Your email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
-		<div class="inputGroup">
-			<label for="password"> Password: </label>
-			<input
-				type="password"
-				bind:value={form.password}
-				id="password"
-				placeholder="Your password here"
-			/>
-			<Password password={form.password} />
+	<IG name="confirm password" {error} let:id>
+		<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
+	</IG>
 
-			{#if error.password}
-				<p class="error">
-					{error.password}
-				</p>
-			{/if}
-		</div>
-		<div class="inputGroup">
-			<label for="confirm"> Confirm Password: </label>
-			<input
-				type="password"
-				bind:value={form.confirm_password}
-				id="confirm"
-				placeholder="Your password here"
-			/>
-			{#if error.confirm_password}
-				<p class="error">
-					{error.confirm_password}
-				</p>
-			{/if}
-		</div>
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
-		<div class="inputGroup horizontal">
-			<Button
-				class="primary"
-				name="Signup"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-		<div class="inputGroup">
-			<p>
-				Already have an account?
-				<Button
-					class="link"
-					name="Login"
-					on:click={() => {
-						$module = {
-							module: Login,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
-	</form>
+	<Button
+		class="primary"
+		name="Signup"
+		on:click={() => {
+			validate();
+		}}
+	/>
+
+	<br />
+	Already have an account?
+	<Button
+		class="link"
+		name="Login"
+		on:click={() => {
+			$module = {
+				module: Login,
+				email: form.email
+			};
+		}}
+	/>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

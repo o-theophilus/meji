@@ -11,7 +11,7 @@
 <div class="inputGroup" class:svgi={!!svg}>
 	<slot name="label" />
 	{#if !$$slots.label}
-		<label for={id}>{label || name}</label>
+		<label for={id}>{label || name.replace(/_/g, ' ')}</label>
 	{/if}
 	{#if error[id]}
 		<span class="error">

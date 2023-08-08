@@ -14,12 +14,3 @@ def send_mail(to, subject, body):
             recipients=[to],
             html=body
         ))
-
-
-def notify(subject, mail_body, plain_body):
-
-    send_mail(
-        current_app.config["MAIL_DEFAULT_SENDER"][1],
-        subject,
-        mail_body
-    )

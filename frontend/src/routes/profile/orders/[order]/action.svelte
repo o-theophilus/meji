@@ -5,21 +5,21 @@
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Email from './action.email_template.svelte';
-	let email;
+	let email_template;
 
 	export let order;
-	let error;
+	let error = {};
 
 	$: {
 		order;
-		error = '';
+		error = {};
 	}
 
 	$: pay = order.info.total_items + order.info.delivery_fee - order.info.account;
 
 	$: config = {
-		key: 'pk_test_e349e05c5161ce3ef207ba58a93e40bde8e582fa',
-		email: $user?.email,
+		key: import.meta.env.VITE_PAYSTACK_KEY,
+		email: $user.email,
 		// currency: 'NGN',
 		amount: pay * 100,
 		onSuccess: (resp) => {
@@ -34,7 +34,10 @@
 				button: [
 					{
 						name: 'Ok',
-						icon: 'ok'
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
 					}
 				]
 			};
@@ -49,10 +52,11 @@
 		order.recipient.address.country &&
 		order.recipient.address.local_area &&
 		order.recipient.address.postal_code;
+
 	const validate = () => {
-		error = '';
+		error = {};
 		if (!complete_address) {
-			error = 'kindly fill the Shipping Information form';
+			error.error = 'kindly fill the Shipping Information form';
 		}
 
 		Object.keys(error).length === 0 && place_order();
@@ -68,18 +72,19 @@
 	};
 
 	const submit = async (reference = '') => {
-		let mail_content = email.innerHTML;
-		error = '';
+		error = {};
 
 		$loading = true;
-
 		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${order.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ reference, mail_content })
+			body: JSON.stringify({
+				reference,
+				email_template: email_template.innerHTML.replace(/&amp;/g, '&')
+			})
 		});
 
 		if (_resp.ok) {
@@ -103,7 +108,7 @@
 					]
 				};
 			} else {
-				error = resp.message;
+				error = resp;
 			}
 		}
 	};
@@ -122,16 +127,20 @@
 		}}
 	/>
 </div>
-{#if error}
+<br />
+{#if error.error}
 	<p class="error">
-		{error}
+		{error.error}
 	</p>
+	<br />
 {/if}
+
 <p class="terms">
-	by clicking the order button, you have accepred our <a href="/terms">terms and conditions</a>
+	by clicking the order button, you have accepred our
+	<a href="/terms">terms and conditions</a>
 </p>
 
-<div bind:this={email} style="display: none;">
+<div bind:this={email_template} style="display: none;">
 	<Email {order} user={$user} />
 </div>
 
@@ -148,5 +157,8 @@
 		color: var(--cl1);
 		text-decoration: none;
 		font-weight: 500;
+	}
+	a:hover {
+		color: var(--cl2);
 	}
 </style>

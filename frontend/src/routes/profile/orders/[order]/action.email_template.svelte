@@ -5,19 +5,17 @@
 	import Template from '$lib/email_template.svelte';
 
 	export let order;
-	export let user = {};
+	export let user;
 	let r = order.recipient;
 	let a = r.address;
 
 	let s = order.items.length > 1 ? 's' : '';
-	let date, _date, time, period_of_day;
+	let dt, period_of_day, date_time;
 	$: {
-		let date_time = order.delivery_date.split('T');
-		date = date_time[0];
-		_date = new Date(date);
-		time = date_time[1];
+		date_time = order.delivery_date.split('T');
+		dt = new Date(date_time[0]);
 
-		let hour = parseInt(time.split(':')[0]);
+		let hour = parseInt(date_time[1].split(':')[0]);
 
 		if (hour < 12) {
 			period_of_day = 'Morning';
@@ -50,7 +48,42 @@
 	</a>
 	<br />
 	<br />
-	<b>User</b>
+	<b>Item{s}</b>
+	<br />
+	<br />
+	{#each order.items as x}
+		<a
+			style="
+	text-decoration: none;
+	color: #1d9bf0;
+	"
+			href="{$page.url.origin}/{x.slug}"
+			target="_blank"
+		>
+			<img
+				src="{x.photo}/40"
+				alt="item.name"
+				style="
+	width:40px; 
+	height: 40px; 
+	object-fit: cover;
+	margin-right:10px
+	"
+			/>
+			{x.name}
+
+			{#each Object.entries(x.variation) as [key, value], i}
+				, {key}: {value}
+			{/each}
+
+			{#if x.quantity > 1}
+				(x{x.quantity})
+			{/if}
+		</a>
+		<br />
+		<br />
+	{/each}
+	<b>From User</b>
 	<br />
 	Name:
 	<a
@@ -69,55 +102,23 @@ color: #1d9bf0;
 	Email: {user.email}:
 	<br />
 	<br />
-	<b>Item{s}</b>
+	<b>Delivery Information</b>
 	<br />
+	Name: {r.name}
 	<br />
-	{#each order.items as item}
-		<a
-			style="
-	text-decoration: none;
-	color: #1d9bf0;
-	"
-			href="{$page.url.origin}/{item.slug}"
-			target="_blank"
-		>
-			<img
-				src={item.photo}
-				alt="item.name"
-				style="width:40px; 
-	height: 40px; 
-	object-fit: cover;
-	margin-right:10px
-	"
-			/>
-			{item.name}
-
-			{#if item.quantity > 1}
-				(x{item.quantity})
-			{/if}
-		</a>
-		<br />
-	{/each}
+	Phone: {r.phone}
 	<br />
-	<br />
-	<b>Delivery</b>
-	<br />
-	{r.name} / {r.phone}
-	<br />
-	{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}
+	Address: {a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
 	<br />
 	<br />
 	The item{s} should be delivered on or before
 	<b>
-		{days[_date.getDay()]},
-		{ordinal_suffix_of(_date.getDate())} of
-		{months[_date.getMonth()]}
-		{_date.getFullYear()}
+		{days[dt.getDay()]},
+		{ordinal_suffix_of(dt.getDate())} of
+		{months[dt.getMonth()]}
+		{dt.getFullYear()}
 	</b>. Time:
 	<b>
-		{period_of_day}
+		{date_time[1]}, {period_of_day}
 	</b>.
-
-	<br />
-	<br />
 </Template>

@@ -1,70 +1,32 @@
-<script context="module">
-
-	export async function load({ fetch, session, url }) {
-		if (session.user.login) {
-			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_/${session.user.key}`, {
-				method: 'get',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: session.token
-				}
-			});
-
-			if (_resp.ok) {
-				let resp = await _resp.json();
-
-				if (resp.status == 200) {
-					return {
-						props: {
-							orders: resp.data.orders
-						}
-					};
-				} else {
-					return {
-						status: 404,
-						error: resp.message
-					};
-				}
-			}
-		}
-		return {
-			status: 302,
-			redirect: `/?module=login&return_url=${url.pathname}`
-		};
-	}
-</script>
-
 <script>
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
+	import Meta from '$lib/meta.svelte';
 
-	export let orders;
+	export let data;
+	let { orders } = data;
 </script>
 
-<svelte:head>
-	<title>Order | Meji</title>
-</svelte:head>
+<Meta title="Order" description="Order" />
 
 <Card>
-	<Title title="My Orders" />
-	<Body>
-		{#each orders as order}
-			<div>
-				<Button name={`${order.key}`} class="wide" href="/order/{order.key}">
-					<div class="fmt">
-						{#each order.items as item, i}
-							{#if i != 0},{/if}
-							{item.name}
-						{/each}
-					</div>
-				</Button>
-			</div>
-		{:else}
-			no order
-		{/each}
-	</Body>
+	<b> My Orders </b>
+	<br />
+	<br />
+	{#each orders as x}
+		<div>
+			<Button name={`${x.key}`} class="wide" href="/profile/orders/{x.key}">
+				<div class="fmt">
+					{#each x.items as y, i}
+						{#if i != 0},{/if}
+						{y.name}
+					{/each}
+				</div>
+			</Button>
+		</div>
+	{:else}
+		no order
+	{/each}
 </Card>
 
 <style>

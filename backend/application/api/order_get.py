@@ -59,7 +59,7 @@ def get_all():
     })
 
 
-@bp.get("/order_/<key>")
+@bp.get("/user_orders/<key>")
 def get_for_user(key):
     db = database()
 
@@ -77,13 +77,13 @@ def get_for_user(key):
         })
 
     orders = []
-    for row in db:
-        if row["type"] == "order" and row["user_key"] == user["key"]:
-            orders.append(row)
+    for x in db:
+        if x["type"] == "order" and x["user_key"] == user["key"]:
+            orders.append(order_schema(x, db))
 
     return jsonify({
         "status": 200,
-        "orders": [order_schema(order, db) for order in orders]
+        "orders": orders
     })
 
 

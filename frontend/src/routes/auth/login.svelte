@@ -7,8 +7,9 @@
 	import Signup from './signup.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Button from '$lib/button.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Email from './confirm_email_template.svelte';
+
 	let email_template;
 
 	let form = {};
@@ -84,87 +85,62 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Login to your account</div>
-	</svelte:fragment>
-
-	<svelte:fragment slot="info">
+		<b>Login to your account</b>
 		{@html message}
 	</svelte:fragment>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		{#if error.error}
-			<p class="error error--cap">
-				{error.error}
-			</p>
-		{/if}
-		<div class="inputGroup">
-			<label for="email"> Email: </label>
-			<input type="text" bind:value={form.email} id="email" placeholder="Your email here" />
-			{#if error.email}
-				<p class="error">
-					{error.email}
-				</p>
-			{/if}
-		</div>
-		<div class="inputGroup">
-			<label for="password"> Password: </label>
-			<input
-				type="password"
-				bind:value={form.password}
-				id="password"
-				placeholder="Your password here"
-			/>
-			{#if error.password}
-				<p class="error">
-					{error.password}
-				</p>
-			{/if}
-		</div>
-		<!-- <div class="inputGroup horizontal">
+	<IG name="email" {error} let:id>
+		<input bind:value={form.email} {id} type="text" placeholder="Email here" />
+	</IG>
+
+	<IG name="password" {error} let:id>
+		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+	</IG>
+
+	<!-- <div class="inputGroup horizontal">
 			<input type="checkbox" bind:value={form.remember} id="remember" />
 			<label for="remember"> Remember Me </label>
 		</div> -->
 
-		<div class="inputGroup horizontal">
-			<Button
-				class="primary"
-				name="Login"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-		<div class="inputGroup">
-			<p>
-				Don't have an account?
-				<Button
-					class="link"
-					name="Signup"
-					on:click={() => {
-						$module = {
-							module: Signup,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
-		<div class="inputGroup">
-			<p>
-				Forgot password?
-				<Button
-					class="link"
-					name="Recover"
-					on:click={() => {
-						$module = {
-							module: Forgot,
-							email: form.email
-						};
-					}}
-				/>
-			</p>
-		</div>
-	</form>
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+
+	<Button
+		class="primary"
+		name="Login"
+		on:click={() => {
+			validate();
+		}}
+	/>
+
+	<br />
+	Don't have an account?
+	<Button
+		class="link"
+		name="Signup"
+		on:click={() => {
+			$module = {
+				module: Signup,
+				email: form.email
+			};
+		}}
+	/>
+	<br />
+	Forgot password?
+	<Button
+		class="link"
+		name="Recover"
+		on:click={() => {
+			$module = {
+				module: Forgot,
+				email: form.email
+			};
+		}}
+	/>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

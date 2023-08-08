@@ -5,7 +5,7 @@
 	import Form from '$lib/module/form.svelte';
 	import Password from '$lib/password_checker.svelte';
 	import Button from '$lib/button.svelte';
-
+	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Login from './login.svelte';
 	import Forgot from './forgot.svelte';
@@ -100,52 +100,23 @@ Please try repeacting the action again.`,
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Reset Password</div>
+		<b> Reset Password </b>
+		Reset your password.
 	</svelte:fragment>
 
-	<svelte:fragment slot="info">Reset your password.</svelte:fragment>
+	<IG name="password" {error} let:id>
+		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+	</IG>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="password"> Password: </label>
-			<input
-				type="password"
-				bind:value={form.password}
-				id="password"
-				placeholder="Your password here"
-			/>
-			<Password password={form.password} />
+	<IG name="confirm password" {error} let:id>
+		<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
+	</IG>
 
-			{#if error.password}
-				<p class="error">
-					{error.password}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup">
-			<label for="confirm"> Confirm Password: </label>
-			<input
-				type="password"
-				bind:value={form.confirm_password}
-				id="confirm"
-				placeholder="Your password here"
-			/>
-			{#if error.confirm_password}
-				<p class="error">
-					{error.confirm_password}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup horizontal">
-			<Button
-				class="primary"
-				name="Submit"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-	</form>
+	<Button
+		class="primary"
+		name="Submit"
+		on:click={() => {
+			validate();
+		}}
+	/>
 </Form>

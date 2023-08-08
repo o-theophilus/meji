@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
-	import Form from './address__form.svelte';
+	import Form from './__address_form.svelte';
 
 	export let order;
 	export let previous_recipients;
@@ -12,49 +12,52 @@
 		r.name && r.phone && a.line && a.state && a.country && a.local_area && a.postal_code;
 </script>
 
-<div class="title">
-	<b> Shipping Information </b>
-</div>
-<span> Recipient: </span>
-Name:
-{#if r.name}
-	{r.name}
-{:else}
-	No Name
-{/if}
-<br />
-Phone:
-{#if r.phone}
-	{r.phone}
-{:else}
-	No Phone
-{/if}
-<br />
-<span> Address: </span>
-{#if complete_address}
-	{a.line}, {a.local_area} , {a.state} , {a.country} , {a.postal_code}
-{:else}
-	No Address
-{/if}
+<div class="bold">
+	Recipient Information
 
-{#if order.status == 'pending'}
-	<Button
-		class={!complete_address ? 'primary' : ''}
-		icon="edit"
-		on:click={() => {
-			$module = {
-				module: Form,
-				data: {
+	{#if order.status == 'pending'}
+		<Button
+			class="link"
+			name="Edit"
+			on:click={() => {
+				$module = {
+					module: Form,
 					order,
 					previous_recipients
-				}
-			};
-		}}
-	/>
-{/if}
+				};
+			}}
+		/>
+	{/if}
+</div>
+
+<p>
+	Name:
+	{#if r.name}
+		{r.name}
+	{:else}
+		No Name
+	{/if}
+	<br />
+	Phone:
+	{#if r.phone}
+		{r.phone}
+	{:else}
+		No Phone
+	{/if}
+	<br />
+	Address:
+	{#if complete_address}
+		{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+	{:else}
+		No Address
+	{/if}
+</p>
 
 <style>
-	span {
+	p {
+		color: var(--ac2);
+	}
+	.bold {
 		font-weight: 500;
 	}
 </style>

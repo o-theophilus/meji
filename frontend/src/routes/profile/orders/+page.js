@@ -1,9 +1,9 @@
 import { get } from 'svelte/store';
-import { loading } from "$lib/store.js"
+import { loading, user } from "$lib/store.js"
 import { token } from "$lib/cookie.js"
 
-export const load = async ({ fetch, params }) => {
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${params.order}`, {
+export const load = async ({ fetch }) => {
+	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_orders/${get(user)?.key}`, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',

@@ -1,6 +1,4 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
-
 	export async function load({ url, session }) {
 		if (session.user.login) {
 			let order_key = url.searchParams.get('order_key');
@@ -13,7 +11,7 @@
 
 			let ref = url.searchParams.get('reference');
 
-			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}order_ref/${ref}`, {
+			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_ref/${ref}`, {
 				method: 'get',
 				headers: {
 					'Content-Type': 'application/json',

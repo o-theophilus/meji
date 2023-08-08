@@ -1,66 +1,133 @@
 <script>
-	import { user } from '$lib/store.js';
+	import { user, module, portal } from '$lib/store.js';
 
-	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
-	import Eta from './eta.svelte';
-	import Address from './address.svelte';
+	import Card from '$lib/card.svelte';
+	import Button from '$lib/button.svelte';
 
 	import Item from './items.svelte';
-	import Total from './total.svelte';
+	import Eta from './eta.svelte';
+	import Address from './address.svelte';
 	import Action from './action.svelte';
+	import Voucher from './__voucher.svelte';
+	import Account from './__account.svelte';
 
 	export let data;
 	let { order } = data;
 	let { previous_recipients } = data;
+
+	$: if ($portal) {
+		order = $portal;
+		$portal = '';
+	}
 </script>
 
 <Meta title="Order" description="Order" />
 
 <Card>
-	<b>
-		Order ID: {order.key}
-	</b>
+	<b> Order</b>
 	<br />
 	<br />
-	<!-- <section> -->
-	<!-- <div class="block"> -->
-	<!-- {#if order.status != 'delivered'} -->
-	<!-- {/if} -->
-	<!-- </div> -->
-	<!-- <div class="block"> -->
-	<!-- {#if order.status == 'pending'} -->
-	<!-- {:else} -->
-	<b> Cost Breakdown </b>
-	<Item items={order.items} />
-	<Total user={$user} {order} />
-	<Eta {order} />
-	<Address {order} {previous_recipients} />
-	<Action {order} />
-	<b> Order status </b>
-	{order.status}
 
-	<!-- {/if} -->
-	<!-- </div> -->
-	<!-- </section> -->
+	<div class="grid">
+		<span> ID: </span>
+		<span class="value">
+			{order.key}
+		</span>
+		<span> Status: </span>
+		<span class="value">
+			{order.status}
+		</span>
+	</div>
+	<br />
+	<br />
+
+	<div class="block">
+		<div>
+			<Item {order} />
+		</div>
+
+		<div class="line" />
+
+		<div>
+			<Eta {order} />
+			<br />
+			<Address {order} {previous_recipients} />
+		</div>
+	</div>
+
+	<br />
+
+	<section class="grid">
+		<div class="title">Total Cost</div>
+		<div class="value">₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}</div>
+
+		<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
+		<div class="value">
+			₦{order.info.account.toLocaleString()}
+		</div>
+		<Button
+			class="link"
+			name="Add Voucher"
+			on:click={() => {
+				$module = {
+					module: Voucher
+				};
+			}}
+		/>
+		{#if $user.acc_balance > 0}
+			<Button
+				class="link"
+				name="Add Amount"
+				on:click={() => {
+					$module = {
+						module: Account,
+						order
+					};
+				}}
+			/>
+		{/if}
+	</section>
+	<br />
+	<Action {order} />
 </Card>
 
 <style>
-	section,
 	.block {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp2);
+		gap: var(--sp4);
 
 		width: 100%;
 	}
-	section {
-		margin-top: var(--sp2);
+
+	.line {
+		background-color: var(--ac4);
+		width: 2px;
+		display: none;
 	}
 
 	@media screen and (min-width: 800px) {
-		section {
+		.block {
 			flex-direction: unset;
 		}
+		.line {
+			display: block;
+		}
+	}
+
+	.grid {
+		display: grid;
+		gap: 0 var(--sp3);
+		grid-template-columns: max-content max-content;
+	}
+	.value {
+		color: var(--ac2);
+	}
+
+	section {
+		display: grid;
+		gap: 0 var(--sp3);
+		grid-template-columns: max-content max-content;
 	}
 </style>

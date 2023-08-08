@@ -4,9 +4,9 @@
 	import countries from '$lib/countries.js';
 
 	import Button from '$lib/button.svelte';
-	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/module/info.svelte';
 	import Form from '$lib/module/form.svelte';
+	import IG from '$lib/input_group.svelte';
 
 	let error = {};
 
@@ -85,57 +85,55 @@
 		<b>Edit Address</b>
 	</svelte:fragment>
 
-	<form on:submit|preventDefault={validate} novalidate autocomplete="off">
-		<IG name="line" label="Address" {error} let:id>
-			<input bind:value={address.line} id="address" type="text" placeholder="Your address here" />
-		</IG>
+	<IG name="line" label="Address" {error} let:id>
+		<input bind:value={address.line} id="address" type="text" placeholder="Your address here" />
+	</IG>
 
-		<IG name="country" {error} let:id>
-			<select
-				bind:value={address.country}
-				{id}
-				on:input={() => {
-					address.state = '';
-				}}
-			>
-				<option value="" selected default hidden> Select country </option>
-				{#each countries as country}
-					<option value={country.name}>
-						{country.name}
-					</option>
-				{/each}
-			</select>
-		</IG>
+	<IG name="country" {error} let:id>
+		<select
+			bind:value={address.country}
+			{id}
+			on:input={() => {
+				address.state = '';
+			}}
+		>
+			<option value="" selected default hidden> Select country </option>
+			{#each countries as country}
+				<option value={country.name}>
+					{country.name}
+				</option>
+			{/each}
+		</select>
+	</IG>
 
-		<IG name="state" {error} let:id>
-			<select bind:value={address.state} {id}>
-				<option value="" selected default hidden> Select state </option>
-				{#each states as state}
-					<option value={state.name}> {state.name} </option>
-				{/each}
-			</select>
-		</IG>
+	<IG name="state" {error} let:id>
+		<select bind:value={address.state} {id}>
+			<option value="" selected default hidden> Select state </option>
+			{#each states as state}
+				<option value={state.name}> {state.name} </option>
+			{/each}
+		</select>
+	</IG>
 
-		<IG name="local_area" label="Local Government Area" {error} let:id>
-			<input
-				type="text"
-				bind:value={address.local_area}
-				id="local_area"
-				placeholder="Your local government area here"
-			/>
-		</IG>
+	<IG name="local_area" label="Local Government Area" {error} let:id>
+		<input
+			type="text"
+			bind:value={address.local_area}
+			id="local_area"
+			placeholder="Your local government area here"
+		/>
+	</IG>
 
-		<IG name="postal_code" label="Postal Code" {error} let:id>
-			<input
-				type="text"
-				bind:value={address.postal_code}
-				id="postal_code"
-				placeholder="Your postal code here"
-			/>
-		</IG>
+	<IG name="postal_code" label="Postal Code" {error} let:id>
+		<input
+			type="text"
+			bind:value={address.postal_code}
+			id="postal_code"
+			placeholder="Your postal code here"
+		/>
+	</IG>
 
-		<Button name="Save" class="primary" on:click={validate} />
-	</form>
+	<Button name="Save" class="primary" on:click={validate} />
 </Form>
 
 <style>

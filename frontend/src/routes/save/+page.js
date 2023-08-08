@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
 import { state,loading } from "$lib/store.js"
 import { token } from "$lib/cookie.js"
-import { page } from '$app/stores';
 
 export const load = async ({ fetch, url }) => {
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/save`)
@@ -22,8 +21,6 @@ export const load = async ({ fetch, url }) => {
 		}
 	});
 	resp = await resp.json();
-	console.log(get(page));
-	console.log(resp);
 	loading.set(false)
 
 
