@@ -47,7 +47,6 @@ def cart_to_order():
         "user_key": user["key"],
         "v": uuid4().hex,
         "type": "order",
-        "pay_reference": None,
 
         "date_c": now(),
         "date_u": now(),
@@ -73,6 +72,8 @@ def cart_to_order():
             "delivery_fee": 1500,
             "total_items": total_items,
             "account": 0,
+            "pay": 0,
+            "pay_reference": None,
         },
     }
 
@@ -335,13 +336,29 @@ def place_order(key):
             "error": "invalid delivery address"
         })
 
-    total_pay = order["info"]["total_items"] + order["info"]["delivery_fee"]
-    total_pay -= order["info"]["account"]
+    total_pay = order["info"]["total_items"] + order[
+        "info"]["delivery_fee"] - order["info"]["account"]
 
-    if (total_pay > 0):
+    if total_pay > 0:
+        if not request.json['reference']:
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
+
+        for x in db:
+            if (
+                x["type"] == "order"
+                and request.json['reference'] == x["info"]["pay_reference"]
+            ):
+                return jsonify({
+                    "status": 400,
+                    "error": "invalid request"
+                })
+
+        ref = request.json['reference']
         resp = requests.get(
-            f"https://api.paystack.co/transaction/verify/\
-            {request.json['reference']}",
+            f"https://api.paystack.co/transaction/verify/{ref}",
             headers={
                 'Content-Type': 'application/json',
                 "Authorization": os.environ["PAYSTACK_KEY"]
@@ -367,6 +384,9 @@ def place_order(key):
             })
 
     order["status"] = "ordered"
+    order["info"]["pay"] = total_pay
+    order["info"]["pay_reference"] = request.json['reference'] if request.json[
+        'reference'] else None
     order["date_u"] = now()
     user["acc_balance"] -= order["info"]["account"]
     log = log_template(
@@ -414,8 +434,8 @@ def status(key):
             "error": "invalid request"
         })
 
-    _order_user = query({"type": "user", "key": order["user_key"]}, db=db)
-    if not _order_user:
+    order_user = query({"type": "user", "key": order["user_key"]}, db=db)
+    if not order_user:
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -434,7 +454,7 @@ def status(key):
 
     status = ['pending', 'ordered', 'processing', 'enroute', 'delivered']
     i = status.index(order["status"])
-    i = i - 1 if request.json["status"] == "previous" else i + 1
+    i = i + 1 if request.json["status"] == "next" else i - 1
 
     if i < 0 or i > len(status) - 1:
         return jsonify({
@@ -444,32 +464,26 @@ def status(key):
 
     order["status"] = status[i]
     order["date_u"] = now()
-
-    log = log_template
-    log["key"] = uuid4().hex
-    log["for"] = "order"
-    log["user_key"] = user["key"]
-    log["entity_key"] = order["key"]
-    log["action"] = "change_status"
-    log["result"] = "successful"
-    log["note"] = request.json["status"]
+    log = log_template(
+        user["key"],
+        "changeed_order_status",
+        order["key"],
+        misc=status[i]
+    )
 
     database([order, log])
 
-    _order = order_schema(order, db)
-
     if (
         request.json["status"] == "next"
-        and order["status"] in ["processing", "delivered"]
+        and status[i] in ["processing", "delivered"]
     ):
-        subject = "New Order"
-        if order["status"] == "delivered":
-            subject = "Thank you"
-
-        send_mail(_order_user["email"], subject,
-                  request.json["email_template"])
+        send_mail(
+            order_user["email"],
+            "New Order" if order["status"] == "delivered" else "Thank you",
+            request.json["email_template"]
+        )
 
     return jsonify({
         "status": 200,
-        "order": _order
+        "order": order_schema(order, db)
     })

@@ -1,7 +1,6 @@
 <script>
 	import { module, user, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
-	import { onMount } from 'svelte';
 
 	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
@@ -52,30 +51,7 @@
 			error = resp;
 		}
 	};
-
-	const style = (bgc) => {
-		helper.style.backgroundColor = bgc;
-		bgc = window.getComputedStyle(helper).backgroundColor;
-		const rgb_array = bgc.match(/\d+/g).map(Number);
-
-		const luminance_color = (rgb_array[0] * 299 + rgb_array[1] * 587 + rgb_array[2] * 114) / 1000;
-		const luminance_black = (0 * 299 + 0 * 587 + 0 * 114) / 1000;
-		const luminance_white = (255 * 299 + 255 * 587 + 255 * 114) / 1000;
-		const contrast1 = Math.abs(luminance_color - luminance_black);
-		const contrast2 = Math.abs(luminance_color - luminance_white);
-
-		let color = contrast1 > contrast2 ? 'black' : 'white';
-		return color;
-	};
-
-	let helper;
-	let ready = false;
-	onMount(() => {
-		ready = true;
-	});
 </script>
-
-<div bind:this={helper} />
 
 <Form>
 	<svelte:fragment slot="title">
@@ -83,31 +59,30 @@
 	</svelte:fragment>
 
 	{#each Object.entries(variation) as [key, values]}
-		{#if values.length > 1 && ready}
-			<div class="property">
-				<span class="bold">{key}</span>
+		<div class="property">
+			<span class="bold">{key}</span>
 
-				<div class="value_row">
-					{#each values as value}
-						<Value
-							button
-							active={vars_[key] == value}
-							{value}
-							on:click={() => {
-								vars_[key] = value;
-							}}
-						/>
-					{/each}
-				</div>
-
-				{#if error[key]}
-					<p class="error">
-						{error[key]}
-					</p>
-				{/if}
+			<div class="value_row">
+				{#each values as value, i}
+					{#if i != 0}, &nbsp; {/if}
+					<Value
+						button
+						active={vars_[key] == value}
+						{value}
+						on:click={() => {
+							vars_[key] = value;
+						}}
+					/>
+				{/each}
 			</div>
-			<br />
-		{/if}
+
+			{#if error[key]}
+				<p class="error">
+					{error[key]}
+				</p>
+			{/if}
+		</div>
+		<br />
 	{/each}
 
 	<div class="property">
@@ -160,8 +135,5 @@
 	.value_row {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--sp1);
-
-		color: var(--ac2);
 	}
 </style>

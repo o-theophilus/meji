@@ -20,19 +20,6 @@ content-type: application/json
 }
 ###
 
-### Init
-get {{host}} HTTP/1.1
-content-type: application/json
-
-###
-
-#Copy
-get  {{host}}/copy_db HTTP/1.1
-content-type: application/json
-Authorization: {{Authorization}}
-
-###
-
 #Fix
 get  {{host}}/fix HTTP/1.1
 content-type: application/json

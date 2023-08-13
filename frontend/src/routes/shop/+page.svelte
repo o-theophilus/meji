@@ -44,5 +44,6 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		gap: var(--sp2);
 	}
 </style>

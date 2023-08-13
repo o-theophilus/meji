@@ -14,13 +14,14 @@
 		<div class="num">
 			{i + 1}
 		</div>
-		<div class="h name">
-			<a href="/{item.slug}">
+		<div>
+			<a class="name" href="/{item.slug}">
 				{item.name}
 			</a>
 			<div class="line">
-				{#each Object.entries(item.variation) as [key, value]}
-					{key}: <Value {value} />
+				{#each Object.entries(item.variation) as [key, value], i}
+					{#if i != 0},{/if}
+					{key}: &nbsp;<Value {value} />
 				{/each}
 			</div>
 		</div>
@@ -35,7 +36,7 @@
 		</div>
 	{/each}
 	<div class="num">{order.items.length + 1}</div>
-	<div class="h mane">Delivery Fee</div>
+	<div class=" name">Delivery Fee</div>
 	<span />
 	<span />
 	<div class="price">₦{order.info.delivery_fee.toLocaleString()}</div>
@@ -61,12 +62,11 @@
 		text-align: right;
 	}
 	a {
-		color: var(--ac2);
 		text-decoration: none;
 	}
 	.name {
-		justify-content: center;
-		gap: 4px;
+		color: var(--ac1);
+		font-weight: 500;
 	}
 
 	.line {

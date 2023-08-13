@@ -55,11 +55,10 @@
 		</a>
 
 		{#if Object.keys(item.variation).length > 0}
-			<div class="line">
-				{#each Object.entries(item.variation) as [key, value]}
-					<div class="line ppt">
-						{key}: <Value {value} />
-					</div>
+			<div class="variation">
+				{#each Object.entries(item.variation) as [key, value], i}
+					{#if i != 0},{/if}
+					{key}: &nbsp;<Value {value} />
 				{/each}
 			</div>
 			<br />
@@ -122,8 +121,9 @@
 		color: var(--cl3);
 	}
 
-	.ppt {
-		gap: var(--sp0);
+	.variation {
 		color: var(--ac2);
+		display: flex;
+		flex-wrap: wrap;
 	}
 </style>

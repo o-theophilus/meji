@@ -100,7 +100,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Delivery Address</b>
+		<b>Receiver's Information</b>
 	</svelte:fragment>
 
 	{#if order.status == 'pending' && previous_recipients.length > 0}

@@ -84,21 +84,25 @@
 	a {
 		text-decoration: none;
 		color: var(--ac1);
-
+		padding: 0;
+	}
+	img {
+		padding: 0;
+		margin: 0;
 	}
 
 	img {
 		width: 100%;
-		aspect-ratio: 1/1;
 		border-radius: var(--sp0);
-		
 		background-image: url('/image/item.png');
 		background-size: cover;
+		aspect-ratio: 1/1;
 	}
 
 	.details_control {
 		display: flex;
 		flex-direction: column;
+		justify-content: space-between;
 
 		width: 100%;
 	}
@@ -140,7 +144,7 @@
 	}
 	.price {
 		font-weight: 500;
-		color: var(--cl3);
+		font-size: large;
 	}
 
 	.old_price {
@@ -163,7 +167,7 @@
 	.view_list {
 		flex-direction: unset;
 	}
-	
+
 	.view_list img {
 		width: unset;
 		/* height: 100%; */

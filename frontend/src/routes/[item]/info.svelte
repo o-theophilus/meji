@@ -14,6 +14,7 @@
 	import Review from '$lib/comp/feedback_review.svelte';
 	import Save from '$lib/item/save.svelte';
 	import Md from '$lib/comp/marked.svelte';
+	import Value from '$lib/item/variation_value.svelte';
 
 	import Status from './_status.svelte';
 	import Name from './_name.svelte';
@@ -46,6 +47,7 @@
 	export let edit_mode = false;
 	let open_info = true && item.info;
 	let open_feedback = item.feedbacks && item.feedbacks.length > 0;
+	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
 	let review_lenght = 3;
 </script>
@@ -109,7 +111,7 @@
 					class="link"
 					on:click={() => {
 						$loading = true;
-						$module = '';
+						// $module = '';
 						goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
 					}}
 				/>
@@ -118,9 +120,6 @@
 	</div>
 
 	{#if edit_mode}
-		<!-- {#if item.tags.length == 0} -->
-		<!-- No tag -->
-		<!-- {/if} -->
 		<Button
 			icon="edit"
 			icon_size="12"
@@ -137,36 +136,6 @@
 </div>
 
 <br />
-
-{#if edit_mode}
-	<div class="horizontal nowrap">
-		<div>
-			<span class="bold"> Variation: </span>
-			<span class="f2">
-				{#each Object.entries(item.variation) as [key, values], i (i)}
-					{key}: [{#each values as value, i}
-						{value}{#if i < values.length - 1},{/if}
-					{/each}]
-					<!-- <br /> -->
-				{/each}
-			</span>
-		</div>
-
-		<Button
-			icon="edit"
-			class="tiny"
-			icon_size="12"
-			on:click={() => {
-				$module = {
-					module: Variation,
-					item
-				};
-			}}
-			tooltip="Edit Variation"
-		/>
-	</div>
-	<br />
-{/if}
 
 <div class="horizontal">
 	<Price {item} />
@@ -253,6 +222,51 @@
 
 <br />
 
+{#if edit_mode || Object.keys(item.variation).length > 0}
+	<div class="horizontal bold">
+		Variation{Object.keys(item.variation).length > 1 ? 's' : ''}
+		<div class="horizontal">
+			<Button_Fold
+				open={open_variation}
+				on:click={() => {
+					open_variation = !open_variation;
+				}}
+			/>
+			{#if edit_mode}
+				<Button
+					icon="edit"
+					class="tiny"
+					icon_size="12"
+					on:click={() => {
+						$module = {
+							module: Variation,
+							item
+						};
+					}}
+					tooltip="Edit Variation"
+				/>
+			{/if}
+		</div>
+	</div>
+	{#if open_variation}
+		<div class="f2" transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+			{#each Object.entries(item.variation) as [key, values]}
+				{@const s = values.length > 0 ? 's' : ''}
+				<div class="property">
+					<span class="bold">{key}{s}: &nbsp;</span>
+
+					{#each values as value, i}
+						{#if i != 0}, &nbsp; {/if}
+						<Value {value} />
+					{/each}
+				</div>
+			{/each}
+		</div>
+	{/if}
+{/if}
+
+<br />
+
 <div class="horizontal bold">
 	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback
 
@@ -276,7 +290,6 @@
 			{/each}
 
 			{#if item.feedbacks.length > review_lenght}
-				<!-- <HR /> -->
 				<Button
 					name="View all ({item.feedbacks.length})"
 					class="tertiary"
@@ -329,9 +342,6 @@
 		align-items: center;
 		flex-wrap: wrap;
 	}
-	.nowrap {
-		flex-wrap: unset;
-	}
 
 	.bold {
 		font-weight: 500;
@@ -357,7 +367,7 @@
 		padding: var(--sp2) 0;
 		margin-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
-
+		
 		background-color: var(--ac5);
 	}
 
@@ -365,5 +375,14 @@
 		.floater {
 			bottom: var(--sp1);
 		}
+	}
+	
+	.property {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.property:not(:first-child){
+		margin-top: var(--sp1);
+		
 	}
 </style>

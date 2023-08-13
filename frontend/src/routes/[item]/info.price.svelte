@@ -36,7 +36,6 @@
 	.price {
 		font-weight: 500;
 		font-size: large;
-		color: var(--cl3);
 	}
 
 	.old_price {

@@ -38,7 +38,7 @@
 	};
 </script>
 
-<section class="line">
+<section class="line wrap">
 	<Button name={$user.setting.item_view} class="tiny" on:click={save_view} />
 
 	|
@@ -54,7 +54,6 @@
 		</select>
 	</span>
 
-	<!-- <Button name={sort[1] == 'dsc' ? '↑' : '↓'} class="tiny" on:click={direct} /> -->
 	<Button
 		name={sort[1] == 'dsc' ? sorts[sort[0]][0] : sorts[sort[0]][1]}
 		class="tiny"
@@ -68,5 +67,12 @@
 		display: flex;
 		align-items: center;
 		gap: var(--sp2);
+	}
+	.wrap {
+		flex-wrap: wrap;
+	}
+
+	select {
+		display: inline;
 	}
 </style>

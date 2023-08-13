@@ -5,7 +5,6 @@
 	import Template from '$lib/email_template.svelte';
 
 	export let order;
-	export let user;
 	let r = order.recipient;
 	let a = r.address;
 
@@ -28,14 +27,10 @@
 </script>
 
 <Template>
-	Dear Admin
+	Dear {'{'}name{'}'}
 	<br />
 	<br />
-	Kindly see order Information below:
-	<br />
-	<br />
-	<b> Order ID </b>
-	<br />
+	We are currentely processing your order:
 	<a
 		style="
 	text-decoration: none;
@@ -45,80 +40,104 @@
 		target="_blank"
 	>
 		{order.key}
-	</a>
+	</a>.
 	<br />
 	<br />
-	<b>Item{s}</b>
+	<b>Item{s}:</b>
 	<br />
 	<br />
 	{#each order.items as x}
-		<a
+		<img
+			src="{x.photo}/40"
+			alt="item.name"
 			style="
-	text-decoration: none;
-	color: #1d9bf0;
-	"
-			href="{$page.url.origin}/{x.slug}"
-			target="_blank"
+		width:40px; 
+height: 40px; 
+object-fit: cover;
+margin-right:10px;
+border-radius: 8px;
+"
+		/>
+		<div
+			style="
+		display:inline-block;
+		"
 		>
-			<img
-				src="{x.photo}/40"
-				alt="item.name"
+			<a
 				style="
-	width:40px; 
-	height: 40px; 
-	object-fit: cover;
-	margin-right:10px
-	"
-			/>
-			{x.name}
-
+text-decoration: none;
+color: #1d9bf0;
+font-weight: 500;
+"
+				href="{$page.url.origin}/{x.slug}"
+				target="_blank"
+			>
+				{x.name}
+			</a>
+			<br />
 			{#each Object.entries(x.variation) as [key, value], i}
-				, {key}: {value}
+				{#if i != 0},{/if}
+				{key}:
+
+				{@const v = value.split(':')}
+				{#if v[0]}
+					{v[0]}
+				{/if}
+
+				{#if v[1]}
+					<div
+						style="
+		display:inline-block;
+		width:16px; 
+		height: 16px; 
+		border-radius:50%;
+		background-color:{v[1]}
+		"
+					/>
+				{/if}
 			{/each}
 
 			{#if x.quantity > 1}
-				(x{x.quantity})
+				, quantity: x{x.quantity}
 			{/if}
-		</a>
+		</div>
 		<br />
 		<br />
 	{/each}
-	<b>From User</b>
-	<br />
-	Name:
-	<a
+	The item{s} will be delivered to
+	<span
 		style="
-text-decoration: none;
-color: #1d9bf0;
-"
-		href="{$page.url.origin}/admin/user/{user.key}"
-		target="_blank"
+	font-weight:500;
+	"
 	>
-		{user.name}:
-	</a>
-	<br />
-	Phone: {user.phone}:
-	<br />
-	Email: {user.email}:
-	<br />
-	<br />
-	<b>Delivery Information</b>
-	<br />
-	Name: {r.name}
-	<br />
-	Phone: {r.phone}
-	<br />
-	Address: {a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+		{r.name}
+	</span>, phone: {r.phone}
+	at {a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
 	<br />
 	<br />
 	The item{s} should be delivered on or before
-	<b>
+	<span
+		style="
+	font-weight:500;
+	"
+	>
 		{days[dt.getDay()]},
 		{ordinal_suffix_of(dt.getDate())} of
 		{months[dt.getMonth()]}
 		{dt.getFullYear()}
-	</b>. Time:
-	<b>
+	</span>. Time:
+	<span
+		style="
+	font-weight:500;
+	"
+	>
 		{date_time[1]}, {period_of_day}
-	</b>.
+	</span>.
+
+	<br />
+	<br />
+	Best regards,
+	<br />
+	<br />
+	<b> Meji </b>
 </Template>

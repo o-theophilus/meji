@@ -21,7 +21,7 @@ def get_photo(key, thumbnail=False):
 def cron():
     temp1 = unused_anon().json
 
-    for key in temp1["data"]["keys"]:
+    for key in temp1["db"]["keys"]:
         pass
         # db_delete(key)
 
@@ -31,9 +31,35 @@ def cron():
     })
 
 
+def unused_anon():
+    db = database()
+
+    keys = []
+    for row in db:
+        if (
+            row["type"] == "user"
+            and row["status"] == "anon"
+            and row["saves"] == []
+            and row["cart"] == []
+        ):
+            created = datetime.strptime(row["date_c"], '%Y-%m-%dT%H:%M:%S')
+            _24hour_ago = datetime.now() - timedelta(days=1)
+
+            if created < _24hour_ago:
+                keys.append(row["key"])
+
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+        "db": {
+            "keys": keys
+        }
+    })
+
+
 @bp.get("/copy_db")
 def copy_db():
-    source = Deta(environ["DETA_KEY"]).Base("meji")
+    source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
 
     res = source.fetch()
@@ -52,95 +78,6 @@ def copy_db():
     })
 
 
-@bp.get("/fix")
-def fix():
-    db = database()
-
-    edited = []
-    for x in db:
-        if x["type"] == "item":
-            flag = False
-            if "variation_options" in x:
-                x["variation"] = x.pop("variation_options")
-                flag = True
-            if "alias" in x:
-                x["slug"] = x.pop("alias")
-                flag = True
-            if "desc" in x:
-                x["info"] = x.pop("desc")
-                flag = True
-            if "spec" in x:
-                del x["spec"]
-                flag = True
-            if "tags" not in x:
-                tags = []
-                for row in db:
-                    if row["type"] == "tag" and x["key"] in row["items"]:
-                        tags.append(row["name"])
-                x["tags"] = tags
-                flag = True
-
-            if flag:
-                edited.append(x)
-
-        elif x["type"] == "user" and x["status"] == "anon":
-            x["status"] == "anonymous"
-            edited.append(x)
-
-        # elif x["type"] == "category":
-        #     x["type"] = "tag"
-        #     edited.append(x)
-
-    database(edited)
-
-    return jsonify({
-        "status": 200
-    })
-
-
-@bp.get("/fix_photo")
-def fix_photo():
-    db = database()
-
-    edited = []
-    for x in db:
-        if x["type"] == "item":
-            x["photos"] = [y['key'] for y in x["photos"]]
-            edited.append(x)
-
-    database(edited)
-
-    return jsonify({
-        "status": 200
-    })
-
-
-def unused_anon():
-    data = database()
-
-    keys = []
-    for row in data:
-        if (
-            row["type"] == "user"
-            and row["status"] == "anon"
-            and row["saves"] == []
-            and row["cart"] == []
-        ):
-            created = datetime.strptime(row["date_c"], '%Y-%m-%dT%H:%M:%S')
-            _24hour_ago = datetime.now() - timedelta(days=1)
-
-            if created < _24hour_ago:
-                keys.append(row["key"])
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "keys": keys
-        }
-    })
-
-
 def file_list():
     paths = drive().list()["names"]
 
@@ -148,3 +85,16 @@ def file_list():
         photo = drive().get(x)
         drive().put(f"photos/{x.split('/')[1]}", photo)
         drive().delete(x)
+
+
+@bp.get("/fix")
+def fix():
+    db = database()
+
+    for x in db:
+        if x["type"] == "order":
+            database(x, True)
+
+    return jsonify({
+        "status": 200
+    })

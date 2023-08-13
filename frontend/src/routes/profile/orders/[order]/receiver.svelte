@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
-	import Form from './__address_form.svelte';
+	import Form from './__receiver_form.svelte';
 
 	export let order;
 	export let previous_recipients;
@@ -13,7 +13,7 @@
 </script>
 
 <div class="bold">
-	Recipient Information
+	Receiver's Information
 
 	{#if order.status == 'pending'}
 		<Button

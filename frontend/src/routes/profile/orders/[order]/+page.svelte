@@ -7,8 +7,9 @@
 
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
-	import Address from './address.svelte';
+	import Address from './receiver.svelte';
 	import Action from './action.svelte';
+	import Status from './status.svelte';
 	import Voucher from './__voucher.svelte';
 	import Account from './__account.svelte';
 
@@ -35,9 +36,14 @@
 			{order.key}
 		</span>
 		<span> Status: </span>
-		<span class="value">
-			{order.status}
-		</span>
+
+		{#if order.status != 'pending' && $user.roles.includes('admin')}
+			<Status {order} />
+		{:else}
+			<span class="value">
+				{order.status}
+			</span>
+		{/if}
 	</div>
 	<br />
 	<br />
@@ -56,40 +62,46 @@
 		</div>
 	</div>
 
-	<br />
+	{#if order.status == 'pending'}
+		<br />
 
-	<section class="grid">
-		<div class="title">Total Cost</div>
-		<div class="value">₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}</div>
+		<section class="grid">
+			<div class="title">Total Cost</div>
+			<div class="value">
+				₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}
+			</div>
 
-		<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
-		<div class="value">
-			₦{order.info.account.toLocaleString()}
-		</div>
-		<Button
-			class="link"
-			name="Add Voucher"
-			on:click={() => {
-				$module = {
-					module: Voucher
-				};
-			}}
-		/>
-		{#if $user.acc_balance > 0}
+			<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
+			<div class="value">
+				₦{order.info.account.toLocaleString()}
+			</div>
 			<Button
 				class="link"
-				name="Add Amount"
+				name="Add Voucher"
 				on:click={() => {
 					$module = {
-						module: Account,
-						order
+						module: Voucher
 					};
 				}}
 			/>
-		{/if}
-	</section>
-	<br />
-	<Action {order} />
+			{#if $user.acc_balance > 0}
+				<Button
+					class="link"
+					name="Add Amount"
+					on:click={() => {
+						$module = {
+							module: Account,
+							order
+						};
+					}}
+				/>
+			{/if}
+		</section>
+
+		<br />
+
+		<Action {order} />
+	{/if}
 </Card>
 
 <style>

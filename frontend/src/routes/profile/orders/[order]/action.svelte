@@ -1,10 +1,10 @@
 <script>
-	import { user, module, tick, loading } from '$lib/store.js';
+	import { user, module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/module/info.svelte';
-	import Email from './action.email_template.svelte';
+	import Email from './email_template_ordered.svelte';
 	let email_template;
 
 	export let order;
@@ -16,33 +16,6 @@
 	}
 
 	$: pay = order.info.total_items + order.info.delivery_fee - order.info.account;
-
-	$: config = {
-		key: import.meta.env.VITE_PAYSTACK_KEY,
-		email: $user.email,
-		// currency: 'NGN',
-		amount: pay * 100,
-		onSuccess: (resp) => {
-			submit(resp.reference);
-		},
-		onCancel: () => {
-			$module = {
-				module: Info,
-				status: 400,
-				title: 'Payment Canceled',
-				message: `The payment process was canceled`,
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
-			};
-		}
-	};
 
 	$: complete_address =
 		order.recipient.name &&
@@ -56,26 +29,50 @@
 	const validate = () => {
 		error = {};
 		if (!complete_address) {
-			error.error = 'kindly fill the Shipping Information form';
+			error.error = "kindly fill the receiver's information form";
 		}
 
-		Object.keys(error).length === 0 && place_order();
+		Object.keys(error).length === 0 && submit_1();
 	};
 
-	const place_order = async () => {
+	const submit_1 = async () => {
 		if (pay > 0) {
-			const paystack = new PaystackPop();
-			paystack.newTransaction(config);
+			const paystack = PaystackPop.setup({
+				key: import.meta.env.VITE_PAYSTACK_KEY,
+				email: $user.email,
+				amount: pay * 100,
+				callback: (resp) => {
+					submit_2(resp.reference);
+				},
+				onCancel: () => {
+					$module = {
+						module: Info,
+						status: 400,
+						title: 'Payment Canceled',
+						message: `The payment process was canceled`,
+						button: [
+							{
+								name: 'Ok',
+								icon: 'ok',
+								fn: () => {
+									$module = '';
+								}
+							}
+						]
+					};
+				}
+			});
+			paystack.openIframe();
 		} else {
-			submit();
+			submit_2();
 		}
 	};
 
-	const submit = async (reference = '') => {
+	const submit_2 = async (reference = '') => {
 		error = {};
 
 		$loading = true;
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${order.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${order.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -86,30 +83,30 @@
 				email_template: email_template.innerHTML.replace(/&amp;/g, '&')
 			})
 		});
+		resp = await resp.json();
+		$loading = false;
 
-		if (_resp.ok) {
-			let resp = await _resp.json();
-			$loading = false;
+		if (resp.status == 200) {
+			$user.acc_balance = resp.user.acc_balance;
+			$portal = resp.order;
 
-			if (resp.status == 200) {
-				$user.acc_balance = resp.data.user.acc_balance;
-				tick(resp.data.order);
-
-				$module = {
-					module: Info,
-					status: 200,
-					title: 'Successful',
-					message: `Your order was placed succcessfully`,
-					button: [
-						{
-							name: 'Ok',
-							icon: 'ok'
+			$module = {
+				module: Info,
+				status: 200,
+				title: 'Successful',
+				message: `Your order was placed succcessfully`,
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
 						}
-					]
-				};
-			} else {
-				error = resp;
-			}
+					}
+				]
+			};
+		} else {
+			error = resp;
 		}
 	};
 </script>
