@@ -35,7 +35,7 @@
 <script>
 	import { module, _tick } from '$lib/store.js';
 
-	import Pagination from '$lib/comp/pagination.svelte';
+	import Pagination from '$lib/pagination.svelte';
 
 	import Card from '$lib/card.svelte';
 	import Title from '$lib/comp/card_title.svelte';
