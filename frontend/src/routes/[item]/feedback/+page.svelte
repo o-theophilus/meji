@@ -1,8 +1,6 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
-
 	export async function load({ fetch, params, session }) {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}feedback/${params.item}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${params.item}`, {
 			method: 'get',
 			headers: {
 				'Content-Type': 'application/json',

@@ -57,7 +57,7 @@ def unused_anon():
     })
 
 
-@bp.get("/copy_db")
+@bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -87,7 +87,7 @@ def file_list():
         drive().delete(x)
 
 
-@bp.get("/fix")
+@bp.get("/fixx")
 def fix():
     db = database()
 
