@@ -54,7 +54,7 @@
 	{#each order.items as x}
 		<img
 			src="{x.photo}/40"
-			alt="item.name"
+			alt={x.name}
 			style="
 				width:40px; 
 	height: 40px; 

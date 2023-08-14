@@ -1,27 +1,24 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from .api.mail import mail
 
 from . import api
-from .api import auth
-from .api import user
-from .api import user_get
-from .api import user_save_cart
-from .api import order
-from .api import order_get
-from .api import voucher
+from . import user
+from . import user_get
+from . import voucher
 
-from .api import item
-from .api import item_get
-from .api import item_ad
-from .api import feedback
+from . import auth
+from . import user_save_cart
+from . import order_get
+from . import order
+from . import item
+from . import item_get
+from . import item_ad
+from . import feedback
 
 
-def create_app(config_file="config.py"):
+def create_app():
     app = Flask(__name__)
     app.config.from_prefixed_env()
-    app.config.from_pyfile(config_file)
-    mail.init_app(app)
     CORS(app)
 
     @app.route("/")

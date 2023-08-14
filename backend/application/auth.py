@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify, request, current_app
-from .tools import (
-    token_tool, token_to_user, now)
-from .mail import send_mail
+from .tools import token_tool, token_to_user, now, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
 import re
 from uuid import uuid4
+import os
 
 
 bp = Blueprint("auth", __name__)
@@ -409,7 +408,7 @@ def change_password(token):
 @bp.get("/admin_init")
 def admin():
     db = database()
-    email = current_app.config["MAIL_DEFAULT_SENDER"][1]
+    email = os.environ["MAIL_USERNAME"]
 
     user = query({"type": "user", "email": email}, db=db)
     if not user:

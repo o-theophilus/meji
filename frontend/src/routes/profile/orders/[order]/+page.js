@@ -13,7 +13,6 @@ export const load = async ({ fetch, params }) => {
 	resp = await resp.json();
 	loading.set(false)
 
-
 	if (resp.status == 200) {
 		return resp
     }

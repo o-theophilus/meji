@@ -1,7 +1,6 @@
 flask
 flask-cors
 python-dotenv
-flask-mail
 pillow
 requests
 deta

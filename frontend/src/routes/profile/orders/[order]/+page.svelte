@@ -71,10 +71,12 @@
 				₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}
 			</div>
 
-			<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
-			<div class="value">
-				₦{order.info.account.toLocaleString()}
-			</div>
+			{#if $user.acc_balance > 0}
+				<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
+				<div class="value">
+					₦{order.info.account.toLocaleString()}
+				</div>
+			{/if}
 			<Button
 				class="link"
 				name="Add Voucher"
@@ -135,6 +137,7 @@
 	}
 	.value {
 		color: var(--ac2);
+		font-weight: 500;
 	}
 
 	section {

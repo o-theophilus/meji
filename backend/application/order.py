@@ -1,6 +1,5 @@
-from flask import Blueprint, jsonify, request, current_app
-from .tools import token_to_user, now
-from .mail import send_mail
+from flask import Blueprint, jsonify, request
+from .tools import token_to_user, now, send_mail
 from .schema import order_schema, user_schema, log_template
 from .database import database, query
 from uuid import uuid4
@@ -398,7 +397,7 @@ def place_order(key):
     database([user, order, log])
 
     send_mail(
-        current_app.config["MAIL_DEFAULT_SENDER"][1],
+        os.environ["MAIL_USERNAME"],
         "New Order",
         request.json["email_template"]
     )
