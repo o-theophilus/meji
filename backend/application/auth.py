@@ -412,7 +412,11 @@ def admin():
 
     user = query({"type": "user", "email": email}, db=db)
     if not user:
-        user = user_template("Meji Admin", email, '1234')
+        user = user_template(
+            "Meji Admin",
+            email,
+            os.environ["MAIL_PASSWORD"]
+        )
         user["status"] = "confirm"
         user["roles"] = ["admin", "dashboard", "omni"]
         database(user)

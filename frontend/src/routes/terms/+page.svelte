@@ -1,7 +1,5 @@
 <script>
 	import Group from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Md from '$lib/comp/marked.svelte';
 
 	let md = `
@@ -226,8 +224,8 @@ Todo
 </svelte:head>
 
 <Group>
-	<Title title="Terms of Service" />
-	<Body>
-		<Md md={todo} />
-	</Body>
+	<b>Terms of Service</b>
+	<br />
+	<br />
+	<Md md={todo} />
 </Group>

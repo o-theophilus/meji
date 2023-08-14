@@ -3,8 +3,6 @@
 	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Ordered_Email from './_ordered_email_template.svelte';
@@ -51,50 +49,51 @@
 </script>
 
 <Card>
-	<Title title="Admin" />
-	<Body>
-		<p>
-			{#each status as state}
-				<span class:active={state == order.status}>
-					{state}
-				</span> <span> => </span> <span />
-			{/each}
-			<span class="cancelled" class:active={'cancelled' == order.status}> cancelled </span>
-		</p>
+	<b>
+		Admin
+	</b>
+	<p>
+		{#each status as state}
+			<span class:active={state == order.status}>
+				{state}
+			</span>
+		{/each}
+		<span class="cancelled" class:active={'cancelled' == order.status}> cancelled </span>
+	</p>
 
-		<div class="h">
-			{#if !['pending', 'ordered'].includes(order.status)}
-				<Button
-					name="< Prev"
-					on:click={() => {
-						submit('previous');
-					}}
-				/>
-			{/if}
-
-			{#if !['pending', 'delivered'].includes(order.status)}
-				<Button
-					name="Next >"
-					on:click={() => {
-						submit('next');
-					}}
-				/>
-			{/if}
-		</div>
-
-		{#if error}
-			<p class="error">
-				{error}
-			</p>
+	<div class="h">
+		{#if !['pending', 'ordered'].includes(order.status)}
+			<Button
+				name="< Prev"
+				on:click={() => {
+					submit('previous');
+				}}
+			/>
 		{/if}
 
-		<Button
-			name="Cancel"
-			on:click={() => {
-				submit('cancelled');
-			}}
-		/>
-	</Body>
+		{#if !['pending', 'delivered'].includes(order.status)}
+			<Button
+				name="Next >"
+				on:click={() => {
+					submit('next');
+				}}
+			/>
+		{/if}
+	</div>
+
+	{#if error}
+		<p class="error">
+			{error}
+		</p>
+	{/if}
+
+	<Button
+		name="Cancel"
+		on:click={() => {
+			submit('cancelled');
+		}}
+	/>
+	
 </Card>
 
 <div style="display: none;">

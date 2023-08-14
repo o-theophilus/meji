@@ -5,6 +5,8 @@ from . import api
 from . import user
 from . import user_get
 from . import voucher
+from . import feedback
+from . import item_ad
 
 from . import auth
 from . import user_save_cart
@@ -12,8 +14,6 @@ from . import order_get
 from . import order
 from . import item
 from . import item_get
-from . import item_ad
-from . import feedback
 
 
 def create_app():

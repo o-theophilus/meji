@@ -1,5 +1,4 @@
 <script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
 	import { get_query } from '$lib/page_state.js';
 
 	export async function load({ fetch, session, url }) {
@@ -42,8 +41,6 @@
 	import { state } from '$lib/page_state.js';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Search from '$lib/comp/search.svelte';
@@ -91,7 +88,7 @@
 </svelte:head>
 
 <Card>
-	<Title title="Orders" />
+	Orders
 
 	<Search
 		on:ok={() => {
@@ -121,22 +118,20 @@
 		</svelte:fragment>
 	</Status>
 
-	<Body>
-		{#each orders as order}
-			<div>
-				<Button name={`${order.key}`} class="wide" href="order/{order.key}">
-					<div class="fmt">
-						{#each order.items as item, i}
-							{#if i != 0},{/if}
-							{item.name}
-						{/each}
-					</div>
-				</Button>
-			</div>
-		{:else}
-			no order
-		{/each}
-	</Body>
+	{#each orders as order}
+		<div>
+			<Button name={`${order.key}`} class="wide" href="order/{order.key}">
+				<div class="fmt">
+					{#each order.items as item, i}
+						{#if i != 0},{/if}
+						{item.name}
+					{/each}
+				</div>
+			</Button>
+		</div>
+	{:else}
+		no order
+	{/each}
 
 	<svelte:component
 		this={Pagination}

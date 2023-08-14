@@ -8,7 +8,7 @@ from werkzeug.datastructures import FileStorage
 
 
 def drive():
-    name = "meji"
+    name = "live"
     # if current_app.config["DEBUG"]:
     #     name = "test"
     return Deta(os.environ["DETA_KEY"]).Drive(name)

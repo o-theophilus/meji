@@ -38,8 +38,6 @@
 	// import Pagination from '$lib/pagination.svelte';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Review from '$lib/comp/feedback_review.svelte';
@@ -59,48 +57,48 @@
 <section>
 	{#if item.feedbacks.length > 0}
 		<Card>
-			<Title title="Rating" />
-			<Body>
-				<Rating feedback={item.feedbacks} />
-			</Body>
+			<b>Rating</b>
+			<br />
+			<br />
+			<Rating feedback={item.feedbacks} />
 		</Card>
 	{/if}
 	<Card>
-		<Title title="Reviews" />
-		<Body>
-			{#each item.feedbacks as feedback (feedback.key)}
-				<Review
-					{feedback}
-					on:ok={() => {
-						$module = {
-							module: Add,
-							data: {
-								item,
-								feedback
-							}
-						};
-					}}
-				/>
-			{:else}
-				<strong>{item.name}</strong> has no feedback yet.
-				<br />
-				Only logged in customers who have purchased this item may leave a review.
-			{/each}
+		<b>Reviews</b>
+		<br />
+		<br />
+		{#each item.feedbacks as feedback (feedback.key)}
+			<Review
+				{feedback}
+				on:ok={() => {
+					$module = {
+						module: Add,
+						data: {
+							item,
+							feedback
+						}
+					};
+				}}
+			/>
+		{:else}
+			<strong>{item.name}</strong> has no feedback yet.
+			<br />
+			Only logged in customers who have purchased this item may leave a review.
+		{/each}
 
-			{#if give_feedback}
-				<Button
-					name="Give Feedback"
-					on:click={() => {
-						$module = {
-							module: Add,
-							data: {
-								item
-							}
-						};
-					}}
-				/>
-			{/if}
-		</Body>
+		{#if give_feedback}
+			<Button
+				name="Give Feedback"
+				on:click={() => {
+					$module = {
+						module: Add,
+						data: {
+							item
+						}
+					};
+				}}
+			/>
+		{/if}
 	</Card>
 </section>
 

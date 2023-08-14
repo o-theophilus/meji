@@ -41,8 +41,6 @@
 	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	export let item;
@@ -182,123 +180,123 @@
 </svelte:head>
 
 <Card>
-	<Title title="Ads" />
-	<Body>
-		<div class="unit">
-			300x300
-			<input
-				type="file"
-				accept=".jpg, .jpeg, .png"
-				bind:this={input_300x300}
-				on:change={(e) => {
-					on_change(e, '300x300');
-				}}
-			/>
+	<b> Ads </b>
+	<br />
+	<br />
+	<div class="unit">
+		300x300
+		<input
+			type="file"
+			accept=".jpg, .jpeg, .png"
+			bind:this={input_300x300}
+			on:change={(e) => {
+				on_change(e, '300x300');
+			}}
+		/>
 
-			<img
-				class="_30"
-				src={src['300x300']}
-				alt={item.name}
-				on:click={() => {
-					input_300x300.click();
-				}}
-			/>
-			{#if error['300x300']}
-				<p class="error">
-					{error['300x300']}
-				</p>
-			{/if}
-		</div>
-
-		<div class="unit">
-			300x600
-			<input
-				type="file"
-				accept=".jpg, .jpeg, .png"
-				bind:this={input_300x600}
-				on:change={(e) => {
-					on_change(e, '300x600');
-				}}
-			/>
-
-			<img
-				class="_30"
-				src={src['300x600']}
-				alt={item.name}
-				on:click={() => {
-					input_300x600.click();
-				}}
-			/>
-			{#if error['300x600']}
-				<p class="error">
-					{error['300x600']}
-				</p>
-			{/if}
-		</div>
-
-		<div class="unit">
-			600x300
-			<input
-				type="file"
-				accept=".jpg, .jpeg, .png"
-				bind:this={input_600x300}
-				on:change={(e) => {
-					on_change(e, '600x300');
-				}}
-			/>
-
-			<img
-				class="_60"
-				src={src['600x300']}
-				alt={item.name}
-				on:click={() => {
-					input_600x300.click();
-				}}
-			/>
-			{#if error['600x300']}
-				<p class="error">
-					{error['600x300']}
-				</p>
-			{/if}
-		</div>
-
-		<div class="unit">
-			900x300
-			<input
-				type="file"
-				accept=".jpg, .jpeg, .png"
-				bind:this={input_900x300}
-				on:change={(e) => {
-					on_change(e, '900x300');
-				}}
-			/>
-
-			<img
-				class="_90"
-				src={src['900x300']}
-				alt={item.name}
-				on:click={() => {
-					input_900x300.click();
-				}}
-			/>
-			{#if error['900x300']}
-				<p class="error">
-					{error['900x300']}
-				</p>
-			{/if}
-		</div>
-
-		{#if error.main}
+		<img
+			class="_30"
+			src={src['300x300']}
+			alt={item.name}
+			on:click={() => {
+				input_300x300.click();
+			}}
+		/>
+		{#if error['300x300']}
 			<p class="error">
-				{error.main}
+				{error['300x300']}
 			</p>
 		{/if}
-		{#if !hasAds}
-			<Button class="primary" name="Submit" on:click={validate} />
-		{:else}
-			<Button name="Remove Ads" on:click={remove_ads} />
+	</div>
+
+	<div class="unit">
+		300x600
+		<input
+			type="file"
+			accept=".jpg, .jpeg, .png"
+			bind:this={input_300x600}
+			on:change={(e) => {
+				on_change(e, '300x600');
+			}}
+		/>
+
+		<img
+			class="_30"
+			src={src['300x600']}
+			alt={item.name}
+			on:click={() => {
+				input_300x600.click();
+			}}
+		/>
+		{#if error['300x600']}
+			<p class="error">
+				{error['300x600']}
+			</p>
 		{/if}
-	</Body>
+	</div>
+
+	<div class="unit">
+		600x300
+		<input
+			type="file"
+			accept=".jpg, .jpeg, .png"
+			bind:this={input_600x300}
+			on:change={(e) => {
+				on_change(e, '600x300');
+			}}
+		/>
+
+		<img
+			class="_60"
+			src={src['600x300']}
+			alt={item.name}
+			on:click={() => {
+				input_600x300.click();
+			}}
+		/>
+		{#if error['600x300']}
+			<p class="error">
+				{error['600x300']}
+			</p>
+		{/if}
+	</div>
+
+	<div class="unit">
+		900x300
+		<input
+			type="file"
+			accept=".jpg, .jpeg, .png"
+			bind:this={input_900x300}
+			on:change={(e) => {
+				on_change(e, '900x300');
+			}}
+		/>
+
+		<img
+			class="_90"
+			src={src['900x300']}
+			alt={item.name}
+			on:click={() => {
+				input_900x300.click();
+			}}
+		/>
+		{#if error['900x300']}
+			<p class="error">
+				{error['900x300']}
+			</p>
+		{/if}
+	</div>
+
+	{#if error.main}
+		<p class="error">
+			{error.main}
+		</p>
+	{/if}
+	{#if !hasAds}
+		<Button class="primary" name="Submit" on:click={validate} />
+	{:else}
+		<Button name="Remove Ads" on:click={remove_ads} />
+	{/if}
 </Card>
 
 <style>

@@ -35,8 +35,6 @@
 
 <script>
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Bar from './_bar.svelte';
@@ -49,20 +47,20 @@
 </svelte:head>
 
 <Card>
-	<Title title="Voucher" />
+	<b>Voucher</b>
+	<br />
+	<br />
 	<Bar />
-	<Body>
-		{#each vouchers as v}
-			<div>
-				<Button
-					name="{v.key} - ₦{v.value.toLocaleString()} - {v.status}"
-					href="/admin/voucher/{v.key}"
-				/>
-			</div>
-		{:else}
-			no voucher
-		{/each}
-	</Body>
+	{#each vouchers as v}
+		<div>
+			<Button
+				name="{v.key} - ₦{v.value.toLocaleString()} - {v.status}"
+				href="/admin/voucher/{v.key}"
+			/>
+		</div>
+	{:else}
+		no item here
+	{/each}
 </Card>
 
 <style>

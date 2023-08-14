@@ -36,7 +36,7 @@
 				/>
 			</div>
 		{:else}
-			no saved item
+			no item here
 		{/each}
 	</div>
 </Card>

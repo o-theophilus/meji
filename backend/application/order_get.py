@@ -7,7 +7,7 @@ from math import ceil
 bp = Blueprint("order_get", __name__)
 
 
-@bp.get("/order")
+@bp.get("/orders")
 def get_all():
     db = database()
 
@@ -27,7 +27,8 @@ def get_all():
     size = 24
     status = request.args.get("status")
     search = request.args.get("search")
-    page_no = int(request.args.get("page_no"))
+    # page_no = int(request.args.get("page_no"))
+    page_no = 1
 
     orders = []
     for row in db:
@@ -134,25 +135,25 @@ def get_one(key):
     })
 
 
-@bp.get("/order_ref/<key>")
-def get_ref(key):
-    db = database()
+# @bp.get("/order_ref/<key>")
+# def get_ref(key):
+#     db = database()
 
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
+#     user = token_to_user(db)
+#     if not user:
+#         return jsonify({
+#             "status": 400,
+#             "error": "invalid token"
+#         })
 
-    order = query({"type": "order", "pay_reference": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
+#     order = query({"type": "order", "pay_reference": key}, db=db)
+#     if not order:
+#         return jsonify({
+#             "status": 400,
+#             "error": "invalid request"
+#         })
 
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db),
-    })
+#     return jsonify({
+#         "status": 200,
+#         "order": order_schema(order, db),
+#     })

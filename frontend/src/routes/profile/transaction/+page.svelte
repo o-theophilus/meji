@@ -4,17 +4,17 @@
 
 	// export let data;
 	// let { activities } = data;
-	export let activities = [];
+	export let transactions = [];
 </script>
 
-<Meta title="Activity" description="Activity" />
+<Meta title="Transaction" description="Transaction" />
 
 <Card>
-	<b> Activit{activities.length > 1 ? 'ies' : 'y'} </b>
+	<b> Transaction{transactions.length > 1 ? 's' : ''} </b>
 	<br />
 	<br />
-	{#each activities as act}
-		{act.key} - {act.value}
+	{#each transactions as trans}
+		{trans.key} - {trans.value}
 		<br />
 	{:else}
 		no item here

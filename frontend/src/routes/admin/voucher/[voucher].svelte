@@ -1,6 +1,4 @@
 <script context="module">
-	
-
 	export async function load({ fetch, session, params, url }) {
 		if (session.user.login) {
 			const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${params.voucher}`, {
@@ -38,8 +36,6 @@
 
 <script>
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	import { token } from '$lib/cookie.js';
@@ -75,53 +71,52 @@
 </svelte:head>
 
 <Card>
-	<Title title="Voucher Info" />
-	<Body>
-		Code: {voucher.key}
+	<b> Voucher Info </b>
+	<br />
+	<br />
+	Code: {voucher.key}
+	<br />
+	Value: ₦{voucher.value.toLocaleString()}
+	<br />
+	Validity: {voucher.validity}
+	<br />
+	<br />
+	Status: {voucher.status}
+	{#if voucher.status == 'inactive'}
 		<br />
-		Value: ₦{voucher.value.toLocaleString()}
+		<Button
+			name="Activate"
+			on:click={() => {
+				submit('active');
+			}}
+		/>
+	{:else if voucher.status == 'active'}
 		<br />
-		Validity: {voucher.validity}
-		<br />
-		<br />
-		Status: {voucher.status}
-		{#if voucher.status == 'inactive'}
-			<br />
-			<Button
-				name="Activate"
-				on:click={() => {
-					submit('active');
-				}}
-			/>
-		{:else if voucher.status == 'active'}
-			<br />
-			<Button
-				name="Deactivate"
-				on:click={() => {
-					submit('inactive');
-				}}
-			/>
-		{/if}
-	</Body>
+		<Button
+			name="Deactivate"
+			on:click={() => {
+				submit('inactive');
+			}}
+		/>
+	{/if}
 </Card>
 <br />
 
 {#if logs.length > 0}
 	<Card>
-		<Title title="Log" />
+		<b> Log </b>
+
 		{#each logs as log}
-			<Body>
-				date: {log.date}
-				<br />
-				action: {log.action}
-				<br />
-				result: {log.result}
-				<br />
-				user key: {log.user_key}
-				<br />
-				note: {log.note}
-				<br />
-			</Body>
+			date: {log.date}
+			<br />
+			action: {log.action}
+			<br />
+			result: {log.result}
+			<br />
+			user key: {log.user_key}
+			<br />
+			note: {log.note}
+			<br />
 		{/each}
 	</Card>
 {/if}

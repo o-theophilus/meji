@@ -1,7 +1,6 @@
 <script context="module">
 	import { loading } from '$lib/store.js';
 
-	import Body from '$lib/comp/card_body.svelte';
 	import Button from '$lib/button.svelte';
 
 	export async function load({ fetch, session, params }) {
@@ -53,19 +52,17 @@
 
 <User {user}>
 	{#if $user?.roles.includes('admin')}
-		<Body>
-			<Button
-				class="wide"
-				name="Set Role"
-				on:click={() => {
-					$module = {
-						module: Role,
-						data: {
-							user
-						}
-					};
-				}}
-			/>
-		</Body>
+		<Button
+			class="wide"
+			name="Set Role"
+			on:click={() => {
+				$module = {
+					module: Role,
+					data: {
+						user
+					}
+				};
+			}}
+		/>
 	{/if}
 </User>

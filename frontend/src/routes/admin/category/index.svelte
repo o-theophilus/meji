@@ -39,9 +39,7 @@
 	import { token } from '$lib/cookie.js';
 	import { _tick } from '$lib/store.js';
 
-	import Group from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
+	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg2.svelte';
 
@@ -84,50 +82,48 @@
 	<title>tag | Meji</title>
 </svelte:head>
 
-<Group>
-	<Title title="tag" />
+<Card>
+	Tag
 	<Bar />
 	{#if error}
 		<p>
 			{error}
 		</p>
 	{/if}
-	<Body>
-		{#each tags as tag}
-			<div class="row" draggable="true">
-				<Button
-					name="{tag.name} ({tag.count})"
-					icon={tag.icon}
-					class="wide2"
-					on:click={() => {
-						$module = {
-							module: Edit,
-							data: tag
-						};
-					}}
-				>
-					<SVG type={tag.icon} size="20" />
-				</Button>
-				<Button
-					name="↑"
-					class="cate2"
-					on:click={() => {
-						move(tag.key, 'up');
-					}}
-				/>
-				<Button
-					name="↓"
-					class="cate2"
-					on:click={() => {
-						move(tag.key, 'down');
-					}}
-				/>
-			</div>
-		{:else}
-			no tag
-		{/each}
-	</Body>
-</Group>
+	{#each tags as tag}
+		<div class="row" draggable="true">
+			<Button
+				name="{tag.name} ({tag.count})"
+				icon={tag.icon}
+				class="wide2"
+				on:click={() => {
+					$module = {
+						module: Edit,
+						data: tag
+					};
+				}}
+			>
+				<SVG type={tag.icon} size="20" />
+			</Button>
+			<Button
+				name="↑"
+				class="cate2"
+				on:click={() => {
+					move(tag.key, 'up');
+				}}
+			/>
+			<Button
+				name="↓"
+				class="cate2"
+				on:click={() => {
+					move(tag.key, 'down');
+				}}
+			/>
+		</div>
+	{:else}
+		no tag
+	{/each}
+</Card>
 
 <style>
 	.row {

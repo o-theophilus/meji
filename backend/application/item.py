@@ -4,7 +4,7 @@ from .schema import item_schema
 import re
 from uuid import uuid4
 from .database import database, query
-from . import storage
+from .storage import storage
 
 bp = Blueprint("item", __name__)
 
@@ -177,11 +177,8 @@ def edit_item(key):
     })
 
 
-# Photo #########################
-
-
 @bp.post("/photo/<key>")
-def post_many(key):
+def post_many_photo(key):
     db = database()
 
     user = token_to_user(db)
@@ -197,7 +194,7 @@ def post_many(key):
             "error": "unauthorised access"
         })
 
-    item = query({"typw": "item", "key": key}, db=db)
+    item = query({"type": "item", "key": key}, db=db)
     if 'files' not in request.files or not item:
         return jsonify({
             "status": 400,
@@ -206,12 +203,12 @@ def post_many(key):
 
     files = []
     bad_files = []
-    for file in request.files.getlist("files"):
-        media, format = file.content_type.split("/")
+    for x in request.files.getlist("files"):
+        media, format = x.content_type.split("/")
         if media != "image" or format in ['svg+xml', 'x-icon']:
-            bad_files.append(file)
+            bad_files.append(x)
         else:
-            files.append(file)
+            files.append(x)
 
     if files == []:
         return jsonify({
@@ -223,8 +220,8 @@ def post_many(key):
     bad_files += files[trim:]
     files = files[:trim]
 
-    for file in files:
-        item["photos"].append(storage(file))
+    for x in files:
+        item["photos"].append(storage(x))
     database(item)
 
     return jsonify({
@@ -235,7 +232,7 @@ def post_many(key):
 
 
 @bp.put("/photo/<key>")
-def arrange(key):
+def arrange_photo(key):
 
     db = database()
 
@@ -277,7 +274,7 @@ def arrange(key):
 
 
 @bp.delete("/photo/<key>")
-def delete(key):
+def delete_photo(key):
 
     db = database()
 

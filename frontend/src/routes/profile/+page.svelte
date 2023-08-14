@@ -146,7 +146,7 @@
 					<br />
 					Balance: ₦{$user.acc_balance.toLocaleString()}
 				</p>
-				<Button class="tiny" name="Teansaction History" href="/profile/teansaction_history" />
+				<Button class="tiny" name="* Transaction History" href="/profile/transaction" />
 				<Button
 					name="Add Voucher"
 					class="tiny"

@@ -38,8 +38,6 @@
 	import { user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body.svelte';
 
 	import Search from '$lib/comp/search.svelte';
 	import Status from '$lib/comp/status_bar.svelte';
@@ -94,15 +92,15 @@
 </svelte:head>
 
 <Card>
-	<Title title="Users">
-		<Button_Fold
-			{open}
-			on:click={() => {
-				open = !open;
-			}}
-		/>
-	</Title>
-
+	<b>Users</b>
+	<Button_Fold
+		{open}
+		on:click={() => {
+			open = !open;
+		}}
+	/>
+	<br />
+	<br />
 	<View
 		show_view={open}
 		on:ok={() => {
@@ -125,13 +123,12 @@
 			submit();
 		}}
 	/>
-	<Body>
-		{#each users as user (user.key)}
-			<User {user} />
-		{:else}
-			no user here
-		{/each}
-	</Body>
+
+	{#each users as user (user.key)}
+		<User {user} />
+	{:else}
+		no user here
+	{/each}
 
 	<svelte:component
 		this={Pagination}

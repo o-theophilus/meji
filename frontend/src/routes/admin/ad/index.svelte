@@ -44,8 +44,6 @@
 	import { user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
-	import Title from '$lib/comp/card_title.svelte';
-	import Body from '$lib/comp/card_body_item.svelte';
 	import Item from './_item.svelte';
 
 	import Search from '$lib/comp/search.svelte';
@@ -87,7 +85,9 @@
 </svelte:head>
 
 <Card>
-	<Title title="Shop" />
+	<b>Shop</b>
+	<br />
+	<br />
 
 	<Search
 		on:ok={() => {
@@ -96,13 +96,11 @@
 		}}
 	/>
 
-	<Body>
-		{#each items as item (item.key)}
-			<Item {item} />
-		{:else}
-			no item here
-		{/each}
-	</Body>
+	{#each items as item (item.key)}
+		<Item {item} />
+	{:else}
+		no item here
+	{/each}
 
 	<svelte:component
 		this={Pagination}
