@@ -1,13 +1,35 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
-from .schema import order_schema
+from .schema import log_schema
 from .database import database, query
 from math import ceil
+from .tools import now
+from uuid import uuid4
 
-bp = Blueprint("order_get", __name__)
+bp = Blueprint("log", __name__)
 
 
-@bp.get("/orders")
+def log_template(
+    user,
+    action,
+    entity,
+    status=200,
+    misc=None,
+):
+    return {
+        "key": uuid4().hex,
+        "date": now(),
+        "type": "log",
+
+        "user": user,
+        "action": action,
+        "entity": entity,
+        "status": status,
+        "misc": misc
+    }
+
+
+@bp.get("/logs")
 def get():
     db = database()
 
@@ -18,44 +40,38 @@ def get():
             "error": "invalid token"
         })
 
-    if "admin" in request.args and "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorised access"
-        })
-
     page_no = 1
     if "page_no" in request.args:
         page_no = int(request.args.get("page_no"))
     size = 24
-    status = "ordered"
-    if "status" in request.args:
-        status = request.args.get("status")
+    action = None
+    if "action" in request.args:
+        action = request.args.get("action")
 
-    orders = []
+    logs = []
     for row in db:
-        if row["type"] != "order":
+        if row["type"] != "log":
             continue
-        if status and row["status"] != status:
+        if row["user"] != user["key"]:
             continue
-        if "admin" not in request.args and row["user"] != user["key"]:
+        if action and row["action"] != action:
             continue
-        orders.append(row)
+        logs.append(row)
 
-    # orders = sorted(orders, key=lambda d: d["date_u"])
+    # logs = sorted(logs, key=lambda d: d["date_u"])
 
     start = (page_no - 1) * size
     stop = start + size
-    orders = orders[start: stop]
+    logs = logs[start: stop]
 
     return jsonify({
         "status": 200,
-        "orders": [order_schema(order, db) for order in orders],
-        "total_page": ceil(len(orders) / size)
+        "logs": [log_schema(x, db) for x in logs],
+        "total_page": ceil(len(logs) / size)
     })
 
 
-@bp.get("/order/<key>")
+@bp.get("/log/<key>")
 def get_one(key):
     db = database()
 
@@ -97,30 +113,6 @@ def get_one(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db),
+        "order": log_schema(order, db),
         "previous_recipients": pr,
     })
-
-
-# @bp.get("/order_ref/<key>")
-# def get_ref(key):
-#     db = database()
-
-#     user = token_to_user(db)
-#     if not user:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid token"
-#         })
-
-#     order = query({"type": "order", "pay_reference": key}, db=db)
-#     if not order:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
-
-#     return jsonify({
-#         "status": 200,
-#         "order": order_schema(order, db),
-#     })

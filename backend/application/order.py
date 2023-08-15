@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now, send_mail
-from .schema import order_schema, user_schema, log_template
+from .schema import order_schema, user_schema
+from .log import log_template
 from .database import database, query
 from uuid import uuid4
 import requests
@@ -43,7 +44,7 @@ def cart_to_order():
 
     order = {
         "key": str(uuid4().hex)[:10],
-        "user_key": user["key"],
+        "user": user["key"],
         "v": uuid4().hex,
         "type": "order",
 
@@ -78,7 +79,7 @@ def cart_to_order():
 
     log = log_template(
         user["key"],
-        "ordered",
+        "pending",
         order["key"],
         200
     )
@@ -433,7 +434,7 @@ def status(key):
             "error": "invalid request"
         })
 
-    order_user = query({"type": "user", "key": order["user_key"]}, db=db)
+    order_user = query({"type": "user", "key": order["user"]}, db=db)
     if not order_user:
         return jsonify({
             "status": 400,
@@ -465,7 +466,7 @@ def status(key):
     order["date_u"] = now()
     log = log_template(
         user["key"],
-        "changeed_order_status",
+        "changed_order_status",
         order["key"],
         misc=status[i]
     )

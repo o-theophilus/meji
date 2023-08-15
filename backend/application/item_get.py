@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
-from .schema import item_schema, log_template
+from .schema import item_schema
+from .log import log_template
 from math import ceil
 from .database import database, query
 import re

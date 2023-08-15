@@ -146,7 +146,6 @@
 					<br />
 					Balance: ₦{$user.acc_balance.toLocaleString()}
 				</p>
-				<Button class="tiny" name="* Transaction History" href="/profile/transaction" />
 				<Button
 					name="Add Voucher"
 					class="tiny"
@@ -164,7 +163,7 @@
 
 			<div class="horizontal">
 				<Button class="tiny" name="Orders" href="/orders" />
-				<Button class="tiny" name="* Activity" href="/profile/activity" />
+				<Button class="tiny" name="Logs" href="/profile/logs" />
 			</div>
 
 			<br />

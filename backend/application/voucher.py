@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now
 from uuid import uuid4
-from .database import database
-from .schema import user_schema, log_template
+from .database import database, query
+from .schema import user_schema
+from .log import log_template
 
 bp = Blueprint("voucher", __name__)
 
@@ -17,9 +18,9 @@ def voucher_schema(voucher):
 
 @ bp.get("/voucher/<key>")
 def get(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -31,7 +32,7 @@ def get(key):
             "message": "unauthorised access"
         })
 
-    voucher = query("voucher", "key", key, data)
+    voucher = query("voucher", "key", key, db)
     if not voucher:
         return jsonify({
             "status": 400,
@@ -39,11 +40,11 @@ def get(key):
         })
 
     logs = []
-    for row in data:
+    for row in db:
         if (
             row["type"] == "log"
             and row["for"] == "voucher"
-            and row["entity_key"] == voucher["key"]
+            and row["entity"] == voucher["key"]
         ):
             logs.append(row)
 
@@ -52,7 +53,7 @@ def get(key):
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "voucher": voucher_schema(voucher),
             "logs": logs
         }
@@ -61,9 +62,9 @@ def get(key):
 
 @ bp.get("/voucher")
 def get_many():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -83,7 +84,7 @@ def get_many():
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "vouchers": [voucher_schema(voucher) for voucher in vouchers]
         }
     })
@@ -91,9 +92,9 @@ def get_many():
 
 @bp.post("/voucher")
 def create():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -141,7 +142,7 @@ def create():
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "voucher": voucher_schema(voucher),
         }
     })
@@ -149,9 +150,9 @@ def create():
 
 @bp.post("/user_voucher")
 def user_voucher():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -175,7 +176,7 @@ def user_voucher():
             "message": "invalid code"
         })
 
-    voucher = query("voucher", "key", request.json["code"], data)
+    voucher = query("voucher", "key", request.json["code"], db)
     if not voucher:
         return jsonify({
             "status": 201,
@@ -205,17 +206,17 @@ def user_voucher():
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
-            "user": user_schema(user, data)
+        "db": {
+            "user": user_schema(user, db)
         }
     })
 
 
 @ bp.put("/voucher/<key>")
 def put(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
             "status": 101,
@@ -240,7 +241,7 @@ def put(key):
             "message": "invalid request"
         })
 
-    voucher = query("voucher", "key", key, data)
+    voucher = query("voucher", "key", key, db)
     if not voucher:
         return jsonify({
             "status": 400,
@@ -266,11 +267,11 @@ def put(key):
             database([voucher, log])
 
     logs = []
-    for row in data:
+    for row in db:
         if (
             row["type"] == "log"
             and row["for"] == "voucher"
-            and row["entity_key"] == voucher["key"]
+            and row["entity"] == voucher["key"]
         ):
             logs.append(row)
 
@@ -281,7 +282,7 @@ def put(key):
     return jsonify({
         "status": 200,
         "message": "successful",
-        "data": {
+        "db": {
             "voucher": voucher_schema(voucher),
             "logs": logs
         }

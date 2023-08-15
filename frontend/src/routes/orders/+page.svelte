@@ -1,7 +1,7 @@
 <script>
+	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
-	import Meta from '$lib/meta.svelte';
 	import Status_Bar from './status.svelte';
 
 	export let data;
@@ -10,7 +10,6 @@
 </script>
 
 <Meta title="Order" description="Order" />
-
 <Status_Bar page_name="user_orders" />
 
 <Card>

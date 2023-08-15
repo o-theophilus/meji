@@ -12,6 +12,7 @@ from . import auth
 from . import user_save_cart
 from . import order_get
 from . import order
+from . import log
 from . import item
 from . import item_get
 
@@ -36,6 +37,7 @@ def create_app():
     app.register_blueprint(order.bp)
     app.register_blueprint(order_get.bp)
     app.register_blueprint(voucher.bp)
+    app.register_blueprint(log.bp)
 
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)

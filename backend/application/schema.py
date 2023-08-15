@@ -43,17 +43,17 @@ def item_schema(item, db):
     photos = [f"{request.host_url}photos/{x}" for x in item["photos"]]
 
     feedbacks = []
-    user_keys = [x["user_key"] for x in item["feedbacks"]]
+    user_keys = [x["user"] for x in item["feedbacks"]]
     for row in db:
         if row["type"] == "user" and row["key"] in user_keys:
             for feedback in item["feedbacks"]:
-                if feedback["user_key"] == row["key"]:
+                if feedback["user"] == row["key"]:
                     photo = None
                     if row["photo"]:
                         photo = f"{request.host_url}photos/{row['photo']}"
 
                     feedbacks.append({
-                        "user_key": row["key"],
+                        "user": row["key"],
                         "photo": photo,
                         "name": row["name"],
                         "rating": feedback["rating"],
@@ -109,7 +109,7 @@ def order_schema(order, db):
 
     return {
         "key": order["key"],
-        "user_key": order["user_key"],
+        "user": order["user"],
         "recipient": order["recipient"],
 
         "items": items,
@@ -122,7 +122,7 @@ def order_schema(order, db):
 
 
 def feedback_schema(fb):
-    # user = db("user").get(fb["user_key"])
+    # user = db("user").get(fb["user"])
     # temp["user"] = user_schema(user, db)
     return {
         "key": fb["key"],
@@ -132,23 +132,22 @@ def feedback_schema(fb):
     }
 
 
-def log_template(
-    user,
-    action,
-    entity,
-    status=200,
-    misc=None,
-):
-    return {
-        "key": uuid4().hex,
-        "date": now(),
-        "type": "log",
+def log_schema(log, db):
+    type_ = None
+    if log["action"] == "view_item":
+        type_ = "item"
 
-        "user": user,
-        "action": action,
-        "entity": entity,
-        "status": status,
-        "misc": misc
+    entity = query({"type": type_, "key": log["entity"]}, db=db)
+    return {
+        "key": log["key"],
+        "date": log["date"],
+        "action": log["action"],
+        "entity": {
+            "slug": entity["slug"],
+            "name": entity["name"]
+        },
+        "status": log["status"],
+        "misc": log["misc"]
     }
 
 
