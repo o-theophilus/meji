@@ -21,6 +21,7 @@
 		order = $portal;
 		$portal = '';
 	}
+	let mine = order.user_key == $user.key;
 </script>
 
 <Meta title="Order" description="Order" />

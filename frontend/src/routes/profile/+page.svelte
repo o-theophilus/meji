@@ -163,7 +163,7 @@
 			<br />
 
 			<div class="horizontal">
-				<Button class="tiny" name="Orders" href="/profile/orders" />
+				<Button class="tiny" name="Orders" href="/orders" />
 				<Button class="tiny" name="* Activity" href="/profile/activity" />
 			</div>
 

@@ -3,7 +3,7 @@ import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
 	
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/shop`)	
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/orders`)	
 	if (url.search){	
 		let temp = get(state)
 		temp.shop = url.search
@@ -22,6 +22,7 @@ export const load = async ({ fetch, url, parent }) => {
 	});
 	resp = await resp.json();
 	loading.set(false)
+
 
 	if (resp.status == 200) {
 		return resp

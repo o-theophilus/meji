@@ -2,12 +2,16 @@
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Status_Bar from './status.svelte';
 
 	export let data;
-	let { orders } = data;
+	$: orders = data.orders;
+	$: total_page = data.total_page;
 </script>
 
 <Meta title="Order" description="Order" />
+
+<Status_Bar page_name="user_orders" />
 
 <Card>
 	<b> My Orders </b>
@@ -15,7 +19,7 @@
 	<br />
 	{#each orders as x}
 		<div>
-			<Button name={`${x.key}`} class="wide" href="/profile/orders/{x.key}">
+			<Button name={x.key} class="wide" href="/orders/{x.key}">
 				<div class="fmt">
 					{#each x.items as y, i}
 						{#if i != 0},{/if}

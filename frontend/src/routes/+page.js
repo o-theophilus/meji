@@ -1,12 +1,11 @@
-import { get } from 'svelte/store';
-import { token } from "$lib/cookie.js"
+export const load = async ({ fetch, parent }) => {
 
-export const load = async ({ fetch }) => {
+	let  a = await parent();
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/home`, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: get(token)
+			Authorization: a.locals.token
 		}
 	});
 

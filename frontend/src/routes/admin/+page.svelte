@@ -12,8 +12,6 @@
 	<br />
 	<Button class="wide2" name="Photos" href="/admin/photos" />
 	<br />
-	<Button class="wide2" name="Orders" href="/admin/orders" />
-	<br />
 	<Button class="wide2" name="Ad" href="/admin/ad" />
 	<br />
 	<Button class="wide2" name="Voucher" href="/admin/voucher" />

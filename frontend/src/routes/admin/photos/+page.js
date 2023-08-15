@@ -1,10 +1,4 @@
-import { get } from 'svelte/store';
-import { loading, user } from "$lib/store.js"
-import { token } from "$lib/cookie.js"
 import { redirect, error } from '@sveltejs/kit';
-
-
-
 
 export const load = async ({ parent, fetch, url }) => {
 	
@@ -20,7 +14,7 @@ export const load = async ({ parent, fetch, url }) => {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: get(token)
+			Authorization: a.locals.token
 		}
 	});
 	resp = await resp.json();

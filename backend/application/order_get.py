@@ -18,32 +18,29 @@ def get_all():
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "admin" in request.args and "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorised access"
         })
 
-    size = 24
-    status = request.args.get("status")
-    search = request.args.get("search")
-    # page_no = int(request.args.get("page_no"))
     page_no = 1
+    if "page_no" in request.args:
+        page_no = int(request.args.get("page_no"))
+    size = 24
+    status = "ordered"
+    if "status" in request.args:
+        status = request.args.get("status")
 
     orders = []
     for row in db:
-        if row["type"] == "order":
-            if status and search:
-                if row["status"] == status:
-                    orders.append(row)
-            elif search:
-                if row["key"] == search:
-                    orders.append(row)
-            elif status:
-                if row["status"] == status:
-                    orders.append(row)
-            else:
-                orders.append(row)
+        if row["type"] != "order":
+            continue
+        if status and row["status"] != status:
+            continue
+        if "admin" not in request.args and row["user_key"] != user["key"]:
+            continue
+        orders.append(row)
 
     # orders = sorted(orders, key=lambda d: d["date_u"])
 
@@ -57,34 +54,6 @@ def get_all():
         "status": 200,
         "orders": [order_schema(order, db) for order in orders],
         "total_page": total_page
-    })
-
-
-@bp.get("/user_orders/<key>")
-def get_for_user(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if user["key"] != key and "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorised access"
-        })
-
-    orders = []
-    for x in db:
-        if x["type"] == "order" and x["user_key"] == user["key"]:
-            orders.append(order_schema(x, db))
-
-    return jsonify({
-        "status": 200,
-        "orders": orders
     })
 
 

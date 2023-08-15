@@ -109,6 +109,7 @@ def order_schema(order, db):
 
     return {
         "key": order["key"],
+        "user_key": order["user_key"],
         "recipient": order["recipient"],
 
         "items": items,
