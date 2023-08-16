@@ -29,7 +29,7 @@ def log_template(
     }
 
 
-@bp.get("/logs")
+@bp.get("/log")
 def get():
     db = database()
 

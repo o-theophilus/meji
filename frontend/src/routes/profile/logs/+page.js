@@ -3,7 +3,7 @@ import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
 	
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/logs`)	
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/log`)	
 	if (url.search){	
 		let temp = get(state)
 		temp.shop = url.search
