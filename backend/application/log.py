@@ -30,7 +30,7 @@ def log_template(
 
 
 @bp.get("/log")
-def get():
+def get_many():
     db = database()
 
     user = token_to_user(db)
@@ -72,7 +72,7 @@ def get():
 
 
 @bp.get("/log/<key>")
-def get_one(key):
+def get(key):
     db = database()
 
     user = token_to_user(db)

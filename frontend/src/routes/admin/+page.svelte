@@ -12,9 +12,9 @@
 	<br />
 	<Button class="wide2" name="Photos" href="/admin/photos" />
 	<br />
-	<Button class="wide2" name="Ad" href="/admin/ad" />
+	<Button class="wide2" name="Voucher" href="/admin/vouchers" />
 	<br />
-	<Button class="wide2" name="Voucher" href="/admin/voucher" />
+	<Button class="wide2" name="Ad" href="/admin/ad" />
 	<br />
 	<Button class="wide2" name="tag" href="/admin/tag" />
 	<br />

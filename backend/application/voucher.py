@@ -4,6 +4,7 @@ from uuid import uuid4
 from .database import database, query
 from .schema import user_schema, log_schema
 from .log import log_template
+from math import ceil
 
 bp = Blueprint("voucher", __name__)
 
@@ -11,6 +12,7 @@ bp = Blueprint("voucher", __name__)
 def voucher_schema(voucher):
     return {
         "key": voucher["key"],
+        "date": voucher["date_c"],
         "value": voucher["value"],
         "status": voucher["status"],
     }
@@ -53,6 +55,35 @@ def get(key):
     })
 
 
+def get_vouchers(db=[]):
+    page_no = 1
+    if "page_no" in request.args:
+        page_no = int(request.args.get("page_no"))
+    size = 24
+    status = None
+    if "status" in request.args:
+        status = request.args.get("status")
+
+    vouchers = []
+    for x in db:
+        if x["type"] != "voucher":
+            continue
+        if status and x["status"] != status:
+            continue
+        vouchers.append(x)
+
+    # vouchers = sorted(logs, key=lambda d: d["date_u"])
+
+    start = (page_no - 1) * size
+    stop = start + size
+    vouchers = vouchers[start: stop]
+
+    return {
+        "vouchers": [voucher_schema(x) for x in vouchers],
+        "total_page": ceil(len(vouchers) / size)
+    }
+
+
 @ bp.get("/voucher")
 def get_many():
     db = database()
@@ -63,17 +94,16 @@ def get_many():
             "status": 400,
             "error": "invalid token"
         })
+
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorised access"
         })
 
-    vouchers = query({"type": "voucher"}, True,  db=db)
-
     return jsonify({
         "status": 200,
-        "vouchers": [voucher_schema(voucher) for voucher in vouchers]
+        **get_vouchers(db)
     })
 
 
@@ -123,8 +153,8 @@ def create():
 
     vouchers = []
     logs = []
-    for x in []:
-        key = uuid4().hex,
+    for x in range(request.json["quantity"]):
+        key = uuid4().hex
         vouchers.append({
             "key": key,
             "code": str(uuid4().hex)[:10],
@@ -133,6 +163,7 @@ def create():
 
             "value": request.json["value"],
             "status": "inactive",  # unused, used
+            "validity": None,
 
             "user": None
         })
@@ -146,13 +177,11 @@ def create():
             }
         ))
 
-    database([*vouchers, *logs])
-    _v = query({"type": "voucher"}, True,  db=db)
-    _v += vouchers
+    database(vouchers+logs)
 
     return jsonify({
         "status": 200,
-        "vouchers": [voucher_schema(x) for x in _v]
+        **get_vouchers(db+vouchers)
     })
 
 

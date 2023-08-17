@@ -1,0 +1,85 @@
+<script>
+	import { module, portal, loading } from '$lib/store.js';
+	import { token } from '$lib/cookie.js';
+
+	import Form from '$lib/module/form.svelte';
+	import Button from '$lib/button.svelte';
+	import IG from '$lib/input_group.svelte';
+	import Info from '$lib/module/info.svelte';
+
+	let form = {
+		quantity: 1
+	};
+	let error = {};
+
+	const validate = async () => {
+		error = {};
+
+		if (form.value && (!Number.isFinite(form.value) || form.value <= 0)) {
+			error.value = 'please enter a valid value';
+		}
+		if (form.quantity && (!Number.isFinite(form.quantity) || form.quantity < 1)) {
+			error.quantity = 'please enter a valid quantity';
+		}
+
+		Object.keys(error).length === 0 && submit();
+	};
+
+	const submit = async () => {
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify(form)
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+			$portal = resp.vouchers;
+
+			$module = {
+				module: Info,
+				status: 200,
+				title: '# Details Changed',
+				message: 'item price has been changed successfully',
+				button: [
+					{
+						name: 'Ok',
+						icon: 'ok',
+						fn: () => {
+							$module = '';
+						}
+					}
+				]
+			};
+		} else {
+			error = resp;
+		}
+	};
+</script>
+
+<Form>
+	<svelte:fragment slot="title">
+		<b>Add Voucher</b>
+		Add a new Voucher
+	</svelte:fragment>
+
+	<IG name="value" {error} let:id>
+		<input bind:value={form.value} {id} type="number" placeholder="Value here" />
+	</IG>
+
+	<IG name="quantity" {error} let:id>
+		<input bind:value={form.quantity} {id} type="number" placeholder="Quantity here" />
+	</IG>
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+	<Button class="primary" name="Submit" on:click={validate} />
+</Form>
