@@ -2,12 +2,13 @@
 	import { module, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
-	import Password from '$lib/password_checker.svelte';
+	import Form from '$lib/form.svelte';
+	import IG from '$lib/input_group.svelte';
+	import Password from '../../auth/password_checker.svelte';
 	import Button from '$lib/button.svelte';
 
 	import Email from './password_email_template.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	let form = {};
 	let error = {};
@@ -99,77 +100,52 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<div class="title">Reset Password</div>
+		<b> Reset Password </b>
+		Reset your password.
 	</svelte:fragment>
 
-	<svelte:fragment slot="info">Reset your password.</svelte:fragment>
+	<IG name="password" {error} let:id>
+		<input bind:value={form.password} {id} type="password" placeholder="password here" />
+		<Password password={form.password} />
+	</IG>
 
-	<form on:submit|preventDefault novalidate autocomplete="off">
+	<IG name="confirm_password" {error} let:id>
+		<input bind:value={form.confirm_password} {id} type="password" placeholder="password here" />
+	</IG>
+
+	<Button
+		class="primary"
+		name="Request OTPs"
+		on:click={() => {
+			request_otp();
+		}}
+	/>
+	<br />
+	{#if message}
 		<div class="inputGroup">
-			<label for="password"> Password: </label>
-			<input
-				type="password"
-				bind:value={form.password}
-				id="password"
-				placeholder="Your password here"
-			/>
-			<Password password={form.password} />
-
-			{#if error.password}
-				<p class="error">
-					{error.password}
-				</p>
-			{/if}
+			{message}
 		</div>
+		<br />
+	{/if}
 
-		<div class="inputGroup">
-			<label for="confirm"> Confirm Password: </label>
-			<input
-				type="password"
-				bind:value={form.confirm_password}
-				id="confirm"
-				placeholder="Your password here"
-			/>
-			{#if error.confirm_password}
-				<p class="error">
-					{error.confirm_password}
-				</p>
-			{/if}
-		</div>
+	<IG name="otp" label="OTP" {error} let:id>
+		<input bind:value={form.otp} {id} type="text" placeholder="OTP here" />
+	</IG>
 
-		<Button
-			class="primary"
-			name="Request OTPs"
-			on:click={() => {
-				request_otp();
-			}}
-		/>
-		{#if message}
-			<div class="inputGroup">
-				{message}
-			</div>
-		{/if}
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
-		<div class="inputGroup">
-			<label for="otp"> OTP: </label>
-			<input type="text" bind:value={form.otp} id="otp" placeholder="your OTP here" />
-			{#if error.otp}
-				<p class="error">
-					{error.otp}
-				</p>
-			{/if}
-		</div>
-
-		<div class="inputGroup horizontal">
-			<Button
-				class="primary"
-				name="Submit"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-	</form>
+	<Button
+		class="primary"
+		name="Submit"
+		on:click={() => {
+			validate();
+		}}
+	/>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

@@ -2,10 +2,10 @@
 	import { module, user, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Quantity from './quantity.svelte';
-	import Value from './variation_value.svelte';
+	import Quantity from '$lib/quantity.svelte';
+	import Value from '$lib/item/variation_value.svelte';
 
 	let { item } = $module;
 	let { variation } = item;

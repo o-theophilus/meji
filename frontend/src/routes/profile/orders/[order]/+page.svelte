@@ -10,8 +10,8 @@
 	import Address from './receiver.svelte';
 	import Action from './action.svelte';
 	import Status from './status.svelte';
-	import Voucher from './__voucher.svelte';
-	import Account from './__account.svelte';
+	import Voucher from '../../_voucher.svelte';
+	import Account from './_account.svelte';
 
 	export let data;
 	let { order } = data;

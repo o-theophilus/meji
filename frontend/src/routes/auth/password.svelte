@@ -2,11 +2,11 @@
 	import { module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
-	import Password from '$lib/password_checker.svelte';
+	import Form from '$lib/form.svelte';
+	import Password from './password_checker.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 	import Login from './login.svelte';
 	import Forgot from './forgot.svelte';
 
@@ -106,11 +106,19 @@ Please try repeacting the action again.`,
 
 	<IG name="password" {error} let:id>
 		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+		<Password password={form.password} />
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
 		<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button
 		class="primary"

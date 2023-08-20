@@ -4,7 +4,7 @@
 	import { module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
@@ -32,7 +32,7 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
-		
+
 		if (resp.status == 200) {
 			$module = '';
 			goto(`/${resp.item.slug}`);
@@ -40,7 +40,6 @@
 			$loading = false;
 			error = resp.message;
 		}
-
 	};
 </script>
 
@@ -53,6 +52,13 @@
 	<IG name="name" {error} let:id>
 		<input bind:value={form.name} {id} type="text" placeholder="Name here" />
 	</IG>
-	
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+
 	<Button class="primary" name="Submit" on:click={validate} />
 </Form>

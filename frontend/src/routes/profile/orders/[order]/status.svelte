@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 	import Email_Processing from './email_template_processing.svelte';
 	import Email_Delivered from './email_template_delivered.svelte';
 	let email_template;

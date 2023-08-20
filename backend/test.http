@@ -21,7 +21,7 @@ content-type: application/json
 ###
 
 #Fix
-get  {{host}}/admin_init HTTP/1.1
+get  {{host}}/fix HTTP/1.1
 content-type: application/json
 Authorization: {{Authorization}}
 

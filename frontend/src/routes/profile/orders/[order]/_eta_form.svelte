@@ -2,10 +2,10 @@
 	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	let form = {
 		key: $module.key,
@@ -76,5 +76,13 @@
 	<IG name="time" {error} let:id>
 		<input bind:value={form.time} {id} type="time" placeholder="time here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+
 	<Button class="primary" name="Submit" on:click={validate} />
 </Form>

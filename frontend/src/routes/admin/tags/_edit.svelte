@@ -2,7 +2,7 @@
 	import { tick } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 
 	export let data;

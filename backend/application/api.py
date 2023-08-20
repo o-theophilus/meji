@@ -114,7 +114,6 @@ def unused_anon():
     })
 
 
-@bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -135,13 +134,33 @@ def copy_db():
     })
 
 
-@bp.get("/fixx")
+@bp.get("/fix")
 def fix():
     db = database()
 
+    changed = []
     for x in db:
-        if x["type"] == "order":
-            database(x, True)
+        if x["type"] == "log":
+            x["entity_type"] = None
+            if x["action"] == "view_item":
+                x["entity_type"] = "item"
+            elif x["action"] in [
+                "pending",
+                "change_delivery_date",
+                "ordered",
+                "changed_order_status"
+            ]:
+                x["entity_type"] = "order"
+            elif x["action"] in [
+                "created_voucher",
+                "changed_voucher_status",
+                "used_voucher",
+            ]:
+                x["entity_type"] = "voucher"
+
+            changed.append(x)
+
+    database(changed)
 
     return jsonify({
         "status": 200

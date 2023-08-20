@@ -2,7 +2,7 @@
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Quantity from '$lib/item/quantity.svelte';
+	import Quantity from '$lib/quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
 	export let item;

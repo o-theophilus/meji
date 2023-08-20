@@ -13,6 +13,7 @@ def log_template(
     user,
     action,
     entity,
+    entity_type=None,
     status=200,
     misc=None,
 ):
@@ -24,6 +25,7 @@ def log_template(
         "user": user,
         "action": action,
         "entity": entity,
+        "entity_type": entity_type,
         "status": status,
         "misc": misc
     }
@@ -58,7 +60,7 @@ def get_many():
             continue
         logs.append(row)
 
-    # logs = sorted(logs, key=lambda d: d["date_u"])
+    logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 
     start = (page_no - 1) * size
     stop = start + size

@@ -2,9 +2,9 @@
 	import { user, module, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	let { order } = $module;
 	let error = {};
@@ -74,6 +74,13 @@
 	<IG name="amount" {error} let:id>
 		<input bind:value {id} type="number" placeholder="Amount here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button class="primary" name="Ok" on:click={validate} />
 </Form>

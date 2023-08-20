@@ -1,9 +1,9 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Login from './login.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 	import Signup from './signup.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
@@ -70,6 +70,13 @@
 	<IG name="email" {error} let:id>
 		<input bind:value={form.email} {id} type="email" placeholder="Your email here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button
 		class="primary"

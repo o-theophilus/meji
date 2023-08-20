@@ -3,7 +3,7 @@
 
 	import { tick, module } from '$lib/store.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import Rating from './feedback_form_rating.svelte';
 

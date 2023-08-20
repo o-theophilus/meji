@@ -9,9 +9,9 @@
 	import HR from '$lib/comp/hr.svelte';
 	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/button_fold.svelte';
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	let { order } = $module;
 	let { previous_recipients } = $module;
@@ -209,6 +209,13 @@
 			placeholder="Your postal code here"
 		/>
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button name="Submit" class="primary" on:click={validate} />
 </Form>

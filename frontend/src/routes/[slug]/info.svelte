@@ -10,9 +10,9 @@
 	import Price from './info.price.svelte';
 	import Discount from './info.price.discount.svelte';
 	import Rating from '$lib/item/rating.svelte';
-	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Review from '$lib/comp/feedback_review.svelte';
 	import Save from '$lib/item/save.svelte';
+	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Md from '$lib/comp/marked.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
@@ -367,7 +367,7 @@
 		padding: var(--sp2) 0;
 		margin-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
-		
+
 		background-color: var(--ac5);
 	}
 
@@ -376,13 +376,12 @@
 			bottom: var(--sp1);
 		}
 	}
-	
+
 	.property {
 		display: flex;
 		flex-wrap: wrap;
 	}
-	.property:not(:first-child){
+	.property:not(:first-child) {
 		margin-top: var(--sp1);
-		
 	}
 </style>

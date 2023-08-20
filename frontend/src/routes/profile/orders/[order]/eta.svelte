@@ -2,7 +2,7 @@
 	import { user, module, days, months, ordinal_suffix_of } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
-	import Form from './__eta_form.svelte';
+	import Form from './_eta_form.svelte';
 
 	export let order;
 	let date_time, dt, period_of_day;

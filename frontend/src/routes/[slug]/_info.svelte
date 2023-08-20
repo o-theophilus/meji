@@ -1,43 +1,36 @@
 <script>
-	import { portal, module } from '$lib/store.js';
+	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 	import Form from '$lib/form.svelte';
+	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Info from '$lib/info.svelte';
 
+	let { item } = $module;
 	let error = {};
-	let { name } = $module.user;
-
-	const validate = async () => {
-		error = {};
-		if (!name) {
-			error.name = 'This field is required';
-		}
-
-		Object.keys(error).length === 0 && submit();
-	};
 
 	const submit = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ name })
+			body: JSON.stringify({ info: item.info })
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.user;
+			$portal = resp.item;
 
 			$module = {
 				module: Info,
 				status: 200,
 				title: '# Details Changed',
-				message: `Your name has been changed successfully`,
+				message: 'item info has been changed successfully',
 				button: [
 					{
 						name: 'Ok',
@@ -56,22 +49,17 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Edit Name</b>
+		<b>Edit Item</b>
 	</svelte:fragment>
 
-	<IG name="name" {error} let:id>
-		<input bind:value={name} {id} type="text" placeholder="Your fullname here" />
+	<IG name="info" {error} let:id>
+		<textarea bind:value={item.info} {id} placeholder="Information here" />
 	</IG>
-
 	{#if error.error}
 		<p class="error">
 			{error.error}
 		</p>
 		<br />
 	{/if}
-
-	<Button name="Save" class="primary" on:click={validate} />
+	<Button class="primary" name="Submit" on:click={submit} />
 </Form>
-
-<style>
-</style>

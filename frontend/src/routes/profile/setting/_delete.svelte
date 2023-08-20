@@ -1,9 +1,9 @@
 <script>
 	import { token } from '$lib/cookie.js';
-	import { user } from '$lib/store.js';
 
-	import Form from '$lib/module/form.svelte';
 	import Button from '$lib/button.svelte';
+	import Form from '$lib/form.svelte';
+	import IG from '$lib/input_group.svelte';
 
 	let password;
 	let error = {};
@@ -39,26 +39,26 @@
 </script>
 
 <Form>
-	<svelte:fragment slot="title">Delete Account</svelte:fragment>
-	<svelte:fragment slot="info">Are you sure you want to delete account?</svelte:fragment>
-	<form on:submit|preventDefault novalidate autocomplete="off">
-		<div class="inputGroup">
-			<label for="password"> Password: </label>
-			<input type="password" bind:value={password} id="password" placeholder="Your password here" />
-			{#if error.password}
-				<p class="error">
-					{error.password}
-				</p>
-			{/if}
-		</div>
+	<svelte:fragment slot="title">
+		<b> Delete Account </b>
+		Are you sure you want to delete account?
+	</svelte:fragment>
 
-		<div class="inputGroup horizontal">
-			<Button
-				name="Delete"
-				on:click={() => {
-					validate();
-				}}
-			/>
-		</div>
-	</form>
+	<IG name="password" {error} let:id>
+		<input bind:value={password} {id} type="password" placeholder="Your password here" />
+	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+
+	<Button
+		name="Delete"
+		on:click={() => {
+			validate();
+		}}
+	/>
 </Form>

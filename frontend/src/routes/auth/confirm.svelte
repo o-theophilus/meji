@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 
 	import Login from './login.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	onMount(async () => {
 		$loading = 'loading . . .';

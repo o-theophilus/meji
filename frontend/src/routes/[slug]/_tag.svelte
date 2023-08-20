@@ -3,10 +3,10 @@
 	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 
 	let { item } = $module;
 	let tags = item.tags.join(', ');
@@ -130,7 +130,7 @@
 		flex-wrap: wrap;
 		gap: var(--sp1);
 	}
-	.f2{
+	.f2 {
 		color: var(--ac2);
 	}
 </style>

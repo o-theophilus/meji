@@ -4,8 +4,8 @@
 
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/module/info.svelte';
-	import Form from '$lib/module/form.svelte';
+	import Info from '$lib/info.svelte';
+	import Form from '$lib/form.svelte';
 
 	let error = {};
 	let { phone } = $module.user;
@@ -61,6 +61,13 @@
 	<IG name="phone" {error} let:id>
 		<input bind:value={phone} {id} type="tel" placeholder="Your phone here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button name="Save" class="primary" on:click={validate} />
 </Form>

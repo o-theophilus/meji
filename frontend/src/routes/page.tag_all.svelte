@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { module, loading } from '$lib/store.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg2.svelte';
 

@@ -7,19 +7,29 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
+	let today = new Date();
+	today.setHours(0, 0, 0, 0);
+	let t30 = new Date(today);
+	t30.setDate(today.getDate() + 30);
+	let validity = t30.toISOString().split('T')[0];
+
+	$: to = new Date(form.validity);
+	$: difference = Math.ceil((to - today) / (1000 * 60 * 60 * 24));
+	let min = today.toISOString().split('T')[0];
+
 	let form = {
-		quantity: 1
+		validity: validity
 	};
+	let { voucher } = $module;
 	let error = {};
 
 	const validate = async () => {
 		error = {};
 
-		if (form.value && (!Number.isFinite(form.value) || form.value <= 0)) {
-			error.value = 'please enter a valid value';
-		}
-		if (form.quantity && (!Number.isFinite(form.quantity) || form.quantity < 1)) {
-			error.quantity = 'please enter a valid quantity';
+		if (!form.validity) {
+			error.validity = 'this field is required';
+		} else if (new Date(form.validity) < today) {
+			error.validity = 'cannot be back dated';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -27,8 +37,8 @@
 
 	const submit = async () => {
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher`, {
-			method: 'post',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/activate_voucher/${voucher.key}`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
@@ -39,13 +49,13 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.vouchers;
+			$portal = resp.voucher;
 
 			$module = {
 				module: Info,
 				status: 200,
-				title: '# Details Changed',
-				message: 'item price has been changed successfully',
+				title: '# Status Changed',
+				message: 'Voucher status has been changed successfully',
 				button: [
 					{
 						name: 'Ok',
@@ -64,16 +74,12 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Add Voucher</b>
-		Add a new Voucher
+		<b>Activate coucher</b>
 	</svelte:fragment>
 
-	<IG name="value" {error} let:id>
-		<input bind:value={form.value} {id} type="number" placeholder="Value here" />
-	</IG>
-
-	<IG name="quantity" {error} let:id>
-		<input bind:value={form.quantity} {id} type="number" placeholder="Quantity here" />
+	<IG name="validity" {error} let:id>
+		<input bind:value={form.validity} {id} type="date" {min} placeholder="date here" />
+		{difference} day{difference > 1 ? 's' : ''}
 	</IG>
 	{#if error.error}
 		<p class="error">

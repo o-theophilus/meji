@@ -81,6 +81,7 @@ def cart_to_order():
         user["key"],
         "pending",
         order["key"],
+        "order",
         200
     )
 
@@ -220,7 +221,8 @@ def date(key):
     log = log_template(
         user["key"],
         "change_delivery_date",
-        order["key"]
+        order["key"],
+        "order"
     )
 
     database([order, log])
@@ -393,6 +395,7 @@ def place_order(key):
         user["key"],
         "ordered",
         order["key"],
+        "order",
     )
 
     database([user, order, log])
@@ -468,6 +471,7 @@ def status(key):
         user["key"],
         "changed_order_status",
         order["key"],
+        "order",
         misc=status[i]
     )
 

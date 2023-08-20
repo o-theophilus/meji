@@ -152,8 +152,7 @@
 					icon_size="12"
 					on:click={() => {
 						$module = {
-							module: Add_Voucher,
-							user: $user
+							module: Add_Voucher
 						};
 					}}
 				/>
@@ -162,7 +161,7 @@
 			<br />
 
 			<div class="horizontal">
-				<Button class="tiny" name="Orders" href="/orders" />
+				<Button class="tiny" name="Orders" href="/profile/orders" />
 				<Button class="tiny" name="Logs" href="/profile/logs" />
 			</div>
 

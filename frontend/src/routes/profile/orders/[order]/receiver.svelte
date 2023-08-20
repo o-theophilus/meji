@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
-	import Form from './__receiver_form.svelte';
+	import Form from './_receiver_form.svelte';
 
 	export let order;
 	export let previous_recipients;

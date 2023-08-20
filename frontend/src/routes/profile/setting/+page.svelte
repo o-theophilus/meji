@@ -5,8 +5,8 @@
 	import Button from '$lib/button.svelte';
 	import Meta from '$lib/meta.svelte';
 
-	import Delete from './delete.svelte';
-	import Password from './password.svelte';
+	import Delete from './_delete.svelte';
+	import Password from './_password.svelte';
 </script>
 
 <Meta title="Setting" description="Setting" />
@@ -21,7 +21,7 @@
 			$module = { module: Password };
 		}}
 	/>
-
+	<br />
 	<Button
 		name="Delete Account"
 		on:click={() => {

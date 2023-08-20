@@ -38,8 +38,8 @@ def all_tags(db=None):
     })
 
 
-@bp.get("/item/<slug>")
-def item_info(slug):
+@bp.get("/item/<key>")
+def get(key):
     db = database()
 
     user = token_to_user(db)
@@ -49,7 +49,9 @@ def item_info(slug):
             "error": "invalid token"
         })
 
-    item = query({"type": "item", "slug": slug}, db=db)
+    item = query({"type": "item", "slug": key}, db=db)
+    if not item:
+        item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
             "status": 400,
@@ -67,6 +69,7 @@ def item_info(slug):
             user["key"],
             "view_item",
             item["key"],
+            "item"
         ))
 
     user_views = query({

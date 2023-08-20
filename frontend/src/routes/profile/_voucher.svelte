@@ -1,17 +1,17 @@
 <script>
-	import { module, portal } from '$lib/store.js';
+	import { module, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Info from '$lib/info.svelte';
 
 	let code;
-	let error;
-	let { user } = $module;
+	let error = {};
 
 	const validate = async () => {
-		error = '';
+		error = {};
 
 		if (!code) {
 			error = 'This field is required';
@@ -19,11 +19,12 @@
 			error = 'invalid code';
 		}
 
-		error == '' && submit();
+		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}user_voucher`, {
+		$loading = true;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/use_voucher`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -32,9 +33,11 @@
 			body: JSON.stringify({ code })
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = resp.user;
+			console.log(resp);
 
 			$module = {
 				module: Info,
@@ -66,5 +69,13 @@
 	<IG name="voucher" {error} let:id>
 		<input bind:value={code} {id} type="text" placeholder="Your code here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
+
 	<Button class="primary" name="Add" on:click={validate} />
 </Form>

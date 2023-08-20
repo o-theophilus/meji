@@ -4,8 +4,8 @@
 	import countries from '$lib/countries.js';
 
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/module/info.svelte';
-	import Form from '$lib/module/form.svelte';
+	import Info from '$lib/info.svelte';
+	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let error = {};
@@ -132,6 +132,13 @@
 			placeholder="Your postal code here"
 		/>
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button name="Save" class="primary" on:click={validate} />
 </Form>

@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { set_state, user } from '$lib/store.js';
+	import { set_state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 
@@ -10,8 +10,8 @@
 
 	onMount(() => {
 		let params = $page.url.searchParams;
-		if (params.has('type')) {
-			action = params.get('type');
+		if (params.has('action')) {
+			action = params.get('action');
 		}
 	});
 
@@ -21,7 +21,10 @@
 		'pending',
 		'change_delivery_date',
 		'ordered',
-		'changed_order_status'
+		'changed_order_status',
+		'created_voucher',
+		'changed_voucher_status',
+		'used_voucher'
 	];
 </script>
 

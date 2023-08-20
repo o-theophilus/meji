@@ -2,9 +2,9 @@
 	import { module, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/module/form.svelte';
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/module/info.svelte';
+	import Info from '$lib/info.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Email from './email_email_template.svelte';
 
@@ -134,6 +134,13 @@
 	<IG name="otp_2" label="New Email OTP" {error} let:id>
 		<input type="text" bind:value={form.otp_2} id="otp_2" placeholder="your OTP here" />
 	</IG>
+
+	{#if error.error}
+		<p class="error">
+			{error.error}
+		</p>
+		<br />
+	{/if}
 
 	<Button class="primary" name="Submit" on:click={validate} />
 </Form>
