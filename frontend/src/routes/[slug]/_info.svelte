@@ -9,7 +9,6 @@
 
 	let  item  = {...$module.item};
 	let error = {};
-	$:console.log(item);
 
 	const submit = async () => {
 		$loading = true;

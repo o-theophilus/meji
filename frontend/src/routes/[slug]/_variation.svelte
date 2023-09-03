@@ -10,7 +10,7 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let  item  = {...$module.item};
+	let item = { ...$module.item };
 	let variation = { ...item.variation };
 	for (const key in variation) {
 		variation[key] = variation[key].join(', ');
@@ -137,23 +137,27 @@
 
 	{#each Object.keys(variation) as key, i (i)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
-			<Button
-				icon="close"
-				icon_size="10"
-				class="tiny hover_red"
-				on:click={() => {
-					delete_key(key);
-				}}
-			/>
-
 			<IG name={key} {error} let:id>
+				<svelte:fragment slot="label">
+					<div class="line">
+						{key}
+						<Button
+							icon="close"
+							icon_size="10"
+							class="tiny hover_red"
+							on:click={() => {
+								delete_key(key);
+							}}
+						/>
+					</div>
+				</svelte:fragment>
 				<textarea
 					bind:value={variation[key]}
 					on:blur={() => {
 						clean_value(key);
 					}}
 					{id}
-					placeholder="Information here"
+					placeholder="Options here"
 				/>
 			</IG>
 		</div>
@@ -168,4 +172,10 @@
 </Form>
 
 <style>
+	.line {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--sp1);
+		color: var(--ac2);
+	}
 </style>
