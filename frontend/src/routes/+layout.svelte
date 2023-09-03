@@ -9,6 +9,7 @@
 	import Footer from './layout.footer.svelte';
 	import Nav from './layout.nav.svelte';
 	import Module from './layout.module.svelte';
+	import Toast from './layout.toast.svelte';
 	import Loading from './layout.loading.svelte';
 
 	export let data;
@@ -32,6 +33,9 @@
 	</div>
 
 	<Module />
+	<div class="toast">
+		<Toast />
+	</div>
 	<Loading />
 </main>
 
@@ -52,12 +56,20 @@
 		position: sticky;
 		bottom: 0;
 	}
+	.toast {
+		position: fixed;
+		right: var(--sp2);
+		bottom: calc(var(--headerHeight) + var(--sp2));
+	}
 	@media screen and (min-width: 800px) {
 		.page {
 			min-height: calc(100vh - var(--headerHeight));
 		}
 		.nav {
 			display: none;
+		}
+		.toast {
+			bottom: var(--sp2);
 		}
 	}
 </style>

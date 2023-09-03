@@ -1,13 +1,12 @@
 <script>
-	import { module, loading, portal } from '$lib/store.js';
+	import { module, loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let  item  = {...$module.item};
+	let item = { ...$module.item };
 	let error = {};
 
 	const validate = async () => {
@@ -40,20 +39,10 @@
 
 			$portal = resp.item;
 
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: 200,
-				title: '# Details Changed',
-				message: 'item name has been changed successfully',
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'Name changed'
 			};
 		} else {
 			error = resp;

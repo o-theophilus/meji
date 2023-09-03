@@ -1,5 +1,5 @@
 <script>
-	import { loading, portal } from '$lib/store.js';
+	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
@@ -35,7 +35,7 @@
 		}
 	};
 
-	make_active(item.photos[0])
+	make_active(item.photos[0]);
 
 	const order = (dir = 'right') => {
 		let index = item.photos.indexOf(active_photo);
@@ -81,11 +81,18 @@
 			item = resp.item;
 			init_order = [...item.photos];
 			order_changed = false;
+
+			let msg = 'Oredr saved';
 			if (method == 'delete') {
 				$portal = resp.item;
 				make_active(item.photos[0]);
+				msg = 'Photo deleted';
 			}
 
+			$toast = {
+				status: 200,
+				message: msg
+			};
 		} else {
 			error = resp;
 		}
@@ -154,7 +161,12 @@
 			init_order = [...item.photos];
 			$portal = resp.item;
 			make_active(item.photos[0]);
-			
+
+			$toast = {
+				status: 200,
+				message: 'Photo added'
+			};
+
 			error.error = resp.error;
 		} else {
 			error = resp;

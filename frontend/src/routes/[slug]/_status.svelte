@@ -1,12 +1,11 @@
 <script>
-	import { module, portal, loading } from '$lib/store.js';
+	import { module, portal, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 
-	let  item  = {...$module.item};
+	let item = { ...$module.item };
 	let error = {};
 	let all_status = ['live', 'draft', 'delete'];
 
@@ -41,20 +40,10 @@
 		if (resp.status == 200) {
 			$portal = resp.item;
 
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: 200,
-				title: '# Details Changed',
-				message: 'item status has been changed successfully',
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'Status changed'
 			};
 		} else {
 			error = resp;
