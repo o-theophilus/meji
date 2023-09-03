@@ -59,7 +59,7 @@
 	.toast {
 		position: fixed;
 		right: var(--sp2);
-		bottom: calc(var(--headerHeight) + var(--sp2));
+		top: calc(var(--headerHeight) + var(--sp2));
 	}
 	@media screen and (min-width: 800px) {
 		.page {
@@ -68,8 +68,8 @@
 		.nav {
 			display: none;
 		}
-		.toast {
+		/* .toast {
 			bottom: var(--sp2);
-		}
+		} */
 	}
 </style>

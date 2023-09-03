@@ -1,5 +1,5 @@
 <script>
-	import { module, user, loading } from '$lib/store.js';
+	import { module, user, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -7,7 +7,7 @@
 	import Quantity from '$lib/quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
-	let  item  = {...$module.item};
+	let item = { ...$module.item };
 	let { variation } = item;
 
 	let error = {};
@@ -47,6 +47,10 @@
 		if (resp.status == 200) {
 			$user = resp.user;
 			$module = '';
+			$toast = {
+				status: 200,
+				message: `${item.name} added to cart`
+			};
 		} else {
 			error = resp;
 		}
