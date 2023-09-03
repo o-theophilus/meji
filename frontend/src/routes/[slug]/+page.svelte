@@ -1,6 +1,8 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { elasticInOut } from 'svelte/easing';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 	import { user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
@@ -23,6 +25,14 @@
 	let edit_mode = false;
 	let open_recent = true;
 	$loading = false;
+
+	onMount(() => {
+		if ($page.url.searchParams.has('edit') && $user.roles.includes('admin')) {
+			edit_mode = true;
+			$page.url.searchParams.delete('edit');
+			window.history.pushState(history.state, '', $page.url.href);
+		}
+	});
 </script>
 
 <Meta title={item?.name} description={item.info} image={item.thumbnail} />

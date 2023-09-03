@@ -35,7 +35,7 @@
 
 		if (resp.status == 200) {
 			$module = '';
-			goto(`/${resp.item.slug}`);
+			goto(`/${resp.item.slug}?edit`);
 		} else {
 			$loading = false;
 			error = resp.message;

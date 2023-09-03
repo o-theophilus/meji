@@ -57,7 +57,7 @@
 			compare_order();
 		}
 	};
-	
+
 	const order_left = () => {
 		let index = item.photos.indexOf(active_photo);
 		if (index > 0) {
@@ -72,7 +72,7 @@
 
 	const reorder_delete = async (method) => {
 		error = {};
-		
+
 		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: method,
@@ -89,10 +89,12 @@
 		$loading = false;
 
 		if (resp.status == 200) {
+			$portal = resp.item;
+			
 			item = resp.item;
 			init_order = [...item.photos];
 			order_changed = false;
-			
+
 			if (method == 'delete') {
 				make_active(item.photos[0]);
 			}
@@ -100,7 +102,7 @@
 			error = resp;
 		}
 	};
-	
+
 	const on_input = () => {
 		let files = [];
 		excess_files = [];
@@ -160,6 +162,8 @@
 		$loading = false;
 
 		if (resp.status == 200) {
+			$portal = resp.item;
+
 			item = resp.item;
 			init_order = [...item.photos];
 			error.error = resp.error;
@@ -171,7 +175,10 @@
 	$: make_active(item.photos[0]);
 </script>
 
-<button
+<img
+	src={active_photo}
+	alt={item.title}
+	onerror="this.src='/image/item.png'"
 	class:dragover
 	class:edit_mode
 	on:click={() => {
@@ -182,7 +189,6 @@
 	on:dragover|preventDefault={() => {
 		dragover = true;
 	}}
-	on:dragenter
 	on:dragleave|preventDefault={() => {
 		dragover = false;
 	}}
@@ -194,9 +200,8 @@
 			on_input();
 		}
 	}}
->
-	<img src={active_photo} alt={item.title} onerror="this.src='/image/item.png'" />
-</button>
+	role="presentation"
+/>
 <input
 	style:display="none"
 	type="file"
@@ -214,14 +219,16 @@
 {#if item.photos.length > 1}
 	<div class="row">
 		{#each item.photos as photo}
-			<button
+			<img
+				src="{photo}/200"
+				alt={item.name}
+				onerror="this.src='/image/item.png'"
 				on:click={() => {
 					make_active(photo);
 				}}
 				class:active={active_photo == photo}
-			>
-				<img src="{photo}/200" alt={item.name} onerror="this.src='/image/item.png'" />
-			</button>
+				role="presentation"
+			/>
 		{/each}
 	</div>
 {/if}
@@ -287,23 +294,18 @@
 {/if}
 
 <style>
-	button {
-		width: 100%;
-		padding: 0;
+	img {
 		border: 2px solid transparent;
 		border-radius: var(--sp1);
-
-		overflow: hidden;
-		/* background-color: transparent; */
+		width: 100%;
+		transition: var(--trans1);
 	}
-	button.edit_mode:hover,
-	.dragover.edit_mode {
+
+	.row img:hover,
+	.edit_mode:hover,
+	.edit_mode.dragover {
 		border-color: var(--cl1);
 		cursor: pointer;
-	}
-
-	img {
-		width: 100%;
 	}
 
 	.row {
@@ -313,18 +315,14 @@
 		flex-wrap: wrap;
 	}
 
-	.row button {
+	.row img {
 		--size: 50px;
 		width: var(--size);
 		height: var(--size);
-
-		transition: var(--trans1);
 	}
 
-	.active,
-	.row button:hover {
+	.active {
 		border-color: var(--cl1);
 		transform: scale(1.1);
-		cursor: pointer;
 	}
 </style>

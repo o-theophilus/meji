@@ -2,7 +2,6 @@
 	import Button from '$lib/button.svelte';
 
 	export let item;
-	
 </script>
 
 <div class="cost">
@@ -10,7 +9,7 @@
 		{#if item.price}
 			₦{item.price.toLocaleString()}
 		{:else}
-			Nil
+			<span class="no_price"> Nil </span>
 		{/if}
 	</div>
 	{#if item.old_price}
@@ -21,7 +20,6 @@
 		<div class="discount">
 			{(((item.old_price - item.price) * 100) / item.old_price).toFixed(0)}% off
 		</div>
-	
 	{/if}
 </div>
 
@@ -36,6 +34,10 @@
 	.price {
 		font-weight: 500;
 		font-size: large;
+	}
+
+	.no_price {
+		color: var(--cl4);
 	}
 
 	.old_price {

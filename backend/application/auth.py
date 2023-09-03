@@ -40,8 +40,6 @@ def user_template(
         },
         "photo": None,
         "acc_balance": 0,
-        "saves": [],
-        "cart": [],
         "roles": [],  # admin, supplier,
         "login": False,
         "setting": {
@@ -253,18 +251,17 @@ def login():
             "error": "not confirmed"
         })
 
+    edited = []
     if anon_user['key'] != user['key']:
-        def copy(y):
-            keys = [x["key"] for x in user[y]]
-            for x in anon_user[y]:
-                if x["key"] not in keys:
-                    user[y].append(x)
-        copy("cart")
-        copy("saves")
+        for x in db:
+            if x["type"] in ["cart", "save"] and x["user"] == anon_user['key']:
+                x["user"] = user['key']
+                edited.append(x)
         database(anon_user, True)
 
     user["login"] = True
-    user = database(user)
+    edited.append(user)
+    database(edited)
 
     return jsonify({
         "status": 200,

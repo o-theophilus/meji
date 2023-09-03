@@ -4,7 +4,7 @@
 
 	import Button from '$lib/button.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let text = `Check Out: ${item.name}`;
 </script>
 

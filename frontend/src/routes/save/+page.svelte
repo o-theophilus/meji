@@ -12,9 +12,7 @@
 	export let { items } = data;
 	let { total_page } = data;
 
-	const unsaved = async (key) => {
-		items = items.filter((i) => i.key != key);
-	};
+	// if $user.save changed refresh items
 </script>
 
 <Meta title="Saved" description="Saved" />
@@ -25,15 +23,7 @@
 	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
-				<Item
-					{item}
-					on:unsaved={() => {
-						unsaved(item.key);
-					}}
-					on:done={(e) => {
-						items = e.detail.items;
-					}}
-				/>
+				<Item {item} />
 			</div>
 		{:else}
 			no item here

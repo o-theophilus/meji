@@ -13,7 +13,7 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { order } = $module;
+	let order = { ...$module.order };
 	let { previous_recipients } = $module;
 
 	let recipient = order.recipient;

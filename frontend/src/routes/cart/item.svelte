@@ -1,44 +1,8 @@
 <script>
-	import { user } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
-
 	import Quantity from '$lib/quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
 	export let item;
-	let error = {};
-	let timeoutId;
-
-	const change = async (item) => {
-		error = {};
-
-		if (item.quantity > 0) {
-			for (const i in $user.cart) {
-				if ($user.cart[i].key == item.key && $user.cart[i].variation == item.variation) {
-					$user.cart[i] = item;
-					break;
-				}
-			}
-		} else {
-			$user.cart = $user.cart.filter((i) => i.key != item.key || i.variation != item.variation);
-		}
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify(item)
-		});
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			$user = resp.user;
-		} else {
-			error = resp;
-		}
-	};
 </script>
 
 <section>
@@ -69,16 +33,7 @@
 				<span class="price">
 					₦{item.price.toLocaleString()}
 				</span>
-				<Quantity
-					quantity={item.quantity}
-					on:done={(e) => {
-						item.quantity = e.detail.quantity;
-						clearTimeout(timeoutId);
-						timeoutId = setTimeout(() => {
-							change(item);
-						}, 1000);
-					}}
-				/>
+				<Quantity quantity={item.quantity} on:done />
 			</div>
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>

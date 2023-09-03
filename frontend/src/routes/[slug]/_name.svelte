@@ -7,7 +7,7 @@
 	import Info from '$lib/info.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let error = {};
 
 	const validate = async () => {

@@ -22,7 +22,7 @@
 </script>
 
 <section class="item" class:view_list={$user.setting.item_view == 'list'}>
-	<a href="/{item.slug}">
+	<a class="img" href="/{item.slug}">
 		<img
 			src={`${item.photos[0]}/200` || '/image/item.png'}
 			alt={item.name}
@@ -36,32 +36,31 @@
 				<div class="name">
 					{item.name}
 				</div>
-				<div class="row2">
-					<div class="cost">
-						<div class="price">
-							{#if item.price}
-								₦{item.price.toLocaleString()}
-							{:else}
-								Nil
-							{/if}
-						</div>
-						{#if item.old_price}
-							<div class="old_price">
-								₦{item.old_price.toLocaleString()}
-								<div class="strike" />
-							</div>
+
+				<div class="cost">
+					<div class="price">
+						{#if item.price}
+							₦{item.price.toLocaleString()}
+						{:else}
+							Nil
 						{/if}
 					</div>
-					{#if item.feedbacks.length > 0}
-						<Rating {rating} />
+					{#if item.old_price}
+						<div class="old_price">
+							₦{item.old_price.toLocaleString()}
+							<div class="strike" />
+						</div>
 					{/if}
 				</div>
 			</div>
 		</a>
 
 		<div class="control">
+			{#if item.feedbacks.length > 0}
+				<Rating {rating} type="2" />
+			{/if}
 			<Add_Cart {item} type="2" />
-			<Save {item} type="2" on:unsaved on:done />
+			<Save {item} type="2" />
 		</div>
 	</div>
 </section>
@@ -70,11 +69,11 @@
 	.item {
 		display: flex;
 		flex-direction: column;
-		/* align-items: center; */
 
 		border-bottom: 2px solid var(--ac5);
+		
 		overflow: hidden;
-
+		cursor: pointer;
 		transition: var(--trans1);
 	}
 	.item:hover {
@@ -84,19 +83,18 @@
 	a {
 		text-decoration: none;
 		color: var(--ac1);
-		padding: 0;
 	}
-	img {
-		padding: 0;
-		margin: 0;
+
+	.img {
+		font-size: 0;
 	}
 
 	img {
 		width: 100%;
+		aspect-ratio: 1/1;
 		border-radius: var(--sp0);
 		background-image: url('/image/item.png');
 		background-size: cover;
-		aspect-ratio: 1/1;
 	}
 
 	.details_control {
@@ -105,29 +103,16 @@
 		justify-content: space-between;
 
 		width: 100%;
+		height: 100%;
 	}
 
 	.details {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp1);
-		padding: var(--sp1);
+		padding: var(--sp1) 0;
 	}
-	.row2 {
-		display: flex;
-		gap: var(--sp1);
-		justify-content: space-between;
-		height: 30px;
-	}
+
 	.control {
 		display: flex;
 		width: 100%;
-	}
-
-	@media screen and (min-width: 500px) {
-		.details {
-			padding: var(--sp1) var(--sp2);
-		}
 	}
 
 	.name {
@@ -140,7 +125,7 @@
 		flex-wrap: wrap;
 
 		align-items: center;
-		gap: var(--sp1);
+		gap: 0 var(--sp1);
 	}
 	.price {
 		font-weight: 500;
@@ -170,12 +155,11 @@
 
 	.view_list img {
 		width: unset;
-		/* height: 100%; */
 		height: 120px;
 	}
 
 	.view_list .details {
-		padding: var(--sp1) var(--sp2);
+		padding: 0 var(--sp2);
 	}
 
 	.view_list .name {

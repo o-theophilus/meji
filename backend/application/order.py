@@ -26,21 +26,22 @@ def cart_to_order():
             "error": "please login"
         })
 
-    if user["cart"] == []:
+    items = query({"type": "cart", "user": user["key"]}, True, db=db)
+    if items == []:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     total_items = 0
-    for cart in user["cart"]:
-        item = query({"type": "item", "key": cart["key"]}, db=db)
+    for x in items:
+        item = query({"type": "item", "key": x["item"]}, db=db)
         if not item:
             return jsonify({
                 "status": 400,
                 "error": "item not found"
             })
-        total_items += item["price"] * cart["quantity"]
+        total_items += item["price"] * x["quantity"]
 
     order = {
         "key": str(uuid4().hex)[:10],
@@ -63,7 +64,7 @@ def cart_to_order():
             },
         },
 
-        "cart": user["cart"],
+        "items": items,
 
         "status": "pending",
         "delivery_date": f"{now(4).split('T')[0]}T10:00",
@@ -85,12 +86,9 @@ def cart_to_order():
         200
     )
 
-    user["cart"] = []
-
-    database([user, order, log])
+    database([order, log])
 
     return jsonify({
-
         "status": 200,
         "order_key": order["key"]
     })

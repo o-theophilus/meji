@@ -55,12 +55,19 @@
 {#if edit_mode}
 	<div class="horizontal">
 		<span>
-			Status: <span class="bold">{item.status}</span>
+			Status: <span
+				class="bold"
+				style:color={item.status == 'draft'
+					? 'var(--cl6)'
+					: item.status == 'live'
+					? 'var(--cl5)'
+					: 'var(--cl4)'}>{item.status}</span
+			>
 		</span>
 
 		<Button
-			icon="edit"
 			class="tiny"
+			icon="edit"
 			icon_size="12"
 			on:click={() => {
 				$module = {
@@ -92,32 +99,29 @@
 						item
 					};
 				}}
-				tooltip="Edit Details"
+				tooltip="Edit Name"
 			/>
 		{/if}
 	</div>
 </div>
 
 <div class="horizontal">
-	<div>
-		{#if edit_mode}
-			<span class="bold"> Tags: </span>
-		{/if}
-		<span class="f2">
-			{#each item.tags as tag, i}
-				{#if i > 0},{/if}
-				<Button
-					name={tag}
-					class="link"
-					on:click={() => {
-						$loading = true;
-						// $module = '';
-						goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
-					}}
-				/>
-			{/each}
-		</span>
-	</div>
+	<span class="f2">
+		{#each item.tags as tag, i}
+			{#if i > 0},{/if}
+			<Button
+				name={tag}
+				class="link"
+				on:click={() => {
+					$loading = true;
+					// $module = '';
+					goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
+				}}
+			/>
+		{:else}
+			No Tag
+		{/each}
+	</span>
 
 	{#if edit_mode}
 		<Button
@@ -130,7 +134,7 @@
 					item
 				};
 			}}
-			tooltip="Edit Item tag"
+			tooltip="Edit tag"
 		/>
 	{/if}
 </div>
@@ -162,7 +166,7 @@
 						item
 					};
 				}}
-				tooltip="Edit Item tag"
+				tooltip="Edit Price"
 			/>
 		{/if}
 	</div>
@@ -205,7 +209,7 @@
 						item
 					};
 				}}
-				tooltip="Edit Item tag"
+				tooltip="Edit Details"
 			/>
 		{/if}
 	</div>
@@ -260,6 +264,8 @@
 						<Value {value} />
 					{/each}
 				</div>
+			{:else}
+				No Vaiation
 			{/each}
 		</div>
 	{/if}

@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { state,loading } from "$lib/store.js"
-import { token } from "$lib/cookie.js"
 
 export const load = async ({ fetch, url, parent }) => {
 

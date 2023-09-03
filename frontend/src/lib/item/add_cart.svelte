@@ -3,7 +3,7 @@
 
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/comp/svg.svelte';
-	import Variation from './add_cart__variation.svelte';
+	import Variation from './add_cart.variation.svelte';
 
 	export let item = {};
 	let _type = 1;
@@ -38,6 +38,10 @@
 
 <style>
 	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
 		width: 100%;
 		border: none;
 		padding: var(--sp1);

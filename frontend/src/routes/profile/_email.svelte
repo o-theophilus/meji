@@ -12,7 +12,7 @@
 	let error = {};
 	let email_template;
 	let message = '';
-	let { user } = $module;
+	let user = { ...$module.user };
 
 	const validate_request_otp = () => {
 		error = {};

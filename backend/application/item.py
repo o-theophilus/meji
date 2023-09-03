@@ -118,6 +118,8 @@ def edit_item(key):
                 error["price"] = "please enter a valid price"
             else:
                 item["price"] = request.json["price"]
+        elif item["status"] == "live":
+            item["status"] = "draft"
 
     if "old_price" in request.json:
         item["old_price"] = None
@@ -153,10 +155,11 @@ def edit_item(key):
             item["tags"] = request.json["tags"]
 
     if "status" in request.json:
-        if not request.json["status"]:
-            error["status"] = "this field is required"
+        if not request.json["status"] or request.json["status"] not in [
+                'live', 'draft', 'delete']:
+            error["status"] = "invalid request"
         elif request.json["status"] == "live" and len(item["photos"]) == 0:
-            error["status"] = "no photo"
+            error["status"] = "add photo"
         elif request.json["status"] == "live" and not item["price"]:
             error["status"] = "add price"
         else:
@@ -306,6 +309,8 @@ def delete_photo(key):
         })
 
     item["photos"].remove(file_name)
+    if len(item["photos"]) == 0 and item["status"] == "live":
+        item["status"] = "draft"
     storage(file_name, delete=True)
     database(item)
 

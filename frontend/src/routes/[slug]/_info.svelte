@@ -7,8 +7,9 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let error = {};
+	$:console.log(item);
 
 	const submit = async () => {
 		$loading = true;

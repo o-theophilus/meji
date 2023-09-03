@@ -7,7 +7,7 @@
 	import Quantity from '$lib/quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let { variation } = item;
 
 	let error = {};
@@ -42,6 +42,7 @@
 			})
 		});
 		resp = await resp.json();
+		console.log(resp);
 		$loading = false;
 
 		if (resp.status == 200) {

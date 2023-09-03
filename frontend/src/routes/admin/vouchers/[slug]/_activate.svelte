@@ -20,7 +20,7 @@
 	let form = {
 		validity: validity
 	};
-	let { voucher } = $module;
+	let voucher = { ...$module.voucher };
 	let error = {};
 
 	const validate = async () => {

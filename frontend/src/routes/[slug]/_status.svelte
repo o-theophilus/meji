@@ -6,7 +6,7 @@
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let error = {};
 	let all_status = ['live', 'draft', 'delete'];
 
@@ -17,7 +17,8 @@
 				error.error = 'a photo is required';
 			}
 			if (!item.price) {
-				error.error = 'a price is required';
+				let err = 'price is required';
+				error.error = error.error ? `${error.error}<br/>${err}` : err;
 			}
 		}
 
@@ -83,7 +84,7 @@
 	{#if error.error}
 		<br />
 		<p class="error">
-			{error.error}
+			{@html error.error}
 		</p>
 	{/if}
 </Form>

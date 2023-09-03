@@ -33,7 +33,7 @@
 
 		width: min(100%, 1200px);
 		height: var(--headerHeight);
-		padding: 0 var(--sp1);
+		padding: 0 var(--sp2);
 
 		margin: auto;
 	}
@@ -55,7 +55,6 @@
 	.right {
 		display: flex;
 		align-items: center;
-		/* gap: var(--sp2); */
 	}
 	.nav {
 		display: none;
@@ -63,9 +62,6 @@
 	}
 
 	@media screen and (min-width: 800px) {
-		.block {
-			padding: 0 var(--sp3);
-		}
 		.nav {
 			display: unset;
 		}

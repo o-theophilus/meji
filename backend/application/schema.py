@@ -5,17 +5,8 @@ from uuid import uuid4
 
 
 def user_schema(user, db):
-    user["saves"] = sorted(user["saves"], key=lambda d: d["date"])
-
-    user["cart"] = sorted(user["cart"], key=lambda d: d["date"])
-    cart = []
-    for x in user["cart"]:
-        item = query({"type": "item", "key": x["key"]}, db=db)
-        if item:
-            item = item_schema(item, db)
-            item["variation"] = x["variation"]
-            item["quantity"] = x["quantity"]
-            cart.append(item)
+    saves = query({"type": "save", "user": user["key"]}, True, db=db)
+    cart = query({"type": "cart", "user": user["key"]}, True, db=db)
 
     return {
         "key": user["key"],
@@ -34,8 +25,13 @@ def user_schema(user, db):
         "status": user["status"],
         "login": user["login"],
 
-        "saves": [x["key"] for x in user["saves"]],
-        "cart": cart,
+        "saves": [x["item"] for x in saves],
+        "cart": [
+            {
+                "key": x["item"],
+                "variation": x["variation"],
+                "quantity": x["quantity"]
+            } for x in cart]
     }
 
 

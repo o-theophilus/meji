@@ -10,7 +10,7 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let variation = { ...item.variation };
 	for (const key in variation) {
 		variation[key] = variation[key].join(', ');

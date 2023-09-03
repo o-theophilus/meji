@@ -8,11 +8,12 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { item } = $module;
+	let  item  = {...$module.item};
 	let tags = item.tags.join(', ');
 	let all_tags = [];
 	let all_tags_btn = [];
 	let error = {};
+	let loading_tags = true;
 
 	onMount(async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`, {
@@ -26,6 +27,7 @@
 
 		if (resp.status == 200) {
 			all_tags = resp.tags;
+			loading_tags = false;
 			clean_value();
 		} else {
 			error = resp;
@@ -102,6 +104,9 @@
 	</IG>
 
 	<div class="tags">
+		{#if loading_tags}
+			<span class="f2"> loading all tags . . . </span>
+		{/if}
 		{#each all_tags_btn as tag}
 			<Button
 				class="tiny"
@@ -110,8 +115,6 @@
 					clean_value(tag);
 				}}
 			/>
-		{:else}
-			<span class="f2"> loading all tags . . . </span>
 		{/each}
 	</div>
 	<br />

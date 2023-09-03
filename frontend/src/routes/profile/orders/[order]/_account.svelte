@@ -6,7 +6,7 @@
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
-	let { order } = $module;
+	let order = { ...$module.order };
 	let error = {};
 	let value = order.info.account;
 
