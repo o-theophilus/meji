@@ -15,16 +15,15 @@
 	let excess_files = [];
 	let invalid_files = [];
 
-	let active_photo = '';
+	let active_photo;
 	let dragover = false;
 	let error = {};
 	export let count = 10;
 	export let edit_mode = false;
 
-	const make_active = (photo, clear_error = true) => {
-		if (clear_error) {
-			error = {};
-		}
+	const make_active = (photo) => {
+		error = {};
+
 		show_left_btn = true;
 		show_right_btn = true;
 		active_photo = photo || '/image/item.png';
@@ -36,37 +35,27 @@
 		}
 	};
 
-	const compare_order = () => {
+	make_active(item.photos[0])
+
+	const order = (dir = 'right') => {
+		let index = item.photos.indexOf(active_photo);
+		item.photos.splice(index, 1);
+
+		if (dir == 'right' && index < item.photos.length) {
+			item.photos.splice(index + 1, 0, active_photo);
+		} else if (dir == 'left' && index > 0) {
+			item.photos.splice(index - 1, 0, active_photo);
+		}
+
+		item = item;
+		make_active(active_photo);
+
 		order_changed = false;
 		for (let i in item.photos) {
 			if (init_order[i] != item.photos[i]) {
 				order_changed = true;
 				break;
 			}
-		}
-	};
-
-	const order_right = () => {
-		let index = item.photos.indexOf(active_photo);
-		if (index < item.photos.length - 1) {
-			item.photos.splice(index, 1);
-			item.photos.splice(index + 1, 0, active_photo);
-
-			item = item;
-			make_active(active_photo);
-			compare_order();
-		}
-	};
-
-	const order_left = () => {
-		let index = item.photos.indexOf(active_photo);
-		if (index > 0) {
-			item.photos.splice(index, 1);
-			item.photos.splice(index - 1, 0, active_photo);
-
-			item = item;
-			make_active(active_photo);
-			compare_order();
 		}
 	};
 
@@ -89,15 +78,14 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.item;
-			
 			item = resp.item;
 			init_order = [...item.photos];
 			order_changed = false;
-
 			if (method == 'delete') {
+				$portal = resp.item;
 				make_active(item.photos[0]);
 			}
+
 		} else {
 			error = resp;
 		}
@@ -162,17 +150,16 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.item;
-
 			item = resp.item;
 			init_order = [...item.photos];
+			$portal = resp.item;
+			make_active(item.photos[0]);
+			
 			error.error = resp.error;
 		} else {
 			error = resp;
 		}
 	};
-
-	$: make_active(item.photos[0]);
 </script>
 
 <img
@@ -270,7 +257,7 @@
 				name="<<"
 				class="tiny"
 				on:click={() => {
-					order_left();
+					order('left');
 				}}
 			/>
 			<Button
@@ -278,7 +265,7 @@
 				name=">>"
 				class="tiny"
 				on:click={() => {
-					order_right();
+					order('right');
 				}}
 			/>
 			<Button

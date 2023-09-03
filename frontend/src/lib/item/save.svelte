@@ -32,7 +32,6 @@
 		});
 
 		resp = await resp.json();
-		// console.log(resp);
 
 		// if (resp.status == 200) {
 		// 		$user = resp.user;

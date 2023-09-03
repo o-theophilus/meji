@@ -34,7 +34,22 @@
 			}
 		}
 
-		variation[input] = '';
+		if (input.startsWith('size')) {
+			let match = input.match(/(\d+)-(\d+)/);
+			if (match) {
+				let start = parseInt(match[1]);
+				let end = parseInt(match[2]);
+
+				let n = [];
+				for (let i = start; i <= end; i++) {
+					n.push(i);
+				}
+				variation['size'] = n.join(', ');
+			}
+		} else {
+			variation[input] = '';
+		}
+
 		input = '';
 	};
 

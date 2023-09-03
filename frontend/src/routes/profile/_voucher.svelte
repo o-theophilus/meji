@@ -37,7 +37,6 @@
 
 		if (resp.status == 200) {
 			$portal = resp.user;
-			console.log(resp);
 
 			$module = {
 				module: Info,
