@@ -129,29 +129,11 @@
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
-		<div class="password">
-			{#if show}
-				<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input
-					bind:value={form.confirm_password}
-					{id}
-					type="password"
-					placeholder="Password here"
-				/>
-			{/if}
-			<form class="show" on:submit|preventDefault>
-				<Button
-					class="tiny"
-					icon="show"
-					icon_size="14"
-					on:click={() => {
-						show = !show;
-					}}
-				/>
-			</form>
-		</div>
-		<Password password={form.password} />
+		{#if show}
+			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
+		{:else}
+			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
+		{/if}
 	</IG>
 
 	<Button

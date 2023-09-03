@@ -46,7 +46,7 @@
 		border-color: var(--cl1);
 	}
 
-	@media screen and (min-width: 600px) {
+	@media screen and (min-width: 700px) {
 		button {
 			height: 150px;
 		}

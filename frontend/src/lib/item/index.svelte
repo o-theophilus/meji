@@ -71,7 +71,7 @@
 		flex-direction: column;
 
 		border-bottom: 2px solid var(--ac5);
-		
+
 		overflow: hidden;
 		cursor: pointer;
 		transition: var(--trans1);
@@ -115,11 +115,6 @@
 		width: 100%;
 	}
 
-	.name {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
 	.cost {
 		display: flex;
 		flex-wrap: wrap;

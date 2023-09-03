@@ -27,6 +27,7 @@
 	form {
 		background-color: var(--ac5);
 		padding: var(--sp3);
+		color: var(--ac2);
 	}
 
 	.title {
