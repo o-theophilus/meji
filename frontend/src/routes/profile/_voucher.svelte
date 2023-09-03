@@ -1,11 +1,10 @@
 <script>
-	import { module, portal, loading } from '$lib/store.js';
+	import { module, portal, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/info.svelte';
 
 	let code;
 	let error = {};
@@ -37,21 +36,10 @@
 
 		if (resp.status == 200) {
 			$portal = resp.user;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: 200,
-				title: '# Voucher Added',
-				message: `Your voucher has been added successfully`,
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'voucher added'
 			};
 		} else {
 			error = resp;

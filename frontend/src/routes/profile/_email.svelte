@@ -1,10 +1,9 @@
 <script>
-	import { module, portal } from '$lib/store.js';
+	import { module, portal, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Email from './email_email_template.svelte';
 
@@ -71,6 +70,7 @@
 	};
 
 	const submit = async () => {
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/email`, {
 			method: 'post',
 			headers: {
@@ -80,21 +80,14 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = resp.user;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: 200,
-				title: '# Email Changed',
-				message: `your email change was successful`,
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok'
-					}
-				]
+				message: 'Email changed'
 			};
 		} else {
 			error = resp;

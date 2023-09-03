@@ -50,7 +50,6 @@
 
 		if (resp.status == 200) {
 			$portal = resp.item;
-
 			$module = '';
 			$toast = {
 				status: 200,

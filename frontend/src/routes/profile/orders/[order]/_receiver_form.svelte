@@ -1,7 +1,7 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { elasticInOut } from 'svelte/easing';
-	import { portal, module, loading } from '$lib/store.js';
+	import { portal, module, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import countries from '$lib/countries.js';
@@ -11,7 +11,6 @@
 	import Button_Fold from '$lib/button_fold.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/info.svelte';
 
 	let order = { ...$module.order };
 	let { previous_recipients } = $module;
@@ -64,21 +63,10 @@
 
 		if (resp.status == 200) {
 			$portal = resp.order;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: '200',
-				title: '# Details Updated',
-				message: 'Recipient information has been updated successfully',
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'Recipient information updated'
 			};
 		} else {
 			error = resp;

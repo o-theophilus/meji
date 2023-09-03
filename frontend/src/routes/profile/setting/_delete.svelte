@@ -1,4 +1,5 @@
 <script>
+	import { loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
@@ -7,6 +8,7 @@
 
 	let password;
 	let error = {};
+	let show = false;
 
 	const validate = () => {
 		error = {};
@@ -19,6 +21,7 @@
 	};
 
 	const submit = async () => {
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
 			method: 'delete',
 			headers: {
@@ -28,6 +31,7 @@
 			body: JSON.stringify({ password })
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$token = resp.data.token;
@@ -45,7 +49,23 @@
 	</svelte:fragment>
 
 	<IG name="password" {error} let:id>
-		<input bind:value={password} {id} type="password" placeholder="Your password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input bind:value={password} {id} type="password" placeholder="Password here" />
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
 	</IG>
 
 	{#if error.error}
@@ -62,3 +82,20 @@
 		}}
 	/>
 </Form>
+
+<style>
+	.password {
+		position: relative;
+	}
+
+	.show {
+		position: absolute;
+		right: var(--sp2);
+		top: 0;
+
+		display: flex;
+		align-items: center;
+
+		height: 100%;
+	}
+</style>

@@ -1,11 +1,10 @@
 <script>
-	import { portal, loading, module } from '$lib/store.js';
+	import { portal, loading, module, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 	import Log from '../../../profile/logs/log.svelte';
 	import Activate from './_activate.svelte';
 
@@ -34,21 +33,10 @@
 
 		if (resp.status == 200) {
 			voucher = resp.voucher;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: 200,
-				title: '# Status Changed',
-				message: 'Voucher status has been changed successfully',
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'Voucher status changed'
 			};
 		} else {
 			error = resp;

@@ -38,7 +38,6 @@
 			}
 
 			$portal = resp.item;
-
 			$module = '';
 			$toast = {
 				status: 200,

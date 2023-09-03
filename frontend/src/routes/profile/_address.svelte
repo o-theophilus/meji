@@ -1,10 +1,9 @@
 <script>
-	import { module, portal } from '$lib/store.js';
+	import { module, portal, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import countries from '$lib/countries.js';
 
 	import Button from '$lib/button.svelte';
-	import Info from '$lib/info.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
@@ -36,6 +35,7 @@
 	};
 
 	const submit = async () => {
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
@@ -45,24 +45,14 @@
 			body: JSON.stringify(address)
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = resp.user;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: '200',
-				title: '# Details Changed',
-				message: `Your address has been changed successfully`,
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: `Address changed`
 			};
 		} else {
 			error = resp;

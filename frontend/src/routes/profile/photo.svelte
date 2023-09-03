@@ -1,5 +1,5 @@
 <script>
-	import { loading, portal, user } from '$lib/store.js';
+	import { loading, portal, user, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 
@@ -7,7 +7,6 @@
 	let error = {};
 	let input;
 	let dragover = false;
-
 	const validate = () => {
 		error = {};
 		let file = input.files[0];
@@ -37,6 +36,11 @@
 
 		if (resp.status == 200) {
 			$user = resp.user;
+			$toast = {
+				status: 200,
+				message: 'Photo added'
+			};
+
 			error.error = resp.error;
 		} else {
 			error = resp;
@@ -59,13 +63,20 @@
 
 		if (resp.status == 200) {
 			$user.photo = '';
+			$toast = {
+				status: 200,
+				message: 'Photo removed'
+			};
 		} else {
 			error = resp;
 		}
 	};
 </script>
 
-<button
+<img
+	src={$user.photo || '/image/user.png'}
+	alt={$user.name}
+	onerror="this.src='/image/user.png'"
 	class:dragover
 	class:edit_mode
 	on:click={() => {
@@ -88,13 +99,8 @@
 			validate();
 		}
 	}}
->
-	<img
-		src={$user.photo || '/image/user.png'}
-		alt={$user.name}
-		onerror="this.src='/image/user.png'"
-	/>
-</button>
+	role="presentation"
+/>
 <input
 	style:display="none"
 	type="file"
@@ -138,7 +144,7 @@
 {/if}
 
 <style>
-	button {
+	img {
 		width: 100%;
 		padding: 0;
 		border: 2px solid transparent;
@@ -146,7 +152,7 @@
 
 		overflow: hidden;
 	}
-	button.edit_mode:hover,
+	img.edit_mode:hover,
 	.dragover.edit_mode {
 		border-color: var(--cl1);
 		cursor: pointer;

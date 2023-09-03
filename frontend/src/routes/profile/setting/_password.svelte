@@ -1,5 +1,5 @@
 <script>
-	import { module, user } from '$lib/store.js';
+	import { module, user, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -14,6 +14,7 @@
 	let error = {};
 	let email_template;
 	let message;
+	let show = false;
 
 	const request_otp = async () => {
 		error = {};
@@ -66,6 +67,7 @@
 	};
 
 	const submit = async () => {
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/password`, {
 			method: 'post',
 			headers: {
@@ -75,6 +77,7 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$module = {
@@ -105,12 +108,50 @@
 	</svelte:fragment>
 
 	<IG name="password" {error} let:id>
-		<input bind:value={form.password} {id} type="password" placeholder="password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
 		<Password password={form.password} />
 	</IG>
 
-	<IG name="confirm_password" {error} let:id>
-		<input bind:value={form.confirm_password} {id} type="password" placeholder="password here" />
+	<IG name="confirm password" {error} let:id>
+		<div class="password">
+			{#if show}
+				<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input
+					bind:value={form.confirm_password}
+					{id}
+					type="password"
+					placeholder="Password here"
+				/>
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
+		<Password password={form.password} />
 	</IG>
 
 	<Button
@@ -151,3 +192,20 @@
 <div bind:this={email_template} style="display: none;">
 	<Email name={$user.name} />
 </div>
+
+<style>
+	.password {
+		position: relative;
+	}
+
+	.show {
+		position: absolute;
+		right: var(--sp2);
+		top: 0;
+
+		display: flex;
+		align-items: center;
+
+		height: 100%;
+	}
+</style>

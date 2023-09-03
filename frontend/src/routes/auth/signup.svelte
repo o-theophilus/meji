@@ -14,6 +14,7 @@
 
 	let form = {};
 	let error = {};
+	let show = false;
 
 	if ($module.email) {
 		form.email = $module.email;
@@ -104,12 +105,50 @@
 	</IG>
 
 	<IG name="password" {error} let:id>
-		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
 		<Password password={form.password} />
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
-		<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input
+					bind:value={form.confirm_password}
+					{id}
+					type="password"
+					placeholder="Password here"
+				/>
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
+		<Password password={form.password} />
 	</IG>
 
 	{#if error.error}
@@ -144,3 +183,20 @@
 <div bind:this={email_template} style="display: none;">
 	<Email />
 </div>
+
+<style>
+	.password {
+		position: relative;
+	}
+
+	.show {
+		position: absolute;
+		right: var(--sp2);
+		top: 0;
+
+		display: flex;
+		align-items: center;
+
+		height: 100%;
+	}
+</style>

@@ -12,6 +12,7 @@
 
 	let form = {};
 	let error = {};
+	let show = false;
 
 	const validate = async () => {
 		error = {};
@@ -105,12 +106,50 @@ Please try repeacting the action again.`,
 	</svelte:fragment>
 
 	<IG name="password" {error} let:id>
-		<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
 		<Password password={form.password} />
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
-		<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
+		<div class="password">
+			{#if show}
+				<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
+			{:else}
+				<input
+					bind:value={form.confirm_password}
+					{id}
+					type="password"
+					placeholder="Password here"
+				/>
+			{/if}
+			<form class="show" on:submit|preventDefault>
+				<Button
+					class="tiny"
+					icon="show"
+					icon_size="14"
+					on:click={() => {
+						show = !show;
+					}}
+				/>
+			</form>
+		</div>
+		<Password password={form.password} />
 	</IG>
 
 	{#if error.error}
@@ -128,3 +167,20 @@ Please try repeacting the action again.`,
 		}}
 	/>
 </Form>
+
+<style>
+	.password {
+		position: relative;
+	}
+
+	.show {
+		position: absolute;
+		right: var(--sp2);
+		top: 0;
+
+		display: flex;
+		align-items: center;
+
+		height: 100%;
+	}
+</style>

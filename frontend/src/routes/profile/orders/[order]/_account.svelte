@@ -1,10 +1,9 @@
 <script>
-	import { user, module, portal } from '$lib/store.js';
+	import { user, module, portal, toast,loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Info from '$lib/info.svelte';
 
 	let order = { ...$module.order };
 	let error = {};
@@ -29,6 +28,7 @@
 	const submit = async () => {
 		order.info.account = value;
 
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_/${order.key}`, {
 			method: 'put',
 			headers: {
@@ -38,24 +38,14 @@
 			body: JSON.stringify({ value })
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = resp.order;
-
-			$module = {
-				module: Info,
+			$module = '';
+			$toast = {
 				status: '200',
-				title: '# Amount Changed',
-				message: 'Amount has been changed successfully',
-				button: [
-					{
-						name: 'Ok',
-						icon: 'ok',
-						fn: () => {
-							$module = '';
-						}
-					}
-				]
+				message: 'Amount changed'
 			};
 		} else {
 			error = resp;
