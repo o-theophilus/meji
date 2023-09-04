@@ -44,7 +44,7 @@
 		} else {
 			$toast = {
 				status: 400,
-				message: 'Save failed'
+				message: 'Error saving item'
 			};
 		}
 

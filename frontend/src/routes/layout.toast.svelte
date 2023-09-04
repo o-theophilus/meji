@@ -8,21 +8,23 @@
 	import Marked from '$lib/comp/marked.svelte';
 	import Button from '$lib/button.svelte';
 
+	let timer_1, timer_2;
 	const close = () => {
 		$toast = '';
 	};
 
 	let zero = false;
 	$: {
-		zero = false;
 		$toast;
-		setTimeout(() => {
+
+		zero = false;
+		clearTimeout(timer_1);
+		clearTimeout(timer_2);
+
+		timer_1 = setTimeout(() => {
 			zero = true;
 		}, 0);
-
-		setTimeout(() => {
-			close();
-		}, 5000);
+		timer_2 = setTimeout(close, 5000);
 	}
 </script>
 
@@ -78,10 +80,9 @@
 		width: 100%;
 		height: 2px;
 		background-color: var(--ac5_);
-
-		transition: width 5s linear;
 	}
 	.zero {
+		transition: width 5s linear;
 		width: 0;
 	}
 

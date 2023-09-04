@@ -13,9 +13,9 @@
 	import Login from '../auth/login.svelte';
 
 	export let data;
-	export let { items } = data;
-	let total = 0;
+	$: items = data.items;
 	let error = {};
+	let total = 0;
 
 	$: {
 		total = 0;
@@ -57,46 +57,6 @@
 			}
 		}
 	};
-
-	const change = async (item, qty) => {
-		error = {};
-		item.quantity = qty;
-
-		if (qty > 0) {
-			for (const x in items) {
-				if (items[x].key == item.key && items[x].variation == item.variation) {
-					items[x] = item;
-					break;
-				}
-			}
-		} else {
-			items = items.filter((i) => i.key != item.key && i.variation != item.variation);
-			$user.cart = $user.cart.filter((i) => i.key != item.key && i.variation != item.variation);
-		}
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify(item)
-		});
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			$user = resp.user;
-			for (const x in $user.cart) {
-				for (const y in items) {
-					if ($user.cart[x].key == item.key && items[y].key == item.key) {
-						items[y].quantity = $user.cart[x].quantity;
-					}
-				}
-			}
-		} else {
-			error = resp;
-		}
-	};
 </script>
 
 <Meta title="Cart" description="Cart" />
@@ -107,9 +67,9 @@
 		{#each items as item (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 				<Item
-					{item}
-					on:done={(e) => {
-						change(item, e.detail.quantity);
+					bind:item
+					on:remove={() => {
+						items = items.filter((i) => i.key != item.key && i.variation != item.variation);
 					}}
 				/>
 			</div>

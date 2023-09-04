@@ -152,10 +152,12 @@ def add_to_cart():
                 database(x)
                 return
 
+    print(request.json["quantity"])
     if cart_i:
         if request.json["quantity"] < 1:
             database(cart_i, True)
             db = [x for x in db if x["key"] != cart_i["key"]]
+            print("here")
         elif "ops" in request.json and request.json["ops"] == "add":
             update_qty(cart_i, cart_i["quantity"] + request.json["quantity"])
         else:

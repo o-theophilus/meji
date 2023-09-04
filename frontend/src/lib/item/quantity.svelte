@@ -4,11 +4,17 @@
 	const emit = createEventDispatcher();
 
 	export let quantity = 1;
+	let def = quantity;
 
 	const change = () => {
-		emit('done', { quantity });
-		if (quantity < 1) {
+		if (!Number.isInteger(quantity) || quantity < 0) {
+			quantity = def;
+		} else if (quantity < 1) {
 			quantity = 1;
+			emit('done', { quantity: 0 });
+		} else {
+			def = quantity;
+			emit('done', { quantity });
 		}
 	};
 
@@ -28,6 +34,7 @@
 	<input
 		type="number"
 		style:width="calc({clientWidth}px + 4px)"
+		min="0"
 		bind:value={quantity}
 		on:change={() => {
 			change();
@@ -61,6 +68,8 @@
 
 	input {
 		padding: var(--sp1);
+		min-width: 40px;
+		text-align: center;
 	}
 	input:focus {
 		background-color: var(--ac5);
@@ -86,7 +95,6 @@
 		border-radius: 50%;
 
 		cursor: pointer;
-
 	}
 
 	button:hover {

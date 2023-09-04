@@ -1,8 +1,81 @@
 <script>
-	import Quantity from '$lib/quantity.svelte';
+	import { user, toast } from '$lib/store.js';
+	import { token } from '$lib/cookie.js';
+	import { createEventDispatcher } from 'svelte';
+
+	import Quantity from '$lib/item/quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
+	const emit = createEventDispatcher();
+
 	export let item;
+
+	const equal = (obj1, obj2) => {
+		const keys1 = Object.keys(obj1);
+		const keys2 = Object.keys(obj2);
+
+		if (keys1.length !== keys2.length) {
+			return false;
+		}
+
+		for (const key of keys1) {
+			if (obj1[key] !== obj2[key]) {
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	const change = async (qty) => {
+		counter += 1;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify({
+				key: item.key,
+				variation: item.variation,
+				quantity: qty
+			})
+		});
+		resp = await resp.json();
+		counter -= 1;
+
+		if (resp.status == 200) {
+			$user = resp.user;
+			for (const x in $user.cart) {
+				for (const y in resp.user.cart) {
+					if (
+						counter == 0 &&
+						$user.cart[x].key == item.key &&
+						resp.user.cart[y].key == item.key &&
+						equal($user.cart[x].variation, item.variation) &&
+						equal(resp.user.cart[y].variation, item.variation)
+					) {
+						$user.cart[x].quantity = resp.user.cart[y].quantity;
+						item.quantity = resp.user.cart[y].quantity;
+					}
+				}
+			}
+		} else {
+			for (const x in $user.cart) {
+				if ($user.cart[x].key == item.key && equal($user.cart[x].variation, item.variation)) {
+					item.quantity = $user.cart[x].quantity;
+				}
+			}
+
+			$toast = {
+				status: 400,
+				message: 'Error updating cart'
+			};
+		}
+	};
+
+	let timer;
+	let counter = 0;
 </script>
 
 <section>
@@ -14,26 +87,39 @@
 		/>
 	</a>
 	<div class="details">
-		<a href="/{item.slug}">
-			{item.name}
-		</a>
+		<div>
+			<a href="/{item.slug}">
+				{item.name}
+			</a>
 
-		{#if Object.keys(item.variation).length > 0}
-			<div class="variation">
-				{#each Object.entries(item.variation) as [key, value], i}
-					{#if i != 0},{/if}
-					{key}: &nbsp;<Value {value} />
-				{/each}
-			</div>
-			<br />
-		{/if}
+			{#if Object.keys(item.variation).length > 0}
+				<div class="variation">
+					{#each Object.entries(item.variation) as [key, value], i}
+						{#if i != 0},{/if}
+						{key}: &nbsp;<Value {value} />
+					{/each}
+				</div>
+			{/if}
+		</div>
 
-		<div class="line space">
+		<div class="line price">
 			<div class="line">
-				<span class="price">
-					₦{item.price.toLocaleString()}
-				</span>
-				<Quantity quantity={item.quantity} on:done />
+				₦{item.price.toLocaleString()}
+				<Quantity
+					quantity={item.quantity}
+					on:done={(e) => {
+						if (e.detail.quantity > 0) {
+							item.quantity = e.detail.quantity;
+						} else {
+							emit('remove');
+						}
+
+						clearTimeout(timer);
+						timer = setTimeout(() => {
+							change(e.detail.quantity);
+						}, 1000);
+					}}
+				/>
 			</div>
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>
@@ -42,19 +128,25 @@
 
 <style>
 	section {
+		--height: 100px;
 		display: flex;
 		gap: var(--sp3);
 		align-items: center;
 	}
 
 	img {
-		height: 100px;
 		width: 100px;
+		height: var(--height);
 
 		border-radius: var(--sp1);
 	}
 	.details {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+
 		width: 100%;
+		min-height: var(--height);
 	}
 
 	.line {
@@ -63,7 +155,8 @@
 		gap: 0 var(--sp2);
 		flex-wrap: wrap;
 	}
-	.space {
+	.price {
+		margin-top: auto;
 		justify-content: space-between;
 	}
 
@@ -71,9 +164,6 @@
 		text-decoration: none;
 		color: var(--ac1);
 		font-weight: 500;
-	}
-	.price {
-		color: var(--cl3);
 	}
 
 	.variation {

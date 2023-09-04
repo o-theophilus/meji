@@ -4,7 +4,7 @@
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Quantity from '$lib/quantity.svelte';
+	import Quantity from './quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
 	let item = { ...$module.item };

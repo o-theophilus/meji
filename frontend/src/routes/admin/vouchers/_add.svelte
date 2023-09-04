@@ -5,6 +5,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Quantity from './quantity.svelte';
 
 	let form = {
 		quantity: 1
@@ -16,9 +17,6 @@
 
 		if (form.value && (!Number.isFinite(form.value) || form.value <= 0)) {
 			error.value = 'please enter a valid value';
-		}
-		if (form.quantity && (!Number.isFinite(form.quantity) || form.quantity < 1)) {
-			error.quantity = 'please enter a valid quantity';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -61,7 +59,12 @@
 	</IG>
 
 	<IG name="quantity" {error} let:id>
-		<input bind:value={form.quantity} {id} type="number" placeholder="Quantity here" />
+		<Quantity
+			quantity={1}
+			on:done={(e) => {
+				form.quantity = e.detail.quantity || 1;
+			}}
+		/>
 	</IG>
 	{#if error.error}
 		<p class="error">
