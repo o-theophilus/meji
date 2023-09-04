@@ -1,5 +1,5 @@
 <script>
-	import { module } from '$lib/store.js';
+	import { module, loading } from '$lib/store.js';
 
 	import Form from '$lib/form.svelte';
 	import Login from './login.svelte';
@@ -32,12 +32,14 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/forgot_password`, {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$module = {

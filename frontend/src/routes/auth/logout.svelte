@@ -1,10 +1,11 @@
 <script>
 	import { token } from '$lib/cookie.js';
-	import { user } from '$lib/store.js';
+	import { loading } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 
 	const submit = async () => {
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
 			method: 'delete',
 			headers: {
@@ -13,6 +14,7 @@
 			}
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$token = resp.token;

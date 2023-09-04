@@ -1,7 +1,7 @@
 <script>
 	import { token } from '$lib/cookie.js';
 
-	import { tick, module } from '$lib/store.js';
+	import { tick, module,loading } from '$lib/store.js';
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';

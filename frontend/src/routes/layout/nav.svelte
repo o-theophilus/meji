@@ -3,7 +3,7 @@
 	import { user, module, state } from '$lib/store.js';
 
 	import SVG from '$lib/comp/svg.svelte';
-	import Login from './auth/login.svelte';
+	import Login from '../auth/login.svelte';
 
 	$: segment = $page.url.pathname || undefined;
 </script>

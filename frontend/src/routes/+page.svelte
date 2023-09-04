@@ -10,11 +10,11 @@
 	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/button.svelte';
 
-	import Tag from './page.tag.svelte';
-	import Tag_All from './page.tag_all.svelte';
-	import Hero from './page.hero.svelte';
-	import About from './page.about.svelte';
-	import Top from './page.to_top.svelte';
+	import Tag from './home/tag.svelte';
+	import Tag_All from './home/tag_all.svelte';
+	import Hero from './home/hero.svelte';
+	import About from './home/about.svelte';
+	import Top from './home/to_top.svelte';
 
 	import Login from './auth/login.svelte';
 	import Password from './auth/password.svelte';

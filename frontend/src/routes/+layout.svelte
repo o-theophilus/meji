@@ -1,16 +1,16 @@
 <script>
-	import './layout.var.css';
-	import './layout.main.css';
+	import './layout/var.css';
+	import './layout/main.css';
 
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Header from './layout.header.svelte';
-	import Footer from './layout.footer.svelte';
-	import Nav from './layout.nav.svelte';
-	import Module from './layout.module.svelte';
-	import Toast from './layout.toast.svelte';
-	import Loading from './layout.loading.svelte';
+	import Header from './layout/header.svelte';
+	import Footer from './layout/footer.svelte';
+	import Nav from './layout/nav.svelte';
+	import Module from './layout/module.svelte';
+	import Toast from './layout/toast.svelte';
+	import Loading from './layout/loading.svelte';
 
 	export let data;
 	$user = data.locals.user;

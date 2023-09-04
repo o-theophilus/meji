@@ -1,8 +1,8 @@
 <script>
 	import SVG from '$lib/comp/svg.svelte';
-	import Theme from './layout.header.theme.svelte';
-	import Nav from './layout.nav.svelte';
-	import Auth from './layout.header.auth.svelte';
+	import Theme from './header.theme.svelte';
+	import Nav from './nav.svelte';
+	import Auth from './header.auth.svelte';
 </script>
 
 <header>

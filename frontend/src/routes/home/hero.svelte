@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/button.svelte';
-	import SVG from './page.svg.svelte';
-	import Nav from './page.hero.nav.svelte';
+	import SVG from './svg.svelte';
+	import Nav from './hero.nav.svelte';
 </script>
 
 <section>
