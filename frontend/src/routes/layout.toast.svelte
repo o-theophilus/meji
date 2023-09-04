@@ -64,13 +64,6 @@
 		color: var(--ac5_);
 		font-size: small;
 		fill: var(--ac5_);
-
-		opacity: 0.5;
-		transition-duration: 0.5s;
-	}
-
-	section:hover {
-		opacity: unset;
 	}
 
 	.block {

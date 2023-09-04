@@ -25,7 +25,7 @@
 {:else}
 	<button
 		class="cart"
-		on:click|stopPropagation={() => {
+		on:click={() => {
 			$module = {
 				module: Variation,
 				item

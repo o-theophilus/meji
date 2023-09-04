@@ -62,20 +62,23 @@ def save_item():
             "error": "invalid request"
         })
 
-    user_saved_item = query({
+    saved_item = query({
         "type": "save", "user": user["key"],
         "item": item["key"]}, db=db)
 
-    if user_saved_item and not request.json["save"]:
-        database(user_saved_item, True)
-    elif not user_saved_item and request.json["save"]:
-        database({
+    if saved_item and not request.json["save"]:
+        database(saved_item, True)
+        db = [x for x in db if x["key"] != saved_item["key"]]
+
+    elif not saved_item and request.json["save"]:
+        save = database({
             "key": uuid4().hex,
             "date": now(),
             "type": "save",
             "user": user['key'],
             "item": item['key'],
         })
+        db.append(save)
 
     return jsonify({
         "status": 200,
@@ -137,24 +140,29 @@ def add_to_cart():
             "error": "invalid request"
         })
 
-    cart_item = query({
+    cart_i = query({
         "type": "cart", "user": user["key"], "item": item["key"],
         "variation": request.json["variation"]
     }, db=db)
 
-    if cart_item:
+    def update_qty(cart_, qty):
+        for x in db:
+            if x["type"] == "cart" and x["key"] == cart_["key"]:
+                x["quantity"] = qty
+                database(x)
+                return
+
+    if cart_i:
         if request.json["quantity"] < 1:
-            database(cart_item, True)
-            db = [x for x in db if x["key"] != cart_item["key"]]
+            database(cart_i, True)
+            db = [x for x in db if x["key"] != cart_i["key"]]
         elif "ops" in request.json and request.json["ops"] == "add":
-            cart_item["quantity"] += request.json["quantity"]
-            database(cart_item)
+            update_qty(cart_i, cart_i["quantity"] + request.json["quantity"])
         else:
-            cart_item["quantity"] = request.json["quantity"]
-            database(cart_item)
+            update_qty(cart_i, request.json["quantity"])
 
     elif request.json["quantity"] > 0:
-        cart_item = database({
+        cart_i = database({
             "key": uuid4().hex,
             "date": now(),
             "type": "cart",
@@ -163,7 +171,7 @@ def add_to_cart():
             "variation": request.json["variation"],
             "quantity": request.json["quantity"]
         })
-        db.append(cart_item)
+        db.append(cart_i)
 
     return jsonify({
         "status": 200,
