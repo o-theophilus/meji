@@ -10,7 +10,7 @@
 	import Address from './receiver.svelte';
 	import Action from './action.svelte';
 	import Status from './status.svelte';
-	import Voucher from '../../_voucher.svelte';
+	import Voucher from '../../profile/_voucher.svelte';
 	import Account from './_account.svelte';
 
 	export let data;
