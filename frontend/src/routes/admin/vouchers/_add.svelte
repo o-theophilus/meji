@@ -5,7 +5,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Quantity from './quantity.svelte';
+	import Quantity from '$lib/item/quantity.svelte';
 
 	let form = {
 		quantity: 1
