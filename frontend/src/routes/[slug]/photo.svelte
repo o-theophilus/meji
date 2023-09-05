@@ -35,7 +35,9 @@
 		}
 	};
 
-	make_active(item.photos[0]);
+	$: if (!item.photos.includes(active_photo)) {
+		make_active(item.photos[0]);
+	}
 
 	const order = (dir = 'right') => {
 		let index = item.photos.indexOf(active_photo);
