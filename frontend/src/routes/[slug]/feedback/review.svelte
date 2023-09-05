@@ -3,6 +3,8 @@
 	import Rating from '$lib/item/rating.svelte';
 	import { user } from '$lib/store.js';
 
+	import Button from '$lib/button.svelte';
+
 	let emit = createEventDispatcher();
 	export let feedback = {};
 </script>
@@ -11,11 +13,14 @@
 	<div class="details">
 		<div class="left">
 			<div class="img">
-				<img src={feedback.photo ? feedback.photo : '/image/user.png'} alt={feedback.name} />
+				<img
+					src={feedback.user.photo ? feedback.user.photo : '/image/user.png'}
+					alt={feedback.name}
+				/>
 			</div>
 			<div class="info">
 				<div class="name">
-					{feedback.name}
+					{feedback.user.name}
 				</div>
 				<div class="date">
 					{feedback.date}
@@ -29,14 +34,16 @@
 	<div class="comment">
 		{feedback.review}
 		<br />
-		{#if $user?.key == feedback.user_key}
-			<div
+		{#if $user.key == feedback.user.key}
+			<Button
+				icon="edit"
+				icon_size="12"
+				class="tiny"
 				on:click={() => {
-					emit('ok');
+					emit('edit');
 				}}
-			>
-				edit
-			</div>
+				tooltip="Edit Feedback"
+			/>
 		{/if}
 	</div>
 </section>

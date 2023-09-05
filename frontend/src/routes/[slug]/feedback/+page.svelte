@@ -1,100 +1,68 @@
-<script context="module">
-	export async function load({ fetch, params, session }) {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${params.item}`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: session.token
-			}
-		});
-
-		if (_resp.ok) {
-			let resp = await _resp.json();
-
-			if (resp.status == 200) {
-				return {
-					props: {
-						item: resp.data.item,
-						give_feedback: resp.data.give_feedback
-					}
-				};
-			} else {
-				return {
-					status: 404,
-					error: resp.message
-				};
-			}
-		}
-		return {
-			status: 404,
-			error: 'Oops! something went wrong'
-		};
-	}
-</script>
-
 <script>
-	import { module, _tick } from '$lib/store.js';
-
-	// import Pagination from '$lib/pagination.svelte';
+	import { module, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 
-	import Review from '$lib/comp/feedback_review.svelte';
-	import Rating from '$lib/comp/rating.svelte';
+	import Review from './review.svelte';
+	import Rating from './rating.svelte';
+	import Add from './_add.svelte';
 
-	import Add from '$lib/comp/feedback_form.svelte';
+	export let data;
+	let { item } = data;
+	$: feedbacks = data.feedbacks;
 
-	export let item;
-	export let give_feedback;
-
-	$: if ($_tick) {
-		item = $_tick;
-		$_tick = '';
+	$: if ($portal) {
+		feedbacks.push($portal);
+		$portal = '';
 	}
+
+	let give_feedback = true;
 </script>
 
 <section>
-	{#if item.feedbacks.length > 0}
+	{#if feedbacks.length > 0}
 		<Card>
 			<b>Rating</b>
 			<br />
 			<br />
-			<Rating feedback={item.feedbacks} />
+			<Rating {feedbacks} />
 		</Card>
 	{/if}
 	<Card>
-		<b>Reviews</b>
+		<b>Review{feedbacks.length > 1 ? 's' : ''}</b>
 		<br />
 		<br />
-		{#each item.feedbacks as feedback (feedback.key)}
+		{#each feedbacks as feedback (feedback.key)}
 			<Review
-				{feedback}
-				on:ok={() => {
+				bind:feedback
+				on:edit={() => {
 					$module = {
 						module: Add,
-						data: {
-							item,
-							feedback
-						}
+						item,
+						feedback
 					};
 				}}
 			/>
 		{:else}
-			<strong>{item.name}</strong> has no feedback yet.
+			{item.name} has no feedback yet.
 			<br />
-			Only logged in customers who have purchased this item may leave a review.
+			Only
+			{#if !$user.login}
+				logged in
+			{/if}
+			customers who have purchased this item may leave a review.
 		{/each}
 
 		{#if give_feedback}
+			<br />
+			<br />
 			<Button
 				name="Give Feedback"
 				on:click={() => {
 					$module = {
 						module: Add,
-						data: {
-							item
-						}
+						item
 					};
 				}}
 			/>

@@ -1,26 +1,19 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import SVG from '$lib/comp/svg.svelte';
 
-	let emit = createEventDispatcher();
-
-	export let rating = 0;
-	const set = (value) => {
-		emit('ok', value);
-	};
+	export let form;
 </script>
 
 <section>
 	{#each Array(5) as _, i}
-		<div
-			class="svg"
-			class:active={5 - i == rating}
+		<button
+			class:active={5 - i == form.rating}
 			on:click={() => {
-				set(5 - i);
+				form.rating = 5 - i;
 			}}
 		>
-			<SVG type="star" size="40" />
-		</div>
+			<SVG type="star" size="24" />
+		</button>
 	{/each}
 </section>
 
@@ -28,28 +21,35 @@
 	section {
 		display: flex;
 		flex-direction: row-reverse;
-
 		width: fit-content;
-		gap: var(--sp1);
 	}
-	.svg {
+	button {
 		display: flex;
 		align-items: center;
 
 		cursor: pointer;
+		border: none;
+		padding: 0 var(--sp0);
+		background-color: transparent;
+	}
+	button:first-child {
+		padding-right: 0;
+	}
+	button:last-child {
+		padding-left: 0;
 	}
 
-	.svg.active {
+	button.active {
 		fill: var(--cl6);
 	}
-	.svg.active ~ .svg {
+	button.active ~ button {
 		fill: var(--cl6);
 	}
 
-	.svg:hover {
+	button:hover {
 		fill: gold !important;
 	}
-	.svg:hover ~ .svg {
+	button:hover ~ button {
 		fill: gold;
 	}
 </style>

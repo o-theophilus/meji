@@ -10,7 +10,7 @@
 	import Price from './info.price.svelte';
 	import Discount from './info.price.discount.svelte';
 	import Rating from '$lib/item/rating.svelte';
-	import Review from '$lib/comp/feedback_review.svelte';
+	import Review from './feedback/review.svelte';
 	import Save from '$lib/item/save.svelte';
 	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Md from '$lib/comp/marked.svelte';
@@ -286,7 +286,7 @@
 
 {#if open_feedback}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
-		{#if item.feedbacks && item.feedbacks.length > 0}
+		{#if item.feedbacks.length > 0}
 			<span class="title"> Rating </span>
 			<Rating feedback={item.feedbacks} />
 			<span class="title"> Reviews </span>
@@ -308,8 +308,12 @@
 			<span class="f2">
 				There is no feedback yet.
 				<br />
-				<br />
-				Only logged in customers who have purchased this item may leave a review.
+				Only
+				{#if !$user.login}
+					logged in
+				{/if}
+
+				customers who have purchased this item may leave a review.
 			</span>
 		{/if}
 	</div>

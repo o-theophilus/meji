@@ -38,31 +38,6 @@ def user_schema(user, db):
 def item_schema(item, db):
     photos = [f"{request.host_url}photos/{x}" for x in item["photos"]]
 
-    feedbacks = []
-    user_keys = [x["user"] for x in item["feedbacks"]]
-    for row in db:
-        if row["type"] == "user" and row["key"] in user_keys:
-            for feedback in item["feedbacks"]:
-                if feedback["user"] == row["key"]:
-                    photo = None
-                    if row["photo"]:
-                        photo = f"{request.host_url}photos/{row['photo']}"
-
-                    feedbacks.append({
-                        "user": row["key"],
-                        "photo": photo,
-                        "name": row["name"],
-                        "rating": feedback["rating"],
-                        "review": feedback["review"],
-                        "date":  feedback[
-                            "date"] if "date" in feedback else "10-01-01",
-                    })
-                    user_keys = [x for x in user_keys if x != row["key"]]
-                    break
-
-            if user_keys == []:
-                break
-
     return {
         "key": item["key"],
 
@@ -81,7 +56,7 @@ def item_schema(item, db):
         "status": item["status"],
 
         "tags": item["tags"],
-        "feedbacks": feedbacks,
+        "feedbacks": [],
     }
 
 
@@ -117,14 +92,19 @@ def order_schema(order, db):
     }
 
 
-def feedback_schema(fb):
-    # user = db("user").get(fb["user"])
-    # temp["user"] = user_schema(user, db)
+def feedback_schema(fb, db):
+    user = query({"type": "user", "key": fb["user"]}, db=db)
+
     return {
         "key": fb["key"],
+        "user": {
+            "key": user["key"],
+            "name": user["name"],
+            "photo": user["photo"],
+        },
         "rating": fb["rating"],
         "review": fb["review"],
-        "date": fb["date_c"],
+        "date": fb["date"],
     }
 
 

@@ -58,7 +58,6 @@ def add_new():
         "variation": {},
 
         "available_quantity": 0,
-        "feedbacks": [],
     })
 
     return jsonify({
