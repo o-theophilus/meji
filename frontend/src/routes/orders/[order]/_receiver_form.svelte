@@ -6,7 +6,6 @@
 
 	import countries from '$lib/countries.js';
 
-	import HR from '$lib/comp/hr.svelte';
 	import Button from '$lib/button.svelte';
 	import Button_Fold from '$lib/button_fold.svelte';
 	import Form from '$lib/form.svelte';
@@ -131,7 +130,7 @@
 		</div>
 
 		<br />
-		<HR />
+		<hr />
 		<br />
 	{/if}
 
@@ -143,7 +142,7 @@
 		<input bind:value={recipient.phone} {id} type="tel" placeholder="Phone here" />
 	</IG>
 
-	<HR />
+	<hr />
 	<br />
 
 	<IG name="line" label="address" {error} let:id>
