@@ -1,12 +1,10 @@
 <script>
 	import { page } from '$app/stores';
 	import Contact from './footer.contact.svelte';
-
-	let show_contact = $page.url.pathname == '/';
 </script>
 
 <footer>
-	{#if show_contact}
+	{#if $page.url.pathname == '/'}
 		<Contact />
 	{/if}
 
