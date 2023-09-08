@@ -6,7 +6,7 @@
 	import Forgot from './forgot.svelte';
 	import Signup from './signup.svelte';
 	import Info from '$lib/info.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button_v2.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Email from './confirm_email_template.svelte';
 
@@ -105,7 +105,7 @@
 			<form class="show" on:submit|preventDefault>
 				<Button
 					class="tiny"
-					icon="show"
+					icon={show ? 'hide_password' : 'show_password'}
 					icon_size="14"
 					on:click={() => {
 						show = !show;
@@ -114,11 +114,6 @@
 			</form>
 		</div>
 	</IG>
-
-	<!-- <div class="inputGroup horizontal">
-			<input type="checkbox" bind:value={form.remember} id="remember" />
-			<label for="remember"> Remember Me </label>
-		</div> -->
 
 	{#if error.error}
 		<p class="error">
