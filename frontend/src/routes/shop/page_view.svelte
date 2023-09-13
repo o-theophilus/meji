@@ -1,20 +1,15 @@
 <script>
-	import { set_state } from '$lib/store.js';
-	import { user } from '$lib/store.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { set_state, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let page_name = '';
-	let sort = ['date', 'dsc'];
+	let sort = 'latest';
 
-	let sorts = {
-		date: ['old-new', 'new-old'],
-		name: ['z-a', 'a-z'],
-		price: ['hi-lo', 'lo-hi'],
-		discount: ['hi-lo', 'lo-hi']
-		// 'rating'
-	};
-	let sorts2 = [
+	let sorts = [
 		'latest',
 		'oldest',
 		'name (a-z)',
@@ -36,53 +31,50 @@
 			body: JSON.stringify({ item_view: $user.setting.item_view })
 		});
 	};
-	const direct = () => {
-		sort[1] = sort[1] == 'dsc' ? 'asc' : 'dsc';
-	};
+
 	const submit = () => {
-		let a = sort.join(',');
-		if (a == 'date,dsc') {
-			a = '';
-		}
-		set_state(page_name, 'sort', a);
+		set_state(page_name, 'sort', sort == 'latest' ? '' : sort);
 	};
+
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('sort')) {
+			sort = params.get('sort');
+		}
+	});
 </script>
 
 <section class="line wrap">
 	<Button class="small" on:click={save_view}>
-		{$user.setting.item_view}
+		view
+		<SVG type={$user.setting.item_view == 'grid' ? 'shop_active' : 'list'} />
 	</Button>
-
-	|
 
 	<span class="line">
 		sort:
-		<select bind:value={sort[0]}>
-			{#each Object.keys(sorts) as key}
-				<option value={key}>
-					{key}
+		<select bind:value={sort} on:change={submit}>
+			{#each sorts as value}
+				<option {value}>
+					{value}
 				</option>
 			{/each}
 		</select>
 	</span>
-
-	<Button class="small" on:click={direct}>
-		{sort[1] == 'dsc' ? sorts[sort[0]][0] : sorts[sort[0]][1]}
-	</Button>
-	<Button class="small" on:click={submit}>Ok</Button>
 </section>
 
 <style>
 	.line {
 		display: flex;
 		align-items: center;
-		gap: var(--sp2);
+		gap: var(--sp0);
 	}
 	.wrap {
 		flex-wrap: wrap;
+		gap: var(--sp2);
 	}
 
 	select {
 		display: inline;
+		padding: var(--sp0);
 	}
 </style>

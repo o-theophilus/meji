@@ -97,7 +97,7 @@
 		<Card>
 			<div class="title">
 				{x.name}
-				<Button class="link" href="/shop">view all <SVG type="arrow_right" size="16" /></Button>
+				<Button class="link" href="/shop?sort={x.sort}">view all <SVG type="arrow_right" size="16" /></Button>
 			</div>
 
 			<div class="item_area" class:list={$user.setting.item_view == 'list'}>

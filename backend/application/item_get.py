@@ -111,7 +111,7 @@ def item_master(
     status="live",
     search="",
     tag="",
-    sort=["date", "dsc"],
+    sort="latest",
     page_no=1,
     size=24,
 ):
@@ -128,18 +128,27 @@ def item_master(
             continue
         items.append(row)
 
-    if sort[0] == "date":
-        sort[0] = "date_c"
-    elif sort[0] == "discount":
+    reverse = sort in ["latest", "name (z-a)", "expensive", "discount"]
+
+    if sort in ["latest", "oldest"]:
+        sort = "date_c"
+    elif sort in ["name (a-z)", "name (z-a)"]:
+        sort = "name"
+    elif sort in ["cheap", "expensive"]:
+        sort = "price"
+    elif sort == "discount":
+        temp = []
         for item in items:
             item["discount"] = 0
             if item["old_price"]:
                 item["discount"] = (
                     item["old_price"] - item["price"]
                 ) * 100 / item["old_price"]
+                temp.append(item)
+        items = temp
 
-    items = sorted(
-        items, key=lambda d: d[sort[0]], reverse=sort[1] == "dsc")
+    items = sorted(items, key=lambda d: d[sort].lower() if isinstance(
+        d[sort], str) else d[sort], reverse=reverse)
 
     total_page = ceil(len(items) / size)
 
@@ -178,11 +187,11 @@ def home():
     group = [
         {
             "name": "New Arrivals",
-            "sort": ["date", "dsc"]
+            "sort": "latest"
         },
         {
             "name": "Offers",
-            "sort": ["discount", "dsc"]
+            "sort": "discount"
         }
     ]
 
@@ -225,8 +234,8 @@ def shop():
                 "search"] if "search" in request.args else "",
             tag=request.args[
                 "tag"] if "tag" in request.args else "",
-            sort=request.args["sort"].split(
-                ',') if "sort" in request.args else ["date", "dsc"],
+            sort=request.args[
+                "sort"] if "sort" in request.args else "latest",
             page_no=int(request.args[
                 "page_no"]) if "page_no" in request.args else 1,
         )
