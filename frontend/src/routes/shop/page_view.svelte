@@ -14,6 +14,16 @@
 		discount: ['hi-lo', 'lo-hi']
 		// 'rating'
 	};
+	let sorts2 = [
+		'latest',
+		'oldest',
+		'name (a-z)',
+		'name (z-a)',
+		'cheap',
+		'expensive',
+		'discount'
+		// 'rating'
+	];
 
 	const save_view = async () => {
 		$user.setting.item_view = $user.setting.item_view == 'grid' ? 'list' : 'grid';

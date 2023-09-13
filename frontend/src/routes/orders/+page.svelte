@@ -10,7 +10,7 @@
 </script>
 
 <Meta title="Order" description="Order" />
-<Status_Bar page_name="user_orders" />
+<Status_Bar page_name="orders" />
 
 <Card>
 	<b> My Orders </b>

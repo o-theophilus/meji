@@ -6,7 +6,7 @@ export const load = async ({ fetch, url, parent }) => {
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/orders`)	
 	if (url.search){	
 		let temp = get(state)
-		temp.shop = url.search
+		temp.orders = url.search
 		state.set(temp)
 		
 		backend.search = url.search

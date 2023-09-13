@@ -3,9 +3,6 @@
 	import { onMount } from 'svelte';
 	import { set_state, user } from '$lib/store.js';
 
-
-
-	
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
@@ -40,8 +37,6 @@
 	{#if $user.roles.includes('admin')}
 		<Button
 			class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
-			icon="edit"
-			icon_size="12"
 			on:click={() => {
 				if ($page.url.searchParams.has('admin')) {
 					set_state(page_name, 'admin', '');

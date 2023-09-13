@@ -14,6 +14,7 @@
 	import Tag_All from './home/tag_all.svelte';
 	import Hero from './home/hero.svelte';
 	import About from './home/about.svelte';
+	import Contact from './home/contact.svelte';
 	import Top from './home/to_top.svelte';
 
 	import Login from './auth/login.svelte';
@@ -111,6 +112,7 @@
 <div id="about" />
 <About />
 
+<Contact />
 <Top />
 
 <style>

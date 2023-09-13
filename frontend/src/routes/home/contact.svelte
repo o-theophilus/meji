@@ -48,6 +48,7 @@
 	};
 </script>
 
+<div id="contact" />
 <Card>
 	<b>Contact us</b>
 	<br />

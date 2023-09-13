@@ -1,18 +1,10 @@
-<script>
-	import { page } from '$app/stores';
-	import Contact from './footer.contact.svelte';
-</script>
-
 <footer>
-	{#if $page.url.pathname == '/'}
-		<Contact />
-	{/if}
-
 	<br />
 	<br />
 	<div class="nav">
 		<a href="/">Home</a>
-		&#8226; <a href="/#about">About</a>
+		&nbsp; &#8226; &nbsp;
+		<a href="/#about">About</a>
 		<!-- &#8226; <a href="/terms">Terms</a> -->
 	</div>
 

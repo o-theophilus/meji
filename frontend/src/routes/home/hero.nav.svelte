@@ -42,16 +42,16 @@
 	>
 		About Us
 	</button>
-	<button
+	<!-- <button
 		on:click={() => {
 			go();
 		}}
 	>
 		Q&A
-	</button>
+	</button> -->
 	<button
 		on:click={() => {
-			go();
+			go("contact");
 		}}
 	>
 		Contact

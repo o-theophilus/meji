@@ -120,7 +120,6 @@
 				{#if edit_mode}
 					<Button
 						class="small"
-						size="12"
 						on:click={() => {
 							$module = {
 								module: Edit_Address,
@@ -150,7 +149,6 @@
 				</p>
 				<Button
 					class="small"
-					size="12"
 					on:click={() => {
 						$module = {
 							module: Add_Voucher
