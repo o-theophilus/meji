@@ -3,6 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let item = {};
 	let init_order = [...item.photos];
@@ -247,49 +248,54 @@
 	<div class="row">
 		{#if item.photos.length < count}
 			<Button
-				name="Add ({count - item.photos.length})"
-				class="primary tiny"
+				class="primary small"
 				on:click={() => {
 					input.click();
 				}}
-			/>
+			>
+				Add ({count - item.photos.length})
+			</Button>
 		{/if}
 
 		{#if item.photos.length > 0}
 			<Button
-				name="Remove"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					reorder_delete('delete');
 				}}
-			/>
+			>
+				Remove
+			</Button>
 		{/if}
 
 		{#if item.photos.length > 1}
 			<Button
 				disabled={!show_left_btn}
-				name="<<"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					order('left');
 				}}
-			/>
+			>
+				<SVG type="arrow_left" size="16" />
+			</Button>
 			<Button
 				disabled={!show_right_btn}
-				name=">>"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					order('right');
 				}}
-			/>
+			>
+				<SVG type="arrow_right" size="16" />
+			</Button>
 			<Button
 				disabled={!order_changed}
-				name="Save Order"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					reorder_delete('put');
 				}}
-			/>
+			>
+				Save Order
+			</Button>
 		{/if}
 	</div>
 {/if}

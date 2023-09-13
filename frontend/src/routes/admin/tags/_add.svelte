@@ -61,7 +61,7 @@
 		</div>
 
 		<div class="inputGroup horizontal">
-			<Button class="primary" name="Submit" />
+			<Button class="primary">Submit</Button>
 		</div>
 	</form>
 </Form>

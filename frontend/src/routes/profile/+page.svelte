@@ -13,6 +13,7 @@
 	import Edit_Phone from './_phone.svelte';
 	import Edit_Address from './_address.svelte';
 	import Add_Voucher from './_voucher.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	$: if ($portal) {
 		$user = $portal;
@@ -29,14 +30,14 @@
 		User Details
 		{#if me}
 			<Button
-				name="Edit Mode: {edit_mode ? 'On' : 'Off'}"
-				class="tiny"
-				icon="edit"
-				icon_size="12"
+				class="small"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}
-			/>
+			>
+				<SVG type="edit" size="12" />
+				Edit Mode: {edit_mode ? 'On' : 'Off'}
+			</Button>
 		{/if}
 	</div>
 
@@ -52,16 +53,16 @@
 				</b>
 				{#if edit_mode}
 					<Button
-						class="tiny"
-						icon="edit"
-						icon_size="12"
+						class="small"
 						on:click={() => {
 							$module = {
 								module: Edit_Name,
 								user: $user
 							};
 						}}
-					/>
+					>
+						<SVG type="edit" size="12" />
+					</Button>
 				{/if}
 			</div>
 
@@ -76,16 +77,16 @@
 				{/if}
 				{#if edit_mode}
 					<Button
-						class="tiny"
-						icon="edit"
-						icon_size="12"
+						class="small"
 						on:click={() => {
 							$module = {
 								module: Edit_Phone,
 								user: $user
 							};
 						}}
-					/>
+					>
+						<SVG type="edit" size="12" />
+					</Button>
 				{:else}
 					<div />
 				{/if}
@@ -94,16 +95,16 @@
 				{$user.email}
 				{#if edit_mode}
 					<Button
-						class="tiny"
-						icon="edit"
-						icon_size="12"
+						class="small"
 						on:click={() => {
 							$module = {
 								module: Edit_Email,
 								user: $user
 							};
 						}}
-					/>
+					>
+						<SVG type="edit" size="12" />
+					</Button>
 				{:else}
 					<div />
 				{/if}
@@ -118,16 +119,17 @@
 
 				{#if edit_mode}
 					<Button
-						class="tiny"
-						icon="edit"
-						icon_size="12"
+						class="small"
+						size="12"
 						on:click={() => {
 							$module = {
 								module: Edit_Address,
 								user: $user
 							};
 						}}
-					/>
+					>
+						<SVG type="edit" size="12" />
+					</Button>
 				{:else}
 					<div />
 				{/if}
@@ -147,22 +149,23 @@
 					Balance: ₦{$user.acc_balance.toLocaleString()}
 				</p>
 				<Button
-					name="Add Voucher"
-					class="tiny"
-					icon_size="12"
+					class="small"
+					size="12"
 					on:click={() => {
 						$module = {
 							module: Add_Voucher
 						};
 					}}
-				/>
+				>
+					Add Voucher
+				</Button>
 			</div>
 
 			<br />
 
 			<div class="horizontal">
-				<Button class="tiny" name="Orders" href="/orders" />
-				<Button class="tiny" name="Logs" href="/profile/logs" />
+				<Button class="small" href="/orders">Orders</Button>
+				<Button class="small" href="/profile/logs">Logs</Button>
 			</div>
 
 			<br />
@@ -170,16 +173,13 @@
 			<div class="horizontal">
 				{#if me}
 					{#if edit_mode}
-						<Button
-							class="tiny"
-							name="setting"
-							icon="setting"
-							icon_size="12"
-							href="/profile/setting"
-						/>
+						<Button class="small" href="/profile/setting">
+							<SVG icon="setting" size="12" />
+							Setting
+						</Button>
 					{/if}
 					{#if $user.roles.includes('admin')}
-						<Button class="tiny" name="Admin" href="/admin" />
+						<Button class="small" href="/admin">Admin</Button>
 					{/if}
 					<Logout />
 				{/if}

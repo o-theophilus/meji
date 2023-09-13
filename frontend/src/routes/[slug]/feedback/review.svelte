@@ -4,6 +4,7 @@
 	import { user } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	let emit = createEventDispatcher();
 	export let feedback = {};
@@ -36,14 +37,14 @@
 		<br />
 		{#if $user.key == feedback.user.key}
 			<Button
-				icon="edit"
-				icon_size="12"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					emit('edit');
 				}}
 				tooltip="Edit Feedback"
-			/>
+			>
+				<SVG type="edit" size="12" />
+			</Button>
 		{/if}
 	</div>
 </section>

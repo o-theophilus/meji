@@ -6,6 +6,7 @@
 	import Button from '$lib/button.svelte';
 	import Quantity from './quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
 	let { variation } = item;
@@ -114,12 +115,13 @@
 
 	<Button
 		class="primary"
-		icon="cart_add"
-		name="Add to cart"
 		on:click={() => {
 			validate();
 		}}
-	/>
+	>
+		<SVG type="cart_add" size="18" />
+		Add to cart
+	</Button>
 </Form>
 
 <style>

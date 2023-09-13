@@ -92,27 +92,29 @@
 	Don't have an account?
 	<Button
 		class="link"
-		name="Signup"
 		on:click={() => {
 			$module = {
 				module: Signup,
 				email: form.email
 			};
 		}}
-	/>
+	>
+		Signup
+	</Button>
 
 	<br />
 	Remember your password?
 	<Button
 		class="link"
-		name="Login"
 		on:click={() => {
 			$module = {
 				module: Login,
 				email: form.email
 			};
 		}}
-	/>
+	>
+		Login
+	</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

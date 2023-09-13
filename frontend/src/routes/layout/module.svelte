@@ -4,6 +4,7 @@
 
 	import { module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 </script>
 
 {#if $module}
@@ -11,14 +12,14 @@
 		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
 			<div class="pos">
 				<Button
-					icon="close"
-					icon_size="12"
-					class="hover_red"
+					class="round hover_red small"
 					on:keypress
 					on:click={() => {
 						$module = '';
 					}}
-				/>
+				>
+					<SVG type="close" size="12" />
+				</Button>
 			</div>
 
 			<div class="content">

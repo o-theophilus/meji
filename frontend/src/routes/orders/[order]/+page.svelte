@@ -90,14 +90,15 @@
 			{#if $user.acc_balance > 0}
 				<Button
 					class="link"
-					name="Add Amount"
 					on:click={() => {
 						$module = {
 							module: Account,
 							order
 						};
 					}}
-				/>
+				>
+					Add Amount
+				</Button>
 			{/if}
 		</section>
 

@@ -16,16 +16,18 @@
 	<br />
 	<br />
 	<Button
-		name="Change Password"
 		on:click={() => {
 			$module = { module: Password };
 		}}
-	/>
+	>
+		Change Password
+	</Button>
 	<br />
 	<Button
-		name="Delete Account"
 		on:click={() => {
 			$module = { module: Delete };
 		}}
-	/>
+	>
+		Delete Account
+	</Button>
 </Card>

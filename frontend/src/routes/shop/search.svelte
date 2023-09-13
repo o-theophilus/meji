@@ -3,6 +3,8 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
+	import Save from '../../lib/item/save.svelte';
 
 	onMount(() => {
 		let params = $page.url.searchParams;
@@ -50,27 +52,27 @@
 		{#if search}
 			<div class="clear">
 				<Button
-					icon="search"
-					icon_size="15"
-					class="tiny"
+					class="small"
 					on:click={() => {
 						set_state(page_name, 'search', '');
 					}}
-				/>
+				>
+					<SVG type="search" size="15" />
+				</Button>
 				✖
 			</div>
 		{/if}
 	</div>
 
 	<Button
-		name="Search"
-		icon="search"
-		icon_size="15"
-		class="tiny"
+		class="small"
 		on:click={() => {
 			set_state(page_name, 'search', search);
 		}}
-	/>
+	>
+		<SVG type="search" size="15" />
+		Search
+	</Button>
 </section>
 
 <style>

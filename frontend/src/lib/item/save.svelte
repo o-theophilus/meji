@@ -1,6 +1,6 @@
 <script>
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	import { user, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
@@ -23,7 +23,7 @@
 			$user = $user;
 		}
 		emit('save_start');
-		
+
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save`, {
 			method: 'post',
 			headers: {
@@ -61,15 +61,18 @@
 
 {#if _type == 1}
 	<Button
-		color={$user.saves.includes(item.key) ? 'var(--cl2)' : ''}
-		icon="like_active"
-		icon_size="12"
+		class="round"
 		on:click={() => {
 			submit();
 		}}
-	/>
+	>
+		<div class:save={$user.saves.includes(item.key)}>
+			<SVG type="like_active" size="12" />
+		</div>
+	</Button>
 {:else}
 	<button
+		title="save"
 		class:save={$user.saves.includes(item.key)}
 		on:click={() => {
 			submit();
@@ -96,7 +99,7 @@
 	button:hover {
 		background-color: var(--ac4);
 	}
-	button.save {
+	.save {
 		fill: var(--cl1);
 	}
 </style>

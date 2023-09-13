@@ -54,7 +54,6 @@
 	{#if $user?.roles.includes('admin')}
 		<Button
 			class="wide"
-			name="Set Role"
 			on:click={() => {
 				$module = {
 					module: Role,
@@ -63,6 +62,8 @@
 					}
 				};
 			}}
-		/>
+		>
+			Set Role
+		</Button>
 	{/if}
 </User>

@@ -3,7 +3,11 @@
 	import { onMount } from 'svelte';
 	import { set_state, user } from '$lib/store.js';
 
+
+
+	
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let page_name = '';
 	let status = 'ordered';
@@ -22,21 +26,20 @@
 	<div class="left">
 		{#each states as s}
 			<Button
-				name={s}
-				class="tiny"
-				active={status == s}
+				class="small {status == s ? 'primary' : ''}"
 				on:click={() => {
 					status = s;
 					set_state(page_name, 'status', s != 'ordered' ? s : '');
 				}}
-			/>
+			>
+				{s}
+			</Button>
 		{/each}
 	</div>
 
 	{#if $user.roles.includes('admin')}
 		<Button
-			name="Admin: {$page.url.searchParams.has('admin') ? 'On' : 'Off'}"
-			class="tiny {$page.url.searchParams.has('admin') ? 'primary' : ''}"
+			class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
 			icon="edit"
 			icon_size="12"
 			on:click={() => {
@@ -46,7 +49,9 @@
 					set_state(page_name, 'admin', 'true');
 				}
 			}}
-		/>
+		>
+			Admin: {$page.url.searchParams.has('admin') ? 'On' : 'Off'}
+		</Button>
 	{/if}
 </div>
 

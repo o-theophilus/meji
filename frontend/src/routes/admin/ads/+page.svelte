@@ -293,9 +293,9 @@
 		</p>
 	{/if}
 	{#if !hasAds}
-		<Button class="primary" name="Submit" on:click={validate} />
+		<Button class="primary" on:click={validate}>Submit</Button>
 	{:else}
-		<Button name="Remove Ads" on:click={remove_ads} />
+		<Button on:click={remove_ads}>Remove Ads</Button>
 	{/if}
 </Card>
 

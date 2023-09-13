@@ -1,7 +1,6 @@
 <script>
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
-	import Button from '$lib/button.svelte';
 	import Status_Bar from './status.svelte';
 
 	import { portal } from '$lib/store.js';

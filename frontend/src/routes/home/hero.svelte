@@ -1,12 +1,13 @@
 <script>
 	import Button from '$lib/button.svelte';
-	import SVG from './svg.svelte';
+	import SVG from '$lib/svg.svelte';
+	import Wave from './svg.svelte';
 	import Nav from './hero.nav.svelte';
 </script>
 
 <section>
 	<div class="svg">
-		<SVG />
+		<Wave />
 	</div>
 	<div class="nav">
 		<Nav />
@@ -18,7 +19,7 @@
 				Whoever said money can't buy happiness basically didn't know where to go shopping.
 			</p>
 			<div class="btn">
-				<Button name="Shop Now >" class="primary" href="/shop" />
+				<Button class="primary" href="/shop">Shop Now <SVG type="arrow_right" size="16" /></Button>
 			</div>
 		</div>
 		<div class="second">
@@ -38,7 +39,7 @@
 			</div>
 			<img src="/image/hero_image.png" alt="hero" />
 			<div class="btn">
-				<Button name="Shop Now >" class="primary" href="/shop" />
+				<Button class="primary" href="/shop">Shop Now <SVG type="arrow_right" size="16" /></Button>
 			</div>
 		</div>
 	</div>
@@ -46,7 +47,6 @@
 
 <style>
 	section {
-		/* --primary: var(--ac3); */
 		--primary: var(--ac5);
 		--secondary: var(--cl3);
 

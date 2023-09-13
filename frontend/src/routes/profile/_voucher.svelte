@@ -64,5 +64,5 @@
 		<br />
 	{/if}
 
-	<Button class="primary" name="Add" on:click={validate} />
+	<Button class="primary" on:click={validate}>Add</Button>
 </Form>

@@ -1,6 +1,6 @@
 <script>
 	import Card from '$lib/card.svelte';
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 </script>
 
 <Card>
@@ -66,8 +66,6 @@
 
 	.row_1 {
 		max-width: 300px;
-		/* font-size: large; */
-		/* font-weight: 300; */
 	}
 
 	.row_2 {
@@ -98,7 +96,6 @@
 	}
 
 	@media screen and (min-width: 800px) {
-	
 		.row_2 {
 			flex-direction: unset;
 		}

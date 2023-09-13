@@ -39,7 +39,9 @@
 </script>
 
 <section class="line wrap">
-	<Button name={$user.setting.item_view} class="tiny" on:click={save_view} />
+	<Button class="small" on:click={save_view}>
+		{$user.setting.item_view}
+	</Button>
 
 	|
 
@@ -54,12 +56,10 @@
 		</select>
 	</span>
 
-	<Button
-		name={sort[1] == 'dsc' ? sorts[sort[0]][0] : sorts[sort[0]][1]}
-		class="tiny"
-		on:click={direct}
-	/>
-	<Button name="Ok" class="tiny" on:click={submit} />
+	<Button class="small" on:click={direct}>
+		{sort[1] == 'dsc' ? sorts[sort[0]][0] : sorts[sort[0]][1]}
+	</Button>
+	<Button class="small" on:click={submit}>Ok</Button>
 </section>
 
 <style>

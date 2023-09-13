@@ -1,11 +1,14 @@
 <script>
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let open;
 </script>
 
 <div class="fold" class:open>
-	<Button icon="angle" icon_size="12" on:click />
+	<Button class="round" on:click>
+		<SVG type="angle" size="12" />
+	</Button>
 </div>
 
 <style>

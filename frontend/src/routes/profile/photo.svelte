@@ -125,20 +125,22 @@
 	<br />
 	{#if !$user.photo}
 		<Button
-			name="Add"
-			class="primary tiny"
+			class="primary small"
 			on:click={() => {
 				input.click();
 			}}
-		/>
+		>
+			Add
+		</Button>
 	{:else}
 		<Button
-			name="Remove"
-			class="tiny"
+			class="small"
 			on:click={() => {
 				remove('delete');
 			}}
-		/>
+		>
+			Remove
+		</Button>
 	{/if}
 	<br />
 {/if}

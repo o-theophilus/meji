@@ -1,5 +1,5 @@
 <script>
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let id;
 	export let value = 0;

@@ -6,7 +6,8 @@
 	import Forgot from './forgot.svelte';
 	import Signup from './signup.svelte';
 	import Info from '$lib/info.svelte';
-	import Button from '$lib/button_v2.svelte';
+	import Button from '$lib/button.svelte';
+	import ShowPassword from '$lib/button.show_password.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Email from './confirm_email_template.svelte';
 
@@ -14,7 +15,7 @@
 
 	let form = {};
 	let error = {};
-	let show = false;
+	let show_password = false;
 
 	if ($module.email) {
 		form.email = $module.email;
@@ -97,21 +98,13 @@
 
 	<IG name="password" {error} let:id>
 		<div class="password">
-			{#if show}
+			{#if show_password}
 				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
 			{:else}
 				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
 			{/if}
-			<form class="show" on:submit|preventDefault>
-				<Button
-					class="tiny"
-					icon={show ? 'hide_password' : 'show_password'}
-					icon_size="14"
-					on:click={() => {
-						show = !show;
-					}}
-				/>
-			</form>
+
+			<ShowPassword bind:show_password />
 		</div>
 	</IG>
 
@@ -124,36 +117,39 @@
 
 	<Button
 		class="primary"
-		name="Login"
 		on:click={() => {
 			validate();
 		}}
-	/>
+	>
+		Login
+	</Button>
 
 	<br />
 	Don't have an account?
 	<Button
 		class="link"
-		name="Signup"
 		on:click={() => {
 			$module = {
 				module: Signup,
 				email: form.email
 			};
 		}}
-	/>
+	>
+		Signup
+	</Button>
 	<br />
 	Forgot password?
 	<Button
 		class="link"
-		name="Recover"
 		on:click={() => {
 			$module = {
 				module: Forgot,
 				email: form.email
 			};
 		}}
-	/>
+	>
+		Recover
+	</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">
@@ -163,16 +159,5 @@
 <style>
 	.password {
 		position: relative;
-	}
-
-	.show {
-		position: absolute;
-		right: var(--sp2);
-		top: 0;
-
-		display: flex;
-		align-items: center;
-
-		height: 100%;
 	}
 </style>

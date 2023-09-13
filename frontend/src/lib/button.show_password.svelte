@@ -1,0 +1,30 @@
+<script>
+	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
+
+	export let show_password = false;
+</script>
+
+<form class="show" on:submit|preventDefault>
+	<Button
+		class="round small"
+		on:click={() => {
+			show_password = !show_password;
+		}}
+	>
+		<SVG type={show_password ? 'hide_password' : 'show_password'} size="12" />
+	</Button>
+</form>
+
+<style>
+	.show {
+		position: absolute;
+		right: var(--sp2);
+		top: 0;
+
+		display: flex;
+		align-items: center;
+
+		height: 100%;
+	}
+</style>

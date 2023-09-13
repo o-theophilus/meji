@@ -2,7 +2,7 @@
 	import { user, module } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Variation from './add_cart.variation.svelte';
 
 	export let item = {};
@@ -12,8 +12,6 @@
 
 {#if _type == 1}
 	<Button
-		name="Add to cart"
-		icon="cart_add"
 		class="primary"
 		on:click={() => {
 			$module = {
@@ -21,9 +19,13 @@
 				item
 			};
 		}}
-	/>
+	>
+		<SVG type="cart_add" size="18" />
+		Add to cart
+	</Button>
 {:else}
 	<button
+		title="Add to cart"
 		class="cart"
 		on:click={() => {
 			$module = {
@@ -32,7 +34,7 @@
 			};
 		}}
 	>
-		<SVG type="cart_active" />
+		<SVG type="cart_add" />
 	</button>
 {/if}
 

@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Marked from '$lib/comp/marked.svelte';
 	import Button from '$lib/button.svelte';
 </script>
@@ -26,7 +26,10 @@
 	{#if $module.button}
 		<br />
 		{#each $module.button as b}
-			<Button name={b.name} icon={b.icon} on:click={b.fn} />
+			<Button on:click={b.fn}>
+				<SVG type={b.icon} />
+				{b.name}
+			</Button>
 		{/each}
 	{/if}
 </div>

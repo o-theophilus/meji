@@ -6,7 +6,8 @@
 	import { user, module, loading } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
-	import Button_Fold from '$lib/button_fold.svelte';
+	import ButtonFold from '$lib/button.fold.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Price from './info.price.svelte';
 	import Discount from './info.price.discount.svelte';
 	import Rating from '$lib/item/rating.svelte';
@@ -66,9 +67,7 @@
 		</span>
 
 		<Button
-			class="tiny"
-			icon="edit"
-			icon_size="12"
+			class="small round"
 			on:click={() => {
 				$module = {
 					module: Status,
@@ -76,7 +75,9 @@
 				};
 			}}
 			tooltip="Edit Status"
-		/>
+		>
+			<SVG type="edit" size="12" />
+		</Button>
 	</div>
 
 	<br />
@@ -90,9 +91,7 @@
 
 		{#if edit_mode}
 			<Button
-				icon="edit"
-				class="tiny"
-				icon_size="12"
+				class="small round"
 				on:click={() => {
 					$module = {
 						module: Name,
@@ -100,7 +99,9 @@
 					};
 				}}
 				tooltip="Edit Name"
-			/>
+			>
+				<SVG type="edit" size="12" />
+			</Button>
 		{/if}
 	</div>
 </div>
@@ -110,14 +111,14 @@
 		{#each item.tags as tag, i}
 			{#if i > 0},{/if}
 			<Button
-				name={tag}
 				class="link"
 				on:click={() => {
 					$loading = true;
-					// $module = '';
 					goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
 				}}
-			/>
+			>
+				{tag}
+			</Button>
 		{:else}
 			No Tag
 		{/each}
@@ -125,9 +126,7 @@
 
 	{#if edit_mode}
 		<Button
-			icon="edit"
-			icon_size="12"
-			class="tiny"
+			class="small round"
 			on:click={() => {
 				$module = {
 					module: Tag,
@@ -135,7 +134,9 @@
 				};
 			}}
 			tooltip="Edit tag"
-		/>
+		>
+			<SVG type="edit" size="12" />
+		</Button>
 	{/if}
 </div>
 
@@ -147,19 +148,17 @@
 	<div class="horizontal">
 		{#if item.old_price}
 			<Button
-				icon="info"
-				class="tiny"
-				icon_size="8"
+				class="small round"
 				on:click={() => {
 					open_discount = !open_discount;
 				}}
-			/>
+			>
+				<SVG type="info" size="8" />
+			</Button>
 		{/if}
 		{#if edit_mode}
 			<Button
-				icon="edit"
-				icon_size="12"
-				class="tiny"
+				class="small round"
 				on:click={() => {
 					$module = {
 						module: Edit_Price,
@@ -167,7 +166,9 @@
 					};
 				}}
 				tooltip="Edit Price"
-			/>
+			>
+				<SVG type="edit" size="12" />
+			</Button>
 		{/if}
 	</div>
 </div>
@@ -192,7 +193,7 @@
 <div class="horizontal bold">
 	Details
 	<div class="horizontal">
-		<Button_Fold
+		<ButtonFold
 			open={open_info}
 			on:click={() => {
 				open_info = !open_info;
@@ -200,9 +201,7 @@
 		/>
 		{#if edit_mode}
 			<Button
-				icon="edit"
-				icon_size="12"
-				class="tiny"
+				class="small round"
 				on:click={() => {
 					$module = {
 						module: Info,
@@ -210,7 +209,9 @@
 					};
 				}}
 				tooltip="Edit Details"
-			/>
+			>
+				<SVG type="edit" size="12" />
+			</Button>
 		{/if}
 	</div>
 </div>
@@ -230,7 +231,7 @@
 	<div class="horizontal bold">
 		Variation{Object.keys(item.variation).length > 1 ? 's' : ''}
 		<div class="horizontal">
-			<Button_Fold
+			<ButtonFold
 				open={open_variation}
 				on:click={() => {
 					open_variation = !open_variation;
@@ -238,9 +239,7 @@
 			/>
 			{#if edit_mode}
 				<Button
-					icon="edit"
-					class="tiny"
-					icon_size="12"
+					class="small round"
 					on:click={() => {
 						$module = {
 							module: Variation,
@@ -248,7 +247,9 @@
 						};
 					}}
 					tooltip="Edit Variation"
-				/>
+				>
+					<SVG type="edit" size="12" />
+				</Button>
 			{/if}
 		</div>
 	</div>
@@ -276,7 +277,7 @@
 <div class="horizontal bold">
 	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback
 
-	<Button_Fold
+	<ButtonFold
 		open={open_feedback}
 		on:click={() => {
 			open_feedback = !open_feedback;
@@ -297,12 +298,13 @@
 
 			{#if item.feedbacks.length > review_lenght}
 				<Button
-					name="View all ({item.feedbacks.length})"
-					class="tertiary"
+					class="link"
 					on:click={() => {
 						goto(`/${item.id}/feedback`);
 					}}
-				/>
+				>
+					View all ({item.feedbacks.length}) <SVG type="arrow_right" size="16" />
+				</Button>
 			{/if}
 		{:else}
 			<span class="f2">
@@ -325,22 +327,25 @@
 		<div class="horizontal">
 			<Add_Cart {item} />
 			<Button
-				name="Chat"
-				icon="whatsapp"
 				href="https://api.whatsapp.com/send?phone=+2348067397793&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{$page
 					.url.href}"
 				target="_blank"
-			/>
+			>
+				<SVG type="whatsapp" />
+				Chat
+			</Button>
 		</div>
 		<Button
-			icon="share"
+			class="round"
 			on:click={() => {
 				$module = {
 					module: Share,
 					item
 				};
 			}}
-		/>
+		>
+			<SVG type="share" />
+		</Button>
 	</div>
 </div>
 

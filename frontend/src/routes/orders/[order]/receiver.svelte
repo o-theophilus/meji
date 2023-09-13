@@ -18,7 +18,6 @@
 	{#if order.status == 'pending'}
 		<Button
 			class="link"
-			name="Edit"
 			on:click={() => {
 				$module = {
 					module: Form,
@@ -26,7 +25,9 @@
 					previous_recipients
 				};
 			}}
-		/>
+		>
+			Edit
+		</Button>
 	{/if}
 </div>
 

@@ -11,31 +11,29 @@
 	<section>
 		<div class="login">
 			<Button
-				name="Login"
-				class="primary tiny"
+				class="primary small"
 				on:click={() => {
 					$module = {
 						module: Login,
-						data: {
-							return_url: $page.url.pathname
-						}
+						return_url: $page.url.pathname
 					};
 				}}
-			/>
+			>
+				Login
+			</Button>
 		</div>
 
 		<Button
-			name="Signup"
-			class="tiny"
+			class="small"
 			on:click={() => {
 				$module = {
 					module: Signup,
-					data: {
-						return_url: $page.url.pathname
-					}
+					return_url: $page.url.pathname
 				};
 			}}
-		/>
+		>
+			Signup
+		</Button>
 	</section>
 {/if}
 

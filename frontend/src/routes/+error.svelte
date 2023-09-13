@@ -2,6 +2,7 @@
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Meta from '$lib/meta.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	import { page } from '$app/stores';
 </script>
@@ -16,12 +17,13 @@
 		<br />
 
 		<Button
-			name="Home"
-			icon="home"
 			on:click={() => {
 				document.location = '/';
 			}}
-		/>
+		>
+			<SVG type="home" />
+			Home
+		</Button>
 	</div>
 </Card>
 

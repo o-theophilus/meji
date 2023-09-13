@@ -1,38 +1,3 @@
-<script context="module">
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
-	import { get_query } from '$lib/page_state.js';
-
-	export async function load({ fetch, session }) {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}user${get_query('users')}`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: session.token
-			}
-		});
-
-		if (_resp.ok) {
-			let resp = await _resp.json();
-
-			if (resp.status == 200) {
-				return {
-					props: {
-						user: session.user,
-
-						users: resp.data.users,
-						total_page: resp.data.total_page
-					}
-				};
-			} else {
-				return {
-					status: 404,
-					error: resp.message
-				};
-			}
-		}
-	}
-</script>
-
 <script>
 	import { token } from '$lib/cookie.js';
 	import { user } from '$lib/store.js';
@@ -43,12 +8,9 @@
 	import Status from '$lib/comp/status_bar.svelte';
 	import View from '$lib/comp/page_view.svelte';
 	import Pagination from '$lib/comp/pagination.svelte';
-	import Button_Fold from '$lib/comp/button_fold.svelte';
+	import ButtonFold from '$lib/comp/button.fold.svelte';
 
 	import User from './user.svelte';
-
-	export let user;
-	$: user = $user ? $user : user;
 
 	export let users = [];
 	export let total_page = 1;
@@ -93,7 +55,7 @@
 
 <Card>
 	<b>Users</b>
-	<Button_Fold
+	<ButtonFold
 		{open}
 		on:click={() => {
 			open = !open;

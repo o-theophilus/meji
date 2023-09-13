@@ -1,51 +1,18 @@
 <script>
-	import SVG from '$lib/comp/svg.svelte';
-
 	export let href = '';
-
-	export let name = '';
 	export let tooltip = '';
-	export let icon = '';
-	export let icon_size = 20;
-	export let color = '';
-	export let active = false;
-	let clas = '';
-	export { clas as class };
 	export let target = '';
 	export let disabled = false;
-
-	// let icon_only = !(name || $$slots);
-	let icon_only = !name;
+	let clas = '';
+	export { clas as class };
 </script>
 
 {#if href}
-	<a
-		class={clas}
-		class:active
-		class:icon_only
-		style:color
-		style:fill={color}
-		{href}
-		{target}
-		title={tooltip}
-	>
-		<SVG type={icon} size={icon_size} />
-		{name}
+	<a class={clas} {href} {target} title={tooltip}>
 		<slot />
 	</a>
 {:else}
-	<button
-		{disabled}
-		class={clas}
-		class:active
-		class:icon_only
-		style:color
-		style:fill={color}
-		on:click|stopPropagation
-		title={tooltip}
-	>
-		<SVG type={icon} size={icon_size} />
-		{name}
+	<button class={clas} on:click|stopPropagation title={tooltip} {disabled}>
 		<slot />
 	</button>
 {/if}
@@ -57,15 +24,15 @@
 		justify-content: center;
 		align-items: center;
 		gap: var(--sp2);
-
+		
 		border: none;
 		padding: var(--sp2);
 		border-radius: var(--sp0);
-
+		
 		background-color: var(--ac4);
 		color: var(--ac2);
-		fill: var(--ac2);
-
+		fill: currentColor;
+		
 		text-decoration: none;
 		font-weight: 500;
 
@@ -73,64 +40,32 @@
 		cursor: pointer;
 	}
 
-	button:disabled {
-		opacity: 0.5;
-		background-color: var(--ac4);
-		cursor: unset;
-		color: var(--ac2);
+	:hover {
+		background-color: var(--cl2);
+		color: var(--ac5_);
 	}
-
-	.active,
 	.primary {
 		background-color: var(--cl1);
 		color: var(--ac5_);
-		fill: var(--ac5_);
 	}
-	.secondary {
-		background-color: transparent;
-		color: var(--ac3);
-		border: 2px solid var(--ac5);
-	}
-
-	.tertiary {
-		padding: 0;
-		border-radius: 0;
-		color: var(--ac1);
-
-		background-color: transparent;
-		border-bottom: 2px solid var(--ac5);
+	.primary:hover {
+		background-color: var(--cl2);
 	}
 	.link {
-		display: inline;
+		display: inline-flex;
+		gap: var(--sp0);
 		padding: 0;
 		color: var(--cl1);
-		background-color: transparent;
+		background: none;
+	}
+	.link:hover {
+		color: var(--cl2);
+	}
+	.hover_red:hover {
+		background-color: var(--cl4);
 	}
 
-	.tiny {
-		gap: var(--sp1);
-		padding: var(--sp1);
-		font-size: small;
-	}
-	.tag {
-		--size: 24px;
-		height: var(--size);
-		padding: 8px;
-
-		border-radius: calc(var(--size) / 2);
-
-		font-size: x-small;
-		font-weight: unset;
-	}
-	.wide {
-		width: 100%;
-	}
-	.wide2 {
-		width: 100%;
-		max-width: 400px;
-	}
-
-	.icon_only {
+	.round {
 		--size: 40px;
 		display: flex;
 		align-items: center;
@@ -145,39 +80,21 @@
 		border-radius: var(--size);
 	}
 
-	.icon_only.tiny {
-		--size: 20px;
-
-		width: var(--size);
-		height: var(--size);
+	.small {
+		--size: 28px;
+		gap: var(--sp1);
+		padding: var(--sp1);
+		font-size: smaller;
+	}
+	.wide {
+		width: 100%;
+		max-width: 400px;
 	}
 
-	:hover {
-		background-color: var(--cl1);
-		color: var(--ac5_);
-		fill: var(--ac5_);
-	}
-
-	.active:hover,
-	.primary:hover {
-		background-color: var(--cl2);
-	}
-	.tertiary:hover {
-		background-color: transparent;
-		border-color: var(--cl1);
-		color: var(--cl1);
-	}
-	.secondary:hover {
-		background-color: transparent;
-		color: var(--cl1);
-		border: 2px solid var(--cl1);
-	}
-
-	.hover_red:hover {
-		background-color: var(--cl4);
-	}
-	.link:hover {
-		background-color: transparent;
-		color: var(--cl2);
+	button:disabled {
+		opacity: 0.5;
+		background-color: var(--ac4);
+		cursor: unset;
+		color: var(--ac2);
 	}
 </style>

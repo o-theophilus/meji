@@ -9,9 +9,10 @@
 	import Item from '$lib/item/index.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
-	import Button_Fold from '$lib/button_fold.svelte';
+	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let data;
 	$: item = data.item;
@@ -42,14 +43,14 @@
 		Item Details
 		{#if $user && $user.roles.includes('admin')}
 			<Button
-				name="Edit Mode: {edit_mode ? 'On' : 'Off'}"
-				class="tiny"
-				icon="edit"
-				icon_size="12"
+				class="small"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}
-			/>
+			>
+				<SVG type="edit" size="12" />
+				Edit Mode: {edit_mode ? 'On' : 'Off'}
+			</Button>
 		{/if}
 	</div>
 
@@ -68,7 +69,7 @@
 		<div class="title">
 			Recently Viewed
 			{#if $user && $user.roles.includes('admin')}
-				<Button_Fold
+				<ButtonFold
 					open={open_recent}
 					on:click={() => {
 						open_recent = !open_recent;

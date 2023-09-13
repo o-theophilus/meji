@@ -8,6 +8,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
 	let variation = { ...item.variation };
@@ -135,7 +136,7 @@
 			type="text"
 			placeholder="variation here"
 		/>
-		<Button class="primary" name="Add" on:click={add_key} />
+		<Button on:click={add_key}>Add</Button>
 	</IG>
 
 	{#each Object.keys(variation) as key, i (i)}
@@ -145,13 +146,13 @@
 					<div class="line">
 						{key}
 						<Button
-							icon="close"
-							icon_size="10"
-							class="tiny hover_red"
+							class="round small hover_red"
 							on:click={() => {
 								delete_key(key);
 							}}
-						/>
+						>
+							<SVG type="close" size="10" />
+						</Button>
 					</div>
 				</svelte:fragment>
 				<textarea
@@ -171,7 +172,7 @@
 			{error.error}
 		</p>
 	{/if}
-	<Button class="primary" name="Submit" on:click={validate} />
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>
 
 <style>

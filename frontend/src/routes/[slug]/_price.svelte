@@ -74,5 +74,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" name="Submit" on:click={validate} />
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>

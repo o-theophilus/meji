@@ -110,7 +110,7 @@
 		<input type="email" bind:value={form.email} id="email" placeholder="your new email here" />
 	</IG>
 
-	<Button class="primary" name="Request OTPs" on:click={validate_request_otp} />
+	<Button class="primary" on:click={validate_request_otp}>Request OTPs</Button>
 	{#if message}
 		<br />
 		<span class="f1">
@@ -135,7 +135,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" name="Submit" on:click={validate} />
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

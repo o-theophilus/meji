@@ -10,7 +10,7 @@
 	$: {
 		date_time = order.delivery_date.split('T');
 		dt = new Date(date_time[0]);
-		
+
 		let hour = parseInt(date_time[1].split(':')[0]);
 		if (hour < 12) {
 			period_of_day = 'Morning';
@@ -27,7 +27,6 @@
 
 	{#if order.status == 'ordered' && $user.roles.includes('admin')}
 		<Button
-			name="Edit"
 			class="link"
 			on:click={() => {
 				$module = {
@@ -37,7 +36,9 @@
 					time: date_time[1]
 				};
 			}}
-		/>
+		>
+			Edit
+		</Button>
 	{/if}
 </div>
 

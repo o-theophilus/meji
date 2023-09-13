@@ -1,5 +1,5 @@
 <script>
-	import { user, module, portal, toast,loading } from '$lib/store.js';
+	import { user, module, portal, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 	import Form from '$lib/form.svelte';
@@ -72,7 +72,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" name="Ok" on:click={validate} />
+	<Button class="primary" on:click={validate}>Ok</Button>
 </Form>
 
 <style>

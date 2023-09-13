@@ -17,8 +17,7 @@
 	<div class="tags">
 		{#each tags as tag}
 			<Button
-				name={tag}
-				class="tiny"
+				class="small"
 				on:click={() => {
 					$loading = true;
 					$module = '';
@@ -26,6 +25,7 @@
 				}}
 			>
 				<SVG type={tag} size="20" />
+				{tag}
 			</Button>
 		{/each}
 	</div>

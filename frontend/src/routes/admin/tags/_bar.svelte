@@ -9,14 +9,15 @@
 {#if $user && $user.roles.includes('admin')}
 	<div class="block">
 		<Button
-			name="Add"
-			class="tiny"
+			class="small"
 			on:click={() => {
 				$module = {
 					module: Add
 				};
 			}}
-		/>
+		>
+			Add
+		</Button>
 	</div>
 {/if}
 

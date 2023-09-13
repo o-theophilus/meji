@@ -8,6 +8,7 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Item from './item.svelte';
 	import Button from '$lib/button.svelte';
 	import Login from '../auth/login.svelte';
@@ -64,7 +65,7 @@
 <Card>
 	<div class="title">Cart</div>
 	<div class="items">
-		{#each items as item (`${item.key}${JSON.stringify(item.variation)}`)}
+		{#each items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
 				<Item
 					bind:item
@@ -88,7 +89,10 @@
 
 		<br />
 
-		<Button name="Checkout" icon="cart_out" class="primary" on:click={submit} />
+		<Button class="primary" on:click={submit}>
+			<SVG type="cart_out" />
+			Checkout
+		</Button>
 
 		{#if error.error}
 			<br />

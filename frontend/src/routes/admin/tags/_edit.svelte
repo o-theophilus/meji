@@ -88,8 +88,8 @@
 		</div>
 
 		<div class="inputGroup horizontal">
-			<Button class="primary" name="Submit" on:click={validate} />
-			<Button name="Delete" on:click={del} />
+			<Button class="primary" on:click={validate}>Submit</Button>
+			<Button on:click={del}>Delete</Button>
 		</div>
 	</form>
 </Form>

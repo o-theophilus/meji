@@ -3,6 +3,7 @@
 	import { backInOut } from 'svelte/easing';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	const go = (name) => {
 		document.querySelector(`#${name}`).scrollIntoView({
@@ -19,11 +20,13 @@
 	<section>
 		<div transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
 			<Button
-				icon="angle"
+				class="round"
 				on:click={() => {
 					go('top');
 				}}
-			/>
+			>
+				<SVG type="angle" />
+			</Button>
 		</div>
 	</section>
 {/if}

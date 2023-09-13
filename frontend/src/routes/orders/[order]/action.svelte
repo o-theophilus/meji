@@ -116,13 +116,9 @@
 </svelte:head>
 
 <div class="horizontal">
-	<Button
-		class={complete_address ? 'primary' : ''}
-		name="Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}"
-		on:click={() => {
-			validate();
-		}}
-	/>
+	<Button class={complete_address ? 'primary' : ''} on:click={validate}>
+		Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}
+	</Button>
 </div>
 <br />
 {#if error.error}

@@ -58,7 +58,7 @@
 		{/if}
 
 		<div class="inputGroup horizontal">
-			<Button class="primary" name="Submit" on:click={submit} />
+			<Button class="primary" on:click={submit}>Submit</Button>
 		</div>
 	</form>
 </Form>

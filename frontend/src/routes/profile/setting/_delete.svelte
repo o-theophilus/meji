@@ -3,12 +3,14 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
+	import ShowPassword from '$lib/button.show_password.svelte';
 
 	let password;
 	let error = {};
-	let show = false;
+	let show_password = false;
 
 	const validate = () => {
 		error = {};
@@ -50,21 +52,12 @@
 
 	<IG name="password" {error} let:id>
 		<div class="password">
-			{#if show}
+			{#if show_password}
 				<input bind:value={password} {id} type="text" placeholder="Password here" />
 			{:else}
 				<input bind:value={password} {id} type="password" placeholder="Password here" />
 			{/if}
-			<form class="show" on:submit|preventDefault>
-				<Button
-					class="tiny"
-					icon="show"
-					icon_size="14"
-					on:click={() => {
-						show = !show;
-					}}
-				/>
-			</form>
+			<ShowPassword bind:show_password />
 		</div>
 	</IG>
 
@@ -75,27 +68,11 @@
 		<br />
 	{/if}
 
-	<Button
-		name="Delete"
-		on:click={() => {
-			validate();
-		}}
-	/>
+	<Button on:click={validate}>Delete</Button>
 </Form>
 
 <style>
 	.password {
 		position: relative;
-	}
-
-	.show {
-		position: absolute;
-		right: var(--sp2);
-		top: 0;
-
-		display: flex;
-		align-items: center;
-
-		height: 100%;
 	}
 </style>

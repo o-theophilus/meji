@@ -6,6 +6,7 @@
 	import IG from '$lib/input_group.svelte';
 	import Password from '../../auth/password_checker.svelte';
 	import Button from '$lib/button.svelte';
+	import ShowPassword from '$lib/button.show_password.svelte';
 
 	import Email from './password_email_template.svelte';
 	import Info from '$lib/info.svelte';
@@ -14,7 +15,7 @@
 	let error = {};
 	let email_template;
 	let message;
-	let show = false;
+	let show_password = false;
 
 	const request_otp = async () => {
 		error = {};
@@ -109,40 +110,25 @@
 
 	<IG name="password" {error} let:id>
 		<div class="password">
-			{#if show}
+			{#if show_password}
 				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
 			{:else}
 				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
 			{/if}
-			<form class="show" on:submit|preventDefault>
-				<Button
-					class="tiny"
-					icon="show"
-					icon_size="14"
-					on:click={() => {
-						show = !show;
-					}}
-				/>
-			</form>
+			<ShowPassword bind:show_password />
 		</div>
 		<Password password={form.password} />
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
-		{#if show}
+		{#if show_password}
 			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
 		{:else}
 			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
 		{/if}
 	</IG>
 
-	<Button
-		class="primary"
-		name="Request OTPs"
-		on:click={() => {
-			request_otp();
-		}}
-	/>
+	<Button class="primary" on:click={request_otp}>Request OTPs</Button>
 	<br />
 	{#if message}
 		<div class="inputGroup">
@@ -162,13 +148,7 @@
 		<br />
 	{/if}
 
-	<Button
-		class="primary"
-		name="Submit"
-		on:click={() => {
-			validate();
-		}}
-	/>
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">
@@ -178,16 +158,5 @@
 <style>
 	.password {
 		position: relative;
-	}
-
-	.show {
-		position: absolute;
-		right: var(--sp2);
-		top: 0;
-
-		display: flex;
-		align-items: center;
-
-		height: 100%;
 	}
 </style>

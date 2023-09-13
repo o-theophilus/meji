@@ -27,7 +27,7 @@
 		return true;
 	};
 
-	const change = async (qty) => {
+	const submit = async (qty) => {
 		counter += 1;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
@@ -116,7 +116,7 @@
 
 						clearTimeout(timer);
 						timer = setTimeout(() => {
-							change(e.detail.quantity);
+							submit(e.detail.quantity);
 						}, 1000);
 					}}
 				/>

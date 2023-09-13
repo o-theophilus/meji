@@ -93,9 +93,7 @@
 	{#each tags as tag}
 		<div class="row" draggable="true">
 			<Button
-				name="{tag.name} ({tag.count})"
-				icon={tag.icon}
-				class="wide2"
+				class="wide"
 				on:click={() => {
 					$module = {
 						module: Edit,
@@ -104,21 +102,24 @@
 				}}
 			>
 				<SVG type={tag.icon} size="20" />
+				{tag.name} ({tag.count})
 			</Button>
 			<Button
-				name="↑"
 				class="cate2"
 				on:click={() => {
 					move(tag.key, 'up');
 				}}
-			/>
+			>
+				↑
+			</Button>
 			<Button
-				name="↓"
 				class="cate2"
 				on:click={() => {
 					move(tag.key, 'down');
 				}}
-			/>
+			>
+				↓
+			</Button>
 		</div>
 	{:else}
 		no tag

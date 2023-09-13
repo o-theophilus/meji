@@ -1,5 +1,5 @@
 <script>
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Theme from './header.theme.svelte';
 	import Nav from './nav.svelte';
 	import Auth from './header.auth.svelte';

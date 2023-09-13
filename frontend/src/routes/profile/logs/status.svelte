@@ -31,14 +31,14 @@
 <div class="block">
 	{#each actions as s}
 		<Button
-			name={s}
-			class="tiny"
-			active={action == s}
+			class="small ={action == s ? 'primary' : ''}"
 			on:click={() => {
 				action = s;
 				set_state(page_name, 'action', s != 'all' ? s : '');
 			}}
-		/>
+		>
+			{s}
+		</Button>
 	{/each}
 </div>
 

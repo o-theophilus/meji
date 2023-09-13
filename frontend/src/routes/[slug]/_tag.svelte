@@ -97,12 +97,13 @@
 		{/if}
 		{#each all_tags_btn as tag}
 			<Button
-				class="tiny"
-				name={tag}
+				class="small"
 				on:click={() => {
 					clean_value(tag);
 				}}
-			/>
+			>
+				{tag}
+			</Button>
 		{/each}
 	</div>
 	<br />
@@ -112,7 +113,7 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" name="Submit" on:click={submit} />
+	<Button class="primary" on:click={submit}>Submit</Button>
 </Form>
 
 <style>

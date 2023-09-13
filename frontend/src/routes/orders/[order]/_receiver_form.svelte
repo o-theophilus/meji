@@ -7,7 +7,7 @@
 	import countries from '$lib/countries.js';
 
 	import Button from '$lib/button.svelte';
-	import Button_Fold from '$lib/button_fold.svelte';
+	import ButtonFold from '$lib/button.fold.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
@@ -94,7 +94,7 @@
 		<div class="suggestion">
 			<div class="title">
 				Address suggestion{previous_recipients.length > 1 ? 's' : ''}
-				<Button_Fold
+				<ButtonFold
 					{open}
 					on:click={() => {
 						open = !open;
@@ -108,8 +108,7 @@
 				>
 					{#each previous_recipients as r}
 						<Button
-							class="wide tiny"
-							name="."
+							class="small"
 							on:click={() => {
 								recipient = {
 									name: r.name,
@@ -118,6 +117,7 @@
 								};
 							}}
 						>
+							.
 							<p>
 								{r.name} | {r.phone}
 								<br />
@@ -204,7 +204,7 @@
 		<br />
 	{/if}
 
-	<Button name="Submit" class="primary" on:click={validate} />
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>
 
 <style>

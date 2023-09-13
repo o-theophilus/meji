@@ -1,6 +1,4 @@
 <script>
-	import Button from '$lib/button.svelte';
-
 	export let item;
 </script>
 

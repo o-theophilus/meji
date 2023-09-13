@@ -10,13 +10,13 @@
 	<b> Dashboard </b>
 	<br />
 	<br />
-	<Button class="wide2" name="Photos" href="/admin/photos" />
+	<Button class="wide" href="/admin/photos">Photos</Button>
 	<br />
-	<Button class="wide2" name="Voucher" href="/admin/vouchers" />
+	<Button class="wide" href="/admin/vouchers">Voucher</Button>
 	<br />
-	<Button class="wide2" name="Ad" href="/admin/ad" />
+	<Button class="wide" href="/admin/ad">Ad</Button>
 	<br />
-	<Button class="wide2" name="tag" href="/admin/tag" />
+	<Button class="wide" href="/admin/tag">tag</Button>
 	<br />
-	<Button class="wide2" name="User" href="/admin/user" />
+	<Button class="wide" href="/admin/user">User</Button>
 </Card>

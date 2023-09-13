@@ -7,7 +7,6 @@
 
 	let item = { ...$module.item };
 	let error = {};
-	let all_status = ['live', 'draft', 'delete'];
 
 	const validate = (status) => {
 		error = {};
@@ -57,14 +56,15 @@
 	</svelte:fragment>
 
 	<div class="row">
-		{#each all_status as s}
+		{#each ['live', 'draft', 'delete'] as s}
 			{#if s != item.status}
 				<Button
-					name={s.charAt(0).toUpperCase() + s.slice(1)}
 					on:click={() => {
 						validate(s);
 					}}
-				/>
+				>
+					{s.charAt(0).toUpperCase() + s.slice(1)}
+				</Button>
 			{/if}
 		{/each}
 	</div>

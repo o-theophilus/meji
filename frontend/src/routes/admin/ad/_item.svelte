@@ -1,7 +1,5 @@
 <script>
 	import { goto } from '$app/navigation';
-
-	import { import.meta.env.VITE_BACKEND } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
@@ -9,7 +7,7 @@
 	export let item;
 
 	const submit = async () => {
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}ads/${item.key}`, {
+		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/ads/${item.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -51,12 +49,13 @@
 				</label>
 			{/each}
 			<Button
-				class="tiny primary"
-				name="Submit"
+				class="small primary"
 				on:click={() => {
 					submit();
 				}}
-			/>
+			>
+				Submit
+			</Button>
 		</div>
 	</div>
 </section>

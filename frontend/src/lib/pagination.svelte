@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	let page_no, page_no_temp, width;
 	export let total_page = 1;
@@ -40,12 +41,13 @@
 	<section>
 		{#if page_no > 1}
 			<Button
-				class="tiny"
-				name="❮ prev"
+				class="small"
 				on:click={() => {
 					submit(page_no - 1);
 				}}
-			/>
+			>
+			<SVG type="arrow_left" size="16" /> prev
+			</Button>
 		{/if}
 
 		<div class="input">
@@ -78,22 +80,24 @@
 
 		{#if page_no_temp != page_no}
 			<Button
-				class="tiny"
-				name="go ❯❯"
+				class="small"
 				on:click={() => {
 					submit(page_no_temp);
 				}}
-			/>
+			>
+				go <SVG type="arrow_right" size="16" />
+			</Button>
 		{/if}
 
 		{#if page_no < total_page}
 			<Button
-				class="tiny"
-				name="next ❯"
+				class="small"
 				on:click={() => {
 					submit(parseInt(page_no) + 1);
 				}}
-			/>
+			>
+				next <SVG type="arrow_right" size="16" />
+			</Button>
 		{/if}
 	</section>
 {/if}

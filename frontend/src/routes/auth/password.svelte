@@ -5,6 +5,7 @@
 	import Form from '$lib/form.svelte';
 	import Password from './password_checker.svelte';
 	import Button from '$lib/button.svelte';
+	import ShowPassword from '$lib/button.show_password.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 	import Login from './login.svelte';
@@ -12,7 +13,7 @@
 
 	let form = {};
 	let error = {};
-	let show = false;
+	let show_password = false;
 
 	const validate = async () => {
 		error = {};
@@ -107,27 +108,18 @@ Please try repeacting the action again.`,
 
 	<IG name="password" {error} let:id>
 		<div class="password">
-			{#if show}
+			{#if show_password}
 				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
 			{:else}
 				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
 			{/if}
-			<form class="show" on:submit|preventDefault>
-				<Button
-					class="tiny"
-					icon="show"
-					icon_size="14"
-					on:click={() => {
-						show = !show;
-					}}
-				/>
-			</form>
+			<ShowPassword bind:show_password />
 		</div>
 		<Password password={form.password} />
 	</IG>
 
 	<IG name="confirm password" {error} let:id>
-		{#if show}
+		{#if show_password}
 			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
 		{:else}
 			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
@@ -143,26 +135,16 @@ Please try repeacting the action again.`,
 
 	<Button
 		class="primary"
-		name="Submit"
 		on:click={() => {
 			validate();
 		}}
-	/>
+	>
+		Submit
+	</Button>
 </Form>
 
 <style>
 	.password {
 		position: relative;
-	}
-
-	.show {
-		position: absolute;
-		right: var(--sp2);
-		top: 0;
-
-		display: flex;
-		align-items: center;
-
-		height: 100%;
 	}
 </style>

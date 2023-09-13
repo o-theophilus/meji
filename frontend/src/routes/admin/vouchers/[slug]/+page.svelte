@@ -72,31 +72,34 @@
 	<div class="horizontal">
 		{#if voucher.status == 'inactive'}
 			<Button
-				name="activate"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					$module = {
 						module: Activate,
 						voucher
 					};
 				}}
-			/>
+			>
+				Activate
+			</Button>
 		{:else}
 			<Button
-				name="deactivate"
-				class="tiny"
+				class="small"
 				on:click={() => {
 					submit('inactive');
 				}}
-			/>
+			>
+				deactivate
+			</Button>
 		{/if}
 		<Button
-			name="delete"
-			class="tiny"
+			class="small"
 			on:click={() => {
 				submit('delete');
 			}}
-		/>
+		>
+			delete
+		</Button>
 	</div>
 	{#if error.error}
 		<br />

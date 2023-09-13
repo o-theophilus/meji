@@ -4,7 +4,7 @@
 
 	import { toast } from '$lib/store.js';
 
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Marked from '$lib/comp/marked.svelte';
 	import Button from '$lib/button.svelte';
 
@@ -46,7 +46,9 @@
 
 			<Marked md={$toast?.message || 'no message'} />
 
-			<Button icon="close" icon_size="10" class="tiny hover_red" on:click={close} />
+			<Button class="round small hover_red" on:click={close}>
+				<SVG type="close" size="10" />
+			</Button>
 		</div>
 
 		<div class="progress" class:zero />

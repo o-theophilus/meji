@@ -1,5 +1,5 @@
 <script>
-	import SVG from '$lib/comp/svg.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let rating = 0;
 
@@ -18,10 +18,9 @@
 		align-items: center;
 		justify-content: center;
 		gap: 4px;
-		
+
 		font-size: small;
 		padding: var(--sp1);
-	
 
 		/* padding: 4px; */
 		/* border-radius: var(--sp0); */
@@ -31,7 +30,7 @@
 		cursor: pointer;
 	}
 
-	.two{
+	.two {
 		width: 100%;
 	}
 	.two:hover {

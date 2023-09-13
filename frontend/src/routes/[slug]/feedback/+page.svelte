@@ -58,14 +58,15 @@
 			<br />
 			<br />
 			<Button
-				name="Give Feedback"
 				on:click={() => {
 					$module = {
 						module: Add,
 						item
 					};
 				}}
-			/>
+			>
+				Give Feedback
+			</Button>
 		{/if}
 	</Card>
 </section>

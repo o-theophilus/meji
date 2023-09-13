@@ -3,6 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Info from '$lib/info.svelte';
 	import Email_Processing from './email_template_processing.svelte';
 	import Email_Delivered from './email_template_delivered.svelte';
@@ -55,22 +56,24 @@
 
 <div class="horizontal">
 	<Button
-		name="<<"
 		class="link"
 		on:click={() => {
 			submit('prev');
 		}}
-	/>
+	>
+		<SVG type="arrow_right" size="16" />
+	</Button>
 
 	{order.status}
 
 	<Button
-		name=">>"
 		class="link"
 		on:click={() => {
 			submit('next');
 		}}
-	/>
+	>
+		<SVG type="arrow_right" size="16" />
+	</Button>
 </div>
 <br />
 {#if error.error}

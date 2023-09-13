@@ -18,7 +18,8 @@
 	<br />
 	{#each orders as x}
 		<div>
-			<Button name={x.key} class="wide" href="/orders/{x.key}">
+			<Button class="wide" href="/orders/{x.key}">
+				{x.key}
 				<div class="fmt">
 					{#each x.items as y, i}
 						{#if i != 0},{/if}

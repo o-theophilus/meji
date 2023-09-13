@@ -24,9 +24,10 @@
 </script>
 
 <Button
-	class="tiny"
-	name="Logout"
+	class="small"
 	on:click={() => {
 		submit();
 	}}
-/>
+>
+	Logout
+</Button>

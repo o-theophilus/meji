@@ -14,9 +14,7 @@
 	}}
 >
 	<SVG type={tag.toLowerCase()} size="30" />
-	<div>
-		{tag}
-	</div>
+	{tag}
 </button>
 
 <style>

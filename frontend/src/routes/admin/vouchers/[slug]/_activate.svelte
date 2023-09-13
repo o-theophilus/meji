@@ -49,10 +49,10 @@
 
 		if (resp.status == 200) {
 			$portal = resp.voucher;
-			$module = ""
+			$module = '';
 			$toast = {
 				status: 200,
-				message: 'Voucher activated',
+				message: 'Voucher activated'
 			};
 		} else {
 			error = resp;
@@ -75,5 +75,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" name="Submit" on:click={validate} />
+	<Button class="primary" on:click={validate}>Submit</Button>
 </Form>

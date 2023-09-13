@@ -4,6 +4,7 @@
 	import { user, module, set_state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
 
 	export let page_name = '';
@@ -22,28 +23,28 @@
 		<div class="left">
 			{#each ['live', 'draft', 'delete'] as s}
 				<Button
-					name={s}
-					class="tiny"
-					active={status == s}
+					class="small {status == s ? 'primary' : ''}"
 					on:click={() => {
 						status = s;
 						set_state(page_name, 'status', s != 'live' ? s : '');
 					}}
-				/>
+				>
+					{s}
+				</Button>
 			{/each}
 		</div>
-		
+
 		<Button
-			icon="add"
-			icon_size="12"
-			name="Add"
-			class="tiny primary"
+			class="small primary"
 			on:click={() => {
 				$module = {
 					module: Add
 				};
 			}}
-		/>
+		>
+			<SVG type="add" size="12" />
+			Add
+		</Button>
 	</div>
 {/if}
 

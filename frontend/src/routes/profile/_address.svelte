@@ -130,7 +130,7 @@
 		<br />
 	{/if}
 
-	<Button name="Save" class="primary" on:click={validate} />
+	<Button class="primary" on:click={validate}>Save</Button>
 </Form>
 
 <style>

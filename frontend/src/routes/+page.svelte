@@ -1,12 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { module, user } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
 	import Card from '$lib/card.svelte';
+	import SVG from '$lib/svg.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/button.svelte';
 
@@ -71,14 +71,15 @@
 			Tags
 			<Button
 				class="link"
-				name="view all >"
 				on:click={() => {
 					$module = {
 						module: Tag_All,
 						tags
 					};
 				}}
-			/>
+			>
+				view all <SVG type="arrow_right" size="16" />
+			</Button>
 		</div>
 
 		<div class="item_area">
@@ -95,14 +96,7 @@
 		<Card>
 			<div class="title">
 				{x.name}
-				<Button
-					class="link"
-					name="view all >"
-					on:click={() => {
-						// $state['shop'].order = x.query.order;
-						goto(`/shop`);
-					}}
-				/>
+				<Button class="link" href="/shop">view all <SVG type="arrow_right" size="16" /></Button>
 			</div>
 
 			<div class="item_area" class:list={$user.setting.item_view == 'list'}>
@@ -124,5 +118,8 @@
 		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
+	}
+	.title {
+		fill: currentColor;
 	}
 </style>

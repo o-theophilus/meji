@@ -49,5 +49,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" name="Submit" on:click={submit} />
+	<Button class="primary" on:click={submit}>Submit</Button>
 </Form>
