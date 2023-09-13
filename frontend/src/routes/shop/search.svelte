@@ -65,20 +65,19 @@
 	</div>
 
 	<Button
-		class="small"
+		class="primary"
 		on:click={() => {
 			set_state(page_name, 'search', search);
 		}}
 	>
-		<SVG type="search" size="15" />
-		Search
+	<SVG type="search" size="15" />
+	Search
 	</Button>
 </section>
 
 <style>
 	section {
 		display: flex;
-		gap: var(--sp1);
 		margin-top: var(--sp2);
 	}
 

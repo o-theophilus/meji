@@ -46,8 +46,8 @@
 
 <section class="line wrap">
 	<Button class="small" on:click={save_view}>
-		view
 		<SVG type={$user.setting.item_view == 'grid' ? 'shop_active' : 'list'} />
+		view
 	</Button>
 
 	<span class="line">
