@@ -11,15 +11,37 @@
 		if (params.has('search')) {
 			search = params.get('search');
 		}
+
+		if (params.has('tag')) {
+			let x = params.get('tag').split('$:');
+			selected = x[0].split(',');
+			logic = x[1];
+		}
 	});
 
 	export let tags = [];
 	export let page_name;
+
 	let search = '';
+	let show_tags = false;
+
+	let selected = [];
+	let selected_snap = [];
+	let logic = 'or';
+	let logic_snap = 'or';
 </script>
 
 <section>
-	<Tag {tags} {page_name} />
+	<button
+		on:click={() => {
+			show_tags = !show_tags;
+			selected_snap = [...selected].sort((a, b) => a - b).join(',');
+			logic_snap = `${logic}`;
+		}}
+	>
+		Tags
+	</button>
+
 	|
 	<div class="input">
 		<input
@@ -33,12 +55,8 @@
 			}}
 		/>
 
-		<div class="search">
-			<SVG type="search" size="15" />
-		</div>
-
 		{#if search}
-			<div class="clear">
+			<div class="btn">
 				<Button
 					class="small round"
 					on:click={() => {
@@ -48,31 +66,59 @@
 				>
 					<SVG type="close" size="15" />
 				</Button>
+
+				<Button
+					class="round small"
+					on:click={() => {
+						set_state(page_name, 'search', search);
+					}}
+				>
+					<SVG type="search" size="15" />
+				</Button>
 			</div>
 		{/if}
 	</div>
 
-	<Button
-		class="primary"
-		on:click={() => {
-			set_state(page_name, 'search', search);
-		}}
-	>
-		<SVG type="search" size="15" />
-		Search
-	</Button>
+	{#if show_tags}
+		<Tag
+			{tags}
+			{page_name}
+			bind:selected
+			bind:logic
+			on:click={() => {
+				show_tags = false;
+
+				selected.sort((a, b) => a - b).join(',');
+				if (selected != selected_snap || logic != logic_snap) {
+					set_state(page_name, 'tag', `${selected}$:${logic}`);
+				}
+			}}
+			role="presentation"
+		/>
+	{/if}
 </section>
 
 <style>
 	section {
+		position: relative;
+
 		display: flex;
 		align-items: center;
 
 		margin-top: var(--sp2);
 		border: 2px solid var(--ac3);
 		border-radius: var(--sp0) 0 0 var(--sp0);
+		color: var(--ac3);
 	}
-
+	button {
+		padding: var(--sp2) var(--sp4);
+		background: none;
+		border: none;
+		color: var(--ac1);
+	}
+	button:hover {
+		background-color: var(--cl1);
+	}
 	.input {
 		position: relative;
 		width: 100%;
@@ -83,19 +129,15 @@
 		padding: 0 calc(var(--sp3) + var(--sp3));
 	}
 
-	.clear,
-	.search {
+	.btn {
 		position: absolute;
 		top: 0;
-		height: 100%;
+		right: var(--sp2);
 
 		display: flex;
 		align-items: center;
-	}
-	.search {
-		left: var(--sp2);
-	}
-	.clear {
-		right: var(--sp2);
+		gap: var(--sp1);
+
+		height: 100%;
 	}
 </style>
