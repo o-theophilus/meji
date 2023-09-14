@@ -4,13 +4,10 @@
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Save from '../../lib/item/save.svelte';
+	import Tag from './tag.svelte';
 
 	onMount(() => {
 		let params = $page.url.searchParams;
-		if (params.has('tag')) {
-			tag = params.get('tag');
-		}
 		if (params.has('search')) {
 			search = params.get('search');
 		}
@@ -18,24 +15,11 @@
 
 	export let tags = [];
 	export let page_name = '';
-	let tag = 'all';
 	let search = '';
 </script>
 
 <section>
-	<select
-		bind:value={tag}
-		on:change={() => {
-			set_state(page_name, 'tag', tag != 'all' ? tag : '');
-		}}
-	>
-		<option value="all" selected>all</option>
-		{#each tags as x}
-			<option value={x}>
-				{x}
-			</option>
-		{/each}
-	</select>
+	<Tag {tags} {page_name} />
 
 	<div class="search_area">
 		<input
@@ -70,8 +54,8 @@
 			set_state(page_name, 'search', search);
 		}}
 	>
-	<SVG type="search" size="15" />
-	Search
+		<SVG type="search" size="15" />
+		Search
 	</Button>
 </section>
 
@@ -79,12 +63,6 @@
 	section {
 		display: flex;
 		margin-top: var(--sp2);
-	}
-
-	select,
-	option {
-		text-transform: capitalize;
-		width: unset;
 	}
 
 	.search_area {
@@ -96,11 +74,9 @@
 		width: 100%;
 	}
 
-	select,
 	input {
 		border: 2px solid var(--ac3);
 	}
-	select:focus,
 	input:focus {
 		border-color: var(--cl1);
 	}

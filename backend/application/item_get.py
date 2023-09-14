@@ -117,16 +117,24 @@ def item_master(
 ):
 
     items = []
-    for row in db:
-        if row["type"] != "item":
+    for x in db:
+        if x["type"] != "item":
             continue
-        if status and row["status"] != status:
+        if status and x["status"] != status:
             continue
-        if search and not re.search(search, row["name"], re.IGNORECASE):
+        if search and not re.search(search, x["name"], re.IGNORECASE):
             continue
-        if tag and tag not in row["tags"]:
-            continue
-        items.append(row)
+        if tag:
+            _tag, logic = tag.split("$:")
+            _tag = _tag.split(",")
+
+            if logic == "or":
+                if not any(y in _tag for y in x["tags"]):
+                    continue
+            elif logic == "and":
+                if not all(y in x["tags"] for y in _tag):
+                    continue
+        items.append(x)
 
     reverse = sort in ["latest", "name (z-a)", "expensive", "discount"]
 
