@@ -4,7 +4,7 @@
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Tag from './tag.svelte';
+	import Tag from './search.tag.svelte';
 
 	onMount(() => {
 		let params = $page.url.searchParams;
@@ -14,14 +14,14 @@
 	});
 
 	export let tags = [];
-	export let page_name = '';
+	export let page_name;
 	let search = '';
 </script>
 
 <section>
 	<Tag {tags} {page_name} />
-
-	<div class="search_area">
+	|
+	<div class="input">
 		<input
 			type="text"
 			placeholder="Search for product"
@@ -33,17 +33,21 @@
 			}}
 		/>
 
+		<div class="search">
+			<SVG type="search" size="15" />
+		</div>
+
 		{#if search}
 			<div class="clear">
 				<Button
-					class="small"
+					class="small round"
 					on:click={() => {
+						search = '';
 						set_state(page_name, 'search', '');
 					}}
 				>
-					<SVG type="search" size="15" />
+					<SVG type="close" size="15" />
 				</Button>
-				✖
 			</div>
 		{/if}
 	</div>
@@ -62,37 +66,36 @@
 <style>
 	section {
 		display: flex;
+		align-items: center;
+
 		margin-top: var(--sp2);
+		border: 2px solid var(--ac3);
+		border-radius: var(--sp0) 0 0 var(--sp0);
 	}
 
-	.search_area {
-		display: flex;
-		gap: var(--sp1);
-
+	.input {
 		position: relative;
-
 		width: 100%;
 	}
 
 	input {
-		border: 2px solid var(--ac3);
-	}
-	input:focus {
-		border-color: var(--cl1);
+		border: none;
+		padding: 0 calc(var(--sp3) + var(--sp3));
 	}
 
-	.clear {
-		--size: 20px;
-
+	.clear,
+	.search {
 		position: absolute;
-		top: 7px;
-		right: 10px;
+		top: 0;
+		height: 100%;
 
 		display: flex;
-		justify-content: center;
 		align-items: center;
 	}
-	.clear:hover {
-		background-color: var(--cl4);
+	.search {
+		left: var(--sp2);
+	}
+	.clear {
+		right: var(--sp2);
 	}
 </style>

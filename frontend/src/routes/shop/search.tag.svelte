@@ -25,8 +25,7 @@
 </script>
 
 <section>
-	<Button
-		class=""
+	<button
 		on:click={() => {
 			show_tags = !show_tags;
 			selected_snap = [...selected].sort((a, b) => a - b).join(',');
@@ -35,7 +34,7 @@
 	>
 		Tags
 		<!-- <SVG type="angle" /> -->
-	</Button>
+	</button>
 	{#if show_tags}
 		<div
 			class="blocker"
@@ -97,6 +96,12 @@
 		color: var(--ac2);
 		fill: currentColor;
 	}
+
+	button {
+		padding: var(--sp2) var(--sp4);
+		background: none;
+		border: none;
+	}
 	/* .category {
 		width: min-content;
 		background-color: var(--ac5);
@@ -117,11 +122,10 @@
 		background-color: var(--ac5);
 	}
 
-	.line{
+	.line {
 		display: flex;
 		gap: var(--sp1);
 		justify-content: space-between;
-
 	}
 	.input {
 		position: relative;
@@ -144,7 +148,7 @@
 	.tags {
 		background-color: var(--ac5);
 
-		max-height: 400px;
+		max-height: 200px;
 		overflow-y: auto;
 	}
 	.tag {
