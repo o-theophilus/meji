@@ -1,26 +1,45 @@
 <script>
+	import { page } from '$app/stores';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
+	let emit = createEventDispatcher();
+
 	export let tags;
-	export let selected;
-	export let logic;
+	export let page_name;
+	let selected = [];
+	let logic = false;
 	let search = '';
+	let selected_snap;
+	let logic_snap;
+
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('tag')) {
+			let x = params.get('tag').split('$:');
+			selected = x[0].split(',');
+			logic = x[1] == 'true';
+		}
+
+		selected_snap = [...selected];
+		logic_snap = logic;
+	});
 </script>
 
-<div class="blocker" on:click|self role="presentation" />
-<div class="drop">
-	<div class="line">
-		All Tags
-		<div class="line">
-			<input bind:group={logic} type="radio" value="and" />
-			&
-			<input bind:group={logic} type="radio" value="or" />
-			or
-		</div>
-	</div>
+<svelte:window
+	on:click={() => {
+		emit('close');
+	}}
+/>
+
+<section on:click|stopPropagation role="presentation">
+	All Tags
 
 	<br />
+	<br />
+
 	<div class="input">
 		<input bind:value={search} type="text" placeholder="Search" />
 		{#if search}
@@ -36,24 +55,60 @@
 			</div>
 		{/if}
 	</div>
+
 	<br />
+
 	<div class="tags">
 		{#each tags as x}
-			<div class="tag" class:hide={!x.includes(search)}>
+			<label class:hide={!x.includes(search)}>
 				<input bind:group={selected} type="checkbox" value={x} />
 				{x}
-			</div>
+			</label>
 		{/each}
 	</div>
-</div>
+
+	<br />
+
+	<div class="line">
+		<label>
+			<input bind:checked={logic} type="checkbox" />
+			&&
+		</label>
+
+		<div class="line">
+			<Button
+				disabled={selected.length == 0}
+				class="small hover_red"
+				on:click={() => {
+					selected = [];
+				}}
+			>
+				<SVG type="close" />
+			</Button>
+
+			<Button
+				class=" small"
+				on:click={() => {
+					let old = selected_snap.sort((a, b) => a - b).join(',');
+					let sele = selected.sort((a, b) => a - b).join(',');
+
+					if (old != sele || (logic != logic_snap && selected.length > 1)) {
+						set_state(page_name, 'tag', selected.length > 0 ? `${sele}$:${logic}` : '');
+					}
+					emit('close');
+				}}
+			>
+				<SVG type="check" />
+				Ok
+			</Button>
+		</div>
+	</div>
+</section>
 
 <style>
-	.blocker {
-		position: fixed;
-		inset: 0;
-	}
-	.drop {
+	section {
 		position: absolute;
+		z-index: 1;
 		top: 60px;
 		left: 0;
 
@@ -61,13 +116,15 @@
 		border-radius: var(--sp0);
 		background-color: var(--ac5);
 		color: var(--ac2);
-		border: 1px solid var(--ac3);
+
+		border: 2px solid var(--ac3);
 	}
 
 	.line {
 		display: flex;
 		gap: var(--sp1);
 		justify-content: space-between;
+		align-items: center;
 	}
 	.input {
 		position: relative;
@@ -91,12 +148,18 @@
 		max-height: 200px;
 		overflow-y: auto;
 	}
-	.tag {
+	label {
 		display: flex;
 		gap: var(--sp2);
 		margin-top: var(--sp0);
+
+		font-size: small;
 	}
 	.hide {
 		display: none;
+	}
+
+	input[type='checkbox'] {
+		width: 20px;
 	}
 </style>

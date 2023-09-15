@@ -12,7 +12,7 @@
 		<slot />
 	</a>
 {:else}
-	<button class={clas} on:click|stopPropagation title={tooltip} {disabled}>
+	<button class={clas} on:click title={tooltip} {disabled}>
 		<slot />
 	</button>
 {/if}
@@ -24,15 +24,15 @@
 		justify-content: center;
 		align-items: center;
 		gap: var(--sp2);
-		
+
 		border: none;
 		padding: var(--sp2);
 		border-radius: var(--sp0);
-		
+
 		background-color: var(--ac4);
 		color: var(--ac2);
 		fill: currentColor;
-		
+
 		text-decoration: none;
 		font-weight: 500;
 
@@ -91,6 +91,7 @@
 		max-width: 400px;
 	}
 
+	.hover_red:disabled,
 	button:disabled {
 		opacity: 0.5;
 		background-color: var(--ac4);

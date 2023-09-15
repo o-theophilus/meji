@@ -128,12 +128,12 @@ def item_master(
             _tag, logic = tag.split("$:")
             _tag = _tag.split(",")
 
-            if logic == "or":
-                if not any(y in _tag for y in x["tags"]):
-                    continue
-            elif logic == "and":
+            if logic == "true":
                 if not all(y in x["tags"] for y in _tag):
                     continue
+            elif not any(y in _tag for y in x["tags"]):
+                continue
+
         items.append(x)
 
     reverse = sort in ["latest", "name (z-a)", "expensive", "discount"]

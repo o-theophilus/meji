@@ -6,37 +6,33 @@
 	import SVG from '$lib/svg.svelte';
 	import Tag from './search.tag.svelte';
 
+	export let tags = [];
+	export let page_name;
+
+	let search = '';
+	let search_snap = '';
+
+	let show_tags = false;
+
+	const submit = () => {
+		if (search_snap != search) {
+			search_snap = `${search}`;
+			set_state(page_name, 'search', search);
+		}
+	};
+
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
 		}
-
-		if (params.has('tag')) {
-			let x = params.get('tag').split('$:');
-			selected = x[0].split(',');
-			logic = x[1];
-		}
 	});
-
-	export let tags = [];
-	export let page_name;
-
-	let search = '';
-	let show_tags = false;
-
-	let selected = [];
-	let selected_snap = [];
-	let logic = 'or';
-	let logic_snap = 'or';
 </script>
 
 <section>
 	<button
-		on:click={() => {
+		on:click|stopPropagation={() => {
 			show_tags = !show_tags;
-			selected_snap = [...selected].sort((a, b) => a - b).join(',');
-			logic_snap = `${logic}`;
 		}}
 	>
 		Tags
@@ -50,50 +46,38 @@
 			bind:value={search}
 			on:keypress={(e) => {
 				if (e.key == 'Enter') {
-					set_state(page_name, 'search', search);
+					submit();
 				}
 			}}
 		/>
 
-		{#if search}
-			<div class="btn">
+		<div class="btn">
+			{#if search}
 				<Button
 					class="small round"
 					on:click={() => {
 						search = '';
-						set_state(page_name, 'search', '');
 					}}
 				>
 					<SVG type="close" size="15" />
 				</Button>
+			{/if}
 
-				<Button
-					class="round small"
-					on:click={() => {
-						set_state(page_name, 'search', search);
-					}}
-				>
+			{#if search != search_snap}
+				<Button class="round small" on:click={submit}>
 					<SVG type="search" size="15" />
 				</Button>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
 
 	{#if show_tags}
 		<Tag
 			{tags}
 			{page_name}
-			bind:selected
-			bind:logic
-			on:click={() => {
+			on:close={() => {
 				show_tags = false;
-
-				selected.sort((a, b) => a - b).join(',');
-				if (selected != selected_snap || logic != logic_snap) {
-					set_state(page_name, 'tag', `${selected}$:${logic}`);
-				}
 			}}
-			role="presentation"
 		/>
 	{/if}
 </section>
@@ -107,17 +91,19 @@
 
 		margin-top: var(--sp2);
 		border: 2px solid var(--ac3);
-		border-radius: var(--sp0) 0 0 var(--sp0);
+		border-radius: var(--sp0);
 		color: var(--ac3);
 	}
 	button {
-		padding: var(--sp2) var(--sp4);
 		background: none;
 		border: none;
 		color: var(--ac1);
+		cursor: pointer;
+
+		padding: var(--sp2) var(--sp4);
 	}
 	button:hover {
-		background-color: var(--cl1);
+		color: var(--cl1);
 	}
 	.input {
 		position: relative;
@@ -126,7 +112,9 @@
 
 	input {
 		border: none;
-		padding: 0 calc(var(--sp3) + var(--sp3));
+		padding: var(--sp2);
+		padding-right: calc(var(--sp3) * 4);
+		height: 100%;
 	}
 
 	.btn {
