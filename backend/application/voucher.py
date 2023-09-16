@@ -39,13 +39,15 @@ def get_vouchers(db):
 
     # vouchers = sorted(logs, key=lambda d: d["date_u"])
 
+    total_page = ceil(len(vouchers) / size)
+
     start = (page_no - 1) * size
     stop = start + size
     vouchers = vouchers[start: stop]
 
     return {
         "vouchers": [voucher_schema(x) for x in vouchers],
-        "total_page": ceil(len(vouchers) / size)
+        "total_page": total_page
     }
 
 

@@ -464,15 +464,18 @@ def status(key):
             "error": "invalid request"
         })
 
-    order["status"] = status[i]
-    order["date_u"] = now()
     log = log_template(
         user["key"],
         "changed_order_status",
         order["key"],
         "order",
-        misc=status[i]
+        misc={
+            "from": order["status"],
+            "to": status[i]
+        }
     )
+    order["status"] = status[i]
+    order["date_u"] = now()
 
     database([order, log])
 

@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	let page_no, page_no_temp, width;
 	export let total_page = 1;
@@ -46,7 +45,7 @@
 					submit(page_no - 1);
 				}}
 			>
-			<SVG type="arrow_left" size="16" /> prev
+				&lt; prev
 			</Button>
 		{/if}
 
@@ -85,7 +84,7 @@
 					submit(page_no_temp);
 				}}
 			>
-				go <SVG type="arrow_right" size="16" />
+				go &gt;&gt;
 			</Button>
 		{/if}
 
@@ -96,7 +95,7 @@
 					submit(parseInt(page_no) + 1);
 				}}
 			>
-				next <SVG type="arrow_right" size="16" />
+				next &gt;
 			</Button>
 		{/if}
 	</section>
@@ -104,11 +103,13 @@
 
 <style>
 	section {
+		--size: var(--sp1);
+
 		display: flex;
 		justify-content: center;
 		gap: var(--sp1);
 
-		margin: var(--sp2);
+		margin-top: var(--sp4);
 	}
 
 	.input {
@@ -118,12 +119,13 @@
 		justify-content: center;
 	}
 	input {
-		border: 2px solid var(--ac3);
+		/* border: 2px solid var(--ac3); */
+		padding: var(--size);
 	}
 
 	.total {
 		position: absolute;
-		right: var(--sp2);
+		right: var(--size);
 		pointer-events: none;
 		color: var(--ac2);
 	}
@@ -131,7 +133,7 @@
 	.width_helper {
 		position: absolute;
 		visibility: hidden;
-		padding: var(--sp2);
+		padding: var(--size);
 		display: inline-block;
 	}
 </style>

@@ -3,7 +3,7 @@
 
 	let url = '';
 	if (log.entity.type == 'order') {
-		url = `/profile/orders`;
+		url = `/orders`;
 	} else if (log.entity.type == 'voucher') {
 		url = `/admin/vouchers`;
 	}
@@ -15,11 +15,12 @@
 		{log.status}
 	</span>
 	<br />
-	<a href="/{log.user.key}">
+	<!-- <a href="/{log.user.key}"> -->
+	<a href="/profile">
 		{log.user.name}
 	</a>:
 	{log.action}
-	<a href="{url}/{log.entity.key}">
+	<a href="{url}/{log.entity.key}" data-sveltekit-preload-data="tap" >
 		{#if log.entity.name}
 			{log.entity.name}
 		{:else}

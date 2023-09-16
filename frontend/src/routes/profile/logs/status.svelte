@@ -31,7 +31,7 @@
 <div class="block">
 	{#each actions as s}
 		<Button
-			class="small ={action == s ? 'primary' : ''}"
+			class="small {action == s ? 'primary' : ''}"
 			on:click={() => {
 				action = s;
 				set_state(page_name, 'action', s != 'all' ? s : '');

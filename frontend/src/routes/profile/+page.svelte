@@ -53,7 +53,8 @@
 				</b>
 				{#if edit_mode}
 					<Button
-						class="small"
+						class="small round"
+						tooltip="Edit Name"
 						on:click={() => {
 							$module = {
 								module: Edit_Name,
@@ -77,7 +78,8 @@
 				{/if}
 				{#if edit_mode}
 					<Button
-						class="small"
+						class="small round"
+						tooltip="Edit Phone Number"
 						on:click={() => {
 							$module = {
 								module: Edit_Phone,
@@ -95,7 +97,8 @@
 				{$user.email}
 				{#if edit_mode}
 					<Button
-						class="small"
+						class="small round"
+						tooltip="Edit Email"
 						on:click={() => {
 							$module = {
 								module: Edit_Email,
@@ -119,7 +122,8 @@
 
 				{#if edit_mode}
 					<Button
-						class="small"
+						class="small round"
+						tooltip="Edit Address"
 						on:click={() => {
 							$module = {
 								module: Edit_Address,
@@ -172,7 +176,7 @@
 				{#if me}
 					{#if edit_mode}
 						<Button class="small" href="/profile/setting">
-							<SVG icon="setting" size="12" />
+							<SVG type="setting" size="12" />
 							Setting
 						</Button>
 					{/if}

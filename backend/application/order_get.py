@@ -44,6 +44,8 @@ def get():
 
     # orders = sorted(orders, key=lambda d: d["date_u"])
 
+    total_page = ceil(len(orders) / size)
+
     start = (page_no - 1) * size
     stop = start + size
     orders = orders[start: stop]
@@ -51,7 +53,7 @@ def get():
     return jsonify({
         "status": 200,
         "orders": [order_schema(order, db) for order in orders],
-        "total_page": ceil(len(orders) / size)
+        "total_page": total_page
     })
 
 
@@ -101,27 +103,3 @@ def get_one(key):
         "order": order_schema(order, db),
         "previous_recipients": previous_recipients[:5]
     })
-
-
-# @bp.get("/order_ref/<key>")
-# def get_ref(key):
-#     db = database()
-
-#     user = token_to_user(db)
-#     if not user:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid token"
-#         })
-
-#     order = query({"type": "order", "pay_reference": key}, db=db)
-#     if not order:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
-
-#     return jsonify({
-#         "status": 200,
-#         "order": order_schema(order, db),
-#     })

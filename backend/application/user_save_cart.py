@@ -23,6 +23,8 @@ def get_saves():
         if x["type"] == "item" and x["key"] in saves:
             items.append(item_schema(x, db))
 
+    total_page = ceil(len(items) / size)
+
     start = (page_no - 1) * size
     stop = start + size
     items = items[start: stop]
@@ -30,7 +32,7 @@ def get_saves():
     return jsonify({
         "status": 200,
         "items": items,
-        "total_page": ceil(len(items) / size)
+        "total_page": total_page
     })
 
 

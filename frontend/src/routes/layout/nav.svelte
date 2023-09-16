@@ -107,7 +107,6 @@
 		justify-content: center;
 		gap: 4px;
 
-
 		width: 100%;
 		border: none;
 		background-color: transparent;
@@ -131,6 +130,9 @@
 
 		transition: var(--trans1);
 	}
+
+	a:hover,
+	button:hover,
 	.active {
 		color: var(--cl1);
 	}

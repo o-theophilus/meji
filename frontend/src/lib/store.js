@@ -26,6 +26,7 @@ export const set_state = (page_name, key, value) => {
 	}
 
 	window.history.pushState(history.state, '', _page.url.href);
+	window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	let temp = get(state)
 	temp[page_name] = _page.url.search
