@@ -206,7 +206,6 @@ def login():
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
-        print(anon_user["status"])
         return jsonify({
             "status": 400,
             "error": "invalid request"
