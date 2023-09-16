@@ -28,36 +28,43 @@
 	{/if}
 </div>
 
-<p>
-	Name:
-	{#if r.name}
-		{r.name}
-	{:else}
-		No Name
-	{/if}
-	<br />
+<div class="grid">
+	<div>Name:</div>
+	<div>
+		{#if r.name}
+			{r.name}
+		{:else}
+			No Name
+		{/if}
+	</div>
 
-	Phone:
-	{#if r.phone}
-		{r.phone}
-	{:else}
-		No Phone
-	{/if}
-	<br />
+	<div>Phone:</div>
+	<div>
+		{#if r.phone}
+			{r.phone}
+		{:else}
+			No Phone
+		{/if}
+	</div>
 
-	Address:
-	{#if a.line && a.state && a.country && a.local_area && a.postal_code}
-		{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
-	{:else}
-		No Address
-	{/if}
-</p>
+	<div>Address:</div>
+	<div>
+		{#if a.line && a.state && a.country && a.local_area && a.postal_code}
+			{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+		{:else}
+			No Address
+		{/if}
+	</div>
+</div>
 
 <style>
 	.bold {
 		font-weight: 500;
 	}
-	p {
+	.grid {
+		display: grid;
+		gap: 0 var(--sp3);
+		grid-template-columns: max-content auto;
 		color: var(--ac2);
 	}
 </style>

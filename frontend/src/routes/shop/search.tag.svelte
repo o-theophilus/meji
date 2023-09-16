@@ -76,7 +76,7 @@
 	<div class="line">
 		<label>
 			<input bind:checked={logic} type="checkbox" />
-			&&
+			+
 		</label>
 
 		<div class="line">
@@ -111,14 +111,16 @@
 		position: absolute;
 		z-index: 1;
 		top: 60px;
-		left: 0;
+		left: -2px;
 
 		padding: var(--sp3);
 		border-radius: var(--sp0);
 		background-color: var(--ac5);
 		color: var(--ac2);
 
-		border: 2px solid var(--ac3);
+		border-style: none solid solid none;
+		border-width: 2px;
+		border-color: var(--ac4);
 	}
 
 	.line {
