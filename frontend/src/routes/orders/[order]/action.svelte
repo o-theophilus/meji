@@ -145,6 +145,7 @@
 	}
 	.terms {
 		font-size: small;
+		color: var(--ac2);
 	}
 	a {
 		color: var(--cl1);

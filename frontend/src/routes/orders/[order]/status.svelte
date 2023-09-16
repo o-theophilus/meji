@@ -56,18 +56,18 @@
 
 <div class="horizontal">
 	<Button
-		class="link"
+		class="small round"
 		on:click={() => {
 			submit('prev');
 		}}
 	>
-		<SVG type="arrow_right" size="16" />
+		<SVG type="arrow_left" size="16" />
 	</Button>
 
 	{order.status}
 
 	<Button
-		class="link"
+		class="small round"
 		on:click={() => {
 			submit('next');
 		}}
@@ -76,6 +76,7 @@
 	</Button>
 </div>
 <br />
+
 {#if error.error}
 	<p class="error">
 		{error.error}
@@ -93,7 +94,8 @@
 
 <style>
 	.horizontal {
-		display: flex;
+		display: inline-flex;
 		gap: var(--sp1);
+		align-items: center;
 	}
 </style>

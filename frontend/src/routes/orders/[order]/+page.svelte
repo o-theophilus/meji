@@ -46,6 +46,7 @@
 			</span>
 		{/if}
 	</div>
+	
 	<br />
 	<br />
 
@@ -57,9 +58,9 @@
 		<div class="line" />
 
 		<div>
-			<Eta {order} />
-			<br />
 			<Address {order} {previous_recipients} />
+			<br />
+			<Eta {order} />
 		</div>
 	</div>
 
