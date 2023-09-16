@@ -26,6 +26,7 @@
 		if (params.has('search')) {
 			search = params.get('search');
 		}
+		search_snap = `${search}`;
 	});
 </script>
 
@@ -41,6 +42,7 @@
 	|
 	<div class="input">
 		<input
+			class:show_close={search != ''}
 			type="text"
 			placeholder="Search for product"
 			bind:value={search}
@@ -63,11 +65,11 @@
 				</Button>
 			{/if}
 
-			{#if search != search_snap}
-				<Button class="round small" on:click={submit}>
-					<SVG type="search" size="15" />
-				</Button>
-			{/if}
+			<!-- {#if search != search_snap} -->
+			<Button disabled={search == search_snap} class="round small" on:click={submit}>
+				<SVG type="search" size="15" />
+			</Button>
+			<!-- {/if} -->
 		</div>
 	</div>
 
@@ -113,8 +115,11 @@
 	input {
 		border: none;
 		padding: var(--sp2);
-		padding-right: calc(var(--sp3) * 4);
+		padding-right: 48px;
 		height: 100%;
+	}
+	.show_close {
+		padding-right: 86px;
 	}
 
 	.btn {

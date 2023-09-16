@@ -52,7 +52,7 @@
 
 			if (resp.status == 200) {
 				$user.cart = [];
-				goto(`/profile/orders/${resp.order_key}`);
+				goto(`/orders/${resp.order_key}`);
 			} else {
 				error = resp;
 			}
@@ -127,12 +127,8 @@
 		border-top: 2px solid var(--ac4);
 	}
 
-	.total,
 	.amount {
 		font-weight: 500;
-	}
-	.amount {
-		font-size: 1.2rem;
-		color: var(--cl3);
+		font-size: large;
 	}
 </style>

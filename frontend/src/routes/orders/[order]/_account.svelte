@@ -29,7 +29,7 @@
 		order.info.account = value;
 
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_/${order.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_account/${order.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

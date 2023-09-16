@@ -17,24 +17,29 @@
 	<br />
 	<br />
 	{#each orders as x}
-		<div>
-			<Button class="wide" href="/orders/{x.key}">
+		<Button class="wide" href="/orders/{x.key}">
+			<span>
 				{x.key}
-				<div class="fmt">
+				<span class="small">
+					-
 					{#each x.items as y, i}
 						{#if i != 0},{/if}
 						{y.name}
 					{/each}
-				</div>
-			</Button>
-		</div>
+				</span>
+			</span>
+		</Button>
+		<div class="space" />
 	{:else}
 		no item here
 	{/each}
 </Card>
 
 <style>
-	.fmt {
+	.space:not(:last-child) {
+		margin-top: var(--sp1);
+	}
+	.small {
 		font-weight: normal;
 		font-size: smaller;
 	}

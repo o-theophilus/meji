@@ -29,7 +29,7 @@
 
 	const submit = async () => {
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_date/${form.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_eta/${form.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

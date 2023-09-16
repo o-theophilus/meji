@@ -78,15 +78,17 @@
 					₦{order.info.account.toLocaleString()}
 				</div>
 			{/if}
+
 			<Button
 				class="link"
-				name="Add Voucher"
 				on:click={() => {
 					$module = {
 						module: Voucher
 					};
 				}}
-			/>
+			>
+				Add Voucher
+			</Button>
 			{#if $user.acc_balance > 0}
 				<Button
 					class="link"
@@ -97,7 +99,7 @@
 						};
 					}}
 				>
-					Add Amount
+					Edit
 				</Button>
 			{/if}
 		</section>

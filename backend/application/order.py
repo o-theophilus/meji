@@ -26,15 +26,15 @@ def cart_to_order():
             "error": "please login"
         })
 
-    items = query({"type": "cart", "user": user["key"]}, True, db=db)
-    if items == []:
+    c_items = query({"type": "cart", "user": user["key"]}, True, db=db)
+    if c_items == []:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     total_items = 0
-    for x in items:
+    for x in c_items:
         item = query({"type": "item", "key": x["item"]}, db=db)
         if not item:
             return jsonify({
@@ -64,7 +64,7 @@ def cart_to_order():
             },
         },
 
-        "items": items,
+        "items": c_items,
 
         "status": "pending",
         "delivery_date": f"{now(4).split('T')[0]}T10:00",
@@ -86,204 +86,12 @@ def cart_to_order():
         200
     )
 
+    database(c_items, True)
     database([order, log])
 
     return jsonify({
         "status": 200,
         "order_key": order["key"]
-    })
-
-
-@bp.put("/order/<key>")
-def submit_address(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    error = {}
-    if "name" not in request.json or not request.json["name"]:
-        error["name"] = "this field is required"
-    if "phone" not in request.json or not request.json["phone"]:
-        error["phone"] = "this field is required"
-
-    if "address" not in request.json or not request.json["address"]:
-        error["line"] = "this field is required"
-        error["state"] = "this field is required"
-        error["country"] = "this field is required"
-        error["postal_code"] = "this field is required"
-    else:
-        if (
-            "line" not in request.json["address"]
-            or not request.json["address"]["line"]
-        ):
-            error["address"] = "this field is required"
-        if (
-            "state" not in request.json["address"]
-            or not request.json["address"]["state"]
-        ):
-            error["state"] = "this field is required"
-        if (
-            "country" not in request.json["address"]
-            or not request.json["address"]["country"]
-        ):
-            error["country"] = "this field is required"
-        if (
-            "postal_code" not in request.json["address"]
-            or not request.json["address"]["postal_code"]
-        ):
-            error["postal_code"] = "this field is required"
-
-    if error != {}:
-        return jsonify({
-            "status": 400,
-            **error
-        })
-
-    order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if order["status"] != "pending":
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    order["recipient"]["name"] = request.json["name"]
-    order["recipient"]["phone"] = request.json["phone"]
-    order["recipient"]["address"] = {
-        "line": request.json["address"]["line"],
-        "state": request.json["address"]["state"],
-        "country": request.json["address"]["country"],
-        "local_area": request.json["address"]["local_area"],
-        "postal_code": request.json["address"]["postal_code"],
-    }
-    order["date_u"] = now()
-
-    order = database(order)
-
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db)
-    })
-
-
-@bp.put("/order_date/<key>")
-def date(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorised access"
-        })
-
-    order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    error = {}
-
-    if "date" not in request.json or not request.json["date"]:
-        error["date"] = "this field is required"
-
-    if "time" not in request.json or not request.json["time"]:
-        error["time"] = "this field is required"
-
-    if error != {}:
-        return jsonify({
-            "status": 400,
-            **error
-        })
-
-    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
-    order["date_u"] = now()
-    log = log_template(
-        user["key"],
-        "change_delivery_date",
-        order["key"],
-        "order"
-    )
-
-    database([order, log])
-
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db)
-    })
-
-
-@bp.put("/order_/<key>")
-def submit_account(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if order["status"] != "pending":
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if "value" not in request.json:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    error = None
-    if type(request.json["value"]) != int:
-        error = "Please enter a valid value"
-    elif request.json["value"] > user["acc_balance"]:
-        error = "amount larger than available balance"
-    elif request.json["value"] > order["info"][
-            "total_items"] + order["info"]["delivery_fee"]:
-        error = "amount larger than total cost "
-    elif request.json["value"] < 0:
-        error = "negative amount not allowed"
-    if error:
-        return jsonify({
-            "status": 400,
-            **error
-        })
-
-    order["info"]["account"] = request.json["value"]
-    order["date_u"] = now()
-    order = database(order)
-
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db)
     })
 
 
@@ -408,6 +216,199 @@ def place_order(key):
         "status": 200,
         "order": order_schema(order, db),
         "user": user_schema(user, db)
+    })
+
+
+@bp.put("/order_address/<key>")
+def submit_address(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    error = {}
+    if "name" not in request.json or not request.json["name"]:
+        error["name"] = "this field is required"
+    if "phone" not in request.json or not request.json["phone"]:
+        error["phone"] = "this field is required"
+
+    if "address" not in request.json or not request.json["address"]:
+        error["line"] = "this field is required"
+        error["state"] = "this field is required"
+        error["country"] = "this field is required"
+        error["postal_code"] = "this field is required"
+    else:
+        if (
+            "line" not in request.json["address"]
+            or not request.json["address"]["line"]
+        ):
+            error["address"] = "this field is required"
+        if (
+            "state" not in request.json["address"]
+            or not request.json["address"]["state"]
+        ):
+            error["state"] = "this field is required"
+        if (
+            "country" not in request.json["address"]
+            or not request.json["address"]["country"]
+        ):
+            error["country"] = "this field is required"
+        if (
+            "postal_code" not in request.json["address"]
+            or not request.json["address"]["postal_code"]
+        ):
+            error["postal_code"] = "this field is required"
+
+    if error != {}:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    order = query({"type": "order", "key": key}, db=db)
+    if not order:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if order["status"] != "pending":
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    order["recipient"]["name"] = request.json["name"]
+    order["recipient"]["phone"] = request.json["phone"]
+    order["recipient"]["address"] = {
+        "line": request.json["address"]["line"],
+        "state": request.json["address"]["state"],
+        "country": request.json["address"]["country"],
+        "local_area": request.json["address"]["local_area"],
+        "postal_code": request.json["address"]["postal_code"],
+    }
+    order["date_u"] = now()
+
+    order = database(order)
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order, db)
+    })
+
+
+@bp.put("/order_eta/<key>")
+def date(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorised access"
+        })
+
+    order = query({"type": "order", "key": key}, db=db)
+    if not order:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = {}
+
+    if "date" not in request.json or not request.json["date"]:
+        error["date"] = "this field is required"
+
+    if "time" not in request.json or not request.json["time"]:
+        error["time"] = "this field is required"
+
+    if error != {}:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
+    order["date_u"] = now()
+    log = log_template(
+        user["key"],
+        "change_delivery_date",
+        order["key"],
+        "order"
+    )
+
+    database([order, log])
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order, db)
+    })
+
+
+@bp.put("/order_account/<key>")
+def submit_account(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    order = query({"type": "order", "key": key}, db=db)
+    if not order:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if order["status"] != "pending":
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if "value" not in request.json:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = None
+    if type(request.json["value"]) != int:
+        error = "Please enter a valid value"
+    elif request.json["value"] > user["acc_balance"]:
+        error = "amount larger than available balance"
+    elif request.json["value"] > order["info"][
+            "total_items"] + order["info"]["delivery_fee"]:
+        error = "amount larger than total cost "
+    elif request.json["value"] < 0:
+        error = "negative amount not allowed"
+    if error:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    order["info"]["account"] = request.json["value"]
+    order["date_u"] = now()
+    order = database(order)
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order, db)
     })
 
 

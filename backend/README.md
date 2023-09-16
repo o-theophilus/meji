@@ -4,6 +4,9 @@ add rating so shop sort
 - [ ] Concurrency
 - [ ] review reserve words for item names
 create default super user
+login copy cart/like duplication error
+
+
 address api: https://www.geoapify.com/tutorials
 
 

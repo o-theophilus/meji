@@ -62,8 +62,9 @@ def item_schema(item, db):
 
 def order_schema(order, db):
     items = []
-    for x in order["cart"]:
-        item = query({"type": "item", "key": x["key"]}, db=db)
+
+    for x in order["items"]:
+        item = query({"type": "item", "key": x["item"]}, db=db)
         if item:
             items.append({
                 "slug": item["slug"],

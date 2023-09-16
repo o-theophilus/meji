@@ -6,40 +6,44 @@
 
 <div class="grid">
 	<div class="th">s/n</div>
-	<div class="th">Name</div>
+	<div class="th left">Name</div>
 	<div class="th">Price</div>
 	<div class="th">Qty</div>
 	<div class="th">Cost</div>
+
 	{#each order.items as item, i}
-		<div class="num">
+		<div>
 			{i + 1}
 		</div>
-		<div>
-			<a class="name" href="/{item.slug}">
+		<a class="left" href="/{item.slug}" data-sveltekit-preload-data="tap">
+			<span class="bold">
 				{item.name}
-			</a>
-			<div class="line">
+			</span>
+			{#if Object.keys(item.variation).length > 0}
+				-
 				{#each Object.entries(item.variation) as [key, value], i}
-					{#if i != 0},{/if}
-					{key}: &nbsp;<Value {value} />
+					{#if i != 0},&nbsp;{/if}
+					{key}: <Value {value} />
 				{/each}
-			</div>
-		</div>
-		<div class="price">
+			{/if}
+		</a>
+
+		<div class="right">
 			₦{item.price.toLocaleString()}
 		</div>
-		<div class="num">
+		<div>
 			{item.quantity}
 		</div>
-		<div class="price">
+		<div class="right">
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>
 	{/each}
-	<div class="num">{order.items.length + 1}</div>
-	<div class=" name">Delivery Fee</div>
+
+	<div>{order.items.length + 1}</div>
+	<div class="bold left">Delivery Fee</div>
 	<span />
 	<span />
-	<div class="price">₦{order.info.delivery_fee.toLocaleString()}</div>
+	<div class="right">₦{order.info.delivery_fee.toLocaleString()}</div>
 </div>
 
 <style>
@@ -49,29 +53,26 @@
 		grid-template-columns: repeat(5, 1fr);
 		grid-template-columns: auto 1fr auto auto auto;
 		color: var(--ac2);
+
+		text-align: center;
 	}
 
 	.th {
 		color: var(--ac1);
 	}
 
-	.num {
-		text-align: center;
-	}
-	.price {
+	.right {
 		text-align: right;
+	}
+	.left {
+		text-align: left;
+	}
+	.bold {
+		font-weight: 500;
+		color: var(--ac1);
 	}
 	a {
 		text-decoration: none;
-	}
-	.name {
-		color: var(--ac1);
-		font-weight: 500;
-	}
-
-	.line {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
+		color: var(--ac2);
 	}
 </style>

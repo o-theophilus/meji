@@ -7,9 +7,6 @@
 	export let previous_recipients;
 	$: r = order.recipient;
 	$: a = r.address;
-
-	$: complete_address =
-		r.name && r.phone && a.line && a.state && a.country && a.local_area && a.postal_code;
 </script>
 
 <div class="bold">
@@ -39,6 +36,7 @@
 		No Name
 	{/if}
 	<br />
+
 	Phone:
 	{#if r.phone}
 		{r.phone}
@@ -46,8 +44,9 @@
 		No Phone
 	{/if}
 	<br />
+
 	Address:
-	{#if complete_address}
+	{#if a.line && a.state && a.country && a.local_area && a.postal_code}
 		{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
 	{:else}
 		No Address
@@ -55,10 +54,10 @@
 </p>
 
 <style>
-	p {
-		color: var(--ac2);
-	}
 	.bold {
 		font-weight: 500;
+	}
+	p {
+		color: var(--ac2);
 	}
 </style>

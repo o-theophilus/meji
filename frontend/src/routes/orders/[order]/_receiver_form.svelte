@@ -11,10 +11,10 @@
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let order = { ...$module.order };
+	let { order } = $module;
 	let { previous_recipients } = $module;
 
-	let recipient = order.recipient;
+	let recipient = { ...order.recipient };
 	recipient.address.country = 'Nigeria';
 	recipient.address.state = 'Lagos';
 
@@ -49,7 +49,7 @@
 
 	const submit = async () => {
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${order.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_address/${order.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

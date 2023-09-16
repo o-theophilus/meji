@@ -32,17 +32,17 @@
 			error.error = "kindly fill the receiver's information form";
 		}
 
-		Object.keys(error).length === 0 && submit_1();
+		Object.keys(error).length === 0 && make_payment();
 	};
 
-	const submit_1 = async () => {
+	const make_payment = async () => {
 		if (pay > 0) {
 			const paystack = PaystackPop.setup({
 				key: import.meta.env.VITE_PAYSTACK_KEY,
 				email: $user.email,
 				amount: pay * 100,
 				callback: (resp) => {
-					submit_2(resp.reference);
+					submit(resp.reference);
 				},
 				onCancel: () => {
 					$module = {
@@ -64,11 +64,11 @@
 			});
 			paystack.openIframe();
 		} else {
-			submit_2();
+			submit();
 		}
 	};
 
-	const submit_2 = async (reference = '') => {
+	const submit = async (reference = '') => {
 		error = {};
 
 		$loading = true;

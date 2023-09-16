@@ -73,32 +73,33 @@ def get_one(key):
             "error": "invalid request"
         })
 
-    if order["info"]["account"] > user["acc_balance"]:
+    if (
+        order["info"]["account"] > user["acc_balance"]
+        and order["status"] == "pending"
+    ):
         order["info"]["account"] = 0
+        database(order)
 
-        order = database(order)
-
-    pr = []
+    previous_recipients = []
     for x in db:
         if (
             x["type"] == "order"
             and x["user"] == user["key"]
             and x["status"] == "delivered"
         ):
-            pr.append({
+            previous_recipients.append({
                 "name": x["recipient"]["name"],
                 "phone": x["recipient"]["phone"],
                 "address": x["recipient"]["address"],
                 "date": x["date_u"],
             })
 
-    pr = sorted(pr, key=lambda d: d['date'])
-    pr = pr[: 5]
+    previous_recipients = sorted(previous_recipients, key=lambda d: d['date'])
 
     return jsonify({
         "status": 200,
         "order": order_schema(order, db),
-        "previous_recipients": pr,
+        "previous_recipients": previous_recipients[:5]
     })
 
 

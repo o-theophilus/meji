@@ -12,8 +12,12 @@
 	let selected = [];
 	let logic = false;
 	let search = '';
-	let selected_snap;
+	let selected_snap = [];
 	let logic_snap;
+
+	$: old = selected_snap.sort((a, b) => a - b).join(',');
+	$: sele = selected.sort((a, b) => a - b).join(',');
+	$: changed = old != sele || (logic != logic_snap && selected.length > 1);
 
 	onMount(() => {
 		let params = $page.url.searchParams;
@@ -81,20 +85,17 @@
 				class="small hover_red"
 				on:click={() => {
 					selected = [];
+					logic = false;
 				}}
 			>
 				<SVG type="close" />
 			</Button>
 
 			<Button
+				disabled={!changed}
 				class=" small"
 				on:click={() => {
-					let old = selected_snap.sort((a, b) => a - b).join(',');
-					let sele = selected.sort((a, b) => a - b).join(',');
-
-					if (old != sele || (logic != logic_snap && selected.length > 1)) {
-						set_state(page_name, 'tag', selected.length > 0 ? `${sele}$:${logic}` : '');
-					}
+					set_state(page_name, 'tag', selected.length > 0 ? `${sele}$:${logic}` : '');
 					emit('close');
 				}}
 			>
