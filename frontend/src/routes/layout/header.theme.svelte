@@ -1,6 +1,7 @@
 <script>
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
+	import SVG from '$lib/svg.svelte';
 
 	const submit = async () => {
 		$user.setting.theme = $user.setting.theme == 'light' ? 'dark' : 'light';
@@ -25,8 +26,12 @@
 	>
 		<div class="block">
 			<div class="switch" class:dark={$user.setting.theme == 'dark'}>
-				<div>☼</div>
-				<div>☾</div>
+				<div>
+					<SVG type="light" size="12" />
+				</div>
+				<div>
+					<SVG type="dark" size="12" />
+				</div>
 			</div>
 		</div>
 	</button>
@@ -38,7 +43,7 @@
 		padding: var(--sp2);
 
 		background-color: transparent;
-		color: var(--ac2);
+		fill: var(--ac2);
 		cursor: pointer;
 	}
 	.block {
@@ -54,7 +59,7 @@
 	.block:hover {
 		background-color: var(--ac4);
 	}
-	
+
 	.switch {
 		position: absolute;
 		top: 0;

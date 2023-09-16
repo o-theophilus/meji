@@ -42,6 +42,7 @@
 	|
 	<div class="input">
 		<input
+			class="search"
 			class:show_close={search != ''}
 			type="text"
 			placeholder="Search for product"
@@ -65,11 +66,9 @@
 				</Button>
 			{/if}
 
-			<!-- {#if search != search_snap} -->
 			<Button disabled={search == search_snap} class="round small" on:click={submit}>
 				<SVG type="search" size="15" />
 			</Button>
-			<!-- {/if} -->
 		</div>
 	</div>
 
@@ -132,5 +131,10 @@
 		gap: var(--sp1);
 
 		height: 100%;
+	}
+
+	section:has(.search:hover),
+	section:has(.search:focus) {
+		border-color: var(--cl1);
 	}
 </style>

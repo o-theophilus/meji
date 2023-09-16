@@ -16,6 +16,7 @@
 			<SVG type="home" size="15" />
 		{/if}
 		Home
+		<div class="indicator" />
 	</a>
 	<a href="/shop{$state.shop || ''}" class:active={segment == '/shop'}>
 		{#if segment == '/shop'}
@@ -24,6 +25,7 @@
 			<SVG type="shop" size="15" />
 		{/if}
 		Shop
+		<div class="indicator" />
 	</a>
 	<a href="/save{$state.save || ''}" class:active={segment == '/save'}>
 		{#if segment == '/save'}
@@ -39,6 +41,8 @@
 				</div>
 			{/key}
 		{/if}
+
+		<div class="indicator" />
 	</a>
 	<a href="/cart" class:active={segment == '/cart'}>
 		{#if segment == '/cart'}
@@ -54,6 +58,7 @@
 				</div>
 			{/key}
 		{/if}
+		<div class="indicator" />
 	</a>
 
 	{#if $user && $user.login}
@@ -65,10 +70,10 @@
 			{/if}
 			User
 			<div class="circle profile">✓</div>
+			<div class="indicator" />
 		</a>
 	{:else}
 		<button
-			class="login"
 			on:click={() => {
 				$module = {
 					module: Login,
@@ -92,14 +97,8 @@
 		height: var(--headerHeight);
 	}
 
-	@media screen and (min-width: 800px) {
-		nav {
-			box-shadow: unset;
-		}
-	}
-
 	a,
-	.login {
+	button {
 		position: relative;
 
 		display: flex;
@@ -108,32 +107,37 @@
 		justify-content: center;
 		gap: 4px;
 
-		padding: var(--sp1);
 
 		width: 100%;
-		height: 100%;
-
 		border: none;
 		background-color: transparent;
 		color: var(--ac1);
-		fill: var(--ac1);
+		fill: currentColor;
 
 		font-size: small;
 		text-decoration: none;
+		cursor: pointer;
 
 		transition: var(--trans1);
 	}
-	.login {
-		cursor: pointer;
+	.indicator {
+		position: absolute;
+		bottom: 0;
+
+		width: 100%;
+		height: 6px;
+		border-radius: 10px 10px 0 0;
+		background-color: transparent;
+
+		transition: var(--trans1);
 	}
 	.active {
-		background-color: var(--ac5);
+		color: var(--cl1);
+	}
+	.active .indicator {
+		background-color: var(--cl1);
 	}
 
-	.login:hover,
-	a:hover {
-		background: var(--ac4);
-	}
 	.circle {
 		--size: 16px;
 
@@ -156,14 +160,17 @@
 	}
 
 	@media screen and (min-width: 800px) {
-		.circle {
-			position: unset;
+		nav {
+			box-shadow: unset;
 		}
 
-		.login,
+		button,
 		a {
 			flex-direction: unset;
 			padding: var(--sp2);
+		}
+		.circle {
+			position: unset;
 		}
 	}
 </style>
