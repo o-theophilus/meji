@@ -85,7 +85,7 @@
 			init_order = [...item.photos];
 			order_changed = false;
 
-			let msg = 'Oredr saved';
+			let msg = 'Order saved';
 			if (method == 'delete') {
 				$portal = resp.item;
 				make_active(item.photos[0]);

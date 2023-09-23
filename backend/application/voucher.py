@@ -64,7 +64,7 @@ def get(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     voucher = query({"type": "voucher", "key": key}, db=db)
@@ -105,7 +105,7 @@ def get_many():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     return jsonify({
@@ -127,7 +127,7 @@ def create():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     error = {}
@@ -207,7 +207,7 @@ def status(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     if (
@@ -273,7 +273,7 @@ def activate(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     if "validity" not in request.json or not request.json["validity"]:

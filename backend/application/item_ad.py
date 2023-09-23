@@ -42,7 +42,7 @@ def ad():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 102,
-            "message": "unauthorised access"
+            "message": "unauthorized access"
         })
 
     search = request.args.get("search")
@@ -94,7 +94,7 @@ def placement(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 102,
-            "message": "unauthorised access"
+            "message": "unauthorized access"
         })
 
     if "placement" not in request.json or not request.json["placement"]:
@@ -136,7 +136,7 @@ def photo_ads(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 102,
-            "message": "unauthorised access"
+            "message": "unauthorized access"
         })
 
     def check(size):
@@ -214,7 +214,7 @@ def photo_remove_ads(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 102,
-            "message": "unauthorised access"
+            "message": "unauthorized access"
         })
 
     item = query("item", "key", key, data)

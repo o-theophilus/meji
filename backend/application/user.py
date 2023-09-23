@@ -74,7 +74,7 @@ def edit_user(key):
     ):
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     if user["key"] != key:
@@ -224,7 +224,7 @@ def email():
 
     error = {}
     if "email" not in request.json or not request.json["email"]:
-        error["email"] = "This field is required"
+        error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
     elif user["email"] == request.json["email"]:
@@ -233,7 +233,7 @@ def email():
         error["email"] = "email is already in use"
 
     if "otp_1" not in request.json or not request.json["otp_1"]:
-        error["otp_1"] = "This field is required"
+        error["otp_1"] = "this field is required"
     else:
         otp_1 = query(
             {"type": "otp", "user": user['key'],
@@ -244,7 +244,7 @@ def email():
             error["otp_1"] = "invalid OTP"
 
     if "otp_2" not in request.json or not request.json["otp_2"]:
-        error["otp_2"] = "This field is required"
+        error["otp_2"] = "this field is required"
     else:
         otp_2 = query(
             {"type": "otp", "user": user['key'],
@@ -322,7 +322,7 @@ def password():
 
     error = {}
     if "password" not in request.json or not request.json["password"]:
-        error["password"] = "This field is required"
+        error["password"] = "this field is required"
     elif (
         not re.search("[a-z]", request.json["password"])
         or not re.search("[A-Z]", request.json["password"])
@@ -340,7 +340,7 @@ def password():
         "confirm_password" not in request.json
         or not request.json["confirm_password"]
     ):
-        error["confirm_password"] = "This field is required"
+        error["confirm_password"] = "this field is required"
     elif (
             request.json["password"]
             and "password" not in error
@@ -350,7 +350,7 @@ def password():
          does not match"""
 
     if "otp" not in request.json or not request.json["otp"]:
-        error["otp"] = "This field is required"
+        error["otp"] = "this field is required"
     else:
         otp = query(
             {"type": "otp", "user": user['key'],

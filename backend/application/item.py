@@ -23,7 +23,7 @@ def add_new():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     if "name" not in request.json or not request.json["name"]:
@@ -80,7 +80,7 @@ def edit_item(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     item = query({"type": "item", "key": key}, db=db)
@@ -193,7 +193,7 @@ def post_many_photo(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     item = query({"type": "item", "key": key}, db=db)
@@ -248,7 +248,7 @@ def arrange_photo(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     def fix(arr):
@@ -290,7 +290,7 @@ def delete_photo(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     file_name = request.json["active_photo"].split("/")[-1]

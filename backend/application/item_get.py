@@ -61,7 +61,7 @@ def get(key):
     if item["status"] != "live" and "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     database(

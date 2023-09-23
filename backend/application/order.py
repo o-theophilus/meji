@@ -315,7 +315,7 @@ def date(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     order = query({"type": "order", "key": key}, db=db)
@@ -426,42 +426,42 @@ def status(key):
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
+    status = ['ordered', 'processing', 'enroute', 'delivered']
     order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
     order_user = query({"type": "user", "key": order["user"]}, db=db)
-    if not order_user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
 
     if (
-        "status" not in request.json
+        not order or not order_user
+        or "status" not in request.json
         or not request.json["status"]
+        or request.json["status"] not in [*status, "cancel"]
         or "email_template" not in request.json
-        or order["status"] == "pending"
+        or order["status"] in ["pending", "delivered", "cancel"]
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    status = ['pending', 'ordered', 'processing', 'enroute', 'delivered']
-    i = status.index(order["status"])
-    i = i + 1 if request.json["status"] == "next" else i - 1
+    if request.json["status"] in status:
+        i = status.index(request.json["status"])
 
-    if i < 0 or i > len(status) - 1:
+        if (
+            i < 0 or i > len(status) - 1
+            or order["status"] not in [status[i-1], status[i+1]]
+        ):
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
+
+    if "note" not in request.json or not request.json["note"]:
         return jsonify({
             "status": 400,
-            "error": "invalid request"
+            "note": "this field is required"
         })
 
     log = log_template(
@@ -471,18 +471,16 @@ def status(key):
         "order",
         misc={
             "from": order["status"],
-            "to": status[i]
+            "to": request.json["status"],
+            "note": request.json["note"]
         }
     )
-    order["status"] = status[i]
+    order["status"] = request.json["status"]
     order["date_u"] = now()
 
     database([order, log])
 
-    if (
-        request.json["status"] == "next"
-        and status[i] in ["processing", "delivered"]
-    ):
+    if request.json["status"] in ["processing", "delivered"]:
         send_mail(
             order_user["email"],
             "New Order" if order["status"] == "delivered" else "Thank you",

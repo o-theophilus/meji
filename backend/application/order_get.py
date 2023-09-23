@@ -21,7 +21,7 @@ def get():
     if "admin" in request.args and "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     page_no = 1

@@ -9,7 +9,7 @@
 	import Eta from './eta.svelte';
 	import Address from './receiver.svelte';
 	import Action from './action.svelte';
-	import Status from './status.svelte';
+	import Status from './_status.svelte';
 	import Voucher from '../../profile/_voucher.svelte';
 	import Account from './_account.svelte';
 
@@ -39,14 +39,26 @@
 		<span> Status: </span>
 
 		{#if order.status != 'pending' && $user.roles.includes('admin')}
-			<Status {order} />
+			<Button
+				class="link"
+				on:click={() => {
+					$module = {
+						module: Status,
+						order
+					};
+				}}
+			>
+				<span class="upper">
+					{order.status}
+				</span>
+			</Button>
 		{:else}
-			<span class="value">
+			<span class="value upper">
 				{order.status}
 			</span>
 		{/if}
 	</div>
-	
+
 	<br />
 	<br />
 
@@ -149,5 +161,9 @@
 		display: grid;
 		gap: 0 var(--sp3);
 		grid-template-columns: max-content max-content;
+	}
+
+	.upper {
+		text-transform: capitalize;
 	}
 </style>

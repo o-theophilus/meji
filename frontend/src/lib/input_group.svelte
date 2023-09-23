@@ -1,14 +1,11 @@
 <script>
-	import SVG from '$lib/svg.svelte';
-
 	export let name;
 	export let label = '';
-	export let svg = '';
 	export let error = {};
-	let id = name.split(' ').join('_');
+	let id = name.split(' ').join('_').toLowerCase();
 </script>
 
-<div class="inputGroup" class:svgi={!!svg}>
+<div class="inputGroup">
 	<slot name="label" />
 	{#if !$$slots.label}
 		<label for={id}>{label || name.replace(/_/g, ' ')}</label>
@@ -19,11 +16,6 @@
 		</span>
 	{/if}
 	<slot {id} />
-	{#if svg}
-		<div class="svg">
-			<SVG type={svg} size="20" />
-		</div>
-	{/if}
 </div>
 <br />
 

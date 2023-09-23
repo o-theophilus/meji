@@ -116,7 +116,7 @@ def signup():
 
     if "confirm_password" not in request.json or not request.json[
             "confirm_password"]:
-        error["confirm_password"] = "This field is required"
+        error["confirm_password"] = "this field is required"
     elif (
             request.json["password"]
             and "password" not in error
@@ -213,9 +213,9 @@ def login():
 
     error = {}
     if "email" not in request.json or not request.json["email"]:
-        error["email"] = "This field is required"
+        error["email"] = "this field is required"
     if "password" not in request.json or not request.json["password"]:
-        error["password"] = "This field is required"
+        error["password"] = "this field is required"
 
     if error != {}:
         return jsonify({
@@ -250,13 +250,43 @@ def login():
             "error": "not confirmed"
         })
 
-    edited = []
     if anon_user['key'] != user['key']:
+        anon_sc = []
+        user_sc = []
         for x in db:
-            if x["type"] in ["cart", "save"] and x["user"] == anon_user['key']:
+            if x["type"] in ["cart", "save"]:
+                if x["user"] == anon_user['key']:
+                    anon_sc.append(x)
+                elif x["user"] == user['key']:
+                    user_sc.append(x)
+
+        edited = []
+        to_delete = []
+        for x in anon_sc:
+            add = True
+            for y in user_sc:
+                if (
+                    x["item"] == y["item"]
+                    and (
+                        x["type"] == "save" and y["type"] == "save"
+                        or (
+                            x["type"] == "cart" and y["type"] == "cart"
+                            and x["variation"] == y["variation"]
+                        )
+
+                    )
+                ):
+                    add = False
+                    break
+
+            if add:
                 x["user"] = user['key']
                 edited.append(x)
-        database(anon_user, True)
+            else:
+                to_delete.append(x)
+
+        to_delete.append(anon_user)
+        database(to_delete, True)
 
     user["login"] = True
     edited.append(user)

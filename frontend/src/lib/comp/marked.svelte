@@ -1,5 +1,9 @@
 <script>
-	// import marked from 'marked';
+	import { marked } from 'marked';
+	marked.use({
+		mangle: false,
+		headerIds: false
+	});
 
 	export let md = '';
 
@@ -87,45 +91,4 @@
 	// 	`;
 </script>
 
-<div class="marked">
-	{@html md}
-</div>
-
-<style>
-	* {
-		text-align: justify;
-	}
-
-	:global(.marked ul, .marked ol) {
-		padding-left: 1rem;
-	}
-	:global(.marked p, .marked ul, .marked ol, h1, h2, h3, h4, h5, h6) {
-		margin: 1rem 0;
-	}
-	:global(.marked * ol, .marked * ul) {
-		margin: 0;
-		padding-left: 2rem;
-	}
-
-	:global(.marked hr) {
-		border: none;
-		border-top: 2px solid var(--ac5);
-	}
-	:global(.marked > :first-child) {
-		margin-top: 0;
-	}
-	:global(.marked > :last-child) {
-		margin-bottom: 0;
-	}
-
-	/* costom */
-	:global(.marked .column) {
-		display: grid;
-		gap: var(--sp1);
-	}
-	:global(.marked .row) {
-		display: flex;
-		justify-content: space-between;
-		gap: var(--sp1);
-	}
-</style>
+{@html marked.parse(md)}

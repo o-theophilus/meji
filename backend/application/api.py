@@ -31,7 +31,7 @@ def file_list():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     items_photos = []

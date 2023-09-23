@@ -27,7 +27,9 @@
 				set_state(page_name, 'status', s != 'ordered' ? s : '');
 			}}
 		>
-			{s}
+			<span>
+				{s}
+			</span>
 		</Button>
 	{/each}
 
@@ -60,5 +62,9 @@
 	}
 	.right {
 		margin-left: auto;
+	}
+
+	span {
+		text-transform: capitalize;
 	}
 </style>

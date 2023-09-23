@@ -69,7 +69,7 @@ def get():
     if "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     status = request.args.get("status")
@@ -107,7 +107,7 @@ def get_one(key):
     if "admin" not in me["roles"]:
         return jsonify({
             "status": 400,
-            "error": "unauthorised access"
+            "error": "unauthorized access"
         })
 
     user = query({"type": "user", "key": key}, db=db)
