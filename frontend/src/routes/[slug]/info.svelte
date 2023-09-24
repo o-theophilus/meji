@@ -50,7 +50,7 @@
 	let open_feedback = item.feedbacks && item.feedbacks.length > 0;
 	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
-	let review_lenght = 3;
+	let review_length = 3;
 </script>
 
 {#if edit_mode}
@@ -292,11 +292,11 @@
 			<Rating feedback={item.feedbacks} />
 			<span class="title"> Reviews </span>
 
-			{#each item.feedbacks.slice(0, review_lenght) as feedback (feedback.id)}
+			{#each item.feedbacks.slice(0, review_length) as feedback (feedback.id)}
 				<Review {feedback} />
 			{/each}
 
-			{#if item.feedbacks.length > review_lenght}
+			{#if item.feedbacks.length > review_length}
 				<Button
 					class="link"
 					on:click={() => {

@@ -9,6 +9,7 @@
 	import Add from './_add.svelte';
 
 	export let data;
+	console.log(data);
 	let { item } = data;
 	$: feedbacks = data.feedbacks;
 
