@@ -72,37 +72,9 @@ def get(key):
             "item"
         ))
 
-    user_views = query({
-        "type": "log",
-        "user": user["key"],
-        "action": "view_item"
-    }, many=True, db=db)
-
-    user_views = sorted(user_views, key=lambda d: d["date"], reverse=True)
-
-    recently = []
-    picked = []
-    for row in user_views:
-        _item = query({"type": "item", "key": row["entity"]}, db=db)
-        if (
-            _item
-            and _item["key"] not in picked
-            and _item["key"] != item["key"]
-            and _item["status"] == "live"
-        ):
-            recently.append(item_schema(_item, db))
-            picked.append(_item["key"])
-
-        if len(recently) >= 6:
-            break
-
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
-        "recently_viewed": recently
-        # "Similar Items",
-        # "Customers who viewed this also viewed",
-        # "You may also like",
     })
 
 

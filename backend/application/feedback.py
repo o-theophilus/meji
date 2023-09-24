@@ -27,10 +27,31 @@ def get_feedbacks(slug):
 
     feedbacks = query({"type": "feedback", "item": item["key"]}, True, db=db)
 
+    has_feedback = False
+    for x in feedbacks:
+        if x["user"] == user["key"]:
+            has_feedback = True
+            break
+
+    has_purchased = False
+    if has_feedback:
+        has_purchased = True
+    else:
+        for x in db:
+            if x["type"] == "order" and x["user"] == user["key"]:
+                for y in x["items"]:
+                    if y["item"] == item["key"]:
+                        has_purchased = True
+                        break
+            if has_purchased:
+                break
+
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
-        "feedbacks": [feedback_schema(x, db) for x in feedbacks]
+        "feedbacks": [feedback_schema(x, db) for x in feedbacks],
+        "has_purchased": has_purchased,
+        "has_feedback": has_feedback
     })
 
 
@@ -49,9 +70,9 @@ def add_feedback(key):
     if "rating" not in request.json or not request.json["rating"]:
         error["rating"] = "this field is required"
     elif request.json["rating"] not in range(1, 6):
-        error["rating"] = "invalid ratinng"
+        error["rating"] = "invalid rating"
     if "review" not in request.json or not request.json["review"]:
-        error["review"] = "This field is reqired"
+        error["review"] = "This field is required"
 
     if error != {}:
         return jsonify({
@@ -66,14 +87,30 @@ def add_feedback(key):
             "error": "invalid request"
         })
 
-    fb = query({"type": "feedback", "user": user["key"],
-                "item": item["key"]}, db=db)
-    if fb:
-        fb["rating"] = request.json["rating"]
-        fb["review"] = request.json["review"]
-        fb["date"] = now()
+    has_purchased = False
+    for x in db:
+        if x["type"] == "order" and x["user"] == user["key"]:
+            for y in x["items"]:
+                if y["item"] == item["key"]:
+                    has_purchased = True
+                    break
+        if has_purchased:
+            break
+
+    if not has_purchased:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    feedback = query({"type": "feedback", "user": user["key"],
+                      "item": item["key"]}, db=db)
+    if feedback:
+        feedback["rating"] = request.json["rating"]
+        feedback["review"] = request.json["review"]
+        feedback["date"] = now()
     else:
-        fb = {
+        feedback = {
             "key": uuid4().hex,
             "type": "feedback",
             "user": user["key"],
@@ -82,9 +119,9 @@ def add_feedback(key):
             "review": request.json["review"],
             "date": now(),
         }
-    database(fb)
+    database(feedback)
 
     return jsonify({
         "status": 200,
-        "feedback": feedback_schema(fb, db)
+        "feedback": feedback_schema(feedback, db)
     })

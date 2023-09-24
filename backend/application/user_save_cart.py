@@ -142,7 +142,7 @@ def add_to_cart():
             "error": "invalid request"
         })
 
-    cart_i = query({
+    c_item = query({
         "type": "cart", "user": user["key"], "item": item["key"],
         "variation": request.json["variation"]
     }, db=db)
@@ -154,17 +154,17 @@ def add_to_cart():
                 database(x)
                 return
 
-    if cart_i:
+    if c_item:
         if request.json["quantity"] < 1:
-            database(cart_i, True)
-            db = [x for x in db if x["key"] != cart_i["key"]]
+            database(c_item, True)
+            db = [x for x in db if x["key"] != c_item["key"]]
         elif "ops" in request.json and request.json["ops"] == "add":
-            update_qty(cart_i, cart_i["quantity"] + request.json["quantity"])
+            update_qty(c_item, c_item["quantity"] + request.json["quantity"])
         else:
-            update_qty(cart_i, request.json["quantity"])
+            update_qty(c_item, request.json["quantity"])
 
     elif request.json["quantity"] > 0:
-        cart_i = database({
+        c_item = database({
             "key": uuid4().hex,
             "date": now(),
             "type": "cart",
@@ -173,7 +173,7 @@ def add_to_cart():
             "variation": request.json["variation"],
             "quantity": request.json["quantity"]
         })
-        db.append(cart_i)
+        db.append(c_item)
 
     return jsonify({
         "status": 200,

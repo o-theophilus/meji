@@ -5,5 +5,15 @@
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
   "python.formatting.provider": "autopep8",
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "cSpell.words": [
+    "deta",
+    "enroute",
+    "LANCZOS",
+    "Meji",
+    "omni",
+    "otps",
+    "PAYSTACK",
+    "werkzeug"
+  ]
 }

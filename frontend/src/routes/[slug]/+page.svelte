@@ -1,22 +1,19 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { elasticInOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
-	import Item from '$lib/item/index.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 
+	import Group from './group.svelte';
+
 	export let data;
 	$: item = data.item;
-	$: recently_viewed = data.recently_viewed;
 
 	$: if ($portal) {
 		item = $portal;
@@ -24,7 +21,6 @@
 	}
 
 	let edit_mode = false;
-	let open_recent = true;
 	$loading = false;
 
 	onMount(() => {
@@ -64,33 +60,11 @@
 	</section>
 </Card>
 
-{#if recently_viewed && recently_viewed.length > 0}
-	<Card>
-		<div class="title">
-			Recently Viewed
-			{#if $user && $user.roles.includes('admin')}
-				<ButtonFold
-					open={open_recent}
-					on:click={() => {
-						open_recent = !open_recent;
-					}}
-				/>
-			{/if}
-		</div>
-
-		{#if open_recent}
-			<div
-				class="item_area"
-				class:list={$user.setting.item_view == 'list'}
-				transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}
-			>
-				{#each recently_viewed as item (item.key)}
-					<Item {item} />
-				{/each}
-			</div>
-		{/if}
-	</Card>
-{/if}
+{#key item.key}
+	<Group name="Recently Viewed" url="/recently_viewed/{$user.key}/{item.key}" />
+	<Group name="Similar Items" url="/similar_items/{item.key}" />
+	<Group name="Customers who viewed this also viewed" url="/customer_view/{$user.key}/{item.key}" />
+{/key}
 
 <style>
 	.block {

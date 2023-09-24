@@ -15,6 +15,7 @@ from . import order
 from . import log
 from . import item
 from . import item_get
+from . import item_group
 
 
 def create_app():
@@ -41,6 +42,7 @@ def create_app():
 
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
+    app.register_blueprint(item_group.bp)
     app.register_blueprint(item_ad.bp)
     app.register_blueprint(feedback.bp)
 

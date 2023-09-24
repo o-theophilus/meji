@@ -26,3 +26,10 @@ content-type: application/json
 Authorization: {{Authorization}}
 
 ###
+
+#test
+get  {{host}}/customer_view/da24bca444bb43e78bd9882b23ecb29e/52ca93a7965741ff8576c6f7bc52d3fd HTTP/1.1
+content-type: application/json
+# Authorization: {{Authorization}}
+
+###

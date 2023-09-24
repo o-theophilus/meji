@@ -133,7 +133,7 @@ def create():
     error = {}
 
     if "value" not in request.json or not request.json["value"]:
-        error["value"] = "this field is reqired"
+        error["value"] = "this field is required"
     elif (
         type(request.json["value"]) not in [int, float]
         or request.json["value"] <= 0
@@ -141,7 +141,7 @@ def create():
         error["value"] = "please enter a valid value"
 
     if "quantity" not in request.json or not request.json["quantity"]:
-        error["quantity"] = "this field is reqired"
+        error["quantity"] = "this field is required"
     elif (
         type(request.json["quantity"]) != int
         or request.json["quantity"] < 1
@@ -279,7 +279,7 @@ def activate(key):
     if "validity" not in request.json or not request.json["validity"]:
         return jsonify({
             "status": 400,
-            "error": "this field is reqired"
+            "error": "this field is required"
         })
 
     validity = request.json["validity"]
