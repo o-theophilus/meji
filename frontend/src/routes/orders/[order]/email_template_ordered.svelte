@@ -1,11 +1,10 @@
 <script>
 	import { page } from '$app/stores';
-
-	import { days, months, ordinal_suffix_of } from '$lib/store.js';
+	
+	import { user ,days, months, ordinal_suffix_of } from '$lib/store.js';
 	import Template from '$lib/email_template.svelte';
 
 	export let order;
-	export let user;
 	let r = order.recipient;
 	let a = r.address;
 
@@ -31,11 +30,7 @@
 	Dear Admin
 	<br />
 	<br />
-	Kindly see order Information below:
-	<br />
-	<br />
-	<b> Order ID </b>
-	<br />
+	Kindly see order:
 	<a
 		style="
 	text-decoration: none;
@@ -46,6 +41,51 @@
 	>
 		{order.key}
 	</a>
+	information below:
+	<br />
+	<br />
+	<b>User</b>
+	<br />
+	Name:
+	<a
+		style="
+text-decoration: none;
+color: #1d9bf0;
+"
+		href="{$page.url.origin}/admin/user/{$user.key}"
+		target="_blank"
+	>
+		{$user.name}
+	</a>
+
+	<br />
+
+	Phone:
+	{$user.phone}
+	<br />
+	Email:
+	{$user.email}
+	<br />
+	<br />
+	<b>Receiver</b>
+	<br />
+	Name:
+	{r.name}
+	<br />
+	Phone:
+	{r.phone}
+	<br />
+	Address:
+	{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+	<br />
+	Date:
+	{days[dt.getDay()]},
+	{ordinal_suffix_of(dt.getDate())} of
+	{months[dt.getMonth()]}
+	{dt.getFullYear()}
+	<br />
+	Time:
+	{date_time[1]}{period_of_day == 'Morning' ? 'am' : 'pm'}, {period_of_day}.
 	<br />
 	<br />
 	<b>Item{s}</b>
@@ -95,6 +135,7 @@
 				display:inline-block;
 				width:16px; 
 				height: 16px; 
+				border:2px solid gray;
 				border-radius:50%;
 				background-color:{v[1]}
 				"
@@ -109,52 +150,6 @@
 		<br />
 		<br />
 	{/each}
-	<b>User</b>
-	<br />
-	Name:
-	<a
-		style="
-text-decoration: none;
-color: #1d9bf0;
-"
-		href="{$page.url.origin}/admin/user/{user.key}"
-		target="_blank"
-	>
-		{user.name}:
-	</a>
-	<br />
-	Phone: {user.phone}:
-	<br />
-	Email: {user.email}:
-	<br />
-	<br />
-	<b>Receiver</b>
-	<br />
-	Name: {r.name}
-	<br />
-	Phone: {r.phone}
-	<br />
-	Address: {a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
-	<br />
-	<br />
-	The item{s} should be delivered on or before
-	<span
-		style="
-	font-weight: 500;"
-	>
-		{days[dt.getDay()]},
-		{ordinal_suffix_of(dt.getDate())} of
-		{months[dt.getMonth()]}
-		{dt.getFullYear()}
-	</span>. Time:
-	<span
-		style="
-	font-weight: 500;"
-	>
-		{date_time[1]}, {period_of_day}
-	</span>.
-	<br />
-	<br />
 	Best regards,
 	<br />
 	<br />

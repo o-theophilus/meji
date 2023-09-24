@@ -1,4 +1,3 @@
-# from flask import current_app
 from deta import Deta
 from PIL import Image, ImageOps
 from io import BytesIO
@@ -9,8 +8,6 @@ from werkzeug.datastructures import FileStorage
 
 def drive():
     name = "live"
-    # if current_app.config["DEBUG"]:
-    #     name = "test"
     return Deta(os.environ["DETA_KEY"]).Drive(name)
 
 

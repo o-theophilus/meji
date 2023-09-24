@@ -11,7 +11,7 @@
 	import Email_Delivered from './email_template_delivered.svelte';
 	let email_template;
 
-	let note = '';
+	let note = 'I approve this';
 	let order = { ...$module.order };
 	let status = ['ordered', 'processing', 'enroute', 'delivered'];
 	let index = status.indexOf(order.status);
@@ -115,31 +115,18 @@ to: **${status}**
 				&lt; Back
 			</Button>
 		{/if}
-		{#if index < status.length - 1}
-			<Button
-				class="primary"
-				on:click={() => {
-					validate(status[index + 1]);
-				}}
-			>
-				<span class="cap">
-					{status[index + 1]} &gt;
-				</span>
-			</Button>
-		{/if}
-	</div>
-	<br />
-	{#if index < status.length - 1}
+
 		<Button
-			class="hover_red small"
+			class="primary"
 			on:click={() => {
-				validate('cancel');
+				validate(status[index + 1]);
 			}}
 		>
-			Cancel
-			<SVG type="close" size="10" />
+			<span class="cap">
+				{status[index + 1]} &gt;
+			</span>
 		</Button>
-	{/if}
+	</div>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

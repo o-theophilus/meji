@@ -44,6 +44,13 @@
 	<span />
 	<span />
 	<div class="right">₦{order.info.delivery_fee.toLocaleString()}</div>
+	<span />
+	<span />
+	<span />
+	<div class="bold left">Total</div>
+	<div class="bold right">
+		₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}
+	</div>
 </div>
 
 <style>

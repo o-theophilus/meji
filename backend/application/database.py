@@ -46,13 +46,13 @@ def database(x=None, delete=False, db=None):
         return base().put(x)
 
     if type(x) == list:
-        resps = []
+        resp_ = []
         while len(x) > 0:
-            base().put_many(x[:25])
-            # resps.append(resp)
+            resp = base().put_many(x[:25])
+            resp_.append(resp)
             x = x[25:]
 
-        return resps
+        return resp_
 
 
 def query(_query, many=False, db=None):

@@ -4,12 +4,14 @@
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
 	import Address from './receiver.svelte';
 	import Action from './action.svelte';
 	import Status from './_status.svelte';
+	import Cancel from './_status_cancel.svelte';
 	import Voucher from '../../profile/_voucher.svelte';
 	import Account from './_account.svelte';
 
@@ -21,7 +23,6 @@
 		order = $portal;
 		$portal = '';
 	}
-	let mine = order.user_key == $user.key;
 </script>
 
 <Meta title="Order" description="Order" />
@@ -37,26 +38,9 @@
 			{order.key}
 		</span>
 		<span> Status: </span>
-
-		{#if order.status != 'pending' && $user.roles.includes('admin')}
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Status,
-						order
-					};
-				}}
-			>
-				<span class="upper">
-					{order.status}
-				</span>
-			</Button>
-		{:else}
-			<span class="value upper">
-				{order.status}
-			</span>
-		{/if}
+		<span class="value upper">
+			{order.status}
+		</span>
 	</div>
 
 	<br />
@@ -67,7 +51,7 @@
 			<Item {order} />
 		</div>
 
-		<div class="line" />
+		<div class="hr" />
 
 		<div>
 			<Address {order} {previous_recipients} />
@@ -76,15 +60,10 @@
 		</div>
 	</div>
 
-	{#if order.status == 'pending'}
-		<br />
+	<br />
 
+	{#if order.status == 'pending' && order.user == $user.key}
 		<section class="grid">
-			<div class="title">Total Cost</div>
-			<div class="value">
-				₦{(order.info.total_items + order.info.delivery_fee).toLocaleString()}
-			</div>
-
 			{#if $user.acc_balance > 0}
 				<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
 				<div class="value">
@@ -120,7 +99,38 @@
 		<br />
 
 		<Action {order} />
+		<br />
 	{/if}
+
+	<div class="line">
+		{#if !['pending', 'delivered', 'canceled'].includes(order.status) && $user.roles.includes('admin')}
+			<Button
+				class="small"
+				on:click={() => {
+					$module = {
+						module: Status,
+						order
+					};
+				}}
+			>
+				Change Order Status
+			</Button>
+		{/if}
+		{#if !['delivered', 'canceled'].includes(order.status)}
+			<Button
+				class="hover_red small"
+				on:click={() => {
+					$module = {
+						module: Cancel,
+						order
+					};
+				}}
+			>
+				<SVG type="close" size="10" />
+				Cancel Order
+			</Button>
+		{/if}
+	</div>
 </Card>
 
 <style>
@@ -132,7 +142,7 @@
 		width: 100%;
 	}
 
-	.line {
+	.hr {
 		background-color: var(--ac4);
 		width: 2px;
 		display: none;
@@ -142,7 +152,7 @@
 		.block {
 			flex-direction: unset;
 		}
-		.line {
+		.hr {
 			display: block;
 		}
 	}
@@ -165,5 +175,10 @@
 
 	.upper {
 		text-transform: capitalize;
+	}
+
+	.line {
+		display: flex;
+		gap: var(--sp1);
 	}
 </style>

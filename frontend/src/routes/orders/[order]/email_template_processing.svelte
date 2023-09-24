@@ -30,7 +30,7 @@
 	Dear {'{'}name{'}'}
 	<br />
 	<br />
-	We are currentely processing your order:
+	We are currently processing your order:
 	<a
 		style="
 	text-decoration: none;
@@ -41,6 +41,28 @@
 	>
 		{order.key}
 	</a>.
+	<br />
+	<br />
+	The item{s} will be delivered to:
+	<br />
+	<br />
+	Name:
+	{r.name}
+	<br />
+	Phone:
+	{r.phone}
+	<br />
+	Address:
+	{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+	<br />
+	Date:
+	{days[dt.getDay()]},
+	{ordinal_suffix_of(dt.getDate())} of
+	{months[dt.getMonth()]}
+	{dt.getFullYear()}
+	<br />
+	Time:
+	{date_time[1]}{period_of_day == 'Morning' ? 'am' : 'pm'}, {period_of_day}.
 	<br />
 	<br />
 	<b>Item{s}:</b>
@@ -90,6 +112,7 @@ font-weight: 500;
 		display:inline-block;
 		width:16px; 
 		height: 16px; 
+		border:2px solid gray;
 		border-radius:50%;
 		background-color:{v[1]}
 		"
@@ -104,38 +127,7 @@ font-weight: 500;
 		<br />
 		<br />
 	{/each}
-	The item{s} will be delivered to
-	<span
-		style="
-	font-weight:500;
-	"
-	>
-		{r.name}
-	</span>, phone: {r.phone}
-	at {a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
-	<br />
-	<br />
-	The item{s} should be delivered on or before
-	<span
-		style="
-	font-weight:500;
-	"
-	>
-		{days[dt.getDay()]},
-		{ordinal_suffix_of(dt.getDate())} of
-		{months[dt.getMonth()]}
-		{dt.getFullYear()}
-	</span>. Time:
-	<span
-		style="
-	font-weight:500;
-	"
-	>
-		{date_time[1]}, {period_of_day}
-	</span>.
 
-	<br />
-	<br />
 	Best regards,
 	<br />
 	<br />

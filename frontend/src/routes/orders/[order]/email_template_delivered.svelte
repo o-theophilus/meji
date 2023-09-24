@@ -41,31 +41,17 @@
 	>
 		{order.key}
 	</a>
-	has been delivered to
-	<span
-		style="
-	font-weight: 500;"
-	>
-		{r.name}
-	</span>, phone:
-	<span
-		style="
-	font-weight: 500;"
-	>
-		{r.phone}
-	</span>
-
-	at
-
-	<span
-		style="
-	font-weight: 500;"
-	>
-		{a.line}, {a.local_area}, {a.state}, {a.country},
-		{a.postal_code}
-	</span>
-	.
-
+	has been delivered to:
+	<br />
+	<br />
+	Name:
+	{r.name}
+	<br />
+	Phone:
+	{r.phone}
+	<br />
+	Address:
+	{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
 	<br />
 	<br />
 	<b>Item{s}</b>
@@ -115,6 +101,7 @@
 				display:inline-block;
 				width:16px; 
 				height: 16px; 
+				border:2px solid gray;
 				border-radius:50%;
 				background-color:{v[1]}
 				"

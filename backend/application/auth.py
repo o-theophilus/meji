@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from .tools import token_tool, token_to_user, now, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -156,13 +156,15 @@ def signup():
     })
 
 
+max_age = 3600
+
+
 @bp.get("/confirm/<token>")
 def confirm_email(token):
     db = database()
 
     try:
-        token = token_tool().loads(
-            token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
+        token = token_tool().loads(token, max_age=max_age)
     except Exception:
         return jsonify({
             "status": 400,
@@ -250,47 +252,43 @@ def login():
             "error": "not confirmed"
         })
 
+    edited = []
+    to_delete = []
+
     if anon_user['key'] != user['key']:
-        anon_sc = []
-        user_sc = []
+        anon_save = []
+        user_save = []
+        anon_cart = []
+        user_cart = []
         for x in db:
-            if x["type"] in ["cart", "save"]:
-                if x["user"] == anon_user['key']:
-                    anon_sc.append(x)
-                elif x["user"] == user['key']:
-                    user_sc.append(x)
+            if x["type"] == "save" and x["user"] == anon_user['key']:
+                anon_save.append(x)
+            elif x["type"] == "save" and x["user"] == user['key']:
+                user_save.append(x)
+            elif x["type"] == "cart" and x["user"] == anon_user['key']:
+                anon_cart.append(x)
+            elif x["type"] == "cart" and x["user"] == user['key']:
+                user_cart.append(x)
 
-        edited = []
-        to_delete = []
-        for x in anon_sc:
-            add = True
-            for y in user_sc:
-                if (
-                    x["item"] == y["item"]
-                    and (
-                        x["type"] == "save" and y["type"] == "save"
-                        or (
-                            x["type"] == "cart" and y["type"] == "cart"
-                            and x["variation"] == y["variation"]
-                        )
+        for x in anon_save:
+            for y in user_save:
+                if x["item"] == y["item"]:
+                    anon_save.remove(x)
+                    to_delete.append(x)
 
-                    )
-                ):
-                    add = False
-                    break
+        for x in anon_cart:
+            for y in user_cart:
+                if x["item"] == y["item"] and x["variation"] == y["variation"]:
+                    user_cart.remove(y)
+                    to_delete.append(y)
 
-            if add:
-                x["user"] = user['key']
-                edited.append(x)
-            else:
-                to_delete.append(x)
-
-        to_delete.append(anon_user)
-        database(to_delete, True)
+        for x in [*anon_save, *anon_cart]:
+            x["user"] = user['key']
+            edited.append(x)
 
     user["login"] = True
-    edited.append(user)
-    database(edited)
+    database([*to_delete, anon_user], True)
+    database([*edited, user])
 
     return jsonify({
         "status": 200,
@@ -373,8 +371,7 @@ def change_password(token):
     db = database()
 
     try:
-        token = token_tool().loads(
-            token, max_age=current_app.config["EMAIL_CONFIRM_EXP"])
+        token = token_tool().loads(token, max_age=max_age)
     except Exception:
         return jsonify({
             "status": 400,

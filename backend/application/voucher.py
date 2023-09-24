@@ -283,7 +283,7 @@ def activate(key):
         })
 
     validity = request.json["validity"]
-    print(validity)
+
     if (
         len(validity) != 10
         or validity[4] != validity[7] != '-'

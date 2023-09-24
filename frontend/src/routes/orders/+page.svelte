@@ -1,4 +1,7 @@
 <script>
+	import { user } from '$lib/store.js';
+	import { page } from '$app/stores';
+
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
@@ -19,6 +22,9 @@
 	{#each orders as x}
 		<Button class="wide" href="/orders/{x.key}">
 			<span>
+				{#if x.user == $user.key && $page.url.searchParams.has('admin')}
+					*
+				{/if}
 				{x.key}
 				<span class="small">
 					-

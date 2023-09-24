@@ -11,12 +11,12 @@
 	const validate = () => {
 		error = {};
 		if (!form.name) {
-			error.name = 'please enter your name';
+			error.name_ = 'please enter your name';
 		}
 		if (!form.email) {
-			error.email = 'please enter your name';
+			error.email_ = 'please enter your name';
 		} else if (!/\S+@\S+\.\S+/.test(form.email)) {
-			error.email = 'please enter a valid email address';
+			error.email_ = 'please enter a valid email address';
 		}
 		if (!form.message) {
 			error.message = 'please enter your message';
@@ -60,11 +60,11 @@
 </script>
 
 <form on:submit|preventDefault novalidate autocomplete="off">
-	<IG name="name" label="Fullname" {error} let:id>
+	<IG name="name_" label="Fullname" {error} let:id>
 		<input bind:value={form.name} {id} type="text" placeholder="Fullname here" />
 	</IG>
 
-	<IG name="email" {error} let:id>
+	<IG name="email_" {error} let:id>
 		<input bind:value={form.email} {id} type="email" placeholder="Email here" />
 	</IG>
 

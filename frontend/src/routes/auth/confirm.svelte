@@ -9,6 +9,7 @@
 		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/confirm/${$module.token}`);
 		resp = await resp.json();
+
 		$loading = false;
 
 		let title = 'Email Confirmed';
@@ -18,10 +19,9 @@
 		if (resp.status != 200) {
 			title = 'Invalid or Expired Token';
 			message = `
-	**Invalid or Expired Token**;
-	There was an error while reading the token.
-	
-	Please Login again to repeat the process.`;
+There was an error while reading the token.
+<br/>
+Please Login to repeat the process.`;
 		}
 
 		$module = {
@@ -36,7 +36,7 @@
 					fn: () => {
 						$module = {
 							module: Login,
-							email: resp.user.email
+							email: resp.user ? resp.user.email : ''
 						};
 					}
 				}

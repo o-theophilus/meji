@@ -66,6 +66,7 @@ def cart_to_order():
 
         "items": c_items,
 
+        # ordered, processing, enroute, delivered, canceled
         "status": "pending",
         "delivery_date": f"{now(4).split('T')[0]}T10:00",
 
@@ -423,40 +424,36 @@ def status(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    status = ['ordered', 'processing', 'enroute', 'delivered']
+    order = query({"type": "order", "key": key}, db=db)
+    order_user = query({"type": "user", "key": order["user"]}, db=db)
+
+    if "admin" not in user["roles"] and user["key"] != order_user["key"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
-    status = ['ordered', 'processing', 'enroute', 'delivered']
-    order = query({"type": "order", "key": key}, db=db)
-    order_user = query({"type": "user", "key": order["user"]}, db=db)
-
     if (
         not order or not order_user
         or "status" not in request.json
         or not request.json["status"]
-        or request.json["status"] not in [*status, "cancel"]
+        or request.json["status"] not in status
         or "email_template" not in request.json
-        or order["status"] in ["pending", "delivered", "cancel"]
+        or order["status"] in ["pending", "delivered", "canceled"]
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    if request.json["status"] in status:
-        i = status.index(request.json["status"])
-
-        if (
-            i < 0 or i > len(status) - 1
-            or order["status"] not in [status[i-1], status[i+1]]
-        ):
-            return jsonify({
-                "status": 400,
-                "error": "invalid request"
-            })
+    i = status.index(order["status"])
+    j = status.index(request.json["status"])
+    if i + 1 != j and i - 1 != j:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
     if "note" not in request.json or not request.json["note"]:
         return jsonify({
@@ -486,6 +483,63 @@ def status(key):
             "New Order" if order["status"] == "delivered" else "Thank you",
             request.json["email_template"]
         )
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order, db)
+    })
+
+
+@bp.put("/order_status_cancel/<key>")
+def status_cancel(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    order = query({"type": "order", "key": key}, db=db)
+    order_user = query({"type": "user", "key": order["user"]}, db=db)
+
+    if "admin" not in user["roles"] and user["key"] != order_user["key"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    if (
+        not order or not order_user
+        or order["status"] in ["delivered", "canceled"]
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if "note" not in request.json or not request.json["note"]:
+        return jsonify({
+            "status": 400,
+            "note": "this field is required"
+        })
+
+    log = log_template(
+        user["key"],
+        "changed_order_status",
+        order["key"],
+        "order",
+        misc={
+            "from": order["status"],
+            "to": "canceled",
+            "note": request.json["note"]
+        }
+    )
+    order["status"] = "canceled"
+    order["date_u"] = now()
+
+    database([order, log])
 
     return jsonify({
         "status": 200,

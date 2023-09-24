@@ -69,7 +69,7 @@
 				module: Info,
 				status: 200,
 				title: 'Confirmation Email Sent',
-				message: `Your email has not been confirmed. A confirmation message has been sent to your email: ${resp.user.email}.`,
+				message: `Your email has not been confirmed. A confirmation message has been sent to your email: ${form.email}.`,
 				button: [
 					{
 						name: 'Ok',

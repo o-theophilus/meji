@@ -19,49 +19,48 @@
 </script>
 
 <div class="block">
-	{#each states as s}
-		<Button
-			class="small {status == s ? 'primary' : ''}"
-			on:click={() => {
-				status = s;
-				set_state(page_name, 'status', s != 'ordered' ? s : '');
-			}}
-		>
-			<span>
-				{s}
-			</span>
-		</Button>
-	{/each}
-
-	{#if $user.roles.includes('admin')}
-		<div class="right">
+	<div class="left">
+		{#each states as s}
 			<Button
-				class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
+				class="small {status == s ? 'primary' : ''}"
 				on:click={() => {
-					if ($page.url.searchParams.has('admin')) {
-						set_state(page_name, 'admin', '');
-					} else {
-						set_state(page_name, 'admin', 'true');
-					}
+					status = s;
+					set_state(page_name, 'status', s != 'ordered' ? s : '');
 				}}
 			>
-				Admin: {$page.url.searchParams.has('admin') ? 'On' : 'Off'}
+				<span>
+					{s}
+				</span>
 			</Button>
-		</div>
+		{/each}
+	</div>
+
+	{#if $user.roles.includes('admin')}
+		<Button
+			class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
+			on:click={() => {
+				if ($page.url.searchParams.has('admin')) {
+					set_state(page_name, 'admin', '');
+				} else {
+					set_state(page_name, 'admin', 'true');
+				}
+			}}
+		>
+			Admin: {$page.url.searchParams.has('admin') ? 'On' : 'Off'}
+		</Button>
 	{/if}
 </div>
 
 <style>
-	.block {
+	.block,
+	.left {
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
 		gap: var(--sp1);
-
-		margin-top: var(--sp2);
+		flex-wrap: wrap;
 	}
-	.right {
-		margin-left: auto;
+	.block {
+		justify-content: space-between;
+		margin-top: var(--sp2);
 	}
 
 	span {

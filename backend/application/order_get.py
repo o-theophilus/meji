@@ -69,7 +69,13 @@ def get_one(key):
         })
 
     order = query({"type": "order", "key": key}, db=db)
-    if not order:
+    if (
+        not order
+        or (
+            order["user"] != user["key"]
+            and "admin" not in user["roles"]
+        )
+    ):
         return jsonify({
             "status": 400,
             "error": "invalid request"

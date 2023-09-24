@@ -134,7 +134,7 @@
 </p>
 
 <div bind:this={email_template} style="display: none;">
-	<Email {order} user={$user} />
+	<Email {order} />
 </div>
 
 <style>

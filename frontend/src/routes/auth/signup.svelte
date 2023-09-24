@@ -68,7 +68,7 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
-		$loading = true;
+		$loading = false;
 
 		if (resp.status == 200) {
 			goto('/');
