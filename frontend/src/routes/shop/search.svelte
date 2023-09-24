@@ -6,11 +6,11 @@
 	import SVG from '$lib/svg.svelte';
 	import Tag from './search.tag.svelte';
 
-	export let tags = [];
 	export let page_name;
 
 	let search = '';
 	let search_snap = '';
+	let tags = [];
 
 	let show_tags = false;
 
@@ -21,12 +21,18 @@
 		}
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
 		}
 		search_snap = `${search}`;
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
+		resp = await resp.json();
+		if (resp.status == 200) {
+			tags = resp.tags;
+		}
 	});
 </script>
 
@@ -74,8 +80,8 @@
 
 	{#if show_tags}
 		<Tag
-			{tags}
 			{page_name}
+			{tags}
 			on:close={() => {
 				show_tags = false;
 			}}

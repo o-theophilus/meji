@@ -3,45 +3,35 @@
 	import { elasticInOut } from 'svelte/easing';
 	import { onMount } from 'svelte';
 	import { user } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
 
 	export let name = 'Group Name';
-	export let url;
+	export let url = '';
 	let items = [];
-	let open = true;
-
+	
 	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${url}`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			}
-		});
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${url}`);
 		resp = await resp.json();
-
+		
 		if (resp.status == 200) {
 			items = resp.items;
-		} else {
-			error = resp;
 		}
 	});
+	
+	let open = true;
+	const set_open = () => {
+		open = !open;
+	};
 </script>
 
 {#if items && items.length > 0}
 	<Card>
 		<div class="title">
 			{name}
-			<ButtonFold
-				{open}
-				on:click={() => {
-					open = !open;
-				}}
-			/>
+			<slot {open} {set_open}/>
+			
 		</div>
 
 		{#if open}

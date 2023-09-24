@@ -6,11 +6,12 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
+	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	import Group from './group.svelte';
+	import Group from '$lib/group.svelte';
 
 	export let data;
 	$: item = data.item;
@@ -61,9 +62,20 @@
 </Card>
 
 {#key item.key}
-	<Group name="Recently Viewed" url="/recently_viewed/{$user.key}/{item.key}" />
-	<Group name="Similar Items" url="/similar_items/{item.key}" />
-	<Group name="Customers who viewed this also viewed" url="/customer_view/{$user.key}/{item.key}" />
+	<Group let:open let:set_open name="Recently Viewed" url="/recently_viewed/{$user.key}/{item.key}">
+		<ButtonFold {open} on:click={set_open} />
+	</Group>
+	<Group let:open let:set_open name="Similar Items" url="/similar_items/{item.key}">
+		<ButtonFold {open} on:click={set_open} />
+	</Group>
+	<Group
+		let:open
+		let:set_open
+		name="Customers who viewed this also viewed"
+		url="/customer_view/{$user.key}/{item.key}"
+	>
+		<ButtonFold {open} on:click={set_open} />
+	</Group>
 {/key}
 
 <style>

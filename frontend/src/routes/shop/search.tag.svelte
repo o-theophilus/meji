@@ -7,7 +7,7 @@
 
 	let emit = createEventDispatcher();
 
-	export let tags;
+	export let tags = [];
 	export let page_name;
 	let selected = [];
 	let logic = false;
@@ -16,8 +16,8 @@
 	let logic_snap;
 
 	$: old = selected_snap.sort((a, b) => a - b).join(',');
-	$: sele = selected.sort((a, b) => a - b).join(',');
-	$: changed = old != sele || (logic != logic_snap && selected.length > 1);
+	$: new_ = selected.sort((a, b) => a - b).join(',');
+	$: changed = old != new_ || (logic != logic_snap && selected.length > 1);
 
 	onMount(() => {
 		let params = $page.url.searchParams;
@@ -95,7 +95,7 @@
 				disabled={!changed}
 				class=" small"
 				on:click={() => {
-					set_state(page_name, 'tag', selected.length > 0 ? `${sele}$:${logic}` : '');
+					set_state(page_name, 'tag', selected.length > 0 ? `${new_}$:${logic}` : '');
 					emit('close');
 				}}
 			>

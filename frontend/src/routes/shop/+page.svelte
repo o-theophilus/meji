@@ -11,7 +11,6 @@
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
-	$: tags = data.tags;
 	$: items = data.items;
 	$: total_page = data.total_page;
 
@@ -20,7 +19,7 @@
 
 <Meta title="Shop" description="Shop" />
 <Status_Bar {page_name} />
-<Search {page_name} {tags} />
+<Search {page_name} />
 
 <Card>
 	<div class="title">

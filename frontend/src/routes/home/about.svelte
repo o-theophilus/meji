@@ -3,6 +3,7 @@
 	import SVG from '$lib/svg.svelte';
 </script>
 
+<div id="about" />
 <Card>
 	<div class="title">About Us</div>
 

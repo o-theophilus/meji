@@ -1,17 +1,15 @@
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { module, user } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Ads from '$lib/comp/ads.svelte';
-	import Card from '$lib/card.svelte';
-	import SVG from '$lib/svg.svelte';
-	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
-	import Tag from './home/tag.svelte';
-	import Tag_All from './home/tag_all.svelte';
+	import Tags from './home/tags.svelte';
+	import Group from '$lib/group.svelte';
 	import Hero from './home/hero.svelte';
 	import About from './home/about.svelte';
 	import Contact from './home/contact.svelte';
@@ -20,11 +18,6 @@
 	import Login from './auth/login.svelte';
 	import Password from './auth/password.svelte';
 	import Confirm from './auth/confirm.svelte';
-
-	export let data;
-	let { group } = data;
-	let { tags } = data;
-	let { ads } = data;
 
 	onMount(() => {
 		if ($page.url.searchParams.has('module')) {
@@ -63,65 +56,18 @@
 <Meta title="Home" description="Home" />
 
 <Hero />
-<Ads {ads} />
-
-{#if tags.length > 0}
-	<div id="tag" />
-	<Card>
-		<div class="title">
-			Tags
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Tag_All,
-						tags
-					};
-				}}
-			>
-				view all <SVG type="arrow_right" size="16" />
-			</Button>
-		</div>
-
-		<div class="item_area">
-			{#each tags.slice(0, 6) as tag}
-				<Tag {tag} />
-			{/each}
-		</div>
-	</Card>
-{/if}
-
-{#each group as x}
-	{#if x.items.length > 0}
-		<div id={x.name.toLowerCase().replace(' ', '_')} />
-		<Card>
-			<div class="title">
-				{x.name}
-				<Button class="link" href="/shop?sort={x.sort}">view all <SVG type="arrow_right" size="16" /></Button>
-			</div>
-
-			<div class="item_area" class:list={$user.setting.item_view == 'list'}>
-				{#each x.items as item (item.key)}
-					<Item {item} />
-				{/each}
-			</div>
-		</Card>
-	{/if}
-{/each}
-
-<div id="about" />
+<Ads />
+<Tags />
+<Group name="New Arrivals" url="/shop?sort=latest&size=6">
+	<Button class="link" href="/shop?sort=latest">
+		view all <SVG type="arrow_right" size="16" />
+	</Button>
+</Group>
+<Group name="Offers" url="/shop?sort=discount&size=6">
+	<Button class="link" href="/shop?sort=discount">
+		view all <SVG type="arrow_right" size="16" />
+	</Button>
+</Group>
 <About />
-
 <Contact />
 <Top />
-
-<style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-	}
-	.title {
-		fill: currentColor;
-	}
-</style>

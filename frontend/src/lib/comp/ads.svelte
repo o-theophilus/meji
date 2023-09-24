@@ -1,7 +1,18 @@
 <script>
+	import { onMount } from 'svelte';
+	
 	import Ads from './ads_block.svelte';
 
-	export let ads;
+	let ads = [];
+
+	onMount(async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/ads`);
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			ads = resp.ads;
+		}
+	});
 </script>
 
 <div class="x300x300">
