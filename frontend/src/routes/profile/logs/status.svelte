@@ -4,14 +4,14 @@
 	import Button from '$lib/button.svelte';
 
 	export let page_name = '';
-	export let type = '';
+	export let name = '';
 	export let actions = [];
 	export let status = '';
 </script>
 
 <div class="block">
 	{#each actions as x}
-		{@const x_ = `${type}:${x}`}
+		{@const x_ = `${name}:${x}`}
 		<Button
 			class="small {x_ == status ? 'primary' : ''}"
 			on:click={() => {
@@ -22,6 +22,12 @@
 			{x}
 		</Button>
 	{/each}
+
+	{#if name}
+		<span>
+			// {name}
+		</span>
+	{/if}
 </div>
 
 <style>
@@ -31,5 +37,11 @@
 		flex-wrap: wrap;
 
 		margin-top: var(--sp2);
+
+		align-items: center;
+	}
+	span {
+		color: var(--ac1);
+		font-weight: 500;
 	}
 </style>

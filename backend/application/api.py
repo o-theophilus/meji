@@ -114,7 +114,7 @@ def unused_anon():
     })
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")

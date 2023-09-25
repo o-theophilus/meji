@@ -28,9 +28,9 @@
 
 <Meta title="Logs" description="Logs" />
 <Status_Bar {page_name} bind:status actions={['all']} />
-<Status_Bar {page_name} bind:status actions={item} type="item" />
-<Status_Bar {page_name} bind:status actions={order} type="order" />
-<Status_Bar {page_name} bind:status actions={voucher} type="voucher" />
+<Status_Bar {page_name} bind:status actions={item} name="item" />
+<Status_Bar {page_name} bind:status actions={order} name="order" />
+<Status_Bar {page_name} bind:status actions={voucher} name="voucher" />
 
 <Card>
 	<b> Log{logs.length > 1 ? 's' : ''} </b>
