@@ -30,19 +30,19 @@ def ads_schema(item):
 
 @bp.get("/ads")
 def ad():
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorized access"
+            "status": 400,
+            "error": "unauthorized access"
         })
 
     search = request.args["search"] if "search" in request.args else ""
@@ -50,7 +50,7 @@ def ad():
     size = int(request.args["size"]) if "size" in request.args else 24
 
     items = []
-    for row in data:
+    for row in db:
         if (
             row["type"] == "item"
             and row["status"] == "live"
@@ -71,75 +71,69 @@ def ad():
     items = items[start: stop]
 
     return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
+        "status": 400,
+        "error": "successful",
+        "db": {
             "items": [ads_schema(item) for item in items],
             "total_page": total_page
         }
     })
 
 
-@bp.put("/ads/<key>")
-def placement(key):
-    data = database()
+@ bp.get("/ads")
+def ads():
+    db = database()
 
-    user = token_to_user(data)
-    if not user:
-        return jsonify({
-            "status": 101,
-            "message": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 102,
-            "message": "unauthorized access"
-        })
-
-    if "placement" not in request.json or not request.json["placement"]:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
-
-    item = query("item", "key", key, data)
-    if not item:
-        return jsonify({
-            "status": 400,
-            "message": "invalid request"
-        })
-
-    item["ads"]["placement"] = request.json["placement"]
-    item = database(item)
+    ads = []
+    for x in db:
+        if (
+            x["type"] == "item"
+            and "ads" in x
+            and x["ads"] != {}
+            and "home" in x["ads"]["placement"]
+        ):
+            ads.append({
+                "name": x["name"],
+                "slug": x["slug"],
+                "ads": {
+                    f'{"xxx"}/{x["ads"]["300x300"]}',
+                    f'{"xxx"}/{x["ads"]["300x600"]}',
+                    f'{"xxx"}/{x["ads"]["600x300"]}',
+                    f'{"xxx"}/{x["ads"]["900x300"]}'
+                }
+            })
 
     return jsonify({
-        "status": 200,
-        "message": "successful",
-        "data": {
-            "item": ads_schema(item)
-        }
+        "status": 400,
+        "ads": ads,
     })
 
 
-@bp.post("/photo_ads/<key>")
-def photo_ads(key):
-    data = database()
+@bp.post("/ads/<item_key>")
+def add(item_key):
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorized access"
+            "status": 400,
+            "error": "unauthorized access"
         })
 
-    def check(size):
+    item = query({"type": "item", "key": item_key}, db=db)
+    if not item:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    def validate(size):
         if size not in request.files:
             return None
 
@@ -154,30 +148,19 @@ def photo_ads(key):
 
     error = {}
 
-    file_300x300 = check("300x300")
-    if not file_300x300:
-        error["300x300"] = "invalid request, file or type"
-    file_300x600 = check("300x600")
-    if not file_300x600:
-        error["300x600"] = "invalid request, file or type"
-    file_600x300 = check("600x300")
-    if not file_600x300:
-        error["600x300"] = "invalid request, file or type"
-    file_900x300 = check("900x300")
-    if not file_900x300:
-        error["900x300"] = "invalid request, file or type"
+    sizes = ["300x300", "300x600", "600x300", "900x300"]
+    files = {}
+    for x in sizes:
+        file_ = validate(x)
+        if file_:
+            files[x] = file_
+        else:
+            error[x] = "invalid request, file or type"
 
     if error != {}:
         return jsonify({
-            "status": 201,
-            "message": error
-        })
-
-    item = query("item", "key", key, data)
-    if not item:
-        return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": error
         })
 
     ads = {
@@ -193,35 +176,77 @@ def photo_ads(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data)
+        "error": "successful",
+        "db": {
+            "item": item_schema(item, db)
+        }
+    })
+
+
+@bp.put("/ads/<key>")
+def placement(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    if "placement" not in request.json or not request.json["placement"]:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    item = query("item", "key", key, db)
+    if not item:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    item["ads"]["placement"] = request.json["placement"]
+    item = database(item)
+
+    return jsonify({
+        "status": 200,
+        "error": "successful",
+        "db": {
+            "item": ads_schema(item)
         }
     })
 
 
 @bp.delete("/photo_ads/<key>")
 def photo_remove_ads(key):
-    data = database()
+    db = database()
 
-    user = token_to_user(data)
+    user = token_to_user(db)
     if not user:
         return jsonify({
-            "status": 101,
-            "message": "invalid token"
+            "status": 400,
+            "error": "invalid token"
         })
 
     if "admin" not in user["roles"]:
         return jsonify({
-            "status": 102,
-            "message": "unauthorized access"
+            "status": 400,
+            "error": "unauthorized access"
         })
 
-    item = query("item", "key", key, data)
+    item = query("item", "key", key, db)
     if not item:
         return jsonify({
             "status": 400,
-            "message": "invalid request"
+            "error": "invalid request"
         })
 
     if "ads" in item:
@@ -236,9 +261,9 @@ def photo_remove_ads(key):
 
     return jsonify({
         "status": 200,
-        "message": "successful",
-        "data": {
-            "item": item_schema(item, data),
+        "error": "successful",
+        "db": {
+            "item": item_schema(item, db),
             "ads": item["ads"]
         }
     })

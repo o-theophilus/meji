@@ -15,26 +15,25 @@ def all_tags(db=None):
         db = database()
 
     tags = []
-    for row in db:
-        if (
-            row["type"] == "item"
-            and row["status"] == "live"
-        ):
-            tags += row["tags"]
+    for x in db:
+        if x["type"] == "item" and x["status"] == "live":
+            tags += x["tags"]
 
-    freq = {}
+    tags_count = []
+    unique_tags = []
     for x in tags:
-        if x in freq:
-            freq[x] += 1
-        else:
-            freq[x] = 1
+        if x not in unique_tags:
+            unique_tags.append(x)
+            tags_count.append({
+                "tag":  x,
+                "count":  tags.count(x)
+            })
 
-    freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)
-    tags = [x for x, _ in freq]
+    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
 
     return jsonify({
         "status": 200,
-        "tags": tags
+        "tags": [x["tag"] for x in tags_count]
     })
 
 
@@ -96,6 +95,7 @@ def shop():
     if tag[-2:] == ":x":
         multiply = True
         tag = tag[:-2]
+    tags = tag.split(",")
 
     items = []
     for x in db:
@@ -106,7 +106,6 @@ def shop():
         if search and not re.search(search, x["name"], re.IGNORECASE):
             continue
         if tag:
-            tags = tag.split(",")
             if multiply:
                 if not all(y in x["tags"] for y in tags):
                     continue
@@ -124,21 +123,20 @@ def shop():
     elif sort in ["cheap", "expensive"]:
         sort = "price"
     elif sort == "discount":
-        temp = []
+        items_discount = []
         for item in items:
             item["discount"] = 0
             if item["old_price"]:
                 item["discount"] = (
                     item["old_price"] - item["price"]
                 ) * 100 / item["old_price"]
-                temp.append(item)
-        items = temp
+                items_discount.append(item)
+        items = items_discount
 
     items = sorted(items, key=lambda d: d[sort].lower() if isinstance(
         d[sort], str) else d[sort], reverse=reverse)
 
     total_page = ceil(len(items) / size)
-
     start = (page_no - 1) * size
     stop = start + size
     items = items[start: stop]
@@ -150,59 +148,31 @@ def shop():
     })
 
 
-@ bp.get("/ads")
-def ads():
+@bp.get("/recently_viewed/<user_key>/<item_key>")
+def recently_viewed(user_key, item_key):
     db = database()
 
-    ads = []
-    for x in db:
-        if (
-            x["type"] == "item"
-            and "ads" in x
-            and x["ads"] != {}
-            and "home" in x["ads"]["placement"]
-        ):
-            ads.append({
-                "name": x["name"],
-                "slug": x["slug"],
-                "ads": {
-                    f'{"xxx"}/{x["ads"]["300x300"]}',
-                    f'{"xxx"}/{x["ads"]["300x600"]}',
-                    f'{"xxx"}/{x["ads"]["600x300"]}',
-                    f'{"xxx"}/{x["ads"]["900x300"]}'
-                }
-            })
-
-    return jsonify({
-        "status": 200,
-        "ads": ads,
-    })
-
-
-@bp.get("/recently_viewed/<user>/<item>")
-def recently_viewed(user, item):
-    db = database()
-
-    user_views = query({
+    logs = query({
         "type": "log",
-        "user": user,
-        "action": "view"
+        "user": user_key,
+        "action": "viewed",
+        "entity_type": "item"
     }, many=True, db=db)
 
-    user_views = sorted(user_views, key=lambda d: d["date"], reverse=True)
+    logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 
     items = []
-    picked = []
-    for x in user_views:
-        _item = query({"type": "item", "key": x["entity"]}, db=db)
+    unique_keys = []
+    for x in logs:
+        item = query({"type": "item", "key": x["entity"]}, db=db)
         if (
-            _item
-            and _item["key"] not in picked
-            and _item["key"] != item
-            and _item["status"] == "live"
+            item
+            and item["key"] not in unique_keys
+            and item["key"] != item_key
+            and item["status"] == "live"
         ):
-            items.append(item_schema(_item, db))
-            picked.append(_item["key"])
+            items.append(item_schema(item, db))
+            unique_keys.append(item["key"])
 
         if len(items) >= 6:
             break
@@ -227,21 +197,21 @@ def similar_items(key):
             "items": []
         })
 
-    def get_kw(x):
+    def get_keywords(x):
         tags = [*x["tags"], *re.split(r'\s+', x["name"].lower())]
         return list(set(tags))
 
-    item_kw = get_kw(item)
+    item_keywords = get_keywords(item)
 
     items = []
     for x in db:
         if x["type"] == "item" and x["key"] != item["key"]:
-            x_kw = get_kw(x)
-            x_kw = [x for x in x_kw if x in item_kw]
+            x_keywords = get_keywords(x)
+            x_keywords = [x for x in x_keywords if x in item_keywords]
 
             items.append({
                 "item": x,
-                "count": len(x_kw)
+                "count": len(x_keywords)
             })
 
     items = sorted(items, key=lambda d: d["count"], reverse=True)
@@ -252,47 +222,52 @@ def similar_items(key):
     })
 
 
-@bp.get("/customer_view/<user>/<item>")
-def customer_view(user, item):
+@bp.get("/customer_view/<user_key>/<item_key>")
+def customer_view(user_key, item_key):
     db = database()
 
     logs = []
     for x in db:
         if (
             x["type"] == "log"
-            and x["user"] != user
-            and x["action"] == "view_item"
+            and x["user"] != user_key
+            and x["action"] == "viewed"
+            and x["entity_type"] == "item"
         ):
             logs.append(x)
 
     logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 
-    next_items = []
+    next_viewed_keys = []
     while logs != []:
-        temp_logs = []
-        user_logs = []
+        first_user_logs = []
+        other_users_logs = []
 
         for x in logs:
             if x["user"] == logs[0]["user"]:
-                user_logs.append(x)
+                first_user_logs.append(x)
             else:
-                temp_logs.append(x)
-        logs = temp_logs
+                other_users_logs.append(x)
+        logs = other_users_logs
 
-        prev_log = None
-        for x in user_logs:
-            if prev_log and prev_log == item and x["entity"] != item:
-                next_items.append(x["entity"])
-            prev_log = x["entity"]
+        prev_item_key = None
+        for x in first_user_logs:
+            if (
+                prev_item_key
+                and prev_item_key == item_key
+                and x["entity"] != item_key
+            ):
+                next_viewed_keys.append(x["entity"])
+            prev_item_key = x["entity"]
 
     items = []
-    unique = []
-    for x in next_items:
-        if x not in unique:
-            unique.append(x)
+    unique_keys = []
+    for x in next_viewed_keys:
+        if x not in unique_keys:
+            unique_keys.append(x)
             items.append({
                 "item":  query({"type": "item", "key": x}, db=db),
-                "count":  next_items.count(x)
+                "count":  next_viewed_keys.count(x)
             })
 
     items = sorted(items, key=lambda d: d["count"], reverse=True)
