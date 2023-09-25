@@ -186,7 +186,7 @@ def recently_viewed(user, item):
     user_views = query({
         "type": "log",
         "user": user,
-        "action": "view_item"
+        "action": "view"
     }, many=True, db=db)
 
     user_views = sorted(user_views, key=lambda d: d["date"], reverse=True)
