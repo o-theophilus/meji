@@ -67,7 +67,7 @@ def get(key):
     database(
         log_template(
             user["key"],
-            "view_item",
+            "viewed",
             item["key"],
             "item"
         ))

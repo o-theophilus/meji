@@ -21,13 +21,11 @@ def voucher_schema(voucher):
 
 
 def get_vouchers(db):
-    page_no = 1
-    if "page_no" in request.args:
-        page_no = int(request.args.get("page_no"))
-    size = 24
-    status = None
-    if "status" in request.args:
-        status = request.args.get("status")
+    status = request.args["status"] if "status" in request.args else ""
+    # search = request.args["search"] if "search" in request.args else ""
+    # sort = request.args["sort"] if "sort" in request.args else "latest"
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
 
     vouchers = []
     for x in db:
@@ -177,7 +175,7 @@ def create():
 
         logs.append(log_template(
             user["key"],
-            "created_voucher",
+            "created",
             key,
             "voucher",
             misc={
@@ -229,7 +227,7 @@ def status(key):
 
     log = log_template(
         user["key"],
-        "changed_voucher_status",
+        "changed_status",
         voucher["key"],
         "voucher",
         misc={
@@ -311,7 +309,7 @@ def activate(key):
 
     log = log_template(
         user["key"],
-        "changed_voucher_status",
+        "activated",
         voucher["key"],
         "voucher",
         misc={
@@ -380,7 +378,7 @@ def use():
         error = f"voucher {voucher['status']}"
         database(log_template(
             user["key"],
-            "used_voucher",
+            "used",
             voucher["key"],
             "voucher",
             400,
@@ -397,7 +395,7 @@ def use():
 
     log = log_template(
         user["key"],
-        "used_voucher",
+        "used",
         voucher["key"],
         "voucher",
     )

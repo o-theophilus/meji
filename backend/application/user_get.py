@@ -72,11 +72,11 @@ def get():
             "error": "unauthorized access"
         })
 
-    status = request.args.get("status")
-    search = request.args.get("search")
-    page_no = int(request.args.get("page_no"))
-    order = request.args.get("order")
-    order_dir = request.args.get("order_dir")
+    status = request.args["status"] if "status" in request.args else "live"
+    search = request.args["search"] if "search" in request.args else ""
+    sort = request.args["sort"] if "sort" in request.args else "latest"
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
 
     params = {
         # "db": db,
@@ -84,8 +84,8 @@ def get():
 
         "search": search,
         "page_no": page_no,
-        "order": order,
-        "order_dir": order_dir
+        "order": sort,
+        "size": size
     }
     if status:
         params["status"] = status

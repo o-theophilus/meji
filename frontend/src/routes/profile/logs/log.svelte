@@ -10,7 +10,7 @@
 </script>
 
 <section>
-	{log.date} 
+	{log.date}
 	<span class="status" class:error={log.status == 400}>
 		{log.status}
 	</span>
@@ -20,7 +20,7 @@
 		{log.user.name}
 	</a>:
 	{log.action}
-	<a href="{url}/{log.entity.key}" data-sveltekit-preload-data="tap" >
+	<a href="{url}/{log.entity.key}" data-sveltekit-preload-data="tap">
 		{#if log.entity.name}
 			{log.entity.name}
 		{:else}
@@ -50,5 +50,9 @@
 	}
 	.error {
 		background-color: var(--cl4);
+	}
+	a {
+		color: var(--cl1);
+		text-decoration: none;
 	}
 </style>

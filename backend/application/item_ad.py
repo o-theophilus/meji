@@ -45,9 +45,9 @@ def ad():
             "message": "unauthorized access"
         })
 
-    search = request.args.get("search")
-    page_no = int(request.args.get("page_no"))
-    size = 24
+    search = request.args["search"] if "search" in request.args else ""
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
 
     items = []
     for row in data:

@@ -81,7 +81,7 @@ def cart_to_order():
 
     log = log_template(
         user["key"],
-        "pending",
+        "created",
         order["key"],
         "order",
         200
@@ -344,7 +344,7 @@ def date(key):
     order["date_u"] = now()
     log = log_template(
         user["key"],
-        "change_delivery_date",
+        "changed_delivery_date",
         order["key"],
         "order"
     )
@@ -463,12 +463,11 @@ def status(key):
 
     log = log_template(
         user["key"],
-        "changed_order_status",
+        "changed_status",
         order["key"],
         "order",
         misc={
-            "from": order["status"],
-            "to": request.json["status"],
+            "change": f"from: {order['status']} to: {request.json['status']}",
             "note": request.json["note"]
         }
     )
@@ -527,7 +526,7 @@ def status_cancel(key):
 
     log = log_template(
         user["key"],
-        "changed_order_status",
+        "canceled",
         order["key"],
         "order",
         misc={

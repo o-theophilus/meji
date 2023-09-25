@@ -42,23 +42,26 @@ def get_many():
             "error": "invalid token"
         })
 
-    page_no = 1
-    if "page_no" in request.args:
-        page_no = int(request.args.get("page_no"))
-    size = 24
-    action = None
-    if "action" in request.args:
-        action = request.args.get("action")
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+    status = request.args["status"] if "status" in request.args else ""
+    status = status.split(":") if status else status
 
     logs = []
-    for row in db:
-        if row["type"] != "log":
+    for x in db:
+        if x["type"] != "log":
             continue
-        if row["user"] != user["key"]:
+        if x["user"] != user["key"]:
             continue
-        if action and row["action"] != action:
+        if (
+            status
+            and (
+                x["entity_type"] != status[0]
+                or x["action"] != status[1]
+            )
+        ):
             continue
-        logs.append(row)
+        logs.append(x)
 
     logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 

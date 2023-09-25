@@ -18,19 +18,16 @@ def get():
             "error": "invalid token"
         })
 
-    if "admin" in request.args and "admin" not in user["roles"]:
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+    status = request.args["status"] if "status" in request.args else "ordered"
+    is_admin = "admin" in request.args
+
+    if is_admin and "admin" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
-
-    page_no = 1
-    if "page_no" in request.args:
-        page_no = int(request.args.get("page_no"))
-    size = 24
-    status = "ordered"
-    if "status" in request.args:
-        status = request.args.get("status")
 
     orders = []
     for row in db:
@@ -38,7 +35,7 @@ def get():
             continue
         if status and row["status"] != status:
             continue
-        if "admin" not in request.args and row["user"] != user["key"]:
+        if not is_admin and row["user"] != user["key"]:
             continue
         orders.append(row)
 

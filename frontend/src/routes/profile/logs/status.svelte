@@ -1,43 +1,25 @@
 <script>
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 
 	export let page_name = '';
-	let action = 'all';
-
-	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has('action')) {
-			action = params.get('action');
-		}
-	});
-
-	let actions = [
-		'all',
-		'view_item',
-		'pending',
-		'change_delivery_date',
-		'ordered',
-		'changed_order_status',
-		'created_voucher',
-		'changed_voucher_status',
-		'used_voucher'
-	];
+	export let type = '';
+	export let actions = [];
+	export let status = '';
 </script>
 
 <div class="block">
-	{#each actions as s}
+	{#each actions as x}
+		{@const x_ = `${type}:${x}`}
 		<Button
-			class="small {action == s ? 'primary' : ''}"
+			class="small {x_ == status ? 'primary' : ''}"
 			on:click={() => {
-				action = s;
-				set_state(page_name, 'action', s != 'all' ? s : '');
+				status = x_;
+				set_state(page_name, 'status', x != 'all' ? x_ : '');
 			}}
 		>
-			{s}
+			{x}
 		</Button>
 	{/each}
 </div>

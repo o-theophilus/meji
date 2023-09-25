@@ -135,33 +135,42 @@ def copy_db():
     })
 
 
+def delete_db():
+    print("deleting...")
+    db = Deta(environ["DETA_KEY"]).Base("live")
+
+    res = db.fetch()
+    entities = res.items
+    while res.last:
+        res = db.fetch(last=res.last)
+        entities += res.items
+
+    for x in entities:
+        db.delete(x["key"])
+
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+    })
+
+
 def fix():
     db = database()
 
     changed = []
     for x in db:
-        if x["type"] == "log":
-            x["entity_type"] = None
-            if x["action"] == "view_item":
-                x["entity_type"] = "item"
-            elif x["action"] in [
-                "pending",
-                "change_delivery_date",
-                "ordered",
-                "changed_order_status"
-            ]:
-                x["entity_type"] = "order"
-            elif x["action"] in [
-                "created_voucher",
-                "changed_voucher_status",
-                "used_voucher",
-            ]:
-                x["entity_type"] = "voucher"
-
+        if (
+            x["type"] == "log"
+            and x["entity_type"] == "voucher"
+            and x["action"] == "used_voucher"
+        ):
+            x["action"] = "used"
             changed.append(x)
 
+    print(len(changed))
     database(changed)
 
     return jsonify({
-        "status": 200
+        "status": 200,
+        "changed": len(changed)
     })
