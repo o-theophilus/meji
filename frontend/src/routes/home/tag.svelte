@@ -10,7 +10,7 @@
 <button
 	on:click={() => {
 		$loading = true;
-		goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
+		goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 	}}
 >
 	<SVG type={tag.toLowerCase()} size="30" />

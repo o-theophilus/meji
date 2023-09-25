@@ -122,7 +122,7 @@
 				class="link"
 				on:click={() => {
 					$loading = true;
-					goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
+					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}
 			>
 				{tag}

@@ -92,6 +92,11 @@ def shop():
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     size = int(request.args["size"]) if "size" in request.args else 24
 
+    multiply = False
+    if tag[-2:] == ":x":
+        multiply = True
+        tag = tag[:-2]
+
     items = []
     for x in db:
         if x["type"] != "item":
@@ -101,13 +106,11 @@ def shop():
         if search and not re.search(search, x["name"], re.IGNORECASE):
             continue
         if tag:
-            _tag, logic = tag.split("$:")
-            _tag = _tag.split(",")
-
-            if logic == "true":
-                if not all(y in x["tags"] for y in _tag):
+            tags = tag.split(",")
+            if multiply:
+                if not all(y in x["tags"] for y in tags):
                     continue
-            elif not any(y in _tag for y in x["tags"]):
+            elif not any(y in tags for y in x["tags"]):
                 continue
 
         items.append(x)

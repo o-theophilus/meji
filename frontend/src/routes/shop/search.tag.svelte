@@ -10,25 +10,28 @@
 	export let tags = [];
 	export let page_name;
 	let selected = [];
-	let logic = false;
+	let multiply = false;
 	let search = '';
 	let selected_snap = [];
-	let logic_snap;
+	let multiply_snap;
 
 	$: old = selected_snap.sort((a, b) => a - b).join(',');
 	$: new_ = selected.sort((a, b) => a - b).join(',');
-	$: changed = old != new_ || (logic != logic_snap && selected.length > 1);
+	$: changed = old != new_ || (multiply != multiply_snap && selected.length > 1);
 
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('tag')) {
-			let x = params.get('tag').split('$:');
-			selected = x[0].split(',');
-			logic = x[1] == 'true';
+			let x = params.get('tag');
+			if (x.slice(-2) == ':x') {
+				x = x.slice(0, -2);
+				multiply = true;
+			}
+			selected = x.split(',');
 		}
 
 		selected_snap = [...selected];
-		logic_snap = logic;
+		multiply_snap = multiply;
 	});
 </script>
 
@@ -74,9 +77,13 @@
 	<br />
 
 	<div class="line">
-		<label>
-			<input bind:checked={logic} type="checkbox" />
-			+
+		<label class="multiply">
+			<input bind:checked={multiply} type="checkbox" />
+			{#if multiply}
+				x
+			{:else}
+				+
+			{/if}
 		</label>
 
 		<div class="line">
@@ -85,7 +92,7 @@
 				class="small hover_red"
 				on:click={() => {
 					selected = [];
-					logic = false;
+					multiply = false;
 				}}
 			>
 				<SVG type="close" />
@@ -95,7 +102,14 @@
 				disabled={!changed}
 				class=" small"
 				on:click={() => {
-					set_state(page_name, 'tag', selected.length > 0 ? `${new_}$:${logic}` : '');
+					let temp = '';
+					if (selected.length > 0) {
+						temp = new_;
+						if (multiply) {
+							temp = `${temp}:x`;
+						}
+					}
+					set_state(page_name, 'tag', temp);
 					emit('close');
 				}}
 			>
@@ -157,6 +171,9 @@
 		margin-top: var(--sp0);
 
 		font-size: small;
+	}
+	.multiply {
+		text-transform: lowercase;
 	}
 	.hide {
 		display: none;

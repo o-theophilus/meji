@@ -21,7 +21,7 @@
 				on:click={() => {
 					$loading = true;
 					$module = '';
-					goto(`/shop?${new URLSearchParams(`tag=${tag}`).toString()}`);
+					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}
 			>
 				<SVG type={tag} size="20" />
