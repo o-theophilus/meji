@@ -25,7 +25,7 @@ export const set_state = (page_name, key, value) => {
 		_page.url.searchParams.delete("page_no");
 	}
 
-	window.history.pushState(history.state, '', _page.url.href);
+	window.history.replaceState(history.state, '', _page.url.href);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	let temp = get(state)

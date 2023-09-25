@@ -48,7 +48,9 @@
 	let give_feedback = false;
 	const load = async (item_) => {
 		feedbacks = [];
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${$user.key}/${item_.key}?size=3`);
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/feedback/${$user.key}/${item_.key}?size=3`
+		);
 		resp = await resp.json();
 
 		if (resp.status == 200) {
@@ -275,7 +277,7 @@
 		<span class="bold">
 			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
 		</span>
-		<Rating rating={item.rating} count={item.rating_count} />
+		<Rating rating={item.rating} />
 	</div>
 
 	<ButtonFold

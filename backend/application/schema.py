@@ -39,11 +39,9 @@ def item_schema(item, db):
     photos = [f"{request.host_url}photos/{x}" for x in item["photos"]]
 
     feedback = query({"type": "feedback", "item": item["key"]}, True, db=db)
-    rating = 0
+    rating = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     for x in feedback:
-        rating += x["rating"]
-    if rating > 0:
-        rating /= len(feedback)
+        rating[x["rating"]] += 1
 
     return {
         "key": item["key"],
@@ -63,8 +61,7 @@ def item_schema(item, db):
         "status": item["status"],
 
         "tags": item["tags"],
-        "rating": rating,
-        "rating_count": len(feedback),
+        "rating": rating
     }
 
 

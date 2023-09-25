@@ -42,7 +42,7 @@
 		</a>
 
 		<div class="control">
-			<Rating rating={item.rating} slug={item.slug} type="2" />
+			<Rating rating={item.rating} href={item.slug} />
 			<Add_Cart {item} type="2" />
 			<Save {item} type="2" on:save_start on:save_end />
 		</div>

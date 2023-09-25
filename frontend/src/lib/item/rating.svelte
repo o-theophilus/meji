@@ -1,33 +1,40 @@
 <script>
 	import SVG from '$lib/svg.svelte';
 
-	export let rating = 0;
-	export let count = 0;
-	export let slug = '';
+	export let rating;
+	export let href = '';
 
-	let _type = 1;
-	export { _type as type };
+	let sum = 0;
+	let count = 0;
+
+	$: if (typeof rating == 'object') {
+		sum = 0;
+		count = 0;
+
+		for (const x of Object.entries(rating)) {
+			sum += x[0] * x[1];
+			count += x[1];
+		}
+
+		sum = sum / count;
+		sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
+	} else {
+		sum = rating;
+	}
 </script>
 
-{#if rating > 0}
-	{#if slug}
-		<a class:two={_type != 1} href="/{slug}/feedback">
-			{rating.toFixed(1)}
+{#if sum > 0}
+	{#if href}
+		<a {href}>
+			{sum}
 			<SVG type="star" />
-
-			{#if count}
-				{count}
-				rating{#if count > 1}s{/if}
-			{/if}
 		</a>
 	{:else}
-		<div class:two={_type != 1} href="/{slug}/feedback">
-			{rating.toFixed(1)}
+		<div>
+			{sum}
 			<SVG type="star" />
-
 			{#if count}
-				{count}
-				rating{#if count > 1}s{/if}
+				{count} rating{#if count > 1}s{/if}
 			{/if}
 		</div>
 	{/if}
@@ -41,18 +48,18 @@
 		justify-content: center;
 		gap: 4px;
 
-		font-size: small;
 		padding: var(--sp1);
-		text-decoration: none;
-		color: var(--ac3);
 
+		font-size: small;
+		color: var(--ac3);
 		fill: var(--cl6);
 	}
 
-	.two {
+	a {
+		text-decoration: none;
 		width: 100%;
 	}
-	.two:hover {
+	a:hover {
 		background-color: var(--ac4);
 	}
 </style>

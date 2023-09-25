@@ -48,7 +48,7 @@
 				<b>Rating</b>
 				<br />
 				<br />
-				<Rating {feedbacks} />
+				<Rating rating={item.rating} />
 			</div>
 		{/if}
 
