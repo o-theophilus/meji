@@ -2,18 +2,40 @@
 	import SVG from '$lib/svg.svelte';
 
 	export let rating = 0;
+	export let count = 0;
+	export let slug = '';
 
 	let _type = 1;
 	export { _type as type };
 </script>
 
-<section class:two={_type != 1}>
-	{rating}
-	<SVG type="star" />
-</section>
+{#if rating > 0}
+	{#if slug}
+		<a class:two={_type != 1} href="/{slug}/feedback">
+			{rating.toFixed(1)}
+			<SVG type="star" />
+
+			{#if count}
+				{count}
+				rating{#if count > 1}s{/if}
+			{/if}
+		</a>
+	{:else}
+		<div class:two={_type != 1} href="/{slug}/feedback">
+			{rating.toFixed(1)}
+			<SVG type="star" />
+
+			{#if count}
+				{count}
+				rating{#if count > 1}s{/if}
+			{/if}
+		</div>
+	{/if}
+{/if}
 
 <style>
-	section {
+	a,
+	div {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -21,13 +43,10 @@
 
 		font-size: small;
 		padding: var(--sp1);
+		text-decoration: none;
+		color: var(--ac3);
 
-		/* padding: 4px; */
-		/* border-radius: var(--sp0); */
-		/* background-color: var(--ac5); */
 		fill: var(--cl6);
-
-		cursor: pointer;
 	}
 
 	.two {

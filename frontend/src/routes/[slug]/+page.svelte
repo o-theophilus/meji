@@ -28,7 +28,7 @@
 		if ($page.url.searchParams.has('edit') && $user.roles.includes('admin')) {
 			edit_mode = true;
 			$page.url.searchParams.delete('edit');
-			window.history.pushState(history.state, '', $page.url.href);
+			window.history.replaceState(history.state, '', $page.url.href);
 		}
 	});
 </script>

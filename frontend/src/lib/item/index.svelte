@@ -4,21 +4,7 @@
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
 
-	export let item = {
-		name: '[item name]',
-		photos: [],
-		feedbacks: [],
-		price: 0,
-		old_price: 0
-	};
-
-	let rating = 0;
-	if (item.feedbacks) {
-		for (let i in item.feedbacks) {
-			rating += item.feedbacks[i].rating;
-		}
-		rating /= item.feedbacks.length;
-	}
+	export let item;
 </script>
 
 <section class="item" class:view_list={$user.setting.item_view == 'list'}>
@@ -56,9 +42,7 @@
 		</a>
 
 		<div class="control">
-			{#if item.feedbacks.length > 0}
-				<Rating {rating} type="2" />
-			{/if}
+			<Rating rating={item.rating} slug={item.slug} type="2" />
 			<Add_Cart {item} type="2" />
 			<Save {item} type="2" on:save_start on:save_end />
 		</div>

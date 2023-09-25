@@ -40,7 +40,7 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.feedback;
+			$portal = resp;
 			$module = '';
 			$toast = {
 				status: 200,

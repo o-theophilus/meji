@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { user, module, loading } from '$lib/store.js';
+	import { onMount } from 'svelte';
 
 	import Button from '$lib/button.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -26,6 +27,7 @@
 	import Share from './_share.svelte';
 
 	export let item = {};
+	let feedbacks = [];
 
 	$: if ($user) {
 		item.save = false;
@@ -37,20 +39,24 @@
 		}
 	}
 
-	let rating = 0;
-	if (item.feedbacks) {
-		for (let i in item.feedbacks) {
-			rating += item.feedbacks[i].rating;
-		}
-		rating /= item.feedbacks.length;
-	}
-
 	export let edit_mode = false;
 	let open_info = true && item.info;
-	let open_feedback = item.feedbacks && item.feedbacks.length > 0;
+	let open_feedback = feedbacks && feedbacks.length > 0;
 	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
-	let review_length = 3;
+
+	let give_feedback = false;
+	const load = async (item_) => {
+		feedbacks = [];
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${$user.key}/${item_.key}?size=3`);
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			feedbacks = resp.feedbacks;
+			give_feedback = resp.give_feedback;
+		}
+	};
+	$: load(item);
 </script>
 
 {#if edit_mode}
@@ -178,16 +184,6 @@
 	</div>
 {/if}
 
-{#if item.feedbacks && item.feedbacks.length > 0}
-	<br />
-	<div class="rating">
-		<Rating {rating} />
-		<div>
-			{item.feedbacks.length} rating{#if item.feedbacks.length > 1}s{/if}
-		</div>
-	</div>
-{/if}
-
 <br />
 
 <div class="horizontal bold">
@@ -266,7 +262,7 @@
 					{/each}
 				</div>
 			{:else}
-				No Vaiation
+				No Variation
 			{/each}
 		</div>
 	{/if}
@@ -274,8 +270,13 @@
 
 <br />
 
-<div class="horizontal bold">
-	Customer{item.feedbacks.length > 1 ? 's' : ''} Feedback
+<div class="horizontal">
+	<div class="horizontal">
+		<span class="bold">
+			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
+		</span>
+		<Rating rating={item.rating} count={item.rating_count} />
+	</div>
 
 	<ButtonFold
 		open={open_feedback}
@@ -287,25 +288,8 @@
 
 {#if open_feedback}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
-		{#if item.feedbacks.length > 0}
-			<span class="title"> Rating </span>
-			<Rating feedback={item.feedbacks} />
-			<span class="title"> Reviews </span>
-
-			{#each item.feedbacks.slice(0, review_length) as feedback (feedback.id)}
-				<Review {feedback} />
-			{/each}
-
-			{#if item.feedbacks.length > review_length}
-				<Button
-					class="link"
-					on:click={() => {
-						goto(`/${item.id}/feedback`);
-					}}
-				>
-					View all ({item.feedbacks.length}) <SVG type="arrow_right" size="16" />
-				</Button>
-			{/if}
+		{#each feedbacks as feedback}
+			<Review {feedback} {item} />
 		{:else}
 			<span class="f2">
 				There is no feedback yet.
@@ -315,8 +299,25 @@
 					logged in
 				{/if}
 
-				customers who have purchased this item may leave a review.
+				customers who have purchased this item can add a review.
 			</span>
+			<br />
+		{/each}
+
+		{#if give_feedback || feedbacks.length > 0}
+			<br />
+		{/if}
+		{#if give_feedback}
+			<Button class="link" href="/{item.slug}/feedback?add=true">Add Review</Button>
+		{/if}
+		{#if give_feedback && feedbacks.length > 0}
+			&nbsp; &nbsp;
+		{/if}
+		{#if feedbacks.length > 0}
+			<Button href="/{item.slug}/feedback" class="link">
+				View all
+				<SVG type="arrow_right" size="16" />
+			</Button>
 		{/if}
 	</div>
 	<br />
@@ -363,15 +364,6 @@
 		text-transform: capitalize;
 	}
 	.f2 {
-		color: var(--ac2);
-	}
-
-	.rating {
-		display: flex;
-		align-items: center;
-
-		gap: var(--sp1);
-
 		color: var(--ac2);
 	}
 

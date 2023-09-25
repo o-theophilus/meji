@@ -25,7 +25,6 @@
 	}
 	button {
 		display: flex;
-		align-items: center;
 
 		cursor: pointer;
 		border: none;
@@ -39,17 +38,13 @@
 		padding-left: 0;
 	}
 
-	button.active {
-		fill: var(--cl6);
-	}
+	button.active,
 	button.active ~ button {
 		fill: var(--cl6);
 	}
 
-	button:hover {
-		fill: gold !important;
-	}
+	button:hover,
 	button:hover ~ button {
-		fill: gold;
+		fill: gold !important;
 	}
 </style>

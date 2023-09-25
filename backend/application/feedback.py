@@ -3,55 +3,64 @@ from .tools import token_to_user, now
 from .schema import item_schema, feedback_schema
 from .database import database, query
 from uuid import uuid4
+from math import ceil
 
 bp = Blueprint("feedback", __name__)
 
 
-@bp.get("/feedback/<slug>")
-def get_feedbacks(slug):
+@bp.get("/feedback/<user_key>/<item_key>")
+def get_feedbacks(user_key, item_key):
     db = database()
 
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    item = query({"type": "item", "slug": slug}, db=db)
+    item = query({"type": "item", "slug": item_key}, db=db)
+    if not item:
+        item = query({"type": "item", "key": item_key}, db=db)
     if not item:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    feedbacks = query({"type": "feedback", "item": item["key"]}, True, db=db)
-
     has_feedback = False
-    for x in feedbacks:
-        if x["user"] == user["key"]:
-            has_feedback = True
-            break
-
     has_purchased = False
-    if has_feedback:
-        has_purchased = True
-    else:
-        for x in db:
-            if x["type"] == "order" and x["user"] == user["key"]:
-                for y in x["items"]:
-                    if y["item"] == item["key"]:
-                        has_purchased = True
-                        break
-            if has_purchased:
-                break
+    feedbacks = []
+    for x in db:
+        if x["type"] == "feedback" and x["item"] == item["key"]:
+            feedbacks.append(x)
+            if x["user"] == user_key:
+                has_feedback = True
+                has_purchased = True
+
+        elif (
+            not has_purchased
+            and x["type"] == "order"
+            and x["user"] == user_key
+            and x["status"] == "delivered"
+        ):
+            for y in x["items"]:
+                if y["item"] == item["key"]:
+                    has_purchased = True
+                    break
+
+    sort = request.args["sort"] if "sort" in request.args else "latest"
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+
+    if sort == "latest":
+        sort = "date"
+    feedbacks = sorted(feedbacks, key=lambda d: d[sort], reverse=True)
+
+    total_page = ceil(len(feedbacks) / size)
+    start = (page_no - 1) * size
+    stop = start + size
+    feedbacks = feedbacks[start: stop]
 
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
         "feedbacks": [feedback_schema(x, db) for x in feedbacks],
-        "has_purchased": has_purchased,
-        "has_feedback": has_feedback
+        "give_feedback": has_purchased and not has_feedback,
+        "total_page": total_page,
     })
 
 
@@ -121,7 +130,4 @@ def add_feedback(key):
         }
     database(feedback)
 
-    return jsonify({
-        "status": 200,
-        "feedback": feedback_schema(feedback, db)
-    })
+    return get_feedbacks(user["key"], item["key"])

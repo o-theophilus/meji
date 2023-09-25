@@ -1,49 +1,48 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { user, module } from '$lib/store.js';
+
 	import Rating from '$lib/item/rating.svelte';
-	import { user } from '$lib/store.js';
+	import Add from './_add.svelte';
 
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	let emit = createEventDispatcher();
-	export let feedback = {};
+	export let feedback;
+	export let item;
+	export let editable = false;
 </script>
 
 <section>
-	<div class="details">
-		<div class="left">
-			<div class="img">
-				<img
-					src={feedback.user.photo ? feedback.user.photo : '/image/user.png'}
-					alt={feedback.name}
-				/>
-			</div>
-			<div class="info">
-				<div class="name">
+	<img src={feedback.user.photo ? feedback.user.photo : '/image/user.png'} alt={feedback.name} />
+	<div class="right">
+		<div class="up">
+			<div>
+				<span class="name">
 					{feedback.user.name}
-				</div>
-				<div class="date">
+				</span>
+				<br />
+				<span class="date">
 					{feedback.date}
-				</div>
+				</span>
 			</div>
-		</div>
-		<div class="rating">
 			<Rating rating={feedback.rating} />
 		</div>
-	</div>
-	<div class="comment">
-		{feedback.review}
 		<br />
-		{#if $user.key == feedback.user.key}
+		{feedback.review}
+		{#if $user.key == feedback.user.key && editable}
 			<Button
-				class="small"
+				class="link"
 				on:click={() => {
-					emit('edit');
+					$module = {
+						module: Add,
+						item,
+						feedback
+					};
 				}}
 				tooltip="Edit Feedback"
 			>
 				<SVG type="edit" size="12" />
+				Edit
 			</Button>
 		{/if}
 	</div>
@@ -52,51 +51,36 @@
 <style>
 	section {
 		display: flex;
-		flex-direction: column;
-
 		gap: var(--sp2);
+		padding: var(--sp2) 0;
+		border-bottom: 1px solid var(--ac4);
+		color: var(--ac2);
 	}
-	section:not(:last-child) {
-		padding-bottom: var(--sp2);
-		border-bottom: 2px solid var(--ac5);
+	
+	img {
+		--size: 40px;
+		width: var(--size);
+		height: var(--size);
+
+		border-radius: 50%;
 	}
 
-	.details,
-	.left {
+	.right {
+		width: 100%;
+	}
+
+	.up {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--sp2);
 	}
-	.info {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp1);
-	}
-
-	.img {
-		--size: 40px;
-
-		width: var(--size);
-		height: var(--size);
-
-		border-radius: 50%;
-		overflow: hidden;
-	}
-
-	img {
-		width: 100%;
-		height: 100%;
-
-		object-fit: cover;
-	}
-
 	.name {
 		font-weight: 500;
+		color: var(--ac1);
 	}
-
+	
 	.date {
-		font-size: x-small;
-		color: var(--ac3);
+		font-size: smaller;
 	}
 </style>
