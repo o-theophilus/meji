@@ -137,6 +137,23 @@ def log_schema(log, db):
     }
 
 
+def advert_schema(advert):
+    def get_url(dim):
+        if advert['photos'][dim]:
+            return f"{request.host_url}photos/{advert['photos'][dim]}"
+        return None
+
+    return {
+        "photos": {
+            "300x300": get_url('300x300'),
+            "300x600": get_url('300x600'),
+            "600x300": get_url('600x300'),
+            "900x300": get_url('900x300')
+        },
+        "placements": [],
+    }
+
+
 def otp_template(
     user,
     entity,

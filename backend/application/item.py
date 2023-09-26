@@ -293,19 +293,20 @@ def delete_photo(key):
             "error": "unauthorized access"
         })
 
-    file_name = request.json["active_photo"].split("/")[-1]
     item = query({"type": "item", "key": key}, db=db)
 
     if (
         not item
         or "active_photo" not in request.json
         or not request.json["active_photo"]
-        or file_name not in item["photos"]
+        or request.json["active_photo"].split("/")[-1] not in item["photos"]
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
+
+    file_name = request.json["active_photo"].split("/")[-1]
 
     item["photos"].remove(file_name)
     if len(item["photos"]) == 0 and item["status"] == "live":

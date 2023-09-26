@@ -27,25 +27,16 @@
 	import Share from './_share.svelte';
 
 	export let item = {};
-	let feedbacks = [];
-
-	$: if ($user) {
-		item.save = false;
-		for (const i in $user.saves) {
-			if ($user.saves[i].key == item.key) {
-				item.save = true;
-				break;
-			}
-		}
-	}
-
 	export let edit_mode = false;
+	let feedbacks = [];
+	let give_feedback = false;
+	let mounted = false;
+
 	let open_info = true && item.info;
 	let open_feedback = feedbacks && feedbacks.length > 0;
 	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
 
-	let give_feedback = false;
 	const load = async (item_) => {
 		feedbacks = [];
 		let resp = await fetch(
@@ -58,7 +49,14 @@
 			give_feedback = resp.give_feedback;
 		}
 	};
-	$: load(item);
+
+	onMount(() => {
+		mounted = true;
+	});
+
+	$: if (mounted) {
+		load(item);
+	}
 </script>
 
 {#if edit_mode}

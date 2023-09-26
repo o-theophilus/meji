@@ -6,7 +6,7 @@
 	import SVG from '$lib/svg.svelte';
 
 	export let item = {};
-	let init_order = [...item.photos];
+	export let edit_mode = false;
 
 	let order_changed = false;
 	let show_left_btn = true;
@@ -17,10 +17,10 @@
 	let invalid_files = [];
 
 	let active_photo;
+	let init_order = [...item.photos];
 	let dragover = false;
+	let count = 10;
 	let error = {};
-	export let count = 10;
-	export let edit_mode = false;
 
 	const make_active = (photo) => {
 		error = {};
@@ -35,10 +35,6 @@
 			show_left_btn = false;
 		}
 	};
-
-	$: if (!item.photos.includes(active_photo)) {
-		make_active(item.photos[0]);
-	}
 
 	const order = (dir = 'right') => {
 		let index = item.photos.indexOf(active_photo);
@@ -175,6 +171,10 @@
 			error = resp;
 		}
 	};
+
+	$: if (!item.photos.includes(active_photo)) {
+		make_active(item.photos[0]);
+	}
 </script>
 
 <img

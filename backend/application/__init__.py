@@ -6,7 +6,7 @@ from . import user
 from . import user_get
 from . import voucher
 from . import feedback
-from . import item_ad
+from . import advert
 
 from . import auth
 from . import user_save_cart
@@ -41,7 +41,7 @@ def create_app():
 
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
-    app.register_blueprint(item_ad.bp)
+    app.register_blueprint(advert.bp)
     app.register_blueprint(feedback.bp)
 
     return app
