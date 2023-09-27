@@ -5,6 +5,7 @@ import re
 from uuid import uuid4
 from .database import database, query
 from .storage import storage
+from .log import log_template
 
 bp = Blueprint("item", __name__)
 
@@ -203,33 +204,49 @@ def post_many_photo(key):
             "error": "invalid request"
         })
 
+    error = ""
     files = []
-    bad_files = []
     for x in request.files.getlist("files"):
         media, format = x.content_type.split("/")
+
+        err = ""
         if media != "image" or format in ['svg+xml', 'x-icon']:
-            bad_files.append(x)
+            err = f"{x.filename} => invalid file"
+        elif len(files) + len(item["photos"]) >= 10:
+            err = f"{x.filename} => excess file"
+
+        if err:
+            error = f"{error}, {err}" if error else err
         else:
             files.append(x)
 
     if files == []:
+        if not error:
+            error = "no file"
         return jsonify({
             "status": 400,
-            "error": ', '.join([x.name for x in bad_files])
+            "error": error
         })
-
-    trim = 10 - len(item["photos"])
-    bad_files += files[trim:]
-    files = files[:trim]
 
     for x in files:
         item["photos"].append(storage(x))
-    database(item)
+
+    log = log_template(
+        user["key"],
+        "added_photo",
+        item["key"],
+        "item",
+        misc={
+            "success": f"{len(files)} files",
+            "error": error
+        }
+    )
+    database([item, log])
 
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
-        "error": ', '.join([x.name for x in bad_files])
+        "error": error
     })
 
 

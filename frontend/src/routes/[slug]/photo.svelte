@@ -9,54 +9,21 @@
 	export let item = {};
 	export let edit_mode = false;
 
-	let order_changed = false;
-	let show_left_btn = true;
-	let show_right_btn = true;
-
 	let input;
-	let excess_files = [];
-	let invalid_files = [];
-
-	let active_photo;
+	let active_photo = item.photos[0] || '';
 	let init_order = [...item.photos];
 	let dragover = false;
 	let count = 10;
 	let error = {};
 
-	const make_active = (photo) => {
+	const move_right = (dir = true) => {
 		error = {};
 
-		show_left_btn = true;
-		show_right_btn = true;
-		active_photo = photo || '/image/item.png';
 		let i = item.photos.indexOf(active_photo);
-		if (i == item.photos.length - 1) {
-			show_right_btn = false;
-		} else if (i == 0) {
-			show_left_btn = false;
-		}
-	};
-
-	const order = (dir = 'right') => {
-		let index = item.photos.indexOf(active_photo);
-		item.photos.splice(index, 1);
-
-		if (dir == 'right' && index < item.photos.length) {
-			item.photos.splice(index + 1, 0, active_photo);
-		} else if (dir == 'left' && index > 0) {
-			item.photos.splice(index - 1, 0, active_photo);
-		}
-
+		item.photos.splice(i, 1);
+		i = dir ? i + 1 : i - 1;
+		item.photos.splice(i, 0, active_photo);
 		item = item;
-		make_active(active_photo);
-
-		order_changed = false;
-		for (let i in item.photos) {
-			if (init_order[i] != item.photos[i]) {
-				order_changed = true;
-				break;
-			}
-		}
 	};
 
 	const reorder_delete = async (method) => {
@@ -78,20 +45,19 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			item = resp.item;
-			init_order = [...item.photos];
-			order_changed = false;
+			// item = resp.item;
+			init_order = [...resp.item.photos];
 
 			let msg = 'Order saved';
 			if (method == 'delete') {
-				$portal = {
-					type: 'item',
-					data: resp.item
-				};
-				make_active(item.photos[0]);
 				msg = 'Photo deleted';
+				active_photo = item.photos[0] || '';
 			}
 
+			$portal = {
+				type: 'item',
+				data: resp.item
+			};
 			$toast = {
 				status: 200,
 				message: msg
@@ -102,44 +68,28 @@
 	};
 
 	const on_input = () => {
-		let files = [];
-		excess_files = [];
-		invalid_files = [];
 		error = {};
 
+		let files = [];
 		for (let i = 0; i < input.files.length; i++) {
 			let file = input.files[i];
 			let [media, type] = file.type.split('/');
-			if (media == 'image' && !['svg+xml', 'x-icon'].includes(type)) {
-				if (files.length < count - item.photos.length) {
-					files.push(file);
-				} else {
-					excess_files.push(file.name);
-				}
+
+			let err = '';
+			if (media != 'image' || ['svg+xml', 'x-icon'].includes(type)) {
+				err = `${file.name} => invalid file`;
+			} else if (files.length + item.photos.length >= count) {
+				err = `${file.name} => excess file`;
+			}
+
+			if (err) {
+				error.error = error.error ? `${error.error}, ${err}` : err;
 			} else {
-				invalid_files.push(file.name);
+				files.push(file);
 			}
 		}
 
 		files.length > 0 && upload_input(files);
-
-		if (excess_files.length > 0) {
-			error.error = `
-			<strong>
-				Excess File${excess_files.length > 1 ? 's' : ''}:
-			</strong>
-			<br/>
-			${excess_files.join(', ')}`;
-		}
-		if (invalid_files.length > 0) {
-			error.error = `${excess_files.length > 0 ? `${error.error}<br/><br/>` : ''}
-
-			<strong>
-				Invalid File${invalid_files.length > 1 ? 's' : ''}:
-			</strong>
-			<br/>
-			${invalid_files.join(', ')}`;
-		}
 	};
 
 	const upload_input = async (files) => {
@@ -160,27 +110,28 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			item = resp.item;
-			init_order = [...item.photos];
+			// item = resp.item;
+			init_order = [...resp.item.photos];
+			active_photo = active_photo || item.photos[0];
 			$portal = {
 				type: 'item',
 				data: resp.item
 			};
-			make_active(item.photos[0]);
-
 			$toast = {
 				status: 200,
 				message: 'Photo added'
 			};
 
-			error.error = resp.error;
+			if (resp.error) {
+				error.error = error.error ? `${error.error}, ${resp.error}` : resp.error;
+			}
 		} else {
 			error = resp;
 		}
 	};
 
 	$: if (!item.photos.includes(active_photo)) {
-		make_active(item.photos[0]);
+		active_photo = item.photos[0] || '';
 	}
 
 	let advert = {};
@@ -191,7 +142,7 @@
 </script>
 
 <img
-	src={active_photo}
+	src={active_photo || '/image/item.png'}
 	alt={item.title}
 	onerror="this.src='/image/item.png'"
 	class:dragover
@@ -239,7 +190,8 @@
 				alt={item.name}
 				onerror="this.src='/image/item.png'"
 				on:click={() => {
-					make_active(photo);
+					error = {};
+					active_photo = photo;
 				}}
 				class:active={active_photo == photo}
 				role="presentation"
@@ -249,14 +201,6 @@
 {/if}
 
 {#if edit_mode}
-	{#if error.error}
-		<br />
-		<span class="error">
-			{@html error.error}
-		</span>
-		<br />
-	{/if}
-
 	<br />
 	<div class="row">
 		<Button
@@ -279,25 +223,25 @@
 			Remove
 		</Button>
 		<Button
-			disabled={!show_left_btn}
+			disabled={item.photos.length <= 1 || item.photos[0] == active_photo}
 			class="small"
 			on:click={() => {
-				order('left');
+				move_right(false);
 			}}
 		>
 			<SVG type="arrow_left" size="16" />
 		</Button>
 		<Button
-			disabled={!show_right_btn}
+			disabled={item.photos.length <= 1 || item.photos[item.photos.length - 1] == active_photo}
 			class="small"
 			on:click={() => {
-				order('right');
+				move_right();
 			}}
 		>
 			<SVG type="arrow_right" size="16" />
 		</Button>
 		<Button
-			disabled={!order_changed}
+			disabled={JSON.stringify(init_order) == JSON.stringify(item.photos)}
 			class="small"
 			on:click={() => {
 				reorder_delete('put');
@@ -321,6 +265,14 @@
 			Advert
 		</Button>
 	</div>
+
+	{#if error.error}
+		<br />
+		<span class="error">
+			{error.error}
+		</span>
+		<br />
+	{/if}
 {/if}
 
 <style>

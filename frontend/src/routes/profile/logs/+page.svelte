@@ -15,7 +15,7 @@
 	let page_name = 'logs';
 	let status = 'all';
 
-	let item = ['view'];
+	let item = ['view', 'added_photo'];
 	let order = ['created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'];
 	let voucher = ['created', 'changed_status', 'activated', 'used'];
 	let advert = ['created', 'added_photo', 'deleted'];
