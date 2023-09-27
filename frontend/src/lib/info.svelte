@@ -2,7 +2,7 @@
 	import { module } from '$lib/store.js';
 
 	import SVG from '$lib/svg.svelte';
-	import Marked from '$lib/comp/marked.svelte';
+	import Marked from '$lib/marked.svelte';
 	import Button from '$lib/button.svelte';
 </script>
 

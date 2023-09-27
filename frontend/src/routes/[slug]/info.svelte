@@ -15,7 +15,7 @@
 	import Review from './feedback/review.svelte';
 	import Save from '$lib/item/save.svelte';
 	import Add_Cart from '$lib/item/add_cart.svelte';
-	import Md from '$lib/comp/marked.svelte';
+	import Marked from '$lib/marked.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 
 	import Status from './_status.svelte';
@@ -223,7 +223,7 @@
 {#if open_info}
 	<div class="f2" transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
 		{#if item.info}
-			<Md md={item.info} />
+			<Marked md={item.info} />
 		{:else}
 			No information
 		{/if}

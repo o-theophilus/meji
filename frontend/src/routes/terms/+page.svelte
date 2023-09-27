@@ -1,6 +1,6 @@
 <script>
 	import Group from '$lib/card.svelte';
-	import Md from '$lib/comp/marked.svelte';
+	import Marked from '$lib/marked.svelte';
 
 	let md = `
 	# Terms of use
@@ -227,5 +227,5 @@ Todo
 	<b>Terms of Service</b>
 	<br />
 	<br />
-	<Md md={todo} />
+	<Marked md={todo} />
 </Group>

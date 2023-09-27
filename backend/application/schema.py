@@ -128,9 +128,9 @@ def log_schema(log, db):
         },
         "action": log["action"],
         "entity": {
-            "key": entity["slug"] if 'slug' in entity else entity['key'],
-            "name": entity["name"] if 'name' in entity else None,
+            "key":  log["entity"],
             "type": log["entity_type"],
+            "name": entity["name"] if entity and 'name' in entity else None,
         },
         "status": log["status"],
         "misc": log["misc"]

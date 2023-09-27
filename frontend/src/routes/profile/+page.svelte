@@ -166,22 +166,16 @@
 			<br />
 
 			<div class="horizontal">
-				<Button class="small" href="/orders">Orders</Button>
-				<Button class="small" href="/profile/logs">Logs</Button>
-			</div>
-
-			<br />
-
-			<div class="horizontal">
 				{#if me}
+					<Button class="small" href="/orders">Orders</Button>
+					{#if $user.roles.includes('admin')}
+						<Button class="small" href="/admin">Admin</Button>
+					{/if}
 					{#if edit_mode}
 						<Button class="small" href="/profile/setting">
 							<SVG type="setting" size="12" />
 							Setting
 						</Button>
-					{/if}
-					{#if $user.roles.includes('admin')}
-						<Button class="small" href="/admin">Admin</Button>
 					{/if}
 					<Logout />
 				{/if}

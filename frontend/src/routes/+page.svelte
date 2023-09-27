@@ -4,7 +4,7 @@
 	import { module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
-	import Ads from '$lib/comp/ads.svelte';
+	// import Advert from '$lib/advert/index.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
@@ -56,7 +56,7 @@
 <Meta title="Home" description="Home" />
 
 <Hero />
-<Ads />
+<!-- <Advert /> -->
 <Tags />
 <Group name="New Arrivals" url="/shop?sort=latest&size=6">
 	<Button class="link" href="/shop?sort=latest">

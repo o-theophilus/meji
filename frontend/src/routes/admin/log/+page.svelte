@@ -6,34 +6,37 @@
 	import Meta from '$lib/meta.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Log from './log.svelte';
-	import Status_Bar from './status.svelte';
+	import StatusType from './status_type.svelte';
+	import StatusAction from './status_action.svelte';
 
 	export let data;
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 
 	let page_name = 'logs';
-	let status = 'all';
+	let type = '';
+	let action = '';
 
-	let item = ['view', 'added_photo'];
-	let order = ['created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'];
-	let voucher = ['created', 'changed_status', 'activated', 'used'];
-	let advert = ['created', 'added_photo', 'deleted'];
+	let actions = {
+		item: ['viewed', 'added_photo'],
+		order: ['created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'],
+		voucher: ['created', 'changed_status', 'activated', 'used'],
+		advert: ['created', 'added_photo', 'deleted']
+	};
 
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('status')) {
-			status = params.get('status');
+			action = params.get('status');
+			type = action.split(':')[0];
 		}
 	});
 </script>
 
 <Meta title="Logs" description="Logs" />
-<Status_Bar {page_name} bind:status actions={['all']} />
-<Status_Bar {page_name} bind:status actions={item} name="item" />
-<Status_Bar {page_name} bind:status actions={order} name="order" />
-<Status_Bar {page_name} bind:status actions={voucher} name="voucher" />
-<Status_Bar {page_name} bind:status actions={advert} name="advert" />
+
+<StatusType {page_name} {actions} bind:type bind:action />
+<StatusAction {page_name} {actions} bind:type bind:action />
 
 <Card>
 	<b> Log{logs.length > 1 ? 's' : ''} </b>

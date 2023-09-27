@@ -4,7 +4,7 @@
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/comp/svg2.svelte';
+	import SVG from '$lib/svg_tags.svelte';
 
 	let { tags } = $module;
 </script>

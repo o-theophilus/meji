@@ -7,6 +7,7 @@ from .tools import now
 from uuid import uuid4
 from .log import log_template
 from PIL import Image
+from math import ceil
 
 bp = Blueprint("advert", __name__)
 
@@ -36,6 +37,19 @@ def advert_template(item):
 def get_advert(item_key):
     db = database()
 
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
     item = query({"type": "item", "slug": item_key}, db=db)
     if not item:
         item = query({"type": "item", "key": item_key}, db=db)
@@ -52,6 +66,49 @@ def get_advert(item_key):
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert)
+    })
+
+
+@bp.get("/advert")
+def get_all_advert():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+    status = request.args["status"] if "status" in request.args else ""
+
+    adverts = []
+    for x in db:
+        if x["type"] != "advert":
+            continue
+        if status and status not in x["placements"]:
+            continue
+        adverts.append(x)
+
+    # orders = sorted(orders, key=lambda d: d["date_u"])
+
+    total_page = ceil(len(adverts) / size)
+    start = (page_no - 1) * size
+    stop = start + size
+    adverts = adverts[start: stop]
+
+    return jsonify({
+        "status": 200,
+        "adverts": [advert_schema(x) for x in adverts],
+        "total_page": total_page
     })
 
 

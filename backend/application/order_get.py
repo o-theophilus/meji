@@ -30,19 +30,18 @@ def get():
         })
 
     orders = []
-    for row in db:
-        if row["type"] != "order":
+    for x in db:
+        if x["type"] != "order":
             continue
-        if status and row["status"] != status:
+        if status and x["status"] != status:
             continue
-        if not is_admin and row["user"] != user["key"]:
+        if not is_admin and x["user"] != user["key"]:
             continue
-        orders.append(row)
+        orders.append(x)
 
     # orders = sorted(orders, key=lambda d: d["date_u"])
 
     total_page = ceil(len(orders) / size)
-
     start = (page_no - 1) * size
     stop = start + size
     orders = orders[start: stop]
