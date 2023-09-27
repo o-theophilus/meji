@@ -1,14 +1,10 @@
 # Todo
-prevent the use of "all" as tag
-add rating so shop sort
 - [ ] Concurrency
 - [ ] review reserve words for item names
-create default super user
-login copy cart/like duplication error
-
+- [ ] log user action
+- [ ] prevent the use of "all" as tag
 
 address api: https://www.geoapify.com/tutorials
-
 
 implement paystack payment webhook
 http://localhost:3000/order/resp/

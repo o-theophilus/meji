@@ -16,8 +16,8 @@
 		'name (z-a)',
 		'cheap',
 		'expensive',
-		'discount'
-		// 'rating'
+		'discount',
+		'rating'
 	];
 
 	const save_view = async () => {

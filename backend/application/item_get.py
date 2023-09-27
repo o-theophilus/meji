@@ -98,24 +98,26 @@ def shop():
     tags = tag.split(",")
 
     items = []
-    for x in db:
-        if x["type"] != "item":
+    for y in db:
+        if y["type"] != "item":
             continue
-        if status and x["status"] != status:
+        if status and y["status"] != status:
             continue
-        if search and not re.search(search, x["name"], re.IGNORECASE):
+        if search and not re.search(search, y["name"], re.IGNORECASE):
             continue
         if tag:
             if multiply:
-                if not all(y in x["tags"] for y in tags):
+                if not all(y in y["tags"] for y in tags):
                     continue
-            elif not any(y in tags for y in x["tags"]):
+            elif not any(y in tags for y in y["tags"]):
                 continue
 
-        items.append(x)
+        items.append(y)
 
-    reverse = sort in ["latest", "name (z-a)", "expensive", "discount"]
+    reverse = sort in ["latest", "name (z-a)", "expensive", "discount",
+                       "rating"]
 
+    fit = []
     if sort in ["latest", "oldest"]:
         sort = "date_c"
     elif sort in ["name (a-z)", "name (z-a)"]:
@@ -123,15 +125,25 @@ def shop():
     elif sort in ["cheap", "expensive"]:
         sort = "price"
     elif sort == "discount":
-        items_discount = []
-        for item in items:
-            item["discount"] = 0
-            if item["old_price"]:
-                item["discount"] = (
-                    item["old_price"] - item["price"]
-                ) * 100 / item["old_price"]
-                items_discount.append(item)
-        items = items_discount
+        for x in items:
+            x["discount"] = 0
+            if x["old_price"]:
+                x["discount"] = (
+                    x["old_price"] - x["price"]) * 100 / x["old_price"]
+                fit.append(x)
+        items = fit
+    elif sort == "rating":
+        for x in items:
+            x["rating"] = 0
+            count = 0
+            for y in db:
+                if y["type"] == "feedback" and y["item"] == x["key"]:
+                    x["rating"] += y["rating"]
+                    count += 1
+            if x["rating"] > 0 and count > 0:
+                x["rating"] = x["rating"]/count
+                fit.append(x)
+        items = fit
 
     items = sorted(items, key=lambda d: d[sort].lower() if isinstance(
         d[sort], str) else d[sort], reverse=reverse)
