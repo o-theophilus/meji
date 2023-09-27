@@ -1,22 +1,24 @@
 <script>
-	import { loading, portal, toast } from '$lib/store.js';
+	import { onMount } from 'svelte';
+	import { loading, portal, toast, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
+	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import { onMount } from 'svelte';
 
-	export let item;
-	export let advert;
-	export let edit_mode = false;
+	let item = $module.item;
+	let advert = $module.advert;
 	let input;
-	let active_photo = {};
 	let dragover = false;
 	let error = {};
+	let def_size = '300x300';
+	let active_photo = {
+		size: def_size,
+		photo: null
+	};
+
 	let available_sizes = [];
-
-	const make_active = (dict_) => {
-		active_photo = dict_;
-
+	const set_available_sizes = () => {
 		available_sizes = [];
 		for (const [dim, url] of Object.entries(advert.photos)) {
 			if (url) {
@@ -42,13 +44,19 @@
 
 		if (resp.status == 200) {
 			advert = resp.advert;
-			$portal = resp.advert;
-			make_active(active_photo);
-
+			active_photo = {
+				size: def_size,
+				photo: advert.photos[def_size]
+			};
+			$portal = {
+				type: 'advert',
+				data: resp.advert
+			};
 			$toast = {
 				status: 200,
 				message: available_sizes.length > 0 ? 'Photo deleted' : 'Advert Deleted'
 			};
+			set_available_sizes();
 		} else {
 			error = resp;
 		}
@@ -70,15 +78,19 @@
 
 		if (resp.status == 200) {
 			advert = resp.advert;
-			$portal = resp.advert;
-
-			let size = '300x300';
-			make_active({ size, photo: advert.photos[size] });
-
+			active_photo = {
+				size: def_size,
+				photo: advert.photos[def_size]
+			};
+			$portal = {
+				type: 'advert',
+				data: resp.advert
+			};
 			$toast = {
 				status: 200,
 				message: 'Advert Deleted'
 			};
+			set_available_sizes();
 		} else {
 			error = resp;
 		}
@@ -124,7 +136,7 @@
 			}
 		}
 
-		make_active(active_photo);
+		set_available_sizes();
 		files.length > 0 && upload_input(files);
 	};
 
@@ -147,111 +159,159 @@
 
 		if (resp.status == 200) {
 			advert = resp.advert;
-			$portal = resp.advert;
-			make_active(active_photo);
-
+			if (!active_photo.photo) {
+				active_photo = {
+					size: def_size,
+					photo: advert.photos[def_size]
+				};
+			}
+			$portal = {
+				type: 'advert',
+				data: resp.advert
+			};
 			$toast = {
 				status: 200,
 				message: 'Advert Updated'
 			};
-			error.error = resp.error;
+			set_available_sizes();
+			if (resp.error) {
+				error.error = error.error ? `${error.error}, ${resp.error}` : resp.error;
+			}
 		} else {
 			error = resp;
 		}
 	};
 
-	onMount(() => {
-		let size = '300x300';
-		make_active({ size, photo: advert.photos[size] });
+	let loading_complete = false;
+	const load_advert = async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+			method: 'get',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			advert = resp.advert;
+			$portal = {
+				type: 'advert',
+				data: resp.advert
+			};
+		} else {
+			error = resp;
+		}
+	};
+	onMount(async () => {
+		if (Object.keys(advert).length == 0 || item.key != advert.item) {
+			await load_advert();
+		}
+		active_photo = {
+			size: def_size,
+			photo: advert.photos[def_size]
+		};
+		set_available_sizes();
+		loading_complete = true;
 	});
 </script>
 
-<img
-	src={active_photo.photo || '/image/item.png'}
-	alt={item.name}
-	onerror="this.src='/image/item.png'"
-	class:dragover
-	class:edit_mode
-	on:click={() => {
-		if (edit_mode) {
-			input.click();
-		}
-	}}
-	on:dragover|preventDefault={() => {
-		dragover = true;
-	}}
-	on:dragleave|preventDefault={() => {
-		dragover = false;
-	}}
-	on:drop={(e) => {
-		dragover = false;
-		if (edit_mode) {
-			e.preventDefault();
-			input.files = e.dataTransfer.files;
-			on_input();
-		}
-	}}
-	role="presentation"
-/>
-<input
-	style:display="none"
-	type="file"
-	accept="image/*"
-	multiple
-	bind:this={input}
-	on:change={(e) => {
-		on_input();
-	}}
-/>
+<Form>
+	<svelte:fragment slot="title">
+		<b>{item.name} Advert</b>
+	</svelte:fragment>
 
-<br />
-<br />
-
-{#if item.photos.length > 1}
-	<div class="row">
-		{#each Object.entries(advert.photos) as [size, photo]}
-			<img
-				src={photo ? `${photo}/200` : '/image/item.png'}
-				alt="{item.name} {size}"
-				onerror="this.src='/image/item.png'"
-				on:click={() => {
-					error = {};
-					make_active({ size, photo });
-				}}
-				class:active={active_photo.size == size}
-				role="presentation"
-			/>
-		{/each}
-	</div>
-{/if}
-
-{#if edit_mode}
-	{#if error.error}
-		<br />
-		<span class="error">
-			{@html error.error}
-		</span>
-		<br />
-	{/if}
-
-	<br />
-	<div class="row">
-		<Button
-			class="primary small"
+	{#if !loading_complete}
+		Loading Advert . . .
+	{:else}
+		<img
+			src={active_photo.photo || '/image/item.png'}
+			alt={item.name}
+			onerror="this.src='/image/item.png'"
+			class:dragover
 			on:click={() => {
 				input.click();
 			}}
-			disabled={available_sizes.length >= 4}
-		>
-			Add
-		</Button>
+			on:dragover|preventDefault={() => {
+				dragover = true;
+			}}
+			on:dragleave|preventDefault={() => {
+				dragover = false;
+			}}
+			on:drop={(e) => {
+				dragover = false;
+				e.preventDefault();
+				input.files = e.dataTransfer.files;
+				on_input();
+			}}
+			role="presentation"
+		/>
+		<input
+			style:display="none"
+			type="file"
+			accept="image/*"
+			multiple
+			bind:this={input}
+			on:change={(e) => {
+				on_input();
+			}}
+		/>
 
-		<Button class="small" on:click={delete_photo} disabled={!active_photo.photo}>Remove</Button>
-	</div>
-	<Button class="small" on:click={delete_advert} disabled={available_sizes.length <= 0}>
-		Delete Advert
-	</Button>
-{/if}
+		<br />
+		<br />
+
+		<div class="row">
+			{#each Object.entries(advert.photos) as [size, photo]}
+				<img
+					src={photo ? `${photo}/200` : '/image/item.png'}
+					alt="{item.name} {size}"
+					onerror="this.src='/image/item.png'"
+					on:click={() => {
+						error = {};
+						active_photo = { size, photo };
+					}}
+					class:active={active_photo.size == size}
+					role="presentation"
+				/>
+			{/each}
+		</div>
+
+		<br />
+		<div class="row">
+			<Button
+				class="primary small"
+				on:click={() => {
+					input.click();
+				}}
+				disabled={available_sizes.length >= 4}
+			>
+				Add
+			</Button>
+
+			<Button class="small hover_red" on:click={delete_photo} disabled={!active_photo.photo}
+				>Remove</Button
+			>
+		</div>
+		<br />
+		<div class="row">
+			<Button
+				class="small hover_red"
+				on:click={delete_advert}
+				disabled={available_sizes.length <= 0}
+			>
+				Delete Advert
+			</Button>
+		</div>
+	{/if}
+
+	{#if error.error}
+		<br />
+		<span class="error">
+			{error.error}
+		</span>
+		<br />
+	{/if}
+</Form>
 
 <style>
 	img {
@@ -261,9 +321,9 @@
 		transition: var(--trans1);
 	}
 
-	.row img:hover,
-	.edit_mode:hover,
-	.edit_mode.dragover {
+	/* .row img:hover, */
+	img:hover,
+	img.dragover {
 		border-color: var(--cl1);
 		cursor: pointer;
 	}

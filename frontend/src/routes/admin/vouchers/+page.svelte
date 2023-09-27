@@ -9,8 +9,8 @@
 	$: vouchers = data.vouchers;
 	$: total_page = data.total_page;
 
-	$: if ($portal) {
-		vouchers = $portal;
+	$: if ($portal && $portal.type == 'voucher') {
+		vouchers = $portal.data;
 		$portal = '';
 	}
 </script>

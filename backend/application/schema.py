@@ -144,6 +144,7 @@ def advert_schema(advert):
         return None
 
     return {
+        "item": advert["item"],
         "photos": {
             "300x300": get_url('300x300'),
             "300x600": get_url('300x600'),

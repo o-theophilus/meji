@@ -40,7 +40,13 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp;
+			$portal = {
+				type: 'feedback',
+				data: {
+					feedbacks: resp.feedbacks,
+					give_feedback: resp.give_feedback
+				}
+			};
 			$module = '';
 			$toast = {
 				status: 200,

@@ -48,7 +48,10 @@
 
 		if (resp.status == 200) {
 			let old_status = order.status;
-			$portal = resp.order;
+			$portal = {
+				type: 'order',
+				data: resp.order
+			};
 
 			$module = {
 				module: Info,

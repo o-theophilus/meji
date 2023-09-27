@@ -36,7 +36,10 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.vouchers;
+			$portal = {
+				type: 'voucher',
+				data: resp.vouchers
+			};
 			$module = '';
 			$toast = {
 				status: 200,

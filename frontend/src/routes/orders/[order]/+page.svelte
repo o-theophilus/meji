@@ -19,8 +19,8 @@
 	let { order } = data;
 	let { previous_recipients } = data;
 
-	$: if ($portal) {
-		order = $portal;
+	$: if ($portal && $portal.type == 'order') {
+		order = $portal.data;
 		$portal = '';
 	}
 </script>

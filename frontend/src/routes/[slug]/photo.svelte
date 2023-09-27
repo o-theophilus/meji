@@ -1,9 +1,10 @@
 <script>
-	import { loading, portal, toast } from '$lib/store.js';
+	import { loading, portal, toast, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Advert from './_advert.svelte';
 
 	export let item = {};
 	export let edit_mode = false;
@@ -83,7 +84,10 @@
 
 			let msg = 'Order saved';
 			if (method == 'delete') {
-				$portal = resp.item;
+				$portal = {
+					type: 'item',
+					data: resp.item
+				};
 				make_active(item.photos[0]);
 				msg = 'Photo deleted';
 			}
@@ -158,7 +162,10 @@
 		if (resp.status == 200) {
 			item = resp.item;
 			init_order = [...item.photos];
-			$portal = resp.item;
+			$portal = {
+				type: 'item',
+				data: resp.item
+			};
 			make_active(item.photos[0]);
 
 			$toast = {
@@ -174,6 +181,12 @@
 
 	$: if (!item.photos.includes(active_photo)) {
 		make_active(item.photos[0]);
+	}
+
+	let advert = {};
+	$: if ($portal && $portal.type == 'advert') {
+		advert = $portal.data;
+		$portal = '';
 	}
 </script>
 
@@ -246,57 +259,67 @@
 
 	<br />
 	<div class="row">
-		{#if item.photos.length < count}
-			<Button
-				class="primary small"
-				on:click={() => {
-					input.click();
-				}}
-			>
-				Add ({count - item.photos.length})
-			</Button>
-		{/if}
+		<Button
+			class="primary small"
+			on:click={() => {
+				input.click();
+			}}
+			disabled={item.photos.length >= count}
+		>
+			Add ({count - item.photos.length})
+		</Button>
 
-		{#if item.photos.length > 0}
-			<Button
-				class="small"
-				on:click={() => {
-					reorder_delete('delete');
-				}}
-			>
-				Remove
-			</Button>
-		{/if}
-
-		{#if item.photos.length > 1}
-			<Button
-				disabled={!show_left_btn}
-				class="small"
-				on:click={() => {
-					order('left');
-				}}
-			>
-				<SVG type="arrow_left" size="16" />
-			</Button>
-			<Button
-				disabled={!show_right_btn}
-				class="small"
-				on:click={() => {
-					order('right');
-				}}
-			>
-				<SVG type="arrow_right" size="16" />
-			</Button>
-			<Button
-				disabled={!order_changed}
-				class="small"
-				on:click={() => {
-					reorder_delete('put');
-				}}
-			>
-				Save Order
-			</Button>
-		{/if}
+		<Button
+			class="small hover_red"
+			on:click={() => {
+				reorder_delete('delete');
+			}}
+			disabled={item.photos.length == 0}
+		>
+			Remove
+		</Button>
+		<Button
+			disabled={!show_left_btn}
+			class="small"
+			on:click={() => {
+				order('left');
+			}}
+		>
+			<SVG type="arrow_left" size="16" />
+		</Button>
+		<Button
+			disabled={!show_right_btn}
+			class="small"
+			on:click={() => {
+				order('right');
+			}}
+		>
+			<SVG type="arrow_right" size="16" />
+		</Button>
+		<Button
+			disabled={!order_changed}
+			class="small"
+			on:click={() => {
+				reorder_delete('put');
+			}}
+		>
+			Save Order
+		</Button>
+	</div>
+	<br />
+	<div class="row">
+		<Button
+			class="small"
+			on:click={() => {
+				$module = {
+					module: Advert,
+					item,
+					advert
+				};
+			}}
+		>
+			Advert
+		</Button>
 	</div>
 {/if}
 

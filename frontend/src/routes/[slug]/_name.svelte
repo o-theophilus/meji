@@ -37,7 +37,10 @@
 				window.history.replaceState(history.state, '', `/${resp.item.slug}`);
 			}
 
-			$portal = resp.item;
+			$portal = {
+				type: 'item',
+				data: resp.item
+			};
 			$module = '';
 			$toast = {
 				status: 200,

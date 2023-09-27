@@ -35,7 +35,10 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.user;
+			$portal = {
+				type: 'user',
+				data: resp.user
+			};
 			$module = '';
 			$toast = {
 				status: 200,

@@ -88,7 +88,10 @@
 
 		if (resp.status == 200) {
 			$user.acc_balance = resp.user.acc_balance;
-			$portal = resp.order;
+			$portal = {
+				type: 'order',
+				data: resp.order
+			};
 
 			$module = {
 				module: Info,

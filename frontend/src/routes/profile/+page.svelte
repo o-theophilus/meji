@@ -15,8 +15,8 @@
 	import Add_Voucher from './_voucher.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	$: if ($portal) {
-		$user = $portal;
+	$: if ($portal && $portal.type == 'user') {
+		$user = $portal.data;
 		$portal = '';
 	}
 	let me = true;

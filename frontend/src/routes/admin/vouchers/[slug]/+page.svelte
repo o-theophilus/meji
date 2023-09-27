@@ -11,8 +11,8 @@
 	let error = {};
 	export let data;
 	let { voucher } = data;
-	$: if ($portal) {
-		voucher = $portal;
+	$: if ($portal && $portal.type == 'voucher') {
+		voucher = $portal.data;
 		$portal = '';
 	}
 

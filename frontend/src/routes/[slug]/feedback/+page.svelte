@@ -17,9 +17,9 @@
 	$: give_feedback = data.give_feedback;
 	$: total_page = data.total_page;
 
-	$: if ($portal) {
-		feedbacks = $portal.feedbacks;
-		give_feedback = $portal.give_feedback;
+	$: if ($portal && $portal.type == 'feedback') {
+		feedbacks = $portal.data.feedbacks;
+		give_feedback = $portal.data.give_feedback;
 		$portal = '';
 	}
 

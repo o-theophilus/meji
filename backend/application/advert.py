@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .database import database, query
-from .schema import item_schema, advert_schema
+from .schema import advert_schema
 from .storage import storage
 from .tools import now
 from uuid import uuid4
@@ -51,7 +51,6 @@ def get_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db),
         "advert": advert_schema(advert)
     })
 
@@ -151,7 +150,6 @@ def add_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db),
         "advert": advert_schema(advert),
         "error": error
     })
@@ -243,7 +241,6 @@ def delete_photo(item_key):
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db),
         "advert": advert_schema(advert),
     })
 
@@ -309,6 +306,5 @@ def delete_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db),
         "advert": advert_schema(advert_template(item["key"]))
     })

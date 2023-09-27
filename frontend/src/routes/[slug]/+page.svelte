@@ -16,8 +16,8 @@
 	export let data;
 	$: item = data.item;
 
-	$: if ($portal) {
-		item = $portal;
+	$: if ($portal && $portal.type == 'item') {
+		item = $portal.data;
 		$portal = '';
 	}
 

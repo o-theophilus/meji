@@ -41,7 +41,10 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.order;
+			$portal = {
+				type: 'order',
+				data: resp.order
+			};
 			$module = '';
 			$toast = {
 				status: '200',

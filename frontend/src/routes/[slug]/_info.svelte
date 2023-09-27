@@ -23,7 +23,10 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = resp.item;
+			$portal = {
+				type: 'item',
+				data: resp.item
+			};
 			$module = '';
 			$toast = {
 				status: 200,
