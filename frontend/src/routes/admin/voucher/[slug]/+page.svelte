@@ -5,7 +5,7 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
-	import Log from '../../../profile/logs/log.svelte';
+	import Log from '../../log/log.svelte';
 	import Activate from './_activate.svelte';
 
 	let error = {};
