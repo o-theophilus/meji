@@ -11,15 +11,13 @@
 	<b> Dashboard </b>
 	<br />
 	<br />
-	<Button class="wide" href="/admin/photo">Photo</Button>
+	<Button class="wide" href="/admin/photos">Photos</Button>
 	<br />
-	<Button class="wide" href="/admin/voucher">Voucher</Button>
+	<Button class="wide" href="/admin/vouchers">Vouchers</Button>
 	<br />
-	<Button class="wide" href="/admin/advert">Advert</Button>
+	<Button class="wide" href="/admin/adverts">Adverts</Button>
 	<br />
-	<Button class="wide" href="/admin/log{$state.logs || ''}">Log</Button>
+	<Button class="wide" href="/admin/logs{$state.logs || ''}">Logs</Button>
 	<br />
-	<Button class="wide" href="/admin/tag">tag</Button>
-	<br />
-	<Button class="wide" href="/admin/user">User</Button>
+	<Button class="wide" href="/admin/users">Users</Button>
 </Card>

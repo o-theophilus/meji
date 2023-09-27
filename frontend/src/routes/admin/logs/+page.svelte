@@ -13,7 +13,7 @@
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 
-	let page_name = 'logs';
+	let page_name = 'log';
 	let type = '';
 	let action = '';
 

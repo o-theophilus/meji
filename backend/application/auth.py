@@ -22,7 +22,7 @@ def user_template(
         "type": "user",
         "date_c": now(),
         "date_u": now(),
-        "status": "anonymous",
+        "status": "anonymous",  # confirm
 
         "name": name,
         "email": email,

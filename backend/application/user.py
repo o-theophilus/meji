@@ -14,23 +14,6 @@ from uuid import uuid4
 bp = Blueprint("user", __name__)
 
 
-# @bp.get("/user/<key>")
-# def get(key):
-#     db = database()
-
-#     user = query({"type": "user", "key": key}, db=db)
-#     if not user:
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
-
-#     return jsonify({
-#         "status": 200,
-#         "user": user_schema(user, db)
-#     })
-
-
 @bp.post("/setting")
 def post():
     db = database()

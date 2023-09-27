@@ -27,7 +27,7 @@
 		<br />
 		{x.status}
 		<br />
-		<a href="/admin/voucher/{x.key}">
+		<a href="/admin/vouchers/{x.key}">
 			{x.key}
 		</a>
 		<br />
