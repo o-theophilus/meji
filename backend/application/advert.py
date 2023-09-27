@@ -232,7 +232,7 @@ def delete_photo(item_key):
     )
 
     if has_photo:
-        log["action"] = "updated photos"
+        log["action"] = "added_photo"
         database([advert, log])
     else:
         database(advert, True)

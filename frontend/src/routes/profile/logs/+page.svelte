@@ -12,11 +12,13 @@
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 
+	let page_name = 'logs';
+	let status = 'all';
+
 	let item = ['view'];
 	let order = ['created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'];
 	let voucher = ['created', 'changed_status', 'activated', 'used'];
-	let page_name = 'logs';
-	let status = 'all';
+	let advert = ['created', 'added_photo', 'deleted'];
 
 	onMount(() => {
 		let params = $page.url.searchParams;
@@ -31,6 +33,7 @@
 <Status_Bar {page_name} bind:status actions={item} name="item" />
 <Status_Bar {page_name} bind:status actions={order} name="order" />
 <Status_Bar {page_name} bind:status actions={voucher} name="voucher" />
+<Status_Bar {page_name} bind:status actions={advert} name="advert" />
 
 <Card>
 	<b> Log{logs.length > 1 ? 's' : ''} </b>

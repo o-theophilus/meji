@@ -114,7 +114,6 @@ def unused_anon():
     })
 
 
-@bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -154,6 +153,7 @@ def delete_db():
     })
 
 
+@bp.get("/fix")
 def fix():
     db = database()
 
@@ -161,10 +161,10 @@ def fix():
     for x in db:
         if (
             x["type"] == "log"
-            and x["entity_type"] == "item"
-            and x["action"] == "view"
+            and x["entity_type"] == "advert"
+            and x["action"] == "updated photos"
         ):
-            x["action"] = "viewed"
+            x["action"] = "added_photo"
             changed.append(x)
 
     print(len(changed))

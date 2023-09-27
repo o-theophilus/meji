@@ -8,30 +8,10 @@
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
+	let all_tags = [...$module.all_tags];
 	let tags = item.tags.join(', ');
-	let all_tags = [];
 	let all_tags_btn = [];
 	let error = {};
-	let loading_tags = true;
-
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			}
-		});
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			all_tags = resp.tags;
-			loading_tags = false;
-			clean_value();
-		} else {
-			error = resp;
-		}
-	});
 
 	const submit = async () => {
 		error = {};
@@ -76,6 +56,35 @@
 
 		all_tags_btn = all_tags.filter((i) => !tags.split(', ').includes(i));
 	};
+
+	let loading_complete = false;
+	const load_tags = async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`, {
+			method: 'get',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			all_tags = resp.tags;
+			$portal = {
+				type: 'tag',
+				data: resp.tags
+			};
+		} else {
+			error = resp;
+		}
+	};
+	onMount(async () => {
+		if (all_tags.length == 0) {
+			await load_tags();
+		}
+		loading_complete = true;
+		clean_value();
+	});
 </script>
 
 <Form>
@@ -95,7 +104,7 @@
 	</IG>
 
 	<div class="tags">
-		{#if loading_tags}
+		{#if !loading_complete}
 			<span class="f2"> loading all tags . . . </span>
 		{/if}
 		{#each all_tags_btn as tag}

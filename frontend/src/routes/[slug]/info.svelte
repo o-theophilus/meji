@@ -3,7 +3,7 @@
 	import { elasticInOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { user, module, loading } from '$lib/store.js';
+	import { user, module, loading, portal } from '$lib/store.js';
 	import { onMount } from 'svelte';
 
 	import Button from '$lib/button.svelte';
@@ -30,17 +30,17 @@
 	export let edit_mode = false;
 	let feedbacks = [];
 	let give_feedback = false;
-	let mounted = false;
 
 	let open_info = true && item.info;
 	let open_feedback = feedbacks && feedbacks.length > 0;
 	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
 
-	const load = async (item_) => {
+	const load = async () => {
+		all_tags = [];
 		feedbacks = [];
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/feedback/${$user.key}/${item_.key}?size=3`
+			`${import.meta.env.VITE_BACKEND}/feedback/${$user.key}/${item.key}?size=3`
 		);
 		resp = await resp.json();
 
@@ -50,12 +50,20 @@
 		}
 	};
 
+	let mounted = false;
 	onMount(() => {
 		mounted = true;
 	});
 
 	$: if (mounted) {
-		load(item);
+		item;
+		load();
+	}
+
+	let all_tags = [];
+	$: if ($portal && $portal.type == 'tag') {
+		all_tags = $portal.data;
+		$portal = '';
 	}
 </script>
 
@@ -136,7 +144,8 @@
 			on:click={() => {
 				$module = {
 					module: Tag,
-					item
+					item,
+					all_tags
 				};
 			}}
 			tooltip="Edit tag"
