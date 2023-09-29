@@ -1,6 +1,12 @@
-<section class="card">
-	<slot />
-</section>
+<script>
+	import Center from './center.svelte';
+</script>
+
+<Center>
+	<div class="card">
+		<slot />
+	</div>
+</Center>
 
 <style>
 	.card {

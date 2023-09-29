@@ -46,11 +46,9 @@
 	}
 
 	.page {
-		width: min(100%, 1200px);
 		min-height: calc(100vh - var(--headerHeight) * 2);
-
-		margin: auto;
-		padding: 0 var(--sp2);
+		
+		
 	}
 	.nav {
 		position: sticky;

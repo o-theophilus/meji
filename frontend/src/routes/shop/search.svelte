@@ -4,15 +4,12 @@
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Tag from './search.tag.svelte';
+	import Center from '$lib/center.svelte';
 
 	export let page_name;
 
 	let search = '';
 	let search_snap = '';
-	let tags = [];
-
-	let show_tags = false;
 
 	const submit = () => {
 		if (search_snap != search) {
@@ -27,67 +24,46 @@
 			search = params.get('search');
 		}
 		search_snap = `${search}`;
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-		resp = await resp.json();
-		if (resp.status == 200) {
-			tags = resp.tags;
-		}
 	});
 </script>
 
-<section>
-	<button
-		on:click|stopPropagation={() => {
-			show_tags = !show_tags;
-		}}
-	>
-		Tags
-	</button>
+<Center>
+	<section>
+		<slot />
 
-	|
-	<div class="input">
-		<input
-			class="search"
-			class:show_close={search != ''}
-			type="text"
-			placeholder="Search for product"
-			bind:value={search}
-			on:keypress={(e) => {
-				if (e.key == 'Enter') {
-					submit();
-				}
-			}}
-		/>
+		<div class="input">
+			<input
+				class="search"
+				class:show_close={search != ''}
+				type="text"
+				placeholder="Search for product"
+				bind:value={search}
+				on:keypress={(e) => {
+					if (e.key == 'Enter') {
+						submit();
+					}
+				}}
+			/>
 
-		<div class="btn">
-			{#if search}
-				<Button
-					class="small round"
-					on:click={() => {
-						search = '';
-					}}
-				>
-					<SVG type="close" size="15" />
+			<div class="btn">
+				{#if search}
+					<Button
+						class="small round"
+						on:click={() => {
+							search = '';
+						}}
+					>
+						<SVG type="close" size="15" />
+					</Button>
+				{/if}
+
+				<Button disabled={search == search_snap} class="round small" on:click={submit}>
+					<SVG type="search" size="15" />
 				</Button>
-			{/if}
-
-			<Button disabled={search == search_snap} class="round small" on:click={submit}>
-				<SVG type="search" size="15" />
-			</Button>
+			</div>
 		</div>
-	</div>
-
-	{#if show_tags}
-		<Tag
-			{page_name}
-			{tags}
-			on:close={() => {
-				show_tags = false;
-			}}
-		/>
-	{/if}
-</section>
+	</section>
+</Center>
 
 <style>
 	section {
@@ -101,17 +77,7 @@
 		border-radius: var(--sp0);
 		color: var(--ac3);
 	}
-	button {
-		background: none;
-		border: none;
-		color: var(--ac1);
-		cursor: pointer;
 
-		padding: var(--sp2) var(--sp4);
-	}
-	button:hover {
-		color: var(--cl1);
-	}
 	.input {
 		position: relative;
 		width: 100%;

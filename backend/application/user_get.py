@@ -9,8 +9,8 @@ import re
 bp = Blueprint("user_get", __name__)
 
 
-@bp.get("/user/<key>")
-def get_user(key):
+@bp.get("/user")
+def get_user():
     db = database()
 
     me = token_to_user(db)
@@ -27,16 +27,24 @@ def get_user(key):
         })
 
     user = None
-    for x in db:
-        if x["type"] == "user" and (x["key"] == key or x["email"] == key):
-            user = x
-            break
+    if "search" in request.args:
+        if request.args["search"]:
+            for x in db:
+                if x["type"] == "user" and (
+                    x["key"] == request.args["search"]
+                    or x["email"] == request.args["search"]
+                ):
+                    user = x
+                    break
+
+        if not user:
+            return jsonify({
+                "status": 400,
+                "error": "user not found"
+            })
 
     if not user:
-        return jsonify({
-            "status": 400,
-            "error": "not found"
-        })
+        user = me
 
     return jsonify({
         "status": 200,

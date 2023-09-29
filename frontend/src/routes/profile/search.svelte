@@ -4,6 +4,7 @@
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Center from '$lib/center.svelte';
 
 	export let page_name;
 	let search = '';
@@ -25,44 +26,52 @@
 	});
 </script>
 
-<section>
-	<div class="input">
-		<div class="float svg">
-			<SVG type="search" size="15" />
-		</div>
+<div class="search">
+	<Center>
+		<div class="block">
+			<div class="input">
+				<div class="float svg">
+					<SVG type="search" size="15" />
+				</div>
 
-		<input
-			class:show_close={search != ''}
-			type="text"
-			placeholder="Search"
-			bind:value={search}
-			on:keypress={(e) => {
-				if (e.key == 'Enter') {
-					submit();
-				}
-			}}
-		/>
-
-		<div class="float clear">
-			{#if search}
-				<Button
-					class="small round"
-					on:click={() => {
-						search = '';
-						submit();
+				<input
+					class:show_close={search != ''}
+					type="text"
+					placeholder="Search"
+					bind:value={search}
+					on:keypress={(e) => {
+						if (e.key == 'Enter') {
+							submit();
+						}
 					}}
-				>
-					<SVG type="close" size="15" />
-				</Button>
-			{/if}
+				/>
+
+				<div class="float clear">
+					{#if search}
+						<Button
+							class="small round"
+							on:click={() => {
+								search = '';
+								submit();
+							}}
+						>
+							<SVG type="close" size="15" />
+						</Button>
+					{/if}
+				</div>
+			</div>
+			<button class="primary" on:click={submit} disabled={search == search_init}>Search</button>
 		</div>
-	</div>
-	<button class="primary" on:click={submit} disabled={search == search_init}>Search</button>
-</section>
+	</Center>
+</div>
 
 <style>
-	section {
-		margin-top: var(--sp2);
+	.search {
+		background-color: var(--ac6);
+		padding: var(--sp2) 0;
+	}
+
+	.block {
 		display: flex;
 	}
 	.input {
@@ -113,12 +122,12 @@
 		border: none;
 		border-radius: 0 var(--sp1) var(--sp1) 0;
 		background-color: var(--cl1);
-		color: var(--ac5);
+		color: var(--ac5_);
 		cursor: pointer;
 	}
 	button:disabled {
 		background-color: var(--ac3);
-		color: var(--ac4);
+		color: var(--ac4_);
 		cursor: unset;
 	}
 </style>
