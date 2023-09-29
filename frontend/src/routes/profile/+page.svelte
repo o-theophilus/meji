@@ -1,5 +1,5 @@
 <script>
-	import { user, module, portal } from '$lib/store.js';
+	import { user as me, module, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -14,21 +14,36 @@
 	import Edit_Address from './_address.svelte';
 	import Add_Voucher from './_voucher.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Search from './search.svelte';
+
+	export let data;
+	let user = data.user || $me;
+	let edit_mode = false;
+	let page_name = 'profile';
 
 	$: if ($portal && $portal.type == 'user') {
-		$user = $portal.data;
+		user = $portal.data;
 		$portal = '';
 	}
-	let me = true;
-	let edit_mode = false;
 </script>
 
-<Meta title={$user.name} description={$user.name} />
+<Meta title={user.name} description={user.name} />
+
+{#if user.roles.includes('admin')}
+	<Search {page_name} />
+{/if}
 
 <Card>
+	{#if data.error}
+		<span class="error">
+			{data.error}
+		</span>
+		<br />
+		<br />
+	{/if}
 	<div class="title">
 		User Details
-		{#if me}
+		{#if user.key == $me.key}
 			<Button
 				class="small"
 				on:click={() => {
@@ -49,7 +64,7 @@
 		<div>
 			<div class="horizontal space">
 				<b>
-					{$user.name}
+					{user.name}
 				</b>
 				{#if edit_mode}
 					<Button
@@ -58,7 +73,7 @@
 						on:click={() => {
 							$module = {
 								module: Edit_Name,
-								user: $user
+								user: user
 							};
 						}}
 					>
@@ -71,8 +86,8 @@
 
 			<div class="details">
 				<span class="bold"> Phone: </span>
-				{#if $user.phone}
-					{$user.phone}
+				{#if user.phone}
+					{user.phone}
 				{:else}
 					No Phone
 				{/if}
@@ -83,7 +98,7 @@
 						on:click={() => {
 							$module = {
 								module: Edit_Phone,
-								user: $user
+								user: user
 							};
 						}}
 					>
@@ -94,7 +109,7 @@
 				{/if}
 
 				<span class="bold"> Email: </span>
-				{$user.email}
+				{user.email}
 				{#if edit_mode}
 					<Button
 						class="small round"
@@ -102,7 +117,7 @@
 						on:click={() => {
 							$module = {
 								module: Edit_Email,
-								user: $user
+								user: user
 							};
 						}}
 					>
@@ -113,8 +128,8 @@
 				{/if}
 
 				<span class="bold"> Address: </span>
-				{#if $user.address.line && $user.address.local_area && $user.address.state && $user.address.country && $user.address.postal_code}
-					{$user.address.line}, {$user.address.local_area}, {$user.address.state}, {$user.address
+				{#if user.address.line && user.address.local_area && user.address.state && user.address.country && user.address.postal_code}
+					{user.address.line}, {user.address.local_area}, {user.address.state}, {user.address
 						.country}.
 				{:else}
 					No Address
@@ -127,7 +142,7 @@
 						on:click={() => {
 							$module = {
 								module: Edit_Address,
-								user: $user
+								user: user
 							};
 						}}
 					>
@@ -137,9 +152,9 @@
 					<div />
 				{/if}
 
-				{#if $user.address.line && $user.address.local_area && $user.address.state && $user.address.country && $user.address.postal_code}
+				{#if user.address.line && user.address.local_area && user.address.state && user.address.country && user.address.postal_code}
 					<span class="bold"> Postal Code: </span>
-					{$user.address.postal_code}
+					{user.address.postal_code}
 				{/if}
 			</div>
 
@@ -149,7 +164,7 @@
 				<p>
 					<span class="bold"> Account: </span>
 					<br />
-					Balance: ₦{$user.acc_balance.toLocaleString()}
+					Balance: ₦{user.acc_balance.toLocaleString()}
 				</p>
 				<Button
 					class="small"
@@ -166,9 +181,9 @@
 			<br />
 
 			<div class="horizontal">
-				{#if me}
+				{#if user.key == $me.key}
 					<Button class="small" href="/orders">Orders</Button>
-					{#if $user.roles.includes('admin')}
+					{#if user.roles.includes('admin')}
 						<Button class="small" href="/admin">Admin</Button>
 					{/if}
 					{#if edit_mode}

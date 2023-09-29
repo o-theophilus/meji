@@ -1,35 +1,30 @@
 <script>
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import User from './user.svelte';
 	import Pagination from '$lib/pagination.svelte';
+	import Status from './status.svelte';
+	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let data;
 	$: users = data.users;
 	$: total_page = data.total_page;
+	let { page_name } = data;
 
-	let page_name = 'users';
+	let status = ['all', 'confirm', 'anonymous'];
 </script>
 
 <Meta title="Users" description="Users" />
+
+<Status {page_name} {status} default_value="all" />
 
 <Card>
 	<b> User{users.length > 1 ? 's' : ''} </b>
 	<br />
 	<br />
 	{#each users as x}
-		{x.key}
-		<br />
-		{x.name}
-		<br />
-		{x.email}
-		<br />
-		{x.phone}
-		<br />
-		<!-- {x.address}
-		<br /> -->
-		{x.photo}
-		<br />
-		<br />
+		<User user={x} />
 	{:else}
 		no item here
 	{/each}

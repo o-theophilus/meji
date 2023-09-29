@@ -1,42 +1,133 @@
 <script>
+	import { slide } from 'svelte/transition';
+	import { circInOut } from 'svelte/easing';
+
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Button from '$lib/button.svelte';
+	import ButtonFold from '$lib/button.fold.svelte';
 
 	export let data;
-	let { missing } = data;
 	let { unused } = data;
+	let { users } = data;
+	let { items } = data;
+	let { adverts } = data;
+
+	let open_unused = unused.length > 0;
+	let open_users = users.length > 0;
+	let open_items = items.length > 0;
+	let open_adverts = adverts.length > 0;
 </script>
 
-<Meta title="Activity" description="Activity" />
+<Meta title="Admin Dashboard" description="Admin Dashboard" />
 
 <Card>
-	<b> Manage Photos</b>
-	<br />
-	<br />
-	<span class="bold"> Missing Photos</span>
-	<br />
-	<br />
-	{#each missing as x}
-		<a href="/{x.slug}">{x.name}</a>
+	<div class="title">
+		Unused Photos ({unused.length})
+		<ButtonFold
+			open={open_unused}
+			on:click={() => {
+				open_unused = !open_unused;
+			}}
+		/>
+	</div>
 
-		<br />
-	{:else}
-		no item here
-	{/each}
-	<br />
-	<br />
-	<span class="bold"> Unused Photos </span>
-	<br />
-	<br />
-	{#each unused as x}
-		<img src={`${x}/100` || '/image/item.png'} alt="missing" onerror="this.src='/image/item.png'" />
-	{:else}
-		no item here
-	{/each}
+	{#if open_unused}
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+			<br />
+			{#each unused as x}
+				<img
+					src={`${x}/100` || '/image/item.png'}
+					alt="missing"
+					onerror="this.src='/image/item.png'"
+				/>
+			{:else}
+				no item here
+			{/each}
+		</div>
+	{/if}
+</Card>
+
+<Card>
+	<div class="title">
+		Users with missing Photos ({users.length})
+		<ButtonFold
+			open={open_users}
+			on:click={() => {
+				open_users = !open_users;
+			}}
+		/>
+	</div>
+
+	{#if open_users}
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+			<br />
+			{#each users as x}
+				<a href="/profile?user={x.key}">{x.name}</a>
+
+				<br />
+			{:else}
+				no item here
+			{/each}
+		</div>
+	{/if}
+</Card>
+
+<Card>
+	<div class="title">
+		Items with missing Photos ({items.length})
+		<ButtonFold
+			open={open_items}
+			on:click={() => {
+				open_items = !open_items;
+			}}
+		/>
+	</div>
+
+	{#if open_items}
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+			<br />
+			{#each items as x}
+				<a href="/{x.key}">{x.name}</a>
+
+				<br />
+			{:else}
+				no item here
+			{/each}
+		</div>
+	{/if}
+</Card>
+
+<Card>
+	<div class="title">
+		Adverts with missing photos ({adverts.length})
+		<ButtonFold
+			open={open_adverts}
+			on:click={() => {
+				open_adverts = !open_adverts;
+			}}
+		/>
+	</div>
+
+	{#if open_adverts}
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+			<br />
+			{#each adverts as x}
+				<a href="/{x.key}?advert=true">{x.name}</a>
+
+				<br />
+			{:else}
+				no item here
+			{/each}
+		</div>
+	{/if}
 </Card>
 
 <style>
-	.bold {
-		font-weight: 500;
+	.title {
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 </style>

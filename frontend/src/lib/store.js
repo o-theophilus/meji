@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { page } from '$app/stores';
-import { invalidate } from '$app/navigation';
+import { invalidate,invalidateAll } from '$app/navigation';
 
 export const _tick = writable("");
 export const tick = (data) => {
@@ -33,7 +33,12 @@ export const set_state = (page_name, key, value) => {
 	state.set(temp)
 	loading.set(true)
 
-	invalidate(() => true);
+	// invalidate(() => true);
+	// invalidate();
+	// invalidate("profile");
+	invalidate("/profile?search=ee");
+	// invalidateAll()
+	console.log("invalidate");
 };
 
 export const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

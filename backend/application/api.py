@@ -17,7 +17,7 @@ def get_photo(key, thumbnail=False):
     return send_file(photo, mimetype="image/jpg")
 
 
-@bp.get("/admin/photos")
+@bp.get("/photo_error")
 def file_list():
     db = database()
 
@@ -34,40 +34,52 @@ def file_list():
             "error": "unauthorized access"
         })
 
-    items_photos = []
-    items = []
-    for x in db:
-        if x["type"] == "item":
-            items_photos += x["photos"]
-            items.append({
-                "name": x["name"],
-                "slug": x["slug"],
-                "photos": x["photos"]
-            })
-
     stored_photos = []
     paths = drive().list()["names"]
     for x in paths:
         stored_photos.append(x.split('/')[1])
 
-    missing = [x for x in items_photos if x not in stored_photos]
-    unused = [f"{request.host_url}photos/{x}"
-              for x in stored_photos if x not in items_photos]
+    users = []
+    items = []
+    adverts = []
+    used_photos = []
+    for x in db:
 
-    missing_slug = []
-    for x in items:
-        for y in missing:
-            if y in x["photos"] and x["slug"] not in missing_slug:
-                missing_slug.append({
+        if x["type"] == "user" and x["photo"]:
+            used_photos.append(x["photo"])
+            if x["photo"] not in stored_photos:
+                users.append({
+                    "key": x["key"],
                     "name": x["name"],
-                    "slug": x["slug"]
                 })
-                continue
+
+        elif x["type"] == "item" and x["photos"] != []:
+            used_photos += x["photos"]
+            if not all(y in stored_photos for y in x["photos"]):
+                items.append({
+                    "key": x["key"],
+                    "name": x["name"],
+                })
+
+        elif x["type"] == "advert":
+            x["photos"] = [y for y in x["photos"].values() if y is not None]
+            if x["photos"] != []:
+                used_photos += x["photos"]
+                if not all(y in stored_photos for y in x["photos"]):
+                    adverts.append({
+                        "key": x["item"],
+                        "name": x["key"],
+                    })
+
+    unused = [f"{request.host_url}photos/{x}"
+              for x in stored_photos if x not in used_photos]
 
     return jsonify({
         "status": 200,
-        "missing": missing_slug,
-        "unused": unused
+        "unused": unused,
+        "users": users,
+        "items": items,
+        "adverts": adverts,
     })
 
 
@@ -115,6 +127,24 @@ def unused_anon():
 
 
 @bp.get("/fix")
+def test():
+    a = {
+        "a": 1,
+        "b": 2,
+        "d": None,
+        "c": 5,
+    }
+
+    print(a.keys())
+    print(a.values())
+    print(list(a.values()))
+    print([value for value in a.values() if value is not None])
+
+    return jsonify({
+        "status": 200,
+    })
+
+
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")

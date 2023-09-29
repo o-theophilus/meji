@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .schema import user_schema
 from .tools import token_to_user
-from .database import database, query
+from .database import database
 from math import ceil
 import re
 
@@ -26,16 +26,21 @@ def get_user(key):
             "error": "unauthorized access"
         })
 
-    user = query({"type": "user", "key": key}, db=db)
-    if not user or me["key"] == user["key"]:
+    user = None
+    for x in db:
+        if x["type"] == "user" and (x["key"] == key or x["email"] == key):
+            user = x
+            break
+
+    if not user:
         return jsonify({
             "status": 400,
-            "error": "invalid token"
+            "error": "not found"
         })
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user, db)
     })
 
 
@@ -56,7 +61,7 @@ def get_all_users():
             "error": "unauthorized access"
         })
 
-    status = request.args["status"] if "status" in request.args else "confirm"
+    status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
     sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
