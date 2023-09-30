@@ -19,7 +19,7 @@
 			go('tag');
 		}}
 	>
-		tags
+		Tags
 	</button>
 	<button
 		on:click={() => {

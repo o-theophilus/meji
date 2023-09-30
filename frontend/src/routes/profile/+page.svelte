@@ -14,7 +14,8 @@
 	import Edit_Address from './_address.svelte';
 	import Add_Voucher from './_voucher.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Search from './search.svelte';
+	import Search from '$lib/search.svelte';
+	import Center from '$lib/center.svelte';
 
 	export let data;
 	$: user = data.user;
@@ -29,31 +30,35 @@
 
 <Meta title={user.name} description={user.name} />
 
-{#if $me.roles.includes('admin')}
-	<Search {page_name} />
-{/if}
+<Center>
+	<br />
+	<div class="title">
+		User Details
+		{#if user.key == $me.key}
+			<Button
+				class="small"
+				on:click={() => {
+					edit_mode = !edit_mode;
+				}}
+			>
+				<SVG type="edit" size="12" />
+				Edit: {edit_mode ? 'On' : 'Off'}
+			</Button>
+		{/if}
+	</div>
+</Center>
 
 <Card>
+	{#if $me.roles.includes('admin')}
+		<Search {page_name} />
+		<br />
+	{/if}
+
 	{#if data.error}
 		<span class="error">
 			{data.error}
 		</span>
 	{:else}
-		<div class="title">
-			User Details
-			{#if user.key == $me.key}
-				<Button
-					class="small"
-					on:click={() => {
-						edit_mode = !edit_mode;
-					}}
-				>
-					<SVG type="edit" size="12" />
-					Edit Mode: {edit_mode ? 'On' : 'Off'}
-				</Button>
-			{/if}
-		</div>
-
 		<div class="block">
 			<div class="photo">
 				<Photo {edit_mode} />
@@ -180,8 +185,8 @@
 
 				<br />
 
-				<div class="horizontal">
-					{#if user.key == $me.key}
+				{#if user.key == $me.key}
+					<div class="horizontal">
 						<Button class="small" href="/orders">Orders</Button>
 						{#if user.roles.includes('admin')}
 							<Button class="small" href="/admin">Admin</Button>
@@ -192,9 +197,14 @@
 								Setting
 							</Button>
 						{/if}
+					</div>
+
+					<br />
+
+					<div class="horizontal">
 						<Logout />
-					{/if}
-				</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -206,6 +216,8 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+
+		color: var(--ac1);
 	}
 
 	.block {
@@ -213,7 +225,7 @@
 		display: flex;
 		flex-direction: column;
 
-		margin-top: var(--sp2);
+		/* margin-top: var(--sp2); */
 	}
 	.block > div {
 		width: 100%;

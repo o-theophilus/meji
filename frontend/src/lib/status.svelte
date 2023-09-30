@@ -20,7 +20,7 @@
 </script>
 
 <div class="status">
-	<div class="block">
+	<div class="buttons">
 		{#each status as x}
 			<Button
 				class="small {value == x ? 'primary' : ''}"
@@ -46,11 +46,9 @@
 		gap: var(--sp1);
 		align-items: center;
 		justify-content: space-between;
-
-		margin-top: var(--sp2);
 	}
 
-	.block {
+	.buttons {
 		display: flex;
 		gap: var(--sp1);
 		flex-wrap: wrap;
@@ -58,6 +56,7 @@
 
 	.special {
 		padding-left: var(--sp1);
-		border-left: 2px solid var(--ac3);
+		border-left: 2px solid var(--ac4);
+		flex-shrink: 0;
 	}
 </style>

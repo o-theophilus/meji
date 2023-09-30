@@ -1,14 +1,17 @@
 <script>
-	import { onMount } from 'svelte';
-	import { user } from '$lib/store.js';
+	import { user, module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
+	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
+	import Add from './_add.svelte';
+	import Center from '$lib/center.svelte';
 
-	import Status_Bar from './status.svelte';
-	import Search from '../profile/search.svelte';
-	import Tag from './search.tag.svelte';
+	import Status from '$lib/status.svelte';
+	import Search from '$lib/search.svelte';
+	import Tag from './_tag.svelte';
 
 	import View from './page_view.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -16,46 +19,44 @@
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
-	let page_name = 'shop';
+	let { page_name } = data;
 
-	let tags = [];
-	let show_tags = false;
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-		resp = await resp.json();
-		if (resp.status == 200) {
-			tags = resp.tags;
-		}
-	});
+	let status = ['live', 'draft', 'delete'];
 </script>
 
 <Meta title="Shop" description="Shop" />
-<Status_Bar {page_name} />
-<Search {page_name}>
-	<button
-		on:click|stopPropagation={() => {
-			show_tags = !show_tags;
-		}}
-	>
-		Tags
-	</button>
 
-	{#if show_tags}
-		<Tag
-			{page_name}
-			{tags}
-			on:close={() => {
-				show_tags = false;
-			}}
-		/>
-	{/if}
-</Search>
-
-<Card>
+<Center>
+	<br />
 	<div class="title">
 		<b> Shop </b>
 		<View {page_name} />
 	</div>
+</Center>
+
+<Card>
+	{#if $user.roles.includes('admin')}
+		<Status {page_name} {status} default_value="live">
+			<Button
+				class="small primary"
+				on:click={() => {
+					$module = {
+						module: Add
+					};
+				}}
+			>
+				<SVG type="add" size="12" />
+				Add
+			</Button>
+		</Status>
+		<br />
+	{/if}
+
+	<Search {page_name}>
+		<Tag {page_name} />
+	</Search>
+
+	<br />
 
 	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
@@ -64,9 +65,9 @@
 			no item here
 		{/each}
 	</div>
-</Card>
 
-<Pagination {page_name} {total_page} />
+	<Pagination {page_name} {total_page} />
+</Card>
 
 <style>
 	.title {
@@ -74,17 +75,6 @@
 		justify-content: space-between;
 		align-items: center;
 		gap: var(--sp2);
-	}
-
-	button {
-		background: none;
-		border: none;
 		color: var(--ac1);
-		cursor: pointer;
-
-		padding: var(--sp2) var(--sp4);
-	}
-	button:hover {
-		color: var(--cl1);
 	}
 </style>

@@ -3,8 +3,10 @@
 	import { onMount } from 'svelte';
 
 	import Card from '$lib/card.svelte';
+	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Pagination from '$lib/pagination.svelte';
+	// import Search from '$lib/search.svelte';
 	import Log from './log.svelte';
 	import StatusType from './status_type.svelte';
 	import StatusAction from './status_action.svelte';
@@ -12,10 +14,10 @@
 	export let data;
 	$: logs = data.logs;
 	$: total_page = data.total_page;
+	let { page_name } = data;
 
-	let page_name = 'log';
 	let type = '';
-	let action = '';
+	let status = '';
 
 	let actions = {
 		item: ['viewed', 'added_photo'],
@@ -27,16 +29,19 @@
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('status')) {
-			action = params.get('status');
-			type = action.split(':')[0];
+			status = params.get('status');
+			type = status.split(':')[0];
 		}
 	});
 </script>
 
 <Meta title="Logs" description="Logs" />
 
-<StatusType {page_name} {actions} bind:type bind:action />
-<StatusAction {page_name} {actions} bind:type bind:action />
+<!-- <Search {page_name} /> -->
+<Center>
+	<StatusType {page_name} {actions} bind:type bind:status />
+	<StatusAction {page_name} {actions} bind:type bind:status />
+</Center>
 
 <Card>
 	<b> Log{logs.length > 1 ? 's' : ''} </b>
@@ -47,6 +52,7 @@
 	{:else}
 		no item here
 	{/each}
+
 	<Pagination {page_name} {total_page} />
 </Card>
 

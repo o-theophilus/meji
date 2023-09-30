@@ -1,0 +1,230 @@
+<script>
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { set_state } from '$lib/store.js';
+	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
+
+	export let page_name;
+	let selected = [];
+	let _selected = [];
+	let multiply = false;
+	let _multiply = false;
+	let search = '';
+	let tags = [];
+	let open_tags = false;
+
+	let _selected_string = '';
+	let selected_string = '';
+	let changed = false;
+	$: {
+		_selected_string = _selected.sort((a, b) => a - b).join(',');
+		selected_string = selected.sort((a, b) => a - b).join(',');
+		changed = _selected_string != selected_string || (multiply != _multiply && selected.length > 1);
+	}
+
+	onMount(async () => {
+		let params = $page.url.searchParams;
+		if (params.has('tag')) {
+			let x = params.get('tag');
+			if (x.slice(-2) == ':x') {
+				x = x.slice(0, -2);
+				multiply = true;
+			}
+			selected = x.split(',');
+		}
+
+		_selected = [...selected];
+		_multiply = multiply;
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
+		resp = await resp.json();
+		if (resp.status == 200) {
+			tags = resp.tags;
+		}
+	});
+</script>
+
+<svelte:window
+	on:click={() => {
+		if (open_tags) {
+			open_tags = false;
+		}
+	}}
+/>
+
+<div class="tag_position">
+	<button
+		on:click|stopPropagation={() => {
+			open_tags = !open_tags;
+		}}
+	>
+		Tags
+	</button>
+
+	{#if open_tags}
+		<div class="tag_block" on:click|stopPropagation role="presentation">
+			All Tags
+
+			<br />
+			<br />
+
+			<div class="input">
+				<input bind:value={search} type="text" placeholder="Search" />
+				{#if search}
+					<div class="clear">
+						<Button
+							class="round small"
+							on:click={() => {
+								search = '';
+							}}
+						>
+							<SVG type="close" />
+						</Button>
+					</div>
+				{/if}
+			</div>
+
+			<br />
+
+			<div class="tags">
+				{#each tags as x}
+					<label class:hide={!x.includes(search)}>
+						<input bind:group={selected} type="checkbox" value={x} />
+						{x}
+					</label>
+				{/each}
+			</div>
+
+			<br />
+
+			<div class="line">
+				<label class="multiply">
+					<input bind:checked={multiply} type="checkbox" />
+					{#if multiply}
+						x
+					{:else}
+						+
+					{/if}
+				</label>
+
+				<div class="line">
+					<Button
+						disabled={selected.length == 0}
+						class="small hover_red"
+						on:click={() => {
+							selected = [];
+							multiply = false;
+						}}
+					>
+						<SVG type="close" />
+					</Button>
+
+					<Button
+						disabled={!changed}
+						class=" small"
+						on:click={() => {
+							let temp = '';
+							if (selected.length > 0) {
+								temp = selected_string;
+								if (multiply) {
+									temp = `${temp}:x`;
+								}
+							}
+
+							open_tags = false;
+							set_state(page_name, 'tag', temp);
+							_selected = [...selected];
+						}}
+					>
+						<SVG type="check" />
+						Ok
+					</Button>
+				</div>
+			</div>
+		</div>
+	{/if}
+</div>
+
+<style>
+	.tag_position {
+		position: relative;
+	}
+	button {
+		padding: var(--sp2) var(--sp3);
+		border-radius: var(--sp1) 0 0 var(--sp1);
+		background: none;
+		border: 2px solid var(--ac4);
+		border-right: none;
+
+		color: var(--ac2);
+		cursor: pointer;
+	}
+	button:hover {
+		border-color: var(--cl2);
+		background-color: var(--cl2);
+		color: var(--ac5_);
+	}
+
+	.tag_block {
+		position: absolute;
+		z-index: 1;
+		top: 60px;
+		left: 0;
+
+		padding: var(--sp3);
+		border-radius: var(--sp0);
+		background-color: var(--ac5);
+		color: var(--ac2);
+
+		border: 2px solid var(--ac3);
+	}
+
+	.line {
+		display: flex;
+		gap: var(--sp1);
+		justify-content: space-between;
+		align-items: center;
+	}
+	.input {
+		position: relative;
+	}
+
+	input {
+		padding-right: calc(var(--sp3) * 2);
+		width: unset;
+	}
+	.clear {
+		position: absolute;
+		top: 0;
+		right: var(--sp2);
+
+		display: flex;
+		align-items: center;
+		height: 100%;
+	}
+
+	.tags {
+		max-height: 200px;
+		overflow-y: auto;
+	}
+	label {
+		display: flex;
+		gap: var(--sp2);
+		margin-top: var(--sp0);
+		/* cursor: pointer; */
+
+		font-size: small;
+	}
+	.multiply {
+		text-transform: lowercase;
+	}
+	.hide {
+		display: none;
+	}
+
+	input[type='checkbox'] {
+		width: 20px;
+		cursor: pointer;
+	}
+</style>

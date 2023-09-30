@@ -8,11 +8,11 @@
 
 	export let page_name;
 	let search = '';
-	let search_init = '';
+	let _search = '';
 
 	const submit = () => {
-		if (search_init != search) {
-			search_init = `${search}`;
+		if (_search != search) {
+			_search = `${search}`;
 			set_state(page_name, 'search', search);
 		}
 	};
@@ -22,13 +22,14 @@
 		if (params.has('search')) {
 			search = params.get('search');
 		}
-		search_init = `${search}`;
+		_search = `${search}`;
 	});
 </script>
 
-<div class="search">
-	<Center>
+<!-- <div class="search">
+	<Center> -->
 		<div class="block">
+			<slot />
 			<div class="input">
 				<div class="float svg">
 					<SVG type="search" size="15" />
@@ -36,6 +37,7 @@
 
 				<input
 					class:show_close={search != ''}
+					class:slot={Object.keys($$slots).length > 0}
 					type="text"
 					placeholder="Search"
 					bind:value={search}
@@ -60,16 +62,16 @@
 					{/if}
 				</div>
 			</div>
-			<button class="primary" on:click={submit} disabled={search == search_init}>Search</button>
+			<button class="primary" on:click={submit} disabled={search == _search}>Search</button>
 		</div>
-	</Center>
-</div>
+	<!-- </Center>
+</div> -->
 
 <style>
-	.search {
+	/* .search {
 		background-color: var(--ac6);
 		padding: var(--sp2) 0;
-	}
+	} */
 
 	.block {
 		display: flex;
@@ -87,15 +89,19 @@
 
 	input {
 		padding: var(--sp2);
-		border: 2px solid var(--ac3);
+		border: 2px solid var(--ac4);
+		border-right: none;
 		border-radius: var(--sp1) 0 0 var(--sp1);
 		padding-left: var(--sp5);
 
 		color: var(--ac1);
 	}
+	.slot {
+		border-radius: 0;
+	}
 	input:hover,
 	input:focus {
-		border-color: var(--cl1);
+		border-color: var(--ac3);
 	}
 	.show_close {
 		padding-right: var(--sp5);
@@ -124,6 +130,9 @@
 		background-color: var(--cl1);
 		color: var(--ac5_);
 		cursor: pointer;
+	}
+	button:hover {
+		background-color: var(--cl2);
 	}
 	button:disabled {
 		background-color: var(--ac3);

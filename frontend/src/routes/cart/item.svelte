@@ -138,7 +138,7 @@
 		width: 100px;
 		height: var(--height);
 
-		border-radius: var(--sp1);
+		border-radius: var(--sp0);
 	}
 	.details {
 		display: flex;

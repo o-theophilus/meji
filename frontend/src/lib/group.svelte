@@ -10,16 +10,16 @@
 	export let name = 'Group Name';
 	export let url = '';
 	let items = [];
-	
+
 	onMount(async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${url}`);
 		resp = await resp.json();
-		
+
 		if (resp.status == 200) {
 			items = resp.items;
 		}
 	});
-	
+
 	let open = true;
 	const set_open = () => {
 		open = !open;
@@ -27,14 +27,15 @@
 </script>
 
 {#if items && items.length > 0}
+	<div id={name.toLowerCase().replace(/ /g, '_')} />
 	<Card>
 		<div class="title">
 			{name}
-			<slot {open} {set_open}/>
-			
+			<slot {open} {set_open} />
 		</div>
 
 		{#if open}
+			<br />
 			<div
 				class="item_area"
 				class:list={$user.setting.item_view == 'list'}

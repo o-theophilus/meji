@@ -9,6 +9,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Center from '$lib/center.svelte';
 	import Item from './item.svelte';
 	import Button from '$lib/button.svelte';
 	import Login from '../auth/login.svelte';
@@ -62,8 +63,12 @@
 
 <Meta title="Cart" description="Cart" />
 
-<Card>
+<Center>
+	<br />
 	<div class="title">Cart</div>
+</Center>
+
+<Card>
 	<div class="items">
 		{#each items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
@@ -108,13 +113,12 @@
 		font-weight: 600;
 		display: flex;
 		justify-content: space-between;
+		color: var(--ac1);
 	}
 
 	.items {
 		display: grid;
 		gap: var(--sp2);
-
-		margin-top: var(--sp4);
 	}
 
 	.total_amount {

@@ -42,16 +42,24 @@ def get_many():
             "error": "invalid token"
         })
 
+    # search = request.args["search"] if "search" in request.args else ""
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     size = int(request.args["size"]) if "size" in request.args else 24
     status = request.args["status"] if "status" in request.args else ""
     status = status.split(":") if status else status
+    is_admin = "admin" in request.args
+
+    if is_admin and "admin"not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
 
     logs = []
     for x in db:
         if x["type"] != "log":
             continue
-        if x["user"] != user["key"]:
+        if not is_admin and x["user"] != user["key"]:
             continue
         if (
             status

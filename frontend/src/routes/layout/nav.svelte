@@ -6,70 +6,85 @@
 	import Login from '../auth/login.svelte';
 
 	$: segment = $page.url.pathname || undefined;
+	let width;
 </script>
 
 <nav>
-	<a href="/" class:active={segment == '/'}>
-		{#if segment == '/'}
-			<SVG type="home_active" size="15" />
-		{:else}
-			<SVG type="home" size="15" />
-		{/if}
-		Home
+	<a href="/" class:active={segment == '/'} bind:clientWidth={width}>
+		<div class="label">
+			{#if segment == '/'}
+				<SVG type="home_active" size="15" />
+			{:else}
+				<SVG type="home" size="15" />
+			{/if}
+			Home
+		</div>
+		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
 	<a href="/shop{$state.shop || ''}" class:active={segment == '/shop'}>
-		{#if segment == '/shop'}
-			<SVG type="shop_active" size="15" />
-		{:else}
-			<SVG type="shop" size="15" />
-		{/if}
-		Shop
+		<div class="label">
+			{#if segment == '/shop'}
+				<SVG type="shop_active" size="15" />
+			{:else}
+				<SVG type="shop" size="15" />
+			{/if}
+			Shop
+		</div>
+		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
 	<a href="/save{$state.save || ''}" class:active={segment == '/save'}>
-		{#if segment == '/save'}
-			<SVG type="like_active" size="15" />
-		{:else}
-			<SVG type="like" size="15" />
-		{/if}
-		Save
-		{#if $user && $user.saves.length > 0}
-			{#key $user.saves.length}
-				<div class="circle">
-					{$user.saves.length}
-				</div>
-			{/key}
-		{/if}
-
+		<div class="label">
+			{#if segment == '/save'}
+				<SVG type="like_active" size="15" />
+			{:else}
+				<SVG type="like" size="15" />
+			{/if}
+			Save
+			{#if $user && $user.saves.length > 0}
+				{#key $user.saves.length}
+					<div class="circle">
+						{$user.saves.length}
+					</div>
+				{/key}
+			{/if}
+		</div>
+		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
 	<a href="/cart" class:active={segment == '/cart'}>
-		{#if segment == '/cart'}
-			<SVG type="cart_active" size="15" />
-		{:else}
-			<SVG type="cart" size="15" />
-		{/if}
-		Cart
-		{#if $user && $user.cart.length > 0}
-			{#key $user.cart.length}
-				<div class="circle">
-					{$user.cart.length}
-				</div>
-			{/key}
-		{/if}
+		<div class="label">
+			{#if segment == '/cart'}
+				<SVG type="cart_active" size="15" />
+			{:else}
+				<SVG type="cart" size="15" />
+			{/if}
+			Cart
+			{#if $user && $user.cart.length > 0}
+				{#key $user.cart.length}
+					<div class="circle">
+						{$user.cart.length}
+					</div>
+				{/key}
+			{/if}
+		</div>
+		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
 
 	{#if $user && $user.login}
 		<a href="/profile" class:active={segment == '/profile'}>
-			{#if segment == '/profile'}
-				<SVG type="user_active" size="15" />
-			{:else}
-				<SVG type="user" size="15" />
-			{/if}
-			User
-			<div class="circle profile">✓</div>
+			<div class="label">
+				{#if segment == '/profile'}
+					<SVG type="user_active" size="15" />
+				{:else}
+					<SVG type="user" size="15" />
+				{/if}
+				User
+				<div class="circle profile">✓</div>
+			</div>
+			<div class="hover" style:--height="{width}px" />
 			<div class="indicator" />
 		</a>
 	{:else}
@@ -83,8 +98,11 @@
 				};
 			}}
 		>
-			<SVG type="user" size="15" />
-			Login
+			<div class="label">
+				<SVG type="user" size="15" />
+				Login
+			</div>
+			<div class="hover" style:--height="{width}px" />
 		</button>
 	{/if}
 </nav>
@@ -102,10 +120,8 @@
 		position: relative;
 
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 4px;
 
 		width: 100%;
 		border: none;
@@ -116,6 +132,30 @@
 		font-size: small;
 		text-decoration: none;
 		cursor: pointer;
+
+		overflow: hidden;
+
+		transition: var(--trans1);
+	}
+
+	.label {
+		position: relative;
+		z-index: 1;
+
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--sp0);
+	}
+
+	.hover {
+		position: absolute;
+
+		background-color: transparent;
+		width: 0;
+		height: 0;
+		border-radius: 50%;
 
 		transition: var(--trans1);
 	}
@@ -131,11 +171,16 @@
 		transition: var(--trans1);
 	}
 
-	a:hover,
-	button:hover,
 	.active {
 		color: var(--cl1);
 	}
+	a:hover .hover,
+	button:hover .hover {
+		width: 100%;
+		height: var(--height);
+		background-color: var(--ac6);
+	}
+
 	.active .indicator {
 		background-color: var(--cl1);
 	}
@@ -146,10 +191,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 
 		position: absolute;
-		top: 5px;
-		right: calc(50% - (var(--size) * 1.4));
+		top: 0;
+		right: -40%;
 
 		width: var(--size);
 		height: var(--size);
@@ -166,10 +212,13 @@
 			box-shadow: unset;
 		}
 
-		button,
-		a {
-			flex-direction: unset;
+		a,
+		button {
 			padding: var(--sp2);
+		}
+
+		.label {
+			flex-direction: unset;
 		}
 		.circle {
 			position: unset;

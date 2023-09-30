@@ -96,23 +96,26 @@ def shop():
         multiply = True
         tag = tag[:-2]
     tags = tag.split(",")
+    tags = [] if not tags[0] else tags
+    print(tags)
+    # print(tags[0])
 
     items = []
-    for y in db:
-        if y["type"] != "item":
+    for x in db:
+        if x["type"] != "item":
             continue
-        if status and y["status"] != status:
+        if status and x["status"] != status:
             continue
-        if search and not re.search(search, y["name"], re.IGNORECASE):
+        if search and not re.search(search, x["name"], re.IGNORECASE):
             continue
         if tag:
             if multiply:
-                if not all(y in y["tags"] for y in tags):
+                if not all(y in x["tags"] for y in tags):
                     continue
-            elif not any(y in tags for y in y["tags"]):
+            elif not any(y in tags for y in x["tags"]):
                 continue
 
-        items.append(y)
+        items.append(x)
 
     reverse = sort in ["latest", "name (z-a)", "expensive", "discount",
                        "rating"]

@@ -5,17 +5,17 @@
 	export let page_name;
 	export let actions;
 	export let type;
-	export let action;
+	export let status;
 </script>
 
 {#if type}
-	<div class="block">
+	<div class="buttons">
 		{#each actions[type] as x}
 			{@const action_ = `${type}:${x}`}
 			<Button
-				class="small {action == action_ ? 'primary' : ''}"
+				class="small {status == action_ ? 'primary' : ''}"
 				on:click={() => {
-					action = action_;
+					status = action_;
 					set_state(page_name, 'status', action_);
 				}}
 			>
@@ -26,7 +26,7 @@
 {/if}
 
 <style>
-	.block {
+	.buttons {
 		display: flex;
 		gap: var(--sp1);
 		flex-wrap: wrap;

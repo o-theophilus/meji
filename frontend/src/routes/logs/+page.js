@@ -2,17 +2,18 @@ import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
-	
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/log`)	
-	if (url.search){	
+
+	let page_name = "logs"
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/log`)
+	if (url.search) {
 		let temp = get(state)
-		temp.log = url.search
+		temp[page_name] = url.search
 		state.set(temp)
-		
+
 		backend.search = url.search
 	}
-	
-	let  a = await parent();
+
+	let a = await parent();
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -25,6 +26,7 @@ export const load = async ({ fetch, url, parent }) => {
 
 
 	if (resp.status == 200) {
+		resp.page_name = page_name
 		return resp
-    }
+	}
 }

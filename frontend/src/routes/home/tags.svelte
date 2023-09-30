@@ -39,6 +39,8 @@
 			</Button>
 		</div>
 
+		<br />
+
 		<div class="item_area">
 			{#each tags.slice(0, 6) as tag}
 				<Tag {tag} />

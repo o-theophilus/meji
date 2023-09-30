@@ -3,9 +3,7 @@
 	import Meta from '$lib/meta.svelte';
 	import User from './user.svelte';
 	import Pagination from '$lib/pagination.svelte';
-	import Status from './status.svelte';
-	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
+	import Status from '$lib/status.svelte';
 
 	export let data;
 	$: users = data.users;
@@ -28,6 +26,7 @@
 	{:else}
 		no item here
 	{/each}
+	
 	<Pagination {page_name} {total_page} />
 </Card>
 

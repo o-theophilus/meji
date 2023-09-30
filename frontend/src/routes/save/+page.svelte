@@ -8,17 +8,24 @@
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Pagination from '$lib/pagination.svelte';
+	import Center from '$lib/center.svelte';
 
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
+	let { page_name } = data;
 </script>
 
 <Meta title="Saved" description="Saved" />
 
-<Card>
-	<b> Saved </b>
+<Center>
+	<br />
+	<div class="title">
+		<b> Saved Items</b>
+	</div>
+</Center>
 
+<Card>
 	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
@@ -38,9 +45,16 @@
 			no item here
 		{/each}
 	</div>
+
+	<Pagination {page_name} {total_page} />
 </Card>
 
-<Pagination page_name="save" {total_page} />
-
 <style>
+	.title {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: var(--sp2);
+		color: var(--ac1);
+	}
 </style>

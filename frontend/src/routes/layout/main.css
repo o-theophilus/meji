@@ -72,7 +72,6 @@ h6 {
 	gap: var(--sp2);
 	grid-template-columns: repeat(2, 1fr);
 	
-	margin-top: var(--sp4);
 	color: var(--ac1);
 }
 @media screen and (min-width: 700px) {

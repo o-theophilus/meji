@@ -10,6 +10,7 @@
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Center from '$lib/center.svelte';
 
 	import Group from '$lib/group.svelte';
 
@@ -35,7 +36,8 @@
 
 <Meta title={item?.name} description={item.info} image={item.thumbnail} />
 
-<Card>
+<Center>
+	<br />
 	<div class="title">
 		Item Details
 		{#if $user && $user.roles.includes('admin')}
@@ -46,11 +48,13 @@
 				}}
 			>
 				<SVG type="edit" size="12" />
-				Edit Mode: {edit_mode ? 'On' : 'Off'}
+				Edit: {edit_mode ? 'On' : 'Off'}
 			</Button>
 		{/if}
 	</div>
+</Center>
 
+<Card>
 	<section class="block">
 		<div class="photo">
 			<Photo {item} {edit_mode} />
@@ -83,7 +87,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp3);
-		margin-top: var(--sp3);
 	}
 	.block > div {
 		width: 100%;
@@ -108,5 +111,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+
+		color: var(--ac1);
 	}
 </style>
