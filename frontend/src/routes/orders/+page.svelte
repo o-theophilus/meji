@@ -27,7 +27,7 @@
 </Center>
 
 <Card>
-	<Status {page_name} {status} default_value="ordered">
+	<Status {page_name} array={status} default_value="ordered">
 		{#if $user.roles.includes('admin')}
 			<Button
 				class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"

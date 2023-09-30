@@ -5,7 +5,8 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
-	import Log from '../../logs/log.svelte';
+	import Center from '$lib/center.svelte';
+	import Log from '../../../logs/log.svelte';
 	import Activate from './_activate.svelte';
 
 	let error = {};
@@ -46,21 +47,27 @@
 
 <Meta title="Voucher" description="Voucher" />
 
-<Card>
+<Center>
+	<br />
 	<b> Voucher{voucher.length > 1 ? 's' : ''} </b>
-	<br />
-	<br />
+</Center>
+
+<Card>
 	{voucher.date}
 	<br />
-	<a href="/admin/vouchers/{voucher.key}">
-		{voucher.key}
-	</a>
+
+	{voucher.key}
+
 	<br />
+	<br />
+
 	<div class="code">
 		₦{voucher.value.toLocaleString()}
 		<br />
 		{voucher.code}
 	</div>
+
+	<br />
 
 	Status: {voucher.status}
 	{#if voucher.validity}
@@ -129,5 +136,9 @@
 		font-size: large;
 		font-weight: 500;
 		text-transform: uppercase;
+	}
+
+	b {
+		color: var(--ac1);
 	}
 </style>

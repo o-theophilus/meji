@@ -4,6 +4,7 @@
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Center from '$lib/center.svelte';
 
 	import Delete from './_delete.svelte';
 	import Password from './_password.svelte';
@@ -11,10 +12,12 @@
 
 <Meta title="Setting" description="Setting" />
 
-<Card>
+<Center>
+	<br />
 	<b> Settings </b>
-	<br />
-	<br />
+</Center>
+
+<Card>
 	<Button
 		on:click={() => {
 			$module = { module: Password };
@@ -31,3 +34,9 @@
 		Delete Account
 	</Button>
 </Card>
+
+<style>
+	b {
+		color: var(--ac1);
+	}
+</style>

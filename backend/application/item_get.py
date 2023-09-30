@@ -98,7 +98,6 @@ def shop():
     tags = tag.split(",")
     tags = [] if not tags[0] else tags
     print(tags)
-    # print(tags[0])
 
     items = []
     for x in db:

@@ -86,7 +86,7 @@
 
 	<Button class="hover_red" on:click={validate}>
 		<SVG type="close" size="10" />
-		Cancel Order
+		Submit
 	</Button>
 </Form>
 

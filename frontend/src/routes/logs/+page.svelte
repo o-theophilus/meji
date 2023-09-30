@@ -39,14 +39,16 @@
 
 <!-- <Search {page_name} /> -->
 <Center>
-	<StatusType {page_name} {actions} bind:type bind:status />
-	<StatusAction {page_name} {actions} bind:type bind:status />
+	<br />
+	<b> Log{logs.length > 1 ? 's' : ''} </b>
 </Center>
 
 <Card>
-	<b> Log{logs.length > 1 ? 's' : ''} </b>
+	<StatusType {page_name} {actions} bind:type bind:status />
+	<StatusAction {page_name} {actions} bind:type bind:status />
+
 	<br />
-	<br />
+
 	{#each logs as log}
 		<Log {log} />
 	{:else}
@@ -57,4 +59,7 @@
 </Card>
 
 <style>
+	b {
+		color: var(--ac1);
+	}
 </style>

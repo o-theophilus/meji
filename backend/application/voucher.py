@@ -6,6 +6,7 @@ from .schema import user_schema, log_schema
 from .log import log_template
 from math import ceil
 from datetime import datetime, date
+import re
 
 bp = Blueprint("voucher", __name__)
 
@@ -20,9 +21,26 @@ def voucher_schema(voucher):
     }
 
 
-def get_vouchers(db):
+@bp.get("/voucher")
+def get_vouchers(db=None):
+    if not db:
+        db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
     status = request.args["status"] if "status" in request.args else ""
-    # search = request.args["search"] if "search" in request.args else ""
+    search = request.args["search"] if "search" in request.args else ""
     # sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     size = int(request.args["size"]) if "size" in request.args else 24
@@ -33,17 +51,20 @@ def get_vouchers(db):
             continue
         if status and x["status"] != status:
             continue
+        if search and not re.search(search, x["key"], re.IGNORECASE):
+            continue
+
         vouchers.append(x)
 
     # vouchers = sorted(logs, key=lambda d: d["date_u"])
 
     total_page = ceil(len(vouchers) / size)
-
     start = (page_no - 1) * size
     stop = start + size
     vouchers = vouchers[start: stop]
 
     return {
+        "status": 200,
         "vouchers": [voucher_schema(x) for x in vouchers],
         "total_page": total_page
     }
@@ -86,29 +107,6 @@ def get(key):
             "code": voucher["code"],
             "logs": [log_schema(x, db) for x in logs]
         }
-    })
-
-
-@ bp.get("/voucher")
-def get_many():
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    return jsonify({
-        "status": 200,
-        **get_vouchers(db)
     })
 
 

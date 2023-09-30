@@ -13,7 +13,8 @@
 	import Search from '$lib/search.svelte';
 	import Tag from './_tag.svelte';
 
-	import View from './page_view.svelte';
+	import View from './view.svelte';
+	import Sort from '../../lib/sort.svelte';
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
@@ -22,6 +23,16 @@
 	let { page_name } = data;
 
 	let status = ['live', 'draft', 'delete'];
+	let sorts = [
+		'latest',
+		'oldest',
+		'name (a-z)',
+		'name (z-a)',
+		'cheap',
+		'expensive',
+		'discount',
+		'rating'
+	];
 </script>
 
 <Meta title="Shop" description="Shop" />
@@ -30,13 +41,16 @@
 	<br />
 	<div class="title">
 		<b> Shop </b>
-		<View {page_name} />
+		<div class="line">
+			<View {page_name} />
+			<Sort {page_name} array={sorts} default_value="latest" />
+		</div>
 	</div>
 </Center>
 
 <Card>
 	{#if $user.roles.includes('admin')}
-		<Status {page_name} {status} default_value="live">
+		<Status {page_name} array={status} default_value="live">
 			<Button
 				class="small primary"
 				on:click={() => {
@@ -76,5 +90,11 @@
 		align-items: center;
 		gap: var(--sp2);
 		color: var(--ac1);
+	}
+
+	.line {
+		display: flex;
+		gap: var(--sp2);
+		/* align-items: center; */
 	}
 </style>

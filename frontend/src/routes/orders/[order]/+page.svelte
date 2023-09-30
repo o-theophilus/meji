@@ -4,6 +4,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import Center from '$lib/center.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	import Item from './items.svelte';
@@ -27,11 +28,12 @@
 
 <Meta title="Order" description="Order" />
 
-<Card>
+<Center>
+	<br />
 	<b> Order</b>
-	<br />
-	<br />
+</Center>
 
+<Card>
 	<div class="grid">
 		<span> ID: </span>
 		<span class="value">
@@ -180,5 +182,8 @@
 	.line {
 		display: flex;
 		gap: var(--sp1);
+	}
+	b {
+		color: var(--ac1);
 	}
 </style>

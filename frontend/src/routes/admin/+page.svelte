@@ -3,14 +3,17 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
+	import Center from '$lib/center.svelte';
 </script>
 
 <Meta title="Admin Dashboard" description="Admin Dashboard" />
 
-<Card>
+<Center>
+	<br />
 	<b> Dashboard </b>
-	<br />
-	<br />
+</Center>
+
+<Card>
 	<Button class="wide" href="/admin/users">Users</Button>
 	<br />
 	<Button class="wide" href="/admin/vouchers">Vouchers</Button>
@@ -21,3 +24,9 @@
 	<br />
 	<Button class="wide" href="/admin/photos">Photos</Button>
 </Card>
+
+<style>
+	b {
+		color: var(--ac1);
+	}
+</style>

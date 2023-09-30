@@ -5,8 +5,8 @@
 
 	import Button from '$lib/button.svelte';
 
-	export let page_name = '';
-	export let status;
+	export let page_name;
+	export let array;
 	export let default_value = '';
 	let key = 'status';
 	let value = default_value;
@@ -21,7 +21,7 @@
 
 <div class="status">
 	<div class="buttons">
-		{#each status as x}
+		{#each array as x}
 			<Button
 				class="small {value == x ? 'primary' : ''}"
 				on:click={() => {

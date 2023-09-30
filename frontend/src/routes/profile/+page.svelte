@@ -180,6 +180,7 @@
 						>
 							Add Voucher
 						</Button>
+						<Button class="small" href="/profile/transaction">Transaction</Button>
 					{/if}
 				</div>
 

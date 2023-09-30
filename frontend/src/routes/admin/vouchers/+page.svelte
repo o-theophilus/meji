@@ -8,6 +8,9 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
+	import Voucher from './voucher.svelte';
+	import Center from '$lib/center.svelte';
+	import Search from '$lib/search.svelte';
 
 	export let data;
 	$: vouchers = data.vouchers;
@@ -23,37 +26,33 @@
 </script>
 
 <Meta title="Vouchers" description="Vouchers" />
-<Status {page_name} {status} default_value="all">
-	<Button
-		class="small primary"
-		on:click={() => {
-			$module = {
-				module: Add
-			};
-		}}
-	>
-		<SVG type="add" size="12" />
-		Add
-	</Button>
-</Status>
+
+<Center>
+	<br />
+	<b> Voucher{vouchers.length > 1 ? 's' : ''} </b>
+</Center>
 
 <Card>
-	<b> Voucher{vouchers.length > 1 ? 's' : ''} </b>
-	<br />
-	<br />
-	{#each vouchers as x}
-		{x.date}
-		<br />
-		{x.status}
-		<br />
-		<a href="/admin/vouchers/{x.key}">
-			{x.key}
-		</a>
-		<br />
-		{x.value}
-		<br />
+	<Status {page_name} array={status} default_value="all">
+		<Button
+			class="small primary"
+			on:click={() => {
+				$module = {
+					module: Add
+				};
+			}}
+		>
+			<SVG type="add" size="12" />
+			Add
+		</Button>
+	</Status>
 
-		<br />
+	<br />
+	<Search {page_name} />
+	<br />
+
+	{#each vouchers as x}
+		<Voucher voucher={x} />
 	{:else}
 		no item here
 	{/each}
@@ -62,4 +61,7 @@
 </Card>
 
 <style>
+	b {
+		color: var(--ac1);
+	}
 </style>

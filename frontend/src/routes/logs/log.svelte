@@ -1,12 +1,20 @@
 <script>
-	export let log;
+	import Button from '$lib/button.svelte';
 
-	let url = '';
-	if (log.entity.type == 'order') {
-		url = `/orders`;
+	export let log;
+	
+	let href = '';
+
+	if (log.entity.type == 'item') {
+		href = ``;
+	} else if (log.entity.type == 'order') {
+		href = `/orders`;
 	} else if (log.entity.type == 'voucher') {
-		url = `/admin/vouchers`;
+		href = `/admin/vouchers`;
 	}
+
+	href = `${href}/${log.entity.key}`;
+	console.log(href);
 </script>
 
 <section>
@@ -15,18 +23,19 @@
 		{log.status}
 	</span>
 	<br />
-	<!-- <a href="/{log.user.key}"> -->
-	<a href="/profile">
+	<Button class="link" href="/profile?search={log.user.key}">
 		{log.user.name}
-	</a>:
+	</Button>
+
+	:
 	{log.action}
-	<a href="{url}/{log.entity.key}" data-sveltekit-preload-data="tap">
+	<Button class="link" {href}>
 		{#if log.entity.name}
 			{log.entity.name}
 		{:else}
 			{log.entity.key}
 		{/if}
-	</a>
+	</Button>
 
 	{#if log.misc}
 		{#each Object.entries(log.misc) as [key, value]}
@@ -50,9 +59,5 @@
 	}
 	.error {
 		background-color: var(--cl4);
-	}
-	a {
-		color: var(--cl1);
-		text-decoration: none;
 	}
 </style>

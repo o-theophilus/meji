@@ -81,7 +81,14 @@ def get_all_users():
             continue
         if status and x["status"] != status:
             continue
-        if search and not re.search(search, x["name"], re.IGNORECASE):
+        if (
+            search
+            and not re.search(
+                search,
+                f"{x['key']} {x['name']} {x['email']}",
+                re.IGNORECASE
+            )
+        ):
             continue
         users.append(x)
 
@@ -92,7 +99,8 @@ def get_all_users():
     elif sort in ["name (a-z)", "name (z-a)"]:
         sort = "name"
 
-    users = sorted(users, key=lambda d: d[sort], reverse=reverse)
+    users = sorted(users, key=lambda d: d[sort].lower() if isinstance(
+        d[sort], str) else d[sort], reverse=reverse)
 
     total_page = ceil(len(users) / size)
     start = (page_no - 1) * size
