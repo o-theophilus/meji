@@ -14,7 +14,6 @@
 	}
 
 	href = `${href}/${log.entity.key}`;
-	console.log(href);
 </script>
 
 <section>
