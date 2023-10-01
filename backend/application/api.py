@@ -126,7 +126,6 @@ def unused_anon():
     })
 
 
-@bp.get("/fix")
 def test():
     a = {
         "a": 1,
@@ -184,18 +183,21 @@ def delete_db():
     })
 
 
+# @bp.get("/fix")
 def fix():
     db = database()
 
     changed = []
     for x in db:
-        if (
-            x["type"] == "log"
-            and x["entity_type"] == "advert"
-            and x["action"] == "updated photos"
-        ):
-            x["action"] = "added_photo"
+        if x["type"] == "advert":
+            x["key"] = f"{x['item']}_advert"
             changed.append(x)
+
+        # if x["type"] == "log" and x["entity_type"] == "advert":
+        #     advert = query({"type": "advert", "key": x["entity"]}, db=db)
+        #     if advert:
+        #         x["entity"] = f"{advert['item']}_advert"
+        #         changed.append(x)
 
     print(len(changed))
     database(changed)

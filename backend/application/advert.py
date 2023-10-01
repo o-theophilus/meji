@@ -4,7 +4,6 @@ from .database import database, query
 from .schema import advert_schema
 from .storage import storage
 from .tools import now
-from uuid import uuid4
 from .log import log_template
 from PIL import Image
 from math import ceil
@@ -17,7 +16,7 @@ dimensions = ["300x300", "300x600", "600x300", "900x300"]
 
 def advert_template(item):
     return {
-        "key": uuid4().hex,
+        "key": f"{item}_advert",
         "date_c": now(),
         "date_u": now(),
         "type": "advert",

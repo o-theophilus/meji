@@ -40,7 +40,9 @@
 <!-- <Search {page_name} /> -->
 <Center>
 	<br />
-	<b> Log{logs.length > 1 ? 's' : ''} </b>
+	<b>
+		{$page.url.searchParams.has('admin') ? 'All' : 'My'} Log{logs.length > 1 ? 's' : ''}
+	</b>
 </Center>
 
 <Card>
@@ -49,7 +51,7 @@
 
 	<br />
 
-	{#each logs as log}
+	{#each logs as log (log.key)}
 		<Log {log} />
 	{:else}
 		no item here

@@ -36,6 +36,7 @@
 
 		{#if open}
 			<br />
+			<br />
 			<div
 				class="item_area"
 				class:list={$user.setting.item_view == 'list'}

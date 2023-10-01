@@ -18,6 +18,7 @@
 	import Center from '$lib/center.svelte';
 
 	export let data;
+	console.log(data);
 	$: user = data.user;
 	let edit_mode = false;
 	let page_name = 'profile';
@@ -28,13 +29,13 @@
 	}
 </script>
 
-<Meta title={user.name} description={user.name} />
+<!-- <Meta title={user.name} description={user.name} /> -->
 
 <Center>
 	<br />
 	<div class="title">
 		User Details
-		{#if user.key == $me.key}
+		{#if user && user.key == $me.key}
 			<Button
 				class="small"
 				on:click={() => {

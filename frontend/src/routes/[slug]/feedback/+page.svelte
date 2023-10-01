@@ -6,6 +6,7 @@
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Pagination from '$lib/pagination.svelte';
+	import Center from '$lib/center.svelte';
 
 	import Review from './review.svelte';
 	import Rating from './rating.svelte';
@@ -40,6 +41,11 @@
 		}
 	});
 </script>
+
+<Center>
+	<br />
+	<b>Feedback{feedbacks.length > 1 ? 's' : ''}</b>
+</Center>
 
 <Card>
 	<section>
@@ -92,5 +98,9 @@
 		section {
 			flex-direction: row-reverse;
 		}
+	}
+
+	b{
+		color: var(--ac1);
 	}
 </style>

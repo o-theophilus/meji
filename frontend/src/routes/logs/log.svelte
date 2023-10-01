@@ -2,15 +2,17 @@
 	import Button from '$lib/button.svelte';
 
 	export let log;
-	
-	let href = '';
+	console.log(log);
 
+	let href = '';
 	if (log.entity.type == 'item') {
-		href = ``;
+		href = `/${log.entity.key}`;
 	} else if (log.entity.type == 'order') {
-		href = `/orders`;
+		href = `/orders/${log.entity.key}`;
 	} else if (log.entity.type == 'voucher') {
-		href = `/admin/vouchers`;
+		href = `/admin/vouchers/${log.entity.key}`;
+	} else if (log.entity.type == 'advert') {
+		href = `/${log.entity.key}?edit=true&advert=true`;
 	}
 
 	href = `${href}/${log.entity.key}`;
