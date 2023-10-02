@@ -137,14 +137,20 @@ def log_schema(log, db):
     }
 
 
-def advert_schema(advert):
+def advert_schema(advert, db):
+    item = query({"type": "item", "key": advert["item"]}, db=db)
+
     def get_url(dim):
         if advert['photos'][dim]:
             return f"{request.host_url}photos/{advert['photos'][dim]}"
         return None
 
     return {
-        "item": advert["item"],
+        "item": {
+            "key": item["key"],
+            "name": item["name"],
+            "photo": f"{request.host_url}photos/{item['photos'][0]}",
+        },
         "photos": {
             "300x300": get_url('300x300'),
             "300x600": get_url('300x600'),

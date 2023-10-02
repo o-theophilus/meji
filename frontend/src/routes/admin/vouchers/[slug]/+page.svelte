@@ -6,7 +6,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
 	import Center from '$lib/center.svelte';
-	import Log from '../../../logs/log.svelte';
+	import Logs from './logs.svelte';
 	import Activate from './_activate.svelte';
 
 	let error = {};
@@ -17,16 +17,15 @@
 		$portal = '';
 	}
 
-	const submit = async (status) => {
+	const submit = async (method, url) => {
 		error = {};
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${voucher.key}`, {
-			method: 'put',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/${url}/${voucher.key}`, {
+			method: method,
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
-			},
-			body: JSON.stringify({ status })
+			}
 		});
 
 		resp = await resp.json();
@@ -43,13 +42,17 @@
 			error = resp;
 		}
 	};
+
+	let open = false;
 </script>
 
 <Meta title="Voucher" description="Voucher" />
 
 <Center>
 	<br />
-	<b> Voucher{voucher.length > 1 ? 's' : ''} </b>
+	<div class="title">
+		Voucher{voucher.length > 1 ? 's' : ''}
+	</div>
 </Center>
 
 <Card>
@@ -63,8 +66,8 @@
 
 	<div class="code">
 		₦{voucher.value.toLocaleString()}
-		<br />
-		{voucher.code}
+		<!-- <br />
+		{voucher.code} -->
 	</div>
 
 	<br />
@@ -74,8 +77,12 @@
 		<br />
 		Validity: {voucher.validity}
 	{/if}
-	<br />
-	<br />
+
+	{#if ['active', 'inactive'].includes(voucher.status)}
+		<br />
+		<br />
+	{/if}
+
 	<div class="horizontal">
 		{#if voucher.status == 'inactive'}
 			<Button
@@ -89,40 +96,32 @@
 			>
 				Activate
 			</Button>
-		{:else}
 			<Button
 				class="small"
 				on:click={() => {
-					submit('inactive');
+					submit('delete', 'voucher');
+				}}
+			>
+				delete
+			</Button>
+		{:else if voucher.status == 'active'}
+			<Button
+				class="small"
+				on:click={() => {
+					submit('put', 'voucher_');
 				}}
 			>
 				deactivate
 			</Button>
 		{/if}
-		<Button
-			class="small"
-			on:click={() => {
-				submit('delete');
-			}}
-		>
-			delete
-		</Button>
 	</div>
 	{#if error.error}
 		<br />
 		<div class="error">{error.error}</div>
 	{/if}
-	<br />
-	<b> Log{voucher.logs.length > 1 ? 's' : ''} </b>
-	<br />
-	<br />
-
-	{#each voucher.logs as log}
-		<Log {log} />
-	{:else}
-		no item here
-	{/each}
 </Card>
+
+<Logs voucher_key={voucher.key} />
 
 <style>
 	.horizontal {
@@ -138,7 +137,11 @@
 		text-transform: uppercase;
 	}
 
-	b {
+	.title {
+		/* display: flex; */
+		/* justify-content: space-between; */
+		/* align-items: center; */
+		font-weight: 600;
 		color: var(--ac1);
 	}
 </style>

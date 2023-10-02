@@ -4,7 +4,6 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
-	import Button from '$lib/button.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 
 	export let data;
@@ -113,7 +112,7 @@
 		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
 			<br />
 			{#each adverts as x}
-				<a href="/{x.key}?advert=true">{x.name}</a>
+				<a href="/{x.key}?edit=true&advert=true">{x.name}</a>
 
 				<br />
 			{:else}

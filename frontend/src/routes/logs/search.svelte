@@ -11,7 +11,7 @@
 		all: ['all'],
 		item: ['all', 'viewed', 'added_photo'],
 		order: ['all', 'created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'],
-		voucher: ['all', 'created', 'changed_status', 'activated', 'used'],
+		voucher: ['all', 'created', 'activated', 'deactivated', 'used', 'deleted'],
 		advert: ['all', 'created', 'added_photo', 'deleted']
 	};
 

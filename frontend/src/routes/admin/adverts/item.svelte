@@ -1,15 +1,13 @@
 <script>
-	export let user;
+	export let advert;
 </script>
 
-<a href="/profile?search={user.key}">
-	<img src={user.photo || '/image/user.png'} alt={user.name} />
+<a href="/{advert.item.key}?edit=true&advert=true">
+	<img src={advert.item.photo || '/image/item.png'} alt={advert.item.name} />
 	<div class="details">
 		<div class="name">
-			{user.name}
+			{advert.item.name}
 		</div>
-
-		email:<span> {user.email} </span>
 	</div>
 </a>
 
@@ -38,12 +36,7 @@
 	}
 
 	.name {
-		font-weight: 500;
 		color: var(--ac1);
-	}
-
-	span {
-		word-wrap: break-word;
-		word-break: break-all;
+		font-weight: 500;
 	}
 </style>

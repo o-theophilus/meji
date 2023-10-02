@@ -2,8 +2,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 
-	// import Status_Bar from './status.svelte';
-	// import Search from './search.svelte';
+	import Item from './item.svelte';
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
@@ -14,8 +13,6 @@
 </script>
 
 <Meta title="Advert" description="Advert" />
-<!-- <Status_Bar {page_name} /> -->
-<!-- <Search {page_name} /> -->
 
 <Card>
 	<div class="title">
@@ -24,10 +21,7 @@
 	<br />
 	<br />
 	{#each adverts as advert}
-		<a href="/{advert.item}">
-			{advert.item}
-		</a>
-		<br />
+		<Item {advert} />
 	{:else}
 		no item here
 	{/each}

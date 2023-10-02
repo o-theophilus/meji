@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now
 from uuid import uuid4
 from .database import database, query
-from .schema import user_schema, log_schema
+from .schema import user_schema
 from .log import log_template
 from math import ceil
 from datetime import datetime, date
@@ -21,7 +21,7 @@ def voucher_schema(voucher):
     }
 
 
-@bp.get("/voucher")
+@bp.get("/vouchers")
 def get_vouchers(db=None):
     if not db:
         db = database()
@@ -93,20 +93,9 @@ def get(key):
             "error": "invalid request"
         })
 
-    logs = []
-    for x in db:
-        if x["type"] == "log" and x["entity"] == voucher["key"]:
-            logs.append(x)
-
-    logs = sorted(logs, key=lambda d: d["date"], reverse=True)
-
     return jsonify({
         "status": 200,
-        "voucher": {
-            **voucher_schema(voucher),
-            "code": voucher["code"],
-            "logs": [log_schema(x, db) for x in logs]
-        }
+        "voucher": voucher_schema(voucher),
     })
 
 
@@ -165,7 +154,8 @@ def create():
             "date_c": now(),
 
             "value": request.json["value"],
-            "status": "inactive",  # active, used, deleted, expired
+            "status": "inactive",  # active, used,
+            # deleted, expired
             "validity": None,
 
             "user": None
@@ -190,72 +180,6 @@ def create():
 
 
 @ bp.put("/voucher/<key>")
-def status(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    if (
-        "status" not in request.json
-        or not request.json["status"]
-        or request.json["status"] not in ["inactive", "active"]
-    ):
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    voucher = query({"type": "voucher", "key": key}, db=db)
-    if not voucher:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    log = log_template(
-        user["key"],
-        "changed_status",
-        voucher["key"],
-        "voucher",
-        misc={
-            "from": voucher["status"],
-            "to": request.json["status"]
-        }
-    )
-    voucher["status"] = request.json["status"]
-
-    database([voucher, log])
-
-    logs = []
-    for x in db:
-        if x["type"] == "log" and x["entity"] == voucher["key"]:
-            logs.append(x)
-
-    logs.append(log)
-    logs = sorted(logs, key=lambda d: d["date"], reverse=True)
-
-    return jsonify({
-        "status": 200,
-        "voucher": {
-            **voucher_schema(voucher),
-            "code": voucher["code"],
-            "logs": [log_schema(x, db) for x in logs]
-        }
-    })
-
-
-@ bp.put("/activate_voucher/<key>")
 def activate(key):
     db = database()
 
@@ -331,11 +255,85 @@ def activate(key):
 
     return jsonify({
         "status": 200,
-        "voucher": {
-            **voucher_schema(voucher),
-            "code": voucher["code"],
-            "logs": [log_schema(x, db) for x in logs]
-        }
+        "voucher": voucher_schema(voucher)
+    })
+
+
+@ bp.put("/voucher_/<key>")
+def inactivate(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    voucher = query({"type": "voucher", "key": key}, db=db)
+    if not voucher or voucher["status"] != "active":
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    voucher["status"] = "inactive"
+    log = log_template(
+        user["key"],
+        "deactivated",
+        voucher["key"],
+        "voucher"
+    )
+    database([voucher, log])
+
+    return jsonify({
+        "status": 200,
+        "voucher": voucher_schema(voucher)
+    })
+
+
+@ bp.delete("/voucher/<key>")
+def delete(key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    voucher = query({"type": "voucher", "key": key}, db=db)
+    if not voucher or voucher["status"] != "inactive":
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    voucher["status"] = "deleted"
+    log = log_template(
+        user["key"],
+        "deleted",
+        voucher["key"],
+        "voucher"
+    )
+    database([voucher, log])
+
+    return jsonify({
+        "status": 200,
+        "voucher": voucher_schema(voucher)
     })
 
 
@@ -388,7 +386,6 @@ def use():
         })
 
     user["acc_balance"] += voucher["value"]
-    voucher["value"] = 0
     voucher["status"] = "used"
 
     log = log_template(

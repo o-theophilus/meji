@@ -4,7 +4,7 @@ import { state, loading } from "$lib/store.js"
 export const load = async ({ fetch, url, parent }) => {
 
 	let page_name = "vouchers"
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/voucher`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/vouchers`)
 	if (url.search) {
 		let temp = get(state)
 		temp[page_name] = url.search

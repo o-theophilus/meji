@@ -8,6 +8,7 @@
 	import Status from '$lib/status.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
+	import Order from './order.svelte';
 
 	export let data;
 	$: orders = data.orders;
@@ -47,22 +48,7 @@
 	<br />
 
 	{#each orders as x}
-		<Button class="wide" href="/orders/{x.key}">
-			<span>
-				{#if x.user == $user.key && $page.url.searchParams.has('admin')}
-					*
-				{/if}
-				{x.key}
-				<span class="small">
-					-
-					{#each x.items as y, i}
-						{#if i != 0},{/if}
-						{y.name}
-					{/each}
-				</span>
-			</span>
-		</Button>
-		<div class="space" />
+		<Order order={x} />
 	{:else}
 		no item here
 	{/each}
@@ -73,13 +59,5 @@
 <style>
 	b {
 		color: var(--ac1);
-	}
-
-	.space:not(:last-child) {
-		margin-top: var(--sp1);
-	}
-	.small {
-		font-weight: normal;
-		font-size: smaller;
 	}
 </style>

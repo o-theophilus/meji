@@ -64,7 +64,7 @@ def get_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert)
+        "advert": advert_schema(advert, db)
     })
 
 
@@ -106,7 +106,7 @@ def get_all_advert():
 
     return jsonify({
         "status": 200,
-        "adverts": [advert_schema(x) for x in adverts],
+        "adverts": [advert_schema(x, db) for x in adverts],
         "total_page": total_page
     })
 
@@ -206,7 +206,7 @@ def add_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert),
+        "advert": advert_schema(advert, db),
         "error": error
     })
 
@@ -297,7 +297,7 @@ def delete_photo(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert),
+        "advert": advert_schema(advert, db),
     })
 
 
@@ -362,5 +362,5 @@ def delete_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert_template(item["key"]))
+        "advert": advert_schema(advert_template(item["key"]), db)
     })

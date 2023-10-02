@@ -1,20 +1,30 @@
 <script>
-	import Button from '$lib/button.svelte';
 	export let voucher;
 </script>
 
-{voucher.date}
-<br />
-<Button class="link" href="/admin/vouchers/{voucher.key}">
-	{voucher.key}
-</Button>
-<br />
-{voucher.value}
-|
-{voucher.status}
-<br />
-
-<br />
+<a href="/admin/vouchers/{voucher.key}">
+	{voucher.date}
+	<br />
+	<div class="name">
+		{voucher.key}
+	</div>
+	{voucher.value}
+	|
+	{voucher.status}
+</a>
 
 <style>
+	a {
+		display: block;
+		padding: var(--sp2) 0;
+		border-bottom: 1px solid var(--ac4);
+
+		color: var(--ac2);
+		text-decoration: none;
+	}
+
+	.name {
+		color: var(--ac1);
+		font-weight: 500;
+	}
 </style>

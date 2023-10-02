@@ -36,7 +36,7 @@
 
 	const submit = async () => {
 		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/activate_voucher/${voucher.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${voucher.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

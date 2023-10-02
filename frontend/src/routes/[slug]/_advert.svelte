@@ -204,7 +204,7 @@
 		}
 	};
 	onMount(async () => {
-		if (item.key != advert.item) {
+		if (item.key != advert.item?.key) {
 			await load_advert();
 		}
 		active_photo = {

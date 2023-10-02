@@ -16,10 +16,13 @@
 </script>
 
 <section>
+	<div
+		class="status"
+		class:good={log.status == 200}
+		class:caution={![200, 400].includes(log.status)}
+		class:error={log.status == 400}
+	/>
 	{log.date}
-	<span class="status" class:error={log.status == 400}>
-		{log.status}
-	</span>
 	<br />
 
 	<Button class="link" href="/profile?search={log.user.key}">
@@ -47,15 +50,26 @@
 
 <style>
 	section {
-		padding: var(--sp0) 0;
-	}
-	section:not(:last-child) {
-		border-bottom: 2px solid var(--ac4);
+		padding: var(--sp2) 0;
+		border-bottom: 1px solid var(--ac4);
 	}
 
 	.status {
+		display: inline-block;
+		--size: 10px;
+		width: var(--size);
+		height: var(--size);
+
+		border-radius: 50%;
+
 		background-color: var(--cl5);
 		color: var(--ac5_);
+	}
+	.good {
+		background-color: var(--cl5);
+	}
+	.caution {
+		background-color: var(--cl3);
 	}
 	.error {
 		background-color: var(--cl4);
