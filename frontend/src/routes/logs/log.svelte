@@ -2,7 +2,6 @@
 	import Button from '$lib/button.svelte';
 
 	export let log;
-	console.log(log);
 
 	let href = '';
 	if (log.entity.type == 'item') {
@@ -12,10 +11,8 @@
 	} else if (log.entity.type == 'voucher') {
 		href = `/admin/vouchers/${log.entity.key}`;
 	} else if (log.entity.type == 'advert') {
-		href = `/${log.entity.key}?edit=true&advert=true`;
+		href = `/${log.entity.key.split('_')[0]}?edit=true&advert=true`;
 	}
-
-	href = `${href}/${log.entity.key}`;
 </script>
 
 <section>
@@ -24,12 +21,14 @@
 		{log.status}
 	</span>
 	<br />
+
 	<Button class="link" href="/profile?search={log.user.key}">
 		{log.user.name}
 	</Button>
 
-	:
 	{log.action}
+	{log.entity.type}
+
 	<Button class="link" {href}>
 		{#if log.entity.name}
 			{log.entity.name}

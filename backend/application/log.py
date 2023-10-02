@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .schema import log_schema
-from .database import database
+from .database import database, query
 from math import ceil
 from .tools import now
 from uuid import uuid4
+import re
 
 bp = Blueprint("log", __name__)
 
@@ -31,7 +32,7 @@ def log_template(
     }
 
 
-@bp.get("/log")
+@bp.get("/logs")
 def get_many():
     db = database()
 
@@ -42,33 +43,61 @@ def get_many():
             "error": "invalid token"
         })
 
-    # search = request.args["search"] if "search" in request.args else ""
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     size = int(request.args["size"]) if "size" in request.args else 24
-    status = request.args["status"] if "status" in request.args else ""
-    status = status.split(":") if status else status
-    is_admin = "admin" in request.args
 
-    if is_admin and "admin"not in user["roles"]:
+    search = "all:all:all:all"
+    if "search" in request.args:
+        search = request.args["search"]
+
+    search = search.split(":")
+    if len(search) != 4:
         return jsonify({
             "status": 400,
-            "error": "unauthorized access"
+            "error": "invalid search"
         })
+
+    _user, _type, _action, _entity = search
+
+    if "admin" not in user["roles"]:
+        _user = user["key"]
 
     logs = []
     for x in db:
         if x["type"] != "log":
             continue
-        if not is_admin and x["user"] != user["key"]:
-            continue
-        if (
-            status
-            and (
-                x["entity_type"] != status[0]
-                or x["action"] != status[1]
-            )
-        ):
-            continue
+
+        if _user != 'all':
+            y = query({"type": "user", "key": x["user"]}, db=db)
+
+            if not y or not re.search(
+                _user,
+                f"{y['key']} {y['name']} {y['email']}",
+                re.IGNORECASE
+            ):
+                continue
+
+        if _type != 'all':
+            if x["entity_type"] != _type:
+                continue
+
+        if _action != 'all':
+            if x["action"] != _action:
+                continue
+
+        if _entity != 'all':
+            y = query({"type": x["entity_type"], "key": x["entity"]}, db=db)
+            if not y or not re.search(
+                _entity,
+                f"""
+                {y['key'] if 'key' in y else ""}
+                {y['name'] if 'name' in y else ""}
+                {y['email'] if 'email' in y else ""}
+                """,
+                re.IGNORECASE
+            ):
+                continue
+
         logs.append(x)
 
     logs = sorted(logs, key=lambda d: d["date"], reverse=True)

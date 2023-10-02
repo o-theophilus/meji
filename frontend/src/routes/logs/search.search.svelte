@@ -1,50 +1,22 @@
 <script>
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { set_state } from '$lib/store.js';
+	import { createEventDispatcher } from 'svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	export let page_name;
+	let emit = createEventDispatcher();
+
 	export let placeholder = 'Search';
-	let search = '';
-	let _search = '';
-
-	const submit = () => {
-		if (_search != search) {
-			_search = `${search}`;
-			set_state(page_name, 'search', search);
-		}
-	};
-
-	onMount(async () => {
-		let params = $page.url.searchParams;
-		if (params.has('search')) {
-			search = params.get('search');
-		}
-		_search = `${search}`;
-	});
+	export let search;
+	export let show_search = false;
 </script>
 
-<div class="block">
-	<slot />
+<div class="block" class:show_search>
 	<div class="input">
 		<div class="float svg">
 			<SVG type="search" size="15" />
 		</div>
 
-		<input
-			class:show_close={search != ''}
-			class:slot={Object.keys($$slots).length > 0}
-			type="text"
-			{placeholder}
-			bind:value={search}
-			on:keypress={(e) => {
-				if (e.key == 'Enter') {
-					submit();
-				}
-			}}
-		/>
+		<input class:show_close={search != ''} type="text" {placeholder} bind:value={search} />
 
 		<div class="float clear">
 			{#if search}
@@ -52,7 +24,6 @@
 					class="small round"
 					on:click={() => {
 						search = '';
-						submit();
 					}}
 				>
 					<SVG type="close" size="15" />
@@ -60,7 +31,15 @@
 			{/if}
 		</div>
 	</div>
-	<button class="primary" on:click={submit} disabled={search == _search}>Search</button>
+
+	<button
+		class="primary"
+		on:click={() => {
+			emit('ok');
+		}}
+	>
+		Search
+	</button>
 </div>
 
 <style>
@@ -81,15 +60,17 @@
 	input {
 		padding: var(--sp2);
 		border: 2px solid var(--ac4);
-		border-right: none;
-		border-radius: var(--sp1) 0 0 var(--sp1);
+		border-radius: var(--sp1);
 		padding-left: var(--sp5);
 
 		color: var(--ac1);
 	}
-	.slot {
-		border-radius: 0;
+
+	.show_search input {
+		border-right: none;
+		border-radius: var(--sp1) 0 0 var(--sp1);
 	}
+
 	input:hover,
 	input:focus {
 		border-color: var(--ac3);
@@ -115,12 +96,17 @@
 	}
 
 	button {
+		display: none;
+
 		padding: var(--sp2) var(--sp3);
 		border: none;
 		border-radius: 0 var(--sp1) var(--sp1) 0;
 		background-color: var(--cl1);
 		color: var(--ac5_);
 		cursor: pointer;
+	}
+	.show_search button {
+		display: unset;
 	}
 	button:hover {
 		background-color: var(--cl2);

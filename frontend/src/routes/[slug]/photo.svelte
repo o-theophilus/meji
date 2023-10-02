@@ -1,6 +1,4 @@
 <script>
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 	import { loading, portal, toast, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
@@ -141,18 +139,6 @@
 		advert = $portal.data;
 		$portal = '';
 	}
-
-	onMount(() => {
-		if ($page.url.searchParams.has('advert') && edit_mode) {
-			$module = {
-				module: Advert,
-				item,
-				advert
-			};
-			$page.url.searchParams.delete('advert');
-			window.history.replaceState(history.state, '', $page.url.href);
-		}
-	});
 </script>
 
 <img

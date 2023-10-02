@@ -1,0 +1,74 @@
+<script>
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { user as _user, set_state } from '$lib/store.js';
+
+	import Search from './search.search.svelte';
+
+	export let page_name;
+
+	let actions = {
+		all: ['all'],
+		item: ['all', 'viewed', 'added_photo'],
+		order: ['all', 'created', 'ordered', 'changed_delivery_date', 'changed_status', 'canceled'],
+		voucher: ['all', 'created', 'changed_status', 'activated', 'used'],
+		advert: ['all', 'created', 'added_photo', 'deleted']
+	};
+
+	let user = '';
+	let type = 'all';
+	let action = '';
+	let entity = '';
+	$: search = `${user || 'all'}:${type}:${action || 'all'}:${entity || 'all'}`;
+
+	onMount(() => {
+		let params = $page.url.searchParams;
+		if (params.has('search')) {
+			let temp = params.get('search');
+			temp = temp.split(':');
+			if (temp.length == 4) {
+				user = temp[0] != 'all' ? temp[0] : '';
+				type = temp[1];
+				action = temp[2];
+				entity = temp[3] != 'all' ? temp[3] : '';
+			}
+		}
+	});
+</script>
+
+{#if $_user.roles.includes('admin')}
+	<Search placeholder="Search for User" bind:search={user} />
+{/if}
+<select
+	bind:value={type}
+	on:input={() => {
+		action = 'all';
+	}}
+>
+	{#each Object.entries(actions) as [type, action]}
+		<option value={type}>
+			{type}
+		</option>
+	{/each}
+</select>
+<select bind:value={action}>
+	{#each actions[type] as x}
+		<option value={x}>
+			{x}
+		</option>
+	{/each}
+</select>
+<Search
+	placeholder="Search for {type}"
+	bind:search={entity}
+	on:ok={() => {
+		if (search == 'all:all:all:all') {
+			search = '';
+		}
+		set_state(page_name, 'search', search);
+	}}
+	show_search
+/>
+
+<style>
+</style>

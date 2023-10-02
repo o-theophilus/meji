@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { user, loading, portal } from '$lib/store.js';
+	import { user, loading, portal, module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -11,6 +11,7 @@
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
+	import Advert from './_advert.svelte';
 
 	import Group from '$lib/group.svelte';
 
@@ -27,8 +28,18 @@
 
 	onMount(() => {
 		if ($page.url.searchParams.has('edit') && $user.roles.includes('admin')) {
-			edit_mode = true;
 			$page.url.searchParams.delete('edit');
+			edit_mode = true;
+			
+			if ($page.url.searchParams.has('advert')) {
+				$page.url.searchParams.delete('advert');
+				$module = {
+					module: Advert,
+					item,
+					advert: {}
+				};
+			}
+
 			window.history.replaceState(history.state, '', $page.url.href);
 		}
 	});

@@ -18,7 +18,7 @@
 	<br />
 	<Button class="wide" href="/admin/vouchers">Vouchers</Button>
 	<br />
-	<Button class="wide" href="/logs{$state.logs || '?admin=true'}">Logs</Button>
+	<Button class="wide" href="/logs{$state.logs || ''}">Logs</Button>
 	<br />
 	<Button class="wide" href="/admin/adverts">Adverts</Button>
 	<br />
