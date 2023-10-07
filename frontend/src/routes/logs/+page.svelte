@@ -20,7 +20,7 @@
 
 <Center>
 	<br />
-	<b> Logs </b>
+	<div class="ctitle">Logs</div>
 </Center>
 
 <Card>
@@ -38,7 +38,4 @@
 </Card>
 
 <style>
-	b {
-		color: var(--ac1);
-	}
 </style>

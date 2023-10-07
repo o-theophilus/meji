@@ -28,20 +28,21 @@
 		height: 100px;
 		width: 100%;
 		padding: var(--sp2);
-		border: 2px solid var(--ac4);
+		border: none;
 
-		color: var(--ac2);
-		fill: var(--ac2);
+		outline: 2px solid var(--ac4);
+		fill: currentColor;
 		background-color: transparent;
 		border-radius: var(--sp0);
 		cursor: pointer;
 		text-align: center;
 		text-transform: capitalize;
+		color: var(--ac2);
 	}
 	button:hover {
 		color: var(--ac1);
 		fill: var(--ac1);
-		border-color: var(--cl1);
+		outline-color: var(--ac1);
 	}
 
 	@media screen and (min-width: 700px) {

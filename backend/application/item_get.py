@@ -89,7 +89,7 @@ def shop():
     tag = request.args["tag"] if "tag" in request.args else ""
     sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
+    size = int(request.args["size"]) if "size" in request.args else 6  # 24
 
     multiply = False
     if tag[-2:] == ":x":

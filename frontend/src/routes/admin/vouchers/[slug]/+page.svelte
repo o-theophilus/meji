@@ -50,7 +50,7 @@
 
 <Center>
 	<br />
-	<div class="title">
+	<div class="ctitle">
 		Voucher{voucher.length > 1 ? 's' : ''}
 	</div>
 </Center>
@@ -135,13 +135,7 @@
 		font-size: large;
 		font-weight: 500;
 		text-transform: uppercase;
-	}
 
-	.title {
-		/* display: flex; */
-		/* justify-content: space-between; */
-		/* align-items: center; */
-		font-weight: 600;
 		color: var(--ac1);
 	}
 </style>

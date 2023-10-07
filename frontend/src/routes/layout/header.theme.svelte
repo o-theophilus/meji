@@ -57,7 +57,8 @@
 		border-radius: 50%;
 	}
 	.block:hover {
-		background-color: var(--ac4);
+		fill: var(--ac1);
+		background-color: var(--ac6);
 	}
 
 	.switch {

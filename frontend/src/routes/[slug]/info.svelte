@@ -1,6 +1,6 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { elasticInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { user, module, loading, portal } from '$lib/store.js';
@@ -10,7 +10,7 @@
 	import ButtonFold from '$lib/button.fold.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Price from './info.price.svelte';
-	import Discount from './info.price.discount.svelte';
+	import Discount from './info.discount.svelte';
 	import Rating from '$lib/item/rating.svelte';
 	import Review from './feedback/review.svelte';
 	import Save from '$lib/item/save.svelte';
@@ -98,7 +98,7 @@
 {/if}
 
 <div class="horizontal">
-	<b>{item.name} </b>
+	<span class="name">{item.name} </span>
 
 	<div class="horizontal">
 		<Save {item} />
@@ -121,7 +121,7 @@
 </div>
 
 <div class="horizontal">
-	<span class="f2">
+	<span>
 		{#each item.tags as tag, i}
 			{#if i > 0},{/if}
 			<Button
@@ -188,7 +188,7 @@
 	</div>
 </div>
 {#if item.old_price && open_discount}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		<Discount {item} />
 	</div>
 {/if}
@@ -221,7 +221,7 @@
 	</div>
 </div>
 {#if open_info}
-	<div class="f2" transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		{#if item.info}
 			<Marked md={item.info} />
 		{:else}
@@ -259,11 +259,11 @@
 		</div>
 	</div>
 	{#if open_variation}
-		<div class="f2" transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each Object.entries(item.variation) as [key, values]}
 				{@const s = values.length > 0 ? 's' : ''}
 				<div class="property">
-					<span class="bold">{key}{s}: &nbsp;</span>
+					<span>{key}{s}: &nbsp;</span>
 
 					{#each values as value, i}
 						{#if i != 0}, &nbsp; {/if}
@@ -296,11 +296,11 @@
 </div>
 
 {#if open_feedback}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		{#each feedbacks as feedback}
 			<Review {feedback} {item} />
 		{:else}
-			<span class="f2">
+			<span>
 				There is no feedback yet.
 				<br />
 				Only
@@ -366,14 +366,20 @@
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
+
+		/* fill: var(--ac3); */
 	}
 
+	.name,
 	.bold {
-		font-weight: 500;
+		color: var(--ac1);
 		text-transform: capitalize;
 	}
-	.f2 {
-		color: var(--ac2);
+	.bold {
+		font-weight: 500;
+	}
+	.name {
+		font-weight: 600;
 	}
 
 	.floater {

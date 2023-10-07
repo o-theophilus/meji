@@ -1,6 +1,7 @@
 <script>
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
+	import Center from '$lib/center.svelte';
 
 	import Item from './item.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -14,12 +15,12 @@
 
 <Meta title="Advert" description="Advert" />
 
+<Center>
+	<br />
+	<div class="ctitle">Adverts</div>
+</Center>
+
 <Card>
-	<div class="title">
-		<b> Adverts </b>
-	</div>
-	<br />
-	<br />
 	{#each adverts as advert}
 		<Item {advert} />
 	{:else}
@@ -30,10 +31,4 @@
 <Pagination {page_name} {total_page} />
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--sp2);
-	}
 </style>

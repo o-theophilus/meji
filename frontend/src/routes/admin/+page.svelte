@@ -10,7 +10,7 @@
 
 <Center>
 	<br />
-	<b> Dashboard </b>
+	<div class="ctitle">Dashboard</div>
 </Center>
 
 <Card>
@@ -26,7 +26,4 @@
 </Card>
 
 <style>
-	b {
-		color: var(--ac1);
-	}
 </style>

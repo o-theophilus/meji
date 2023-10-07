@@ -22,7 +22,10 @@
 			Whoever said money can't buy happiness basically didn't know where to go shopping.
 			<div class="btn">
 				<br />
-				<Button class="primary" href="/shop">Shop Now <SVG type="arrow_right" size="16" /></Button>
+				<Button class="primary large" href="/shop">
+					Shop Now
+					<SVG type="arrow_right" size="16" />
+				</Button>
 			</div>
 		</div>
 
@@ -39,7 +42,10 @@
 			<img src="/image/hero_image.png" alt="hero" />
 			<div class="btn">
 				<br />
-				<Button class="primary" href="/shop">Shop Now <SVG type="arrow_right" size="16" /></Button>
+				<Button class="primary large" href="/shop">
+					Shop Now
+					<SVG type="arrow_right" size="16" />
+				</Button>
 			</div>
 		</div>
 	</div>
@@ -54,7 +60,6 @@
 		overflow: hidden;
 
 		background: linear-gradient(var(--primary) 50%, transparent 50%);
-		color: var(--ac1);
 		box-shadow: inset 0 7px 9px -7px rgba(0, 0, 0, 0.5);
 	}
 
@@ -100,6 +105,7 @@
 		max-width: 300px;
 
 		text-align: center;
+		color: var(--ac1);
 	}
 
 	.title {

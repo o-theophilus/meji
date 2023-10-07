@@ -30,7 +30,7 @@
 		if ($page.url.searchParams.has('edit') && $user.roles.includes('admin')) {
 			$page.url.searchParams.delete('edit');
 			edit_mode = true;
-			
+
 			if ($page.url.searchParams.has('advert')) {
 				$page.url.searchParams.delete('advert');
 				$module = {
@@ -49,7 +49,7 @@
 
 <Center>
 	<br />
-	<div class="title">
+	<div class="ctitle">
 		Item Details
 		{#if $user && $user.roles.includes('admin')}
 			<Button
@@ -115,14 +115,5 @@
 
 			align-self: flex-start;
 		}
-	}
-
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-
-		color: var(--ac1);
 	}
 </style>

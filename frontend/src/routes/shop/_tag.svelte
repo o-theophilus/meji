@@ -1,5 +1,8 @@
 <script>
 	import { page } from '$app/stores';
+	import { slide } from 'svelte/transition';
+	import { cubicInOut } from 'svelte/easing';
+
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
@@ -11,11 +14,13 @@
 	let multiply = false;
 	let _multiply = false;
 	let search = '';
+
 	let tags = [];
 	let open_tags = false;
+	let label = '';
 
-	let _selected_string = '';
 	let selected_string = '';
+	let _selected_string = '';
 	let changed = false;
 	$: {
 		_selected_string = _selected.sort((a, b) => a - b).join(',');
@@ -32,6 +37,7 @@
 				multiply = true;
 			}
 			selected = x.split(',');
+			label = `${selected.length}${multiply ? '*' : ''}`;
 		}
 
 		_selected = [...selected];
@@ -59,11 +65,16 @@
 			open_tags = !open_tags;
 		}}
 	>
-		Tags
+		Tags {#if label}({label}){/if}<span class="angle"><SVG type="angle" size="10" /> </span>
 	</button>
 
 	{#if open_tags}
-		<div class="tag_block" on:click|stopPropagation role="presentation">
+		<div
+			class="tag_block"
+			on:click|stopPropagation
+			role="presentation"
+			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
+		>
 			All Tags
 
 			<br />
@@ -79,7 +90,7 @@
 								search = '';
 							}}
 						>
-							<SVG type="close" />
+							<SVG type="close" size="8" />
 						</Button>
 					</div>
 				{/if}
@@ -113,11 +124,18 @@
 						disabled={selected.length == 0}
 						class="small hover_red"
 						on:click={() => {
+							open_tags = false;
+							if (_selected_string) {
+								set_state(page_name, 'tag', '');
+							}
 							selected = [];
+							_selected = [];
 							multiply = false;
+							label = '';
 						}}
 					>
 						<SVG type="close" />
+						<!-- x -->
 					</Button>
 
 					<Button
@@ -133,12 +151,13 @@
 							}
 
 							open_tags = false;
+							label = `${selected.length}${multiply && selected.length > 0 ? '*' : ''}`;
 							set_state(page_name, 'tag', temp);
 							_selected = [...selected];
 						}}
 					>
 						<SVG type="check" />
-						Ok
+						<!-- Ok -->
 					</Button>
 				</div>
 			</div>
@@ -151,38 +170,48 @@
 		position: relative;
 	}
 	button {
-		padding: var(--sp2) var(--sp3);
-		border-radius: var(--sp1) 0 0 var(--sp1);
-		background: none;
-		border: 2px solid var(--ac4);
+		display: flex;
+		gap: var(--sp1);
+		align-items: center;
+
+		padding: var(--sp1) var(--sp2);
+		border-radius: var(--sp0) 0 0 var(--sp0);
+		background-color: var(--ac6);
+		border: none;
+		outline: 2px solid var(--ac4);
 		border-right: none;
 
+		font-weight: 500;
 		color: var(--ac2);
 		cursor: pointer;
+		fill: var(--ac3);
 	}
 	button:hover {
-		border-color: var(--cl2);
+		outline-color: var(--cl2);
 		background-color: var(--cl2);
 		color: var(--ac5_);
+		fill: currentColor;
+	}
+	.angle {
+		transform: rotate(-90deg);
 	}
 
 	.tag_block {
 		position: absolute;
 		z-index: 1;
-		top: 60px;
+		top: 40px;
 		left: 0;
 
 		padding: var(--sp3);
 		border-radius: var(--sp0);
 		background-color: var(--ac5);
-		color: var(--ac2);
 
-		border: 2px solid var(--ac3);
+		outline: 2px solid var(--ac4);
 	}
 
 	.line {
 		display: flex;
-		gap: var(--sp1);
+		gap: var(--sp2);
 		justify-content: space-between;
 		align-items: center;
 	}
@@ -197,7 +226,7 @@
 	.clear {
 		position: absolute;
 		top: 0;
-		right: var(--sp2);
+		right: var(--sp1);
 
 		display: flex;
 		align-items: center;
@@ -215,6 +244,11 @@
 		/* cursor: pointer; */
 
 		font-size: small;
+	}
+
+	label:hover {
+		/* font-weight: 500; */
+		color: var(--cl1);
 	}
 	.multiply {
 		text-transform: lowercase;

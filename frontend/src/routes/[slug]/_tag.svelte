@@ -134,7 +134,4 @@
 		flex-wrap: wrap;
 		gap: var(--sp1);
 	}
-	.f2 {
-		color: var(--ac2);
-	}
 </style>

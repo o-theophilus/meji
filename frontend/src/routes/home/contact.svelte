@@ -7,10 +7,10 @@
 
 <div id="contact" />
 <Card>
-	<b>Contact us</b>
-	<br />
-	<br />
+	<div class="ctitle">Contact us</div>
 
+	<br />
+	<br />
 	<section>
 		<div>
 			Feel free to contact us with questions or anything else. we will respond to all enquires.<br
@@ -47,6 +47,7 @@
 	section > * {
 		width: 100%;
 	}
+
 	.up {
 		display: none;
 	}

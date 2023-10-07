@@ -1,6 +1,6 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { elasticInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 	import { portal, module, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
@@ -107,7 +107,7 @@
 			{#if open}
 				<div
 					class="body"
-					transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}
+					transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 				>
 					{#each previous_recipients as r}
 						<Button

@@ -26,9 +26,9 @@
 		display: block;
 		padding: var(--sp2) 0;
 		border-bottom: 1px solid var(--ac4);
-		color: var(--ac2);
 
 		text-decoration: none;
+		color: var(--ac2);
 	}
 
 	.name {

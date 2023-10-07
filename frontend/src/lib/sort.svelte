@@ -40,7 +40,7 @@
 			open = !open;
 		}}
 	>
-		<SVG type="list" />
+		<SVG type="sort" />
 		sort: {default_value}
 	</Button>
 
@@ -55,7 +55,7 @@
 					{x}
 
 					{#if x == default_value}
-						<span> ✓ </span>
+						<SVG type="check" size="10" />
 					{/if}
 				</button>
 			{/each}

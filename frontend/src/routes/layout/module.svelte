@@ -1,6 +1,6 @@
 <script>
 	import { scale } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
 	import { module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
@@ -9,7 +9,7 @@
 
 {#if $module}
 	<section>
-		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
+		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<div class="pos">
 				<Button
 					class="round hover_red small"
@@ -33,6 +33,7 @@
 	section {
 		position: fixed;
 		inset: 0;
+		z-index: 1;
 
 		display: grid;
 		align-items: center;

@@ -1,13 +1,13 @@
 <script>
 	import { scale } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
 	import { loading } from '$lib/store.js';
 </script>
 
 {#if $loading}
 	<section>
-		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: backInOut }}>
+		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<div class="circle" />
 		</div>
 	</section>

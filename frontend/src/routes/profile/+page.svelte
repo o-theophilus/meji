@@ -33,7 +33,7 @@
 
 <Center>
 	<br />
-	<div class="title">
+	<div class="ctitle">
 		User Details
 		{#if user && user.key == $me.key}
 			<Button
@@ -67,9 +67,9 @@
 
 			<div>
 				<div class="horizontal space">
-					<b>
+					<span class="name">
 						{user.name}
-					</b>
+					</span>
 					{#if edit_mode}
 						<Button
 							class="small round"
@@ -213,26 +213,19 @@
 </Card>
 
 <style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-
-		color: var(--ac1);
-	}
-
 	.block {
 		gap: var(--sp3);
 		display: flex;
 		flex-direction: column;
-
-		/* margin-top: var(--sp2); */
 	}
 	.block > div {
 		width: 100%;
 	}
 
+	.name {
+		font-weight: 600;
+		color: var(--ac1);
+	}
 	.bold {
 		font-weight: 500;
 	}

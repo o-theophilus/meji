@@ -29,9 +29,6 @@
 	form {
 		background-color: var(--ac5);
 		padding: var(--sp3);
-		color: var(--ac2);
-		/* width: 100%; */
-		/* max-width: 500px; */
 	}
 
 

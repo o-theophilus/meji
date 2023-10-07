@@ -32,6 +32,7 @@
 	.price {
 		font-weight: 500;
 		font-size: large;
+		color: var(--ac1);
 	}
 
 	.no_price {
@@ -40,7 +41,6 @@
 
 	.old_price {
 		position: relative;
-		color: var(--ac2);
 	}
 	.strike {
 		position: absolute;
@@ -52,8 +52,5 @@
 
 		transform: rotate(-10deg);
 		background: var(--cl4);
-	}
-	.discount {
-		color: var(--ac2);
 	}
 </style>

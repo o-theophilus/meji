@@ -24,7 +24,7 @@
 {#if tags.length > 0}
 	<div id="tag" />
 	<Card>
-		<div class="title">
+		<div class="ctitle">
 			Tags
 			<Button
 				class="link"
@@ -35,10 +35,12 @@
 					};
 				}}
 			>
-				view all <SVG type="arrow_right" size="16" />
+				view all
+				<SVG type="arrow_right" size="16" />
 			</Button>
 		</div>
 
+		<br />
 		<br />
 
 		<div class="item_area">
@@ -50,12 +52,4 @@
 {/if}
 
 <style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-	}
-	.title {
-		fill: currentColor;
-	}
 </style>

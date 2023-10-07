@@ -45,7 +45,8 @@
 					submit(page_no - 1);
 				}}
 			>
-				&lt; prev
+				&lt;
+				<!-- prev -->
 			</Button>
 		{/if}
 
@@ -84,7 +85,8 @@
 					submit(page_no_temp);
 				}}
 			>
-				go &gt;&gt;
+				<!-- go  -->
+				&gt;&gt;
 			</Button>
 		{/if}
 
@@ -95,7 +97,8 @@
 					submit(parseInt(page_no) + 1);
 				}}
 			>
-				next &gt;
+				<!-- next  -->
+				&gt;
 			</Button>
 		{/if}
 	</section>
@@ -119,7 +122,6 @@
 		justify-content: center;
 	}
 	input {
-		/* border: 2px solid var(--ac3); */
 		padding: var(--size);
 	}
 
@@ -127,7 +129,6 @@
 		position: absolute;
 		right: var(--size);
 		pointer-events: none;
-		color: var(--ac2);
 	}
 
 	.width_helper {

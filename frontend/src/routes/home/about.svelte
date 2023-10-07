@@ -5,7 +5,7 @@
 
 <div id="about" />
 <Card>
-	<div class="title">About Us</div>
+	<div class="ctitle">About Us</div>
 
 	<section>
 		<div class="row_1">
@@ -52,10 +52,6 @@
 </Card>
 
 <style>
-	.title {
-		font-weight: 600;
-	}
-
 	section {
 		display: flex;
 		flex-direction: column;
@@ -84,16 +80,12 @@
 		flex-direction: column;
 		align-items: center;
 
-		color: var(--ac2);
 		max-width: 300px;
 	}
 
 	span {
 		font-weight: 500;
 		color: var(--ac1);
-	}
-	p {
-		font-size: small;
 	}
 
 	@media screen and (min-width: 800px) {

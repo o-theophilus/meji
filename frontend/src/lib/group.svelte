@@ -1,6 +1,6 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { elasticInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 	import { onMount } from 'svelte';
 	import { user } from '$lib/store.js';
 
@@ -29,7 +29,7 @@
 {#if items && items.length > 0}
 	<div id={name.toLowerCase().replace(/ /g, '_')} />
 	<Card>
-		<div class="title">
+		<div class="ctitle">
 			{name}
 			<slot {open} {set_open} />
 		</div>
@@ -40,7 +40,7 @@
 			<div
 				class="item_area"
 				class:list={$user.setting.item_view == 'list'}
-				transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}
+				transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 			>
 				{#each items as x (x.key)}
 					<Item item={x} />
@@ -51,10 +51,4 @@
 {/if}
 
 <style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
 </style>

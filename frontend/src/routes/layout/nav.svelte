@@ -125,17 +125,16 @@
 
 		width: 100%;
 		border: none;
-		background-color: transparent;
-		color: var(--ac1);
-		fill: currentColor;
 
+		background-color: transparent;
 		font-size: small;
 		text-decoration: none;
 		cursor: pointer;
-
 		overflow: hidden;
-
 		transition: var(--trans1);
+
+		color: var(--ac2);
+		fill: currentColor;
 	}
 
 	.label {
@@ -163,16 +162,18 @@
 		position: absolute;
 		bottom: 0;
 
-		width: 100%;
-		height: 6px;
+		width: var(--sp4);
+		height: 4px;
 		border-radius: 10px 10px 0 0;
 		background-color: transparent;
 
 		transition: var(--trans1);
 	}
 
-	.active {
-		color: var(--cl1);
+	a:hover,
+	.active,
+	button:hover {
+		color: var(--ac1);
 	}
 	a:hover .hover,
 	button:hover .hover {

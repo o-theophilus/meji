@@ -19,8 +19,8 @@
 	src: url(/font/TisaSansPro-Black.ttf);
 	font-weight: 600;
   }
-
-:root,
+  
+  :root,
 code,
 textarea,
 select,
@@ -88,39 +88,59 @@ h6 {
 	grid-template-columns: 1fr;
 }
 
+.ctitle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--sp2);
+	
+	font-weight: 600;
+	font-size: large;
+	color: var(--ac1);
+	fill: currentColor;
+}
+
 /*************************** form ***************************/ 
 
 label {
 	width: fit-content;
 	text-transform: capitalize;
-	color: var(--ac1);
 }
 
 
-input,
+[type="text"],
+[type="email"],
+[type="tel"],
+[type="number"],
 select,
 textarea {
 	width: 100%;
 
-	padding: var(--sp2);
+	padding: var(--sp1);
 	border-radius: var(--sp0);
-	border: 2px solid var(--ac4);
+	border: none;
+	outline: 2px solid var(--ac4);
 
-	background-color: transparent;
+	background-color: var(--ac6);
 	color: var(--ac1);
 }
 
-input:hover,
+[type="text"]:hover,
+[type="email"]:hover,
+[type="tel"]:hover,
+[type="number"]:hover,
 select:hover,
 textarea:hover {
-	border-color: var(--ac3);
+	outline-color: var(--ac3);
 }
 
-input:focus,
+[type="text"]:focus,
+[type="email"]:focus,
+[type="tel"]:focus,
+[type="number"]:focus,
 select:focus,
 textarea:focus {
-	border-color: var(--cl1);
-	/* background-color: var(--ac4); */
+	outline-color: var(--ac1);
 	
 }
 

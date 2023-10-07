@@ -1,7 +1,8 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { circInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
+	import Center from '$lib/center.svelte';
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -20,6 +21,11 @@
 
 <Meta title="Admin Dashboard" description="Admin Dashboard" />
 
+<Center>
+	<br />
+	<div class="ctitle">Manage Photos</div>
+</Center>
+
 <Card>
 	<div class="title">
 		Unused Photos ({unused.length})
@@ -32,7 +38,7 @@
 	</div>
 
 	{#if open_unused}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<br />
 			{#each unused as x}
 				<img
@@ -59,7 +65,7 @@
 	</div>
 
 	{#if open_users}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<br />
 			{#each users as x}
 				<a href="/profile?user={x.key}">{x.name}</a>
@@ -84,7 +90,7 @@
 	</div>
 
 	{#if open_items}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<br />
 			{#each items as x}
 				<a href="/{x.key}">{x.name}</a>
@@ -109,7 +115,7 @@
 	</div>
 
 	{#if open_adverts}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: circInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<br />
 			{#each adverts as x}
 				<a href="/{x.key}?edit=true&advert=true">{x.name}</a>

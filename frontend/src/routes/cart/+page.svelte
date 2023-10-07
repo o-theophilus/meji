@@ -1,6 +1,6 @@
 <script>
 	import { flip } from 'svelte/animate';
-	import { backInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { user, module, loading } from '$lib/store.js';
@@ -65,13 +65,13 @@
 
 <Center>
 	<br />
-	<div class="title">Cart</div>
+	<div class="ctitle">Cart</div>
 </Center>
 
 <Card>
 	<div class="items">
 		{#each items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
-			<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
+			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 				<Item
 					bind:item
 					on:remove={() => {
@@ -109,13 +109,6 @@
 </Card>
 
 <style>
-	.title {
-		font-weight: 600;
-		display: flex;
-		justify-content: space-between;
-		color: var(--ac1);
-	}
-
 	.items {
 		display: grid;
 		gap: var(--sp2);
@@ -129,6 +122,7 @@
 		margin-top: var(--sp3);
 		padding-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
+		color: var(--ac1);
 	}
 
 	.amount {

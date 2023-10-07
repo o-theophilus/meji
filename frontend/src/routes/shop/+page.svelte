@@ -39,8 +39,8 @@
 
 <Center>
 	<br />
-	<div class="title">
-		<b> Shop </b>
+	<div class="ctitle">
+		Shop
 		<div class="line">
 			<View {page_name} />
 			<Sort {page_name} array={sorts} default_value="latest" />
@@ -84,17 +84,8 @@
 </Card>
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--sp2);
-		color: var(--ac1);
-	}
-
 	.line {
 		display: flex;
-		gap: var(--sp2);
-		/* align-items: center; */
+		gap: var(--sp1);
 	}
 </style>

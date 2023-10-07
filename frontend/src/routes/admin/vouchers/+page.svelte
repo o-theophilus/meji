@@ -29,7 +29,7 @@
 
 <Center>
 	<br />
-	<b> Voucher{vouchers.length > 1 ? 's' : ''} </b>
+	<div class="ctitle">Voucher{vouchers.length > 1 ? 's' : ''}</div>
 </Center>
 
 <Card>
@@ -61,7 +61,4 @@
 </Card>
 
 <style>
-	b {
-		color: var(--ac1);
-	}
 </style>

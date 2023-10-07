@@ -61,7 +61,7 @@
 
 {#if _type == 1}
 	<Button
-		class="round"
+		class="round large"
 		on:click={() => {
 			submit();
 		}}

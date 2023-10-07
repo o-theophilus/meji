@@ -22,13 +22,9 @@
 
 <Center>
 	<br />
-	<b>
+	<div class="ctitle">
 		{$page.url.searchParams.has('admin') ? 'All' : 'My'} Orders
-	</b>
-</Center>
 
-<Card>
-	<Status {page_name} array={status} default_value="ordered">
 		{#if $user.roles.includes('admin')}
 			<Button
 				class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
@@ -43,7 +39,11 @@
 				{$page.url.searchParams.has('admin') ? 'All' : 'My'} Orders
 			</Button>
 		{/if}
-	</Status>
+	</div>
+</Center>
+
+<Card>
+	<Status {page_name} array={status} default_value="ordered" />
 
 	<br />
 
@@ -57,7 +57,4 @@
 </Card>
 
 <style>
-	b {
-		color: var(--ac1);
-	}
 </style>

@@ -1,6 +1,6 @@
 <script>
 	import { flip } from 'svelte/animate';
-	import { backInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
 	import { module, portal, loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
@@ -143,7 +143,7 @@
 	</IG>
 
 	{#each Object.keys(variation) as key, i (i)}
-		<div animate:flip={{ delay: 0, duration: 250, easing: backInOut }}>
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<IG name={key} {error} let:id>
 				<svelte:fragment slot="label">
 					<div class="line">
@@ -183,6 +183,5 @@
 		display: flex;
 		justify-content: space-between;
 		gap: var(--sp1);
-		color: var(--ac2);
 	}
 </style>

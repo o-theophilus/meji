@@ -47,7 +47,6 @@
 		align-items: center;
 		gap: var(--sp3);
 
-		color: var(--ac2);
 		fill: var(--cl6);
 	}
 

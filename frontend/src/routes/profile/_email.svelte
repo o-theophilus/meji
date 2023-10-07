@@ -104,7 +104,7 @@
 		Change your account Email.
 	</svelte:fragment>
 
-	<span class="f1">Current Email: {user.email}</span>
+	<span>Current Email: {user.email}</span>
 
 	<br />
 	<br />
@@ -116,7 +116,7 @@
 	<Button class="primary" on:click={validate_request_otp}>Request OTPs</Button>
 	{#if message}
 		<br />
-		<span class="f1">
+		<span>
 			{message}
 		</span>
 		<br />
@@ -146,7 +146,4 @@
 </div>
 
 <style>
-	.f1 {
-		color: var(--ac2);
-	}
 </style>

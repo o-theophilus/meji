@@ -2,6 +2,7 @@
 	export let item;
 </script>
 
+<br />
 <dir class="details">
 	<div>Maximum Price</div>
 	<div>₦{item.old_price.toLocaleString()}</div>
@@ -29,14 +30,11 @@
 		gap: var(--sp1) var(--sp2);
 		grid-template-columns: 1fr auto;
 
-		margin-top: var(--sp2);
-		color: var(--ac2);
-
 		font-size: small;
 	}
 	.hr {
 		grid-column: 1/3;
-		height: 2px;
+		height: 1px;
 		background-color: var(--ac4);
 	}
 </style>

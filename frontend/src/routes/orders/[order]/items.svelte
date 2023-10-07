@@ -59,7 +59,6 @@
 		gap: var(--sp1) var(--sp3);
 		grid-template-columns: repeat(5, 1fr);
 		grid-template-columns: auto 1fr auto auto auto;
-		color: var(--ac2);
 
 		text-align: center;
 	}

@@ -60,11 +60,12 @@
 <style>
 	.bold {
 		font-weight: 500;
+		color: var(--ac1);
 	}
+
 	.grid {
 		display: grid;
 		gap: 0 var(--sp3);
 		grid-template-columns: max-content auto;
-		color: var(--ac2);
 	}
 </style>

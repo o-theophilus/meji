@@ -57,10 +57,8 @@
 </p>
 
 <style>
-	p {
-		color: var(--ac2);
-	}
 	.bold {
 		font-weight: 500;
+		color: var(--ac1);
 	}
 </style>

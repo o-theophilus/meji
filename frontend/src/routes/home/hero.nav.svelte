@@ -42,13 +42,6 @@
 	>
 		About Us
 	</button>
-	<!-- <button
-		on:click={() => {
-			go();
-		}}
-	>
-		Q&A
-	</button> -->
 	<button
 		on:click={() => {
 			go("contact");
@@ -61,14 +54,15 @@
 <style>
 	section {
 		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 		gap: var(--sp2);
+
 		padding: var(--sp3);
 		padding-top: calc(var(--sp3) * 2);
 
-		justify-content: center;
 		font-weight: 500;
-
-		flex-wrap: wrap;
+		color: var(--ac2);
 	}
 
 	button {

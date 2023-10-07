@@ -21,7 +21,7 @@
 
 <Center>
 	<br />
-	<div class="title">
+	<div class="ctitle">
 		<b> User{users.length > 1 ? 's' : ''} </b>
 		<div class="line">
 			<Sort {page_name} array={sorts} default_value="latest" />
@@ -44,11 +44,4 @@
 </Card>
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--sp2);
-		color: var(--ac1);
-	}
 </style>

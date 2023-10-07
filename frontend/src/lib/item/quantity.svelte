@@ -1,6 +1,8 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 
+	import Button from '$lib/button.svelte';
+
 	const emit = createEventDispatcher();
 
 	export let quantity = 1;
@@ -22,14 +24,13 @@
 </script>
 
 <section>
-	<button
+	<Button
+	
 		on:click={() => {
 			quantity -= 1;
 			change();
-		}}
+		}}>-</Button
 	>
-		-
-	</button>
 
 	<input
 		type="number"
@@ -47,23 +48,23 @@
 			0
 		{/if}
 	</div>
-	<button
+
+	<Button
+	
 		on:click={() => {
 			quantity += 1;
 			change();
-		}}
+		}}>+</Button
 	>
-		+
-	</button>
 </section>
 
 <style>
 	section {
 		position: relative;
-		gap: var(--sp0);
-
+		
 		display: flex;
 		align-items: center;
+		gap: var(--sp0);
 	}
 
 	input {
@@ -78,27 +79,5 @@
 		position: absolute;
 		padding: var(--sp1);
 		visibility: hidden;
-	}
-
-	button {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		--size: 24px;
-		width: var(--size);
-		height: var(--size);
-
-		border: none;
-		color: var(--ac2);
-		background-color: var(--ac4);
-		border-radius: 50%;
-
-		cursor: pointer;
-	}
-
-	button:hover {
-		background-color: var(--cl1);
-		color: var(--ac5_);
 	}
 </style>

@@ -54,7 +54,6 @@
 		gap: var(--sp2);
 		padding: var(--sp2) 0;
 		border-bottom: 1px solid var(--ac4);
-		color: var(--ac2);
 	}
 	
 	img {

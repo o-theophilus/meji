@@ -27,7 +27,9 @@
 </script>
 
 <div class="block">
-	<slot />
+	<div class="slot">
+		<slot />
+	</div>
 	<div class="input">
 		<div class="float svg">
 			<SVG type="search" size="15" />
@@ -54,13 +56,14 @@
 						search = '';
 						submit();
 					}}
+					disabled={search == _search}
 				>
-					<SVG type="close" size="15" />
+					<SVG type="close" size="8" />
 				</Button>
 			{/if}
 		</div>
 	</div>
-	<button class="primary" on:click={submit} disabled={search == _search}>Search</button>
+	<button on:click={submit} disabled={search == _search}>Search</button>
 </div>
 
 <style>
@@ -78,22 +81,18 @@
 		fill: var(--ac3);
 	}
 
+	.slot {
+		flex-shrink: 0;
+	}
 	input {
-		padding: var(--sp2);
-		border: 2px solid var(--ac4);
-		border-right: none;
 		border-radius: var(--sp1) 0 0 var(--sp1);
 		padding-left: var(--sp5);
-
-		color: var(--ac1);
+		height: 100%;
 	}
 	.slot {
 		border-radius: 0;
 	}
-	input:hover,
-	input:focus {
-		border-color: var(--ac3);
-	}
+
 	.show_close {
 		padding-right: var(--sp5);
 	}
@@ -107,7 +106,7 @@
 	}
 
 	.clear {
-		right: var(--sp2);
+		right: var(--sp1);
 	}
 
 	.svg {
@@ -115,19 +114,23 @@
 	}
 
 	button {
-		padding: var(--sp2) var(--sp3);
+		padding: var(--sp1) var(--sp3);
 		border: none;
-		border-radius: 0 var(--sp1) var(--sp1) 0;
+
+		border-radius: 0 var(--sp0) var(--sp0) 0;
 		background-color: var(--cl1);
 		color: var(--ac5_);
 		cursor: pointer;
+		outline: 2px solid var(--cl1);
 	}
 	button:hover {
 		background-color: var(--cl2);
 	}
+
 	button:disabled {
-		background-color: var(--ac3);
-		color: var(--ac4_);
+		background-color: var(--ac6);
+		outline: 2px solid var(--ac6);
+		color: var(--ac4);
 		cursor: unset;
 	}
 </style>

@@ -45,9 +45,9 @@
 
 		border: none;
 
-		color: var(--ac2);
 		background-color: transparent;
 		border-bottom: 2px solid transparent;
+		color: var(--ac2);
 	}
 
 	.gap {

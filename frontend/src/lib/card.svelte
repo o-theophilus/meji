@@ -15,7 +15,7 @@
 		margin-top: var(--sp2);
 		border-radius: var(--sp0);
 
-		color: var(--ac1);
+		color: var(--ac2);
 		background-color: var(--ac5);
 		box-shadow: var(--shad1);
 	}

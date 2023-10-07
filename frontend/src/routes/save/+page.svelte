@@ -20,9 +20,7 @@
 
 <Center>
 	<br />
-	<div class="title">
-		<b> Saved Items</b>
-	</div>
+	<div class="ctitle">Saved Items</div>
 </Center>
 
 <Card>
@@ -50,11 +48,4 @@
 </Card>
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--sp2);
-		color: var(--ac1);
-	}
 </style>

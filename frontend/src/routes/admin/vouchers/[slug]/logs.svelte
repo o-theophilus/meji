@@ -1,7 +1,7 @@
 <script>
 	import { token } from '$lib/cookie.js';
 	import { slide } from 'svelte/transition';
-	import { elasticInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -46,7 +46,7 @@
 	</div>
 
 	{#if open}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: elasticInOut }}>
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#if loading}
 			<br />
 				Loading . . .

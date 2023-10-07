@@ -4,6 +4,7 @@
 	import { user as _user, set_state } from '$lib/store.js';
 
 	import Search from './search.search.svelte';
+	import Button from '$lib/button.svelte';
 
 	export let page_name;
 
@@ -39,36 +40,44 @@
 {#if $_user.roles.includes('admin')}
 	<Search placeholder="Search for User" bind:search={user} />
 {/if}
-<select
-	bind:value={type}
-	on:input={() => {
-		action = 'all';
-	}}
->
-	{#each Object.entries(actions) as [type, action]}
-		<option value={type}>
-			{type}
-		</option>
-	{/each}
-</select>
-<select bind:value={action}>
-	{#each actions[type] as x}
-		<option value={x}>
-			{x}
-		</option>
-	{/each}
-</select>
-<Search
-	placeholder="Search for {type}"
-	bind:search={entity}
-	on:ok={() => {
-		if (search == 'all:all:all:all') {
-			search = '';
-		}
-		set_state(page_name, 'search', search);
-	}}
-	show_search
-/>
+
+<div class="line">
+	<select
+		bind:value={type}
+		on:input={() => {
+			action = 'all';
+		}}
+	>
+		{#each Object.entries(actions) as [type, action]}
+			<option value={type}>
+				{type}
+			</option>
+		{/each}
+	</select>
+	<select bind:value={action}>
+		{#each actions[type] as x}
+			<option value={x}>
+				{x}
+			</option>
+		{/each}
+	</select>
+</div>
+<Search placeholder="Search for {type}" bind:search={entity}>
+	<Button
+		class="primary"
+		on:click={() => {
+			if (search == 'all:all:all:all') {
+				search = '';
+			}
+			set_state(page_name, 'search', search);
+		}}
+	>
+		Search
+	</Button>
+</Search>
 
 <style>
+	.line {
+		display: flex;
+	}
 </style>

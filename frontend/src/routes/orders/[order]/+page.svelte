@@ -30,7 +30,7 @@
 
 <Center>
 	<br />
-	<b> Order</b>
+	<div class="ctitle">Order</div>
 </Center>
 
 <Card>
@@ -165,7 +165,6 @@
 		grid-template-columns: max-content max-content;
 	}
 	.value {
-		color: var(--ac2);
 		font-weight: 500;
 	}
 
@@ -182,8 +181,5 @@
 	.line {
 		display: flex;
 		gap: var(--sp1);
-	}
-	b {
-		color: var(--ac1);
 	}
 </style>

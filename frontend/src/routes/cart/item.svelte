@@ -167,7 +167,6 @@
 	}
 
 	.variation {
-		color: var(--ac2);
 		display: flex;
 		flex-wrap: wrap;
 	}

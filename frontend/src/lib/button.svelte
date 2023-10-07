@@ -23,20 +23,18 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: var(--sp2);
+		gap: var(--sp1);
 
+		padding: var(--sp1) var(--sp2);
 		border: none;
-		padding: var(--sp2);
 		border-radius: var(--sp0);
+		width: fit-content;
 
-		background-color: var(--ac4);
+		background-color: var(--ac6);
 		color: var(--ac2);
 		fill: currentColor;
-
 		text-decoration: none;
 		font-weight: 500;
-
-		width: fit-content;
 		cursor: pointer;
 	}
 
@@ -47,6 +45,7 @@
 	.primary {
 		background-color: var(--cl1);
 		color: var(--ac5_);
+		box-shadow: 0 -4px 0 var(--cl2) inset;
 	}
 	.primary:hover {
 		background-color: var(--cl2);
@@ -65,8 +64,13 @@
 		background-color: var(--cl4);
 	}
 
+	.large {
+		padding: var(--sp2) var(--sp4);
+		font-size: large;
+	}
+
 	.round {
-		--size: 40px;
+		--size: 28px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -80,12 +84,10 @@
 		border-radius: var(--size);
 	}
 
-	.small {
-		--size: 28px;
-		gap: var(--sp1);
-		padding: var(--sp1);
-		font-size: smaller;
+	.round.large {
+		--size: 40px;
 	}
+
 	.wide {
 		width: 100%;
 		max-width: 400px;
@@ -93,9 +95,9 @@
 
 	.hover_red:disabled,
 	button:disabled {
-		opacity: 0.5;
-		background-color: var(--ac4);
+		background-color: var(--ac6);
+		outline: 2px solid var(--ac6);
+		color: var(--ac4);
 		cursor: unset;
-		color: var(--ac2);
 	}
 </style>
