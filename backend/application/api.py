@@ -159,6 +159,7 @@ def test():
     })
 
 
+@bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -198,7 +199,6 @@ def delete_db():
     })
 
 
-# @bp.get("/fix")
 def fix():
     db = database()
 

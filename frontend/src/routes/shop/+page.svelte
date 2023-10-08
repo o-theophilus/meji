@@ -1,5 +1,7 @@
 <script>
-	import { user, module } from '$lib/store.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { user, module, set_state } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
@@ -33,6 +35,22 @@
 		'discount',
 		'rating'
 	];
+
+	let search = '';
+	let _search = '';
+	const submit = () => {
+		if (_search != search) {
+			_search = `${search}`;
+			set_state(page_name, 'search', search);
+		}
+	};
+	onMount(async () => {
+		let params = $page.url.searchParams;
+		if (params.has('search')) {
+			search = params.get('search');
+			_search = params.get('search');
+		}
+	});
 </script>
 
 <Meta title="Shop" description="Shop" />
@@ -42,7 +60,7 @@
 	<div class="ctitle">
 		Shop
 		<div class="line">
-			<View {page_name} />
+			<View />
 			<Sort {page_name} array={sorts} default_value="latest" />
 		</div>
 	</div>
@@ -66,9 +84,20 @@
 		<br />
 	{/if}
 
-	<Search {page_name}>
+	<div class="line">
 		<Tag {page_name} />
-	</Search>
+		<Search
+			bind:search
+			on:ok={() => {
+				submit();
+			}}
+			on:clear={() => {
+				search = '';
+				submit();
+			}}
+		/>
+		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
+	</div>
 
 	<br />
 

@@ -94,7 +94,8 @@
 	}
 
 	.hover_red:disabled,
-	button:disabled {
+	button:disabled,
+	.primary:disabled {
 		background-color: var(--ac6);
 		outline: 2px solid var(--ac6);
 		color: var(--ac4);

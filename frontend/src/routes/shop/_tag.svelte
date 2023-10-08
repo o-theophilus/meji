@@ -53,20 +53,21 @@
 
 <svelte:window
 	on:click={() => {
-		if (open_tags) {
-			open_tags = false;
-		}
+		open_tags = false;
 	}}
 />
 
-<div class="tag_position">
-	<button
-		on:click|stopPropagation={() => {
+<div class="tag_position" on:click|stopPropagation role="presentation">
+	<Button
+		on:click={() => {
 			open_tags = !open_tags;
 		}}
 	>
-		Tags {#if label}({label}){/if}<span class="angle"><SVG type="angle" size="10" /> </span>
-	</button>
+		Tags {#if label}({label}){/if}
+		<span class="angle">
+			<SVG type="angle" size="10" />
+		</span>
+	</Button>
 
 	{#if open_tags}
 		<div
@@ -169,29 +170,7 @@
 	.tag_position {
 		position: relative;
 	}
-	button {
-		display: flex;
-		gap: var(--sp1);
-		align-items: center;
 
-		padding: var(--sp1) var(--sp2);
-		border-radius: var(--sp0) 0 0 var(--sp0);
-		background-color: var(--ac6);
-		border: none;
-		outline: 2px solid var(--ac4);
-		border-right: none;
-
-		font-weight: 500;
-		color: var(--ac2);
-		cursor: pointer;
-		fill: var(--ac3);
-	}
-	button:hover {
-		outline-color: var(--cl2);
-		background-color: var(--cl2);
-		color: var(--ac5_);
-		fill: currentColor;
-	}
 	.angle {
 		transform: rotate(-90deg);
 	}

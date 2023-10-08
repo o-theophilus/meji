@@ -45,7 +45,6 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			// item = resp.item;
 			init_order = [...resp.item.photos];
 
 			let msg = 'Order saved';

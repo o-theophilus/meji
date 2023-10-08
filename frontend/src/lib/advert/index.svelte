@@ -1,10 +1,13 @@
 <script>
 	import Center from '$lib/center.svelte';
+	import Control from './control.svelte';
 
 	export let size = '300x300';
 	export let adverts = [];
 
 	let index = 0;
+	let width = 0;
+	$: left = index * width;
 
 	const auto_scroll = () => {
 		index += 1;
@@ -22,79 +25,47 @@
 
 {#if adverts.length > 0}
 	<Center>
-		<section>
-			<a href="/{adverts[index].item.key}">
-				<img src={adverts[index].photos[size]} alt={adverts[index].item.name} />
-			</a>
+		<section bind:offsetWidth={width}>
+			<div class="scroller" style:left="-{left}px">
+				{#each adverts as ads}
+					<a href="/{ads.item.key}">
+						<img src={ads.photos[size]} alt={ads.item.name} style:width="{width}px" />
+					</a>
+				{/each}
+			</div>
 
-			{#if adverts.length > 1}
-				<div class="control">
-					{#each adverts as _, i}
-						<div
-							class="btn"
-							class:active={index == i}
-							on:keypress
-							role="button"
-							tabindex="0"
-							on:click={() => {
-								index = i;
-								reset_timer();
-							}}
-						/>
-					{/each}
-				</div>
-			{/if}
+			<Control
+				{index}
+				count={adverts.length}
+				on:ok={(e) => {
+					index = e.detail;
+					reset_timer();
+				
+				}}
+			/>
 		</section>
 	</Center>
 {/if}
 
 <style>
 	section {
+		position: relative;
+
+		border-radius: var(--sp0);
+		box-shadow: var(--shad1);
+		overflow: hidden;
+	}
+
+	.scroller {
 		display: flex;
 		position: relative;
-		box-shadow: var(--shad1);
-		border-radius: var(--sp0);
-		overflow: hidden;
+
+		transition-property: left;
+		transition-duration: 0s;
+		transition-timing-function: ease-in-out;
 	}
 
 	a {
 		display: flex;
-		width: 100%;
-	}
-	img {
-		width: 100%;
-		cursor: pointer;
-	}
-
-	.control {
-		position: absolute;
-		bottom: 24px;
-
-		display: flex;
-		gap: var(--sp1);
-		justify-content: center;
-
-		width: 100%;
-	}
-
-	.btn {
-		--size: 20px;
-
-		width: var(--size);
-		height: var(--size);
-
-		border-radius: var(--size);
-
-		background-color: var(--cl1);
-
-		transition: var(--trans1);
-	}
-
-	.btn:hover {
-		width: calc(var(--size) * 2.5);
-	}
-
-	.btn.active {
-		width: calc(var(--size) * 2.5);
 	}
 </style>
