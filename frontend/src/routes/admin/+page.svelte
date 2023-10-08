@@ -26,13 +26,11 @@
 	<br />
 	make users admin
 	<br />
-	sort tags
-	<br />
-	app setting
+	advert placement
 	<br />
 	cleanup unused photos
 	<br />
-	add back button
+	app setting
 </Card>
 
 <style>

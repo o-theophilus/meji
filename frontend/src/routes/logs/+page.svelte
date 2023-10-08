@@ -1,7 +1,5 @@
 <script>
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { user as _user, set_state } from '$lib/store.js';
+	import { user as _user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
@@ -9,6 +7,7 @@
 	import Pagination from '$lib/pagination.svelte';
 	import Search from './search.svelte';
 	import Log from './log.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	$: logs = data.logs;
@@ -20,7 +19,12 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Logs</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Logs
+		</div>
+	</div>
 </Center>
 
 <Card>

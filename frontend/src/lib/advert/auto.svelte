@@ -4,7 +4,6 @@
 	import Advert from './index.svelte';
 
 	export let adverts = [];
-	console.log(adverts);
 
 	onMount(async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/ads`);

@@ -6,6 +6,7 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	let { unused } = data;
@@ -23,7 +24,12 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Manage Photos</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Manage Photos
+		</div>
+	</div>
 </Center>
 
 <Card>

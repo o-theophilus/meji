@@ -1,11 +1,14 @@
 <script>
-	import { portal, module } from '$lib/store.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { module, set_state, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Status from '$lib/status.svelte';
 	import Button from '$lib/button.svelte';
+	import Back from '$lib/button.back.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
 	import Voucher from './voucher.svelte';
@@ -23,13 +26,34 @@
 	}
 
 	let status = ['all', 'inactive', 'unused', 'used'];
+
+	let search = '';
+	let _search = '';
+	const submit = () => {
+		if (_search != search) {
+			_search = `${search}`;
+			set_state(page_name, 'search', search);
+		}
+	};
+	onMount(async () => {
+		let params = $page.url.searchParams;
+		if (params.has('search')) {
+			search = params.get('search');
+			_search = params.get('search');
+		}
+	});
 </script>
 
 <Meta title="Vouchers" description="Vouchers" />
 
 <Center>
 	<br />
-	<div class="ctitle">Voucher{vouchers.length > 1 ? 's' : ''}</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Voucher{vouchers.length > 1 ? 's' : ''}
+		</div>
+	</div>
 </Center>
 
 <Card>
@@ -48,7 +72,19 @@
 	</Status>
 
 	<br />
-	<Search {page_name} />
+	<div class="line">
+		<Search
+			bind:search
+			on:ok={() => {
+				submit();
+			}}
+			on:clear={() => {
+				search = '';
+				submit();
+			}}
+		/>
+		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
+	</div>
 	<br />
 
 	{#each vouchers as x}
@@ -61,4 +97,8 @@
 </Card>
 
 <style>
+	.line {
+		display: flex;
+		gap: var(--sp1);
+	}
 </style>

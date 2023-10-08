@@ -5,6 +5,7 @@
 
 	import Item from './item.svelte';
 	import Pagination from '$lib/pagination.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	$: adverts = data.adverts;
@@ -17,7 +18,12 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Adverts</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Adverts
+		</div>
+	</div>
 </Center>
 
 <Card>

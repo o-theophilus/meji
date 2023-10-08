@@ -3,7 +3,6 @@
 	import { user } from '$lib/store.js';
 
 	export let order;
-	console.log(order);
 </script>
 
 <a href="/orders/{order.key}">
