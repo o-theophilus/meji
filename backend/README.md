@@ -1,7 +1,9 @@
 # Todo
 - [ ] Concurrency
-- [ ] review reserve words for item names
+- [ ] ripple delete
 - [ ] log user action
+
+- [ ] review reserve words for item names
 - [ ] prevent the use of "all" as tag
 
 address api: https://www.geoapify.com/tutorials

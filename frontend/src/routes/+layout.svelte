@@ -58,6 +58,7 @@
 		position: fixed;
 		right: var(--sp2);
 		top: calc(var(--headerHeight) + var(--sp2));
+		z-index: 1;
 	}
 	@media screen and (min-width: 800px) {
 		.page {

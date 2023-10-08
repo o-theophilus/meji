@@ -68,9 +68,10 @@ def get_advert(item_key):
     })
 
 
-@bp.get("/advert")
-def get_all_advert():
-    db = database()
+@bp.get("/adverts")
+def adverts(db=None):
+    if not db:
+        db = database()
 
     user = token_to_user(db)
     if not user:
@@ -84,6 +85,37 @@ def get_all_advert():
             "status": 400,
             "error": "unauthorized access"
         })
+
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+    status = request.args["status"] if "status" in request.args else ""
+
+    adverts = []
+    for x in db:
+        if x["type"] != "advert":
+            continue
+        if status and status not in x["placements"]:
+            continue
+        adverts.append(x)
+
+    # orders = sorted(orders, key=lambda d: d["date_u"])
+
+    total_page = ceil(len(adverts) / size)
+    start = (page_no - 1) * size
+    stop = start + size
+    adverts = adverts[start: stop]
+
+    return jsonify({
+        "status": 200,
+        "adverts": [advert_schema(x, db) for x in adverts],
+        "total_page": total_page
+    })
+
+
+@bp.get("/adverts_placement")
+def adverts_placement(db=None):
+    if not db:
+        db = database()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     size = int(request.args["size"]) if "size" in request.args else 24

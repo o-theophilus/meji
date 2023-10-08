@@ -9,14 +9,16 @@
 
 	export let name = 'Group Name';
 	export let url = '';
-	let items = [];
+	export let items = [];
 
 	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${url}`);
-		resp = await resp.json();
+		if (url) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}${url}`);
+			resp = await resp.json();
 
-		if (resp.status == 200) {
-			items = resp.items;
+			if (resp.status == 200) {
+				items = resp.items;
+			}
 		}
 	});
 
@@ -24,7 +26,11 @@
 	const set_open = () => {
 		open = !open;
 	};
+
+	let width;
 </script>
+
+<svelte:window bind:innerWidth={width} />
 
 {#if items && items.length > 0}
 	<div id={name.toLowerCase().replace(/ /g, '_')} />
@@ -42,10 +48,11 @@
 				class:list={$user.setting.item_view == 'list'}
 				transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 			>
-				{#each items as x (x.key)}
+				{#each items.slice(0, width < 1000 ? 6 : 8) as x (x.key)}
 					<Item item={x} />
 				{/each}
 			</div>
+			<slot name="bottom" />
 		{/if}
 	</Card>
 {/if}

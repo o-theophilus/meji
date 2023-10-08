@@ -4,7 +4,7 @@
 	import { module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
-	// import Advert from '$lib/advert/index.svelte';
+	import Advert from '$lib/advert/auto.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
@@ -18,6 +18,12 @@
 	import Login from './auth/login.svelte';
 	import Password from './auth/password.svelte';
 	import Confirm from './auth/confirm.svelte';
+
+	export let data;
+	let { tags } = data;
+	let { offers } = data;
+	let { new_arrivals } = data;
+	let { adverts } = data;
 
 	onMount(() => {
 		if ($page.url.searchParams.has('module')) {
@@ -56,21 +62,36 @@
 <Meta title="Home" description="Home" />
 
 <Hero />
-<!-- <Advert /> -->
-<Tags />
-<Group name="New Arrivals" url="/shop?sort=latest&size=6">
-	<Button class="link" href="/shop?sort=latest">
-		view all <SVG type="arrow_right" size="16" />
-	</Button>
+<Advert {adverts} />
+<Tags {tags} />
+<Group name="New Arrivals" items={new_arrivals}>
+	<svelte:fragment slot="bottom">
+		<br />
+		<Button class="wide" href="/shop?sort=latest">
+			view all
+			<span class="rotate">
+				<SVG type="angle" size="10" />
+			</span>
+		</Button>
+	</svelte:fragment>
 </Group>
-<Group name="Offers" url="/shop?sort=discount&size=6">
-	<Button class="link" href="/shop?sort=discount">
-		view all <SVG type="arrow_right" size="16" />
-	</Button>
+<Group name="Offers" items={offers}>
+	<svelte:fragment slot="bottom">
+		<br />
+		<Button class="wide" href="/shop?sort=discount">
+			view all
+			<span class="rotate">
+				<SVG type="angle" size="10" />
+			</span>
+		</Button>
+	</svelte:fragment>
 </Group>
 <About />
 <Contact />
 <Top />
 
 <style>
+	.rotate {
+		transform: rotate(180deg);
+	}
 </style>

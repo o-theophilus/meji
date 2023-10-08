@@ -12,11 +12,11 @@
 
 <Center>
 	<br />
-	<div class="title">Error</div>
+	<div class="ctitle">Error</div>
 </Center>
 
 <Card>
-	<div class="title">{$page.status}</div>
+	<div class="bold">{$page.status}</div>
 	{@html $page.error.message}
 	<br />
 	<br />
@@ -32,7 +32,7 @@
 </Card>
 
 <style>
-	.title {
+	.bold {
 		color: var(--ac1);
 		font-weight: 600;
 	}

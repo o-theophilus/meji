@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import { module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
@@ -9,47 +8,46 @@
 	import Tag from './tag.svelte';
 	import Tags from './_tags.svelte';
 
-	let tags = [];
-
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			tags = resp.tags;
-		}
-	});
+	export let tags = [];
+	let width;
 </script>
+
+<svelte:window bind:innerWidth={width} />
 
 {#if tags.length > 0}
 	<div id="tag" />
 	<Card>
-		<div class="ctitle">
-			Tags
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Tags,
-						tags
-					};
-				}}
-			>
-				view all
-				<SVG type="arrow_right" size="16" />
-			</Button>
-		</div>
+		<div class="ctitle">Tags</div>
 
 		<br />
 		<br />
 
 		<div class="item_area">
-			{#each tags.slice(0, 6) as tag}
+			{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
 				<Tag {tag} />
 			{/each}
 		</div>
+		<br />
+		<Button
+			class="wide"
+			on:click={() => {
+				$module = {
+					module: Tags,
+					tags
+				};
+			}}
+		>
+			View All
+
+			<span class="rotate">
+				<SVG type="angle" size="10" />
+			</span>
+		</Button>
 	</Card>
 {/if}
 
 <style>
+	.rotate {
+		transform: rotate(180deg);
+	}
 </style>

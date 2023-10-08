@@ -90,7 +90,7 @@
 
 	.wide {
 		width: 100%;
-		max-width: 400px;
+		/* max-width: 400px; */
 	}
 
 	.hover_red:disabled,
@@ -99,5 +99,6 @@
 		outline: 2px solid var(--ac6);
 		color: var(--ac4);
 		cursor: unset;
+		box-shadow: unset;
 	}
 </style>

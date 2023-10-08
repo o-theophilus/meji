@@ -23,6 +23,16 @@
 	<Button class="wide" href="/admin/adverts">Adverts</Button>
 	<br />
 	<Button class="wide" href="/admin/photos">Photos</Button>
+	<br />
+	make users admin
+	<br />
+	sort tags
+	<br />
+	app setting
+	<br />
+	cleanup unused photos
+	<br />
+	add back button
 </Card>
 
 <style>

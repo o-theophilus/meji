@@ -5,6 +5,8 @@ from os import environ
 from .database import database
 from datetime import datetime, timedelta
 from .tools import token_to_user
+from .item_get import all_tags, shop
+from .advert import adverts_placement
 
 
 bp = Blueprint("api", __name__)
@@ -80,6 +82,19 @@ def file_list():
         "users": users,
         "items": items,
         "adverts": adverts,
+    })
+
+
+@bp.get("/home")
+def home():
+    db = database()
+
+    return jsonify({
+        "status": 200,
+        "tags": all_tags(db).json["tags"],
+        "new_arrivals": shop(db, sort="latest", size=8).json["items"],
+        "offers": shop(db, sort="discount", size=8).json["items"],
+        "adverts": adverts_placement(db).json["adverts"]
     })
 
 

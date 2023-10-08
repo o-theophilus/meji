@@ -78,18 +78,31 @@ def get(key):
 
 
 @bp.get("/shop")
-def shop():
-    db = database()
+def shop(
+    db=None,
+    status="live",
+    search="",
+    tag="",
+    sort="latest",
+    page_no=1,
+    size=6  # 24
+):
+    if not db:
+        db = database()
     user = token_to_user(db)
 
-    status = request.args["status"] if (
-        "status" in request.args and user and "admin" in user["roles"]
-    ) else "live"
-    search = request.args["search"] if "search" in request.args else ""
-    tag = request.args["tag"] if "tag" in request.args else ""
-    sort = request.args["sort"] if "sort" in request.args else "latest"
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 6  # 24
+    if "status" in request.args and user and "admin" in user["roles"]:
+        status = request.args["status"]
+    if "search" in request.args:
+        search = request.args["search"]
+    if "tag" in request.args:
+        tag = request.args["tag"]
+    if "sort" in request.args:
+        sort = request.args["sort"]
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "size" in request.args:
+        size = int(request.args["size"])
 
     multiply = False
     if tag[-2:] == ":x":
@@ -97,7 +110,6 @@ def shop():
         tag = tag[:-2]
     tags = tag.split(",")
     tags = [] if not tags[0] else tags
-    print(tags)
 
     items = []
     for x in db:
@@ -188,7 +200,7 @@ def recently_viewed(user_key, item_key):
             items.append(item_schema(item, db))
             unique_keys.append(item["key"])
 
-        if len(items) >= 6:
+        if len(items) >= 8:
             break
 
     return jsonify({
@@ -232,7 +244,7 @@ def similar_items(key):
 
     return jsonify({
         "status": 200,
-        "items": [item_schema(x["item"], db) for x in items[:6]]
+        "items": [item_schema(x["item"], db) for x in items[:8]]
     })
 
 
@@ -288,5 +300,5 @@ def customer_view(user_key, item_key):
 
     return jsonify({
         "status": 200,
-        "items": [item_schema(x["item"], db) for x in items[:6]]
+        "items": [item_schema(x["item"], db) for x in items[:8]]
     })

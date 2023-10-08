@@ -1,52 +1,100 @@
 <script>
-	import { onMount } from 'svelte';
-	
-	import Ads from './ads_block.svelte';
+	import Center from '$lib/center.svelte';
 
-	let ads = [];
+	export let size = '300x300';
+	export let adverts = [];
 
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/ads`);
-		resp = await resp.json();
+	let index = 0;
 
-		if (resp.status == 200) {
-			ads = resp.ads;
+	const auto_scroll = () => {
+		index += 1;
+		if (index > adverts.length - 1) {
+			index = 0;
 		}
-	});
+	};
+
+	let timer = setInterval(auto_scroll, 1000 * 5);
+	const reset_timer = () => {
+		clearInterval(timer);
+		timer = setInterval(auto_scroll, 1000 * 5);
+	};
 </script>
 
-<div class="x300x300">
-	<Ads {ads} size="300x300" />
-</div>
-<div class="x600x300">
-	<Ads {ads} size="600x300" />
-</div>
-<div class="x900x300">
-	<Ads {ads} size="900x300" />
-</div>
+{#if adverts.length > 0}
+	<Center>
+		<section>
+			<a href="/{adverts[index].item.key}">
+				<img src={adverts[index].photos[size]} alt={adverts[index].item.name} />
+			</a>
+
+			{#if adverts.length > 1}
+				<div class="control">
+					{#each adverts as _, i}
+						<div
+							class="btn"
+							class:active={index == i}
+							on:keypress
+							role="button"
+							tabindex="0"
+							on:click={() => {
+								index = i;
+								reset_timer();
+							}}
+						/>
+					{/each}
+				</div>
+			{/if}
+		</section>
+	</Center>
+{/if}
 
 <style>
-	.x900x300,
-	.x600x300 {
-		display: none;
+	section {
+		display: flex;
+		position: relative;
+		box-shadow: var(--shad1);
+		border-radius: var(--sp0);
+		overflow: hidden;
 	}
 
-	@media screen and (min-width: 700px) {
-		.x300x300,
-		.x900x300 {
-			display: none;
-		}
-		.x600x300 {
-			display: unset;
-		}
+	a {
+		display: flex;
+		width: 100%;
 	}
-	@media screen and (min-width: 1000px) {
-		.x300x300,
-		.x600x300 {
-			display: none;
-		}
-		.x900x300 {
-			display: unset;
-		}
+	img {
+		width: 100%;
+		cursor: pointer;
+	}
+
+	.control {
+		position: absolute;
+		bottom: 24px;
+
+		display: flex;
+		gap: var(--sp1);
+		justify-content: center;
+
+		width: 100%;
+	}
+
+	.btn {
+		--size: 20px;
+
+		width: var(--size);
+		height: var(--size);
+
+		border-radius: var(--size);
+
+		background-color: var(--cl1);
+
+		transition: var(--trans1);
+	}
+
+	.btn:hover {
+		width: calc(var(--size) * 2.5);
+	}
+
+	.btn.active {
+		width: calc(var(--size) * 2.5);
 	}
 </style>

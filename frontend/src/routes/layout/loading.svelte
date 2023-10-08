@@ -20,6 +20,7 @@
 
 		position: fixed;
 		inset: 0;
+		z-index: 1;
 
 		padding: var(--sp1);
 	}
