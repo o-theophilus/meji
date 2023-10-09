@@ -40,7 +40,13 @@
 <section>
 	{#if $_user.roles.includes('admin')}
 		<div class="line">
-			<Search placeholder="Search for User" bind:search={user} />
+			<Search
+				placeholder="Search for User"
+				bind:search={user}
+				on:clear={() => {
+					user = '';
+				}}
+			/>
 			<Button
 				class=""
 				on:click={() => {
@@ -74,7 +80,13 @@
 		</select>
 	</div>
 	<div class="line">
-		<Search placeholder="Search for {type}" bind:search={entity} />
+		<Search
+			placeholder="Search for {type}"
+			bind:search={entity}
+			on:clear={() => {
+				entity = '';
+			}}
+		/>
 		<Button
 			class="primary"
 			on:click={() => {
