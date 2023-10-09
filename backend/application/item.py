@@ -139,17 +139,20 @@ def edit_item(key):
         item["info"] = request.json["info"]
 
     if "variation" in request.json:
-        if type(request.json["variation"]) != dict:
+        if type(request.json["variation"]) is not dict:
             error["variation"] = "this field is required"
         else:
             variation = request.json["variation"]
             for key in variation:
-                if type(variation[key]) != list or len(variation[key]) == 0:
+                if (
+                    type(variation[key]) is not list
+                    or len(variation[key]) == 0
+                ):
                     del variation[key]
             item["variation"] = variation
 
     if "tags" in request.json:
-        if type(request.json["tags"]) != list:
+        if type(request.json["tags"]) is not list:
             error["tags"] = "this field is required"
         else:
             item["tags"] = request.json["tags"]
@@ -275,7 +278,7 @@ def arrange_photo(key):
     if (
         not item
         or "photos" not in request.json
-        or type(request.json["photos"]) != list
+        or type(request.json["photos"]) is not list
         or set(item["photos"]) != set(fix(request.json["photos"]))
     ):
         return jsonify({

@@ -6,23 +6,23 @@
 	let permission = {
 		admin: {
 			lv1: ['dashboard'],
-			lv2: ['manage photo'],
+			lv2: ['manage_photo'],
 			lv3: []
 		},
 		user: {
-			lv1: ['view', 'view all'],
+			lv1: ['view', 'view_all'],
 			lv2: [],
 			lv3: ['set permission']
 		},
 		item: {
 			lv1: [],
-			lv2: ['add', 'edit', 'advert', 'change status'],
+			lv2: ['add', 'edit', 'advert', 'change_status'],
 			lv3: []
 		},
 		voucher: {
-			lv1: ['view', 'view all'],
+			lv1: ['view', 'view_all'],
 			lv2: [],
-			lv3: ['add', 'view code']
+			lv3: ['add', 'view_code']
 		},
 		log: {
 			lv1: ['view'],

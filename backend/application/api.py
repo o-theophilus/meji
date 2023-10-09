@@ -204,9 +204,12 @@ def fix():
 
     changed = []
     for x in db:
-        if x["type"] == "log" and x["action"] == "deactivated":
-
-            x["misc"] = None
+        if (
+            x["type"] == "log"
+            and x["entity_type"] == "order"
+            and x["action"] == "deactivated"
+        ):
+            x["action"] = "canceled"
             changed.append(x)
 
     print(len(changed))

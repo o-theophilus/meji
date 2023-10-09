@@ -388,7 +388,7 @@ def submit_account(key):
         })
 
     error = None
-    if type(request.json["value"]) != int:
+    if type(request.json["value"]) is not int:
         error = "Please enter a valid value"
     elif request.json["value"] > user["acc_balance"]:
         error = "amount larger than available balance"
