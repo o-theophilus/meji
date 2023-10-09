@@ -19,7 +19,7 @@
 <style>
 	.show {
 		position: absolute;
-		right: var(--sp2);
+		right: var(--sp1);
 		top: 0;
 
 		display: flex;

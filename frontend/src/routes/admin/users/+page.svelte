@@ -13,7 +13,6 @@
 	import Center from '$lib/center.svelte';
 	import Search from '$lib/search.svelte';
 	import Sort from '$lib/sort.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	export let data;
 	$: users = data.users;

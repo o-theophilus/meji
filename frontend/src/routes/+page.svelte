@@ -62,7 +62,7 @@
 <Meta title="Home" description="Home" />
 
 <Hero />
-<Advert {adverts} />
+<!-- <Advert {adverts} /> -->
 <Tags {tags} />
 <Group name="New Arrivals" items={new_arrivals}>
 	<svelte:fragment slot="bottom">
