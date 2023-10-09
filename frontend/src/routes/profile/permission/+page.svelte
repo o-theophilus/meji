@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/button.svelte';
 	import Card from '$lib/card.svelte';
-	import Center from '$lib/Center.svelte';
+	import Center from '$lib/center.svelte';
 
 	let permission = {
 		admin: {
@@ -38,6 +38,7 @@
 	<br />
 	<div class="ctitle">Permission</div>
 </Center>
+
 <Card>
 	<section>
 		<span>category</span>
