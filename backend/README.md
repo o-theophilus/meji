@@ -13,3 +13,22 @@ http://localhost:3000/order/resp/
 https://webhook.site/17bf6a9c-8586-4d8f-9ab6-d0b56c8adb66
 
 
+
+Admin
+_______
+
+Admin Dashboard =================> 1
+Logs ====================> 1
+View Users | View User ====================> 1
+View Voucher ==========================> 1
+
+
+Add Item | Edit Item ==================> 2
+Item Adverts ==================> 2
+Change Item Status =====================> 2
+Manage Photos ================> 2
+
+
+Set User Permission ==========================> 3
+Add Vouchers ==========================> 3
+View Voucher Code ==========================> 3

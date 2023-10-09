@@ -2,9 +2,8 @@
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Back from '$lib/button.back.svelte';
 
-	// export let data;
-	// let { activities } = data;
 	export let transactions = [];
 </script>
 
@@ -13,7 +12,10 @@
 <Center>
 	<br />
 	<div class="ctitle">
-		Transaction{transactions.length > 1 ? 's' : ''}
+		<div class="ctitle">
+			<Back />
+			Transaction{transactions.length > 1 ? 's' : ''}
+		</div>
 	</div>
 </Center>
 

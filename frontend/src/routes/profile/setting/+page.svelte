@@ -5,6 +5,7 @@
 	import Button from '$lib/button.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	import Delete from './_delete.svelte';
 	import Password from './_password.svelte';
@@ -14,7 +15,12 @@
 
 <Center>
 	<br />
-	<b> Settings </b>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Settings
+		</div>
+	</div>
 </Center>
 
 <Card>
@@ -36,7 +42,4 @@
 </Card>
 
 <style>
-	b {
-		color: var(--ac1);
-	}
 </style>
