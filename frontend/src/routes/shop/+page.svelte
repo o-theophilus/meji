@@ -16,7 +16,7 @@
 	import Tag from './_tag.svelte';
 
 	import View from './view.svelte';
-	import Sort from '../../lib/sort.svelte';
+	import Sort from '$lib/sort.svelte';
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;

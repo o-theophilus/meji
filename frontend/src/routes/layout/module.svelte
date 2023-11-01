@@ -10,19 +10,19 @@
 {#if $module}
 	<section>
 		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			<div class="pos">
-				<Button
-					class="round hover_red small"
-					on:keypress
-					on:click={() => {
-						$module = '';
-					}}
-				>
-					<SVG type="close" size="12" />
-				</Button>
-			</div>
-
 			<div class="content">
+				<div class="close">
+					<Button
+						class="round hover_red small"
+						on:keypress
+						on:click={() => {
+							$module = '';
+						}}
+					>
+						<SVG type="close" size="12" />
+					</Button>
+				</div>
+
 				<svelte:component this={$module.module} />
 			</div>
 		</div>
@@ -36,8 +36,6 @@
 		z-index: 1;
 
 		display: grid;
-		align-items: center;
-		justify-content: center;
 
 		padding: calc(var(--sp3) * 2) var(--sp3);
 		overflow-y: auto;
@@ -46,21 +44,24 @@
 	}
 
 	.block {
-		position: relative;
 		margin: auto;
-	}
 
-	.pos {
-		position: absolute;
-		top: -10px;
-		right: -10px;
+		width: 100%;
 	}
 
 	.content {
-		/* width: 100%; */
+		position: relative;
+
 		max-width: 500px;
+		margin: auto;
 		border-radius: var(--sp0);
 		overflow: hidden;
 		box-shadow: var(--shad1);
+	}
+
+	.close {
+		position: absolute;
+		top: 2px;
+		right: 2px;
 	}
 </style>

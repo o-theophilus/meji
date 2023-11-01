@@ -41,9 +41,11 @@
 
 		display: flex;
 		justify-content: flex-end;
+		pointer-events: none;
 	}
 
 	div {
+		pointer-events: all;
 		transform: rotate(90deg);
 	}
 </style>

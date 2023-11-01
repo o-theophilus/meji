@@ -63,7 +63,10 @@
 			open_tags = !open_tags;
 		}}
 	>
-		Tags {#if label}({label}){/if}
+		<span class="button_label">
+			Tags&nbsp;{#if label}({label}){/if}
+		</span>
+
 		<span class="angle">
 			<SVG type="angle" size="10" />
 		</span>
@@ -136,7 +139,6 @@
 						}}
 					>
 						<SVG type="close" />
-						<!-- x -->
 					</Button>
 
 					<Button
@@ -158,7 +160,6 @@
 						}}
 					>
 						<SVG type="check" />
-						<!-- Ok -->
 					</Button>
 				</div>
 			</div>
@@ -173,6 +174,10 @@
 
 	.angle {
 		transform: rotate(-90deg);
+	}
+	.button_label {
+		flex-shrink: 0;
+		/* padding: 0 var(--sp3); */
 	}
 
 	.tag_block {
@@ -220,13 +225,12 @@
 		display: flex;
 		gap: var(--sp2);
 		margin-top: var(--sp0);
-		/* cursor: pointer; */
+		cursor: pointer;
 
 		font-size: small;
 	}
 
 	label:hover {
-		/* font-weight: 500; */
 		color: var(--cl1);
 	}
 	.multiply {

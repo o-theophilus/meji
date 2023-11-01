@@ -57,6 +57,7 @@
 				</div>
 
 				<br />
+
 				{#if shop_href}
 					<Button class="wide" href={shop_href}>
 						view all
@@ -64,6 +65,8 @@
 							<SVG type="angle" size="10" />
 						</span>
 					</Button>
+				{:else}
+					<br />
 				{/if}
 			{/if}
 		</section>
