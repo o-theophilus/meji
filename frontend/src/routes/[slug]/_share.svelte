@@ -74,7 +74,7 @@
 
 		padding: var(--sp3);
 		color: var(--ac1);
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 	}
 	.block {
 		display: flex;

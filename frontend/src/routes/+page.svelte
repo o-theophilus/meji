@@ -64,34 +64,11 @@
 <Hero />
 <!-- <Advert {adverts} /> -->
 <Tags {tags} />
-<Group name="New Arrivals" items={new_arrivals}>
-	<svelte:fragment slot="bottom">
-		<br />
-		<Button class="wide" href="/shop?sort=latest">
-			view all
-			<span class="rotate">
-				<SVG type="angle" size="10" />
-			</span>
-		</Button>
-	</svelte:fragment>
-</Group>
-<Group name="Offers" items={offers}>
-	<svelte:fragment slot="bottom">
-		<br />
-		<Button class="wide" href="/shop?sort=discount">
-			view all
-			<span class="rotate">
-				<SVG type="angle" size="10" />
-			</span>
-		</Button>
-	</svelte:fragment>
-</Group>
+<Group name="New Arrivals" items={new_arrivals} shop_href="/shop?sort=latest" />
+<Group name="Offers" items={offers} shop_href="/shop?sort=discount" />
 <About />
 <Contact />
 <Top />
 
 <style>
-	.rotate {
-		transform: rotate(180deg);
-	}
 </style>

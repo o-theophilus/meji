@@ -25,7 +25,7 @@
 					go('top');
 				}}
 			>
-				<SVG type="angle" />
+				<SVG type="angle" size="12" />
 			</Button>
 		</div>
 	</section>
@@ -37,6 +37,7 @@
 		bottom: var(--headerHeight);
 
 		padding: var(--sp2);
+		padding-right: var(--sp4);
 
 		display: flex;
 		justify-content: flex-end;

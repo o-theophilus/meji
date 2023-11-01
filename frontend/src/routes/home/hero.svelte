@@ -53,7 +53,7 @@
 
 <style>
 	section {
-		--primary: var(--ac5);
+		--primary: var(--ac6);
 		--secondary: var(--cl3);
 
 		position: relative;

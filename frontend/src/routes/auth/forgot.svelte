@@ -82,11 +82,12 @@
 
 	<Button
 		class="primary"
-		name="Send"
 		on:click={() => {
 			validate();
 		}}
-	/>
+	>
+		Send
+	</Button>
 
 	<br />
 	Don't have an account?

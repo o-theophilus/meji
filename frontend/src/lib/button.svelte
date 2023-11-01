@@ -30,7 +30,7 @@
 		border-radius: var(--sp0);
 		width: fit-content;
 
-		background-color: var(--ac6);
+		background-color: var(--ac5);
 		color: var(--ac2);
 		fill: currentColor;
 		text-decoration: none;
@@ -40,11 +40,11 @@
 
 	:hover {
 		background-color: var(--cl2);
-		color: var(--ac5_);
+		color: var(--ac6_);
 	}
 	.primary {
 		background-color: var(--cl1);
-		color: var(--ac5_);
+		color: var(--ac6_);
 		box-shadow: 0 -4px 0 var(--cl2) inset;
 	}
 	.primary:hover {
@@ -96,8 +96,8 @@
 	.hover_red:disabled,
 	button:disabled,
 	.primary:disabled {
-		background-color: var(--ac6);
-		outline: 2px solid var(--ac6);
+		background-color: var(--ac5);
+		outline: 2px solid var(--ac5);
 		color: var(--ac4);
 		cursor: unset;
 		box-shadow: unset;

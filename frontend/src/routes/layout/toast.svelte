@@ -65,9 +65,9 @@
 		align-items: end;
 
 		border-radius: var(--sp0);
-		color: var(--ac5_);
+		color: var(--ac6_);
 		font-size: small;
-		fill: var(--ac5_);
+		fill: var(--ac6_);
 	}
 
 	.block {
@@ -81,7 +81,7 @@
 	.progress {
 		width: 100%;
 		height: 2px;
-		background-color: var(--ac5_);
+		background-color: var(--ac6_);
 	}
 	.zero {
 		transition: width 5s linear;

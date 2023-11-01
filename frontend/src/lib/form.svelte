@@ -19,7 +19,7 @@
 		padding: var(--sp3);
 
 		background-color: var(--cl1);
-		color: var(--ac5_);
+		color: var(--ac6_);
 
 		display: flex;
 		flex-direction: column;
@@ -27,7 +27,7 @@
 	}
 
 	form {
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 		padding: var(--sp3);
 		color: var(--ac2);
 	}

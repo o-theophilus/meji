@@ -105,10 +105,7 @@
 				/>
 			</div>
 			{#if open}
-				<div
-					class="body"
-					transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
-				>
+				<div class="body" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 					{#each previous_recipients as r}
 						<Button
 							class="small"
@@ -229,7 +226,7 @@
 
 	.body {
 		padding: var(--sp1);
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 	}
 
 	p {

@@ -150,7 +150,7 @@ to: **${status}**
 		--color: var(--cl5);
 		--size: 24px;
 		text-transform: capitalize;
-		fill: var(--ac5_);
+		fill: var(--ac6_);
 	}
 	.active ~ .state {
 		--color: var(--ac4);

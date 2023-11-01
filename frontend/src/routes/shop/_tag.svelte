@@ -183,7 +183,7 @@
 
 		padding: var(--sp3);
 		border-radius: var(--sp0);
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 
 		outline: 2px solid var(--ac4);
 	}

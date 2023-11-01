@@ -18,7 +18,7 @@
 		width: 100px;
 		height: var(--height);
 
-		color: var(--ac5_);
+		color: var(--ac6_);
 
 		border-radius: calc(var(--height) / 2);
 		font-size: 1.2rem;

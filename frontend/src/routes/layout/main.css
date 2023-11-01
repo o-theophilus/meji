@@ -122,7 +122,7 @@ textarea {
 	border: none;
 	outline: 2px solid var(--ac4);
 
-	background-color: var(--ac6);
+	background-color: var(--ac5);
 	color: var(--ac1);
 }
 
@@ -148,7 +148,7 @@ textarea:focus {
 }
 
 option{
-	background-color: var(--ac5);
+	background-color: var(--ac6);
 }
 
 textarea {

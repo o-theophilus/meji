@@ -63,7 +63,7 @@
 		border-radius: 50%;
 
 		background-color: var(--cl5);
-		color: var(--ac5_);
+		color: var(--ac6_);
 	}
 	.good {
 		background-color: var(--cl5);

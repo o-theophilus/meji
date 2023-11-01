@@ -23,7 +23,7 @@
 
 <style>
 	header {
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 		box-shadow: var(--shad1);
 	}
 	.block {

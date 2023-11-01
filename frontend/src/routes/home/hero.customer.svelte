@@ -14,7 +14,7 @@
 		background-color: var(--secondary);
 		padding: var(--sp1);
 
-		color: var(--ac5_);
+		color: var(--ac6_);
 
 		border-radius: var(--sp0);
 		font-size: small;

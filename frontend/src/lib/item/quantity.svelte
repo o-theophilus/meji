@@ -25,7 +25,6 @@
 
 <section>
 	<Button
-	
 		on:click={() => {
 			quantity -= 1;
 			change();
@@ -50,7 +49,6 @@
 	</div>
 
 	<Button
-	
 		on:click={() => {
 			quantity += 1;
 			change();
@@ -61,7 +59,7 @@
 <style>
 	section {
 		position: relative;
-		
+
 		display: flex;
 		align-items: center;
 		gap: var(--sp0);
@@ -73,7 +71,7 @@
 		text-align: center;
 	}
 	input:focus {
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 	}
 	.helper {
 		position: absolute;

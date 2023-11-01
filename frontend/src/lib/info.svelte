@@ -41,12 +41,12 @@
 		gap: var(--sp2);
 
 		padding: var(--sp2);
-		color: var(--ac5_);
-		fill: var(--ac5_);
+		color: var(--ac6_);
+		fill: var(--ac6_);
 	}
 
 	.body {
-		background: var(--ac5);
+		background: var(--ac6);
 		padding: var(--sp3);
 	}
 

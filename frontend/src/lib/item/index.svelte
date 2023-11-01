@@ -42,9 +42,9 @@
 		</a>
 
 		<div class="control">
-			<Rating rating={item.rating} href="/{item.slug}/feedback" />
 			<Add_Cart {item} type="2" />
 			<Save {item} type="2" on:save_start on:save_end />
+			<Rating rating={item.rating} href="/{item.slug}/feedback" />
 		</div>
 	</div>
 </section>
@@ -54,15 +54,17 @@
 		display: flex;
 		flex-direction: column;
 
-		border-bottom: 2px solid var(--ac5);
+		border-radius: 1px;
+		outline: 2px solid transparent;
+		outline-offset: var(--sp1);
 
 		overflow: hidden;
 		cursor: pointer;
 		transition: var(--trans1);
 	}
 	.item:hover {
-		transform: scale(1.02);
-		border-color: var(--cl1);
+		outline-color: var(--cl1);
+		outline-color: var(--ac1);
 	}
 	a {
 		text-decoration: none;

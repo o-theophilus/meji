@@ -16,7 +16,7 @@
 		border-radius: var(--sp0);
 
 		color: var(--ac2);
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 		box-shadow: var(--shad1);
 	}
 

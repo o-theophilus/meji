@@ -47,9 +47,5 @@
 		section {
 			padding-left: var(--sp1);
 		}
-
-		.login {
-			display: none;
-		}
 	}
 </style>

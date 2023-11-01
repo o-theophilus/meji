@@ -58,7 +58,7 @@
 	}
 	.block:hover {
 		fill: var(--ac1);
-		background-color: var(--ac6);
+		background-color: var(--ac5);
 	}
 
 	.switch {

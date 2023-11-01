@@ -390,7 +390,7 @@
 		margin-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
 
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 	}
 
 	@media screen and (min-width: 800px) {

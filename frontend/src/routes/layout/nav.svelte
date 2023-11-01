@@ -87,8 +87,11 @@
 			<div class="hover" style:--height="{width}px" />
 			<div class="indicator" />
 		</a>
-	{:else}
+	{/if}
+
+	{#if !$user?.login}
 		<button
+			class="login"
 			on:click={() => {
 				$module = {
 					module: Login,
@@ -110,7 +113,7 @@
 <style>
 	nav {
 		display: flex;
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 		box-shadow: var(--shad1);
 		height: var(--headerHeight);
 	}
@@ -179,7 +182,7 @@
 	button:hover .hover {
 		width: 100%;
 		height: var(--height);
-		background-color: var(--ac6);
+		background-color: var(--ac5);
 	}
 
 	.active .indicator {
@@ -201,7 +204,7 @@
 		width: var(--size);
 		height: var(--size);
 
-		color: var(--ac5_);
+		color: var(--ac6_);
 
 		font-size: x-small;
 		border-radius: 50%;
@@ -223,6 +226,10 @@
 		}
 		.circle {
 			position: unset;
+		}
+
+		.login {
+			display: none;
 		}
 	}
 </style>
