@@ -54,17 +54,15 @@
 		display: flex;
 		flex-direction: column;
 
-		border-radius: 1px;
-		outline: 2px solid transparent;
-		outline-offset: var(--sp1);
+		border-radius: var(--sp1);
+		border: 2px solid var(--ac5);
 
 		overflow: hidden;
 		cursor: pointer;
 		transition: var(--trans1);
 	}
 	.item:hover {
-		outline-color: var(--cl1);
-		outline-color: var(--ac1);
+		border-color: var(--ac1);
 	}
 	a {
 		text-decoration: none;
@@ -78,7 +76,6 @@
 	img {
 		width: 100%;
 		aspect-ratio: 1/1;
-		border-radius: var(--sp0);
 		background-image: url('/image/item.png');
 		background-size: cover;
 	}
@@ -93,7 +90,7 @@
 	}
 
 	.details {
-		padding: var(--sp1) 0;
+		padding: var(--sp1) var(--sp2);
 	}
 
 	.control {
