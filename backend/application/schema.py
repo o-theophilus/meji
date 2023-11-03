@@ -6,7 +6,11 @@ from uuid import uuid4
 
 def user_schema(user, db):
     saves = query({"type": "save", "user": user["key"]}, True, db=db)
-    cart = query({"type": "cart", "user": user["key"]}, True, db=db)
+    cart = query({
+        "type": "cart",
+        "key": f"{user['key']}_cart",
+        "user": user["key"],
+    }, db=db)
 
     return {
         "key": user["key"],
@@ -26,12 +30,7 @@ def user_schema(user, db):
         "login": user["login"],
 
         "saves": [x["item"] for x in saves],
-        "cart": [
-            {
-                "key": x["item"],
-                "variation": x["variation"],
-                "quantity": x["quantity"]
-            } for x in cart]
+        "cart": len(cart["items"]) if cart else 0
     }
 
 

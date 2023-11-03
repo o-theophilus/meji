@@ -128,7 +128,7 @@ def create():
     if "quantity" not in request.json or not request.json["quantity"]:
         error["quantity"] = "this field is required"
     elif (
-        type(request.json["quantity"]) != int
+        type(request.json["quantity"]) is not int
         or request.json["quantity"] < 1
     ):
         error["quantity"] = "please enter a valid quantity"

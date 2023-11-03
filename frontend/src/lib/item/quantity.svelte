@@ -6,18 +6,15 @@
 	const emit = createEventDispatcher();
 
 	export let quantity = 1;
-	let def = quantity;
+	export let min = 1;
 
 	const change = () => {
 		if (!Number.isInteger(quantity) || quantity < 0) {
-			quantity = def;
-		} else if (quantity < 1) {
-			quantity = 1;
-			emit('done', { quantity: 0 });
-		} else {
-			def = quantity;
-			emit('done', { quantity });
+			quantity = min;
+		} else if (quantity < min) {
+			quantity = min;
 		}
+		emit('done', { quantity });
 	};
 
 	let clientWidth;
@@ -28,13 +25,14 @@
 		on:click={() => {
 			quantity -= 1;
 			change();
-		}}>-</Button
+		}}
 	>
+		-
+	</Button>
 
 	<input
 		type="number"
 		style:width="calc({clientWidth}px + 4px)"
-		min="0"
 		bind:value={quantity}
 		on:change={() => {
 			change();
@@ -52,8 +50,10 @@
 		on:click={() => {
 			quantity += 1;
 			change();
-		}}>+</Button
+		}}
 	>
+		+
+	</Button>
 </section>
 
 <style>
@@ -62,7 +62,7 @@
 
 		display: flex;
 		align-items: center;
-		gap: var(--sp0);
+		gap: 1px;
 	}
 
 	input {

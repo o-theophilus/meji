@@ -110,9 +110,6 @@
 
 		display: flex;
 		justify-content: center;
-		gap: var(--sp1);
-
-		margin-top: var(--sp4);
 	}
 
 	.input {

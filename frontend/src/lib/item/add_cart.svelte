@@ -1,5 +1,5 @@
 <script>
-	import { user, module } from '$lib/store.js';
+	import { module } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';

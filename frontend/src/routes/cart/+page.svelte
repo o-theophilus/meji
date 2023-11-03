@@ -3,7 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { user, module, loading } from '$lib/store.js';
+	import { user, module, loading, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Meta from '$lib/meta.svelte';
@@ -15,14 +15,36 @@
 	import Login from '../auth/login.svelte';
 
 	export let data;
-	$: items = data.items;
+	let cart = data.cart;
+
 	let error = {};
 	let total = 0;
 
+	$: if ($portal) {
+		if ($portal.type == 'item') {
+			let temp = [];
+			for (const x in cart.items) {
+				if (
+					cart.items[x].key == $portal.data.key &&
+					cart.items[x].variation == $portal.data.variation
+				) {
+					cart.items[x].quantity = $portal.data.quantity;
+					if (cart.items[x].quantity > 0) {
+						temp.push(cart.items[x]);
+					}
+				} else {
+					temp.push(cart.items[x]);
+				}
+			}
+			cart.items = temp;
+		}
+		$portal = '';
+	}
+
 	$: {
 		total = 0;
-		for (const i in items) {
-			total += items[i].quantity * items[i].price;
+		for (const x in cart.items) {
+			total += cart.items[x].quantity * cart.items[x].price;
 		}
 	}
 
@@ -70,21 +92,16 @@
 
 <Card>
 	<div class="items">
-		{#each items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
+		{#each cart.items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<Item
-					bind:item
-					on:remove={() => {
-						items = items.filter((i) => i.key != item.key && i.variation != item.variation);
-					}}
-				/>
+				<Item bind:item />
 			</div>
 		{:else}
 			no item here
 		{/each}
 	</div>
 
-	{#if items.length > 0}
+	{#if cart.items.length > 0}
 		<div class="total_amount">
 			<div class="total">Total Amount</div>
 			<div class="amount">

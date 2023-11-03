@@ -37,8 +37,8 @@
 			},
 			body: JSON.stringify({
 				key: item.key,
-				quantity,
 				variation: vars_,
+				quantity,
 				ops: 'add'
 			})
 		});

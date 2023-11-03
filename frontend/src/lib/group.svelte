@@ -6,12 +6,9 @@
 
 	import Center from '$lib/center.svelte';
 	import Item from '$lib/item/index.svelte';
-	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	export let name = 'Group Name';
 	export let url = '';
-	export let shop_href = '';
 	export let items = [];
 
 	onMount(async () => {
@@ -40,10 +37,14 @@
 
 	<Center>
 		<section class="card">
+			<br />
+			<br />
+			<br />
 			<div class="ctitle">
 				{name}
 				<slot {open} {set_open} />
 			</div>
+			<br />
 
 			{#if open}
 				<div
@@ -57,17 +58,6 @@
 				</div>
 
 				<br />
-
-				{#if shop_href}
-					<Button class="wide" href={shop_href}>
-						view all
-						<span class="rotate">
-							<SVG type="angle" size="10" />
-						</span>
-					</Button>
-				{:else}
-					<br />
-				{/if}
 			{/if}
 		</section>
 	</Center>
@@ -75,31 +65,9 @@
 
 <style>
 	.card {
-		width: 100%;
-		margin-top: var(--sp2);
-		border-radius: var(--sp0);
-
-		color: var(--ac2);
-		background-color: var(--ac6);
-		box-shadow: var(--shad1);
-	}
-	.ctitle {
-		padding: var(--sp3);
-	}
-	.item_area {
-		padding: 0 var(--sp3);
+		border-bottom: 2px solid var(--ac4);
 	}
 
 	@media screen and (min-width: 700px) {
-		.ctitle {
-			padding: var(--sp5);
-		}
-		.item_area {
-			padding: 0 var(--sp5);
-		}
-	}
-
-	.rotate {
-		transform: rotate(180deg);
 	}
 </style>

@@ -98,9 +98,11 @@
 		/>
 		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
 	</div>
+</Card>
 
-	<br />
+<br />
 
+<Center>
 	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
 			<Item {item} />
@@ -108,7 +110,9 @@
 			no item here
 		{/each}
 	</div>
+</Center>
 
+<Card>
 	<Pagination {page_name} {total_page} />
 </Card>
 

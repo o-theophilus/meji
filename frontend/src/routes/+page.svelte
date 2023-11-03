@@ -64,11 +64,28 @@
 <Hero />
 <!-- <Advert {adverts} /> -->
 <Tags {tags} />
-<Group name="New Arrivals" items={new_arrivals} shop_href="/shop?sort=latest" />
-<Group name="Offers" items={offers} shop_href="/shop?sort=discount" />
+<Group name="New Arrivals" items={new_arrivals}>
+	<Button class="link" href="/shop?sort=latest">
+		more
+		<span class="rotate">
+			<SVG type="angle" size="10" />
+		</span>
+	</Button>
+</Group>
+<Group name="Offers" items={offers}>
+	<Button class="link" href="/shop?sort=discount">
+		more
+		<span class="rotate">
+			<SVG type="angle" size="10" />
+		</span>
+	</Button>
+</Group>
 <About />
 <Contact />
 <Top />
 
 <style>
+	.rotate {
+		transform: rotate(180deg);
+	}
 </style>

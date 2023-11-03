@@ -1,81 +1,11 @@
 <script>
-	import { user, toast } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
-	import { createEventDispatcher } from 'svelte';
+	import { module } from '$lib/store.js';
 
-	import Quantity from '$lib/item/quantity.svelte';
+	import Quantity from './_quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
-
-	const emit = createEventDispatcher();
+	import Button from '$lib/button.svelte';
 
 	export let item;
-
-	const equal = (obj1, obj2) => {
-		const keys1 = Object.keys(obj1);
-		const keys2 = Object.keys(obj2);
-
-		if (keys1.length !== keys2.length) {
-			return false;
-		}
-
-		for (const key of keys1) {
-			if (obj1[key] !== obj2[key]) {
-				return false;
-			}
-		}
-
-		return true;
-	};
-
-	const submit = async (qty) => {
-		counter += 1;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify({
-				key: item.key,
-				variation: item.variation,
-				quantity: qty
-			})
-		});
-		resp = await resp.json();
-		counter -= 1;
-
-		if (resp.status == 200) {
-			$user = resp.user;
-			for (const x in $user.cart) {
-				for (const y in resp.user.cart) {
-					if (
-						counter == 0 &&
-						$user.cart[x].key == item.key &&
-						resp.user.cart[y].key == item.key &&
-						equal($user.cart[x].variation, item.variation) &&
-						equal(resp.user.cart[y].variation, item.variation)
-					) {
-						$user.cart[x].quantity = resp.user.cart[y].quantity;
-						item.quantity = resp.user.cart[y].quantity;
-					}
-				}
-			}
-		} else {
-			for (const x in $user.cart) {
-				if ($user.cart[x].key == item.key && equal($user.cart[x].variation, item.variation)) {
-					item.quantity = $user.cart[x].quantity;
-				}
-			}
-
-			$toast = {
-				status: 400,
-				message: 'Error updating cart'
-			};
-		}
-	};
-
-	let timer;
-	let counter = 0;
 </script>
 
 <section>
@@ -105,21 +35,20 @@
 		<div class="line price">
 			<div class="line">
 				₦{item.price.toLocaleString()}
-				<Quantity
-					quantity={item.quantity}
-					on:done={(e) => {
-						if (e.detail.quantity > 0) {
-							item.quantity = e.detail.quantity;
-						} else {
-							emit('remove');
-						}
 
-						clearTimeout(timer);
-						timer = setTimeout(() => {
-							submit(e.detail.quantity);
-						}, 1000);
+				x &nbsp;
+
+				<Button
+					class="link"
+					on:click={() => {
+						$module = {
+							module: Quantity,
+							item
+						};
 					}}
-				/>
+				>
+					{item.quantity}
+				</Button>
 			</div>
 			₦{(item.price * item.quantity).toLocaleString()}
 		</div>
@@ -128,14 +57,14 @@
 
 <style>
 	section {
-		--height: 100px;
+		--height: 80px;
 		display: flex;
 		gap: var(--sp3);
 		align-items: center;
 	}
 
 	img {
-		width: 100px;
+		width: var(--height);
 		height: var(--height);
 
 		border-radius: var(--sp0);
@@ -152,7 +81,7 @@
 	.line {
 		display: flex;
 		align-items: center;
-		gap: 0 var(--sp2);
+		/* gap: 0 var(--sp2); */
 		flex-wrap: wrap;
 	}
 	.price {

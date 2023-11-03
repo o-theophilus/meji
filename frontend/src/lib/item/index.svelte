@@ -54,12 +54,15 @@
 		display: flex;
 		flex-direction: column;
 
+		background-color: var(--ac6);
 		border-radius: var(--sp1);
 		border: 2px solid var(--ac5);
 
 		overflow: hidden;
 		cursor: pointer;
 		transition: var(--trans1);
+
+		box-shadow: var(--shad1);
 	}
 	.item:hover {
 		border-color: var(--ac1);

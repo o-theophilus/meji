@@ -34,6 +34,8 @@
 	{/each}
 </Card>
 
+<br />
+<br />
 <Pagination {page_name} {total_page} />
 
 <style>

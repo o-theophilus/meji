@@ -141,25 +141,6 @@ def unused_anon():
     })
 
 
-def test():
-    a = {
-        "a": 1,
-        "b": 2,
-        "d": None,
-        "c": 5,
-    }
-
-    print(a.keys())
-    print(a.values())
-    print(list(a.values()))
-    print([value for value in a.values() if value is not None])
-
-    return jsonify({
-        "status": 200,
-    })
-
-
-# @bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -214,6 +195,22 @@ def fix():
 
     print(len(changed))
     database(changed)
+
+    return jsonify({
+        "status": 200,
+        "changed": len(changed)
+    })
+
+
+# @bp.get("/fix")
+def fix2():
+    db = database()
+
+    changed = []
+    for x in db:
+        if x["type"] == "cart":
+            database(x, True)
+            changed.append(x)
 
     return jsonify({
         "status": 200,

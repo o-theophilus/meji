@@ -25,7 +25,7 @@
 					<Tag {tag} />
 				{/each}
 			</div>
-			<br />
+
 			<Button
 				class="wide"
 				on:click={() => {
@@ -57,17 +57,19 @@
 	}
 	.ctitle {
 		padding: var(--sp3);
+		padding-bottom: 0;
 	}
 	.item_area {
-		padding: 0 var(--sp3);
+		padding: var(--sp3);
 	}
 
 	@media screen and (min-width: 700px) {
 		.ctitle {
 			padding: var(--sp5);
+			padding-bottom: 0;
 		}
 		.item_area {
-			padding: 0 var(--sp5);
+			padding: var(--sp5);
 		}
 	}
 

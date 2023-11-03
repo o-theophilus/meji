@@ -53,6 +53,8 @@
 		no item here
 	{/each}
 
+	<br>
+	<br>
 	<Pagination {total_page} {page_name} />
 </Card>
 
