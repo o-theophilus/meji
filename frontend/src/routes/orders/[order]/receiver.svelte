@@ -1,10 +1,5 @@
 <script>
-	import { module, user } from '$lib/store.js';
-	import Button from '$lib/button.svelte';
-	import Form from './_receiver_form.svelte';
-
 	export let order;
-	export let previous_recipients;
 	$: r = order.recipient;
 	$: a = r.address;
 </script>
@@ -12,20 +7,7 @@
 <div class="bold">
 	Receiver's Information
 
-	{#if order.status == 'pending' && order.user == $user.key}
-		<Button
-			class="link"
-			on:click={() => {
-				$module = {
-					module: Form,
-					order,
-					previous_recipients
-				};
-			}}
-		>
-			Edit
-		</Button>
-	{/if}
+	<slot />
 </div>
 
 <div class="grid">

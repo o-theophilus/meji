@@ -18,20 +18,22 @@ def get_saves():
 
     items = []
     saves = query({"type": "save", "user": user["key"]}, True, db=db)
+    saves = sorted(saves, key=lambda x: x["date"])
     saves = [x["item"] for x in saves]
     for x in db:
         if x["type"] == "item" and x["key"] in saves:
-            items.append(item_schema(x, db))
+            items.append(x)
+
+    items = sorted(items, key=lambda x: saves.index(x["key"]), reverse=True)
 
     total_page = ceil(len(items) / size)
-
     start = (page_no - 1) * size
     stop = start + size
     items = items[start: stop]
 
     return jsonify({
         "status": 200,
-        "items": items,
+        "items": [item_schema(x, db) for x in items],
         "total_page": total_page
     })
 

@@ -15,7 +15,7 @@
 		error = {};
 	}
 
-	$: pay = order.info.total_items + order.info.delivery_fee - order.info.account;
+	$: pay = order.transaction.total_items + order.transaction.delivery_fee - order.transaction.account;
 
 	$: complete_address =
 		order.recipient.name &&

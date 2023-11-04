@@ -14,8 +14,17 @@
 	import Button from '$lib/button.svelte';
 	import Login from '../auth/login.svelte';
 
+	import Eta from '../orders/[order]/eta.svelte';
+	import Address from '../orders/[order]/receiver.svelte';
+	import Action from './action.svelte';
+	import Account from '../orders/[order]/_account.svelte';
+	import Form from '../orders/[order]/_receiver_form.svelte';
+	import Voucher from '../profile/_voucher.svelte';
+
 	export let data;
-	let cart = data.cart;
+	let { cart } = data;
+	// let { previous_recipients } = data;
+	let previous_recipients = [];
 
 	let error = {};
 	let total = 0;
@@ -125,6 +134,70 @@
 	{/if}
 </Card>
 
+<Card>
+	<div class="block">
+		<div>
+			<Address order={cart} {previous_recipients}>
+				<Button
+					class="link"
+					on:click={() => {
+						$module = {
+							module: Form,
+							cart,
+							previous_recipients
+						};
+					}}
+				>
+					Edit
+				</Button>
+			</Address>
+			<br />
+			<Eta order={cart} />
+		</div>
+	</div>
+</Card>
+
+<Card>
+	<section class="grid">
+		{#if $user.acc_balance > 0}
+			<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
+			<div class="value">
+				₦{cart.transaction.account.toLocaleString()}
+			</div>
+		{/if}
+
+		<Button
+			class="link"
+			on:click={() => {
+				$module = {
+					module: Voucher
+				};
+			}}
+		>
+			Add Voucher
+		</Button>
+
+		{#if $user.acc_balance > 0}
+			<Button
+				class="link"
+				on:click={() => {
+					$module = {
+						module: Account,
+						order: cart
+					};
+				}}
+			>
+				Edit
+			</Button>
+		{/if}
+	</section>
+
+	<br />
+
+	<Action order={cart} />
+	<br />
+</Card>
+
 <style>
 	.items {
 		display: grid;
@@ -145,5 +218,34 @@
 	.amount {
 		font-weight: 500;
 		font-size: large;
+	}
+
+	.block {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp4);
+
+		width: 100%;
+	}
+
+	@media screen and (min-width: 800px) {
+		.block {
+			flex-direction: unset;
+		}
+	}
+
+	.grid {
+		display: grid;
+		gap: 0 var(--sp3);
+		grid-template-columns: max-content max-content;
+	}
+	.value {
+		font-weight: 500;
+	}
+
+	section {
+		display: grid;
+		gap: 0 var(--sp3);
+		grid-template-columns: max-content max-content;
 	}
 </style>

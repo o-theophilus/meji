@@ -208,7 +208,11 @@ def fix2():
 
     changed = []
     for x in db:
-        if x["type"] == "cart":
+        if (
+            x["type"] == "log"
+            and x["action"] == "created"
+            and x["entity_type"] == "order"
+        ):
             database(x, True)
             changed.append(x)
 

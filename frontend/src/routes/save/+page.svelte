@@ -23,7 +23,9 @@
 	<div class="ctitle">Saved Items</div>
 </Center>
 
-<Card>
+<br />
+
+<Center>
 	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
 		{#each items as item (item.key)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
@@ -43,9 +45,9 @@
 			no item here
 		{/each}
 	</div>
+</Center>
 
-	<br>
-	<br>
+<Card>
 	<Pagination {page_name} {total_page} />
 </Card>
 

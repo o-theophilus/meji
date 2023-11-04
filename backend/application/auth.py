@@ -3,6 +3,7 @@ from .tools import token_tool, token_to_user, now, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
+from .user_cart import cart_template
 import re
 from uuid import uuid4
 import os
@@ -256,39 +257,43 @@ def login():
     to_delete = []
 
     if anon_user['key'] != user['key']:
-        anon_save = []
-        user_save = []
-        anon_cart = []
-        user_cart = []
+        anon_saves = []
+        saves = []
+        anon_cart = None
+        cart = None
         for x in db:
             if x["type"] == "save" and x["user"] == anon_user['key']:
-                anon_save.append(x)
+                anon_saves.append(x)
             elif x["type"] == "save" and x["user"] == user['key']:
-                user_save.append(x)
+                saves.append(x)
             elif x["type"] == "cart" and x["user"] == anon_user['key']:
-                anon_cart.append(x)
+                anon_cart = x
             elif x["type"] == "cart" and x["user"] == user['key']:
-                user_cart.append(x)
+                cart = x
 
-        for x in anon_save:
-            for y in user_save:
-                if x["item"] == y["item"]:
-                    anon_save.remove(x)
-                    to_delete.append(x)
+        keys = [x["item"] for x in saves]
+        for x in anon_saves:
+            if x["item"] in keys:
+                to_delete.append(x)
+            else:
+                x["user"] = user['key']
+                edited.append(x)
 
-        for x in anon_cart:
-            for y in user_cart:
-                if x["item"] == y["item"] and x["variation"] == y["variation"]:
-                    user_cart.remove(y)
-                    to_delete.append(y)
+        if anon_cart:
+            if not cart:
+                cart = cart_template(user)
 
-        for x in [*anon_save, *anon_cart]:
-            x["user"] = user['key']
-            edited.append(x)
+            keys = [f"{x['key']} {x['variation']}" for x in cart["items"]]
+            for x in anon_cart["items"]:
+                if f"{x['key']} {x['variation']}" not in keys:
+                    cart["items"].append(x)
+
+            to_delete.append(anon_cart)
+            edited.append(cart)
 
     user["login"] = True
-    database([*to_delete, anon_user], True)
     database([*edited, user])
+    database([*to_delete, anon_user], True)
 
     return jsonify({
         "status": 200,

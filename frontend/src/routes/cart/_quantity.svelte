@@ -9,9 +9,8 @@
 	let item = { ...$module.item };
 
 	let error = {};
-	let quantity = item.quantity;
 
-	const submit = async () => {
+	const submit = async (quantity) => {
 		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_item_quantity`, {
 			method: 'put',
@@ -40,7 +39,7 @@
 			$module = '';
 			$toast = {
 				status: 200,
-				message: `${item.name} quantity changed`
+				message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 			};
 		} else {
 			error = resp;
@@ -62,18 +61,18 @@
 
 		<span class="bold"> quantity </span>
 		<Quantity
-			{quantity}
+			quantity={item.quantity}
 			min={0}
 			on:done={(e) => {
-				quantity = e.detail.quantity;
+				item.quantity = e.detail.quantity;
 			}}
 		/>
 
 		<br />
 
-		{#if quantity > 0}
+		{#if item.quantity > 1}
 			<span class="bold"> Total </span>
-			₦{(item.price * quantity).toLocaleString()}
+			₦{(item.price * item.quantity).toLocaleString()}
 		{/if}
 
 		{#if error.quantity}
@@ -91,13 +90,23 @@
 
 	<br />
 
-	<Button class="primary" on:click={submit}>
-		{#if quantity > 0}
-			Submit
-		{:else}
-			Remove
+	<div class="line">
+		{#if item.quantity > 0}
+			<Button
+				class="primary"
+				on:click={() => {
+					submit(item.quantity);
+				}}>Submit</Button
+			>
 		{/if}
-	</Button>
+
+		<Button
+			class="hover_red"
+			on:click={() => {
+				submit(0);
+			}}>Remove</Button
+		>
+	</div>
 </Form>
 
 <style>
@@ -112,5 +121,10 @@
 	.bold {
 		font-weight: 500;
 		text-transform: capitalize;
+	}
+
+	.line {
+		display: flex;
+		gap: var(--sp1);
 	}
 </style>

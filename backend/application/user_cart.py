@@ -7,31 +7,41 @@ from uuid import uuid4
 bp = Blueprint("cart", __name__)
 
 
-@bp.get("/cart")
-def get_carts():
-    db = database()
-    user = token_to_user(db)
-
-    cart = query({
-        "type": "cart",
+def cart_template(user):
+    return {
         "key": f"{user['key']}_cart",
+        "id": str(uuid4().hex)[:10],
         "user": user["key"],
-    }, db=db)
+        "v": uuid4().hex,
+        "type": "cart",
 
-    items = []
-    for x in cart["items"]:
-        item = query({"type": "item", "key": x["key"]}, db=db)
-        if item:
-            item = item_schema(item, db)
-            item["variation"] = x["variation"]
-            item["quantity"] = x["quantity"]
-            items.append(item)
+        "date_c": now(),
+        "date_u": now(),
 
-    cart["items"] = items
-    return jsonify({
-        "status": 200,
-        "cart": cart
-    })
+        "items": [],
+
+        "recipient": {
+                "name": user["name"],
+                "phone": user["phone"],
+                "address": {
+                    "line": None,
+                    "country": None,
+                    "state": None,
+                    "local_area": None,
+                    "postal_code": None,
+                },
+        },
+
+        "delivery_date": f"{now(4).split('T')[0]}T10:00",
+
+        "transaction": {
+            "delivery_fee": 1500,
+            "total_items": 0,
+            "account": 0,
+            "pay": 0,
+            "pay_reference": None,
+        },
+    }
 
 
 def transaction(cart, db):
@@ -48,12 +58,47 @@ def transaction(cart, db):
 
 
 def normalize_db(cart, db):
+    exist = False
+
     for x in db:
         if x["key"] == cart["key"]:
             x = cart
+            exist = True
             break
 
+    if not exist:
+        db.append(cart)
+
     return db
+
+
+@bp.get("/cart")
+def get_carts():
+    db = database()
+    user = token_to_user(db)
+
+    cart = query({
+        "type": "cart",
+        "key": f"{user['key']}_cart",
+        "user": user["key"]}, db=db)
+
+    if not cart:
+        cart = cart_template(user)
+
+    items = []
+    for x in cart["items"]:
+        item = query({"type": "item", "key": x["key"]}, db=db)
+        if item:
+            item = item_schema(item, db)
+            item["variation"] = x["variation"]
+            item["quantity"] = x["quantity"]
+            items.append(item)
+
+    cart["items"] = items
+    return jsonify({
+        "status": 200,
+        "cart": cart
+    })
 
 
 @bp.post("/cart")
@@ -99,42 +144,7 @@ def add_to_cart():
         "user": user["key"],
     }, db=db)
     if not cart:
-        cart = {
-            "key": f"{user['key']}_cart",
-            "id": str(uuid4().hex)[:10],
-            "user": user["key"],
-            "v": uuid4().hex,
-            "type": "cart",
-
-            "date_c": now(),
-            "date_u": now(),
-
-            "recipient": {
-                "name": user["name"],
-                "phone": user["phone"],
-                "address": {
-                    "line": None,
-                    "country": None,
-                    "state": None,
-                    "local_area": None,
-                    "postal_code": None,
-                },
-            },
-
-            "items": [],
-
-            # ordered, processing, enroute, delivered, canceled
-            "status": "pending",
-            "delivery_date": f"{now(4).split('T')[0]}T10:00",
-
-            "transaction": {
-                "delivery_fee": 1500,
-                "total_items": 0,
-                "account": 0,
-                "pay": 0,
-                "pay_reference": None,
-            },
-        }
+        cart = cart_template(user)
 
     exist = False
     for x in cart["items"]:
@@ -206,9 +216,10 @@ def cart_item_quantity():
 
                 cart = transaction(cart, db)
                 cart["date_u"] = now()
-
                 db = normalize_db(cart, db)
             else:
+                cart = transaction(cart, db)
+                cart["date_u"] = now()
                 cart["items"].remove(x)
             break
 
