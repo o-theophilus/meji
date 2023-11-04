@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Center from '$lib/Center.svelte';
+	import Center from '$lib/center.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Button from '$lib/button.svelte';
 
