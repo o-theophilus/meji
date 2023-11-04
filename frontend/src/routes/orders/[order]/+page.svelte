@@ -100,7 +100,7 @@
 
 		<br />
 
-		<-- <Action {order} /> -->
+		<!-- <Action {order} /> -->
 		<br />
 	{/if}
 
