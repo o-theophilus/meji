@@ -10,7 +10,7 @@
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
 	import Address from './receiver.svelte';
-	import Action from './action.svelte';
+	// import Action from './action.svelte';
 	import Status from './_status.svelte';
 	import Cancel from './_status_cancel.svelte';
 	import Voucher from '../../profile/_voucher.svelte';
@@ -100,7 +100,7 @@
 
 		<br />
 
-		<Action {order} />
+		<-- <Action {order} /> -->
 		<br />
 	{/if}
 
