@@ -31,7 +31,7 @@ export const set_state = (page_name, key, value) => {
 	let temp = get(state)
 	temp[page_name] = _page.url.search
 	state.set(temp)
-	loading.set(true)
+	loading.set("loading . . .")
 
 	invalidate(() => true);
 };

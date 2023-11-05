@@ -5,20 +5,20 @@
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let order = { ...$module.order };
+	let cart = { ...$module.cart };
 	let error = {};
-	let value = order.info.account;
+	let amount = cart.transaction.account;
 
 	const validate = async () => {
 		error = {};
 
-		if (!Number(value) && value != 0) {
+		if (!Number(amount) && amount != 0) {
 			error.amount = 'invalid amount';
-		} else if (value > $user.acc_balance) {
+		} else if (amount > $user.acc_balance) {
 			error.amount = `amount larger than available balance (₦${$user.acc_balance.toLocaleString()})`;
-		} else if (value > pay) {
+		} else if (amount > pay) {
 			error.amount = `amount larger than total cost (₦${pay.toLocaleString()})`;
-		} else if (value < 0) {
+		} else if (amount < 0) {
 			error.amount = 'negative amount not allowed';
 		}
 
@@ -26,24 +26,22 @@
 	};
 
 	const submit = async () => {
-		order.info.account = value;
-
-		$loading = "loading . . .";
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_account/${order.key}`, {
+		$loading = 'loading . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_account`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ value })
+			body: JSON.stringify({ amount })
 		});
 		resp = await resp.json();
 		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'order',
-				data: resp.order
+				type: 'account',
+				data: resp.cart.transaction.account
 			};
 			$module = '';
 			$toast = {
@@ -55,17 +53,17 @@
 		}
 	};
 
-	let pay = order.info.total_items + order.info.delivery_fee - order.info.account;
+	let pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
 </script>
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Account Amount</b>
+		<b>Account</b>
 		Enter amount to deduct from your account
 	</svelte:fragment>
 
 	<IG name="amount" {error} let:id>
-		<input bind:value {id} type="number" placeholder="Amount here" />
+		<input bind:value={amount} {id} type="number" placeholder="Amount here" />
 	</IG>
 
 	{#if error.error}

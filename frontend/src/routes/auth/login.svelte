@@ -24,10 +24,10 @@
 	let message = 'Get access to your Cart, Saved Items, Orders, Wishlist and Recommendations.';
 	let return_url = '/';
 
-	if ($module?.message) {
+	if ($module.message) {
 		message = $module.message;
 	}
-	if ($module?.return_url) {
+	if ($module.return_url) {
 		return_url = $module.return_url;
 	}
 	if ($module?.email) {
@@ -49,7 +49,7 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
-		$loading = "loading . . .";
+		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/login`, {
 			method: 'post',
 			headers: {

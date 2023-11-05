@@ -20,108 +20,15 @@ def cart_to_order():
             "status": 400,
             "error": "invalid token"
         })
-    if not user["login"]:
-        return jsonify({
-            "status": 400,
-            "error": "please login"
-        })
 
-    c_items = query({"type": "cart", "user": user["key"]}, True, db=db)
-    if c_items == []:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    total_items = 0
-    for x in c_items:
-        item = query({"type": "item", "key": x["item"]}, db=db)
-        if not item:
-            return jsonify({
-                "status": 400,
-                "error": "item not found"
-            })
-        total_items += item["price"] * x["quantity"]
-
-    order = {
-        "key": str(uuid4().hex)[:10],
-        "user": user["key"],
-        "v": uuid4().hex,
-        "type": "order",
-
-        "date_c": now(),
-        "date_u": now(),
-
-        "receiver": {
-            "name": user["name"],
-            "phone": user["phone"],
-            "address": {
-                "line": None,
-                "country": None,
-                "state": None,
-                "local_area": None,
-                "postal_code": None,
-            },
-        },
-
-        "items": c_items,
-
-        # ordered, processing, enroute, delivered, canceled
-        "status": "pending",
-        "delivery_date": f"{now(4).split('T')[0]}T10:00",
-
-        "info": {
-            "delivery_fee": 1500,
-            "total_items": total_items,
-            "account": 0,
-            "pay": 0,
-            "pay_reference": None,
-        },
-    }
-
-    log = log_template(
-        user["key"],
-        "created",
-        order["key"],
-        "order",
-        200
-    )
-
-    database(c_items, True)
-    database([order, log])
-
-    return jsonify({
-        "status": 200,
-        "order_key": order["key"]
-    })
-
-
-@bp.post("/order/<key>")
-def place_order(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if order["status"] != "pending":
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
+    cart = query({
+        "type": "cart",
+        "key": f"{user['key']}_cart",
+        "user": user["key"]}, db=db)
 
     if (
-        "email_template" not in request.json
+        not cart
+        or "email_template" not in request.json
         or not request.json["email_template"]
         or "reference" not in request.json
     ):
@@ -131,22 +38,22 @@ def place_order(key):
         })
 
     if (
-        not order["receiver"]
-        or not order["receiver"]["name"]
-        or not order["receiver"]["phone"]
-        or not order["receiver"]["address"]
-        or not order["receiver"]["address"]["line"]
-        or not order["receiver"]["address"]["state"]
-        or not order["receiver"]["address"]["country"]
-        or not order["receiver"]["address"]["postal_code"]
+        not cart["receiver"]
+        or not cart["receiver"]["name"]
+        or not cart["receiver"]["phone"]
+        or not cart["receiver"]["address"]
+        or not cart["receiver"]["address"]["line"]
+        or not cart["receiver"]["address"]["state"]
+        or not cart["receiver"]["address"]["country"]
+        or not cart["receiver"]["address"]["postal_code"]
     ):
         return jsonify({
             "status": 400,
             "error": "invalid delivery address"
         })
 
-    total_pay = order["info"]["total_items"] + order[
-        "info"]["delivery_fee"] - order["info"]["account"]
+    total_pay = cart["transaction"]["total_items"] + cart[
+        "transaction"]["delivery_fee"] - cart["transaction"]["account"]
 
     if total_pay > 0:
         if not request.json['reference']:
@@ -158,7 +65,8 @@ def place_order(key):
         for x in db:
             if (
                 x["type"] == "order"
-                and request.json['reference'] == x["info"]["pay_reference"]
+                and x["transaction"][
+                    "pay_reference"] == request.json['reference']
             ):
                 return jsonify({
                     "status": 400,
@@ -192,20 +100,23 @@ def place_order(key):
                 "error": "invalid transaction"
             })
 
-    order["status"] = "ordered"
-    order["info"]["pay"] = total_pay
-    order["info"]["pay_reference"] = request.json['reference'] if request.json[
-        'reference'] else None
-    order["date_u"] = now()
-    user["acc_balance"] -= order["info"]["account"]
+    cart["key"] = str(uuid4().hex)[:10]
+    cart["type"] = "order"
+    cart["status"] = "created"
+    cart["transaction"]["pay"] = total_pay
+    cart["transaction"]["pay_reference"] = request.json[
+        'reference'] if request.json['reference'] else None
+    cart["date_u"] = now()
+    user["acc_balance"] -= cart["transaction"]["account"]
     log = log_template(
         user["key"],
-        "ordered",
-        order["key"],
+        "created",
+        cart["key"],
         "order",
     )
 
-    database([user, order, log])
+    # database(f"{user['key']}_cart", True)
+    # database([user, cart, log])
 
     send_mail(
         os.environ["MAIL_USERNAME"],
@@ -215,7 +126,7 @@ def place_order(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db),
+        "order": order_schema(cart, db),
         "user": user_schema(user, db)
     })
 
@@ -268,62 +179,6 @@ def date(key):
     )
 
     database([order, log])
-
-    return jsonify({
-        "status": 200,
-        "order": order_schema(order, db)
-    })
-
-
-@bp.put("/order_account/<key>")
-def submit_account(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    order = query({"type": "order", "key": key}, db=db)
-    if not order:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if order["status"] != "pending":
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if "value" not in request.json:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    error = None
-    if type(request.json["value"]) is not int:
-        error = "Please enter a valid value"
-    elif request.json["value"] > user["acc_balance"]:
-        error = "amount larger than available balance"
-    elif request.json["value"] > order["info"][
-            "total_items"] + order["info"]["delivery_fee"]:
-        error = "amount larger than total cost "
-    elif request.json["value"] < 0:
-        error = "negative amount not allowed"
-    if error:
-        return jsonify({
-            "status": 400,
-            **error
-        })
-
-    order["info"]["account"] = request.json["value"]
-    order["date_u"] = now()
-    order = database(order)
 
     return jsonify({
         "status": 200,

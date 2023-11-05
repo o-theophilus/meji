@@ -1,5 +1,6 @@
 <script>
-	import { user, module, portal, loading } from '$lib/store.js';
+	import { goto } from '$app/navigation';
+	import { user, module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
@@ -81,7 +82,7 @@
 		error = {};
 
 		$loading = 'loading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${cart.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -96,17 +97,14 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$user.acc_balance = resp.user.acc_balance;
-			$portal = {
-				type: 'order',
-				data: resp.order
-			};
+			$user = resp.user;
+			goto(`/orders/${resp.order.key}`);
 
 			$module = {
 				module: Info,
 				status: 200,
 				title: 'Successful',
-				message: `Your order was placed succcessfully`,
+				message: `Your order was placed successfully`,
 				button: [
 					{
 						name: 'Ok',

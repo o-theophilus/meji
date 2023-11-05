@@ -8,7 +8,7 @@
 	import Account from './pay._account.svelte';
 	import Voucher from '../profile/_voucher.svelte';
 
-	export let cart
+	export let cart;
 	// $: console.log(cart);
 </script>
 
@@ -38,7 +38,7 @@
 				on:click={() => {
 					$module = {
 						module: Account,
-						order: cart
+						cart
 					};
 				}}
 			>

@@ -77,12 +77,12 @@ def get_one(key):
             "error": "invalid request"
         })
 
-    if (
-        order["info"]["account"] > user["acc_balance"]
-        and order["status"] == "pending"
-    ):
-        order["info"]["account"] = 0
-        database(order)
+    # if (
+    #     order["info"]["account"] > user["acc_balance"]
+    #     and order["status"] == "pending"
+    # ):
+    #     order["info"]["account"] = 0
+    #     database(order)
 
     previous_receivers = []
     for x in db:

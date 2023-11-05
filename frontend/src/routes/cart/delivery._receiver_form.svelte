@@ -49,7 +49,7 @@
 
 	const submit = async () => {
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_reciever`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_receiver`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

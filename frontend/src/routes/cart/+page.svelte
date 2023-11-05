@@ -3,6 +3,8 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
+	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	import Cart from './cart.svelte';
 	import Delivery from './delivery.svelte';
@@ -35,20 +37,69 @@
 			cart.receiver = $portal.data;
 		}
 
+		if ($portal.type == 'account') {
+			cart.transaction.account = $portal.data;
+		}
+
 		$portal = '';
 	}
+
+	let states = ['cart', 'receiver', 'payment'];
+	let state = 0;
 </script>
 
 <Meta title="Cart" description="Cart" />
 
 <Center>
 	<br />
-	<div class="ctitle">Cart</div>
+
+	<div class="ctitle">
+		<div class="ctitle">
+			{#if state > 0}
+				<Button
+					class="round"
+					on:click={() => {
+						state -= 1;
+					}}
+				>
+					<SVG type="angle" size="10" />
+				</Button>
+			{/if}
+
+			{states[state]}
+		</div>
+	</div>
 </Center>
 
-<Cart {cart} />
-<Delivery {cart} {previous_receivers} />
-<Pay {cart} />
+{#if state == 0}
+	<Cart
+		{cart}
+		on:next={() => {
+			state = 1;
+		}}
+	/>
+{:else if state == 1}
+	<Delivery
+		{cart}
+		{previous_receivers}
+		on:next={() => {
+			state = 2;
+		}}
+		on:back={() => {
+			state = 0;
+		}}
+	/>
+{:else if state == 2}
+	<Pay
+		{cart}
+		on:back={() => {
+			state = 1;
+		}}
+	/>
+{/if}
 
 <style>
+	.ctitle {
+		text-transform: capitalize;
+	}
 </style>

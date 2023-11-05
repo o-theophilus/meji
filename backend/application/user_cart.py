@@ -83,6 +83,9 @@ def get_carts():
 
     if not cart:
         cart = cart_template(user)
+    elif cart["transaction"]["account"] > user["acc_balance"]:
+        cart["transaction"]["account"] = 0
+        database(cart)
 
     items = []
     for x in cart["items"]:
@@ -248,8 +251,8 @@ def cart_item_quantity():
     })
 
 
-@bp.put("/cart_reciever")
-def cart_reciever():
+@bp.put("/cart_receiver")
+def cart_receiver():
     db = database()
 
     user = token_to_user(db)
@@ -301,8 +304,7 @@ def cart_reciever():
     cart = query({
         "type": "cart",
         "key": f"{user['key']}_cart",
-        "user": user["key"],
-    }, db=db)
+        "user": user["key"]}, db=db)
     if not cart or len(cart["items"]) == 0:
         return jsonify({
             "status": 400,
@@ -320,6 +322,56 @@ def cart_reciever():
     }
     cart["date_u"] = now()
 
+    cart = database(cart)
+
+    return jsonify({
+        "status": 200,
+        "cart": cart
+    })
+
+
+@bp.put("/cart_account")
+def cart_account():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    cart = query({
+        "type": "cart",
+        "key": f"{user['key']}_cart",
+        "user": user["key"]}, db=db)
+    if not cart:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = None
+    if "amount" not in request.json:
+        error = "invalid request"
+    elif (
+        type(request.json["amount"]) not in [int, float]
+        or request.json["amount"] < 0
+    ):
+        error = "Please enter a valid amount"
+    elif request.json["amount"] > user["acc_balance"]:
+        error = "amount larger than available balance"
+    elif request.json["amount"] > cart["transaction"][
+            "total_items"] + cart["transaction"]["delivery_fee"]:
+        error = "amount larger than total cost "
+    if error:
+        return jsonify({
+            "status": 400,
+            "amount": error
+        })
+
+    cart["transaction"]["account"] = request.json["amount"]
+    cart["date_u"] = now()
     cart = database(cart)
 
     return jsonify({

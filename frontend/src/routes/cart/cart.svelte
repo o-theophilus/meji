@@ -1,10 +1,8 @@
 <script>
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { user, module, loading } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
+	import { user, module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import SVG from '$lib/svg.svelte';
@@ -12,6 +10,9 @@
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
 	import Delivery from './cart.delivery.svelte';
+	import { createEventDispatcher } from 'svelte';
+
+	let emit = createEventDispatcher();
 
 	export let cart;
 
@@ -25,40 +26,6 @@
 		}
 		total += cart.transaction.delivery_fee;
 	}
-
-	const login = async () => {
-		$module = {
-			module: Login,
-			data: {
-				message: 'please login to checkout',
-				return_url: $page.url.pathname
-			}
-		};
-	};
-
-	const submit = async () => {
-		if (!$user.login) {
-			login();
-		} else {
-			$loading = 'checking out . . .';
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
-				method: 'post',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: $token
-				}
-			});
-			resp = await resp.json();
-			$loading = false;
-
-			if (resp.status == 200) {
-				$user.cart = [];
-				goto(`/orders/${resp.order_key}`);
-			} else {
-				error = resp;
-			}
-		}
-	};
 </script>
 
 <Card>
@@ -86,7 +53,22 @@
 
 		<br />
 
-		<Button class="primary" on:click={submit}>
+		<Button
+			class="primary"
+			on:click={() => {
+				if ($user.login) {
+					emit('next');
+				} else {
+					$module = {
+						module: Login,
+						data: {
+							message: 'please login to checkout',
+							return_url: $page.url.pathname
+						}
+					};
+				}
+			}}
+		>
 			<SVG type="cart_out" />
 			Checkout
 		</Button>

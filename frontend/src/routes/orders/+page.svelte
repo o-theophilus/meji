@@ -15,7 +15,7 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 
-	let status = ['pending', 'ordered', 'processing', 'enroute', 'delivered', 'canceled'];
+	let status = ['created', 'processing', 'enroute', 'delivered', 'canceled'];
 </script>
 
 <Meta title="Order" description="Order" />
@@ -43,7 +43,7 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={status} default_value="ordered" />
+	<Status {page_name} array={status} default_value="created" />
 
 	<br />
 
