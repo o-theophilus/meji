@@ -84,24 +84,24 @@ def get_one(key):
         order["info"]["account"] = 0
         database(order)
 
-    previous_recipients = []
+    previous_receivers = []
     for x in db:
         if (
             x["type"] == "order"
             and x["user"] == user["key"]
             and x["status"] == "delivered"
         ):
-            previous_recipients.append({
-                "name": x["recipient"]["name"],
-                "phone": x["recipient"]["phone"],
-                "address": x["recipient"]["address"],
+            previous_receivers.append({
+                "name": x["receiver"]["name"],
+                "phone": x["receiver"]["phone"],
+                "address": x["receiver"]["address"],
                 "date": x["date_u"],
             })
 
-    previous_recipients = sorted(previous_recipients, key=lambda d: d['date'])
+    previous_receivers = sorted(previous_receivers, key=lambda d: d['date'])
 
     return jsonify({
         "status": 200,
         "order": order_schema(order, db),
-        "previous_recipients": previous_recipients[:5]
+        "previous_receivers": previous_receivers[:5]
     })

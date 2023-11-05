@@ -52,7 +52,7 @@ def cart_to_order():
         "date_c": now(),
         "date_u": now(),
 
-        "recipient": {
+        "receiver": {
             "name": user["name"],
             "phone": user["phone"],
             "address": {
@@ -131,14 +131,14 @@ def place_order(key):
         })
 
     if (
-        not order["recipient"]
-        or not order["recipient"]["name"]
-        or not order["recipient"]["phone"]
-        or not order["recipient"]["address"]
-        or not order["recipient"]["address"]["line"]
-        or not order["recipient"]["address"]["state"]
-        or not order["recipient"]["address"]["country"]
-        or not order["recipient"]["address"]["postal_code"]
+        not order["receiver"]
+        or not order["receiver"]["name"]
+        or not order["receiver"]["phone"]
+        or not order["receiver"]["address"]
+        or not order["receiver"]["address"]["line"]
+        or not order["receiver"]["address"]["state"]
+        or not order["receiver"]["address"]["country"]
+        or not order["receiver"]["address"]["postal_code"]
     ):
         return jsonify({
             "status": 400,
@@ -218,7 +218,6 @@ def place_order(key):
         "order": order_schema(order, db),
         "user": user_schema(user, db)
     })
-
 
 
 @bp.put("/order_eta/<key>")

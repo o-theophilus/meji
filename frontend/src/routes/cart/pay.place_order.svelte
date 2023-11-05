@@ -27,13 +27,13 @@
 	}
 
 	$: complete_address =
-		cart.recipient.name &&
-		cart.recipient.phone &&
-		cart.recipient.address.line &&
-		cart.recipient.address.state &&
-		cart.recipient.address.country &&
-		cart.recipient.address.local_area &&
-		cart.recipient.address.postal_code;
+		cart.receiver.name &&
+		cart.receiver.phone &&
+		cart.receiver.address.line &&
+		cart.receiver.address.state &&
+		cart.receiver.address.country &&
+		cart.receiver.address.local_area &&
+		cart.receiver.address.postal_code;
 
 	const validate = () => {
 		error = {};
@@ -80,7 +80,7 @@
 	const submit = async (reference = '') => {
 		error = {};
 
-		$loading = "loading . . .";
+		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${cart.key}`, {
 			method: 'post',
 			headers: {

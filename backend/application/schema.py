@@ -11,11 +11,12 @@ def user_schema(user, db):
         "type": "cart",
         "key": f"{user['key']}_cart",
         "user": user["key"]}, db=db)
-    
-    cart=[]
-    for x in _cart["items"]:
-        cart.append(f"{x['key']}_{json.dumps(x['variation'], separators=(',', ':'))}")
 
+    cart = []
+    if _cart:
+        for x in _cart["items"]:
+            variation = json.dumps(x['variation'], separators=(',', ':'))
+            cart.append(f"{x['key']}_{variation}")
     return {
         "key": user["key"],
 
@@ -90,7 +91,7 @@ def order_schema(order, db):
     return {
         "key": order["key"],
         "user": order["user"],
-        "recipient": order["recipient"],
+        "receiver": order["receiver"],
 
         "items": items,
 

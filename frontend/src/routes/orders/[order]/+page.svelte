@@ -18,7 +18,7 @@
 
 	export let data;
 	let { order } = data;
-	let { previous_recipients } = data;
+	let { previous_receivers } = data;
 
 	$: if ($portal && $portal.type == 'order') {
 		order = $portal.data;
@@ -56,7 +56,7 @@
 		<div class="hr" />
 
 		<div>
-			<Address {order} {previous_recipients} />
+			<Address {order} {previous_receivers} />
 			<br />
 			<Eta {order} />
 		</div>

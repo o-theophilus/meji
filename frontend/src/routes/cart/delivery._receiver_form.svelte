@@ -12,35 +12,35 @@
 	import IG from '$lib/input_group.svelte';
 
 	let { cart } = $module;
-	let { previous_recipients } = $module;
+	let { previous_receivers } = $module;
 
-	let recipient = { ...cart.recipient };
-	recipient.address.country = 'Nigeria';
-	recipient.address.state = 'Lagos';
+	let receiver = { ...cart.receiver };
+	receiver.address.country = 'Nigeria';
+	receiver.address.state = 'Lagos';
 
 	let error = {};
 
 	const validate = () => {
 		error = {};
-		if (!recipient.name) {
+		if (!receiver.name) {
 			error.name = 'This field is required';
 		}
-		if (!recipient.phone) {
+		if (!receiver.phone) {
 			error.phone = 'This field is required';
 		}
-		if (!recipient.address.line) {
+		if (!receiver.address.line) {
 			error.line = 'This field is required';
 		}
-		if (!recipient.address.country) {
+		if (!receiver.address.country) {
 			error.country = 'This field is required';
 		}
-		if (!recipient.address.state) {
+		if (!receiver.address.state) {
 			error.state = 'This field is required';
 		}
-		if (!recipient.address.local_area) {
+		if (!receiver.address.local_area) {
 			error.local_area = 'This field is required';
 		}
-		if (!recipient.address.postal_code) {
+		if (!receiver.address.postal_code) {
 			error.postal_code = 'This field is required';
 		}
 
@@ -55,7 +55,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(recipient)
+			body: JSON.stringify(receiver)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -63,12 +63,12 @@
 		if (resp.status == 200) {
 			$portal = {
 				type: 'receiver',
-				data: resp.cart.recipient
+				data: resp.cart.receiver
 			};
 			$module = '';
 			$toast = {
 				status: '200',
-				message: 'Recipient information updated'
+				message: "Receiver's information updated"
 			};
 		} else {
 			error = resp;
@@ -78,7 +78,7 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == cart.recipient.address.country) {
+			if (countries[i].name == cart.receiver.address.country) {
 				states = countries[i].states;
 				break;
 			}
@@ -93,10 +93,10 @@
 		<b>Receiver's Information</b>
 	</svelte:fragment>
 
-	{#if previous_recipients.length > 0}
+	{#if previous_receivers.length > 0}
 		<div class="suggestion">
 			<div class="title">
-				Address suggestion{previous_recipients.length > 1 ? 's' : ''}
+				Address suggestion{previous_receivers.length > 1 ? 's' : ''}
 				<ButtonFold
 					{open}
 					on:click={() => {
@@ -106,11 +106,11 @@
 			</div>
 			{#if open}
 				<div class="body" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-					{#each previous_recipients as r}
+					{#each previous_receivers as r}
 						<Button
 							class="small"
 							on:click={() => {
-								recipient = {
+								receiver = {
 									name: r.name,
 									phone: r.phone,
 									address: { ...r.address }
@@ -134,11 +134,11 @@
 	{/if}
 
 	<IG name="name" {error} let:id>
-		<input bind:value={recipient.name} {id} type="text" placeholder="Name here" />
+		<input bind:value={receiver.name} {id} type="text" placeholder="Name here" />
 	</IG>
 
 	<IG name="phone" {error} let:id>
-		<input bind:value={recipient.phone} {id} type="tel" placeholder="Phone here" />
+		<input bind:value={receiver.phone} {id} type="tel" placeholder="Phone here" />
 	</IG>
 
 	<hr />
@@ -146,7 +146,7 @@
 
 	<IG name="line" label="address" {error} let:id>
 		<input
-			bind:value={recipient.address.line}
+			bind:value={receiver.address.line}
 			{id}
 			type="text"
 			placeholder="Delivery address here"
@@ -155,10 +155,10 @@
 
 	<IG name="country" {error} let:id>
 		<select
-			bind:value={recipient.address.country}
+			bind:value={receiver.address.country}
 			{id}
 			on:input={() => {
-				recipient.address.state = '';
+				receiver.address.state = '';
 			}}
 			disabled
 		>
@@ -170,7 +170,7 @@
 	</IG>
 
 	<IG name="state" {error} let:id>
-		<select bind:value={recipient.address.state} {id} disabled>
+		<select bind:value={receiver.address.state} {id} disabled>
 			<option value="" selected disabled hidden> Select country </option>
 			{#each states as state}
 				<option value={state.name}> {state.name} </option>
@@ -180,7 +180,7 @@
 
 	<IG name="local_area" label="Local Government Area" {error} let:id>
 		<input
-			bind:value={recipient.address.local_area}
+			bind:value={receiver.address.local_area}
 			{id}
 			type="text"
 			placeholder="Your local government area here"
@@ -189,7 +189,7 @@
 
 	<IG name="postal_code" {error} let:id>
 		<input
-			bind:value={recipient.address.postal_code}
+			bind:value={receiver.address.postal_code}
 			{id}
 			type="text"
 			placeholder="Your postal code here"

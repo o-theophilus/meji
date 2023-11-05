@@ -19,7 +19,7 @@ def cart_template(user):
 
         "items": [],
 
-        "recipient": {
+        "receiver": {
                 "name": user["name"],
                 "phone": user["phone"],
                 "address": {
@@ -94,26 +94,25 @@ def get_carts():
             items.append(item)
     cart["items"] = items
 
-
-    previous_recipients = []
+    previous_receivers = []
     for x in db:
         if (
             x["type"] == "order"
             and x["user"] == user["key"]
             and x["status"] == "delivered"
         ):
-            previous_recipients.append({
-                "name": x["recipient"]["name"],
-                "phone": x["recipient"]["phone"],
-                "address": x["recipient"]["address"],
+            previous_receivers.append({
+                "name": x["receiver"]["name"],
+                "phone": x["receiver"]["phone"],
+                "address": x["receiver"]["address"],
                 "date": x["date_u"],
             })
-    previous_recipients = sorted(previous_recipients, key=lambda d: d['date'])
+    previous_receivers = sorted(previous_receivers, key=lambda d: d['date'])
 
     return jsonify({
         "status": 200,
         "cart": cart,
-        "previous_recipients": previous_recipients[:5]
+        "previous_receivers": previous_receivers[:5]
     })
 
 
@@ -310,9 +309,9 @@ def cart_reciever():
             "error": "invalid request"
         })
 
-    cart["recipient"]["name"] = request.json["name"]
-    cart["recipient"]["phone"] = request.json["phone"]
-    cart["recipient"]["address"] = {
+    cart["receiver"]["name"] = request.json["name"]
+    cart["receiver"]["phone"] = request.json["phone"]
+    cart["receiver"]["address"] = {
         "line": request.json["address"]["line"],
         "state": request.json["address"]["state"],
         "country": request.json["address"]["country"],
@@ -327,4 +326,3 @@ def cart_reciever():
         "status": 200,
         "cart": cart
     })
-

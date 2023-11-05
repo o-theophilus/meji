@@ -1,6 +1,6 @@
 <script>
 	export let order;
-	$: r = order.recipient;
+	$: r = order.receiver;
 	$: a = r.address;
 </script>
 

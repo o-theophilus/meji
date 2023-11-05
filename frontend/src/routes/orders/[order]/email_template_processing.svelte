@@ -5,7 +5,7 @@
 	import Template from '$lib/email_template.svelte';
 
 	export let order;
-	let r = order.recipient;
+	let r = order.receiver;
 	let a = r.address;
 
 	let s = order.items.length > 1 ? 's' : '';

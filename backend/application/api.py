@@ -202,14 +202,17 @@ def fix():
     })
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def fix2():
     db = database()
 
     changed = []
     for x in db:
-        if x["type"] == ["cart", "order"]:
-            # database(x, True)
+        if (
+            x["type"] == "log"
+            and x["entity_type"] == "order"
+        ):
+            database(x, True)
             changed.append(x)
 
     return jsonify({

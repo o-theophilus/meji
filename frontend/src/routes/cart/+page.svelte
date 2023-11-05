@@ -10,7 +10,7 @@
 
 	export let data;
 	let { cart } = data;
-	let { previous_recipients } = data;
+	let { previous_receivers } = data;
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
@@ -32,7 +32,7 @@
 		}
 
 		if ($portal.type == 'receiver') {
-			cart.recipient = $portal.data;
+			cart.receiver = $portal.data;
 		}
 
 		$portal = '';
@@ -47,7 +47,7 @@
 </Center>
 
 <Cart {cart} />
-<Delivery {cart} {previous_recipients} />
+<Delivery {cart} {previous_receivers} />
 <Pay {cart} />
 
 <style>

@@ -9,7 +9,7 @@
 	import Form from './delivery._receiver_form.svelte';
 
 	export let cart;
-	export let previous_recipients = [];
+	export let previous_receivers = [];
 </script>
 
 <Card>
@@ -20,7 +20,7 @@
 				$module = {
 					module: Form,
 					cart,
-					previous_recipients
+					previous_receivers
 				};
 			}}
 		>
@@ -30,7 +30,6 @@
 	<br />
 	<Eta order={cart} />
 </Card>
-
 
 <style>
 </style>

@@ -13,7 +13,7 @@
 	import Item from './cart.item.svelte';
 	import Delivery from './cart.delivery.svelte';
 
-	export let cart 
+	export let cart;
 
 	let error = {};
 	let total = 0;
@@ -23,7 +23,7 @@
 		for (const x in cart.items) {
 			total += cart.items[x].quantity * cart.items[x].price;
 		}
-		total += cart.transaction.delivery_fee
+		total += cart.transaction.delivery_fee;
 	}
 
 	const login = async () => {
@@ -40,7 +40,7 @@
 		if (!$user.login) {
 			login();
 		} else {
-			$loading = "checking out . . .";
+			$loading = 'checking out . . .';
 			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
 				method: 'post',
 				headers: {
@@ -70,7 +70,10 @@
 		{:else}
 			no item here
 		{/each}
-		<Delivery {cart}></Delivery>
+
+		{#if cart.items.length > 0}
+			<Delivery {cart} />
+		{/if}
 	</div>
 
 	{#if cart.items.length > 0}
