@@ -19,7 +19,7 @@
 			<Button
 				class="small"
 				on:click={() => {
-					$loading = true;
+					$loading = "loading . . .";
 					$module = '';
 					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}

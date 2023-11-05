@@ -24,7 +24,7 @@
 	};
 
 	const submit = async (status) => {
-		$loading = true;
+		$loading = "updating . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {

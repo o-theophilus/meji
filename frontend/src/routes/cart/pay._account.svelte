@@ -28,7 +28,7 @@
 	const submit = async () => {
 		order.info.account = value;
 
-		$loading = true;
+		$loading = "loading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_account/${order.key}`, {
 			method: 'put',
 			headers: {

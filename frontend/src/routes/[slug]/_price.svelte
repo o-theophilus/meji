@@ -28,7 +28,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "saving . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
@@ -61,7 +61,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Edit Item</b>
+		<b>Edit Price</b>
 	</svelte:fragment>
 
 	<IG name="price" {error} let:id>
@@ -77,5 +77,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Save</Button>
 </Form>

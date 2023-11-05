@@ -9,6 +9,9 @@
 	<section>
 		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<div class="circle" />
+			{#if typeof $loading == 'string'}
+				{$loading}
+			{/if}
 		</div>
 	</section>
 {/if}
@@ -22,17 +25,25 @@
 		inset: 0;
 		z-index: 1;
 
-		padding: var(--sp1);
+		padding: var(--sp2);
 	}
-
+	
 	.block {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
+		gap: var(--sp2);
 
-		width: 100px;
-		height: 100px;
+		width: 200px;
+		height: fit-content;
+		padding: var(--sp2);
+		border-radius: var(--sp1);
+
+		text-align: center;
+		color: var(--ac1);
+		background-color: var(--ac6);
+		box-shadow: var(--shad1);
 	}
 
 	.circle {
@@ -43,6 +54,7 @@
 
 		background-image: url('/image/loading.png');
 		background-size: contain;
+		background-repeat: no-repeat;
 
 		animation: rotation 1s infinite linear;
 	}

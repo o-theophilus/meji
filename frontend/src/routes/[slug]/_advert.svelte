@@ -27,10 +27,10 @@
 		}
 	};
 
-	const delete_photo = async () => {
+	const remove_photo = async () => {
 		error = {};
 
-		$loading = true;
+		$loading = "removing . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_photo/${item.key}`, {
 			method: 'delete',
 			headers: {
@@ -65,7 +65,7 @@
 	const delete_advert = async () => {
 		error = {};
 
-		$loading = true;
+		$loading = "deleting . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
 			method: 'delete',
 			headers: {
@@ -146,7 +146,7 @@
 			formData.append('files', files[i]);
 		}
 
-		$loading = true;
+		$loading = `uploading photo${files.length>1? "s":""} . . .`;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
 			method: 'post',
 			headers: {
@@ -288,7 +288,7 @@
 				Add
 			</Button>
 
-			<Button class="small hover_red" on:click={delete_photo} disabled={!active_photo.photo}
+			<Button class="small hover_red" on:click={remove_photo} disabled={!active_photo.photo}
 				>Remove</Button
 			>
 		</div>

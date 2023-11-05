@@ -5,7 +5,7 @@
 	import Button from '$lib/button.svelte';
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "loading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
 			method: 'delete',
 			headers: {

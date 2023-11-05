@@ -23,7 +23,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "deleting . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
 			method: 'delete',
 			headers: {

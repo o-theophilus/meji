@@ -14,7 +14,7 @@
 	import Status from './_status.svelte';
 	import Cancel from './_status_cancel.svelte';
 	import Voucher from '../../profile/_voucher.svelte';
-	import Account from './_account.svelte';
+	// import Account from './_account.svelte';
 
 	export let data;
 	let { order } = data;
@@ -83,7 +83,7 @@
 			>
 				Add Voucher
 			</Button>
-			{#if $user.acc_balance > 0}
+			<!-- {#if $user.acc_balance > 0}
 				<Button
 					class="link"
 					on:click={() => {
@@ -95,7 +95,7 @@
 				>
 					Edit
 				</Button>
-			{/if}
+			{/if} -->
 		</section>
 
 		<br />

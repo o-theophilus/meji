@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Quantity from './_quantity.svelte';
+	import Quantity from './cart._quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 	import Button from '$lib/button.svelte';
 

@@ -28,7 +28,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "loading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_eta/${form.key}`, {
 			method: 'put',
 			headers: {
@@ -75,5 +75,5 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Ok</Button>
 </Form>

@@ -20,7 +20,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "saving . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
@@ -66,5 +66,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Save</Button>
 </Form>

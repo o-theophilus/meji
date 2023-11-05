@@ -23,7 +23,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "creating . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher`, {
 			method: 'post',
 			headers: {
@@ -75,5 +75,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Create</Button>
 </Form>

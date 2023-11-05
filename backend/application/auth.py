@@ -3,7 +3,7 @@ from .tools import token_tool, token_to_user, now, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
-from .user_cart import cart_template
+from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
 import os
@@ -283,10 +283,18 @@ def login():
             if not cart:
                 cart = cart_template(user)
 
-            keys = [f"{x['key']} {x['variation']}" for x in cart["items"]]
+            keys = [f"{x['key']}_{x['variation']}" for x in cart["items"]]
             for x in anon_cart["items"]:
-                if f"{x['key']} {x['variation']}" not in keys:
+                if f"{x['key']}_{x['variation']}" not in keys:
                     cart["items"].append(x)
+
+            for x in cart["items"]:
+                for y in anon_cart["items"]:
+                    if f"{x['key']}_{x['variation']}" == f"{y['key']}_{y['variation']}":
+                        x["quantity"] = y["quantity"]
+                        break
+
+            cart = transaction(cart, db)
 
             to_delete.append(anon_cart)
             edited.append(cart)

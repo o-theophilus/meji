@@ -93,7 +93,7 @@ color: #1d9bf0;
 	<br />
 	{#each order.items as x}
 		<img
-			src="{x.photo}/40"
+			src="{x.photos[0]}/40"
 			alt={x.name}
 			style="
 				width:40px; 

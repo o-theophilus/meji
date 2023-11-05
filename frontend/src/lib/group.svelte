@@ -39,7 +39,6 @@
 		<section class="card">
 			<br />
 			<br />
-			<br />
 			<div class="ctitle">
 				{name}
 				<slot {open} {set_open} />

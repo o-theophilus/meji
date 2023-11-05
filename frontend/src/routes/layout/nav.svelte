@@ -61,10 +61,10 @@
 				<SVG type="cart" size="15" />
 			{/if}
 			Cart
-			{#if $user && $user.cart > 0}
+			{#if $user && $user.cart.length > 0}
 				{#key $user.cart}
 					<div class="circle">
-						{$user.cart}
+						{$user.cart.length}
 					</div>
 				{/key}
 			{/if}

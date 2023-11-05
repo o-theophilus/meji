@@ -30,7 +30,7 @@
 	const submit = async (status) => {
 		error = {};
 
-		$loading = true;
+		$loading = "loading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_status/${order.key}`, {
 			method: 'put',
 			headers: {

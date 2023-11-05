@@ -1,95 +1,42 @@
 <script>
-	import { flip } from 'svelte/animate';
-	import { cubicInOut } from 'svelte/easing';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { user, module, loading, portal } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
+	import { portal } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
-	import Card from '$lib/card.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
-	import Item from './item.svelte';
-	import Button from '$lib/button.svelte';
-	import Login from '../auth/login.svelte';
 
-	import Eta from '../orders/[order]/eta.svelte';
-	import Address from '../orders/[order]/receiver.svelte';
-	import Action from './action.svelte';
-	import Account from '../orders/[order]/_account.svelte';
-	import Form from '../orders/[order]/_receiver_form.svelte';
-	import Voucher from '../profile/_voucher.svelte';
+	import Cart from './cart.svelte';
+	import Delivery from './delivery.svelte';
+	import Pay from './pay.svelte';
 
 	export let data;
 	let { cart } = data;
-	// let { previous_recipients } = data;
-	let previous_recipients = [];
-
-	let error = {};
-	let total = 0;
+	let { previous_recipients } = data;
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
-			let temp = [];
+			let items = [];
 			for (const x in cart.items) {
 				if (
-					cart.items[x].key == $portal.data.key &&
-					cart.items[x].variation == $portal.data.variation
+					`${cart.items[x].key}_${JSON.stringify(cart.items[x].variation)}` ==
+					`${$portal.data.key}_${JSON.stringify($portal.data.variation)}`
 				) {
 					cart.items[x].quantity = $portal.data.quantity;
 					if (cart.items[x].quantity > 0) {
-						temp.push(cart.items[x]);
+						items.push(cart.items[x]);
 					}
 				} else {
-					temp.push(cart.items[x]);
+					items.push(cart.items[x]);
 				}
 			}
-			cart.items = temp;
+			cart.items = items;
 		}
+
+		if ($portal.type == 'receiver') {
+			cart.recipient = $portal.data;
+		}
+
 		$portal = '';
 	}
-
-	$: {
-		total = 0;
-		for (const x in cart.items) {
-			total += cart.items[x].quantity * cart.items[x].price;
-		}
-	}
-
-	const login = async () => {
-		$module = {
-			module: Login,
-			data: {
-				message: 'please login to checkout',
-				return_url: $page.url.pathname
-			}
-		};
-	};
-
-	const submit = async () => {
-		if (!$user.login) {
-			login();
-		} else {
-			$loading = true;
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
-				method: 'post',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: $token
-				}
-			});
-			resp = await resp.json();
-			$loading = false;
-
-			if (resp.status == 200) {
-				$user.cart = [];
-				goto(`/orders/${resp.order_key}`);
-			} else {
-				error = resp;
-			}
-		}
-	};
 </script>
 
 <Meta title="Cart" description="Cart" />
@@ -99,153 +46,9 @@
 	<div class="ctitle">Cart</div>
 </Center>
 
-<Card>
-	<div class="items">
-		{#each cart.items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
-			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<Item bind:item />
-			</div>
-		{:else}
-			no item here
-		{/each}
-	</div>
-
-	{#if cart.items.length > 0}
-		<div class="total_amount">
-			<div class="total">Total Amount</div>
-			<div class="amount">
-				₦{total.toLocaleString()}
-			</div>
-		</div>
-
-		<br />
-
-		<Button class="primary" on:click={submit}>
-			<SVG type="cart_out" />
-			Checkout
-		</Button>
-
-		{#if error.error}
-			<br />
-			<span class="error">
-				{error.error}
-			</span>
-		{/if}
-	{/if}
-</Card>
-
-<Card>
-	<div class="block">
-		<div>
-			<Address order={cart} {previous_recipients}>
-				<Button
-					class="link"
-					on:click={() => {
-						$module = {
-							module: Form,
-							cart,
-							previous_recipients
-						};
-					}}
-				>
-					Edit
-				</Button>
-			</Address>
-			<br />
-			<Eta order={cart} />
-		</div>
-	</div>
-</Card>
-
-<Card>
-	<section class="grid">
-		{#if $user.acc_balance > 0}
-			<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
-			<div class="value">
-				₦{cart.transaction.account.toLocaleString()}
-			</div>
-		{/if}
-
-		<Button
-			class="link"
-			on:click={() => {
-				$module = {
-					module: Voucher
-				};
-			}}
-		>
-			Add Voucher
-		</Button>
-
-		{#if $user.acc_balance > 0}
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Account,
-						order: cart
-					};
-				}}
-			>
-				Edit
-			</Button>
-		{/if}
-	</section>
-
-	<br />
-
-	<Action order={cart} />
-	<br />
-</Card>
+<Cart {cart} />
+<Delivery {cart} {previous_recipients} />
+<Pay {cart} />
 
 <style>
-	.items {
-		display: grid;
-		gap: var(--sp2);
-	}
-
-	.total_amount {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-
-		margin-top: var(--sp3);
-		padding-top: var(--sp2);
-		border-top: 2px solid var(--ac4);
-		color: var(--ac1);
-	}
-
-	.amount {
-		font-weight: 500;
-		font-size: large;
-	}
-
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp4);
-
-		width: 100%;
-	}
-
-	@media screen and (min-width: 800px) {
-		.block {
-			flex-direction: unset;
-		}
-	}
-
-	.grid {
-		display: grid;
-		gap: 0 var(--sp3);
-		grid-template-columns: max-content max-content;
-	}
-	.value {
-		font-weight: 500;
-	}
-
-	section {
-		display: grid;
-		gap: 0 var(--sp3);
-		grid-template-columns: max-content max-content;
-	}
 </style>

@@ -19,7 +19,7 @@
 
 	const submit = async (method, url) => {
 		error = {};
-		$loading = true;
+		$loading = `${method == "delete" ? "deleting":"deactivating"} . . .`;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/${url}/${voucher.key}`, {
 			method: method,
 			headers: {

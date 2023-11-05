@@ -70,7 +70,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "saving . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/email`, {
 			method: 'post',
 			headers: {
@@ -138,7 +138,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Save</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

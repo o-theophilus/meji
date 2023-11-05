@@ -41,7 +41,7 @@
 	};
 
 	const submit = async () => {
-		$loading = 'loading . . .';
+		$loading = 'resetting . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/forgot_password/${$module.token}`, {
 			method: 'post',
 			headers: {
@@ -139,7 +139,7 @@ Please try repeacting the action again.`,
 			validate();
 		}}
 	>
-		Submit
+		Reset
 	</Button>
 </Form>
 

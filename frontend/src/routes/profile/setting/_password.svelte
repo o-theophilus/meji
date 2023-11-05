@@ -68,7 +68,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "resetting . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/password`, {
 			method: 'post',
 			headers: {
@@ -148,7 +148,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Reset</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

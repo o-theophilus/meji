@@ -11,10 +11,10 @@
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let { order } = $module;
+	let { cart } = $module;
 	let { previous_recipients } = $module;
 
-	let recipient = { ...order.recipient };
+	let recipient = { ...cart.recipient };
 	recipient.address.country = 'Nigeria';
 	recipient.address.state = 'Lagos';
 
@@ -48,8 +48,8 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_address/${order.key}`, {
+		$loading = 'saving . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_reciever`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -62,8 +62,8 @@
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'order',
-				data: resp.order
+				type: 'receiver',
+				data: resp.cart.recipient
 			};
 			$module = '';
 			$toast = {
@@ -78,7 +78,7 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == order.recipient.address.country) {
+			if (countries[i].name == cart.recipient.address.country) {
 				states = countries[i].states;
 				break;
 			}
@@ -93,7 +93,7 @@
 		<b>Receiver's Information</b>
 	</svelte:fragment>
 
-	{#if order.status == 'pending' && previous_recipients.length > 0}
+	{#if previous_recipients.length > 0}
 		<div class="suggestion">
 			<div class="title">
 				Address suggestion{previous_recipients.length > 1 ? 's' : ''}
@@ -117,7 +117,6 @@
 								};
 							}}
 						>
-							.
 							<p>
 								{r.name} | {r.phone}
 								<br />
@@ -204,7 +203,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Ok</Button>
 </Form>
 
 <style>

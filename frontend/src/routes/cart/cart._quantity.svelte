@@ -1,5 +1,5 @@
 <script>
-	import { module, user, loading, toast, portal } from '$lib/store.js';
+	import { module, user, toast, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -11,7 +11,23 @@
 	let error = {};
 
 	const submit = async (quantity) => {
-		$loading = true;
+		let key = `${item.key}_${JSON.stringify(item.variation)}`;
+		if (quantity == 0 && $user.cart.includes(key)) {
+			$user.cart = $user.cart.filter((i) => i != key);
+		}
+
+		item.quantity = quantity;
+		$portal = {
+			type: 'item',
+			data: item
+		};
+
+		$module = '';
+		$toast = {
+			status: 200,
+			message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
+		};
+
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_item_quantity`, {
 			method: 'put',
 			headers: {
@@ -25,24 +41,15 @@
 			})
 		});
 		resp = await resp.json();
-		$loading = false;
 
 		if (resp.status == 200) {
 			$user = resp.user;
-
-			item.quantity = quantity;
-			$portal = {
-				type: 'item',
-				data: item
-			};
-
-			$module = '';
-			$toast = {
-				status: 200,
-				message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
-			};
 		} else {
-			error = resp;
+			// error = resp;
+			$toast = {
+				status: 400,
+				message: resp.error
+			};
 		}
 	};
 </script>
@@ -82,11 +89,11 @@
 		{/if}
 	</div>
 
-	{#if error.error}
+	<!-- {#if error.error}
 		<p class="error">
 			{error.error}
 		</p>
-	{/if}
+	{/if} -->
 
 	<br />
 
@@ -96,7 +103,7 @@
 				class="primary"
 				on:click={() => {
 					submit(item.quantity);
-				}}>Submit</Button
+				}}>Ok</Button
 			>
 		{/if}
 

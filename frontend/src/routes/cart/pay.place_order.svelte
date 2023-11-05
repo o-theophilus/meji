@@ -4,27 +4,36 @@
 
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/info.svelte';
-	import Email from './email_template_ordered.svelte';
+	import Email from './pay.email_template.svelte';
 	let email_template;
 
-	export let order;
+	export let cart;
 	let error = {};
 
 	$: {
-		order;
+		cart;
 		error = {};
 	}
 
-	$: pay = order.transaction.total_items + order.transaction.delivery_fee - order.transaction.account;
+	let pay = 0;
+
+	$: {
+		let total_items = 0;
+		for (const x in cart.items) {
+			total_items += cart.items[x].quantity * cart.items[x].price;
+		}
+
+		pay = total_items + cart.transaction.delivery_fee - cart.transaction.account;
+	}
 
 	$: complete_address =
-		order.recipient.name &&
-		order.recipient.phone &&
-		order.recipient.address.line &&
-		order.recipient.address.state &&
-		order.recipient.address.country &&
-		order.recipient.address.local_area &&
-		order.recipient.address.postal_code;
+		cart.recipient.name &&
+		cart.recipient.phone &&
+		cart.recipient.address.line &&
+		cart.recipient.address.state &&
+		cart.recipient.address.country &&
+		cart.recipient.address.local_area &&
+		cart.recipient.address.postal_code;
 
 	const validate = () => {
 		error = {};
@@ -71,8 +80,8 @@
 	const submit = async (reference = '') => {
 		error = {};
 
-		$loading = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${order.key}`, {
+		$loading = "loading . . .";
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${cart.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -137,7 +146,7 @@
 </p>
 
 <div bind:this={email_template} style="display: none;">
-	<Email {order} />
+	<Email order={cart} />
 </div>
 
 <style>

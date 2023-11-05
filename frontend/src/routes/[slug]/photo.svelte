@@ -29,7 +29,7 @@
 	const reorder_delete = async (method) => {
 		error = {};
 
-		$loading = true;
+		$loading = `${method == "delete" ? "deleting" : "saving"} . . .`;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: method,
 			headers: {
@@ -97,7 +97,7 @@
 			formData.append('files', files[i]);
 		}
 
-		$loading = true;
+		$loading = "uploading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: 'post',
 			headers: {

@@ -9,7 +9,7 @@
 
 <button
 	on:click={() => {
-		$loading = true;
+		$loading = "loading . . .";
 		goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 	}}
 >

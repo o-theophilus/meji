@@ -1,5 +1,5 @@
 <script>
-	import { module, user, loading, toast } from '$lib/store.js';
+	import { module, user, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -28,7 +28,17 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		let key = `${item.key}_${JSON.stringify(vars_)}`;
+		if (!$user.cart.includes(key)) {
+			$user.cart.push(key);
+			$user = $user;
+		}
+		$module = '';
+		$toast = {
+			status: 200,
+			message: `${item.name} added to cart`
+		};
+
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
 			headers: {
@@ -43,17 +53,15 @@
 			})
 		});
 		resp = await resp.json();
-		$loading = false;
 
 		if (resp.status == 200) {
 			$user = resp.user;
-			$module = '';
-			$toast = {
-				status: 200,
-				message: `${item.name} added to cart`
-			};
 		} else {
-			error = resp;
+			// error = resp;
+			$toast = {
+				status: 400,
+				message: resp.error
+			};
 		}
 	};
 </script>
@@ -105,11 +113,11 @@
 			</p>
 		{/if}
 	</div>
-	{#if error.error}
+	<!-- {#if error.error}
 		<p class="error">
 			{error.error}
 		</p>
-	{/if}
+	{/if} -->
 
 	<br />
 

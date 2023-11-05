@@ -24,7 +24,7 @@
 	const submit = async () => {
 		error = {};
 
-		$loading = true;
+		$loading = "canceling . . .";
 		let resp = await fetch(
 			`${import.meta.env.VITE_BACKEND}/order_status_cancel/${$module.order.key}`,
 			{
@@ -86,7 +86,7 @@
 
 	<Button class="hover_red" on:click={validate}>
 		<SVG type="close" size="10" />
-		Submit
+		Cancel
 	</Button>
 </Form>
 

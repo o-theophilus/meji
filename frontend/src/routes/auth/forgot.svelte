@@ -32,7 +32,7 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
-		$loading = true;
+		$loading = "sending . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/forgot_password`, {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },

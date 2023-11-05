@@ -72,7 +72,7 @@
 	</section>
 
 	<br />
-	<Button class="primary">Submit</Button>
+	<Button class="primary">Ok</Button>
 </Card>
 
 <style>

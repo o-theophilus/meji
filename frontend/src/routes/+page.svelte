@@ -65,7 +65,7 @@
 <!-- <Advert {adverts} /> -->
 <Tags {tags} />
 <Group name="New Arrivals" items={new_arrivals}>
-	<Button class="link" href="/shop?sort=latest">
+	<Button class="link small" href="/shop?sort=latest">
 		more
 		<span class="rotate">
 			<SVG type="angle" size="10" />
@@ -73,7 +73,7 @@
 	</Button>
 </Group>
 <Group name="Offers" items={offers}>
-	<Button class="link" href="/shop?sort=discount">
+	<Button class="link small" href="/shop?sort=discount">
 		more
 		<span class="rotate">
 			<SVG type="angle" size="10" />

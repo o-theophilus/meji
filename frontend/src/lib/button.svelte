@@ -68,6 +68,9 @@
 		padding: var(--sp2) var(--sp4);
 		font-size: large;
 	}
+	.small {
+		font-size: small;
+	}
 
 	.round {
 		--size: 28px;

@@ -35,7 +35,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "saving . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {

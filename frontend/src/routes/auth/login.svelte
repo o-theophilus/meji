@@ -49,7 +49,7 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
-		$loading = true;
+		$loading = "loading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/login`, {
 			method: 'post',
 			headers: {

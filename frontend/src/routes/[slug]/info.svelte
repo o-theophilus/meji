@@ -127,7 +127,7 @@
 			<Button
 				class="link"
 				on:click={() => {
-					$loading = true;
+					$loading = "loading . . .";
 					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}
 			>

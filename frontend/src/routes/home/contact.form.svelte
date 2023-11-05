@@ -26,7 +26,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "sending . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/contact`, {
 			method: 'post',
 			headers: {
@@ -82,5 +82,5 @@
 
 			<br />
 		</p>{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Send</Button>
 </form>

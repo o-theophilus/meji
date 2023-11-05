@@ -27,7 +27,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "adding . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${item.key}`, {
 			method: 'post',
 			headers: {
@@ -77,5 +77,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Add</Button>
 </Form>

@@ -2,15 +2,19 @@ from flask import request
 from .database import query
 from .tools import now
 from uuid import uuid4
+import json
 
 
 def user_schema(user, db):
     saves = query({"type": "save", "user": user["key"]}, True, db=db)
-    cart = query({
+    _cart = query({
         "type": "cart",
         "key": f"{user['key']}_cart",
-        "user": user["key"],
-    }, db=db)
+        "user": user["key"]}, db=db)
+    
+    cart=[]
+    for x in _cart["items"]:
+        cart.append(f"{x['key']}_{json.dumps(x['variation'], separators=(',', ':'))}")
 
     return {
         "key": user["key"],
@@ -30,7 +34,7 @@ def user_schema(user, db):
         "login": user["login"],
 
         "saves": [x["item"] for x in saves],
-        "cart": len(cart["items"]) if cart else 0
+        "cart": cart
     }
 
 

@@ -35,7 +35,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "activating . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${voucher.key}`, {
 			method: 'put',
 			headers: {
@@ -65,7 +65,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Activate coucher</b>
+		<b>Activate Voucher</b>
 	</svelte:fragment>
 
 	<IG name="validity" {error} let:id>
@@ -78,5 +78,5 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={validate}>Submit</Button>
+	<Button class="primary" on:click={validate}>Activate</Button>
 </Form>

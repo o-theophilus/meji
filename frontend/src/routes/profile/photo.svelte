@@ -23,7 +23,7 @@
 		let formData = new FormData();
 		formData.append('file', file);
 
-		$loading = true;
+		$loading = "uploading . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
 			method: 'post',
 			headers: {
@@ -50,7 +50,7 @@
 	const remove = async () => {
 		error = {};
 
-		$loading = true;
+		$loading = "removing . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
 			method: 'delete',
 			headers: {

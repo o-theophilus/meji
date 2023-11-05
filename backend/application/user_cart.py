@@ -10,7 +10,6 @@ bp = Blueprint("cart", __name__)
 def cart_template(user):
     return {
         "key": f"{user['key']}_cart",
-        "id": str(uuid4().hex)[:10],
         "user": user["key"],
         "v": uuid4().hex,
         "type": "cart",
@@ -93,11 +92,28 @@ def get_carts():
             item["variation"] = x["variation"]
             item["quantity"] = x["quantity"]
             items.append(item)
-
     cart["items"] = items
+
+
+    previous_recipients = []
+    for x in db:
+        if (
+            x["type"] == "order"
+            and x["user"] == user["key"]
+            and x["status"] == "delivered"
+        ):
+            previous_recipients.append({
+                "name": x["recipient"]["name"],
+                "phone": x["recipient"]["phone"],
+                "address": x["recipient"]["address"],
+                "date": x["date_u"],
+            })
+    previous_recipients = sorted(previous_recipients, key=lambda d: d['date'])
+
     return jsonify({
         "status": 200,
-        "cart": cart
+        "cart": cart,
+        "previous_recipients": previous_recipients[:5]
     })
 
 
@@ -213,19 +229,102 @@ def cart_item_quantity():
         ):
             if (request.json["quantity"] > 0):
                 x["quantity"] = request.json["quantity"]
-
-                cart = transaction(cart, db)
                 cart["date_u"] = now()
+                cart = transaction(cart, db)
                 db = normalize_db(cart, db)
             else:
-                cart = transaction(cart, db)
-                cart["date_u"] = now()
                 cart["items"].remove(x)
+                cart["date_u"] = now()
+                cart = transaction(cart, db)
             break
 
     database(cart, len(cart["items"]) == 0)
+    if len(cart["items"]) == 0:
+        cart = cart_template(user)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user, db),
+        "cart": cart
     })
+
+
+@bp.put("/cart_reciever")
+def cart_reciever():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    error = {}
+    if "name" not in request.json or not request.json["name"]:
+        error["name"] = "this field is required"
+    if "phone" not in request.json or not request.json["phone"]:
+        error["phone"] = "this field is required"
+
+    if "address" not in request.json or not request.json["address"]:
+        error["line"] = "this field is required"
+        error["state"] = "this field is required"
+        error["country"] = "this field is required"
+        error["postal_code"] = "this field is required"
+    else:
+        if (
+            "line" not in request.json["address"]
+            or not request.json["address"]["line"]
+        ):
+            error["address"] = "this field is required"
+        if (
+            "state" not in request.json["address"]
+            or not request.json["address"]["state"]
+        ):
+            error["state"] = "this field is required"
+        if (
+            "country" not in request.json["address"]
+            or not request.json["address"]["country"]
+        ):
+            error["country"] = "this field is required"
+        if (
+            "postal_code" not in request.json["address"]
+            or not request.json["address"]["postal_code"]
+        ):
+            error["postal_code"] = "this field is required"
+
+    if error != {}:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    cart = query({
+        "type": "cart",
+        "key": f"{user['key']}_cart",
+        "user": user["key"],
+    }, db=db)
+    if not cart or len(cart["items"]) == 0:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    cart["recipient"]["name"] = request.json["name"]
+    cart["recipient"]["phone"] = request.json["phone"]
+    cart["recipient"]["address"] = {
+        "line": request.json["address"]["line"],
+        "state": request.json["address"]["state"],
+        "country": request.json["address"]["country"],
+        "local_area": request.json["address"]["local_area"],
+        "postal_code": request.json["address"]["postal_code"],
+    }
+    cart["date_u"] = now()
+
+    cart = database(cart)
+
+    return jsonify({
+        "status": 200,
+        "cart": cart
+    })
+

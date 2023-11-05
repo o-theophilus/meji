@@ -22,7 +22,7 @@
 	};
 
 	const submit = async () => {
-		$loading = true;
+		$loading = "adding . . .";
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/use_voucher`, {
 			method: 'post',
 			headers: {

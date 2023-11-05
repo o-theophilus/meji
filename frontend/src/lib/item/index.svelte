@@ -89,7 +89,6 @@
 		justify-content: space-between;
 
 		width: 100%;
-		height: 100%;
 	}
 
 	.details {
@@ -140,7 +139,7 @@
 	}
 
 	.view_list .details {
-		padding: 0 var(--sp2);
+		padding:  var(--sp2);
 	}
 
 	.view_list .name {
