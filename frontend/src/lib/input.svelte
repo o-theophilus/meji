@@ -59,4 +59,7 @@
 		-webkit-appearance: none;
 		margin: 0;
 	}
+	::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+}
 </style>
