@@ -2,24 +2,26 @@
 	font-family: "tisa";
 	src: url(/font/TisaSansPro-Light.ttf);
 	font-weight: 300;
-  }
+}
+
 @font-face {
 	font-family: "tisa";
 	src: url(/font/TisaSansPro-Regular.ttf);
 	font-weight: 400;
-  }
+}
 
 @font-face {
 	font-family: "tisa";
 	src: url(/font/TisaSansPro-Bold.ttf);
 	font-weight: 500;
-  }
+}
+
 @font-face {
 	font-family: "tisa";
 	src: url(/font/TisaSansPro-Black.ttf);
 	font-weight: 600;
-  }
-  
+}
+
 :root,
 code,
 textarea,
@@ -29,7 +31,8 @@ button {
 	font-family: "tisa", 'Segoe UI', Tahoma, Verdana, sans-serif;
 	font-size: 14px;
 }
-html{
+
+html {
 	user-select: none;
 }
 
@@ -46,18 +49,23 @@ html{
 h1 {
 	font-size: 1.2rem;
 }
+
 h2 {
 	font-size: 1.18rem;
 }
+
 h3 {
 	font-size: 1.16rem;
 }
+
 h4 {
 	font-size: 1.12rem;
 }
+
 h5 {
 	font-size: 1.08rem;
 }
+
 h6 {
 	font-size: 1.04rem;
 }
@@ -71,20 +79,23 @@ h6 {
 	display: grid;
 	gap: var(--sp2);
 	grid-template-columns: repeat(2, 1fr);
-	
+
 	color: var(--ac1);
 }
+
 @media screen and (min-width: 700px) {
 	.item_area {
 		grid-template-columns: repeat(3, 1fr);
 	}
 }
+
 @media screen and (min-width: 1000px) {
 	.item_area {
 		grid-template-columns: repeat(4, 1fr);
 	}
 }
-.list{
+
+.list {
 	grid-template-columns: 1fr;
 }
 
@@ -93,14 +104,14 @@ h6 {
 	justify-content: space-between;
 	align-items: center;
 	gap: var(--sp2);
-	
+
 	font-weight: 600;
 	font-size: large;
 	color: var(--ac1);
 	fill: currentColor;
 }
 
-/*************************** form ***************************/ 
+/*************************** form ***************************/
 
 label {
 	width: fit-content;
@@ -108,13 +119,7 @@ label {
 }
 
 
-[type="text"],
-[type="email"],
-[type="tel"],
-[type="password"],
-[type="number"],
-select,
-textarea {
+select {
 	width: 100%;
 
 	padding: var(--sp1);
@@ -126,40 +131,14 @@ textarea {
 	color: var(--ac1);
 }
 
-[type="text"]:hover,
-[type="email"]:hover,
-[type="tel"]:hover,
-[type="password"]:hover,
-[type="number"]:hover,
-select:hover,
-textarea:hover {
+select:hover {
 	outline-color: var(--ac3);
 }
-
-[type="text"]:focus,
-[type="email"]:focus,
-[type="tel"]:focus,
-[type="password"]:focus,
-[type="number"]:focus,
-select:focus,
-textarea:focus {
+select:focus {
 	outline-color: var(--ac1);
-	
+
 }
 
-option{
+option {
 	background-color: var(--ac6);
-}
-
-textarea {
-	display: block;
-	resize: none;
-	height: 160px;
-}
-
-
-input[type='number']::-webkit-outer-spin-button,
-input[type='number']::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
 }

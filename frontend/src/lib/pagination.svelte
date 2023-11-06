@@ -42,14 +42,14 @@
 
 	<section>
 		{#if page_no > 1}
-			<Button
+			<button
 				class="small"
 				on:click={() => {
 					submit(page_no - 1);
 				}}
 			>
 				&lt;
-			</Button>
+			</button>
 		{/if}
 
 		<div class="input">
@@ -81,25 +81,25 @@
 		</div>
 
 		{#if page_no_temp != page_no}
-			<Button
+			<button
 				class="small"
 				on:click={() => {
 					submit(page_no_temp);
 				}}
 			>
 				&gt;&gt;
-			</Button>
+			</button>
 		{/if}
 
 		{#if page_no < total_page}
-			<Button
+			<button
 				class="small"
 				on:click={() => {
 					submit(parseInt(page_no) + 1);
 				}}
 			>
 				&gt;
-			</Button>
+			</button>
 		{/if}
 	</section>
 {/if}
@@ -107,10 +107,23 @@
 <style>
 	section {
 		--size: var(--sp1);
+		--height: 40px;
 
 		display: flex;
-		justify-content: center;
+
+		width: fit-content;
+		margin: auto;
+		border-radius: var(--sp0);
+		overflow: hidden;
+
 		color: var(--ac3);
+		outline: 2px solid var(--ac4);
+	}
+	section:hover {
+		outline-color: var(--ac3);
+	}
+	section:has(input:focus) {
+		outline-color: var(--ac1);
 	}
 
 	.input {
@@ -121,6 +134,9 @@
 	}
 	input {
 		padding: var(--size);
+		height: var(--height);
+
+		border: none;
 	}
 
 	.total {
@@ -134,5 +150,21 @@
 		visibility: hidden;
 		padding: var(--size);
 		display: inline-block;
+	}
+
+	button {
+		aspect-ratio: 1/1;
+		height: var(--height);
+
+		background-color: var(--ac5);
+		color: var(--ac2);
+		border: none;
+		cursor: pointer;
+		font-weight: 500;
+	}
+
+	button:hover {
+		background-color: var(--cl1);
+		color: var(--ac6_);
 	}
 </style>

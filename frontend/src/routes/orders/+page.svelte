@@ -13,8 +13,6 @@
 	export let data;
 	$: orders = data.orders;
 	$: total_page = data.total_page;
-	console.log(total_page);
-	console.log(data.total_page);
 	let { page_name } = data;
 
 	let status = ['created', 'processing', 'enroute', 'delivered', 'canceled'];

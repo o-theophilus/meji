@@ -31,7 +31,6 @@
 		}
 	};
 	let role = [];
-	$: console.log(role);
 </script>
 
 <Center>

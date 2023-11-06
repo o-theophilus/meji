@@ -25,4 +25,38 @@
 {/if}
 
 <style>
+	input,
+	textarea {
+		width: 100%;
+
+		padding: var(--sp1);
+		border-radius: var(--sp0);
+		border: none;
+		outline: 2px solid var(--ac4);
+
+		background-color: var(--ac5);
+		color: var(--ac1);
+	}
+
+	input:hover,
+	textarea:hover {
+		outline-color: var(--ac3);
+	}
+
+	input:focus,
+	textarea:focus {
+		outline-color: var(--ac1);
+	}
+
+	textarea {
+		display: block;
+		resize: none;
+		height: 160px;
+	}
+
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
 </style>
