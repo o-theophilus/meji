@@ -15,7 +15,7 @@ bp = Blueprint("user", __name__)
 
 
 @bp.post("/setting")
-def post():
+def setting():
     db = database()
 
     user = token_to_user(db)
@@ -43,7 +43,44 @@ def post():
     })
 
 
-@ bp.put("/user/<key>")
+@bp.post("/user_role/<key>")
+def user_role(key):
+    db = database()
+
+    me = token_to_user(db)
+    user = query({"type": "user", "key": key}, db=db)
+
+    error = None
+    # if not me or "user:set_permission" not in me["roles"]:
+    if not me or "admin" not in me["roles"]:
+        error="unauthorized access"
+    elif not user or me["key"] ==  user["key"]:
+        error = "invalid request"
+
+    if error:
+        return jsonify({
+            "status": 400,
+            "error": error
+        })
+
+    if "roles" not in request.json:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    user["roles"] = request.json["roles"]
+    user["date_u"] = now()
+    user = database(user)
+
+    return jsonify({
+        "status": 200,
+        "user": user_schema(user, db)
+    })
+
+
+
+@bp.put("/user/<key>")
 def edit_user(key):
     db = database()
 
@@ -116,7 +153,7 @@ def edit_user(key):
             **error
         })
 
-    user["date_u"] = now(),
+    user["date_u"] = now()
     user = database(user)
 
     return jsonify({

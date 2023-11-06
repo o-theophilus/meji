@@ -18,9 +18,11 @@
 	import SVG from '$lib/svg.svelte';
 	import Search from '$lib/search.svelte';
 	import Center from '$lib/center.svelte';
+	import Role from './role.svelte';
 
 	export let data;
 	$: user = data.user;
+	$: console.log(data.user);
 
 	let edit_mode = false;
 	let page_name = 'profile';
@@ -243,6 +245,10 @@
 		</div>
 	{/if}
 </Card>
+
+{#if user.key != me.key && user.status == 'confirm' && me.roles.includes('admin')}
+	<Role {user} />
+{/if}
 
 <style>
 	.block {
