@@ -53,11 +53,23 @@
 	}
 
 	input {
+		width: 100%;
 		padding: var(--sp1);
 		border-radius: var(--sp0);
 		padding-left: var(--sp5);
+		border: none;
 
+		outline: 2px solid var(--ac4);
+		background-color: var(--ac5);
 		color: var(--ac1);
+	}
+
+	input:hover {
+		outline-color: var(--ac3);
+	}
+
+	input:focus {
+		outline-color: var(--ac1);
 	}
 
 	.show_close {

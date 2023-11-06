@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
-	import Button from '$lib/button.svelte';
 
 	let page_no, page_no_temp, width;
 	export let total_page = 1;
@@ -135,8 +134,10 @@
 	input {
 		padding: var(--size);
 		height: var(--height);
-
 		border: none;
+		
+		color: var(--ac1);
+		background-color: var(--ac5);
 	}
 
 	.total {
@@ -156,7 +157,7 @@
 		aspect-ratio: 1/1;
 		height: var(--height);
 
-		background-color: var(--ac5);
+		background-color: var(--ac6);
 		color: var(--ac2);
 		border: none;
 		cursor: pointer;
@@ -164,7 +165,7 @@
 	}
 
 	button:hover {
-		background-color: var(--cl1);
+		background-color: var(--cl2);
 		color: var(--ac6_);
 	}
 </style>

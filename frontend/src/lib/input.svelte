@@ -32,8 +32,8 @@
 		padding: var(--sp1);
 		border-radius: var(--sp0);
 		border: none;
-		outline: 2px solid var(--ac4);
 
+		outline: 2px solid var(--ac4);
 		background-color: var(--ac5);
 		color: var(--ac1);
 	}

@@ -15,9 +15,12 @@
 			body: JSON.stringify({ item_view: $user.setting.item_view })
 		});
 	};
+
+	let clas = '';
+	export { clas as class };
 </script>
 
-<Button class="small" on:click={save_view}>
+<Button class="small {clas}" on:click={save_view}>
 	<SVG type={$user.setting.item_view == 'grid' ? 'shop_active' : 'list'} />
 	view
 </Button>

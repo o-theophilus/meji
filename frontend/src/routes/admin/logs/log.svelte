@@ -51,7 +51,7 @@
 <style>
 	section {
 		padding: var(--sp2) 0;
-		border-bottom: 1px solid var(--ac4);
+		border-bottom: 2px solid var(--ac4);
 	}
 
 	.status {

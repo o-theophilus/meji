@@ -57,7 +57,6 @@
 		if (resp.status == 200) {
 			$user = resp.user;
 		} else {
-			// error = resp;
 			$toast = {
 				status: 400,
 				message: resp.error
@@ -113,11 +112,6 @@
 			</p>
 		{/if}
 	</div>
-	<!-- {#if error.error}
-		<p class="error">
-			{error.error}
-		</p>
-	{/if} -->
 
 	<br />
 

@@ -107,4 +107,11 @@
 		cursor: unset;
 		box-shadow: unset;
 	}
+
+	.outline {
+		outline: 2px solid var(--ac4);
+	}
+	.outline:hover {
+		outline-color: var(--ac5);
+	}
 </style>

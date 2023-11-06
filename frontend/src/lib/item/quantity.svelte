@@ -1,8 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 
-	import Button from '$lib/button.svelte';
-
 	const emit = createEventDispatcher();
 
 	export let quantity = 1;
@@ -22,14 +20,14 @@
 </script>
 
 <section>
-	<Button
+	<button
 		on:click={() => {
 			quantity -= 1;
 			change();
 		}}
 	>
 		-
-	</Button>
+	</button>
 
 	<input
 		type="number"
@@ -40,6 +38,7 @@
 			change();
 		}}
 	/>
+
 	<div class="helper" bind:clientWidth>
 		{#if quantity}
 			{quantity}
@@ -48,36 +47,75 @@
 		{/if}
 	</div>
 
-	<Button
+	<button
 		on:click={() => {
 			quantity += 1;
 			change();
 		}}
 	>
 		+
-	</Button>
+	</button>
 </section>
 
 <style>
 	section {
-		position: relative;
+		--size: var(--sp1);
+		--height: 40px;
 
 		display: flex;
-		align-items: center;
-		gap: 1px;
+
+		width: fit-content;
+		border-radius: var(--sp0);
+		overflow: hidden;
+
+		color: var(--ac3);
+		outline: 2px solid var(--ac4);
+	}
+	section:hover {
+		outline-color: var(--ac3);
+	}
+	section:has(input:focus) {
+		outline-color: var(--ac1);
 	}
 
 	input {
-		padding: var(--sp1);
-		min-width: 40px;
+		padding: var(--size);
+		height: var(--height);
+		border: none;
+
 		text-align: center;
+		color: var(--ac1);
+		background-color: var(--ac5);
 	}
-	input:focus {
-		background-color: var(--ac6);
+
+
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
+
 	.helper {
 		position: absolute;
 		padding: var(--sp1);
 		visibility: hidden;
+
+		min-width: var(--height);
+	}
+
+	button {
+		aspect-ratio: 1/1;
+		height: var(--height);
+
+		background-color: var(--ac6);
+		color: var(--ac2);
+		border: none;
+		cursor: pointer;
+		font-weight: 500;
+	}
+
+	button:hover {
+		background-color: var(--cl2);
+		color: var(--ac6_);
 	}
 </style>

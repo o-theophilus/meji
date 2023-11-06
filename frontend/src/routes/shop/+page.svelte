@@ -60,7 +60,7 @@
 	<div class="ctitle">
 		Shop
 		<div class="line">
-			<View />
+			<View class="outline" />
 			<Sort {page_name} array={sorts} default_value="latest" />
 		</div>
 	</div>
