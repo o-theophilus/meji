@@ -51,8 +51,7 @@ def user_role(key):
     user = query({"type": "user", "key": key}, db=db)
 
     error = None
-    # if not me or "user:set_permission" not in me["roles"]:
-    if not me or "admin" not in me["roles"]:
+    if not me or "user:set_permission" not in me["roles"]:
         error="unauthorized access"
     elif not user or me["key"] ==  user["key"]:
         error = "invalid request"
@@ -77,7 +76,6 @@ def user_role(key):
         "status": 200,
         "user": user_schema(user, db)
     })
-
 
 
 @bp.put("/user/<key>")

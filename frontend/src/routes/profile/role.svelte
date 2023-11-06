@@ -10,6 +10,7 @@
 
 	export let user;
 	let user_roles = [...user.roles];
+	$: console.log(user_roles);
 	let open = true;
 	let error = {};
 
@@ -70,7 +71,12 @@
 		}
 
 		if (add_all) {
-			user_roles = [...user_roles, ...group];
+			for (const x of group) {
+				if (!user_roles.includes(x)) {
+					user_roles.push(x);
+				}
+			}
+			user_roles = user_roles;
 		} else {
 			user_roles = user_roles.filter((x) => !group.includes(x));
 		}

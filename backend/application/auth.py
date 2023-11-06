@@ -454,7 +454,23 @@ def admin():
             os.environ["MAIL_PASSWORD"]
         )
         user["status"] = "confirm"
-        user["roles"] = ["admin", "dashboard", "omni"]
+        user["roles"] = [
+            "admin:dashboard",
+            "admin:manage_photo",
+            "user:view",
+            "user:view_all",
+            "user:view_balance",
+            "user:set_permission",
+            "item:add",
+            "item:edit",
+            "item:advert",
+            "item:change_status",
+            "voucher:view",
+            "voucher:view_all",
+            "voucher:add",
+            "voucher:view_code",
+            "log:view"
+        ]
         database(user)
 
     return jsonify({
