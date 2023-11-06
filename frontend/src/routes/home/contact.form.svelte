@@ -26,7 +26,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "sending . . .";
+		$loading = 'sending . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/contact`, {
 			method: 'post',
 			headers: {
@@ -60,27 +60,25 @@
 </script>
 
 <form on:submit|preventDefault novalidate autocomplete="off">
-	<IG name="name_" label="Fullname" {error} let:id>
-		<input bind:value={form.name} {id} type="text" placeholder="Fullname here" />
-	</IG>
+	<IG
+		name="name_"
+		label="Full name"
+		{error}
+		bind:value={form.name}
+		type="text"
+		placeholder="Full name here"
+	/>
 
-	<IG name="email_" {error} let:id>
-		<input bind:value={form.email} {id} type="email" placeholder="Email here" />
-	</IG>
-
-	<IG name="phone" {error} let:id>
-		<input bind:value={form.phone} {id} type="tel" placeholder="Phone number here" />
-	</IG>
-
-	<IG name="message" {error} let:id>
-		<textarea bind:value={form.message} {id} placeholder="Message here" />
-	</IG>
+	<IG name="email_" {error} bind:value={form.email} type="email" placeholder="Email here" />
+	<IG name="phone" {error} bind:value={form.phone} type="tel" placeholder="Phone number here" />
+	<IG name="message" {error} bind:value={form.message} type="textarea" placeholder="Message here" />
 
 	{#if error.error}
 		<p class="error">
 			{error.error}
+		</p>
+		<br />
+	{/if}
 
-			<br />
-		</p>{/if}
 	<Button class="primary" on:click={validate}>Send</Button>
 </form>

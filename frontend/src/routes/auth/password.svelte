@@ -106,25 +106,28 @@ Please try repeacting the action again.`,
 		Reset your password.
 	</svelte:fragment>
 
-	<IG name="password" {error} let:id>
-		<div class="password">
-			{#if show_password}
-				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
-			{/if}
+	<IG
+		name="password"
+		{error}
+		bind:value={form.password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	>
+		<svelte:fragment slot="pos_1">
 			<ShowPassword bind:show_password />
-		</div>
-		<Password password={form.password} />
+		</svelte:fragment>
+		<svelte:fragment slot="pos_2">
+			<Password password={form.password} />
+		</svelte:fragment>
 	</IG>
 
-	<IG name="confirm password" {error} let:id>
-		{#if show_password}
-			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
-		{:else}
-			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
-		{/if}
-	</IG>
+	<IG
+		name="confirm password"
+		{error}
+		bind:value={form.confirm_password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	/>
 
 	{#if error.error}
 		<p class="error">
@@ -133,18 +136,8 @@ Please try repeacting the action again.`,
 		<br />
 	{/if}
 
-	<Button
-		class="primary"
-		on:click={() => {
-			validate();
-		}}
-	>
-		Reset
-	</Button>
+	<Button class="primary" on:click={validate}>Reset</Button>
 </Form>
 
 <style>
-	.password {
-		position: relative;
-	}
 </style>

@@ -8,7 +8,7 @@
 	export let total_page = 1;
 	export let page_name = '';
 
-	const normalise = (value) => {
+	const normalize = (value) => {
 		if (value < 1) {
 			value = 1;
 		} else if (value > total_page) {
@@ -20,12 +20,12 @@
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('page_no')) {
-			page_no = page_no_temp = normalise(params.get('page_no'));
+			page_no = page_no_temp = normalize(params.get('page_no'));
 		}
 	});
 
 	const submit = (value) => {
-		value = normalise(value);
+		value = normalize(value);
 		page_no = page_no_temp = value;
 		set_state(page_name, 'page_no', value != 1 ? value : '');
 	};
@@ -37,6 +37,9 @@
 </script>
 
 {#if total_page > 1}
+	<br />
+	<br />
+
 	<section>
 		{#if page_no > 1}
 			<Button
@@ -46,7 +49,6 @@
 				}}
 			>
 				&lt;
-				<!-- prev -->
 			</Button>
 		{/if}
 
@@ -85,7 +87,6 @@
 					submit(page_no_temp);
 				}}
 			>
-				<!-- go  -->
 				&gt;&gt;
 			</Button>
 		{/if}
@@ -97,7 +98,6 @@
 					submit(parseInt(page_no) + 1);
 				}}
 			>
-				<!-- next  -->
 				&gt;
 			</Button>
 		{/if}
@@ -110,6 +110,7 @@
 
 		display: flex;
 		justify-content: center;
+		color: var(--ac3);
 	}
 
 	.input {

@@ -72,7 +72,7 @@ def normalize_db(cart, db):
 
 
 @bp.get("/cart")
-def get_carts():
+def get_cart():
     db = database()
     user = token_to_user(db)
 

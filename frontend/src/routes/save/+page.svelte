@@ -23,33 +23,32 @@
 	<div class="ctitle">Saved Items</div>
 </Center>
 
-<br />
+{#if items.length > 0}
+	<br />
+	<Center>
+		<div class="item_area" class:list={$user.setting.item_view == 'list'}>
+			{#each items as item (item.key)}
+				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+					<Item
+						{item}
+						on:save_start={() => {
+							if (!$user.saves.includes(item.key)) {
+								items = items.filter((i) => i.key != item.key);
+							}
+						}}
+						on:save_end={() => {
+							invalidate(() => true);
+						}}
+					/>
+				</div>
+			{/each}
+		</div>
+	</Center>
+{:else}
+	<Card>no item here</Card>
+{/if}
 
-<Center>
-	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
-		{#each items as item (item.key)}
-			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<Item
-					{item}
-					on:save_start={() => {
-						if (!$user.saves.includes(item.key)) {
-							items = items.filter((i) => i.key != item.key);
-						}
-					}}
-					on:save_end={() => {
-						invalidate(() => true);
-					}}
-				/>
-			</div>
-		{:else}
-			no item here
-		{/each}
-	</div>
-</Center>
-
-<Card>
-	<Pagination {page_name} {total_page} />
-</Card>
+<Pagination {page_name} {total_page} />
 
 <style>
 </style>

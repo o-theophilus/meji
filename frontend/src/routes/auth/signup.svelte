@@ -58,7 +58,7 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
-		$loading = "loading . . .";
+		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
 			method: 'post',
 			headers: {
@@ -99,33 +99,39 @@
 		This is the 'Signup' page. There's not much here.
 	</svelte:fragment>
 
-	<IG name="name" label="Fullname" {error} let:id>
-		<input bind:value={form.name} {id} type="text" placeholder="Fullname here" />
-	</IG>
+	<IG
+		name="name"
+		label="Full name"
+		{error}
+		bind:value={form.name}
+		type="text"
+		placeholder="Full name here"
+	/>
 
-	<IG name="email" {error} let:id>
-		<input bind:value={form.email} {id} type="email" placeholder="Email here" />
-	</IG>
+	<IG name="email" {error} bind:value={form.email} type="email" placeholder="Email here" />
 
-	<IG name="password" {error} let:id>
-		<div class="password">
-			{#if show_password}
-				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
-			{/if}
+	<IG
+		name="password"
+		{error}
+		bind:value={form.password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	>
+		<svelte:fragment slot="pos_1">
 			<ShowPassword bind:show_password />
-		</div>
-		<Password password={form.password} />
+		</svelte:fragment>
+		<svelte:fragment slot="pos_2">
+			<Password password={form.password} />
+		</svelte:fragment>
 	</IG>
 
-	<IG name="confirm password" {error} let:id>
-		{#if show_password}
-			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
-		{:else}
-			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
-		{/if}
-	</IG>
+	<IG
+		name="confirm password"
+		{error}
+		bind:value={form.confirm_password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	/>
 
 	{#if error.error}
 		<p class="error">
@@ -163,7 +169,4 @@
 </div>
 
 <style>
-	.password {
-		position: relative;
-	}
 </style>

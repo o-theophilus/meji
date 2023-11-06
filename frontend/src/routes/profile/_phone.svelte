@@ -19,7 +19,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
@@ -51,9 +51,8 @@
 	<svelte:fragment slot="title">
 		<b>Edit Phone Number</b>
 	</svelte:fragment>
-	<IG name="phone" {error} let:id>
-		<input bind:value={phone} {id} type="tel" placeholder="Your phone here" />
-	</IG>
+	
+	<IG name="phone" {error} bind:value={phone} type="tel" placeholder="Your phone here" />
 
 	{#if error.error}
 		<p class="error">

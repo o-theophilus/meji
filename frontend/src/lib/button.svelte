@@ -36,6 +36,8 @@
 		text-decoration: none;
 		font-weight: 500;
 		cursor: pointer;
+
+		/* outline: 2px solid var(--ac4); */
 	}
 
 	:hover {

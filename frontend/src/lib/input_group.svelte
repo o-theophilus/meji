@@ -1,21 +1,36 @@
 <script>
-	export let name;
+	import Input from '$lib/input.svelte';
+
+	export let name = '';
 	export let label = '';
 	export let error = {};
 	let id = name.split(' ').join('_').toLowerCase();
+
+	export let value = '';
+	export let type = '';
+	export let placeholder = '';
 </script>
 
 <div class="inputGroup">
-	<slot name="label" />
-	{#if !$$slots.label}
+	<slot name="label">
 		<label for={id}>{label || name.replace(/_/g, ' ')}</label>
-	{/if}
+	</slot>
+
+	<!-- {#if !$$slots.label}
+		{/if} -->
 	{#if error[id]}
 		<span class="error">
 			{error[id]}
 		</span>
 	{/if}
-	<slot {id} />
+
+	<slot {id}>
+		<div class="position">
+			<Input bind:value {id} {type} {placeholder} />
+			<slot name="pos_1" />
+		</div>
+		<slot name="pos_2" />
+	</slot>
 </div>
 <br />
 
@@ -24,5 +39,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp1);
+	}
+
+	.position {
+		position: relative;
 	}
 </style>

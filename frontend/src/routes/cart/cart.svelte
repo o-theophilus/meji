@@ -9,7 +9,6 @@
 	import Button from '$lib/button.svelte';
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
-	import Delivery from './cart.delivery.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	let emit = createEventDispatcher();
@@ -17,18 +16,12 @@
 	export let cart;
 
 	let error = {};
-	let total = 0;
-
-	$: {
-		total = 0;
-		for (const x in cart.items) {
-			total += cart.items[x].quantity * cart.items[x].price;
-		}
-		total += cart.transaction.delivery_fee;
-	}
 </script>
 
 <Card>
+	<div class="ctitle">Items</div>
+	<br />
+	<br />
 	<div class="items">
 		{#each cart.items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
@@ -37,17 +30,13 @@
 		{:else}
 			no item here
 		{/each}
-
-		{#if cart.items.length > 0}
-			<Delivery {cart} />
-		{/if}
 	</div>
 
 	{#if cart.items.length > 0}
 		<div class="total_amount">
 			<div class="total">Total Amount</div>
 			<div class="amount">
-				₦{total.toLocaleString()}
+				₦{cart.transaction.total_items.toLocaleString()}
 			</div>
 		</div>
 

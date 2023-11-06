@@ -81,9 +81,7 @@
 			{/if}
 		</div>
 	</section>
-	
-	<br>
-	<br>
+
 	<Pagination page_name="feedback" {total_page} />
 </Card>
 
@@ -103,7 +101,7 @@
 		}
 	}
 
-	b{
+	b {
 		color: var(--ac1);
 	}
 </style>

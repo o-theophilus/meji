@@ -22,7 +22,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "adding . . .";
+		$loading = 'adding . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item`, {
 			method: 'post',
 			headers: {
@@ -49,9 +49,7 @@
 		Add a new item
 	</svelte:fragment>
 
-	<IG name="name" {error} let:id>
-		<input bind:value={form.name} {id} type="text" placeholder="Name here" />
-	</IG>
+	<IG name="name" {error} bind:value={form.name} type="text" placeholder="Name here" />
 
 	{#if error.error}
 		<p class="error">

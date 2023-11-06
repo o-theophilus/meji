@@ -32,11 +32,9 @@
 	{:else}
 		no item here
 	{/each}
-</Card>
 
-<br />
-<br />
-<Pagination {page_name} {total_page} />
+	<Pagination {page_name} {total_page} />
+</Card>
 
 <style>
 </style>

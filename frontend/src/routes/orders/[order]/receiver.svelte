@@ -5,7 +5,7 @@
 </script>
 
 <div class="bold">
-	Receiver's Information
+	Receiver's Information:
 
 	<slot />
 </div>

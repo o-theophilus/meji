@@ -9,16 +9,14 @@
 
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
-	import Address from './receiver.svelte';
-	// import Action from './action.svelte';
+	import Receiver from './receiver.svelte';
 	import Status from './_status.svelte';
 	import Cancel from './_status_cancel.svelte';
-	import Voucher from '../../profile/_voucher.svelte';
-	// import Account from './_account.svelte';
+	import Form from './eta._form.svelte';
 
 	export let data;
 	let { order } = data;
-	let { previous_receivers } = data;
+	let date_time = order.delivery_date.split('T');
 
 	$: if ($portal && $portal.type == 'order') {
 		order = $portal.data;
@@ -56,69 +54,48 @@
 		<div class="hr" />
 
 		<div>
-			<Address {order} {previous_receivers} />
+			<Receiver {order} />
+
 			<br />
-			<Eta {order} />
+
+			<Eta {order}>
+				{#if order.status == 'created' && $user.roles.includes('admin')}
+					<Button
+						class="link"
+						on:click={() => {
+							$module = {
+								module: Form,
+								key: order.key,
+								date: date_time[0],
+								time: date_time[1]
+							};
+						}}
+					>
+						Edit
+					</Button>
+				{/if}
+			</Eta>
 		</div>
 	</div>
 
-	<br />
-
-	{#if order.status == 'pending' && order.user == $user.key}
-		<section class="grid">
-			{#if $user.acc_balance > 0}
-				<div class="title">Acc. Bal ₦{$user.acc_balance.toLocaleString()}</div>
-				<div class="value">
-					₦{order.info.account.toLocaleString()}
-				</div>
-			{/if}
-
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Voucher
-					};
-				}}
-			>
-				Add Voucher
-			</Button>
-			<!-- {#if $user.acc_balance > 0}
+	{#if !['delivered', 'canceled'].includes(order.status)}
+		<br />
+		<br />
+		<div class="line">
+			{#if $user.roles.includes('admin')}
 				<Button
-					class="link"
+					class="small"
 					on:click={() => {
 						$module = {
-							module: Account,
+							module: Status,
 							order
 						};
 					}}
 				>
-					Edit
+					Change Order Status
 				</Button>
-			{/if} -->
-		</section>
+			{/if}
 
-		<br />
-
-		<!-- <Action {order} /> -->
-		<br />
-	{/if}
-
-	<div class="line">
-		{#if !['pending', 'delivered', 'canceled'].includes(order.status) && $user.roles.includes('admin')}
-			<Button
-				class="small"
-				on:click={() => {
-					$module = {
-						module: Status,
-						order
-					};
-				}}
-			>
-				Change Order Status
-			</Button>
-		{/if}
-		{#if !['delivered', 'canceled'].includes(order.status)}
 			<Button
 				class="hover_red small"
 				on:click={() => {
@@ -131,8 +108,8 @@
 				<SVG type="close" size="10" />
 				Cancel Order
 			</Button>
-		{/if}
-	</div>
+		</div>
+	{/if}
 </Card>
 
 <style>
@@ -166,12 +143,6 @@
 	}
 	.value {
 		font-weight: 500;
-	}
-
-	section {
-		display: grid;
-		gap: 0 var(--sp3);
-		grid-template-columns: max-content max-content;
 	}
 
 	.upper {

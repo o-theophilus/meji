@@ -9,41 +9,8 @@
 	let email_template;
 
 	export let cart;
+	export let pay;
 	let error = {};
-
-	$: {
-		cart;
-		error = {};
-	}
-
-	let pay = 0;
-
-	$: {
-		let total_items = 0;
-		for (const x in cart.items) {
-			total_items += cart.items[x].quantity * cart.items[x].price;
-		}
-
-		pay = total_items + cart.transaction.delivery_fee - cart.transaction.account;
-	}
-
-	$: complete_address =
-		cart.receiver.name &&
-		cart.receiver.phone &&
-		cart.receiver.address.line &&
-		cart.receiver.address.state &&
-		cart.receiver.address.country &&
-		cart.receiver.address.local_area &&
-		cart.receiver.address.postal_code;
-
-	const validate = () => {
-		error = {};
-		if (!complete_address) {
-			error.error = "kindly fill the receiver's information form";
-		}
-
-		Object.keys(error).length === 0 && make_payment();
-	};
 
 	const make_payment = async () => {
 		if (pay > 0) {
@@ -126,9 +93,7 @@
 </svelte:head>
 
 <div class="horizontal">
-	<Button class={complete_address ? 'primary' : ''} on:click={validate}>
-		Place Order {pay > 0 ? `(Pay ₦${pay.toLocaleString()})` : ''}
-	</Button>
+	<Button class="primary" on:click={make_payment}>Place Order</Button>
 </div>
 <br />
 {#if error.error}

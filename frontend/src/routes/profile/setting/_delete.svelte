@@ -3,7 +3,6 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 	import ShowPassword from '$lib/button.show_password.svelte';
@@ -23,7 +22,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "deleting . . .";
+		$loading = 'deleting . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
 			method: 'delete',
 			headers: {
@@ -50,15 +49,16 @@
 		Are you sure you want to delete account?
 	</svelte:fragment>
 
-	<IG name="password" {error} let:id>
-		<div class="password">
-			{#if show_password}
-				<input bind:value={password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input bind:value={password} {id} type="password" placeholder="Password here" />
-			{/if}
+	<IG
+		name="password"
+		{error}
+		bind:value={password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	>
+		<svelte:fragment slot="pos_1">
 			<ShowPassword bind:show_password />
-		</div>
+		</svelte:fragment>
 	</IG>
 
 	{#if error.error}
@@ -72,7 +72,4 @@
 </Form>
 
 <style>
-	.password {
-		position: relative;
-	}
 </style>

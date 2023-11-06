@@ -1,8 +1,5 @@
 <script>
-	import { user, module, days, months, ordinal_suffix_of } from '$lib/store.js';
-
-	import Button from '$lib/button.svelte';
-	import Form from './_eta_form.svelte';
+	import { days, months, ordinal_suffix_of } from '$lib/store.js';
 
 	export let order;
 	let date_time, dt, period_of_day;
@@ -23,23 +20,9 @@
 </script>
 
 <div class="bold">
-	Estimated time of delivery
+	Estimated time of delivery:
 
-	{#if order.status == 'ordered' && $user.roles.includes('admin')}
-		<Button
-			class="link"
-			on:click={() => {
-				$module = {
-					module: Form,
-					key: order.key,
-					date: date_time[0],
-					time: date_time[1]
-				};
-			}}
-		>
-			Edit
-		</Button>
-	{/if}
+	<slot />
 </div>
 
 <p>

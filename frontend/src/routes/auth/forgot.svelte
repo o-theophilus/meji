@@ -7,7 +7,7 @@
 	import Signup from './signup.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Email from './forgot_email_template.svelte';
+	import Email from './forgot.email_template.svelte';
 	let email_template;
 
 	let form = {};
@@ -32,7 +32,7 @@
 	const submit = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
-		$loading = "sending . . .";
+		$loading = 'sending . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/forgot_password`, {
 			method: 'post',
 			headers: { 'Content-Type': 'application/json' },
@@ -69,9 +69,7 @@
 		Please enter your email below to send a password reset link to your email.
 	</svelte:fragment>
 
-	<IG name="email" {error} let:id>
-		<input bind:value={form.email} {id} type="email" placeholder="Your email here" />
-	</IG>
+	<IG name="email" {error} bind:value={form.email} type="email" placeholder="Your email here" />
 
 	{#if error.error}
 		<p class="error">
@@ -80,14 +78,7 @@
 		<br />
 	{/if}
 
-	<Button
-		class="primary"
-		on:click={() => {
-			validate();
-		}}
-	>
-		Send
-	</Button>
+	<Button class="primary" on:click={validate}>Send</Button>
 
 	<br />
 	Don't have an account?

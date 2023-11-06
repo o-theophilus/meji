@@ -62,9 +62,14 @@
 		Enter amount to deduct from your account
 	</svelte:fragment>
 
-	<IG name="amount" {error} let:id>
-		<input bind:value={amount} {id} type="number" placeholder="Amount here" />
-	</IG>
+	<IG
+		name="amount"
+		label="Amount (₦)"
+		{error}
+		bind:value={amount}
+		type="number"
+		placeholder="Amount here"
+	/>
 
 	{#if error.error}
 		<p class="error">

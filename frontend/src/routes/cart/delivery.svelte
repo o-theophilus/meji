@@ -3,6 +3,7 @@
 
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	import Eta from '../orders/[order]/eta.svelte';
 	import Receiver from '../orders/[order]/receiver.svelte';
@@ -25,6 +26,22 @@
 </script>
 
 <Card>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Button
+				class="round"
+				on:click={() => {
+					emit('back');
+				}}
+			>
+				<SVG type="angle" size="10" />
+			</Button>Delivery
+		</div>
+	</div>
+
+	<br />
+	<br />
+
 	<Receiver order={cart}>
 		<Button
 			class="link"
@@ -39,10 +56,19 @@
 			Edit
 		</Button>
 	</Receiver>
+
 	<br />
+
 	<Eta order={cart} />
 
 	<br />
+
+	<span class="bold">Delivery fee:</span>
+	₦{cart.transaction.delivery_fee.toLocaleString()}
+
+	<br />
+	<br />
+
 	<Button
 		class="primary"
 		disabled={!complete_address}
@@ -55,4 +81,8 @@
 </Card>
 
 <style>
+	.bold {
+		font-weight: 500;
+		color: var(--ac1);
+	}
 </style>

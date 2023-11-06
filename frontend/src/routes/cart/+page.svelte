@@ -3,8 +3,6 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
-	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	import Cart from './cart.svelte';
 	import Delivery from './delivery.svelte';
@@ -17,6 +15,7 @@
 	$: if ($portal) {
 		if ($portal.type == 'item') {
 			let items = [];
+			cart.transaction.total_items = 0;
 			for (const x in cart.items) {
 				if (
 					`${cart.items[x].key}_${JSON.stringify(cart.items[x].variation)}` ==
@@ -29,6 +28,8 @@
 				} else {
 					items.push(cart.items[x]);
 				}
+
+				cart.transaction.total_items += cart.items[x].quantity * cart.items[x].price;
 			}
 			cart.items = items;
 		}
@@ -44,7 +45,6 @@
 		$portal = '';
 	}
 
-	let states = ['cart', 'receiver', 'payment'];
 	let state = 0;
 </script>
 
@@ -53,22 +53,7 @@
 <Center>
 	<br />
 
-	<div class="ctitle">
-		<div class="ctitle">
-			{#if state > 0}
-				<Button
-					class="round"
-					on:click={() => {
-						state -= 1;
-					}}
-				>
-					<SVG type="angle" size="10" />
-				</Button>
-			{/if}
-
-			{states[state]}
-		</div>
-	</div>
+	<div class="ctitle">Cart</div>
 </Center>
 
 {#if state == 0}

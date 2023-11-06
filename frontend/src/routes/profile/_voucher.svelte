@@ -22,7 +22,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "adding . . .";
+		$loading = 'adding . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/use_voucher`, {
 			method: 'post',
 			headers: {
@@ -56,9 +56,7 @@
 		Add to your balance.
 	</svelte:fragment>
 
-	<IG name="voucher" {error} let:id>
-		<input bind:value={code} {id} type="text" placeholder="Your code here" />
-	</IG>
+	<IG name="voucher" {error} bind:value={code} type="text" placeholder="Your code here" />
 
 	{#if error.error}
 		<p class="error">

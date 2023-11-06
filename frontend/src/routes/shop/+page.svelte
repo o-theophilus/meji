@@ -100,21 +100,20 @@
 	</div>
 </Card>
 
-<br />
+{#if items.length > 0}
+	<br />
+	<Center>
+		<div class="item_area" class:list={$user.setting.item_view == 'list'}>
+			{#each items as item (item.key)}
+				<Item {item} />
+			{/each}
+		</div>
+	</Center>
+{:else}
+	<Card>no item here</Card>
+{/if}
 
-<Center>
-	<div class="item_area" class:list={$user.setting.item_view == 'list'}>
-		{#each items as item (item.key)}
-			<Item {item} />
-		{:else}
-			no item here
-		{/each}
-	</div>
-</Center>
-
-<Card>
-	<Pagination {page_name} {total_page} />
-</Card>
+<Pagination {page_name} {total_page} />
 
 <style>
 	.line {

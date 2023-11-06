@@ -92,20 +92,18 @@
 		{@html message}
 	</svelte:fragment>
 
-	<IG name="email" {error} let:id>
-		<input bind:value={form.email} {id} type="text" placeholder="Email here" />
-	</IG>
+	<IG name="email" {error} bind:value={form.email} type="email" placeholder="Email here" />
 
-	<IG name="password" {error} let:id>
-		<div class="password">
-			{#if show_password}
-				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
-			{/if}
-
+	<IG
+		name="password"
+		{error}
+		bind:value={form.password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	>
+		<svelte:fragment slot="pos_1">
 			<ShowPassword bind:show_password />
-		</div>
+		</svelte:fragment>
 	</IG>
 
 	{#if error.error}
@@ -157,7 +155,4 @@
 </div>
 
 <style>
-	.password {
-		position: relative;
-	}
 </style>

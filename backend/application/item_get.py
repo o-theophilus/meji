@@ -85,7 +85,7 @@ def shop(
     tag="",
     sort="latest",
     page_no=1,
-    size=24
+    size=12  # 24
 ):
     if not db:
         db = database()

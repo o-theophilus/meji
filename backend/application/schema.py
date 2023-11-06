@@ -73,7 +73,7 @@ def order_schema(order, db):
     items = []
 
     for x in order["items"]:
-        item = query({"type": "item", "key": x["item"]}, db=db)
+        item = query({"type": "item", "key": x["key"]}, db=db)
         if item:
             items.append({
                 "slug": item["slug"],
@@ -98,7 +98,7 @@ def order_schema(order, db):
         "status": order["status"],
         "delivery_date": order["delivery_date"],
 
-        "info": order["info"],
+        "transaction": order["transaction"],
     }
 
 

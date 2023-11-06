@@ -115,8 +115,8 @@ def cart_to_order():
         "order",
     )
 
-    # database(f"{user['key']}_cart", True)
-    # database([user, cart, log])
+    database(f"{user['key']}_cart", True)
+    database([user, cart, log])
 
     send_mail(
         os.environ["MAIL_USERNAME"],
