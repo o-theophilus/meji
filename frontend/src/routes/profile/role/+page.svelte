@@ -31,39 +31,26 @@
 		}
 	};
 	let user_roles = [];
-	$: console.log(user_roles);
 
-	const select_level = (_in) => {
+	const select_group = (_in = '', _group = '') => {
 		let group = [];
 		for (const [_cate, _levels] of Object.entries(roles)) {
 			for (const [_level, _roles] of Object.entries(_levels)) {
-				if (_level == _in) {
+				if (_group == 'level' && _level == _in) {
+					for (const _role of _roles) {
+						group.push(`${_cate}:${_role}`);
+					}
+				} else if (_group == 'cate' && _cate == _in) {
+					for (const _role of _roles) {
+						group.push(`${_cate}:${_role}`);
+					}
+				} else if (!_group && !_in) {
 					for (const _role of _roles) {
 						group.push(`${_cate}:${_role}`);
 					}
 				}
 			}
 		}
-
-		return group;
-	};
-
-	const select_cate = (_in) => {
-		let group = [];
-		for (const [_cate, _levels] of Object.entries(roles)) {
-			for (const [_level, _roles] of Object.entries(_levels)) {
-				if (_cate == _in) {
-					for (const _role of _roles) {
-						group.push(`${_cate}:${_role}`);
-					}
-				}
-			}
-		}
-
-		return group;
-	};
-	const select_group = (_in, _group) => {
-		let group = !_group ? select_level(_in) : select_cate(_in);
 
 		let add_all = false;
 		for (const x of group) {
@@ -97,14 +84,23 @@
 
 <Card>
 	<section>
-		<span>category</span>
+		<span>
+			<button
+				class="role"
+				on:click={() => {
+					select_group();
+				}}
+			>
+				category
+			</button>
+		</span>
 
 		{#each ['level_1', 'level_2', 'level_3'] as level}
 			<span>
 				<button
 					class="role"
 					on:click={() => {
-						select_group(level);
+						select_group(level, 'level');
 					}}
 				>
 					{level.split('_').join(' ')}
