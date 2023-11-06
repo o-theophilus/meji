@@ -28,7 +28,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "loading . . .";
+		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_eta/${form.key}`, {
 			method: 'put',
 			headers: {
@@ -61,12 +61,8 @@
 		<b>Set Delivery date and time</b>
 	</svelte:fragment>
 
-	<IG name="date" {error} let:id>
-		<input bind:value={form.date} {id} type="date" placeholder="date here" />
-	</IG>
-	<IG name="time" {error} let:id>
-		<input bind:value={form.time} {id} type="time" placeholder="time here" />
-	</IG>
+	<IG name="date" {error} bind:value={form.date} type="date" placeholder="date here" />
+	<IG name="time" {error} bind:value={form.time} type="time" placeholder="time here" />
 
 	{#if error.error}
 		<p class="error">

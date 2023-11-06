@@ -8,6 +8,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
@@ -34,18 +35,16 @@
 			}
 		}
 
-		if (input.startsWith('size')) {
-			let match = input.match(/(\d+)-(\d+)/);
-			if (match) {
-				let start = parseInt(match[1]);
-				let end = parseInt(match[2]);
+		let match = input.match(/(\d+)-(\d+)/);
+		if (input.startsWith('size') && match) {
+			let start = parseInt(match[1]);
+			let end = parseInt(match[2]);
 
-				let n = [];
-				for (let i = start; i <= end; i++) {
-					n.push(i);
-				}
-				variation['size'] = n.join(', ');
+			let n = [];
+			for (let i = start; i <= end; i++) {
+				n.push(i);
 			}
+			variation['size'] = n.join(', ');
 		} else {
 			variation[input] = '';
 		}
@@ -94,7 +93,7 @@
 			temp[key] = temp[key].split(', ');
 		}
 
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
@@ -128,26 +127,29 @@
 	</svelte:fragment>
 
 	<IG name="variation" {error} let:id>
-		<input
-			bind:value={input}
-			on:keypress={(e) => {
-				if (e.key == 'Enter') {
-					add_key;
-				}
-			}}
-			{id}
-			type="text"
-			placeholder="variation here"
-		/>
-		<Button on:click={add_key}>Add</Button>
+		<form class="line" on:submit|preventDefault>
+			<Input bind:value={input} type="text" {id} placeholder="variation here" />
+			<Button class={input ? 'primary' : ''} on:click={add_key}>Add</Button>
+		</form>
 	</IG>
 
-	{#each Object.keys(variation) as key, i (i)}
+	{#each Object.keys(variation) as key (key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<IG name={key} {error} let:id>
+			<IG
+				name={key}
+				{error}
+				type="textarea"
+				bind:value={variation[key]}
+				on:blur={() => {
+					clean_value(key);
+				}}
+				placeholder="options here"
+			>
 				<svelte:fragment slot="label">
 					<div class="line">
-						{key}
+						<label for={key}>
+							{key}
+						</label>
 						<Button
 							class="round small hover_red"
 							on:click={() => {
@@ -158,14 +160,6 @@
 						</Button>
 					</div>
 				</svelte:fragment>
-				<textarea
-					bind:value={variation[key]}
-					on:blur={() => {
-						clean_value(key);
-					}}
-					{id}
-					placeholder="Options here"
-				/>
 			</IG>
 		</div>
 	{/each}

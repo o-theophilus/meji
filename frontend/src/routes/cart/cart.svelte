@@ -19,11 +19,13 @@
 </script>
 
 <Card>
-	<div class="ctitle">Items</div>
-	<br />
-	<br />
+	{#if cart.items.length > 0}
+		<div class="ctitle">Items</div>
+		<br />
+		<br />
+	{/if}
 	<div class="items">
-		{#each cart.items as item, i (`${item.key}${JSON.stringify(item.variation)}`)}
+		{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 				<Item bind:item />
 			</div>

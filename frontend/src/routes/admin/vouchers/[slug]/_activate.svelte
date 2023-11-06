@@ -35,7 +35,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "activating . . .";
+		$loading = 'activating . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${voucher.key}`, {
 			method: 'put',
 			headers: {
@@ -68,9 +68,10 @@
 		<b>Activate Voucher</b>
 	</svelte:fragment>
 
-	<IG name="validity" {error} let:id>
-		<input bind:value={form.validity} {id} type="date" {min} placeholder="date here" />
-		{difference} day{difference > 1 ? 's' : ''}
+	<IG name="validity" {error} bind:value={form.validity} type="date" {min} placeholder="date here">
+		<svelte:fragment slot="pos_2">
+			{difference} day{difference > 1 ? 's' : ''}
+		</svelte:fragment>
 	</IG>
 	{#if error.error}
 		<p class="error">

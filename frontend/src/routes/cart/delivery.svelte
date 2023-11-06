@@ -6,7 +6,7 @@
 	import SVG from '$lib/svg.svelte';
 
 	import Eta from '../orders/[order]/eta.svelte';
-	import Receiver from '../orders/[order]/receiver.svelte';
+	import Receiver from './delivery.receiver.svelte';
 	import Form from './delivery._receiver_form.svelte';
 	import { createEventDispatcher } from 'svelte';
 

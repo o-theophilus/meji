@@ -4,6 +4,7 @@
 
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Input from '$lib/input.svelte';
 	import Password from '../../auth/password_checker.svelte';
 	import Button from '$lib/button.svelte';
 	import ShowPassword from '$lib/button.show_password.svelte';
@@ -68,7 +69,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "resetting . . .";
+		$loading = 'resetting . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/password`, {
 			method: 'post',
 			headers: {
@@ -108,38 +109,44 @@
 		Reset your password.
 	</svelte:fragment>
 
-	<IG name="password" {error} let:id>
-		<div class="password">
-			{#if show_password}
-				<input bind:value={form.password} {id} type="text" placeholder="Password here" />
-			{:else}
-				<input bind:value={form.password} {id} type="password" placeholder="Password here" />
-			{/if}
+	<IG
+		name="password"
+		{error}
+		bind:value={form.password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	>
+		<svelte:fragment slot="pos_1">
 			<ShowPassword bind:show_password />
+		</svelte:fragment>
+		<svelte:fragment slot="pos_2">
+			<Password password={form.password} />
+		</svelte:fragment>
+	</IG>
+
+	<IG
+		name="confirm password"
+		{error}
+		bind:value={form.confirm_password}
+		type={show_password ? 'text' : 'password'}
+		placeholder="Password here"
+	/>
+
+	<IG name="otp" label="OTP" {error}>
+		<div class="line">
+			<Input bind:value={form.otp} type="text" placeholder="OTP here" />
+			<form on:submit|preventDefault>
+				<Button class="primary" on:click={request_otp}>Request OTPs</Button>
+			</form>
 		</div>
-		<Password password={form.password} />
 	</IG>
 
-	<IG name="confirm password" {error} let:id>
-		{#if show_password}
-			<input bind:value={form.confirm_password} {id} type="text" placeholder="Password here" />
-		{:else}
-			<input bind:value={form.confirm_password} {id} type="password" placeholder="Password here" />
-		{/if}
-	</IG>
-
-	<Button class="primary" on:click={request_otp}>Request OTPs</Button>
-	<br />
 	{#if message}
-		<div class="inputGroup">
+		<div class="message">
 			{message}
 		</div>
 		<br />
 	{/if}
-
-	<IG name="otp" label="OTP" {error} let:id>
-		<input bind:value={form.otp} {id} type="text" placeholder="OTP here" />
-	</IG>
 
 	{#if error.error}
 		<p class="error">
@@ -156,7 +163,19 @@
 </div>
 
 <style>
-	.password {
-		position: relative;
+	.line {
+		display: flex;
+		gap: var(--sp1);
+	}
+
+	.line form {
+		flex-shrink: 0;
+	}
+
+	.message {
+		background-color: var(--cl5);
+		color: var(--ac6_);
+		padding: var(--sp1);
+		width: 100%;
 	}
 </style>

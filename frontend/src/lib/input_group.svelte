@@ -9,6 +9,7 @@
 	export let value = '';
 	export let type = '';
 	export let placeholder = '';
+	export let min = '';
 </script>
 
 <div class="inputGroup">
@@ -26,7 +27,7 @@
 
 	<slot {id}>
 		<div class="position">
-			<Input bind:value {id} {type} {placeholder} />
+			<Input bind:value {id} {type} {placeholder} {min} on:blur />
 			<slot name="pos_1" />
 		</div>
 		<slot name="pos_2" />

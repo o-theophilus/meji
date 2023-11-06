@@ -35,7 +35,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
@@ -78,9 +78,14 @@
 		<b>Edit Address</b>
 	</svelte:fragment>
 
-	<IG name="line" label="Address" {error} let:id>
-		<input bind:value={address.line} id="address" type="text" placeholder="Your address here" />
-	</IG>
+	<IG
+		name="line"
+		label="Address"
+		{error}
+		bind:value={address.line}
+		type="text"
+		placeholder="Your address here"
+	/>
 
 	<IG name="country" {error} let:id>
 		<select
@@ -108,23 +113,23 @@
 		</select>
 	</IG>
 
-	<IG name="local_area" label="Local Government Area" {error} let:id>
-		<input
-			type="text"
-			bind:value={address.local_area}
-			id="local_area"
-			placeholder="Your local government area here"
-		/>
-	</IG>
+	<IG
+		name="local_area"
+		label="Local Government Area"
+		{error}
+		type="text"
+		bind:value={address.local_area}
+		placeholder="Your local government area here"
+	/>
 
-	<IG name="postal_code" label="Postal Code" {error} let:id>
-		<input
-			type="text"
-			bind:value={address.postal_code}
-			id="postal_code"
-			placeholder="Your postal code here"
-		/>
-	</IG>
+	<IG
+		name="postal_code"
+		label="Postal Code"
+		{error}
+		type="text"
+		bind:value={address.postal_code}
+		placeholder="Your postal code here"
+	/>
 
 	{#if error.error}
 		<p class="error">

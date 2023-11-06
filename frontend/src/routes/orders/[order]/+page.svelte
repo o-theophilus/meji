@@ -9,7 +9,7 @@
 
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
-	import Receiver from './receiver.svelte';
+	import Receiver from '../../cart/delivery.receiver.svelte';
 	import Status from './_status.svelte';
 	import Cancel from './_status_cancel.svelte';
 	import Form from './eta._form.svelte';

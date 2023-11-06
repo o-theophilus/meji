@@ -5,7 +5,7 @@
 	export let show_password = false;
 </script>
 
-<form class="show" on:submit|preventDefault>
+<form on:submit|preventDefault>
 	<Button
 		class="round small"
 		on:click={() => {
@@ -17,7 +17,7 @@
 </form>
 
 <style>
-	.show {
+	form {
 		position: absolute;
 		right: var(--sp1);
 		top: 0;

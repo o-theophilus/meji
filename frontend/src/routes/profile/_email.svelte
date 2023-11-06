@@ -5,6 +5,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Input from '$lib/input.svelte';
 	import Email from './email_email_template.svelte';
 
 	let form = {};
@@ -31,6 +32,7 @@
 	const request_otp = async () => {
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
+		$loading = 'requesting OTP . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/email_otp`, {
 			method: 'post',
 			headers: {
@@ -40,6 +42,7 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			message = 'emails containing the OTP has been sent to your current email and your new email';
@@ -56,6 +59,8 @@
 			error.email = 'This field is required';
 		} else if (!/\S+@\S+\.\S+/.test(form.email)) {
 			error.email = 'Please enter a valid email';
+		} else if (form.email == user.email) {
+			error.email = 'please use a different email form your current email';
 		}
 
 		if (!form.otp_1) {
@@ -70,7 +75,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/email`, {
 			method: 'post',
 			headers: {
@@ -110,26 +115,41 @@
 	<br />
 
 	<IG name="email" label="New Email" {error} let:id>
-		<input type="email" bind:value={form.email} id="email" placeholder="your new email here" />
+		<form on:submit|preventDefault>
+			<Input type="email" bind:value={form.email} {id} placeholder="your new email here" />
+			<div>
+				<Button
+					class={/\S+@\S+\.\S+/.test(form.email) && form.email != user.email ? 'primary' : ''}
+					on:click={validate_request_otp}>Request OTPs</Button
+				>
+			</div>
+		</form>
 	</IG>
 
-	<Button class="primary" on:click={validate_request_otp}>Request OTPs</Button>
 	{#if message}
-		<br />
-		<span>
+		<div class="message">
 			{message}
-		</span>
+		</div>
 		<br />
 	{/if}
-	<br />
 
-	<IG name="otp_1" label="Current Email OTP" {error} let:id>
-		<input type="text" bind:value={form.otp_1} id="otp_1" placeholder="your OTP here" />
-	</IG>
+	<IG
+		name="otp_1"
+		label="Current Email OTP"
+		{error}
+		type="text"
+		bind:value={form.otp_1}
+		placeholder="your OTP here"
+	/>
 
-	<IG name="otp_2" label="New Email OTP" {error} let:id>
-		<input type="text" bind:value={form.otp_2} id="otp_2" placeholder="your OTP here" />
-	</IG>
+	<IG
+		name="otp_2"
+		label="New Email OTP"
+		{error}
+		type="text"
+		bind:value={form.otp_2}
+		placeholder="your OTP here"
+	/>
 
 	{#if error.error}
 		<p class="error">
@@ -146,4 +166,18 @@
 </div>
 
 <style>
+	form {
+		display: flex;
+		gap: var(--sp1);
+	}
+	form div {
+		flex-shrink: 0;
+	}
+
+	.message {
+		background-color: var(--cl5);
+		color: var(--ac6_);
+		padding: var(--sp1);
+		width: 100%;
+	}
 </style>

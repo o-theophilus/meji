@@ -133,25 +133,21 @@
 		<br />
 	{/if}
 
-	<IG name="name" {error} let:id>
-		<input bind:value={receiver.name} {id} type="text" placeholder="Name here" />
-	</IG>
+	<IG name="name" {error} bind:value={receiver.name} type="text" placeholder="Name here" />
 
-	<IG name="phone" {error} let:id>
-		<input bind:value={receiver.phone} {id} type="tel" placeholder="Phone here" />
-	</IG>
+	<IG name="phone" {error} bind:value={receiver.phone} type="tel" placeholder="Phone here" />
 
 	<hr />
 	<br />
 
-	<IG name="line" label="address" {error} let:id>
-		<input
-			bind:value={receiver.address.line}
-			{id}
-			type="text"
-			placeholder="Delivery address here"
-		/>
-	</IG>
+	<IG
+		name="line"
+		label="address"
+		{error}
+		bind:value={receiver.address.line}
+		type="text"
+		placeholder="Delivery address here"
+	/>
 
 	<IG name="country" {error} let:id>
 		<select
@@ -178,23 +174,22 @@
 		</select>
 	</IG>
 
-	<IG name="local_area" label="Local Government Area" {error} let:id>
-		<input
-			bind:value={receiver.address.local_area}
-			{id}
-			type="text"
-			placeholder="Your local government area here"
-		/>
-	</IG>
+	<IG
+		name="local_area"
+		label="Local Government Area"
+		{error}
+		bind:value={receiver.address.local_area}
+		type="text"
+		placeholder="Your local government area here"
+	/>
 
-	<IG name="postal_code" {error} let:id>
-		<input
-			bind:value={receiver.address.postal_code}
-			{id}
-			type="text"
-			placeholder="Your postal code here"
-		/>
-	</IG>
+	<IG
+		name="postal_code"
+		{error}
+		bind:value={receiver.address.postal_code}
+		type="text"
+		placeholder="Your postal code here"
+	/>
 
 	{#if error.error}
 		<p class="error">

@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	export let page_name;

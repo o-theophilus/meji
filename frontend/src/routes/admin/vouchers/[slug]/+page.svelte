@@ -8,6 +8,7 @@
 	import Center from '$lib/center.svelte';
 	import Logs from './logs.svelte';
 	import Activate from './_activate.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	let error = {};
 	export let data;
@@ -19,7 +20,7 @@
 
 	const submit = async (method, url) => {
 		error = {};
-		$loading = `${method == "delete" ? "deleting":"deactivating"} . . .`;
+		$loading = `${method == 'delete' ? 'deleting' : 'deactivating'} . . .`;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/${url}/${voucher.key}`, {
 			method: method,
 			headers: {
@@ -42,8 +43,6 @@
 			error = resp;
 		}
 	};
-
-	let open = false;
 </script>
 
 <Meta title="Voucher" description="Voucher" />
@@ -51,7 +50,10 @@
 <Center>
 	<br />
 	<div class="ctitle">
-		Voucher{voucher.length > 1 ? 's' : ''}
+		<div class="ctitle">
+			<Back />
+			Voucher
+		</div>
 	</div>
 </Center>
 

@@ -7,6 +7,7 @@
 
 	export let quantity = 1;
 	export let min = 1;
+	export let id = '';
 
 	const change = () => {
 		if (!Number.isInteger(quantity) || quantity < 0) {
@@ -32,6 +33,7 @@
 
 	<input
 		type="number"
+		{id}
 		style:width="calc({clientWidth}px + 4px)"
 		bind:value={quantity}
 		on:change={() => {
