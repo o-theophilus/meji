@@ -43,6 +43,7 @@
 	};
 
 	const select_group = (_in = '', _group = '') => {
+		error = {};
 		let group = [];
 		for (const [_cate, _levels] of Object.entries(roles)) {
 			for (const [_level, _roles] of Object.entries(_levels)) {
@@ -83,6 +84,7 @@
 	};
 
 	const select = (role) => {
+		error = {};
 		if (!user_roles.includes(role)) {
 			user_roles.push(role);
 			user_roles = user_roles;
@@ -92,6 +94,7 @@
 	};
 
 	const submit = async () => {
+		error = {};
 		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_role/${user.key}`, {
 			method: 'post',

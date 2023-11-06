@@ -44,6 +44,7 @@
 		color: var(--ac1);
 		background-color: var(--ac6);
 		box-shadow: var(--shad1);
+		outline: 2px solid var(--ac5);
 	}
 
 	.circle {
