@@ -56,7 +56,7 @@
 		User Details
 		{#if user && user.key == $me.key}
 			<Button
-				class="small"
+				class="small outline"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}

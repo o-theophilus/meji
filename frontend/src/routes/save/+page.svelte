@@ -26,7 +26,7 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<div class="item_area" class:list={$user.setting.item_view == 'list'}>
+		<div class="item_area">
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<Item

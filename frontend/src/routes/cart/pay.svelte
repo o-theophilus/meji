@@ -51,7 +51,11 @@
 				Acc. Bal ₦{$user.acc_balance.toLocaleString()}
 			</div>
 			<div class="value">
-				- ₦{cart.transaction.account.toLocaleString()}
+				{#if cart.transaction.account > 0}
+					-
+				{/if}
+
+				₦{cart.transaction.account.toLocaleString()}
 			</div>
 		{/if}
 

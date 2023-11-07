@@ -27,7 +27,7 @@
 
 		{#if $user.roles.includes('admin')}
 			<Button
-				class="small {$page.url.searchParams.has('admin') ? 'primary' : ''}"
+				class="small {$page.url.searchParams.has('admin') ? 'primary' : 'outline'}"
 				on:click={() => {
 					if ($page.url.searchParams.has('admin')) {
 						set_state(page_name, 'admin', '');

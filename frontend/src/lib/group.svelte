@@ -48,7 +48,6 @@
 			{#if open}
 				<div
 					class="item_area"
-					class:list={$user.setting.item_view == 'list'}
 					transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 				>
 					{#each items.slice(0, width < 1000 ? 6 : 8) as x (x.key)}

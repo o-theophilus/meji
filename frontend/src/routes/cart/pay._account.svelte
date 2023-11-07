@@ -6,6 +6,7 @@
 	import IG from '$lib/input_group.svelte';
 
 	let cart = { ...$module.cart };
+	let pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
 	let error = {};
 	let amount = cart.transaction.account;
 
@@ -52,8 +53,6 @@
 			error = resp;
 		}
 	};
-
-	let pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
 </script>
 
 <Form>
@@ -62,6 +61,11 @@
 		Enter amount to deduct from your account
 	</svelte:fragment>
 
+	Acc. Bal: ₦{$user.acc_balance.toLocaleString()}
+
+	<br />
+
+	<br />
 	<IG
 		name="amount"
 		label="Amount (₦)"
@@ -70,6 +74,11 @@
 		type="number"
 		placeholder="Amount here"
 	/>
+
+	Remaining: ₦{($user.acc_balance - amount).toLocaleString()}
+
+	<br />
+	<br />
 
 	{#if error.error}
 		<p class="error">

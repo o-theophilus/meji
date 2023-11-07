@@ -1,13 +1,13 @@
 <script>
-	import { user } from '$lib/store.js';
 	import Rating from './rating.svelte';
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
 
 	export let item;
+	export let list = false;
 </script>
 
-<section class="item" class:view_list={$user.setting.item_view == 'list'}>
+<section class="item" class:list>
 	<a data-sveltekit-preload-data="tap" class="img" href="/{item.slug}">
 		<img
 			src={`${item.photos[0]}/200` || '/image/item.png'}
@@ -130,23 +130,23 @@
 		background: var(--cl4);
 	}
 
-	.view_list {
+	.list {
 		flex-direction: unset;
 	}
 
-	.view_list img {
+	.list img {
 		width: unset;
 		height: 120px;
 	}
 
-	.view_list .details {
+	.list .details {
 		padding: var(--sp2);
 	}
-	.view_list .details_control {
+	.list .details_control {
 		height: unset;
 	}
 
-	.view_list .name {
+	.list .name {
 		white-space: unset;
 	}
 </style>

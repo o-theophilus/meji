@@ -200,7 +200,7 @@ def recently_viewed(user_key, item_key):
             items.append(item_schema(item, db))
             unique_keys.append(item["key"])
 
-        if len(items) >= 8:
+        if len(items) == 8:
             break
 
     return jsonify({

@@ -1,18 +1,16 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { user as me, toast, loading } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
+	import { module } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
+	import Role_Ok from './role._ok.svelte';
 
 	export let user;
 	let user_roles = [...user.roles];
-	$: console.log(user_roles);
 	let open = true;
-	let error = {};
 
 	let roles = {
 		admin: {
@@ -43,7 +41,6 @@
 	};
 
 	const select_group = (_in = '', _group = '') => {
-		error = {};
 		let group = [];
 		for (const [_cate, _levels] of Object.entries(roles)) {
 			for (const [_level, _roles] of Object.entries(_levels)) {
@@ -84,36 +81,11 @@
 	};
 
 	const select = (role) => {
-		error = {};
 		if (!user_roles.includes(role)) {
 			user_roles.push(role);
 			user_roles = user_roles;
 		} else {
 			user_roles = user_roles.filter((x) => x != role);
-		}
-	};
-
-	const submit = async () => {
-		error = {};
-		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_role/${user.key}`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify({ roles: user_roles })
-		});
-		resp = await resp.json();
-		$loading = false;
-
-		if (resp.status == 200) {
-			$toast = {
-				status: 200,
-				message: 'Role saved'
-			};
-		} else {
-			error = resp;
 		}
 	};
 </script>
@@ -185,14 +157,17 @@
 		</section>
 
 		<br />
-		{#if error.error}
-			<p class="error">
-				{error.error}
-			</p>
-			<br />
-		{/if}
 
-		<Button class="primary" on:click={submit}>Ok</Button>
+		<Button
+			class="primary"
+			on:click={() => {
+				$module = {
+					module: Role_Ok,
+					key: user.key,
+					roles: user_roles
+				};
+			}}>Ok</Button
+		>
 	{/if}
 </Card>
 
