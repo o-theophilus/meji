@@ -85,7 +85,8 @@
 			}
 			user_roles = user_roles;
 		} else {
-			user_roles = [];
+			user_roles = user_roles.filter((x) => !group.includes(x));
+			// user_roles = [];
 		}
 	};
 

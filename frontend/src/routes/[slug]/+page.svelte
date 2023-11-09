@@ -26,8 +26,19 @@
 	let edit_mode = false;
 	$loading = false;
 
+	let roles = [
+		'item:advert',
+		'item:edit_status',
+		'item:edit_name',
+		'item:edit_tag',
+		'item:edit_price',
+		'item:edit_info',
+		'item:edit_variation'
+	];
+	let is_admin = $user.roles.some((x) => roles.includes(x));
+
 	onMount(() => {
-		if ($page.url.searchParams.has('edit') && $user.roles.includes('admin')) {
+		if ($page.url.searchParams.has('edit') && is_admin) {
 			$page.url.searchParams.delete('edit');
 			edit_mode = true;
 
@@ -51,7 +62,7 @@
 	<br />
 	<div class="ctitle">
 		Item Details
-		{#if $user && $user.roles.includes('admin')}
+		{#if $user && is_admin}
 			<Button
 				class="small outline"
 				on:click={() => {

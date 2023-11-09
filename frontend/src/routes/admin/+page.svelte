@@ -18,6 +18,8 @@
 		{#if $user.roles.includes('user:view')}
 			<Button class="wide" href="/admin/users">Users</Button>
 			<br />
+			<Button class="wide" href="/admin/admin_users">Admin Users</Button>
+			<br />
 		{/if}
 		{#if $user.roles.includes('voucher:view')}
 			<Button class="wide" href="/admin/vouchers">Vouchers</Button>

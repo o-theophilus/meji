@@ -58,7 +58,7 @@ def get_user():
 
 
 @bp.get("/users")
-def get_all_users():
+def get_users():
     db = database()
 
     user = token_to_user(db)
@@ -108,6 +108,77 @@ def get_all_users():
         d[sort], str) else d[sort], reverse=reverse)
 
     total_page = ceil(len(users) / size)
+    start = (page_no - 1) * size
+    stop = start + size
+    users = users[start: stop]
+
+    return jsonify({
+        "status": 200,
+        "users": [user_schema(x, db) for x in users],
+        "total_page": total_page
+    })
+
+
+@bp.get("/admin_users")
+def admin_users():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+
+    search = "all:all:all"
+    if "search" in request.args:
+        search = request.args["search"]
+
+    search = search.split(":")
+    if len(search) != 3:
+        return jsonify({
+            "status": 400,
+            "error": "invalid search"
+        })
+
+    _user, _type, _role = search
+
+    if "user:view" not in user["roles"]:
+        _user = user["key"]
+
+    users = []
+    for x in db:
+        if x["type"] != "user" or len(x["roles"]) == 0:
+            continue
+
+        if _user != 'all':
+            if not re.search(
+                _user,
+                f"{x['key']} {x['name']} {x['email']}",
+                re.IGNORECASE
+            ):
+                continue
+
+        if _type != 'all':
+            x_types = [y.split(":")[0] for y in x["roles"]]
+            if _type not in x_types:
+                continue
+
+        if _role != 'all':
+            if f"{_type}:{_role}" not in x["roles"]:
+                print("here 2")
+                continue
+
+        users.append(x)
+
+    users = sorted(users, key=lambda d: len(d["roles"]), reverse=True)
+    print(len(users))
+
+    total_page = ceil(len(users) / size)
+
     start = (page_no - 1) * size
     stop = start + size
     users = users[start: stop]
