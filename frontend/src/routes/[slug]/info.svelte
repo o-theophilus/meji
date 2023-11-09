@@ -80,18 +80,20 @@
 			>
 		</span>
 
-		<Button
-			class="small round"
-			on:click={() => {
-				$module = {
-					module: Status,
-					item
-				};
-			}}
-			tooltip="Edit Status"
-		>
-			<SVG type="edit" size="12" />
-		</Button>
+		{#if $user.roles.includes('item:edit_status')}
+			<Button
+				class="small round"
+				on:click={() => {
+					$module = {
+						module: Status,
+						item
+					};
+				}}
+				tooltip="Edit Status"
+			>
+				<SVG type="edit" size="12" />
+			</Button>
+		{/if}
 	</div>
 
 	<br />
@@ -103,7 +105,7 @@
 	<div class="horizontal">
 		<Save {item} />
 
-		{#if edit_mode}
+		{#if edit_mode && $user.roles.includes('item:edit_name')}
 			<Button
 				class="small round"
 				on:click={() => {
@@ -127,7 +129,7 @@
 			<Button
 				class="link"
 				on:click={() => {
-					$loading = "loading . . .";
+					$loading = 'loading . . .';
 					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}
 			>
@@ -138,7 +140,7 @@
 		{/each}
 	</span>
 
-	{#if edit_mode}
+	{#if edit_mode && $user.roles.includes('item:edit_tag')}
 		<Button
 			class="small round"
 			on:click={() => {
@@ -171,7 +173,7 @@
 				<SVG type="info" size="8" />
 			</Button>
 		{/if}
-		{#if edit_mode}
+		{#if edit_mode && $user.roles.includes('item:edit_price')}
 			<Button
 				class="small round"
 				on:click={() => {
@@ -204,7 +206,7 @@
 				open_info = !open_info;
 			}}
 		/>
-		{#if edit_mode}
+		{#if edit_mode && $user.roles.includes('item:edit_info')}
 			<Button
 				class="small round"
 				on:click={() => {
@@ -242,7 +244,7 @@
 					open_variation = !open_variation;
 				}}
 			/>
-			{#if edit_mode}
+			{#if edit_mode && $user.roles.includes('item:edit_variation')}
 				<Button
 					class="small round"
 					on:click={() => {

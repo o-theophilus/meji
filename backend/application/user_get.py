@@ -20,14 +20,15 @@ def get_user():
             "error": "invalid token"
         })
 
-    if "admin" not in me["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
     user = None
     if "search" in request.args:
+
+        if "user:view" not in me["roles"]:
+            return jsonify({
+                "status": 400,
+                "error": "unauthorized access"
+            })
+
         if request.args["search"]:
             for x in db:
                 if x["type"] == "user" and (
@@ -35,6 +36,10 @@ def get_user():
                     or x["email"] == request.args["search"]
                 ):
                     user = x
+
+                    if "user:view_balance" not in me["roles"]:
+                        user["acc_balance"] = "#"
+
                     break
 
         if not user:
@@ -43,7 +48,7 @@ def get_user():
                 "error": "user not found"
             })
 
-    if not user:
+    else:
         user = me
 
     return jsonify({
@@ -63,7 +68,7 @@ def get_all_users():
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "user:view" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

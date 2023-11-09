@@ -2,6 +2,10 @@ import { loading } from "$lib/store.js"
 
 export const load = async ({ fetch, parent,params }) => {
 	let  a = await parent();
+	if (!a.locals.user.roles.includes("voucher:view")) {
+		throw error(400, "unauthorized access")
+	}
+
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${params.slug}`, {
 		method: 'get',
 		headers: {

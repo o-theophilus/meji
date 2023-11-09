@@ -68,8 +68,9 @@
 
 	<div class="code">
 		₦{voucher.value.toLocaleString()}
-		<!-- <br />
-		{voucher.code} -->
+		<br />
+
+		{voucher.code}{#if voucher.code == '#'}#########{/if}
 	</div>
 
 	<br />

@@ -30,7 +30,7 @@ def file_list():
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "admin:manage_photo" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -141,7 +141,7 @@ def unused_anon():
     })
 
 
-# @bp.get("/fix")                                                                               
+# @bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")

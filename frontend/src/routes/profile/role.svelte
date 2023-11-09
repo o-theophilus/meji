@@ -14,22 +14,31 @@
 
 	let roles = {
 		admin: {
-			level_1: ['dashboard'],
+			level_1: [],
 			level_2: ['manage_photo'],
 			level_3: []
 		},
 		user: {
-			level_1: ['view', 'view_all'],
+			level_1: ['view'],
 			level_2: ['view_balance'],
-			level_3: ['set_permission']
+			level_3: ['set_role']
 		},
 		item: {
 			level_1: [],
-			level_2: ['add', 'edit', 'advert', 'change_status'],
+			level_2: [
+				'add',
+				'advert',
+				'edit_status',
+				'edit_name',
+				'edit_tag',
+				'edit_price',
+				'edit_info',
+				'edit_variation'
+			],
 			level_3: []
 		},
 		voucher: {
-			level_1: ['view', 'view_all'],
+			level_1: ['view'],
 			level_2: [],
 			level_3: ['add', 'view_code']
 		},
@@ -76,7 +85,7 @@
 			}
 			user_roles = user_roles;
 		} else {
-			user_roles = user_roles.filter((x) => !group.includes(x));
+			user_roles = [];
 		}
 	};
 

@@ -2,11 +2,8 @@ import { redirect, error } from '@sveltejs/kit';
 
 export const load = async ({ parent, fetch, url }) => {
 	let a = await parent();
-	if (!a.locals.user.login) {
-		throw redirect(307, `/?module=login&return_url=${url.pathname}`);
-	}
-	else if (!a.locals.user.roles.includes('admin')) {
-		throw error(400, 'not an admin')
+	if (!a.locals.user.roles.includes("admin:manage_photo")) {
+		throw error(400, "unauthorized access")
 	}
 
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo_error`, {

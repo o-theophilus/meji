@@ -290,7 +290,9 @@ def login():
 
             for x in cart["items"]:
                 for y in anon_cart["items"]:
-                    if f"{x['key']}_{x['variation']}" == f"{y['key']}_{y['variation']}":
+                    x_key = f"{x['key']}_{x['variation']}"
+                    y_key = f"{y['key']}_{y['variation']}"
+                    if x_key == y_key:
                         x["quantity"] = y["quantity"]
                         break
 
@@ -455,18 +457,19 @@ def admin():
         )
         user["status"] = "confirm"
         user["roles"] = [
-            "admin:dashboard",
             "admin:manage_photo",
             "user:view",
-            "user:view_all",
             "user:view_balance",
-            "user:set_permission",
+            "user:set_role",
             "item:add",
-            "item:edit",
             "item:advert",
-            "item:change_status",
+            "item:edit_status",
+            "item:edit_name",
+            "item:edit_tag",
+            "item:edit_price",
+            "item:edit_info",
+            "item:edit_variation",
             "voucher:view",
-            "voucher:view_all",
             "voucher:add",
             "voucher:view_code",
             "log:view"

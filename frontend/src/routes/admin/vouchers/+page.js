@@ -4,7 +4,7 @@ import { state, loading } from "$lib/store.js"
 export const load = async ({ fetch, url, parent }) => {
 
 	let page_name = "vouchers"
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/vouchers`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/voucher`)
 	if (url.search) {
 		let temp = get(state)
 		temp[page_name] = url.search
@@ -14,6 +14,10 @@ export const load = async ({ fetch, url, parent }) => {
 	}
 
 	let a = await parent();
+	if (!a.locals.user.roles.includes("voucher:view")) {
+		throw error(400, "unauthorized access")
+	}
+
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {

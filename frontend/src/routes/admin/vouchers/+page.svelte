@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { module, set_state, portal } from '$lib/store.js';
+	import { module, set_state, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -58,17 +58,19 @@
 
 <Card>
 	<Status {page_name} array={status} default_value="all">
-		<Button
-			class="small primary"
-			on:click={() => {
-				$module = {
-					module: Add
-				};
-			}}
-		>
-			<SVG type="add" size="12" />
-			Add
-		</Button>
+		{#if $user.roles.includes('voucher:add')}
+			<Button
+				class="small primary"
+				on:click={() => {
+					$module = {
+						module: Add
+					};
+				}}
+			>
+				<SVG type="add" size="12" />
+				Add
+			</Button>
+		{/if}
 	</Status>
 
 	<br />

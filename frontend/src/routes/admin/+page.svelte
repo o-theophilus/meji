@@ -1,5 +1,5 @@
 <script>
-	import { state } from '$lib/store.js';
+	import { state, user } from '$lib/store.js';
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
@@ -14,24 +14,41 @@
 </Center>
 
 <Card>
-	<Button class="wide" href="/admin/users">Users</Button>
-	<br />
-	<Button class="wide" href="/admin/vouchers">Vouchers</Button>
-	<br />
-	<Button class="wide" href="/admin/logs{$state.logs || ''}">Logs</Button>
-	<br />
-	<Button class="wide" href="/admin/adverts">Adverts</Button>
-	<br />
-	<Button class="wide" href="/admin/photos">Photos</Button>
-	<br />
-	make users admin
-	<br />
-	advert placement
-	<br />
-	cleanup unused photos
-	<br />
-	app setting
+	<div class="block">
+		{#if $user.roles.includes('user:view')}
+			<Button class="wide" href="/admin/users">Users</Button>
+			<br />
+		{/if}
+		{#if $user.roles.includes('voucher:view')}
+			<Button class="wide" href="/admin/vouchers">Vouchers</Button>
+			<br />
+		{/if}
+		{#if $user.roles.includes('log:view')}
+			<Button class="wide" href="/admin/logs{$state.logs || ''}">Logs</Button>
+			<br />
+		{/if}
+		{#if $user.roles.includes('item:advert')}
+			<Button class="wide" href="/admin/adverts">Adverts</Button>
+			<br />
+		{/if}
+		{#if $user.roles.includes('admin:manage_photo')}
+			<Button class="wide" href="/admin/photos">Photos</Button>
+			<br />
+		{/if}
+		advert placement
+		<br />
+		cleanup unused photos
+		<br />
+		app setting
+		<br />
+		activate voucher min date
+		<br />
+		add min to delivery eta
+	</div>
 </Card>
 
 <style>
+	.block {
+		max-width: 400px;
+	}
 </style>

@@ -21,7 +21,7 @@ def add_new():
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:add" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -93,8 +93,25 @@ def edit_item(key):
 
     error = {}
 
+    if "status" in request.json:
+        if "item:edit_status" not in user["roles"]:
+            error["status"] = "unauthorized access"
+        elif (
+            not request.json["status"]
+            or request.json["status"] not in ['live', 'draft', 'delete']
+        ):
+            error["status"] = "invalid request"
+        elif request.json["status"] == "live" and len(item["photos"]) == 0:
+            error["status"] = "add photo"
+        elif request.json["status"] == "live" and not item["price"]:
+            error["status"] = "add price"
+        else:
+            item["status"] = request.json["status"]
+
     if "name" in request.json:
-        if not request.json["name"]:
+        if "item:edit_name" not in user["roles"]:
+            error["name"] = "unauthorized access"
+        elif not request.json["name"]:
             error["name"] = "this field is required"
         else:
             item["name"] = request.json["name"]
@@ -107,10 +124,20 @@ def edit_item(key):
                 slug = f"{slug}-{str(uuid4().hex)[:10]}"
             item["slug"] = slug
 
+    if "tags" in request.json:
+        if "item:edit_tag" not in user["roles"]:
+            error["tag"] = "unauthorized access"
+        elif type(request.json["tags"]) is not list:
+            error["tags"] = "this field is required"
+        else:
+            item["tags"] = request.json["tags"]
+
     if "price" in request.json:
         item["price"] = None
 
-        if request.json["price"]:
+        if "item:edit_price" not in user["roles"]:
+            error["price"] = "unauthorized access"
+        elif request.json["price"]:
             if (
                 type(request.json["price"]) not in [int, float]
                 or request.json["price"] < 0
@@ -124,7 +151,9 @@ def edit_item(key):
     if "old_price" in request.json:
         item["old_price"] = None
 
-        if item["price"] and request.json["old_price"]:
+        if "item:edit_price" not in user["roles"]:
+            error["price"] = "unauthorized access"
+        elif item["price"] and request.json["old_price"]:
             if (
                 type(request.json["old_price"]) not in [int, float]
                 or request.json["old_price"] < 0
@@ -136,10 +165,15 @@ def edit_item(key):
                 item["old_price"] = request.json["old_price"]
 
     if "info" in request.json:
-        item["info"] = request.json["info"]
+        if "item:edit_info" not in user["roles"]:
+            error["info"] = "unauthorized access"
+        else:
+            item["info"] = request.json["info"]
 
     if "variation" in request.json:
-        if type(request.json["variation"]) is not dict:
+        if "item:edit_variation" not in user["roles"]:
+            error["variation"] = "unauthorized access"
+        elif type(request.json["variation"]) is not dict:
             error["variation"] = "this field is required"
         else:
             variation = request.json["variation"]
@@ -150,23 +184,6 @@ def edit_item(key):
                 ):
                     del variation[key]
             item["variation"] = variation
-
-    if "tags" in request.json:
-        if type(request.json["tags"]) is not list:
-            error["tags"] = "this field is required"
-        else:
-            item["tags"] = request.json["tags"]
-
-    if "status" in request.json:
-        if not request.json["status"] or request.json["status"] not in [
-                'live', 'draft', 'delete']:
-            error["status"] = "invalid request"
-        elif request.json["status"] == "live" and len(item["photos"]) == 0:
-            error["status"] = "add photo"
-        elif request.json["status"] == "live" and not item["price"]:
-            error["status"] = "add price"
-        else:
-            item["status"] = request.json["status"]
 
     if error != {}:
         return jsonify({

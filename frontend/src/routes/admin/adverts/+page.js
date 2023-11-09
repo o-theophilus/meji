@@ -1,18 +1,23 @@
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
+import { error } from '@sveltejs/kit';
 
 export const load = async ({ fetch, url, parent }) => {
-	
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/adverts`)	
-	if (url.search){	
+
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/adverts`)
+	if (url.search) {
 		let temp = get(state)
 		temp.shop = url.search
 		state.set(temp)
-		
+
 		backend.search = url.search
 	}
-	
-	let  a = await parent();
+
+	let a = await parent();
+	if (!a.locals.user.roles.includes("item:advert")) {
+		throw error(400, "unauthorized access")
+	}
+
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -25,5 +30,7 @@ export const load = async ({ fetch, url, parent }) => {
 
 	if (resp.status == 200) {
 		return resp
-    }
+	}
 }
+
+

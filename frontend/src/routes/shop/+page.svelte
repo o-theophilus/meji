@@ -69,17 +69,19 @@
 <Card>
 	{#if $user.roles.includes('admin')}
 		<Status {page_name} array={status} default_value="live">
-			<Button
-				class="small primary"
-				on:click={() => {
-					$module = {
-						module: Add
-					};
-				}}
-			>
-				<SVG type="add" size="12" />
-				Add
-			</Button>
+			{#if $user.roles.includes('item:add')}
+				<Button
+					class="small primary"
+					on:click={() => {
+						$module = {
+							module: Add
+						};
+					}}
+				>
+					<SVG type="add" size="12" />
+					Add
+				</Button>
+			{/if}
 		</Status>
 		<br />
 	{/if}

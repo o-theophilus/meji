@@ -1,5 +1,5 @@
 <script>
-	import { loading, portal, toast, module } from '$lib/store.js';
+	import { user, loading, portal, toast, module } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
@@ -29,7 +29,7 @@
 	const reorder_delete = async (method) => {
 		error = {};
 
-		$loading = `${method == "delete" ? "deleting" : "saving"} . . .`;
+		$loading = `${method == 'delete' ? 'deleting' : 'saving'} . . .`;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: method,
 			headers: {
@@ -97,7 +97,7 @@
 			formData.append('files', files[i]);
 		}
 
-		$loading = "uploading . . .";
+		$loading = 'uploading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
 			method: 'post',
 			headers: {
@@ -249,22 +249,24 @@
 			Save Order
 		</Button>
 	</div>
-	<br />
-	<div class="row">
-		<Button
-			class="small"
-			on:click={() => {
-				$module = {
-					module: Advert,
-					item,
-					advert
-				};
-			}}
-		>
-			Advert
-		</Button>
-	</div>
 
+	{#if $user.roles.includes('item:advert')}
+		<br />
+		<div class="row">
+			<Button
+				class="small"
+				on:click={() => {
+					$module = {
+						module: Advert,
+						item,
+						advert
+					};
+				}}
+			>
+				Advert
+			</Button>
+		</div>
+	{/if}
 	{#if error.error}
 		<br />
 		<span class="error">

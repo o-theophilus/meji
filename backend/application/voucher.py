@@ -14,6 +14,7 @@ bp = Blueprint("voucher", __name__)
 def voucher_schema(voucher):
     return {
         "key": voucher["key"],
+        "code": voucher["code"],
         "date": voucher["date_c"],
         "value": voucher["value"],
         "validity": voucher["validity"],
@@ -21,7 +22,7 @@ def voucher_schema(voucher):
     }
 
 
-@bp.get("/vouchers")
+@bp.get("/voucher")
 def get_vouchers(db=None):
     if not db:
         db = database()
@@ -33,7 +34,7 @@ def get_vouchers(db=None):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "voucher:view" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -80,7 +81,7 @@ def get(key):
             "status": 400,
             "error": "invalid token"
         })
-    if "admin" not in user["roles"]:
+    if "voucher:view" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -92,6 +93,9 @@ def get(key):
             "status": 400,
             "error": "invalid request"
         })
+
+    if "voucher:view_code" not in user["roles"]:
+        voucher["code"] = "#"
 
     return jsonify({
         "status": 200,
@@ -109,7 +113,7 @@ def create():
             "status": 400,
             "error": "invalid token"
         })
-    if "admin" not in user["roles"]:
+    if "voucher:add" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -154,8 +158,7 @@ def create():
             "date_c": now(),
 
             "value": request.json["value"],
-            "status": "inactive",  # active, used,
-            # deleted, expired
+            "status": "inactive",  # active, used, deleted, expired
             "validity": None,
 
             "user": None

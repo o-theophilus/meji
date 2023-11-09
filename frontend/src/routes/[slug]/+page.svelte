@@ -53,7 +53,7 @@
 		Item Details
 		{#if $user && $user.roles.includes('admin')}
 			<Button
-				class="small"
+				class="small outline"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}

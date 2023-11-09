@@ -43,7 +43,7 @@ def get_advert(item_key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:advert" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -80,7 +80,7 @@ def adverts(db=None):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:advert" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -154,7 +154,7 @@ def add_advert(item_key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:advert" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -254,7 +254,7 @@ def delete_photo(item_key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:advert" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -344,7 +344,7 @@ def delete_advert(item_key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:advert" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

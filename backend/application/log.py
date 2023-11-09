@@ -59,7 +59,7 @@ def get_many():
 
     _user, _type, _action, _entity = search
 
-    if "admin" not in user["roles"]:
+    if "log:view" not in user["roles"]:
         _user = user["key"]
 
     logs = []

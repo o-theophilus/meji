@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash
 from .storage import storage
 import random
 from uuid import uuid4
+import os
 
 
 bp = Blueprint("user", __name__)
@@ -47,18 +48,23 @@ def setting():
 def user_role(key):
     db = database()
 
-
     me = token_to_user(db)
     user = query({"type": "user", "key": key}, db=db)
 
     error = None
-    if not me or "user:set_permission" not in me["roles"]:
+    if not me or "user:set_role" not in me["roles"]:
         error = "unauthorized access"
     elif "password" not in request.json:
         error = "this field is required"
     elif not check_password_hash(me["password"], request.json["password"]):
         error = "incorrect password"
-    elif not user or me["key"] == user["key"] or "roles" not in request.json:
+    elif (
+        not user
+        or me["key"] == user["key"]
+        or "roles" not in request.json
+        or user["email"] == os.environ["MAIL_USERNAME"]
+        or user["status"] != "confirm"
+    ):
         error = "invalid request"
 
     if error:

@@ -69,7 +69,7 @@
 </Center>
 
 <Card>
-	{#if $me.roles.includes('admin')}
+	{#if $me.roles.includes('user:view')}
 		<div class="line">
 			<Search
 				placeholder="Search for User by  Email or Key"
@@ -201,8 +201,15 @@
 					<p>
 						<span class="bold"> Account: </span>
 						<br />
-						Balance: ₦{user.acc_balance.toLocaleString()}
+						Balance:
+
+						{#if user.acc_balance != '#'}
+							₦{user.acc_balance.toLocaleString()}
+						{:else}
+							{user.acc_balance}##
+						{/if}
 					</p>
+
 					{#if user.key == $me.key}
 						<Button
 							class="small"
@@ -245,7 +252,7 @@
 	{/if}
 </Card>
 
-{#if user.key != $me.key && user.status == 'confirm' && $me.roles.includes('admin')}
+{#if user.key != $me.key && user.status == 'confirm' && $me.roles.includes('user:set_role')}
 	<Role {user} />
 {/if}
 
