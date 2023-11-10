@@ -233,17 +233,19 @@
 						{#if user.roles.includes('admin')}
 							<Button class="small" href="/admin">Admin</Button>
 						{/if}
+					</div>
+
+					<br />
+					<hr />
+					<br />
+
+					<div class="horizontal">
 						{#if edit_mode}
 							<Button class="small" href="/profile/setting">
 								<SVG type="setting" size="12" />
 								Setting
 							</Button>
 						{/if}
-					</div>
-
-					<br />
-
-					<div class="horizontal">
 						<Logout />
 					</div>
 				{/if}

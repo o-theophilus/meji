@@ -78,12 +78,6 @@ def edit_item(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
     item = query({"type": "item", "key": key}, db=db)
     if not item:
         return jsonify({
@@ -211,7 +205,7 @@ def post_many_photo(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:edit_photo" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -282,7 +276,7 @@ def arrange_photo(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:edit_photo" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -324,7 +318,7 @@ def delete_photo(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "item:edit_photo" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

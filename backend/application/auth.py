@@ -462,6 +462,7 @@ def admin():
             "user:view_balance",
             "user:set_role",
             "item:add",
+            "item:edit_photo",
             "item:advert",
             "item:edit_status",
             "item:edit_name",

@@ -34,6 +34,10 @@
 		{/each}
 	</div>
 
+	<br />
+	<hr />
+	<br />
+
 	{#if cart.items.length > 0}
 		<div class="total_amount">
 			<div class="total">Total Amount</div>
@@ -84,9 +88,6 @@
 		justify-content: space-between;
 		align-items: center;
 
-		margin-top: var(--sp3);
-		padding-top: var(--sp2);
-		border-top: 2px solid var(--ac4);
 		color: var(--ac1);
 	}
 

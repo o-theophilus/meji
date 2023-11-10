@@ -46,6 +46,10 @@
 		activate voucher min date
 		<br />
 		add min to delivery eta
+		<br />
+		show user transaction
+		<br />
+		move logs to a different db
 	</div>
 </Card>
 

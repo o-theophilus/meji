@@ -1,10 +1,9 @@
 <script>
-	import { user, loading, portal, toast, module } from '$lib/store.js';
+	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Advert from './_advert.svelte';
 
 	export let item = {};
 	export let edit_mode = false;
@@ -132,12 +131,6 @@
 	$: if (!item.photos.includes(active_photo)) {
 		active_photo = item.photos[0] || '';
 	}
-
-	let advert = {};
-	$: if ($portal && $portal.type == 'advert') {
-		advert = $portal.data;
-		$portal = '';
-	}
 </script>
 
 <img
@@ -250,23 +243,6 @@
 		</Button>
 	</div>
 
-	{#if $user.roles.includes('item:advert')}
-		<br />
-		<div class="row">
-			<Button
-				class="small"
-				on:click={() => {
-					$module = {
-						module: Advert,
-						item,
-						advert
-					};
-				}}
-			>
-				Advert
-			</Button>
-		</div>
-	{/if}
 	{#if error.error}
 		<br />
 		<span class="error">

@@ -27,6 +27,7 @@
 			level_1: [],
 			level_2: [
 				'add',
+				'edit_photo',
 				'advert',
 				'edit_status',
 				'edit_name',

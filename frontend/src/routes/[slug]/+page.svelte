@@ -17,9 +17,14 @@
 
 	export let data;
 	$: item = data.item;
+	let advert = {};
 
-	$: if ($portal && $portal.type == 'item') {
-		item = $portal.data;
+	$: if ($portal) {
+		if ($portal.type == 'item') {
+			item = $portal.data;
+		} else if ($portal.type == 'advert') {
+			advert = $portal.data;
+		}
 		$portal = '';
 	}
 
@@ -27,6 +32,7 @@
 	$loading = false;
 
 	let roles = [
+		'item:edit_photo',
 		'item:advert',
 		'item:edit_status',
 		'item:edit_name',
@@ -47,7 +53,7 @@
 				$module = {
 					module: Advert,
 					item,
-					advert: {}
+					advert
 				};
 			}
 
@@ -79,7 +85,23 @@
 <Card>
 	<section class="block">
 		<div class="photo">
-			<Photo {item} {edit_mode} />
+			<Photo {item} edit_mode={edit_mode && $user.roles.includes('item:edit_photo')} />
+
+			{#if edit_mode && $user.roles.includes('item:advert')}
+				<br />
+				<Button
+					class="small"
+					on:click={() => {
+						$module = {
+							module: Advert,
+							item,
+							advert
+						};
+					}}
+				>
+					Advert
+				</Button>
+			{/if}
 		</div>
 		<div>
 			<Info {item} {edit_mode} />
