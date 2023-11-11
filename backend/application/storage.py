@@ -1,9 +1,19 @@
+from flask import Blueprint, send_file
 from deta import Deta
 from PIL import Image, ImageOps
 from io import BytesIO
 from uuid import uuid4
 import os
 from werkzeug.datastructures import FileStorage
+
+bp = Blueprint("storage", __name__)
+
+
+@bp.get("/photos/<key>")
+@bp.get("/photos/<key>/<thumbnail>")
+def get_photo(key, thumbnail=False):
+    photo = storage(key, thumbnail=thumbnail)
+    return send_file(photo, mimetype="image/jpg")
 
 
 def drive():
@@ -17,7 +27,7 @@ def storage(
     delete=False,
     thumbnail=False,
 ):
-    if type(x) == str:
+    if type(x) is str:
         if delete:
             return drive().delete(f"{folder}/{x}")
 

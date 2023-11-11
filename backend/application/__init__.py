@@ -17,6 +17,9 @@ from . import log
 from . import item
 from . import item_get
 
+from . import storage
+from . import test
+
 
 def create_app():
     app = Flask(__name__)
@@ -45,5 +48,8 @@ def create_app():
     app.register_blueprint(item_get.bp)
     app.register_blueprint(advert.bp)
     app.register_blueprint(feedback.bp)
+
+    app.register_blueprint(storage.bp)
+    app.register_blueprint(test.bp)
 
     return app

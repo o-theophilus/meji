@@ -1,9 +1,6 @@
-from flask import Blueprint, jsonify, send_file, request
+from flask import Blueprint, jsonify, request
 from .storage import storage, drive
-from deta import Deta
-from os import environ
 from .database import database
-from datetime import datetime, timedelta
 from .tools import token_to_user
 from .item_get import all_tags, shop
 from .advert import adverts
@@ -12,11 +9,17 @@ from .advert import adverts
 bp = Blueprint("api", __name__)
 
 
-@bp.get("/photos/<key>")
-@bp.get("/photos/<key>/<thumbnail>")
-def get_photo(key, thumbnail=False):
-    photo = storage(key, thumbnail=thumbnail)
-    return send_file(photo, mimetype="image/jpg")
+@bp.get("/home")
+def home():
+    db = database()
+
+    return jsonify({
+        "status": 200,
+        "tags": all_tags(db).json["tags"],
+        "new_arrivals": shop(db, sort="latest", size=8).json["items"],
+        "offers": shop(db, sort="discount", size=8).json["items"],
+        "adverts": adverts("home_1", db).json["adverts"]
+    })
 
 
 @bp.get("/photo_error")
@@ -117,138 +120,4 @@ def delete_photo():
 
     return jsonify({
         "status": 200
-    })
-
-
-@bp.get("/home")
-def home():
-    db = database()
-
-    return jsonify({
-        "status": 200,
-        "tags": all_tags(db).json["tags"],
-        "new_arrivals": shop(db, sort="latest", size=8).json["items"],
-        "offers": shop(db, sort="discount", size=8).json["items"],
-        "adverts": adverts("home_1", db).json["adverts"]
-    })
-
-
-#################################################
-
-@bp.post("/cron")
-@bp.get("/cron")
-def cron():
-    temp1 = unused_anon().json
-
-    for key in temp1["db"]["keys"]:
-        pass
-        # db_delete(key)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful"
-    })
-
-
-def unused_anon():
-    db = database()
-
-    keys = []
-    for row in db:
-        if (
-            row["type"] == "user"
-            and row["status"] == "anon"
-            and row["saves"] == []
-            and row["cart"] == []
-        ):
-            created = datetime.strptime(row["date_c"], '%Y-%m-%dT%H:%M:%S')
-            _24hour_ago = datetime.now() - timedelta(days=1)
-
-            if created < _24hour_ago:
-                keys.append(row["key"])
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-        "db": {
-            "keys": keys
-        }
-    })
-
-
-def copy_db():
-    source = Deta(environ["DETA_KEY"]).Base("test")
-    target = Deta(environ["DETA_KEY"]).Base("live")
-
-    res = source.fetch()
-    entities = res.items
-    while res.last:
-        res = source.fetch(last=res.last)
-        entities += res.items
-
-    while len(entities) > 0:
-        target.put_many(entities[:25])
-        entities = entities[25:]
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-    })
-
-
-def delete_db():
-    print("deleting...")
-    db = Deta(environ["DETA_KEY"]).Base("live")
-
-    res = db.fetch()
-    entities = res.items
-    while res.last:
-        res = db.fetch(last=res.last)
-        entities += res.items
-
-    for x in entities:
-        db.delete(x["key"])
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-    })
-
-
-# @bp.get("/fix")
-def fix():
-    db = database()
-
-    changed = []
-    for x in db:
-        if x["type"] == "advert":
-            x["places"] = x["place"]
-            del x["place"]
-            changed.append(x)
-
-    print(len(changed))
-    print(changed[0])
-    database(changed)
-
-    return jsonify({
-        "status": 200,
-        "changed": len(changed)
-    })
-
-
-def fix2():
-    db = database()
-
-    changed = []
-    for x in db:
-        if (
-            x["type"] == "log"
-            and x["entity_type"] == "order"
-        ):
-            database(x, True)
-            changed.append(x)
-
-    return jsonify({
-        "status": 200,
-        "changed": len(changed)
     })

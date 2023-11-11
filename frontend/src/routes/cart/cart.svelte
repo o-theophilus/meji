@@ -19,26 +19,26 @@
 </script>
 
 <Card>
-	{#if cart.items.length > 0}
+	{#if cart.items.length == 0}
+		no item here
+	{:else}
 		<div class="ctitle">Items</div>
+		
 		<br />
 		<br />
-	{/if}
-	<div class="items">
-		{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
-			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<Item bind:item />
-			</div>
-		{:else}
-			no item here
-		{/each}
-	</div>
 
-	<br />
-	<hr />
-	<br />
+		<div class="items">
+			{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
+				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+					<Item bind:item />
+				</div>
+			{/each}
+		</div>
 
-	{#if cart.items.length > 0}
+		<br />
+		<hr />
+		<br />
+
 		<div class="total_amount">
 			<div class="total">Total Amount</div>
 			<div class="amount">
