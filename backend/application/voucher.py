@@ -174,7 +174,8 @@ def create():
             }
         ))
 
-    database(vouchers+logs)
+    database(vouchers)
+    database(logs, db_name="log")
 
     return jsonify({
         "status": 200,
@@ -232,7 +233,7 @@ def activate(key):
             "error": "invalid request"
         })
 
-    log = log_template(
+    database(log_template(
         user["key"],
         "activated",
         voucher["key"],
@@ -242,19 +243,11 @@ def activate(key):
             "to": "active",
             "validity": validity
         }
-    )
+    ), db_name="log")
+
     voucher["status"] = "active"
     voucher["validity"] = validity
-
-    database([voucher, log])
-
-    logs = []
-    for x in db:
-        if x["type"] == "log" and x["entity"] == voucher["key"]:
-            logs.append(x)
-
-    logs.append(log)
-    logs = sorted(logs, key=lambda d: d["date"], reverse=True)
+    database(voucher)
 
     return jsonify({
         "status": 200,
@@ -287,13 +280,13 @@ def inactivate(key):
         })
 
     voucher["status"] = "inactive"
-    log = log_template(
+    database(voucher)
+    database(log_template(
         user["key"],
         "deactivated",
         voucher["key"],
         "voucher"
-    )
-    database([voucher, log])
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -326,13 +319,14 @@ def delete(key):
         })
 
     voucher["status"] = "deleted"
-    log = log_template(
+    database(voucher)
+
+    database(log_template(
         user["key"],
         "deleted",
         voucher["key"],
         "voucher"
-    )
-    database([voucher, log])
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -375,6 +369,7 @@ def use():
             voucher["validity"], '%Y-%m-%d').date() < date.today()
     ):
         error = f"voucher {voucher['status']}"
+
         database(log_template(
             user["key"],
             "used",
@@ -382,13 +377,14 @@ def use():
             "voucher",
             400,
             {"error": error}
-        ))
+        ), db_name="log")
+
         return jsonify({
             "status": 400,
             "error": error
         })
 
-    log = log_template(
+    database(log_template(
         user["key"],
         "used",
         voucher["key"],
@@ -398,12 +394,11 @@ def use():
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] + voucher["value"]
         }
-    )
+    ), db_name="log")
 
     user["acc_balance"] += voucher["value"]
     voucher["status"] = "used"
-
-    database([user, voucher, log])
+    database([user, voucher])
 
     return jsonify({
         "status": 200,

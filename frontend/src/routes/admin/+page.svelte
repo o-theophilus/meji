@@ -38,10 +38,9 @@
 			<br />
 		{/if}
 
-		
-		app setting
+		remove all "admin" role from backend
 		<br />
-		move logs to a different db
+		app setting
 	</div>
 </Card>
 

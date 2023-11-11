@@ -5,6 +5,7 @@
 
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
+	import Button from '$lib/button.svelte';
 	import Log from '../../logs/log.svelte';
 	import { onMount } from 'svelte';
 
@@ -14,7 +15,7 @@
 
 	onMount(async () => {
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/logs?search=all:voucher:all:${voucher_key}&size=9999`,
+			`${import.meta.env.VITE_BACKEND}/logs?search=all:voucher:all:${voucher_key}&size=100`,
 			{
 				method: 'get',
 				headers: {
@@ -32,6 +33,7 @@
 	});
 
 	let open = false;
+	let log_url = new URLSearchParams(`search=all:voucher:all:${voucher_key}`);
 </script>
 
 <Card>
@@ -48,7 +50,7 @@
 	{#if open}
 		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#if loading}
-			<br />
+				<br />
 				Loading . . .
 			{:else}
 				{#each logs as log}
@@ -59,6 +61,9 @@
 				{/each}
 			{/if}
 		</div>
+
+		<br />
+		<Button class="link small" href="/admin/logs?{log_url.toString()}">goto log &gt;</Button>
 	{/if}
 </Card>
 

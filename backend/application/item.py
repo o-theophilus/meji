@@ -245,7 +245,8 @@ def post_many_photo(key):
     for x in files:
         item["photos"].append(storage(x))
 
-    log = log_template(
+    database(item)
+    database(log_template(
         user["key"],
         "added_photo",
         item["key"],
@@ -254,8 +255,7 @@ def post_many_photo(key):
             "success": f"{len(files)} files",
             "error": error
         }
-    )
-    database([item, log])
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

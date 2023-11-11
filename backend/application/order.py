@@ -108,7 +108,7 @@ def cart_to_order():
         'reference'] if request.json['reference'] else None
     cart["date_u"] = now()
 
-    log = log_template(
+    database(log_template(
         user["key"],
         "created",
         cart["key"],
@@ -118,11 +118,11 @@ def cart_to_order():
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] - cart["transaction"]["account"]
         }
-    )
-    user["acc_balance"] -= cart["transaction"]["account"]
+    ), db_name="log")
 
+    user["acc_balance"] -= cart["transaction"]["account"]
     database(f"{user['key']}_cart", True)
-    database([user, cart, log])
+    database([user, cart])
 
     send_mail(
         os.environ["MAIL_USERNAME"],
@@ -175,16 +175,20 @@ def date(key):
             **error
         })
 
-    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
-    order["date_u"] = now()
-    log = log_template(
+    database(log_template(
         user["key"],
         "changed_delivery_date",
         order["key"],
-        "order"
-    )
+        "order",
+        misc={
+            "from": order["delivery_date"],
+            "to": f"{request.json['date']}T{request.json['time']}"
+        }
+    ), db_name="log")
 
-    database([order, log])
+    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
+    order["date_u"] = now()
+    database(order)
 
     return jsonify({
         "status": 200,
@@ -240,20 +244,21 @@ def status(key):
             "note": "this field is required"
         })
 
-    log = log_template(
+    database(log_template(
         user["key"],
         "changed_status",
         order["key"],
         "order",
         misc={
-            "change": f"from: {order['status']} to: {request.json['status']}",
+            "from": order['status'],
+            "to": request.json['status'],
             "note": request.json["note"]
         }
-    )
+    ), db_name="log")
+
     order["status"] = request.json["status"]
     order["date_u"] = now()
-
-    database([order, log])
+    database(order)
 
     if request.json["status"] in ["processing", "delivered"]:
         send_mail(
@@ -303,7 +308,7 @@ def status_cancel(key):
             "note": "this field is required"
         })
 
-    log = log_template(
+    database(log_template(
         user["key"],
         "canceled",
         order["key"],
@@ -313,11 +318,11 @@ def status_cancel(key):
             "to": "canceled",
             "note": request.json["note"]
         }
-    )
+    ), db_name="log")
+
     order["status"] = "canceled"
     order["date_u"] = now()
-
-    database([order, log])
+    database(order)
 
     return jsonify({
         "status": 200,

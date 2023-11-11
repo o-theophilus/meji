@@ -229,13 +229,13 @@ def add_advert(item_key):
         dim = f"{dim[0]}x{dim[1]}"
         advert["photos"][dim] = storage(x)
 
-    log = log_template(
+    database(advert)
+    database(log_template(
         user["key"],
         action,
         advert["key"],
         "advert"
-    )
-    database([advert, log])
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -321,11 +321,12 @@ def delete_photo(item_key):
     )
 
     if has_photo:
-        log["action"] = "added_photo"
-        database([advert, log])
+        log["action"] = "deleted_photo"
+        database(advert)
+        database(log, db_name="log")
     else:
         database(advert, True)
-        database(log)
+        database(log, db_name="log")
         advert = advert_template(item["key"])
 
     return jsonify({
@@ -384,14 +385,13 @@ def delete_advert(item_key):
         if advert["photos"][x]:
             storage(advert["photos"][x], delete=True)
 
-    log = log_template(
+    database(advert, True)
+    database(log_template(
         user["key"],
         "deleted",
         advert["key"],
         "advert"
-    )
-    database(advert, True)
-    database(log)
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

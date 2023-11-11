@@ -124,7 +124,9 @@
 	{/if}
 </Card>
 
-<Logs voucher_key={voucher.key} />
+{#key `${voucher.key}_${voucher.status}`}
+	<Logs voucher_key={voucher.key} />
+{/key}
 
 <style>
 	.horizontal {

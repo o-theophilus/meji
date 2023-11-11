@@ -35,6 +35,7 @@ def log_template(
 @bp.get("/logs")
 def get_many():
     db = database()
+    db_log = database(db_name="log")
 
     user = token_to_user(db)
     if not user:
@@ -63,9 +64,7 @@ def get_many():
         _user = user["key"]
 
     logs = []
-    for x in db:
-        if x["type"] != "log":
-            continue
+    for x in db_log:
 
         if _user != 'all':
             y = query({"type": "user", "key": x["user"]}, db=db)

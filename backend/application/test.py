@@ -52,13 +52,17 @@ def unused_anon():
 # @bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
-    target = Deta(environ["DETA_KEY"]).Base("live")
+    target = Deta(environ["DETA_KEY"]).Base("log")
 
     res = source.fetch()
     entities = res.items
     while res.last:
         res = source.fetch(last=res.last)
         entities += res.items
+
+    print(len(entities))
+    entities = [x for x in entities if x["type"] == "log"]
+    print(len(entities))
 
     while len(entities) > 0:
         target.put_many(entities[:25])
@@ -102,24 +106,6 @@ def fix():
     print(len(changed))
     print(changed[0])
     database(changed)
-
-    return jsonify({
-        "status": 200,
-        "changed": len(changed)
-    })
-
-
-def fix2():
-    db = database()
-
-    changed = []
-    for x in db:
-        if (
-            x["type"] == "log"
-            and x["entity_type"] == "order"
-        ):
-            database(x, True)
-            changed.append(x)
 
     return jsonify({
         "status": 200,

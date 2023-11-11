@@ -193,6 +193,7 @@ def admin_users():
 @bp.get("/transactions")
 def get_transactions():
     db = database()
+    log_db = database(db_name="log")
 
     user = token_to_user(db)
     if not user:
@@ -212,7 +213,7 @@ def get_transactions():
         }
 
     trxs = []
-    for x in db:
+    for x in log_db:
         if x["type"] == "log" and x["user"] == user["key"]:
             if x["entity_type"] == "voucher" and x["action"] == "used":
                 trxs.append(trx_schema(x, "credit"))

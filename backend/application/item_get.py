@@ -63,13 +63,12 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    database(
-        log_template(
-            user["key"],
-            "viewed",
-            item["key"],
-            "item"
-        ))
+    database(log_template(
+        user["key"],
+        "viewed",
+        item["key"],
+        "item"
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -179,11 +178,10 @@ def recently_viewed(user_key, item_key):
     db = database()
 
     logs = query({
-        "type": "log",
         "user": user_key,
         "action": "viewed",
         "entity_type": "item"
-    }, many=True, db=db)
+    }, many=True, db_name="log")
 
     logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 
@@ -251,12 +249,12 @@ def similar_items(key):
 @bp.get("/customer_view/<user_key>/<item_key>")
 def customer_view(user_key, item_key):
     db = database()
+    db_log = database(db_name="log")
 
     logs = []
-    for x in db:
+    for x in db_log:
         if (
-            x["type"] == "log"
-            and x["user"] != user_key
+            x["user"] != user_key
             and x["action"] == "viewed"
             and x["entity_type"] == "item"
         ):

@@ -3,78 +3,80 @@ from deta import Deta
 import os
 
 
-def base():
-    name = "live"
+def base(db_name):
+    if not db_name:
+        db_name = "main"
     if current_app.config["DEBUG"]:
-        name = "test"
-    return Deta(os.environ["DETA_KEY"]).Base(name)
+        db_name = f"{db_name}_test"
+
+    return Deta(os.environ["DETA_KEY"]).Base(db_name)
 
 
-def database(x=None, delete=False, db=None):
-    if not x:
-        res = base().fetch()
+def database(inp=None, delete=False, db=None, db_name=None):
+    if not inp:
+        res = base(db_name).fetch()
         items = res.items
 
         while res.last:
-            res = base().fetch(last=res.last)
+            res = base(db_name).fetch(last=res.last)
             items += res.items
 
         return items
 
     if delete:
-        if type(x) == str:
-            return base().delete(x)
+        if type(inp) is str:
+            return base(db_name).delete(inp)
 
-        elif type(x) == dict:
-            return base().delete(x["key"])
+        elif type(inp) is dict:
+            return base(db_name).delete(inp["key"])
 
-        elif type(x) == list:
+        elif type(inp) is list:
             resp = []
-            for i in x:
-                resp.append(database(i, True))
+            for i in inp:
+                resp.append(database(i, True, db_name=db_name))
             return resp
 
-    if type(x) == str:
+    if type(inp) is str:
         if not db:
-            db = database()
-        for row in db:
-            if row["key"] == x:
-                return row
+            db = database(db_name=db_name)
+        for x in db:
+            if x["key"] == inp:
+                return x
         return None
 
-    if type(x) == dict:
-        return base().put(x)
+    if type(inp) is dict:
+        return base(db_name).put(inp)
 
-    if type(x) == list:
+    if type(inp) is list:
         resp_ = []
-        while len(x) > 0:
-            resp = base().put_many(x[:25])
+        while len(inp) > 0:
+            resp = base(db_name).put_many(inp[:25])
             resp_.append(resp)
-            x = x[25:]
+            inp = inp[25:]
 
         return resp_
 
 
-def query(_query, many=False, db=None):
+def query(inp, many=False, db=None, db_name=None):
     output = []
     if not db:
-        db = database()
+        db = database(db_name=db_name)
 
-    for row in db:
-        if "type" not in row:
-            database(row["key"], True)
+    for x in db:
+        if "type" not in x:
+            database(x["key"], True, db_name=db_name)
             continue
 
         add = True
-        for key in _query:
-            if key not in row or row[key] != _query[key]:
+        for key in inp:
+            if key not in x or x[key] != inp[key]:
                 add = False
                 break
 
         if add:
             if not many:
-                return row
+                return x
 
-            output.append(row)
+            output.append(x)
 
     return output if many else None

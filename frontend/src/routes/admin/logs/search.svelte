@@ -13,7 +13,7 @@
 		item: ['all', 'viewed', 'added_photo'],
 		order: ['all', 'created', 'changed_delivery_date', 'changed_status', 'canceled'],
 		voucher: ['all', 'created', 'activated', 'deactivated', 'used', 'deleted'],
-		advert: ['all', 'created', 'added_photo', 'deleted']
+		advert: ['all', 'created', 'added_photo', 'deleted_photo', 'deleted']
 	};
 
 	let user = '';
