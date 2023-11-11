@@ -1,4 +1,4 @@
-import { redirect, error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { loading } from "$lib/store.js"
 
 export const load = async ({ parent, fetch, url }) => {

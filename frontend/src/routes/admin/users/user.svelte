@@ -19,7 +19,7 @@
 		align-items: center;
 		gap: var(--sp2);
 		padding: var(--sp2) 0;
-		border-bottom: 1px solid var(--ac4);
+		border-bottom: 2px solid var(--ac5);
 
 		text-decoration: none;
 		color: var(--ac2);

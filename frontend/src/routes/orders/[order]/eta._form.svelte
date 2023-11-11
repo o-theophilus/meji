@@ -6,6 +6,12 @@
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
+	let today = new Date();
+	today.setHours(0, 0, 0, 0);
+	today.setDate(today.getDate() + 1);
+
+	let min = today.toISOString().split('T')[0];
+
 	let form = {
 		key: $module.key,
 		date: $module.date,
@@ -61,8 +67,8 @@
 		<b>Set Delivery date and time</b>
 	</svelte:fragment>
 
-	<IG name="date" {error} bind:value={form.date} type="date" placeholder="date here" />
-	<IG name="time" {error} bind:value={form.time} type="time" placeholder="time here" />
+	<IG name="date" {error} bind:value={form.date} type="date" {min} placeholder="date here" />
+	<IG name="time" {error} bind:value={form.time} type="time" {min} placeholder="time here" />
 
 	{#if error.error}
 		<p class="error">

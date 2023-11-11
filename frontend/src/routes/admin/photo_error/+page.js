@@ -1,6 +1,6 @@
 import { redirect, error } from '@sveltejs/kit';
 
-export const load = async ({ parent, fetch, url }) => {
+export const load = async ({ parent, fetch }) => {
 	let a = await parent();
 	if (!a.locals.user.roles.includes("admin:manage_photo")) {
 		throw error(400, "unauthorized access")

@@ -6,7 +6,7 @@ from .database import database
 from datetime import datetime, timedelta
 from .tools import token_to_user
 from .item_get import all_tags, shop
-from .advert import adverts_placement
+from .advert import adverts
 
 
 bp = Blueprint("api", __name__)
@@ -20,7 +20,7 @@ def get_photo(key, thumbnail=False):
 
 
 @bp.get("/photo_error")
-def file_list():
+def photo_error():
     db = database()
 
     user = token_to_user(db)
@@ -85,6 +85,41 @@ def file_list():
     })
 
 
+@bp.delete("/photo_error")
+def delete_photo():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "admin:manage_photo" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    if (
+        "photos" not in request.json
+        or type(request.json["photos"]) is not list
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    for x in request.json["photos"]:
+        pass
+        storage(x.split("/")[-1], delete=True)
+
+    return jsonify({
+        "status": 200
+    })
+
+
 @bp.get("/home")
 def home():
     db = database()
@@ -94,7 +129,7 @@ def home():
         "tags": all_tags(db).json["tags"],
         "new_arrivals": shop(db, sort="latest", size=8).json["items"],
         "offers": shop(db, sort="discount", size=8).json["items"],
-        "adverts": adverts_placement(db).json["adverts"]
+        "adverts": adverts("home_1", db).json["adverts"]
     })
 
 
@@ -141,7 +176,6 @@ def unused_anon():
     })
 
 
-# @bp.get("/fix")
 def copy_db():
     source = Deta(environ["DETA_KEY"]).Base("test")
     target = Deta(environ["DETA_KEY"]).Base("live")
@@ -181,20 +215,19 @@ def delete_db():
     })
 
 
+# @bp.get("/fix")
 def fix():
     db = database()
 
     changed = []
     for x in db:
-        if (
-            x["type"] == "log"
-            and x["entity_type"] == "order"
-            and x["action"] == "deactivated"
-        ):
-            x["action"] = "canceled"
+        if x["type"] == "advert":
+            x["places"] = x["place"]
+            del x["place"]
             changed.append(x)
 
     print(len(changed))
+    print(changed[0])
     database(changed)
 
     return jsonify({

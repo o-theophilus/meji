@@ -8,6 +8,8 @@
 
 	let today = new Date();
 	today.setHours(0, 0, 0, 0);
+	today.setDate(today.getDate() + 1);
+
 	let t30 = new Date(today);
 	t30.setDate(today.getDate() + 30);
 	let validity = t30.toISOString().split('T')[0];

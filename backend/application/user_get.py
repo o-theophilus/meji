@@ -188,3 +188,45 @@ def admin_users():
         "users": [user_schema(x, db) for x in users],
         "total_page": total_page
     })
+
+
+@bp.get("/transactions")
+def get_transactions():
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    def trx_schema(y, dir):
+        return {
+            "date": y["date"],
+            "direction": dir,
+            "entity": y["entity"],
+            "entity_type": y["entity_type"],
+            "status": y["status"],
+            "misc": y["misc"]
+        }
+
+    trxs = []
+    for x in db:
+        if x["type"] == "log" and x["user"] == user["key"]:
+            if x["entity_type"] == "voucher" and x["action"] == "used":
+                trxs.append(trx_schema(x, "credit"))
+
+            elif (
+                x["entity_type"] == "order"
+                and x["action"] == "created"
+                and x["misc"]
+                and "value" in x["misc"]
+                and x["misc"]["value"] > 0
+            ):
+                trxs.append(trx_schema(x, "debit"))
+
+    return jsonify({
+        "status": 200,
+        "transactions": trxs
+    })

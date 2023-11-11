@@ -34,20 +34,12 @@
 			<br />
 		{/if}
 		{#if $user.roles.includes('admin:manage_photo')}
-			<Button class="wide" href="/admin/photos">Photos</Button>
+			<Button class="wide" href="/admin/photo_error">Photo Error</Button>
 			<br />
 		{/if}
-		advert placement
-		<br />
-		cleanup unused photos
-		<br />
+
+		
 		app setting
-		<br />
-		activate voucher min date
-		<br />
-		add min to delivery eta
-		<br />
-		show user transaction
 		<br />
 		move logs to a different db
 	</div>

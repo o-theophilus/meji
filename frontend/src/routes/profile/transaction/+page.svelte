@@ -3,8 +3,10 @@
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Back from '$lib/button.back.svelte';
+	import Trx from './trx.svelte';
 
-	export let transactions = [];
+	export let data;
+	export let { transactions } = data;
 </script>
 
 <Meta title="Transaction" description="Transaction" />
@@ -20,9 +22,8 @@
 </Center>
 
 <Card>
-	{#each transactions as trans}
-		{trans.key} - {trans.value}
-		<br />
+	{#each transactions as trx}
+		<Trx {trx} />
 	{:else}
 		no item here
 	{/each}

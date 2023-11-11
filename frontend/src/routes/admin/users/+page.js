@@ -5,6 +5,7 @@ export const load = async ({ fetch, url, parent }) => {
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/users`)
 	let page_name = "users"
+	
 	if (url.search) {
 		let temp = get(state)
 		temp[page_name] = url.search

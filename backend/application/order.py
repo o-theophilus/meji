@@ -107,13 +107,19 @@ def cart_to_order():
     cart["transaction"]["pay_reference"] = request.json[
         'reference'] if request.json['reference'] else None
     cart["date_u"] = now()
-    user["acc_balance"] -= cart["transaction"]["account"]
+
     log = log_template(
         user["key"],
         "created",
         cart["key"],
         "order",
+        misc={
+            "value": cart["transaction"]["account"],
+            "balance": user["acc_balance"],
+            "new_balance": user["acc_balance"] - cart["transaction"]["account"]
+        }
     )
+    user["acc_balance"] -= cart["transaction"]["account"]
 
     database(f"{user['key']}_cart", True)
     database([user, cart, log])

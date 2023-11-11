@@ -20,6 +20,8 @@
 	<input bind:value {id} type="date" {placeholder} {min} />
 {:else if type == 'time'}
 	<input bind:value {id} type="time" {placeholder} {min} />
+{:else if type == 'datetime'}
+	<input bind:value {id} type="datetime-local" {placeholder} {min} />
 {:else if type == 'textarea'}
 	<textarea bind:value {id} {placeholder} on:blur />
 {/if}

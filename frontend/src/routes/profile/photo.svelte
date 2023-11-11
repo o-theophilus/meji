@@ -1,5 +1,5 @@
 <script>
-	import { loading, portal, user, toast } from '$lib/store.js';
+	import { loading,  user, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 

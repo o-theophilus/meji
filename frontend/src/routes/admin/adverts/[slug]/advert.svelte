@@ -1,13 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { loading, portal, toast, module } from '$lib/store.js';
+	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 
-	let item = $module.item;
-	let advert = $module.advert;
+	export let advert;
 	let input;
 	let dragover = false;
 	let error = {};
@@ -30,8 +28,8 @@
 	const remove_photo = async () => {
 		error = {};
 
-		$loading = "removing . . .";
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_photo/${item.key}`, {
+		$loading = 'removing . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_photo/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -65,8 +63,8 @@
 	const delete_advert = async () => {
 		error = {};
 
-		$loading = "deleting . . .";
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+		$loading = 'deleting . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -146,8 +144,8 @@
 			formData.append('files', files[i]);
 		}
 
-		$loading = `uploading photo${files.length>1? "s":""} . . .`;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+		$loading = `uploading photo${files.length > 1 ? 's' : ''} . . .`;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
 			method: 'post',
 			headers: {
 				Authorization: $token
@@ -182,136 +180,97 @@
 		}
 	};
 
-	let loading_complete = false;
-	const load_advert = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			}
-		});
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			advert = resp.advert;
-			$portal = {
-				type: 'advert',
-				data: resp.advert
-			};
-		} else {
-			error = resp;
-		}
-	};
 	onMount(async () => {
-		if (item.key != advert.item?.key) {
-			await load_advert();
-		}
 		active_photo = {
 			size: def_size,
 			photo: advert.photos[def_size]
 		};
 		set_available_sizes();
-		loading_complete = true;
 	});
 </script>
 
-<Form>
-	<svelte:fragment slot="title">
-		<b>{item.name} Advert</b>
-	</svelte:fragment>
+<img
+	src={active_photo.photo || '/image/item.png'}
+	alt={advert.item.name}
+	onerror="this.src='/image/item.png'"
+	class:dragover
+	on:click={() => {
+		input.click();
+	}}
+	on:dragover|preventDefault={() => {
+		dragover = true;
+	}}
+	on:dragleave|preventDefault={() => {
+		dragover = false;
+	}}
+	on:drop={(e) => {
+		dragover = false;
+		e.preventDefault();
+		input.files = e.dataTransfer.files;
+		on_input();
+	}}
+	role="presentation"
+/>
+<input
+	style:display="none"
+	type="file"
+	accept="image/*"
+	multiple
+	bind:this={input}
+	on:change={(e) => {
+		on_input();
+	}}
+/>
 
-	{#if !loading_complete}
-		Loading Advert . . .
-	{:else}
+<br />
+<br />
+
+<div class="row">
+	{#each Object.entries(advert.photos) as [size, photo]}
 		<img
-			src={active_photo.photo || '/image/item.png'}
-			alt={item.name}
+			src={photo ? `${photo}/200` : '/image/item.png'}
+			alt="{advert.item.name} {size}"
 			onerror="this.src='/image/item.png'"
-			class:dragover
 			on:click={() => {
-				input.click();
+				error = {};
+				active_photo = { size, photo };
 			}}
-			on:dragover|preventDefault={() => {
-				dragover = true;
-			}}
-			on:dragleave|preventDefault={() => {
-				dragover = false;
-			}}
-			on:drop={(e) => {
-				dragover = false;
-				e.preventDefault();
-				input.files = e.dataTransfer.files;
-				on_input();
-			}}
+			class:active={active_photo.size == size}
 			role="presentation"
 		/>
-		<input
-			style:display="none"
-			type="file"
-			accept="image/*"
-			multiple
-			bind:this={input}
-			on:change={(e) => {
-				on_input();
-			}}
-		/>
+	{/each}
+</div>
 
-		<br />
-		<br />
+<br />
+<div class="row">
+	<Button
+		class="primary small"
+		on:click={() => {
+			input.click();
+		}}
+		disabled={available_sizes.length >= 4}
+	>
+		Add
+	</Button>
 
-		<div class="row">
-			{#each Object.entries(advert.photos) as [size, photo]}
-				<img
-					src={photo ? `${photo}/200` : '/image/item.png'}
-					alt="{item.name} {size}"
-					onerror="this.src='/image/item.png'"
-					on:click={() => {
-						error = {};
-						active_photo = { size, photo };
-					}}
-					class:active={active_photo.size == size}
-					role="presentation"
-				/>
-			{/each}
-		</div>
+	<Button class="small hover_red" on:click={remove_photo} disabled={!active_photo.photo}
+		>Remove</Button
+	>
+</div>
+<br />
+<div class="row">
+	<Button class="small hover_red" on:click={delete_advert} disabled={available_sizes.length <= 0}>
+		Delete Advert
+	</Button>
+</div>
 
-		<br />
-		<div class="row">
-			<Button
-				class="primary small"
-				on:click={() => {
-					input.click();
-				}}
-				disabled={available_sizes.length >= 4}
-			>
-				Add
-			</Button>
-
-			<Button class="small hover_red" on:click={remove_photo} disabled={!active_photo.photo}
-				>Remove</Button
-			>
-		</div>
-		<br />
-		<div class="row">
-			<Button
-				class="small hover_red"
-				on:click={delete_advert}
-				disabled={available_sizes.length <= 0}
-			>
-				Delete Advert
-			</Button>
-		</div>
-	{/if}
-
-	{#if error.error}
-		<br />
-		<span class="error">
-			{error.error}
-		</span>
-		<br />
-	{/if}
-</Form>
+{#if error.error}
+	<br />
+	<span class="error">
+		{error.error}
+	</span>
+	<br />
+{/if}
 
 <style>
 	img {
@@ -321,7 +280,6 @@
 		transition: var(--trans1);
 	}
 
-	/* .row img:hover, */
 	img:hover,
 	img.dragover {
 		border-color: var(--cl1);

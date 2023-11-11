@@ -57,7 +57,7 @@ def get_vouchers(db=None):
 
         vouchers.append(x)
 
-    # vouchers = sorted(logs, key=lambda d: d["date_u"])
+    vouchers = sorted(vouchers, key=lambda d: d["date_c"], reverse=True)
 
     total_page = ceil(len(vouchers) / size)
     start = (page_no - 1) * size
@@ -388,15 +388,20 @@ def use():
             "error": error
         })
 
-    user["acc_balance"] += voucher["value"]
-    voucher["status"] = "used"
-
     log = log_template(
         user["key"],
         "used",
         voucher["key"],
         "voucher",
+        misc={
+            "value": voucher["value"],
+            "balance": user["acc_balance"],
+            "new_balance": user["acc_balance"] + voucher["value"]
+        }
     )
+
+    user["acc_balance"] += voucher["value"]
+    voucher["status"] = "used"
 
     database([user, voucher, log])
 

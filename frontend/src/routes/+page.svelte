@@ -4,7 +4,7 @@
 	import { module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
-	import Advert from '$lib/advert/auto.svelte';
+	import Advert from '$lib/advert/index.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 

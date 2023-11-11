@@ -6,15 +6,16 @@
 	import Item from './item.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Back from '$lib/button.back.svelte';
+	import Status from '$lib/status.svelte';
 
 	export let data;
 	$: adverts = data.adverts;
 	$: total_page = data.total_page;
-
-	let page_name = 'advert';
+	let { page_name } = data;
+	let { ad_space } = data;
 </script>
 
-<Meta title="Advert" description="Advert" />
+<Meta title="Adverts" description="Advert" />
 
 <Center>
 	<br />
@@ -27,6 +28,9 @@
 </Center>
 
 <Card>
+	<Status {page_name} array={['all', ...ad_space]} default_value="all" />
+	<br />
+
 	{#each adverts as advert}
 		<Item {advert} />
 	{:else}

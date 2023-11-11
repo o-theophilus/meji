@@ -1,71 +1,27 @@
 <script>
-	import Center from '$lib/center.svelte';
-	import Control from './control.svelte';
+	import Base from './base.svelte';
 
-	export let size = '300x300';
 	export let adverts = [];
-
-	let index = 0;
+	export let size = '';
 	let width = 0;
-	$: left = index * width;
+	let auto = '';
 
-	const auto_scroll = () => {
-		index += 1;
-		if (index > adverts.length - 1) {
-			index = 0;
-		}
-	};
-
-	let timer = setInterval(auto_scroll, 1000 * 5);
-	const reset_timer = () => {
-		clearInterval(timer);
-		timer = setInterval(auto_scroll, 1000 * 5);
-	};
+	$: if (width < 600) {
+		auto = '300x300';
+	} else if (width > 900) {
+		auto = '900x300';
+	} else {
+		auto = '600x300';
+	}
 </script>
 
-{#if adverts.length > 0}
-	<Center>
-		<section bind:offsetWidth={width}>
-			<div class="scroller" style:left="-{left}px">
-				{#each adverts as ads}
-					<a href="/{ads.item.key}">
-						<img src={ads.photos[size]} alt={ads.item.name} style:width="{width}px" />
-					</a>
-				{/each}
-			</div>
+<svelte:window bind:innerWidth={width} />
 
-			<Control
-				{index}
-				count={adverts.length}
-				on:ok={(e) => {
-					index = e.detail;
-					reset_timer();
-				
-				}}
-			/>
-		</section>
-	</Center>
+{#if ['300x300', '300x600', '600x300', '900x300'].includes(size)}
+	<Base {adverts} {size} />
+{:else}
+	<Base {adverts} size={auto} />
 {/if}
 
 <style>
-	section {
-		position: relative;
-
-		border-radius: var(--sp0);
-		box-shadow: var(--shad1);
-		overflow: hidden;
-	}
-
-	.scroller {
-		display: flex;
-		position: relative;
-
-		transition-property: left;
-		transition-duration: 0s;
-		transition-timing-function: ease-in-out;
-	}
-
-	a {
-		display: flex;
-	}
 </style>

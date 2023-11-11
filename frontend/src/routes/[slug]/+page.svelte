@@ -11,19 +11,15 @@
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
-	import Advert from './_advert.svelte';
 
 	import Group from '$lib/group.svelte';
 
 	export let data;
 	$: item = data.item;
-	let advert = {};
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
 			item = $portal.data;
-		} else if ($portal.type == 'advert') {
-			advert = $portal.data;
 		}
 		$portal = '';
 	}
@@ -47,15 +43,6 @@
 		if ($page.url.searchParams.has('edit') && is_admin) {
 			$page.url.searchParams.delete('edit');
 			edit_mode = true;
-
-			if ($page.url.searchParams.has('advert')) {
-				$page.url.searchParams.delete('advert');
-				$module = {
-					module: Advert,
-					item,
-					advert
-				};
-			}
 
 			window.history.replaceState(history.state, '', $page.url.href);
 		}
@@ -86,24 +73,13 @@
 	<section class="block">
 		<div class="photo">
 			<Photo {item} edit_mode={edit_mode && $user.roles.includes('item:edit_photo')} />
-
-			{#if edit_mode && $user.roles.includes('item:advert')}
-				<br />
-				<Button
-					class="small"
-					on:click={() => {
-						$module = {
-							module: Advert,
-							item,
-							advert
-						};
-					}}
-				>
-					Advert
-				</Button>
-			{/if}
 		</div>
 		<div>
+			{#if edit_mode && $user.roles.includes('item:advert')}
+				<Button class="link" href="/admin/adverts/{item.key}_advert">Advert &gt;</Button>
+				<br />
+				<br />
+			{/if}
 			<Info {item} {edit_mode} />
 		</div>
 	</section>

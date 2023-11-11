@@ -16,7 +16,7 @@ def log_template(
     entity,
     entity_type=None,
     status=200,
-    misc=None,
+    misc={},
 ):
     return {
         "key": uuid4().hex,

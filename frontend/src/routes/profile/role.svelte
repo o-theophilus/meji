@@ -6,6 +6,7 @@
 	import Button from '$lib/button.svelte';
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
+	import Check from '$lib/button.check.svelte';
 	import Role_Ok from './role._ok.svelte';
 
 	export let user;
@@ -87,7 +88,6 @@
 			user_roles = user_roles;
 		} else {
 			user_roles = user_roles.filter((x) => !group.includes(x));
-			// user_roles = [];
 		}
 	};
 
@@ -153,14 +153,14 @@
 				{#each Object.entries(levels) as [level, roles]}
 					<span>
 						{#each roles as role}
-							<button
-								class:active={user_roles.includes(`${cate}:${role}`)}
+							<Check
+								active={user_roles.includes(`${cate}:${role}`)}
 								on:click={() => {
 									select(`${cate}:${role}`);
 								}}
 							>
 								{role.split('_').join(' ')}
-							</button>
+							</Check>
 						{/each}
 					</span>
 				{/each}
@@ -203,24 +203,5 @@
 
 		outline: 1px solid var(--ac4);
 		padding: var(--sp1);
-	}
-
-	button {
-		padding: var(--sp0);
-		border-radius: var(--sp0);
-		background-color: var(--ac5);
-		color: var(--ac2);
-		border: none;
-		font-size: small;
-
-		cursor: pointer;
-	}
-	button.active {
-		color: var(--ac6_);
-		background-color: var(--cl1);
-	}
-	button:hover {
-		color: var(--ac6_);
-		background-color: var(--cl2);
 	}
 </style>

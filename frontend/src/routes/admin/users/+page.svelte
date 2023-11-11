@@ -57,6 +57,7 @@
 <Card>
 	<Status {page_name} array={status} default_value="all" />
 	<br />
+	
 	<div class="line">
 		<Search
 			bind:search

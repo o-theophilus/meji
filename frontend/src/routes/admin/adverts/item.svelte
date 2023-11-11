@@ -2,7 +2,7 @@
 	export let advert;
 </script>
 
-<a href="/{advert.item.key}?edit=true&advert=true">
+<a href="/admin/adverts/{advert.key}">
 	<img src={advert.item.photo || '/image/item.png'} alt={advert.item.name} />
 	<div class="details">
 		<div class="name">
@@ -17,7 +17,7 @@
 		align-items: center;
 		gap: var(--sp2);
 		padding: var(--sp2) 0;
-		border-bottom: 1px solid var(--ac4);
+		border-bottom: 2px solid var(--ac5);
 
 		text-decoration: none;
 	}

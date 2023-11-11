@@ -150,8 +150,9 @@ def advert_schema(advert, db):
         return None
 
     return {
+        "key": advert["key"],
         "item": {
-            "key": item["key"],
+            "slug": item["slug"],
             "name": item["name"],
             "photo": f"{request.host_url}photos/{item['photos'][0]}",
         },
@@ -161,7 +162,7 @@ def advert_schema(advert, db):
             "600x300": get_url('600x300'),
             "900x300": get_url('900x300')
         },
-        "placements": [],
+        "places": advert["places"]
     }
 
 

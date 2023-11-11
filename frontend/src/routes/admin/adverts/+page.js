@@ -4,7 +4,9 @@ import { error } from '@sveltejs/kit';
 
 export const load = async ({ fetch, url, parent }) => {
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/adverts`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/advert`)
+	let page_name = "adverts"
+
 	if (url.search) {
 		let temp = get(state)
 		temp.shop = url.search
@@ -29,6 +31,7 @@ export const load = async ({ fetch, url, parent }) => {
 	loading.set(false)
 
 	if (resp.status == 200) {
+		resp.page_name = page_name
 		return resp
 	}
 }

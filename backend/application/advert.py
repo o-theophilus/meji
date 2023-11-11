@@ -12,6 +12,7 @@ bp = Blueprint("advert", __name__)
 
 
 dimensions = ["300x300", "300x600", "600x300", "900x300"]
+ad_space = ['home_1', 'home_2', 'home_3', 'shop', 'save']
 
 
 def advert_template(item):
@@ -28,12 +29,12 @@ def advert_template(item):
                 "600x300": None,
                 "900x300": None
         },
-        "placements": [],
+        "places": [],
     }
 
 
-@bp.get("/advert/<item_key>")
-def get_advert(item_key):
+@bp.get("/advert/<key>")
+def get_advert(key):
     db = database()
 
     user = token_to_user(db)
@@ -49,29 +50,57 @@ def get_advert(item_key):
             "error": "unauthorized access"
         })
 
-    item = query({"type": "item", "slug": item_key}, db=db)
-    if not item:
-        item = query({"type": "item", "key": item_key}, db=db)
+    item = query({"type": "item", "key": key.split("_")[0]}, db=db)
     if not item:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    advert = query({"type": "advert", "item": item["key"]}, db=db)
+    advert = query({"type": "advert", "key": key}, db=db)
     if not advert:
         advert = advert_template(item["key"])
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert, db)
+        "advert": advert_schema(advert, db),
+        "ad_space": ad_space
     })
 
 
-@bp.get("/adverts")
-def adverts(db=None):
+@bp.get("/advert")
+def adverts(status="", db=None):
     if not db:
         db = database()
+
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    size = int(request.args["size"]) if "size" in request.args else 24
+    status = request.args["status"] if "status" in request.args else status
+
+    adverts = []
+    for x in db:
+        if x["type"] != "advert":
+            continue
+        if status and status not in x["places"]:
+            continue
+        adverts.append(x)
+
+    total_page = ceil(len(adverts) / size)
+    start = (page_no - 1) * size
+    stop = start + size
+    adverts = adverts[start: stop]
+
+    return jsonify({
+        "status": 200,
+        "adverts": [advert_schema(x, db) for x in adverts],
+        "total_page": total_page,
+        "ad_space": ad_space
+    })
+
+
+@bp.post("/advert_placement/<key>")
+def adverts_placement(key):
+    db = database()
 
     user = token_to_user(db)
     if not user:
@@ -86,60 +115,32 @@ def adverts(db=None):
             "error": "unauthorized access"
         })
 
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
-    status = request.args["status"] if "status" in request.args else ""
+    advert = query({"type": "advert", "key": key}, db=db)
+    if (
+        not advert
+        or "places" not in request.json
+        or type(request.json["places"]) is not list
+        or not all(y in ad_space for y in request.json["places"])
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
-    adverts = []
-    for x in db:
-        if x["type"] != "advert":
-            continue
-        if status and status not in x["placements"]:
-            continue
-        adverts.append(x)
+    for x in advert["photos"]:
+        if not advert["photos"][x]:
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
 
-    # orders = sorted(orders, key=lambda d: d["date_u"])
-
-    total_page = ceil(len(adverts) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    adverts = adverts[start: stop]
-
-    return jsonify({
-        "status": 200,
-        "adverts": [advert_schema(x, db) for x in adverts],
-        "total_page": total_page
-    })
-
-
-@bp.get("/adverts_placement")
-def adverts_placement(db=None):
-    if not db:
-        db = database()
-
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
-    status = request.args["status"] if "status" in request.args else ""
-
-    adverts = []
-    for x in db:
-        if x["type"] != "advert":
-            continue
-        if status and status not in x["placements"]:
-            continue
-        adverts.append(x)
-
-    # orders = sorted(orders, key=lambda d: d["date_u"])
-
-    total_page = ceil(len(adverts) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    adverts = adverts[start: stop]
+    advert["places"] = request.json["places"]
+    advert["date_u"] = now()
+    advert = database(advert)
 
     return jsonify({
         "status": 200,
-        "adverts": [advert_schema(x, db) for x in adverts],
-        "total_page": total_page
+        "advert": advert_schema(advert, db)
     })
 
 
