@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import { module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
@@ -22,7 +23,7 @@
 	}
 
 	let message = 'Get access to your Cart, Saved Items, Orders, Wishlist and Recommendations.';
-	let return_url = '/';
+	let return_url = $page.url.pathname;
 
 	if ($module.message) {
 		message = $module.message;
@@ -30,9 +31,11 @@
 	if ($module.return_url) {
 		return_url = $module.return_url;
 	}
-	if ($module?.email) {
+	if ($module.email) {
 		form.email = $module.email;
 	}
+
+	console.log(return_url);
 
 	const validate = async () => {
 		error = {};

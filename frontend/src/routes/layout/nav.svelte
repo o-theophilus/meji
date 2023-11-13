@@ -94,10 +94,7 @@
 			class="login"
 			on:click={() => {
 				$module = {
-					module: Login,
-					data: {
-						return_url: $page.url.pathname
-					}
+					module: Login
 				};
 			}}
 		>

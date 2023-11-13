@@ -6,7 +6,6 @@
 	import Meta from '$lib/meta.svelte';
 	import Advert from '$lib/advert/index.svelte';
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	import Tags from './home/tags.svelte';
 	import Group from '$lib/group.svelte';
@@ -40,17 +39,10 @@
 					break;
 			}
 
-			if ($page.url.searchParams.has('return_url')) {
-				_module.return_url = `/${$page.url.searchParams.get('return_url')}`;
-			}
-			if ($page.url.searchParams.has('token')) {
-				_module.token = $page.url.searchParams.get('token');
-			}
-			if ($page.url.searchParams.has('message')) {
-				_module.message = $page.url.searchParams.get('message');
-			}
-			if ($page.url.searchParams.has('email')) {
-				_module.email = $page.url.searchParams.get('email');
+			for (const x of ['return_url', 'token', 'message', 'email']) {
+				if ($page.url.searchParams.has(x)) {
+					_module[x] = $page.url.searchParams.get(x);
+				}
 			}
 
 			$module = _module;
@@ -65,27 +57,14 @@
 <!-- <Advert {adverts} /> -->
 <Tags {tags} />
 <Group name="New Arrivals" items={new_arrivals}>
-	<Button class="link small" href="/shop?sort=latest">
-		more
-		<span class="rotate">
-			<SVG type="angle" size="10" />
-		</span>
-	</Button>
+	<Button class="link small" href="/shop?sort=latest">more &gt;</Button>
 </Group>
 <Group name="Offers" items={offers}>
-	<Button class="link small" href="/shop?sort=discount">
-		more
-		<span class="rotate">
-			<SVG type="angle" size="10" />
-		</span>
-	</Button>
+	<Button class="link small" href="/shop?sort=discount">more &gt;</Button>
 </Group>
 <About />
 <Contact />
 <Top />
 
 <style>
-	.rotate {
-		transform: rotate(180deg);
-	}
 </style>

@@ -48,7 +48,7 @@
 	});
 </script>
 
-<Meta title={user?.name} description={user?.name} />
+<Meta title={user?.name || data.error} description={user?.name || data.error} />
 
 <Center>
 	<br />
@@ -56,12 +56,12 @@
 		User Details
 		{#if user && user.key == $me.key}
 			<Button
-				class="small outline"
+				class="outline"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 				Edit: {edit_mode ? 'On' : 'Off'}
 			</Button>
 		{/if}
@@ -105,7 +105,7 @@
 					</span>
 					{#if edit_mode}
 						<Button
-							class="small round"
+							class="round"
 							tooltip="Edit Name"
 							on:click={() => {
 								$module = {
@@ -114,7 +114,7 @@
 								};
 							}}
 						>
-							<SVG type="edit" size="12" />
+							<SVG type="edit" size="10" />
 						</Button>
 					{/if}
 				</div>
@@ -130,7 +130,7 @@
 					{/if}
 					{#if edit_mode}
 						<Button
-							class="small round"
+							class="round"
 							tooltip="Edit Phone Number"
 							on:click={() => {
 								$module = {
@@ -139,7 +139,7 @@
 								};
 							}}
 						>
-							<SVG type="edit" size="12" />
+							<SVG type="edit" size="10" />
 						</Button>
 					{:else}
 						<div />
@@ -149,7 +149,7 @@
 					{user.email}
 					{#if edit_mode}
 						<Button
-							class="small round"
+							class="round"
 							tooltip="Edit Email"
 							on:click={() => {
 								$module = {
@@ -158,7 +158,7 @@
 								};
 							}}
 						>
-							<SVG type="edit" size="12" />
+							<SVG type="edit" size="10" />
 						</Button>
 					{:else}
 						<div />
@@ -174,7 +174,7 @@
 
 					{#if edit_mode}
 						<Button
-							class="small round"
+							class="round"
 							tooltip="Edit Address"
 							on:click={() => {
 								$module = {
@@ -183,7 +183,7 @@
 								};
 							}}
 						>
-							<SVG type="edit" size="12" />
+							<SVG type="edit" size="10" />
 						</Button>
 					{:else}
 						<div />
@@ -212,7 +212,6 @@
 
 					{#if user.key == $me.key}
 						<Button
-							class="small"
 							on:click={() => {
 								$module = {
 									module: Add_Voucher
@@ -221,7 +220,7 @@
 						>
 							Add Voucher
 						</Button>
-						<Button class="small" href="/profile/transaction">Transaction</Button>
+						<Button href="/profile/transaction">Transaction</Button>
 					{/if}
 				</div>
 
@@ -229,9 +228,9 @@
 
 				{#if user.key == $me.key}
 					<div class="horizontal">
-						<Button class="small" href="/orders">Orders</Button>
+						<Button href="/orders">Orders</Button>
 						{#if user.roles.includes('admin')}
-							<Button class="small" href="/admin">Admin</Button>
+							<Button href="/admin">Admin</Button>
 						{/if}
 					</div>
 
@@ -241,7 +240,7 @@
 
 					<div class="horizontal">
 						{#if edit_mode}
-							<Button class="small" href="/profile/setting">
+							<Button href="/profile/setting">
 								<SVG type="setting" size="12" />
 								Setting
 							</Button>
@@ -254,7 +253,7 @@
 	{/if}
 </Card>
 
-{#if user.key != $me.key && user.status == 'confirm' && $me.roles.includes('user:set_role')}
+{#if user && user.key != $me.key && user.status == 'confirmed' && $me.roles.includes('user:set_role')}
 	<Role {user} />
 {/if}
 

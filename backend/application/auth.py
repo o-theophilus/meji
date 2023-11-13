@@ -23,7 +23,7 @@ def user_template(
         "type": "user",
         "date_c": now(),
         "date_u": now(),
-        "status": "anonymous",  # confirm
+        "status": "anonymous",  # signedup, confirmed
 
         "name": name,
         "email": email,
@@ -41,7 +41,7 @@ def user_template(
         },
         "photo": None,
         "acc_balance": 0,
-        "roles": [],  # admin, supplier,
+        "roles": [],
         "login": False,
         "setting": {
             "item_view": "grid",
@@ -82,7 +82,6 @@ def signup():
 
     if (
         user["login"]
-        or user["status"] != "anonymous"
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
@@ -132,11 +131,15 @@ def signup():
             **error
         })
 
+    if user["status"] != "anonymous":
+        user = user_template("anon", "anon", "anon")
+
     user["name"] = request.json["name"]
     user["email"] = request.json["email"]
     user["password"] = generate_password_hash(
         request.json["password"], method="scrypt")
-    user["date_u"] = now(),
+    user["date_u"] = now()
+    user["status"] = "signedup"
 
     user = database(user)
 
@@ -153,7 +156,6 @@ def signup():
 
     return jsonify({
         "status": 200,
-        # "user": user_schema(user, db)
     })
 
 
@@ -184,10 +186,10 @@ def confirm_email(token):
         "user": user_schema(user, db)
     }
 
-    if user["status"] == "confirm":
+    if user["status"] == "confirmed":
         output['error'] = "email has already been confirmed"
     else:
-        user["status"] = "confirm"
+        user["status"] = "confirmed"
         user = database(user)
 
     return jsonify(output)
@@ -197,15 +199,15 @@ def confirm_email(token):
 def login():
     db = database()
 
-    anon_user = token_to_user(db)
-    if not anon_user:
+    out_user = token_to_user(db)
+    if not out_user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if (
-        anon_user["login"]
+        out_user["login"]
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
@@ -226,18 +228,23 @@ def login():
             **error
         })
 
-    user = query({'type': "user", "email": request.json["email"]}, db=db)
+    user = None
+    if out_user["email"] == request.json["email"]:
+        user = out_user
+    else:
+        user = query({'type': "user", "email": request.json["email"]}, db=db)
 
     if (
         not user
         or not check_password_hash(user["password"], request.json["password"])
+        or user["status"] == "anonymous"
     ):
         return jsonify({
             "status": 400,
             "error": "your email or password is incorrect"
         })
 
-    if user["status"] != "confirm":
+    if user["status"] != "confirmed":
         send_mail(
             user["email"],
             "Welcome to Meji! Please Confirm Your Email to Get Started",
@@ -256,17 +263,18 @@ def login():
     edited = []
     to_delete = []
 
-    if anon_user['key'] != user['key']:
+    if out_user['key'] != user['key']:
         anon_saves = []
         saves = []
         anon_cart = None
         cart = None
+
         for x in db:
-            if x["type"] == "save" and x["user"] == anon_user['key']:
+            if x["type"] == "save" and x["user"] == out_user['key']:
                 anon_saves.append(x)
             elif x["type"] == "save" and x["user"] == user['key']:
                 saves.append(x)
-            elif x["type"] == "cart" and x["user"] == anon_user['key']:
+            elif x["type"] == "cart" and x["user"] == out_user['key']:
                 anon_cart = x
             elif x["type"] == "cart" and x["user"] == user['key']:
                 cart = x
@@ -303,7 +311,9 @@ def login():
 
     user["login"] = True
     database([*edited, user])
-    database([*to_delete, anon_user], True)
+    if out_user["status"] == "anonymous":
+        to_delete.append(out_user)
+    database(to_delete, True)
 
     return jsonify({
         "status": 200,
@@ -455,7 +465,7 @@ def admin():
             email,
             os.environ["MAIL_PASSWORD"]
         )
-        user["status"] = "confirm"
+        user["status"] = "confirmed"
         user["roles"] = [
             "admin:manage_photo",
             "user:view",

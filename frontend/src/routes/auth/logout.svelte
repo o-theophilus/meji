@@ -24,7 +24,7 @@
 </script>
 
 <Button
-	class="small"
+	class="hover_red"
 	on:click={() => {
 		submit();
 	}}

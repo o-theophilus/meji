@@ -22,8 +22,8 @@
 	{#if cart.items.length == 0}
 		no item here
 	{:else}
-		<div class="ctitle">Items</div>
-		
+		<div class="ctitle">Item{cart.items.length ? 's' : ''}</div>
+
 		<br />
 		<br />
 
@@ -36,11 +36,9 @@
 		</div>
 
 		<br />
-		<hr />
-		<br />
 
 		<div class="total_amount">
-			<div class="total">Total Amount</div>
+			<div class="total">Item{cart.items.length ? 's' : ''} Total Price</div>
 			<div class="amount">
 				₦{cart.transaction.total_items.toLocaleString()}
 			</div>
@@ -56,10 +54,7 @@
 				} else {
 					$module = {
 						module: Login,
-						data: {
-							message: 'please login to checkout',
-							return_url: $page.url.pathname
-						}
+						message: 'please login to checkout'
 					};
 				}
 			}}

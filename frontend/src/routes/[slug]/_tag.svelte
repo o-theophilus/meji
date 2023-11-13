@@ -16,7 +16,7 @@
 	const submit = async () => {
 		error = {};
 
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
@@ -92,16 +92,16 @@
 		<b>Edit Tag</b>
 	</svelte:fragment>
 
-	<IG name="tags" {error} let:id>
-		<textarea
-			bind:value={tags}
-			on:blur={() => {
-				clean_value();
-			}}
-			{id}
-			placeholder="Tags here"
-		/>
-	</IG>
+	<IG
+		name="tags"
+		{error}
+		type="textarea"
+		bind:value={tags}
+		on:blur={() => {
+			clean_value();
+		}}
+		placeholder="Tags here"
+	/>
 
 	<div class="tags">
 		{#if !loading_complete}

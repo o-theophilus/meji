@@ -57,12 +57,12 @@
 		Item Details
 		{#if $user && is_admin}
 			<Button
-				class="small outline"
+				class="outline"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 				Edit: {edit_mode ? 'On' : 'Off'}
 			</Button>
 		{/if}

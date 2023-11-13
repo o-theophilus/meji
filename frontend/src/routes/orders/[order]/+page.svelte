@@ -84,7 +84,6 @@
 		<div class="line">
 			{#if $user.roles.includes('admin')}
 				<Button
-					class="small"
 					on:click={() => {
 						$module = {
 							module: Status,
@@ -97,7 +96,7 @@
 			{/if}
 
 			<Button
-				class="hover_red small"
+				class="hover_red"
 				on:click={() => {
 					$module = {
 						module: Cancel,
@@ -105,7 +104,7 @@
 					};
 				}}
 			>
-				<SVG type="close" size="10" />
+				<SVG type="close" size="8" />
 				Cancel Order
 			</Button>
 		</div>

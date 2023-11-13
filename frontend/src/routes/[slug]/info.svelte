@@ -82,7 +82,7 @@
 
 		{#if $user.roles.includes('item:edit_status')}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					$module = {
 						module: Status,
@@ -91,7 +91,7 @@
 				}}
 				tooltip="Edit Status"
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 			</Button>
 		{/if}
 	</div>
@@ -107,7 +107,7 @@
 
 		{#if edit_mode && $user.roles.includes('item:edit_name')}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					$module = {
 						module: Name,
@@ -116,7 +116,7 @@
 				}}
 				tooltip="Edit Name"
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 			</Button>
 		{/if}
 	</div>
@@ -142,7 +142,7 @@
 
 	{#if edit_mode && $user.roles.includes('item:edit_tag')}
 		<Button
-			class="small round"
+			class="round"
 			on:click={() => {
 				$module = {
 					module: Tag,
@@ -152,7 +152,7 @@
 			}}
 			tooltip="Edit tag"
 		>
-			<SVG type="edit" size="12" />
+			<SVG type="edit" size="10" />
 		</Button>
 	{/if}
 </div>
@@ -165,7 +165,7 @@
 	<div class="horizontal">
 		{#if item.old_price}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					open_discount = !open_discount;
 				}}
@@ -175,7 +175,7 @@
 		{/if}
 		{#if edit_mode && $user.roles.includes('item:edit_price')}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					$module = {
 						module: Edit_Price,
@@ -184,7 +184,7 @@
 				}}
 				tooltip="Edit Price"
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 			</Button>
 		{/if}
 	</div>
@@ -208,7 +208,7 @@
 		/>
 		{#if edit_mode && $user.roles.includes('item:edit_info')}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					$module = {
 						module: Info,
@@ -217,7 +217,7 @@
 				}}
 				tooltip="Edit Details"
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 			</Button>
 		{/if}
 	</div>
@@ -246,7 +246,7 @@
 			/>
 			{#if edit_mode && $user.roles.includes('item:edit_variation')}
 				<Button
-					class="small round"
+					class="round"
 					on:click={() => {
 						$module = {
 							module: Variation,
@@ -255,7 +255,7 @@
 					}}
 					tooltip="Edit Variation"
 				>
-					<SVG type="edit" size="12" />
+					<SVG type="edit" size="10" />
 				</Button>
 			{/if}
 		</div>

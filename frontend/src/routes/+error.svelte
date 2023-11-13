@@ -8,7 +8,7 @@
 	import { page } from '$app/stores';
 </script>
 
-<Meta title="Error" description="Error" />
+<Meta title="Error" description={$page.error.message} />
 
 <Center>
 	<br />

@@ -93,7 +93,7 @@
 </svelte:head>
 
 <div class="horizontal">
-	<Button class="primary" on:click={make_payment}>Place Order</Button>
+	<Button class="primary" on:click={make_payment}>Make Payment</Button>
 </div>
 <br />
 {#if error.error}

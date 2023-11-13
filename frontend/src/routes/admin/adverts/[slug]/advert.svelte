@@ -244,7 +244,7 @@
 <br />
 <div class="row">
 	<Button
-		class="primary small"
+		class="primary"
 		on:click={() => {
 			input.click();
 		}}
@@ -253,13 +253,13 @@
 		Add
 	</Button>
 
-	<Button class="small hover_red" on:click={remove_photo} disabled={!active_photo.photo}
+	<Button class="hover_red" on:click={remove_photo} disabled={!active_photo.photo}
 		>Remove</Button
 	>
 </div>
 <br />
 <div class="row">
-	<Button class="small hover_red" on:click={delete_advert} disabled={available_sizes.length <= 0}>
+	<Button class="hover_red" on:click={delete_advert} disabled={available_sizes.length <= 0}>
 		Delete Advert
 	</Button>
 </div>

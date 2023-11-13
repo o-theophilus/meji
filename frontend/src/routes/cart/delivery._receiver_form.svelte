@@ -108,7 +108,6 @@
 				<div class="body" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 					{#each previous_receivers as r}
 						<Button
-							class="small"
 							on:click={() => {
 								receiver = {
 									name: r.name,

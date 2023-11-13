@@ -6,14 +6,14 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	import PlaceOrder from './pay.place_order.svelte';
+	import MakePayment from './pay.make_payment.svelte';
 	import Account from './pay._account.svelte';
 	import Voucher from '../profile/_voucher.svelte';
 
 	let emit = createEventDispatcher();
 
 	export let cart;
-	let pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
+	$: pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
 </script>
 
 <Card>
@@ -102,7 +102,7 @@
 	<br />
 	<br />
 
-	<PlaceOrder {cart} {pay} />
+	<MakePayment {cart} {pay} />
 </Card>
 
 <style>

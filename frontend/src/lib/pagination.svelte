@@ -42,7 +42,6 @@
 	<section>
 		{#if page_no > 1}
 			<button
-				class="small"
 				on:click={() => {
 					submit(page_no - 1);
 				}}
@@ -81,7 +80,6 @@
 
 		{#if page_no_temp != page_no}
 			<button
-				class="small"
 				on:click={() => {
 					submit(page_no_temp);
 				}}
@@ -92,7 +90,6 @@
 
 		{#if page_no < total_page}
 			<button
-				class="small"
 				on:click={() => {
 					submit(parseInt(page_no) + 1);
 				}}
@@ -135,7 +132,7 @@
 		padding: var(--size);
 		height: var(--height);
 		border: none;
-		
+
 		color: var(--ac1);
 		background-color: var(--ac5);
 	}

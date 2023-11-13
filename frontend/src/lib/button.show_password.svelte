@@ -7,7 +7,7 @@
 
 <form on:submit|preventDefault>
 	<Button
-		class="round small"
+		class="round"
 		on:click={() => {
 			show_password = !show_password;
 		}}

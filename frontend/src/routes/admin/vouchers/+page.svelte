@@ -60,7 +60,7 @@
 	<Status {page_name} array={status} default_value="all">
 		{#if $user.roles.includes('voucher:add')}
 			<Button
-				class="small primary"
+				class="primary"
 				on:click={() => {
 					$module = {
 						module: Add

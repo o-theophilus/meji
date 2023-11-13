@@ -23,7 +23,7 @@
 	<div class="buttons">
 		{#each array as x}
 			<Button
-				class="small {value == x ? 'primary' : ''}"
+				class="{value == x ? 'primary' : ''}"
 				on:click={() => {
 					value = x;
 					let v = x == default_value ? '' : x;

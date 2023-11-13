@@ -151,12 +151,12 @@
 							{key}
 						</label>
 						<Button
-							class="round small hover_red"
+							class="round hover_red"
 							on:click={() => {
 								delete_key(key);
 							}}
 						>
-							<SVG type="close" size="10" />
+							<SVG type="close" size="8" />
 						</Button>
 					</div>
 				</svelte:fragment>

@@ -41,7 +41,7 @@
 				}}
 				tooltip="Edit Feedback"
 			>
-				<SVG type="edit" size="12" />
+				<SVG type="edit" size="10" />
 				Edit
 			</Button>
 		{/if}
@@ -80,6 +80,6 @@
 	}
 	
 	.date {
-		font-size: smaller;
+		font-size: small;
 	}
 </style>

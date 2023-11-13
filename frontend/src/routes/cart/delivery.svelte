@@ -76,7 +76,7 @@
 			emit('next');
 		}}
 	>
-		Next
+		Place Order
 	</Button>
 </Card>
 

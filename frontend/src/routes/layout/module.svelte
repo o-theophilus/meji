@@ -13,13 +13,13 @@
 			<div class="content">
 				<div class="close">
 					<Button
-						class="round hover_red small"
+						class="round hover_red"
 						on:keypress
 						on:click={() => {
 							$module = '';
 						}}
 					>
-						<SVG type="close" size="12" />
+						<SVG type="close" size="8" />
 					</Button>
 				</div>
 

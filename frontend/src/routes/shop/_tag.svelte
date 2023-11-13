@@ -18,15 +18,14 @@
 
 	let tags = [];
 	let open_tags = false;
-	let label = '';
 
 	let selected_string = '';
 	let _selected_string = '';
-	let changed = false;
 	$: {
-		_selected_string = _selected.sort((a, b) => a - b).join(',');
 		selected_string = selected.sort((a, b) => a - b).join(',');
-		changed = _selected_string != selected_string || (multiply != _multiply && selected.length > 1);
+		selected_string = `${selected_string}${selected.length > 1 && multiply ? ':x' : ''}`;
+		_selected_string = _selected.sort((a, b) => a - b).join(',');
+		_selected_string = `${_selected_string}${_selected.length > 1 && _multiply ? ':x' : ''}`;
 	}
 
 	onMount(async () => {
@@ -36,13 +35,11 @@
 			if (x.slice(-2) == ':x') {
 				x = x.slice(0, -2);
 				multiply = true;
+				_multiply = true;
 			}
 			selected = x.split(',');
-			label = `${selected.length}${multiply ? '*' : ''}`;
+			_selected = x.split(',');
 		}
-
-		_selected = [...selected];
-		_multiply = multiply;
 
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
 		resp = await resp.json();
@@ -64,18 +61,18 @@
 			open_tags = !open_tags;
 		}}
 	>
-		<span class="button_label">
-			Tags&nbsp;{#if label}({label}){/if}
-		</span>
+		Tags&nbsp;{#if _selected.length > 0}
+			({_selected.length}{#if _multiply}*{/if})
+		{/if}
 
 		<span class="angle">
-			<SVG type="angle" size="10" />
+			<SVG type="angle" size="8" />
 		</span>
 	</Button>
 
 	{#if open_tags}
 		<div
-			class="tag_block"
+			class="container"
 			on:click|stopPropagation
 			role="presentation"
 			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
@@ -86,11 +83,11 @@
 			<br />
 
 			<div class="input">
-				<input bind:value={search} type="text" placeholder="Search" />
+				<Input bind:value={search} type="text" placeholder="Search" />
 				{#if search}
 					<div class="clear">
 						<Button
-							class="round small"
+							class="round"
 							on:click={() => {
 								search = '';
 							}}
@@ -115,8 +112,8 @@
 			<br />
 
 			<div class="line">
-				<label class="multiply">
-					<input bind:checked={multiply} type="checkbox" />
+				<label class:disabled={selected.length < 2}>
+					<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />
 					{#if multiply}
 						x
 					{:else}
@@ -124,43 +121,36 @@
 					{/if}
 				</label>
 
-				<div class="line">
+				<div class="line buttons">
 					<Button
-						disabled={selected.length == 0}
-						class="small hover_red"
+						disabled={!_selected_string && !selected_string}
+						class="hover_red"
 						on:click={() => {
-							open_tags = false;
 							if (_selected_string) {
 								set_state(page_name, 'tag', '');
 							}
+
+							open_tags = false;
 							selected = [];
 							_selected = [];
 							multiply = false;
-							label = '';
+							_multiply = false;
 						}}
 					>
-						<SVG type="close" />
+						<SVG type="close" size="8" />
 					</Button>
 
 					<Button
-						disabled={!changed}
-						class=" small"
+						disabled={_selected_string == selected_string}
 						on:click={() => {
-							let temp = '';
-							if (selected.length > 0) {
-								temp = selected_string;
-								if (multiply) {
-									temp = `${temp}:x`;
-								}
-							}
+							set_state(page_name, 'tag', selected_string);
 
 							open_tags = false;
-							label = `${selected.length}${multiply && selected.length > 0 ? '*' : ''}`;
-							set_state(page_name, 'tag', temp);
-							_selected = [...selected];
+							_selected = selected;
+							_multiply = multiply;
 						}}
 					>
-						<SVG type="check" />
+						<SVG type="check" size="8" />
 					</Button>
 				</div>
 			</div>
@@ -176,12 +166,8 @@
 	.angle {
 		transform: rotate(-90deg);
 	}
-	.button_label {
-		flex-shrink: 0;
-		/* padding: 0 var(--sp3); */
-	}
 
-	.tag_block {
+	.container {
 		position: absolute;
 		z-index: 1;
 		top: 40px;
@@ -194,19 +180,8 @@
 		outline: 2px solid var(--ac4);
 	}
 
-	.line {
-		display: flex;
-		gap: var(--sp2);
-		justify-content: space-between;
-		align-items: center;
-	}
 	.input {
 		position: relative;
-	}
-
-	input {
-		padding-right: calc(var(--sp3) * 2);
-		width: unset;
 	}
 	.clear {
 		position: absolute;
@@ -222,9 +197,17 @@
 		max-height: 200px;
 		overflow-y: auto;
 	}
+
+	input {
+		cursor: pointer;
+	}
+	input:disabled {
+		cursor: default;
+	}
+
 	label {
 		display: flex;
-		gap: var(--sp2);
+		gap: var(--sp0);
 		margin-top: var(--sp0);
 		cursor: pointer;
 
@@ -234,15 +217,26 @@
 	label:hover {
 		color: var(--cl1);
 	}
-	.multiply {
-		text-transform: lowercase;
+
+	label.disabled {
+		cursor: default;
+		color: var(--ac4);
 	}
+
 	.hide {
 		display: none;
 	}
 
-	input[type='checkbox'] {
-		width: 20px;
-		cursor: pointer;
+	.line {
+		display: flex;
+		gap: var(--sp3);
+		justify-content: space-between;
+		align-items: center;
+	}
+	.line label {
+		text-transform: unset;
+	}
+	.buttons {
+		gap: var(--sp0);
 	}
 </style>

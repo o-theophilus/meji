@@ -46,8 +46,8 @@
 
 			<Marked md={$toast?.message || 'no message'} />
 
-			<Button class="round small hover_red" on:click={close}>
-				<SVG type="close" size="10" />
+			<Button class="round hover_red" on:click={close}>
+				<SVG type="close" size="8" />
 			</Button>
 		</div>
 

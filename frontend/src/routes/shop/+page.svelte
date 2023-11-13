@@ -60,7 +60,7 @@
 	<div class="ctitle">
 		Shop
 		<div class="line">
-			<View class="outline" />
+			<View />
 			<Sort {page_name} array={sorts} default_value="latest" />
 		</div>
 	</div>
@@ -71,7 +71,7 @@
 		<Status {page_name} array={status} default_value="live">
 			{#if $user.roles.includes('item:add')}
 				<Button
-					class="small primary"
+					class="primary"
 					on:click={() => {
 						$module = {
 							module: Add

@@ -29,12 +29,12 @@
 	<div class="float clear">
 		{#if search}
 			<Button
-				class="small round"
+				class="round"
 				on:click={() => {
 					emit('clear');
 				}}
 			>
-				<SVG type="close" size="15" />
+				<SVG type="close" size="8" />
 			</Button>
 		{/if}
 	</div>

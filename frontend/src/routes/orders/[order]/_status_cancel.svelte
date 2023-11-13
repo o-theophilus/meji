@@ -24,7 +24,7 @@
 	const submit = async () => {
 		error = {};
 
-		$loading = "canceling . . .";
+		$loading = 'canceling . . .';
 		let resp = await fetch(
 			`${import.meta.env.VITE_BACKEND}/order_status_cancel/${$module.order.key}`,
 			{
@@ -73,9 +73,14 @@
 		<b>Cancel Order </b>
 	</svelte:fragment>
 
-	<IG name="Note" label="Please give reason" {error} let:id>
-		<textarea bind:value={note} {id} placeholder="Reason" />
-	</IG>
+	<IG
+		name="Note"
+		label="Please give reason"
+		{error}
+		type="textarea"
+		bind:value={note}
+		placeholder="Reason"
+	/>
 
 	{#if error.error}
 		<p class="error">
@@ -85,7 +90,7 @@
 	{/if}
 
 	<Button class="hover_red" on:click={validate}>
-		<SVG type="close" size="10" />
+		<SVG type="close" size="8" />
 		Cancel
 	</Button>
 </Form>

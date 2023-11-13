@@ -64,7 +64,7 @@ def user_role(key):
         or "roles" not in request.json
         or type(request.json["roles"]) is not list
         or user["email"] == os.environ["MAIL_USERNAME"]
-        or user["status"] != "confirm"
+        or user["status"] != "confirmed"
     ):
         error = "invalid request"
 

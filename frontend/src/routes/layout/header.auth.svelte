@@ -11,11 +11,10 @@
 	<section>
 		<div class="login">
 			<Button
-				class="primary small"
+				class="primary"
 				on:click={() => {
 					$module = {
-						module: Login,
-						return_url: $page.url.pathname
+						module: Login
 					};
 				}}
 			>
@@ -24,11 +23,9 @@
 		</div>
 
 		<Button
-			class="small"
 			on:click={() => {
 				$module = {
-					module: Signup,
-					return_url: $page.url.pathname
+					module: Signup
 				};
 			}}
 		>

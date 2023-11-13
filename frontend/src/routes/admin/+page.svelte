@@ -40,7 +40,17 @@
 
 		remove all "admin" role from backend
 		<br />
-		app setting
+		does going back restore token
+		<br />
+		cron
+		<br />
+		- [ ] Concurrency
+		<br />
+		- [ ] ripple delete
+		<br />
+		- [ ] log user action
+		<br />
+		does going back restore token
 	</div>
 </Card>
 

@@ -19,7 +19,7 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 
-	let status = ['all', 'confirm', 'anonymous'];
+	let status = ['all', 'confirmed', 'signedup', 'anonymous'];
 	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
 
 	let search = '';
@@ -57,7 +57,7 @@
 <Card>
 	<Status {page_name} array={status} default_value="all" />
 	<br />
-	
+
 	<div class="line">
 		<Search
 			bind:search

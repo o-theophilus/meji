@@ -39,7 +39,7 @@
 				x &nbsp;
 
 				<Button
-					class="link"
+					class="small"
 					on:click={() => {
 						$module = {
 							module: Quantity,
@@ -61,6 +61,9 @@
 		display: flex;
 		gap: var(--sp3);
 		align-items: center;
+		
+		padding-bottom: var(--sp2);
+		border-bottom: 2px solid var(--ac5);
 	}
 
 	img {
@@ -81,7 +84,6 @@
 	.line {
 		display: flex;
 		align-items: center;
-		/* gap: 0 var(--sp2); */
 		flex-wrap: wrap;
 	}
 	.price {

@@ -196,7 +196,7 @@
 	<br />
 	<div class="row">
 		<Button
-			class="primary small"
+			class="primary"
 			on:click={() => {
 				input.click();
 			}}
@@ -206,7 +206,7 @@
 		</Button>
 
 		<Button
-			class="small hover_red"
+			class="hover_red"
 			on:click={() => {
 				reorder_delete('delete');
 			}}
@@ -216,25 +216,22 @@
 		</Button>
 		<Button
 			disabled={item.photos.length <= 1 || item.photos[0] == active_photo}
-			class="small"
 			on:click={() => {
 				move_right(false);
 			}}
 		>
-			<SVG type="arrow_left" size="16" />
+			&lt;
 		</Button>
 		<Button
 			disabled={item.photos.length <= 1 || item.photos[item.photos.length - 1] == active_photo}
-			class="small"
 			on:click={() => {
 				move_right();
 			}}
 		>
-			<SVG type="arrow_right" size="16" />
+			&gt;
 		</Button>
 		<Button
 			disabled={JSON.stringify(init_order) == JSON.stringify(item.photos)}
-			class="small"
 			on:click={() => {
 				reorder_delete('put');
 			}}

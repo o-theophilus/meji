@@ -89,7 +89,6 @@
 	<div class="horizontal">
 		{#if voucher.status == 'inactive'}
 			<Button
-				class="small"
 				on:click={() => {
 					$module = {
 						module: Activate,
@@ -100,7 +99,6 @@
 				Activate
 			</Button>
 			<Button
-				class="small"
 				on:click={() => {
 					submit('delete', 'voucher');
 				}}
@@ -109,7 +107,6 @@
 			</Button>
 		{:else if voucher.status == 'active'}
 			<Button
-				class="small"
 				on:click={() => {
 					submit('put', 'voucher_');
 				}}

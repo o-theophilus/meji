@@ -1,7 +1,4 @@
 # Todo
-- [ ] Concurrency
-- [ ] ripple delete
-- [ ] log user action
 
 address api: https://www.geoapify.com/tutorials
 

@@ -50,6 +50,18 @@
 	.primary:hover {
 		background-color: var(--cl2);
 	}
+
+	.large {
+		padding: var(--sp2) var(--sp4);
+		font-size: large;
+	}
+
+	.small {
+		padding: var(--sp0) ;
+		font-size: small;
+		min-width: 28px;
+	}
+
 	.link {
 		display: inline-flex;
 		gap: var(--sp0);
@@ -62,14 +74,6 @@
 	}
 	.hover_red:hover {
 		background-color: var(--cl4);
-	}
-
-	.large {
-		padding: var(--sp2) var(--sp4);
-		font-size: large;
-	}
-	.small {
-		font-size: small;
 	}
 
 	.round {
@@ -93,14 +97,12 @@
 
 	.wide {
 		width: 100%;
-		/* max-width: 400px; */
 	}
 
 	.hover_red:disabled,
 	button:disabled,
 	.primary:disabled {
 		background-color: var(--ac5);
-		outline: 2px solid var(--ac5);
 		color: var(--ac4);
 		cursor: unset;
 		box-shadow: unset;
