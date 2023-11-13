@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { user as _user, set_state } from '$lib/store.js';
+	import { user as me, set_state } from '$lib/store.js';
 
 	import Search from '$lib/search.svelte';
 	import Button from '$lib/button.svelte';
@@ -38,7 +38,7 @@
 </script>
 
 <section>
-	{#if $_user.roles.includes('admin')}
+	{#if $me.roles.includes('log:view')}
 		<div class="line">
 			<Search
 				placeholder="Search for User"
@@ -50,7 +50,7 @@
 			<Button
 				class=""
 				on:click={() => {
-					user = $_user.key;
+					user = $me.key;
 				}}
 			>
 				Mine

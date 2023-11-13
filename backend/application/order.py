@@ -148,7 +148,7 @@ def date(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "order:edit_eta" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -207,15 +207,19 @@ def status(key):
             "error": "invalid token"
         })
 
-    status = ['ordered', 'processing', 'enroute', 'delivered']
-    order = query({"type": "order", "key": key}, db=db)
-    order_user = query({"type": "user", "key": order["user"]}, db=db)
-
-    if "admin" not in user["roles"] and user["key"] != order_user["key"]:
+    if "order:status" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
+
+    status = ['created', 'processing', 'enroute', 'delivered']
+    order = query({"type": "order", "key": key}, db=db)
+
+    if order and order["user"] == user["key"]:
+        order_user = user
+    else:
+        order_user = query({"type": "user", "key": order["user"]}, db=db)
 
     if (
         not order or not order_user
@@ -223,7 +227,7 @@ def status(key):
         or not request.json["status"]
         or request.json["status"] not in status
         or "email_template" not in request.json
-        or order["status"] in ["pending", "delivered", "canceled"]
+        or order["status"] in ["delivered", "canceled"]
     ):
         return jsonify({
             "status": 400,
@@ -287,7 +291,10 @@ def status_cancel(key):
     order = query({"type": "order", "key": key}, db=db)
     order_user = query({"type": "user", "key": order["user"]}, db=db)
 
-    if "admin" not in user["roles"] and user["key"] != order_user["key"]:
+    if (
+        "order:cancel" not in user["roles"]
+        and user["key"] != order_user["key"]
+    ):
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

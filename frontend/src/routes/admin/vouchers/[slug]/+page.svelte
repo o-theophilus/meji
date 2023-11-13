@@ -1,5 +1,5 @@
 <script>
-	import { portal, loading, module, toast } from '$lib/store.js';
+	import { portal, loading, module, toast, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Card from '$lib/card.svelte';
@@ -81,40 +81,43 @@
 		Validity: {voucher.validity}
 	{/if}
 
-	{#if ['active', 'inactive'].includes(voucher.status)}
-		<br />
-		<br />
+	{#if $user.roles.includes('voucher:status')}
+		{#if ['active', 'inactive'].includes(voucher.status)}
+			<br />
+			<br />
+		{/if}
+
+		<div class="horizontal">
+			{#if voucher.status == 'inactive'}
+				<Button
+					on:click={() => {
+						$module = {
+							module: Activate,
+							voucher
+						};
+					}}
+				>
+					Activate
+				</Button>
+				<Button
+					on:click={() => {
+						submit('delete', 'voucher');
+					}}
+				>
+					delete
+				</Button>
+			{:else if voucher.status == 'active'}
+				<Button
+					on:click={() => {
+						submit('put', 'voucher_');
+					}}
+				>
+					deactivate
+				</Button>
+			{/if}
+		</div>
 	{/if}
 
-	<div class="horizontal">
-		{#if voucher.status == 'inactive'}
-			<Button
-				on:click={() => {
-					$module = {
-						module: Activate,
-						voucher
-					};
-				}}
-			>
-				Activate
-			</Button>
-			<Button
-				on:click={() => {
-					submit('delete', 'voucher');
-				}}
-			>
-				delete
-			</Button>
-		{:else if voucher.status == 'active'}
-			<Button
-				on:click={() => {
-					submit('put', 'voucher_');
-				}}
-			>
-				deactivate
-			</Button>
-		{/if}
-	</div>
 	{#if error.error}
 		<br />
 		<div class="error">{error.error}</div>

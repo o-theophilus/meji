@@ -89,25 +89,11 @@ def edit_user(key):
     db = database()
 
     user = token_to_user(db)
-    if (
-        not user
-        or (
-            user["key"] != key
-            and "admin" not in user["roles"]
-        )
-    ):
+    if not user or user["key"] != key:
         return jsonify({
             "status": 400,
-            "error": "unauthorized access"
+            "error": "invalid token"
         })
-
-    if user["key"] != key:
-        user = query({"type": "user", "key": key}, db=db)
-        if not user:
-            return jsonify({
-                "status": 400,
-                "error": "invalid request"
-            })
 
     error = {}
 

@@ -483,7 +483,12 @@ def admin():
             "voucher:view",
             "voucher:add",
             "voucher:view_code",
-            "log:view"
+            "voucher:status",
+            "log:view",
+            "order:view",
+            "order:edit_eta",
+            "order:status",
+            "order:cancel"
         ]
         database(user)
 

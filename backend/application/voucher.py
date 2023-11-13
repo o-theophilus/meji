@@ -194,7 +194,7 @@ def activate(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "voucher:status" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -266,7 +266,7 @@ def inactivate(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "voucher:status" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -305,7 +305,7 @@ def delete(key):
             "error": "invalid token"
         })
 
-    if "admin" not in user["roles"]:
+    if "voucher:status" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

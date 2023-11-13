@@ -59,7 +59,7 @@
 			<br />
 
 			<Eta {order}>
-				{#if order.status == 'created' && $user.roles.includes('admin')}
+				{#if order.status == 'created' && $user.roles.includes('order:edit_eta')}
 					<Button
 						class="link"
 						on:click={() => {
@@ -82,7 +82,7 @@
 		<br />
 		<br />
 		<div class="line">
-			{#if $user.roles.includes('admin')}
+			{#if $user.roles.includes('order:status')}
 				<Button
 					on:click={() => {
 						$module = {
@@ -95,18 +95,20 @@
 				</Button>
 			{/if}
 
-			<Button
-				class="hover_red"
-				on:click={() => {
-					$module = {
-						module: Cancel,
-						order
-					};
-				}}
-			>
-				<SVG type="close" size="8" />
-				Cancel Order
-			</Button>
+			{#if order.user == $user.key || $user.roles.includes('order:cancel')}
+				<Button
+					class="hover_red"
+					on:click={() => {
+						$module = {
+							module: Cancel,
+							order
+						};
+					}}
+				>
+					<SVG type="close" size="8" />
+					Cancel Order
+				</Button>
+			{/if}
 		</div>
 	{/if}
 </Card>

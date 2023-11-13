@@ -1,3 +1,4 @@
+import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
@@ -14,9 +15,6 @@ export const load = async ({ fetch, url, parent }) => {
 	}
 
 	let a = await parent();
-	if (!a.locals.user.roles.includes("log:view")) {
-		throw error(400, "unauthorized access")
-	}
 
 	let resp = await fetch(backend.href, {
 		method: 'get',

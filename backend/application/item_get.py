@@ -57,7 +57,11 @@ def get(key):
             "error": "invalid request"
         })
 
-    if item["status"] != "live" and "admin" not in user["roles"]:
+    if (
+        item["status"] != "live"
+        and "item:add" not in user["roles"]
+        and "item:edit_status" not in user["roles"]
+    ):
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -90,7 +94,12 @@ def shop(
         db = database()
     user = token_to_user(db)
 
-    if "status" in request.args and user and "admin" in user["roles"]:
+    if (
+        "status" in request.args and user and (
+            "item:edit_status" in user["roles"]
+            or "item:add" in user["roles"]
+        )
+    ):
         status = request.args["status"]
     if "search" in request.args:
         search = request.args["search"]

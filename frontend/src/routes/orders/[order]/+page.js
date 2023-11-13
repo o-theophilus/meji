@@ -1,8 +1,13 @@
+import { error } from '@sveltejs/kit';
 import { loading } from "$lib/store.js"
 
 export const load = async ({ fetch, params, parent }) => {
 
-	let  a = await parent();
+	let a = await parent();
+	if (!a.locals.user.roles.includes("order:view")) {
+		throw error(400, "unauthorized access")
+	}
+
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${params.order}`, {
 		method: 'get',
 		headers: {
@@ -15,5 +20,5 @@ export const load = async ({ fetch, params, parent }) => {
 
 	if (resp.status == 200) {
 		return resp
-    }
+	}
 }

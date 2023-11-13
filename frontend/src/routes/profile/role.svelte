@@ -42,11 +42,16 @@
 		voucher: {
 			level_1: ['view'],
 			level_2: [],
-			level_3: ['add', 'view_code']
+			level_3: ['add', 'view_code', 'status']
 		},
 		log: {
 			level_1: ['view'],
 			level_2: [],
+			level_3: []
+		},
+		order: {
+			level_1: ['view'],
+			level_2: ['edit_eta', 'status', 'cancel'],
 			level_3: []
 		}
 	};

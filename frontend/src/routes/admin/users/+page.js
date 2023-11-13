@@ -1,3 +1,4 @@
+import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 

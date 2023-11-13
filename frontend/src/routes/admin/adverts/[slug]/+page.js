@@ -1,3 +1,5 @@
+import { error } from '@sveltejs/kit';
+
 export const load = async ({ fetch, params, parent }) => {
 
 	let a = await parent();

@@ -23,7 +23,7 @@ def get():
     status = request.args["status"] if "status" in request.args else "created"
     is_admin = "admin" in request.args
 
-    if is_admin and "admin" not in user["roles"]:
+    if is_admin and "order:view" not in user["roles"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -69,7 +69,7 @@ def get_one(key):
         not order
         or (
             order["user"] != user["key"]
-            and "admin" not in user["roles"]
+            and "order:view" not in user["roles"]
         )
     ):
         return jsonify({

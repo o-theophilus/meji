@@ -25,10 +25,6 @@
 			<Button class="wide" href="/admin/vouchers">Vouchers</Button>
 			<br />
 		{/if}
-		{#if $user.roles.includes('log:view')}
-			<Button class="wide" href="/admin/logs{$state.logs || ''}">Logs</Button>
-			<br />
-		{/if}
 		{#if $user.roles.includes('item:advert')}
 			<Button class="wide" href="/admin/adverts">Adverts</Button>
 			<br />
@@ -38,19 +34,13 @@
 			<br />
 		{/if}
 
-		remove all "admin" role from backend
+		- [ ] cron
 		<br />
-		does going back restore token
-		<br />
-		cron
-		<br />
-		- [ ] Concurrency
-		<br />
-		- [ ] ripple delete
+		- [ ] save Concurrency
 		<br />
 		- [ ] log user action
 		<br />
-		does going back restore token
+		- [ ] does going back restore token
 	</div>
 </Card>
 

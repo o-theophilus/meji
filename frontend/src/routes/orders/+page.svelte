@@ -23,11 +23,11 @@
 <Center>
 	<br />
 	<div class="ctitle">
-		{$page.url.searchParams.has('admin') ? 'All' : 'My'} Orders
+		{$page.url.searchParams.has('admin') && $user.roles.includes('order:view') ? 'All' : 'My'} Orders
 
-		{#if $user.roles.includes('admin')}
+		{#if $user.roles.includes('order:view')}
 			<Button
-				class="{$page.url.searchParams.has('admin') ? 'primary' : 'outline'}"
+				class={$page.url.searchParams.has('admin') ? 'primary' : 'outline'}
 				on:click={() => {
 					if ($page.url.searchParams.has('admin')) {
 						set_state(page_name, 'admin', '');

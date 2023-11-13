@@ -67,7 +67,7 @@
 </Center>
 
 <Card>
-	{#if $user.roles.includes('admin')}
+	{#if $user.roles.includes('item:add') || $user.roles.includes('item:edit_status')}
 		<Status {page_name} array={status} default_value="live">
 			{#if $user.roles.includes('item:add')}
 				<Button

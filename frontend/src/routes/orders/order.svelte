@@ -7,7 +7,7 @@
 
 <a href="/orders/{order.key}">
 	<div class="name">
-		{#if order.user == $user.key && $page.url.searchParams.has('admin')}
+		{#if order.user == $user.key && $page.url.searchParams.has('order:view')}
 			*
 		{/if}
 

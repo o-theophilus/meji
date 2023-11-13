@@ -229,7 +229,7 @@
 				{#if user.key == $me.key}
 					<div class="horizontal">
 						<Button href="/orders">Orders</Button>
-						{#if user.roles.includes('admin')}
+						{#if user.roles.length != 0}
 							<Button href="/admin">Admin</Button>
 						{/if}
 					</div>

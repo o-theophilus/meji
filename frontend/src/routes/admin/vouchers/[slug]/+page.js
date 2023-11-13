@@ -1,7 +1,8 @@
+import { error } from '@sveltejs/kit';
 import { loading } from "$lib/store.js"
 
-export const load = async ({ fetch, parent,params }) => {
-	let  a = await parent();
+export const load = async ({ fetch, parent, params }) => {
+	let a = await parent();
 	if (!a.locals.user.roles.includes("voucher:view")) {
 		throw error(400, "unauthorized access")
 	}
@@ -19,5 +20,5 @@ export const load = async ({ fetch, parent,params }) => {
 
 	if (resp.status == 200) {
 		return resp
-    }
+	}
 }
