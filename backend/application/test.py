@@ -84,9 +84,10 @@ def clean_copy_db():
     })
 
 
+@bp.get("/fix")
 def copy_db():
-    source = Deta(environ["DETA_KEY"]).Base("test")
-    target = Deta(environ["DETA_KEY"]).Base("log")
+    source = Deta(environ["DETA_KEY"]).Base("main_test")
+    target = Deta(environ["DETA_KEY"]).Base("main")
 
     res = source.fetch()
     entities = res.items
@@ -123,7 +124,6 @@ def delete_db():
     })
 
 
-@bp.get("/fix")
 def fix():
     db = database()
 

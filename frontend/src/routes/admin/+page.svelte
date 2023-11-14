@@ -34,13 +34,13 @@
 			<br />
 		{/if}
 
-		- [ ] cron
+		[ - ] cron
 		<br />
-		- [ ] save Concurrency
+		[ - ] save Concurrency
 		<br />
-		- [ ] log user action
+		[ - ] log user action
 		<br />
-		- [ ] does going back restore token
+		[ - ] does going back restore token
 	</div>
 </Card>
 
