@@ -34,8 +34,6 @@
 			<br />
 		{/if}
 
-		[ - ] cron
-		<br />
 		[ - ] log user action
 		<br />
 		[ - ] does going back restore token

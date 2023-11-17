@@ -9,7 +9,7 @@
 	<section>
 		<div
 			class="block"
-			class:string={$loading == 'string'}
+			class:string={typeof $loading == 'string'}
 			transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 		>
 			<div class="circle" />

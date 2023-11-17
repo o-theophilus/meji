@@ -13,6 +13,19 @@ bp = Blueprint("test", __name__)
 def cron():
     db = database()
     log_db = database(db_name="log")
+    log_db = sorted(log_db, key=lambda d: d["date"], reverse=True)
+
+    picked = []
+    users_last_active = []
+    for x in log_db:
+        if x["user"] not in picked:
+            picked.append(x["user"])
+            users_last_active.append({
+                "key": x["user"],
+                "date":  datetime.strptime(
+                    x["date"], '%Y-%m-%dT%H:%M:%S'
+                )
+            })
 
     mod = []
     rem = []
@@ -28,42 +41,35 @@ def cron():
             x["status"] = "expired"
             mod.append(x)
 
-        elif x["type"] == "user" and x["login"]:
-            user_logs = query({"user": x["key"]}, many=True, db=log_db)
-            user_logs = sorted(
-                user_logs, key=lambda d: d["date"], reverse=True)
-
-            last_active = datetime.strptime(
-                user_logs[0]["date"], '%Y-%m-%dT%H:%M:%S')
+        elif x["type"] == "user":
             seven_days_ago = datetime.now() - timedelta(days=7)
+            thirty_days_ago = datetime.now() - timedelta(days=30)
 
-            if last_active < seven_days_ago:
+            last_active = None
+            for y in users_last_active:
+                if x["key"] == y["key"]:
+                    last_active = y["date"]
+                    break
+
+            if not last_active:
+                rem.append(x)
+
+            elif x["login"] and last_active < seven_days_ago:
                 x["login"] = False
                 mod.append(x)
 
-        elif x["type"] == "user" and x["status"] == "anonymous":
-            cart = query({"type": "cart", "user": x["key"]}, db=db)
-            save = query({"type": "save", "user": x["key"]}, db=db)
+            elif x["status"] == "anonymous":
+                cart = query({"type": "cart", "user": x["key"]}, db=db)
+                save = query({"type": "save", "user": x["key"]}, db=db)
 
-            user_logs = query({"user": x["key"]}, many=True, db=log_db)
-            user_logs = sorted(
-                user_logs, key=lambda d: d["date"], reverse=True)
+                if not cart and not save and last_active < seven_days_ago:
+                    rem.append(x)
 
-            last_active = datetime.strptime(
-                user_logs[0]["date"], '%Y-%m-%dT%H:%M:%S')
+                elif last_active < thirty_days_ago:
+                    rem.append(x)
 
-            seven_days_ago = datetime.now() - timedelta(days=7)
-            if not cart and not save and last_active < seven_days_ago:
-                rem.append(x)
-
-            thirty_days_ago = datetime.now() - timedelta(days=30)
-            if cart and save and last_active < thirty_days_ago:
-                rem.append(x)
-
-    print(len(mod))
-    print(len(rem))
-    # database(mod)
-    # database(rem, True)
+    database(mod)
+    database(rem, True)
 
     return jsonify({
         "status": 200,
@@ -71,7 +77,7 @@ def cron():
     })
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def clean_copy_db():
     source = Deta(environ["DETA_KEY"]).Base("main")
     target = Deta(environ["DETA_KEY"]).Base("main_test")
