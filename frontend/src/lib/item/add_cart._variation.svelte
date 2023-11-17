@@ -76,7 +76,7 @@
 
 			<div class="value_row">
 				{#each values as value, i}
-					{#if i != 0}, &nbsp; {/if}
+					<!-- {#if i != 0}, &nbsp; {/if} -->
 					<Value
 						button
 						active={vars_[key] == value}
@@ -131,7 +131,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp1);
-
+		
 		color: var(--ac1);
 	}
 
@@ -139,9 +139,10 @@
 		font-weight: 500;
 		text-transform: capitalize;
 	}
-
+	
 	.value_row {
 		display: flex;
 		flex-wrap: wrap;
+		gap: var(--sp0);
 	}
 </style>

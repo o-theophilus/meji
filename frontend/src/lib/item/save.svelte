@@ -2,18 +2,16 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	import { user, toast } from '$lib/store.js';
+	import { user, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
-	import { createEventDispatcher } from 'svelte';
-
-	const emit = createEventDispatcher();
 
 	export let item;
 	let _type = 1;
 	export { _type as type };
 
 	const submit = async () => {
-		let init = [...$user.saves];
+		$loading = true;
+
 		let save = true;
 		if ($user.saves.includes(item.key)) {
 			$user.saves = $user.saves.filter((i) => i != item.key);
@@ -22,7 +20,6 @@
 			$user.saves.push(item.key);
 			$user = $user;
 		}
-		emit('save_start');
 
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save`, {
 			method: 'post',
@@ -35,49 +32,28 @@
 				save
 			})
 		});
-
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
-			init = resp.user.saves;
-			emit('save_end');
+			$user.saves = resp.user.saves;
 		} else {
 			$toast = {
 				status: 400,
 				message: 'Error saving item'
 			};
 		}
-
-		if (init.includes(item.key)) {
-			if (!$user.saves.includes(item.key)) {
-				$user.saves.push(item.key);
-				$user = $user;
-			}
-		} else if ($user.saves.includes(item.key)) {
-			$user.saves = $user.saves.filter((i) => i != item.key);
-		}
 	};
 </script>
 
 {#if _type == 1}
-	<Button
-		class="round large"
-		on:click={() => {
-			submit();
-		}}
-	>
+	<Button class="round large" on:click={submit}>
 		<div class:save={$user.saves.includes(item.key)}>
 			<SVG type="like_active" size="12" />
 		</div>
 	</Button>
 {:else}
-	<button
-		title="save"
-		class:save={$user.saves.includes(item.key)}
-		on:click={() => {
-			submit();
-		}}
-	>
+	<button title="save" class:save={$user.saves.includes(item.key)} on:click={submit}>
 		<SVG type="like_active" />
 	</button>
 {/if}

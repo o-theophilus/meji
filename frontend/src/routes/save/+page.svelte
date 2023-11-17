@@ -2,7 +2,6 @@
 	import { user } from '$lib/store.js';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { invalidate } from '$app/navigation';
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
@@ -14,6 +13,10 @@
 	$: items = data.items;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+
+	$: {
+		items = items.filter((x) => $user.saves.includes(x.key));
+	}
 </script>
 
 <Meta title="Saved" description="Saved" />
@@ -29,17 +32,7 @@
 		<div class="item_area">
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<Item
-						{item}
-						on:save_start={() => {
-							if (!$user.saves.includes(item.key)) {
-								items = items.filter((i) => i.key != item.key);
-							}
-						}}
-						on:save_end={() => {
-							invalidate(() => true);
-						}}
-					/>
+					<Item {item} />
 				</div>
 			{/each}
 		</div>
@@ -52,4 +45,3 @@
 
 <style>
 </style>
-                                                                                               

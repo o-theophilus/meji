@@ -18,7 +18,6 @@ from . import item
 from . import item_get
 
 from . import storage
-from . import test
 
 
 def create_app():
@@ -50,6 +49,5 @@ def create_app():
     app.register_blueprint(feedback.bp)
 
     app.register_blueprint(storage.bp)
-    app.register_blueprint(test.bp)
 
     return app

@@ -36,11 +36,11 @@
 
 		[ - ] cron
 		<br />
-		[ - ] save Concurrency
-		<br />
 		[ - ] log user action
 		<br />
 		[ - ] does going back restore token
+		<br />
+		[ - ] address api: https://www.geoapify.com/tutorials
 	</div>
 </Card>
 

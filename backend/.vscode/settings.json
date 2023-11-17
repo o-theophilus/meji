@@ -2,6 +2,7 @@
   "cSpell.ignoreWords": [
     "jsonify",
     "signedup",
+    "signout",
     "trxs"
   ],
   "python.linting.flake8Enabled": true,

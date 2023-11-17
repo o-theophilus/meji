@@ -1,123 +1,125 @@
-from flask import Blueprint, jsonify, request
-from .storage import storage, drive
-from .database import database
-from .tools import token_to_user
-from .item_get import all_tags, shop
-from .advert import adverts
+from flask import Blueprint, jsonify
+from deta import Deta
+from os import environ
+from .database import database, query
+from datetime import datetime, timedelta
 
 
-bp = Blueprint("api", __name__)
+bp = Blueprint("test", __name__)
 
 
-@bp.get("/home")
-def home():
+@bp.post("/cron")
+@bp.get("/cron")
+def cron():
     db = database()
+    log_db = database(db_name="log")
 
-    return jsonify({
-        "status": 200,
-        "tags": all_tags(db).json["tags"],
-        "new_arrivals": shop(db, sort="latest", size=8).json["items"],
-        "offers": shop(db, sort="discount", size=8).json["items"],
-        "adverts": adverts("home_1", db).json["adverts"]
-    })
+    mod = []
+    rem = []
 
-
-@bp.get("/photo_error")
-def photo_error():
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "admin:manage_photo" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    stored_photos = []
-    paths = drive().list()["names"]
-    for x in paths:
-        stored_photos.append(x.split('/')[1])
-
-    users = []
-    items = []
-    adverts = []
-    used_photos = []
     for x in db:
+        if (
+            x["type"] == "voucher"
+            and x["status"] == "active"
+            and datetime.strptime(
+                x["validity"], '%Y-%m-%d'
+            ) < datetime.now()
+        ):
+            x["status"] = "expired"
+            mod.append(x)
 
-        if x["type"] == "user" and x["photo"]:
-            used_photos.append(x["photo"])
-            if x["photo"] not in stored_photos:
-                users.append({
-                    "key": x["key"],
-                    "name": x["name"],
-                })
+        elif x["type"] == "user" and x["login"]:
+            user_logs = query({"user": x["key"]}, many=True, db=log_db)
+            user_logs = sorted(
+                user_logs, key=lambda d: d["date"], reverse=True)
 
-        elif x["type"] == "item" and x["photos"] != []:
-            used_photos += x["photos"]
-            if not all(y in stored_photos for y in x["photos"]):
-                items.append({
-                    "key": x["key"],
-                    "name": x["name"],
-                })
+            last_active = datetime.strptime(
+                user_logs[0]["date"], '%Y-%m-%dT%H:%M:%S')
+            seven_days_ago = datetime.now() - timedelta(days=7)
 
-        elif x["type"] == "advert":
-            x["photos"] = [y for y in x["photos"].values() if y is not None]
-            if x["photos"] != []:
-                used_photos += x["photos"]
-                if not all(y in stored_photos for y in x["photos"]):
-                    adverts.append({
-                        "key": x["item"],
-                        "name": x["key"],
-                    })
+            if last_active < seven_days_ago:
+                x["login"] = False
+                mod.append(x)
 
-    unused = [f"{request.host_url}photos/{x}"
-              for x in stored_photos if x not in used_photos]
+        elif x["type"] == "user" and x["status"] == "anonymous":
+            cart = query({"type": "cart", "user": x["key"]}, db=db)
+            save = query({"type": "save", "user": x["key"]}, db=db)
+
+            user_logs = query({"user": x["key"]}, many=True, db=log_db)
+            user_logs = sorted(
+                user_logs, key=lambda d: d["date"], reverse=True)
+
+            last_active = datetime.strptime(
+                user_logs[0]["date"], '%Y-%m-%dT%H:%M:%S')
+
+            seven_days_ago = datetime.now() - timedelta(days=7)
+            if not cart and not save and last_active < seven_days_ago:
+                rem.append(x)
+
+            thirty_days_ago = datetime.now() - timedelta(days=30)
+            if cart and save and last_active < thirty_days_ago:
+                rem.append(x)
+
+    print(len(mod))
+    print(len(rem))
+    # database(mod)
+    # database(rem, True)
 
     return jsonify({
         "status": 200,
-        "unused": unused,
-        "users": users,
-        "items": items,
-        "adverts": adverts,
+        "message": "successful"
     })
 
 
-@bp.delete("/photo_error")
-def delete_photo():
-    db = database()
+@bp.get("/fix")
+def clean_copy_db():
+    source = Deta(environ["DETA_KEY"]).Base("main")
+    target = Deta(environ["DETA_KEY"]).Base("main_test")
 
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
+    def delete_target():
+        res = target.fetch()
+        entities = res.items
+        while res.last:
+            res = target.fetch(last=res.last)
+            entities += res.items
 
-    if "admin:manage_photo" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
+        for x in entities:
+            target.delete(x["key"])
 
-    if (
-        "photos" not in request.json
-        or type(request.json["photos"]) is not list
-    ):
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
+    def copy_source():
+        res = source.fetch()
+        entities = res.items
+        while res.last:
+            res = source.fetch(last=res.last)
+            entities += res.items
 
-    for x in request.json["photos"]:
-        pass
-        storage(x.split("/")[-1], delete=True)
+        while len(entities) > 0:
+            target.put_many(entities[:25])
+            entities = entities[25:]
+
+    delete_target()
+    copy_source()
 
     return jsonify({
-        "status": 200
+        "status": 200,
+        "message": "successful",
+    })
+
+
+def fix():
+    db = database()
+
+    changed = []
+    for x in db:
+        if x["type"] == "user" and x["status"] == "confirmed":
+            # x["status"] = "confirmed"
+            changed.append(x)
+
+    print(len(changed))
+    # print(changed[0])
+    # database(changed)
+
+    return jsonify({
+        "status": 200,
+        "changed": len(changed)
     })

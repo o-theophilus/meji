@@ -124,9 +124,11 @@
 	{/if}
 </Card>
 
-{#key `${voucher.key}_${voucher.status}`}
-	<Logs voucher_key={voucher.key} />
-{/key}
+{#if $user.roles.includes('log:view')}
+	{#key `${voucher.key}_${voucher.status}`}
+		<Logs voucher_key={voucher.key} />
+	{/key}
+{/if}
 
 <style>
 	.horizontal {

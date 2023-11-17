@@ -3,6 +3,7 @@ from .tools import token_tool, token_to_user, now, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
+from .log import log_template
 from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
@@ -314,6 +315,13 @@ def login():
     if out_user["status"] == "anonymous":
         to_delete.append(out_user)
     database(to_delete, True)
+
+    database(log_template(
+        user["key"],
+        "logged_in",
+        None,
+        "auth"
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

@@ -4,6 +4,7 @@ from .schema import item_schema
 from .log import log_template
 from math import ceil
 from .database import database, query
+from .advert import adverts
 import re
 
 bp = Blueprint("item_get", __name__)
@@ -77,6 +78,19 @@ def get(key):
     return jsonify({
         "status": 200,
         "item": item_schema(item, db),
+    })
+
+
+@bp.get("/home")
+def home():
+    db = database()
+
+    return jsonify({
+        "status": 200,
+        "tags": all_tags(db).json["tags"],
+        "new_arrivals": shop(db, sort="latest", size=8).json["items"],
+        "offers": shop(db, sort="discount", size=8).json["items"],
+        "adverts": adverts("home_1", db).json["adverts"]
     })
 
 

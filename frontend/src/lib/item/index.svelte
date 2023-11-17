@@ -56,7 +56,7 @@
 
 		background-color: var(--ac6);
 		border-radius: var(--sp1);
-		border: 2px solid var(--ac5);
+		outline: 2px solid transparent;
 
 		overflow: hidden;
 		cursor: pointer;
@@ -65,7 +65,7 @@
 		box-shadow: var(--shad1);
 	}
 	.item:hover {
-		border-color: var(--ac1);
+		outline-color: var(--ac1);
 	}
 	a {
 		text-decoration: none;

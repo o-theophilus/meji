@@ -7,7 +7,11 @@
 
 {#if $loading}
 	<section>
-		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+		<div
+			class="block"
+			class:string={$loading == 'string'}
+			transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}
+		>
 			<div class="circle" />
 			{#if typeof $loading == 'string'}
 				{$loading}
@@ -27,7 +31,7 @@
 
 		padding: var(--sp2);
 	}
-	
+
 	.block {
 		display: flex;
 		flex-direction: column;
@@ -35,7 +39,7 @@
 		align-items: center;
 		gap: var(--sp2);
 
-		width: 200px;
+		width: fit-content;
 		height: fit-content;
 		padding: var(--sp2);
 		border-radius: var(--sp1);
@@ -45,6 +49,9 @@
 		background-color: var(--ac6);
 		box-shadow: var(--shad1);
 		outline: 2px solid var(--ac5);
+	}
+	.string {
+		width: 200px;
 	}
 
 	.circle {

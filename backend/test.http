@@ -20,9 +20,12 @@ content-type: application/json
 }
 ###
 
-#Fix
+#cron
 get  {{host}}/fix HTTP/1.1
 content-type: application/json
 Authorization: {{Authorization}}
 
 ###
+
+
+
