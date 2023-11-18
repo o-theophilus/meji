@@ -24,7 +24,7 @@ def user_template(
         "type": "user",
         "date_c": now(),
         "date_u": now(),
-        "status": "anonymous",  # signedup, confirmed
+        "status": "anonymous",  # signed_up, confirmed
 
         "name": name,
         "email": email,
@@ -140,9 +140,15 @@ def signup():
     user["password"] = generate_password_hash(
         request.json["password"], method="scrypt")
     user["date_u"] = now()
-    user["status"] = "signedup"
+    user["status"] = "signed_up"
 
     user = database(user)
+    database(log_template(
+        user["key"],
+        "signed_up",
+        None,
+        "auth"
+    ), db_name="log")
 
     send_mail(
         user["email"],
@@ -320,7 +326,10 @@ def login():
         user["key"],
         "logged_in",
         None,
-        "auth"
+        "auth",
+        misc={
+            "from": out_user["key"]
+        }
     ), db_name="log")
 
     return jsonify({
@@ -345,6 +354,16 @@ def logout():
     anon_user = user_template("anonymous", temp, temp)
     anon_user["setting"]["theme"] = user["setting"]["theme"]
     database([user, anon_user])
+
+    database(log_template(
+        user["key"],
+        "logged_out",
+        None,
+        "auth",
+        misc={
+            "to": anon_user["key"]
+        }
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

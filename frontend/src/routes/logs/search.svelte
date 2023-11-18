@@ -14,7 +14,7 @@
 		order: ['all', 'created', 'changed_delivery_date', 'changed_status', 'canceled'],
 		voucher: ['all', 'created', 'activated', 'deactivated', 'used', 'deleted'],
 		advert: ['all', 'created', 'added_photo', 'deleted_photo', 'deleted'],
-		auth: ['all', 'logged_in']
+		auth: ['all', 'logged_in', 'logged_out', 'signed_up']
 	};
 
 	let user = '';
