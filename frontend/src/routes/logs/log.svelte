@@ -30,15 +30,18 @@
 	</Button>
 
 	{log.action}
-	{log.entity.type}
 
-	<Button class="link" {href}>
-		{#if log.entity.name}
-			{log.entity.name}
-		{:else}
-			{log.entity.key}
-		{/if}
-	</Button>
+	{#if log.entity.type != 'auth'}
+		{log.entity.type}
+
+		<Button class="link" {href}>
+			{#if log.entity.name}
+				{log.entity.name}
+			{:else}
+				{log.entity.key}
+			{/if}
+		</Button>
+	{/if}
 
 	{#if log.misc}
 		{#each Object.entries(log.misc) as [key, value]}

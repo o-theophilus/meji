@@ -36,7 +36,7 @@
 	a wide selection of products, exclusive deals, and top-notch customer support.
 	<br />
 	<br />
-	If you have any questions, feel free to reach out to our support team at [customer support email].
+	If you have any questions, feel free to reach out to our support team at hello.meji@outlook.com.
 	<br />
 	<br />
 	Welcome to Meji! We can't wait to see you shop and enjoy the best experience.
