@@ -123,7 +123,6 @@ def fix():
             changed.append(x)
 
     print(len(changed))
-    # print(changed[0])
     # database(changed)
 
     return jsonify({

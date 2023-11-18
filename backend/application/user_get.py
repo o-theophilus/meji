@@ -169,13 +169,11 @@ def admin_users():
 
         if _role != 'all':
             if f"{_type}:{_role}" not in x["roles"]:
-                print("here 2")
                 continue
 
         users.append(x)
 
     users = sorted(users, key=lambda d: len(d["roles"]), reverse=True)
-    print(len(users))
 
     total_page = ceil(len(users) / size)
 

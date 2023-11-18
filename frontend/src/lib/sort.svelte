@@ -24,7 +24,6 @@
 <select
 	on:change={(e) => {
 		sort_items(e.target.value);
-		// console.log(e.target.value);
 	}}
 >
 	{#each array as x}

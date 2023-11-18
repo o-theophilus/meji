@@ -35,8 +35,6 @@
 		form.email = $module.email;
 	}
 
-	console.log(return_url);
-
 	const validate = async () => {
 		error = {};
 		if (!form.email) {
