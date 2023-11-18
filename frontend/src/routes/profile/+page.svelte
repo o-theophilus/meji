@@ -122,6 +122,12 @@
 				<br />
 
 				<div class="details">
+					{#if user.key != $me.key}
+						<span class="bold"> Status: </span>
+						{user.status}
+						<div />
+					{/if}
+
 					<span class="bold"> Phone: </span>
 					{#if user.phone}
 						{user.phone}
@@ -224,9 +230,9 @@
 					{/if}
 				</div>
 
-				<br />
-
 				{#if user.key == $me.key}
+					<br />
+
 					<div class="horizontal">
 						<Button href="/orders">Orders</Button>
 						{#if user.roles.length != 0}
@@ -247,6 +253,15 @@
 						{/if}
 						<Logout />
 					</div>
+				{/if}
+
+				{#if $me.roles.includes('log:view')}
+					<br />
+					<Button
+						class="link small"
+						href="/logs?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}"
+						>view log &gt;</Button
+					>
 				{/if}
 			</div>
 		</div>

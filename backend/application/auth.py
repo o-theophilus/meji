@@ -156,7 +156,7 @@ def signup():
     )
 
     return jsonify({
-        "status": 200,
+        "status": 200
     })
 
 

@@ -62,7 +62,7 @@
 		</div>
 
 		<br />
-		<Button class="link small" href="/admin/logs?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}">goto log &gt;</Button>
+		<Button class="link small" href="/logs?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}">goto log &gt;</Button>
 	{/if}
 </Card>
 

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 bp = Blueprint("test", __name__)
 
 
-@bp.post("/cron")
+# @bp.post("/cron")
 @bp.get("/cron")
 def cron():
     db = database()
@@ -27,6 +27,9 @@ def cron():
                 )
             })
 
+    seven_days_ago = datetime.now() - timedelta(days=7)
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+
     mod = []
     rem = []
 
@@ -42,8 +45,6 @@ def cron():
             mod.append(x)
 
         elif x["type"] == "user":
-            seven_days_ago = datetime.now() - timedelta(days=7)
-            thirty_days_ago = datetime.now() - timedelta(days=30)
 
             last_active = None
             for y in users_last_active:
@@ -77,7 +78,7 @@ def cron():
     })
 
 
-# @bp.get("/fix")
+@bp.get("/fix")
 def clean_copy_db():
     source = Deta(environ["DETA_KEY"]).Base("main")
     target = Deta(environ["DETA_KEY"]).Base("main_test")
@@ -103,7 +104,7 @@ def clean_copy_db():
             target.put_many(entities[:25])
             entities = entities[25:]
 
-    delete_target()
+    # delete_target()
     copy_source()
 
     return jsonify({
