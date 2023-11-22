@@ -34,8 +34,6 @@
 			<br />
 		{/if}
 
-		[ - ] log user action
-		<br />
 		[ - ] does going back restore token
 		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
