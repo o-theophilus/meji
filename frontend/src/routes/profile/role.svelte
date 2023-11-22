@@ -207,6 +207,6 @@
 		align-items: center;
 
 		outline: 1px solid var(--ac4);
-		padding: var(--sp1);
+		padding: var(--sp0);
 	}
 </style>

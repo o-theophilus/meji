@@ -29,7 +29,7 @@
 		error = {};
 
 		$loading = 'removing . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_photo/${advert.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -64,7 +64,7 @@
 		error = {};
 
 		$loading = 'deleting . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_all/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',

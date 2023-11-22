@@ -10,12 +10,32 @@
 
 	let actions = {
 		all: ['all'],
-		item: ['all', 'viewed', 'added_photo'],
-		order: ['all', 'created', 'changed_delivery_date', 'changed_status', 'canceled'],
+		item: [
+			'all',
+			'created',
+			'edited',
+			'viewed',
+			'added_photo',
+			'arranged_photo',
+			'deleted_photo',
+			'added_feedback'
+		],
+		order: ['all', 'viewed', 'created', 'changed_delivery_date', 'changed_status', 'canceled'],
 		voucher: ['all', 'created', 'activated', 'deactivated', 'used', 'deleted'],
-		advert: ['all', 'created', 'added_photo', 'deleted_photo', 'deleted'],
-		auth: ['all', 'logged_in', 'logged_out', 'signed_up']
+		advert: ['all', 'viewed', 'added_photo', 'deleted_photo', 'changed_placement'],
+		auth: [
+			'all',
+			'logged_in',
+			'logged_out',
+			'signed_up',
+			'forgot_password',
+			'changed_password',
+			'confirmed_email'
+		],
+		cart: ['viewed', 'added_to_cart', 'changed_quantity', 'edited_receiver', 'changed_amount']
 	};
+
+	// rename advert logs 'created', "deleted"
 
 	let user = '';
 	let type = 'all';

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .schema import order_schema
+from .log import log_template
 from .database import database, query
 from math import ceil
 
@@ -76,6 +77,13 @@ def get_one(key):
             "status": 400,
             "error": "invalid request"
         })
+
+    database(log_template(
+        user["key"],
+        "viewed",
+        order["key"],
+        "order"
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

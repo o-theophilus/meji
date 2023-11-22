@@ -58,6 +58,7 @@
 
 	.small {
 		padding: var(--sp0) ;
+		gap: var(--sp0) ;
 		font-size: small;
 		min-width: 28px;
 	}

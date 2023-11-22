@@ -61,6 +61,13 @@ def get_advert(key):
     if not advert:
         advert = advert_template(item["key"])
 
+    database(log_template(
+        user["key"],
+        "viewed",
+        advert["key"],
+        "advert",
+    ), db_name="log")
+
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert, db),
@@ -98,54 +105,8 @@ def adverts(status="", db=None):
     })
 
 
-@bp.post("/advert_placement/<key>")
-def adverts_placement(key):
-    db = database()
-
-    user = token_to_user(db)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "item:advert" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    advert = query({"type": "advert", "key": key}, db=db)
-    if (
-        not advert
-        or "places" not in request.json
-        or type(request.json["places"]) is not list
-        or not all(y in ad_space for y in request.json["places"])
-    ):
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    for x in advert["photos"]:
-        if not advert["photos"][x]:
-            return jsonify({
-                "status": 400,
-                "error": "invalid request"
-            })
-
-    advert["places"] = request.json["places"]
-    advert["date_u"] = now()
-    advert = database(advert)
-
-    return jsonify({
-        "status": 200,
-        "advert": advert_schema(advert, db)
-    })
-
-
 @bp.post("/advert/<item_key>")
-def add_advert(item_key):
+def add_photo(item_key):
     db = database()
 
     user = token_to_user(db)
@@ -172,23 +133,19 @@ def add_advert(item_key):
         if item and advert:
             break
 
-    if 'files' not in request.files or not item:
+    if not item or 'files' not in request.files:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     if not advert:
-        for x in db:
-            if not advert and x["type"] == "advert" and x["item"] == item_key:
-                advert = x
-                break
+        advert = advert_template(item["key"])
 
     available_dims = []
-    if advert:
-        for x in advert["photos"]:
-            if advert["photos"][x]:
-                available_dims.append(x)
+    for x in advert["photos"]:
+        if advert["photos"][x]:
+            available_dims.append(x)
 
     error = ""
     files = []
@@ -219,22 +176,20 @@ def add_advert(item_key):
             "error": error
         })
 
-    action = "added_photo"
-    if not advert:
-        action = "created"
-        advert = advert_template(item["key"])
-
+    misc = {}
     for x in files:
         dim = Image.open(x).size
         dim = f"{dim[0]}x{dim[1]}"
         advert["photos"][dim] = storage(x)
+        misc[dim] = advert["photos"][dim]
 
     database(advert)
     database(log_template(
         user["key"],
-        action,
+        "added_photo",
         advert["key"],
-        "advert"
+        "advert",
+        misc=misc
     ), db_name="log")
 
     return jsonify({
@@ -244,7 +199,7 @@ def add_advert(item_key):
     })
 
 
-@bp.delete("/advert_photo/<item_key>")
+@bp.delete("/advert/<item_key>")
 def delete_photo(item_key):
     db = database()
 
@@ -274,23 +229,12 @@ def delete_photo(item_key):
 
     if (
         not item
+        or not advert
         or "photo" not in request.json
         or not request.json["photo"]
         or "size" not in request.json
         or not request.json["size"]
     ):
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if not advert:
-        for x in db:
-            if not advert and x["type"] == "advert" and x["item"] == item_key:
-                advert = x
-                break
-
-    if not advert:
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -304,6 +248,8 @@ def delete_photo(item_key):
             "error": "invalid request"
         })
 
+    misc = {}
+    misc[size] = advert["photos"][size]
     storage(advert["photos"][size], delete=True)
     advert["photos"][size] = None
 
@@ -312,22 +258,19 @@ def delete_photo(item_key):
         if advert["photos"][x]:
             has_photo = True
             break
-
-    log = log_template(
-        user["key"],
-        "deleted",
-        advert["key"],
-        "advert"
-    )
-
     if has_photo:
-        log["action"] = "deleted_photo"
         database(advert)
-        database(log, db_name="log")
     else:
         database(advert, True)
-        database(log, db_name="log")
         advert = advert_template(item["key"])
+
+    database(log_template(
+        user["key"],
+        "deleted_photo",
+        advert["key"],
+        "advert",
+        misc=misc
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -335,8 +278,8 @@ def delete_photo(item_key):
     })
 
 
-@bp.delete("/advert/<item_key>")
-def delete_advert(item_key):
+@bp.delete("/advert_all/<item_key>")
+def delete_all_photo(item_key):
     db = database()
 
     user = token_to_user(db)
@@ -363,37 +306,85 @@ def delete_advert(item_key):
         if item and advert:
             break
 
-    if not item:
+    if not item or not advert:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    if not advert:
-        for x in db:
-            if not advert and x["type"] == "advert" and x["item"] == item_key:
-                advert = x
-                break
+    misc = {}
+    for x in advert["photos"]:
+        if advert["photos"][x]:
+            storage(advert["photos"][x], delete=True)
+            misc[x] = advert["photos"][x]
 
-    if not advert:
+    database(advert, True)
+    database(log_template(
+        user["key"],
+        "deleted_photo",
+        advert["key"],
+        "advert",
+        misc=misc
+    ), db_name="log")
+
+    return jsonify({
+        "status": 200,
+        "advert": advert_schema(advert_template(item["key"]), db)
+    })
+
+
+@bp.put("/advert/<item_key>")
+def adverts_placement(item_key):
+    db = database()
+
+    user = token_to_user(db)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "item:advert" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    advert = query({"type": "advert", "key": item_key}, db=db)
+    if (
+        not advert
+        or "places" not in request.json
+        or type(request.json["places"]) is not list
+        or not all(y in ad_space for y in request.json["places"])
+    ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     for x in advert["photos"]:
-        if advert["photos"][x]:
-            storage(advert["photos"][x], delete=True)
+        if not advert["photos"][x]:
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
 
-    database(advert, True)
     database(log_template(
         user["key"],
-        "deleted",
+        "changed_placement",
         advert["key"],
-        "advert"
+        "advert",
+        misc={
+            "from": advert["places"],
+            "to": request.json["places"]
+        }
     ), db_name="log")
+
+    advert["places"] = request.json["places"]
+    advert["date_u"] = now()
+    advert = database(advert)
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert_template(item["key"]), db)
+        "advert": advert_schema(advert, db)
     })

@@ -61,6 +61,13 @@ def add_new():
         "available_quantity": 0,
     })
 
+    database(log_template(
+        user["key"],
+        "created",
+        item["key"],
+        "item"
+    ), db_name="log")
+
     return jsonify({
         "status": 200,
         "item": item_schema(item, db)
@@ -188,6 +195,14 @@ def edit_item(key):
     item["date_u"] = now()
     database(item)
 
+    database(log_template(
+        user["key"],
+        "edited",
+        item["key"],
+        "item",
+        misc=request.json
+    ), db_name="log")
+
     return jsonify({
         "status": 200,
         "item": item_schema(item, db)
@@ -242,8 +257,11 @@ def post_many_photo(key):
             "error": error
         })
 
+    file_names = []
     for x in files:
-        item["photos"].append(storage(x))
+        fn = storage(x)
+        item["photos"].append(fn)
+        file_names.append(fn)
 
     database(item)
     database(log_template(
@@ -252,7 +270,7 @@ def post_many_photo(key):
         item["key"],
         "item",
         misc={
-            "success": f"{len(files)} files",
+            "added": ", ".join(file_names),
             "error": error
         }
     ), db_name="log")
@@ -296,6 +314,17 @@ def arrange_photo(key):
             "status": 400,
             "error": "invalid request"
         })
+
+    database(log_template(
+        user["key"],
+        "arranged_photo",
+        item["key"],
+        "item",
+        misc={
+            "from": item["photos"],
+            "to": fix(request.json["photos"])
+        }
+    ), db_name="log")
 
     item["photos"] = fix(request.json["photos"])
     database(item)
@@ -344,6 +373,16 @@ def delete_photo(key):
         item["status"] = "draft"
     storage(file_name, delete=True)
     database(item)
+
+    database(log_template(
+        user["key"],
+        "deleted_photo",
+        item["key"],
+        "item",
+        misc={
+            "photo": file_name
+        }
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

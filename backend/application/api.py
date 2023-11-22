@@ -1,14 +1,56 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from deta import Deta
-from os import environ
+from .tools import send_mail
 from .database import database, query
 from datetime import datetime, timedelta
+import re
+import os
 
 
 bp = Blueprint("test", __name__)
 
 
-# @bp.post("/cron")
+@bp.post("/contact")
+def contact():
+    error = {}
+
+    if "name" not in request.json or not request.json["name"]:
+        error["name"] = "this field is required"
+
+    if "email" not in request.json or not request.json["email"]:
+        error["email"] = "this field is required"
+    elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
+        error["email"] = "Please enter a valid email"
+
+    if "message" not in request.json or not request.json["message"]:
+        error["message"] = "this field is required"
+
+    if error != {}:
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    phone = ""
+    if "phone" in request.json and request.json["name"]:
+        phone = request.json["phone"]
+
+    send_mail(
+        os.environ["MAIL_USERNAME"],
+        "Contact Form",
+        f"""
+from: {request.json["name"]} <{request.json["name"]}>
+{phone}
+
+{request.json["message"]}
+        """
+    )
+
+    return jsonify({
+        "status": 200
+    })
+
+
 @bp.get("/cron")
 def cron():
     db = database()
@@ -70,6 +112,7 @@ def cron():
                     rem.append(x)
 
     database(mod)
+    rem = rem[:10]
     database(rem, True)
 
     return jsonify({
@@ -78,10 +121,9 @@ def cron():
     })
 
 
-@bp.get("/fix")
 def clean_copy_db():
-    source = Deta(environ["DETA_KEY"]).Base("main")
-    target = Deta(environ["DETA_KEY"]).Base("main_test")
+    source = Deta(os.environ["DETA_KEY"]).Base("log_test")
+    target = Deta(os.environ["DETA_KEY"]).Base("log")
 
     def delete_target():
         res = target.fetch()
@@ -104,7 +146,7 @@ def clean_copy_db():
             target.put_many(entities[:25])
             entities = entities[25:]
 
-    # delete_target()
+    delete_target()
     copy_source()
 
     return jsonify({
@@ -113,17 +155,23 @@ def clean_copy_db():
     })
 
 
-def fix():
-    db = database()
+# @bp.get("/fix")
+def migration():
+    data_base = Deta(os.environ["DETA_KEY"]).Base("log")
+
+    res = data_base.fetch()
+    entities = res.items
+    while res.last:
+        res = data_base.fetch(last=res.last)
+        entities += res.items
 
     changed = []
-    for x in db:
-        if x["type"] == "user" and x["status"] == "confirmed":
-            # x["status"] = "confirmed"
+    for x in entities:
+        if x["type"] != "log":
             changed.append(x)
 
     print(len(changed))
-    # database(changed)
+    # data_base(changed)
 
     return jsonify({
         "status": 200,

@@ -58,7 +58,7 @@ def init():
     token = request.headers["Authorization"]
     user = token_to_user(db)
 
-    if not user:
+    if not user or user["status"] == "confirmed" and not user["login"]:
         temp = uuid4().hex
         user = database(user_template("anonymous", temp, temp))
         token = token_tool().dumps(user["key"])
@@ -193,11 +193,22 @@ def confirm_email(token):
         "user": user_schema(user, db)
     }
 
-    if user["status"] == "confirmed":
-        output['error'] = "email has already been confirmed"
-    else:
+    log = log_template(
+        user["key"],
+        "confirmed_email",
+        None,
+        "auth"
+    )
+
+    if user["status"] != "confirmed":
         user["status"] = "confirmed"
         user = database(user)
+    else:
+        output['error'] = "email has already been confirmed"
+        log["status"] = 201
+        log["misc"] = {"error": "already confirmed"}
+
+    database(log, db_name="log")
 
     return jsonify(output)
 
@@ -413,6 +424,13 @@ def forgot_password():
             name=user["name"]
         ))
 
+    database(log_template(
+        user["key"],
+        "forgot_password",
+        None,
+        "auth"
+    ), db_name="log")
+
     return jsonify({
         "status": 200
     })
@@ -473,6 +491,13 @@ def change_password(token):
     user["password"] = generate_password_hash(
         request.json["password"], method="scrypt")
     database(user)
+
+    database(log_template(
+        user["key"],
+        "changed_password",
+        None,
+        "auth"
+    ), db_name="log")
 
     return jsonify({
         "status": 200,

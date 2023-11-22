@@ -4,6 +4,7 @@ from .schema import item_schema, feedback_schema
 from .database import database, query
 from uuid import uuid4
 from math import ceil
+from .log import log_template
 
 bp = Blueprint("feedback", __name__)
 
@@ -114,20 +115,27 @@ def add_feedback(key):
 
     feedback = query({"type": "feedback", "user": user["key"],
                       "item": item["key"]}, db=db)
-    if feedback:
-        feedback["rating"] = request.json["rating"]
-        feedback["review"] = request.json["review"]
-        feedback["date"] = now()
-    else:
+    if not feedback:
         feedback = {
             "key": uuid4().hex,
             "type": "feedback",
             "user": user["key"],
             "item": item["key"],
-            "rating": request.json["rating"],
-            "review": request.json["review"],
-            "date": now(),
+            "rating": None,
+            "review": None,
+            "date": None,
         }
+
+    feedback["rating"] = request.json["rating"]
+    feedback["review"] = request.json["review"]
+    feedback["date"] = now()
+
     database(feedback)
+    database(log_template(
+        user["key"],
+        "added_feedback",
+        item["key"],
+        "item"
+    ), db_name="log")
 
     return get_feedbacks(user["key"], item["key"])

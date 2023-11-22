@@ -34,8 +34,8 @@
 	const submit = async () => {
 		error = {};
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_placement/${advert.key}`, {
-			method: 'post',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token

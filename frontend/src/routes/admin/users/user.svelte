@@ -9,7 +9,9 @@
 			{user.name}
 		</div>
 
-		email:<span> {user.email} </span>
+		<span>
+			{user.email}
+		</span>
 	</div>
 </a>
 

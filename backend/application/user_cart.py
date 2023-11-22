@@ -3,6 +3,7 @@ from .tools import token_to_user, now
 from .schema import user_schema, item_schema
 from .database import database, query
 from uuid import uuid4
+from .log import log_template
 
 bp = Blueprint("cart", __name__)
 
@@ -112,6 +113,13 @@ def get_cart():
             })
     previous_receivers = sorted(previous_receivers, key=lambda d: d['date'])
 
+    database(log_template(
+        user["key"],
+        "viewed",
+        cart["key"],
+        "cart"
+    ), db_name="log")
+
     return jsonify({
         "status": 200,
         "cart": cart,
@@ -181,6 +189,18 @@ def add_to_cart():
     cart["date_u"] = now()
     database(cart)
 
+    database(log_template(
+        user["key"],
+        "added_to_cart",
+        cart["key"],
+        "cart",
+        misc={
+            "key": request.json["key"],
+            "variation": request.json["variation"],
+            "quantity": request.json["quantity"]
+        }
+    ), db_name="log")
+
     db = normalize_db(cart, db)
     return jsonify({
         "status": 200,
@@ -243,6 +263,18 @@ def cart_item_quantity():
     database(cart, len(cart["items"]) == 0)
     if len(cart["items"]) == 0:
         cart = cart_template(user)
+
+    database(log_template(
+        user["key"],
+        "changed_quantity",
+        cart["key"],
+        "cart",
+        misc={
+            "key": request.json["key"],
+            "variation": request.json["variation"],
+            "quantity": request.json["quantity"]
+        }
+    ), db_name="log")
 
     return jsonify({
         "status": 200,
@@ -311,6 +343,20 @@ def cart_receiver():
             "error": "invalid request"
         })
 
+    log = log_template(
+        user["key"],
+        "edited_receiver",
+        cart["key"],
+        "cart"
+    )
+    log["misc"]["from_name"] = cart["receiver"]["name"]
+    log["misc"]["from_phone"] = cart["receiver"]["phone"]
+    log["misc"]["from_line"] = cart["receiver"]["line"]
+    log["misc"]["from_state"] = cart["receiver"]["state"]
+    log["misc"]["from_country"] = cart["receiver"]["country"]
+    log["misc"]["from_local_area"] = cart["receiver"]["local_area"]
+    log["misc"]["from_postal_code"] = cart["receiver"]["postal_code"]
+
     cart["receiver"]["name"] = request.json["name"]
     cart["receiver"]["phone"] = request.json["phone"]
     cart["receiver"]["address"] = {
@@ -323,6 +369,15 @@ def cart_receiver():
     cart["date_u"] = now()
 
     cart = database(cart)
+
+    log["misc"]["to_name"] = cart["receiver"]["name"]
+    log["misc"]["to_phone"] = cart["receiver"]["phone"]
+    log["misc"]["to_line"] = cart["receiver"]["line"]
+    log["misc"]["to_state"] = cart["receiver"]["state"]
+    log["misc"]["to_country"] = cart["receiver"]["country"]
+    log["misc"]["to_local_area"] = cart["receiver"]["local_area"]
+    log["misc"]["to_postal_code"] = cart["receiver"]["postal_code"]
+    database(log, db_name="log")
 
     return jsonify({
         "status": 200,
@@ -369,6 +424,17 @@ def cart_account():
             "status": 400,
             "amount": error
         })
+
+    database(log_template(
+        user["key"],
+        "changed_amount",
+        cart["key"],
+        "cart",
+        misc={
+            "from": cart["transaction"]["account"],
+            "to": request.json["amount"]
+        }
+    ), db_name="log")
 
     cart["transaction"]["account"] = request.json["amount"]
     cart["date_u"] = now()
