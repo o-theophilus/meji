@@ -1,3 +1,7 @@
+<script>
+	import { page } from '$app/stores';
+</script>
+
 <section
 	style="
 width: 100%;
@@ -12,7 +16,7 @@ margin: auto;
 		"
 	>
 		<img
-			src="/favicon.png"
+			src="{$page.url.origin}/favicon.png"
 			alt="Meji Logo"
 			style="
 		width: 30px;

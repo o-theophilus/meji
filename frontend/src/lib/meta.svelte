@@ -3,7 +3,7 @@
 
 	export let title;
 	export let description;
-	export let image = '/favicon.png';
+	export let image = `${$page.url.origin}/favicon.png`;
 
 	let imageAlt = image;
 	let type = 'website';
@@ -25,8 +25,8 @@
 	{/if}
 
 	{#if image}
-		<meta property="og:image" content="/images/{image}" />
-		<meta property="twitter:image" content="/images/{image}" />
+		<meta property="og:image" content={image} />
+		<meta property="twitter:image" content={image} />
 	{/if}
 
 	{#if imageAlt}
