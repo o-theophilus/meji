@@ -1,6 +1,4 @@
 <script>
-	import { user as _user } from '$lib/store.js';
-
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -27,7 +25,7 @@
 	<br />
 
 	{#each logs as log (log.key)}
-		<Log {log} />
+		<Log {log} {page_name} />
 	{:else}
 		no item here
 	{/each}

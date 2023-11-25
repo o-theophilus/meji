@@ -119,7 +119,6 @@ def feedback_schema(fb, db):
 
 
 def log_schema(log, db):
-
     entity = query({"type": log["entity_type"], "key": log["entity"]}, db=db)
     user = query({"type": "user", "key": log["user"]}, db=db)
 
@@ -127,8 +126,8 @@ def log_schema(log, db):
         "key": log["key"],
         "date": log["date"],
         "user": {
-            "key":  user['key'],
-            "name": user["name"]
+            "key":  log['user'],
+            "name": user["name"] if user else "deleted_user"
         },
         "action": log["action"],
         "entity": {

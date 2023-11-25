@@ -1,7 +1,9 @@
 <script>
+	import { user, set_state } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 
 	export let log;
+	export let page_name;
 
 	let href = '';
 	if (log.entity.type == 'item') {
@@ -25,9 +27,24 @@
 	{log.date}
 	<br />
 
-	<Button class="link" href="/profile?search={log.user.key}">
-		{log.user.name}
-	</Button>
+	{#if log.user.name == 'deleted_user'}
+		<span class="bold"> Deleted User </span>
+	{:else}
+		<Button class="link" href="/profile?search={log.user.key}">
+			{log.user.name}
+		</Button>
+	{/if}
+
+	{#if $user.roles.includes('log:view')}
+		<Button
+			class="link"
+			on:click={() => {
+				set_state(page_name, 'search', `${log.user.key}:all:all:all`);
+			}}
+		>
+			^
+		</Button>
+	{/if}
 
 	{log.action}
 
@@ -76,5 +93,9 @@
 	}
 	.error {
 		background-color: var(--cl4);
+	}
+
+	.bold {
+		font-weight: 500;
 	}
 </style>

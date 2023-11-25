@@ -35,8 +35,6 @@
 		cart: ['viewed', 'added_to_cart', 'changed_quantity', 'edited_receiver', 'changed_amount']
 	};
 
-	// rename advert logs 'created', "deleted"
-
 	let user = '';
 	let type = 'all';
 	let action = 'all';
