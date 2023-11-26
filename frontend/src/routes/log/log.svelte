@@ -7,7 +7,7 @@
 	export let log;
 
 	let href = '';
-	if (log.entity.type == 'item') {
+	if (['item', 'cart'].includes(log.entity.type)) {
 		href = `/${log.entity.key}`;
 	} else if (log.entity.type == 'order') {
 		href = `/orders/${log.entity.key}`;
@@ -72,9 +72,7 @@
 
 	{#each Object.entries(log.misc) as [key, value]}
 		<br />
-		<span class="break">
-			{key}: {value}
-		</span>
+		{key}: {value}
 	{/each}
 </section>
 
@@ -112,10 +110,5 @@
 	.date {
 		font-size: smaller;
 		color: var(--ac3);
-	}
-
-	.break {
-		word-wrap: break-word;
-		word-break: break-all;
 	}
 </style>

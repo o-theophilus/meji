@@ -353,13 +353,15 @@ def cart_receiver():
         cart["key"],
         "cart"
     )
-    log["misc"]["from_name"] = cart["receiver"]["name"]
-    log["misc"]["from_phone"] = cart["receiver"]["phone"]
-    log["misc"]["from_line"] = cart["receiver"]["line"]
-    log["misc"]["from_state"] = cart["receiver"]["state"]
-    log["misc"]["from_country"] = cart["receiver"]["country"]
-    log["misc"]["from_local_area"] = cart["receiver"]["local_area"]
-    log["misc"]["from_postal_code"] = cart["receiver"]["postal_code"]
+    log["misc"]["from"] = f"""
+    name: {cart["receiver"]["name"]} |
+    phone: {cart["receiver"]["phone"]} |
+    address: {cart["receiver"]["address"]["line"]} |
+    address: {cart["receiver"]["address"]["state"]} |
+    address: {cart["receiver"]["address"]["country"]} |
+    address: {cart["receiver"]["address"]["local_area"]} |
+    address: {cart["receiver"]["address"]["postal_code"]}
+    """
 
     cart["receiver"]["name"] = request.json["name"]
     cart["receiver"]["phone"] = request.json["phone"]
@@ -372,15 +374,17 @@ def cart_receiver():
     }
     cart["date_u"] = now()
 
-    cart = database(cart)
+    log["misc"]["to"] = f"""
+    name: {cart["receiver"]["name"]} |
+    phone: {cart["receiver"]["phone"]} |
+    address: {cart["receiver"]["address"]["line"]} |
+    address: {cart["receiver"]["address"]["state"]} |
+    address: {cart["receiver"]["address"]["country"]} |
+    address: {cart["receiver"]["address"]["local_area"]} |
+    address: {cart["receiver"]["address"]["postal_code"]}
+    """
 
-    log["misc"]["to_name"] = cart["receiver"]["name"]
-    log["misc"]["to_phone"] = cart["receiver"]["phone"]
-    log["misc"]["to_line"] = cart["receiver"]["line"]
-    log["misc"]["to_state"] = cart["receiver"]["state"]
-    log["misc"]["to_country"] = cart["receiver"]["country"]
-    log["misc"]["to_local_area"] = cart["receiver"]["local_area"]
-    log["misc"]["to_postal_code"] = cart["receiver"]["postal_code"]
+    cart = database(cart)
     database(log, db_name="log")
 
     return jsonify({
