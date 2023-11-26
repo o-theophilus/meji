@@ -122,12 +122,32 @@ def log_schema(log, db):
 
     key = log["entity"]
     _type = log["entity_type"]
-    if log["entity_type"] == "advert":
-        key = log["entity"].split("_")[0]
-        _type = "item"
 
-    entity = query({"type": _type, "key": key}, db=db)
-    user = query({"type": "user", "key": log["user"]}, db=db)
+    if log["entity_type"] == "auth":
+        log["entity_type"] = None
+        log["entity"] = None
+
+    elif log["entity_type"] == "cart":
+        if log["action"] in ['added_to', 'removed_from',
+                             'changed_quantity']:
+            _type = "item"
+            key = log["misc"]["key"]
+            del log["misc"]["key"]
+        else:
+            log["entity"] = None
+
+    elif log["entity_type"] == "advert":
+        _type = "item"
+        key = log["entity"].split("_")[0]
+
+    user = None
+    entity = None
+    for x in db:
+        if x["type"] == "user" and x["key"] == log["user"]:
+            user = x
+
+        elif log["entity"] and x["type"] == _type and x["key"] == key:
+            entity = x
 
     return {
         "key": log["key"],

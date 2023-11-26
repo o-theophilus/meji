@@ -191,12 +191,12 @@ def add_to_cart():
 
     database(log_template(
         user["key"],
-        "added_to_cart",
+        "added_to",
         cart["key"],
         "cart",
         misc={
             "key": request.json["key"],
-            "variation": request.json["variation"],
+            **request.json["variation"],
             "quantity": request.json["quantity"]
         }
     ), db_name="log")
@@ -244,12 +244,25 @@ def cart_item_quantity():
             "error": "invalid request"
         })
 
+    log = log_template(
+        user["key"],
+        "changed_quantity",
+        cart["key"],
+        "cart",
+        misc={
+            "key": request.json["key"],
+            **request.json["variation"]
+        }
+    )
+
     for x in cart["items"]:
         if (
             x["key"] == request.json["key"]
             and x["variation"] == request.json["variation"]
         ):
             if (request.json["quantity"] > 0):
+                log["misc"]["from"] = x["quantity"]
+                log["misc"]["to"] = request.json["quantity"]
                 x["quantity"] = request.json["quantity"]
                 cart["date_u"] = now()
                 cart = transaction(cart, db)
@@ -258,23 +271,14 @@ def cart_item_quantity():
                 cart["items"].remove(x)
                 cart["date_u"] = now()
                 cart = transaction(cart, db)
+                log["action"] = "removed_from"
             break
 
     database(cart, len(cart["items"]) == 0)
     if len(cart["items"]) == 0:
         cart = cart_template(user)
 
-    database(log_template(
-        user["key"],
-        "changed_quantity",
-        cart["key"],
-        "cart",
-        misc={
-            "key": request.json["key"],
-            "variation": request.json["variation"],
-            "quantity": request.json["quantity"]
-        }
-    ), db_name="log")
+    database(log, db_name="log")
 
     return jsonify({
         "status": 200,

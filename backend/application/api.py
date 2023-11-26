@@ -167,11 +167,21 @@ def migration():
 
     changed = []
     for x in entities:
-        if x["type"] != "log":
+        if (
+            x["type"] == "log"
+            and x["entity_type"] == "cart"
+            and x["action"] == "added_to_cart"
+        ):
+
+            x["action"] = "added_to"
             changed.append(x)
 
-    print(len(changed))
-    # data_base(changed)
+    # print(changed[0])
+    # print(len(changed))
+
+    # while len(changed) > 0:
+    #     data_base.put_many(changed[:25])
+    #     changed = changed[25:]
 
     return jsonify({
         "status": 200,

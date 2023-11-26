@@ -36,7 +36,8 @@
 		cart: [
 			'all',
 			'viewed',
-			'added_to_cart',
+			'added_to',
+			'removed_from',
 			'changed_quantity',
 			'edited_receiver',
 			'changed_amount'

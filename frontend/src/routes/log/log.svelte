@@ -45,55 +45,37 @@
 				emit('search', { user: log.user.key });
 			}}
 		>
-			*
+			&#9679;
 		</Button>
 	{/if}
 
 	{log.action}
-	<!-- <Button
-		class="link"
-		on:click={() => {
-			emit('search', { type: log.entity.type, action: log.action });
-		}}
-	>
-		*
-	</Button> -->
 
-	{#if log.entity.type != 'auth'}
+	{#if log.entity.type}
 		{log.entity.type}
-		<!-- <Button
+	{/if}
+
+	{#if log.entity.key}
+		<Button class="link" {href}>
+			{log.entity.name}
+		</Button>
+
+		<Button
 			class="link"
 			on:click={() => {
-				emit('search', { type: log.entity.type });
+				emit('search', { entity: log.entity.key });
 			}}
 		>
-			*
-		</Button> -->
-
-		{#if log.entity.type != 'cart'}
-			<Button class="link" {href}>
-				{log.entity.name}
-			</Button>
-
-			<Button
-				class="link"
-				on:click={() => {
-					emit('search', { entity: log.entity.key });
-				}}
-			>
-				*
-			</Button>
-		{/if}
+			&#9679;
+		</Button>
 	{/if}
 
-	{#if log.misc}
-		{#each Object.entries(log.misc) as [key, value]}
-			<br />
-			<span class="break">
-				{key}: {value}
-			</span>
-		{/each}
-	{/if}
+	{#each Object.entries(log.misc) as [key, value]}
+		<br />
+		<span class="break">
+			{key}: {value}
+		</span>
+	{/each}
 </section>
 
 <style>
