@@ -241,7 +241,6 @@
 						<Button href="/orders">Orders</Button>
 
 						{#if $me.roles.includes('log:view')}
-							<br />
 							<Button href="/log">Logs</Button>
 						{/if}
 					</div>
