@@ -27,7 +27,7 @@
 	};
 
 	const submit = async () => {
-		$loading = "adding . . .";
+		$loading = 'adding . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${item.key}`, {
 			method: 'post',
 			headers: {
@@ -68,9 +68,7 @@
 		<Rating bind:form />
 	</IG>
 
-	<IG name="review" {error} let:id>
-		<textarea bind:value={form.review} {id} placeholder="Review here" />
-	</IG>
+	<IG name="review" {error} type="textarea" bind:value={form.review} placeholder="Review here" />
 	{#if error.error}
 		<p class="error">
 			{error.error}

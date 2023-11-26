@@ -10,7 +10,7 @@
 	let error = {};
 
 	const submit = async () => {
-		$loading = "saving . . .";
+		$loading = 'saving . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {
@@ -43,9 +43,7 @@
 		<b>Edit Information</b>
 	</svelte:fragment>
 
-	<IG name="info" {error} let:id>
-		<textarea bind:value={item.info} {id} placeholder="Information here" />
-	</IG>
+	<IG name="info" {error} type="textarea" bind:value={item.info} placeholder="Information here" />
 	{#if error.error}
 		<p class="error">
 			{error.error}

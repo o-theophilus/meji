@@ -44,10 +44,8 @@
 	<span />
 	<span />
 	<div class="right">₦{order.transaction.delivery_fee.toLocaleString()}</div>
-	<span />
-	<span />
-	<span />
-	<div class="bold left">Total</div>
+
+	<div class="bold right wide">Total</div>
 	<div class="bold right">
 		₦{(order.transaction.total_items + order.transaction.delivery_fee).toLocaleString()}
 	</div>
@@ -56,11 +54,14 @@
 <style>
 	.grid {
 		display: grid;
-		gap: var(--sp1) var(--sp3);
+		gap: var(--sp1) var(--sp1);
 		grid-template-columns: repeat(5, 1fr);
 		grid-template-columns: auto 1fr auto auto auto;
 
 		text-align: center;
+	}
+	.wide {
+		grid-column: 1 / 5;
 	}
 
 	.th {

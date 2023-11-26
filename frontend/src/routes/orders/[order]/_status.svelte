@@ -13,7 +13,7 @@
 
 	let note = 'I approve this';
 	let order = { ...$module.order };
-	let status = ['ordered', 'processing', 'enroute', 'delivered'];
+	let status = ['created', 'processing', 'enroute', 'delivered'];
 	let index = status.indexOf(order.status);
 	let error = {};
 
@@ -30,7 +30,7 @@
 	const submit = async (status) => {
 		error = {};
 
-		$loading = "loading . . .";
+		$loading = 'loading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_status/${order.key}`, {
 			method: 'put',
 			headers: {
@@ -97,9 +97,7 @@ to: **${status}**
 	{/each}
 	<br />
 
-	<IG name="Note" {error} let:id>
-		<textarea bind:value={note} {id} placeholder="Note here" />
-	</IG>
+	<IG name="note" {error} type="textarea" bind:value={note} placeholder="Note here" />
 
 	{#if error.error}
 		<p class="error">

@@ -368,8 +368,6 @@
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
-
-		/* fill: var(--ac3); */
 	}
 
 	.name,
@@ -404,8 +402,7 @@
 	.property {
 		display: flex;
 		flex-wrap: wrap;
-	}
-	.property:not(:first-child) {
-		margin-top: var(--sp1);
+
+		align-items: end;
 	}
 </style>

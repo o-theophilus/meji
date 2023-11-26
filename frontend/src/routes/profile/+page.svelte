@@ -234,9 +234,15 @@
 					<br />
 
 					<div class="horizontal">
-						<Button href="/orders">Orders</Button>
 						{#if user.roles.length != 0}
 							<Button href="/admin">Admin</Button>
+						{/if}
+
+						<Button href="/orders">Orders</Button>
+
+						{#if $me.roles.includes('log:view')}
+							<br />
+							<Button href="/log">Logs</Button>
 						{/if}
 					</div>
 
@@ -255,7 +261,7 @@
 					</div>
 				{/if}
 
-				{#if $me.roles.includes('log:view')}
+				{#if user.key != $me.key && $me.roles.includes('log:view')}
 					<br />
 					<Button
 						class="link small"

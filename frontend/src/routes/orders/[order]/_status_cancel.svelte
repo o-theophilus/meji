@@ -74,7 +74,7 @@
 	</svelte:fragment>
 
 	<IG
-		name="Note"
+		name="note"
 		label="Please give reason"
 		{error}
 		type="textarea"
