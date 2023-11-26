@@ -6,7 +6,7 @@
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 	import Button from '$lib/button.svelte';
-	import Log from '../../../logs/log.svelte';
+	import Log from '../../../log/log.svelte';
 	import { onMount } from 'svelte';
 
 	export let voucher_key;

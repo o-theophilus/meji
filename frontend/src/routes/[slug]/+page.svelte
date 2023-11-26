@@ -74,6 +74,7 @@
 		<div class="photo">
 			<Photo {item} edit_mode={edit_mode && $user.roles.includes('item:edit_photo')} />
 		</div>
+
 		<div>
 			{#if edit_mode && $user.roles.includes('item:advert')}
 				<Button class="link" href="/admin/adverts/{item.key}_advert">Advert &gt;</Button>

@@ -1,9 +1,10 @@
 <script>
-	import { user, set_state } from '$lib/store.js';
+	import { user } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import { createEventDispatcher } from 'svelte';
 
+	let emit = createEventDispatcher();
 	export let log;
-	export let page_name;
 
 	let href = '';
 	if (log.entity.type == 'item') {
@@ -13,7 +14,7 @@
 	} else if (log.entity.type == 'voucher') {
 		href = `/admin/vouchers/${log.entity.key}`;
 	} else if (log.entity.type == 'advert') {
-		href = `/${log.entity.key.split('_')[0]}?edit=true&advert=true`;
+		href = `/admin/adverts/${log.entity.key}`;
 	}
 </script>
 
@@ -39,31 +40,58 @@
 		<Button
 			class="link"
 			on:click={() => {
-				set_state(page_name, 'search', `${log.user.key}:all:all:all`);
+				emit('search', { user: log.user.key });
 			}}
 		>
-			^
+			*
 		</Button>
 	{/if}
 
 	{log.action}
+	<!-- <Button
+		class="link"
+		on:click={() => {
+			emit('search', { type: log.entity.type, action: log.action });
+		}}
+	>
+		*
+	</Button> -->
 
 	{#if log.entity.type != 'auth'}
 		{log.entity.type}
+		<!-- <Button
+			class="link"
+			on:click={() => {
+				emit('search', { type: log.entity.type });
+			}}
+		>
+			*
+		</Button> -->
 
-		<Button class="link" {href}>
-			{#if log.entity.name}
-				{log.entity.name}
-			{:else}
-				{log.entity.key}
-			{/if}
-		</Button>
+		{#if log.entity.type != 'cart'}
+			<Button class="link" {href}>
+				<span class="break">
+					{log.entity.name}
+				</span>
+			</Button>
+
+			<Button
+				class="link"
+				on:click={() => {
+					emit('search', { entity: log.entity.key });
+				}}
+			>
+				*
+			</Button>
+		{/if}
 	{/if}
 
 	{#if log.misc}
 		{#each Object.entries(log.misc) as [key, value]}
 			<br />
-			{key}: {value}
+			<span class="break">
+				{key}: {value}
+			</span>
 		{/each}
 	{/if}
 </section>
@@ -97,5 +125,12 @@
 
 	.bold {
 		font-weight: 500;
+	}
+
+	.break {
+		word-wrap: break-word;
+		word-break: break-all;
+
+		text-align: left;
 	}
 </style>

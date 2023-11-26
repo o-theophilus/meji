@@ -10,6 +10,8 @@
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+
+	let search;
 </script>
 
 <Meta title="Logs" description="Logs" />
@@ -20,12 +22,17 @@
 </Center>
 
 <Card>
-	<Search {page_name} />
+	<Search bind:this={search} {page_name} />
 
 	<br />
 
 	{#each logs as log (log.key)}
-		<Log {log} {page_name} />
+		<Log
+			{log}
+			on:search={(e) => {
+				search.set_value(e.detail);
+			}}
+		/>
 	{:else}
 		no item here
 	{/each}

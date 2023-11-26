@@ -119,21 +119,32 @@ def feedback_schema(fb, db):
 
 
 def log_schema(log, db):
-    entity = query({"type": log["entity_type"], "key": log["entity"]}, db=db)
+
+    key = log["entity"]
+    _type = log["entity_type"]
+    if log["entity_type"] == "advert":
+        key = log["entity"].split("_")[0]
+        _type = "item"
+
+    entity = query({"type": _type, "key": key}, db=db)
     user = query({"type": "user", "key": log["user"]}, db=db)
 
     return {
         "key": log["key"],
         "date": log["date"],
         "user": {
-            "key":  log['user'],
+            "key": user["email"] if user else log['user'],
             "name": user["name"] if user else "deleted_user"
         },
         "action": log["action"],
         "entity": {
-            "key":  log["entity"],
+            "key": entity["slug"] if (
+                entity and entity["type"] == "item"
+            ) else log["entity"],
             "type": log["entity_type"],
-            "name": entity["name"] if entity and 'name' in entity else None,
+            "name": entity["name"] if (
+                entity and 'name' in entity
+            ) else log["entity"],
         },
         "status": log["status"],
         "misc": log["misc"]
