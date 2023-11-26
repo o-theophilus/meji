@@ -353,16 +353,19 @@ def cart_receiver():
         cart["key"],
         "cart"
     )
-    log["misc"]["from"] = f"""
-    name: {cart["receiver"]["name"]} |
-    phone: {cart["receiver"]["phone"]} |
-    address: {cart["receiver"]["address"]["line"]} |
-    address: {cart["receiver"]["address"]["state"]} |
-    address: {cart["receiver"]["address"]["country"]} |
-    address: {cart["receiver"]["address"]["local_area"]} |
-    address: {cart["receiver"]["address"]["postal_code"]}
+
+    def to_string(c):
+        return f"""
+    name: {c["receiver"]["name"]} |
+    phone: {c["receiver"]["phone"]} |
+    address: {c["receiver"]["address"]["line"]} |
+    address: {c["receiver"]["address"]["state"]} |
+    address: {c["receiver"]["address"]["country"]} |
+    address: {c["receiver"]["address"]["local_area"]} |
+    address: {c["receiver"]["address"]["postal_code"]}
     """
 
+    log["misc"]["from"] = to_string(cart)
     cart["receiver"]["name"] = request.json["name"]
     cart["receiver"]["phone"] = request.json["phone"]
     cart["receiver"]["address"] = {
@@ -373,18 +376,9 @@ def cart_receiver():
         "postal_code": request.json["address"]["postal_code"],
     }
     cart["date_u"] = now()
+    log["misc"]["to"] = to_string(cart)
 
-    log["misc"]["to"] = f"""
-    name: {cart["receiver"]["name"]} |
-    phone: {cart["receiver"]["phone"]} |
-    address: {cart["receiver"]["address"]["line"]} |
-    address: {cart["receiver"]["address"]["state"]} |
-    address: {cart["receiver"]["address"]["country"]} |
-    address: {cart["receiver"]["address"]["local_area"]} |
-    address: {cart["receiver"]["address"]["postal_code"]}
-    """
-
-    cart = database(cart)
+    database(cart)
     database(log, db_name="log")
 
     return jsonify({
