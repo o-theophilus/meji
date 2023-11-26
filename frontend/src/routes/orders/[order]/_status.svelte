@@ -88,7 +88,7 @@ to: **${status}**
 			<div class="h">
 				<div>
 					<div>
-						<SVG type="check" />
+						<SVG type="check" size="10" />
 					</div>
 				</div>
 				{s}
