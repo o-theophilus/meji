@@ -259,7 +259,7 @@
 					<br />
 					<Button
 						class="link small"
-						href="/logs?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}"
+						href="/log?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}"
 						>view log &gt;</Button
 					>
 				{/if}
