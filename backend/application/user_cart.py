@@ -358,11 +358,11 @@ def cart_receiver():
         return f"""
     name: {c["receiver"]["name"]} |
     phone: {c["receiver"]["phone"]} |
-    address: {c["receiver"]["address"]["line"]} |
-    address: {c["receiver"]["address"]["state"]} |
-    address: {c["receiver"]["address"]["country"]} |
-    address: {c["receiver"]["address"]["local_area"]} |
-    address: {c["receiver"]["address"]["postal_code"]}
+    address: {c["receiver"]["address"]["line"]},
+    {c["receiver"]["address"]["state"]},
+    {c["receiver"]["address"]["country"]},
+    {c["receiver"]["address"]["local_area"]},
+    {c["receiver"]["address"]["postal_code"]}
     """
 
     log["misc"]["from"] = to_string(cart)
