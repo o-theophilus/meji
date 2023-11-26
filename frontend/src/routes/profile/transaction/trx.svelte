@@ -18,12 +18,19 @@
 		class:caution={![200, 400].includes(trx.status)}
 		class:error={trx.status == 400}
 	/>
+
+	<span class="date">
+		{trx.date.split('T').join(' ')}
+	</span>
+
 	<div
 		class="status"
 		class:good={trx.direction == 'credit'}
 		class:error={trx.direction == 'debit'}
 	/>
-	{trx.date}
+	<span class="date">
+		{trx.direction}
+	</span>
 	<br />
 
 	{trx.entity_type}
@@ -41,9 +48,12 @@
 </section>
 
 <style>
-	section {
-		padding: var(--sp2) 0;
+	section:not(:last-child) {
+		padding-bottom: var(--sp2);
 		border-bottom: 2px solid var(--ac5);
+	}
+	section:not(:first-child) {
+		padding-top: var(--sp2);
 	}
 
 	.status {
@@ -65,5 +75,10 @@
 	}
 	.error {
 		background-color: var(--cl4);
+	}
+
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
 	}
 </style>

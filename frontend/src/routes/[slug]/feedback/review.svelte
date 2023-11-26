@@ -22,7 +22,7 @@
 				</span>
 				<br />
 				<span class="date">
-					{feedback.date}
+					{feedback.date.split("T").join(" ")}
 				</span>
 			</div>
 			<Rating rating={feedback.rating} />
@@ -80,6 +80,7 @@
 	}
 	
 	.date {
-		font-size: small;
+		font-size: smaller;
+		color: var(--ac3);
 	}
 </style>

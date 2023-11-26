@@ -25,7 +25,9 @@
 		class:caution={![200, 400].includes(log.status)}
 		class:error={log.status == 400}
 	/>
-	{log.date}
+	<span class="date">
+		{log.date.split('T').join(' ')}
+	</span>
 	<br />
 
 	{#if log.user.name == 'deleted_user'}
@@ -70,9 +72,7 @@
 
 		{#if log.entity.type != 'cart'}
 			<Button class="link" {href}>
-				<span class="break">
-					{log.entity.name}
-				</span>
+				{log.entity.name}
 			</Button>
 
 			<Button
@@ -127,10 +127,13 @@
 		font-weight: 500;
 	}
 
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
+	}
+
 	.break {
 		word-wrap: break-word;
 		word-break: break-all;
-
-		text-align: left;
 	}
 </style>

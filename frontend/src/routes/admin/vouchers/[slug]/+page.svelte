@@ -58,7 +58,10 @@
 </Center>
 
 <Card>
-	{voucher.date}
+	<span class="date">
+		{voucher.date.split('T').join(' ')}
+	</span>
+
 	<br />
 
 	{voucher.key}
@@ -144,5 +147,10 @@
 		text-transform: uppercase;
 
 		color: var(--ac1);
+	}
+
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
 	}
 </style>

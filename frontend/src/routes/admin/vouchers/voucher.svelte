@@ -3,7 +3,9 @@
 </script>
 
 <a href="/admin/vouchers/{voucher.key}">
-	{voucher.date}
+	<span class="date">
+		{voucher.date.split('T').join(' ')}
+	</span>
 	<br />
 	<div class="name">
 		{voucher.key}
@@ -26,5 +28,10 @@
 	.name {
 		color: var(--ac1);
 		font-weight: 500;
+	}
+
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
 	}
 </style>

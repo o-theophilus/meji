@@ -34,6 +34,7 @@
 		color: var(--ac2);
 		fill: currentColor;
 		text-decoration: none;
+		text-align: center;
 		font-weight: 500;
 		cursor: pointer;
 	}
@@ -57,8 +58,8 @@
 	}
 
 	.small {
-		padding: var(--sp0) ;
-		gap: var(--sp0) ;
+		padding: var(--sp0);
+		gap: var(--sp0);
 		font-size: small;
 		min-width: 28px;
 	}
@@ -69,6 +70,8 @@
 		padding: 0;
 		color: var(--cl1);
 		background: none;
+
+		text-align: left;
 	}
 	.link:hover {
 		color: var(--cl2);
