@@ -32,7 +32,7 @@ def cart_template(user):
                 },
         },
 
-        "delivery_date": f"{now(4).split('T')[0]}T10:00",
+        "delivery_date": None,
 
         "transaction": {
             "delivery_fee": 1500,
@@ -95,8 +95,12 @@ def get_cart():
             item = item_schema(item, db)
             item["variation"] = x["variation"]
             item["quantity"] = x["quantity"]
+            item["photo"] = item["photos"][0] if len(
+                item["photos"]) > 0 else None
             items.append(item)
+            del item["photos"]
     cart["items"] = items
+    cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
     previous_receivers = []
     for x in db:

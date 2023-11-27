@@ -52,7 +52,6 @@
 
 <Center>
 	<br />
-
 	<div class="ctitle">Cart</div>
 </Center>
 

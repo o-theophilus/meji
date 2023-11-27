@@ -7,8 +7,7 @@
 	import IG from '$lib/input_group.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Info from '$lib/info.svelte';
-	import Email_Processing from './email_template_processing.svelte';
-	import Email_Delivered from './email_template_delivered.svelte';
+	import Email from './email_template.svelte';
 	let email_template;
 
 	let note = 'I approve this';
@@ -131,11 +130,7 @@ to: **${status}**
 </Form>
 
 <div bind:this={email_template} style="display: none;">
-	{#if order.status == 'ordered'}
-		<Email_Processing {order} />
-	{:else if order.status == 'enroute'}
-		<Email_Delivered {order} />
-	{/if}
+	<Email {order} />
 </div>
 
 <style>

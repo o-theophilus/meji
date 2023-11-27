@@ -28,8 +28,10 @@ def cart_to_order():
 
     if (
         not cart
-        or "email_template" not in request.json
-        or not request.json["email_template"]
+        or "email_template_admin" not in request.json
+        or not request.json["email_template_admin"]
+        or "email_template_user" not in request.json
+        or not request.json["email_template_user"]
         or "reference" not in request.json
     ):
         return jsonify({
@@ -127,7 +129,16 @@ def cart_to_order():
     send_mail(
         os.environ["MAIL_USERNAME"],
         "New Order",
-        request.json["email_template"]
+        request.json["email_template_admin"].format(
+            order_key=cart["key"]
+        )
+    )
+    send_mail(
+        user["email"],
+        "Processing Order",
+        request.json["email_template_user"].format(
+            order_key=cart["key"]
+        )
     )
 
     return jsonify({
@@ -264,11 +275,13 @@ def status(key):
     order["date_u"] = now()
     database(order)
 
-    if request.json["status"] in ["processing", "delivered"]:
+    if request.json["status"] == "delivered":
         send_mail(
             order_user["email"],
-            "New Order" if order["status"] == "delivered" else "Thank you",
-            request.json["email_template"]
+            "Order Delivered - Thank you",
+            request.json["email_template"].format(
+                name=order_user["name"]
+            )
         )
 
     return jsonify({

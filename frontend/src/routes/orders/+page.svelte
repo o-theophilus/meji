@@ -9,6 +9,7 @@
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
 	import Order from './order.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	$: orders = data.orders;
@@ -23,7 +24,10 @@
 <Center>
 	<br />
 	<div class="ctitle">
-		{$page.url.searchParams.has('admin') && $user.roles.includes('order:view') ? 'All' : 'My'} Orders
+		<div class="ctitle">
+			<Back />
+			{$page.url.searchParams.has('admin') && $user.roles.includes('order:view') ? 'All' : 'My'} Orders
+		</div>
 
 		{#if $user.roles.includes('order:view')}
 			<Button

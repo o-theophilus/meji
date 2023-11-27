@@ -11,7 +11,7 @@
 <section>
 	<a href="/{item.slug}">
 		<img
-			src={`${item.photos[0]}/200` || '/image/item.png'}
+			src={`${item.photo}/200` || '/image/item.png'}
 			alt={item.name}
 			onerror="this.src='/image/item.png'"
 		/>

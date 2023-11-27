@@ -5,6 +5,7 @@
 	import Pagination from '$lib/pagination.svelte';
 	import Search from './search.svelte';
 	import Log from './log.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	$: logs = data.logs;
@@ -18,7 +19,12 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Logs</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Logs
+		</div>
+	</div>
 </Center>
 
 <Card>

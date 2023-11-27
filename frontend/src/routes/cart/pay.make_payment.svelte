@@ -5,8 +5,10 @@
 
 	import Button from '$lib/button.svelte';
 	import Info from '$lib/info.svelte';
-	import Email from './pay.email_template.svelte';
-	let email_template;
+	import Email_Admin from './pay.email_template_admin.svelte';
+	import Email_User from './pay.email_template_user.svelte';
+	let email_template_admin;
+	let email_template_user;
 
 	export let cart;
 	export let pay;
@@ -57,7 +59,8 @@
 			},
 			body: JSON.stringify({
 				reference,
-				email_template: email_template.innerHTML.replace(/&amp;/g, '&')
+				email_template_admin: email_template_admin.innerHTML.replace(/&amp;/g, '&'),
+				email_template_user: email_template_user.innerHTML.replace(/&amp;/g, '&')
 			})
 		});
 		resp = await resp.json();
@@ -108,8 +111,11 @@
 	<a href="/terms">terms and conditions</a>
 </p>
 
-<div bind:this={email_template} style="display: none;">
-	<Email order={cart} />
+<div bind:this={email_template_admin} style="display: none;">
+	<Email_Admin order={cart} />
+</div>
+<div bind:this={email_template_user} style="display: none;">
+	<Email_User order={cart} />
 </div>
 
 <style>

@@ -6,6 +6,7 @@
 	import Button from '$lib/button.svelte';
 	import Center from '$lib/center.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Back from '$lib/button.back.svelte';
 
 	import Item from './items.svelte';
 	import Eta from './eta.svelte';
@@ -28,7 +29,12 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Order</div>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Order
+		</div>
+	</div>
 </Center>
 
 <Card>

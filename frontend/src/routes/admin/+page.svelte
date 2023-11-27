@@ -34,6 +34,10 @@
 			<br />
 		{/if}
 
+		[ - ] cancel order email to admin and user
+		<br />
+		[ - ] terms and conditions
+		<br />
 		[ - ] does going back restore token
 		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
