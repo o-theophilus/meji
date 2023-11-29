@@ -36,8 +36,7 @@ html {
 	user-select: none;
 }
 
-:not(.marked *) {
-/* * { */
+* {
 	margin: 0;
 	padding: 0;
 

@@ -1,5 +1,7 @@
 <script>
 	import { marked } from 'marked';
+	import './marked.css';
+	
 	marked.use({
 		mangle: false,
 		headerIds: false

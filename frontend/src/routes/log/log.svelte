@@ -33,20 +33,19 @@
 	{#if log.user.name == 'deleted_user'}
 		<span class="bold"> Deleted User </span>
 	{:else}
-		<Button class="link" href="/profile?search={log.user.key}">
+		<a data-sveltekit-preload-data="tap" href="/profile?search={log.user.key}">
 			{log.user.name}
-		</Button>
+		</a>
 	{/if}
 
 	{#if $user.roles.includes('log:view')}
-		<Button
-			class="link"
+		<button
 			on:click={() => {
 				emit('search', { user: log.user.key });
 			}}
 		>
 			&#9679;
-		</Button>
+		</button>
 	{/if}
 
 	{log.action}
@@ -56,18 +55,17 @@
 	{/if}
 
 	{#if log.entity.key}
-		<Button class="link" {href}>
+		<a data-sveltekit-preload-data="tap" {href}>
 			{log.entity.name}
-		</Button>
+		</a>
 
-		<Button
-			class="link"
+		<button
 			on:click={() => {
 				emit('search', { entity: log.entity.key });
 			}}
 		>
 			&#9679;
-		</Button>
+		</button>
 	{/if}
 
 	{#each Object.entries(log.misc) as [key, value]}
@@ -110,5 +108,22 @@
 	.date {
 		font-size: smaller;
 		color: var(--ac3);
+	}
+
+	a {
+		color: var(--cl1);
+		text-decoration: none;
+		font-weight: 500;
+	}
+	button {
+		color: var(--cl1);
+		border: none;
+		background-color: transparent;
+		cursor: pointer;
+	}
+
+	button:hover,
+	a:hover {
+		color: var(--cl2);
 	}
 </style>
