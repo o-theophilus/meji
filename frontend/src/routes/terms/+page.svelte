@@ -1,9 +1,11 @@
 <script>
-	import Group from '$lib/card.svelte';
+	import Card from '$lib/card.svelte';
 	import Marked from '$lib/marked.svelte';
+	import Meta from '$lib/meta.svelte';
+	import Center from '$lib/center.svelte';
 
 	let md = `
-	# Terms of use
+# Terms of use
 
 By using or accessing Meji, you agree to this Statement, as updated from time to time in
 accordance with Section 12 below. Additionally, you will find our Privacy Policy at the end of
@@ -209,23 +211,17 @@ We'll notify you before we make changes to this policy and give you the opportun
 and comment on the revised policy before continuing to use our Services.
 		
 ## How to contact Meji with questions
-Contact Us: [Contact](/contact)
-	`;
-
-	let todo = `
-# Todo
-
-Todo
+Contact Us: [Contact](/#contact)
 	`;
 </script>
 
-<svelte:head>
-	<title>Terms of Service | Meji</title>
-</svelte:head>
+<Meta title="Terms and Conditions" description="Terms and Conditions" />
 
-<Group>
-	<b>Terms of Service</b>
+<Center>
 	<br />
-	<br />
-	<Marked md={todo} />
-</Group>
+	<div class="ctitle">Terms and Conditions</div>
+</Center>
+
+<Card>
+	<Marked {md} />
+</Card>

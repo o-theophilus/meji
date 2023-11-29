@@ -5,90 +5,92 @@
 		headerIds: false
 	});
 
-	export let md = '';
+	export let md = `
+---
+# HEADERS
+---
 
-	// 	export let md = `
-	// ---
-	// # HEADERS
-	// ---
+# This is an \\<h1> tag
+## This is an \\<h2> tag
+### This is an \\<h3> tag
+#### This is an \\<h4> tag
+##### This is an \\<h5> tag
+###### This is an \\<h6> tag
 
-	// # This is an \\<h1> tag
-	// ## This is an \\<h2> tag
-	// ### This is an \\<h3> tag
-	// #### This is an \\<h4> tag
-	// ##### This is an \\<h5> tag
-	// ###### This is an \\<h6> tag
+---
+# EMPHASIS
+*This text will be italic*
 
-	// ---
-	// # EMPHASIS
-	// *This text will be italic*
+**This text will be bold**
 
-	// **This text will be bold**
+*You **can** combine them*
 
-	// *You **can** combine them*
+---
+# BLOCKQUOTES
 
-	// ---
-	// # BLOCKQUOTES
+> I’ve always been more interested
+> in the future than in the past.
 
-	// > I’ve always been more interested
-	// > in the future than in the past.
+---
+# LISTS
 
-	// ---
-	// # LISTS
+* Item 1
+* Item 2
+	* Item 2a
+	* Item 2b
 
-	// * Item 1
-	// * Item 2
-	//    * Item 2a
-	//    * Item 2b
+1. Item 1
+1. Item 2
+1. Item 3
+	* Item 3a
+	* Item 3b
 
-	// 1. Item 1
-	// 1. Item 2
-	// 1. Item 3
-	//    * Item 3a
-	//    * Item 3b
+---
+# IMAGES
 
-	// ---
-	// # IMAGES
+![GitHub Logo](/images/akropol_001.jpg)
 
-	// ![GitHub Logo](/images/akropol_001.jpg)
+---
+# LINKS
 
-	// ---
-	// # LINKS
+http://github.com - automatic!
 
-	// http://github.com - automatic!
+or
 
-	// or
+[GitHub](http://github.com)
 
-	// [GitHub](http://github.com)
+---
+# BACKSLASH ESCAPES
 
-	// ---
-	// # BACKSLASH ESCAPES
+\\*literal asterisks*
 
-	// \\*literal asterisks*
+---
+# FENCED CODE BLOCKS
 
-	// ---
-	// # FENCED CODE BLOCKS
+\`\`\`javascript
+function test() {
+	console.log("look ma’, no spaces");
+\`\`\`
 
-	// \`\`\`javascript
-	// function test() {
-	// 	console.log("look ma’, no spaces");
-	// \`\`\`
+---
+# TASK LISTS
 
-	// ---
-	// # TASK LISTS
+1. [x] done
+* [ ] undone
 
-	// 1. [x] done
-	// * [ ] undone
+---
+# TABLES
 
-	// ---
-	// # TABLES
-
-	// First Header | Second Header
-	// ------------ | -------------
-	// Content cell 1 | Content cell 2
-	// Content column 1 | Content column 2
-
-	// 	`;
+First Header | Second Header
+------------ | -------------
+Content cell 1 | Content cell 2
+Content column 1 | Content column 2
+		`;
 </script>
 
-{@html marked.parse(md)}
+<section class="marked">
+	{@html marked.parse(md)}
+</section>
+
+<style>
+</style>

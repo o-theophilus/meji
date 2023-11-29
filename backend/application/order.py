@@ -322,7 +322,14 @@ def status_cancel(key):
             "error": "invalid request"
         })
 
-    if "note" not in request.json or not request.json["note"]:
+    if (
+        "note" not in request.json
+        or not request.json["note"]
+        or "email_template_admin" not in request.json
+        or not request.json["email_template_admin"]
+        or "email_template_user" not in request.json
+        or not request.json["email_template_user"]
+    ):
         return jsonify({
             "status": 400,
             "note": "this field is required"
@@ -343,6 +350,19 @@ def status_cancel(key):
     order["status"] = "canceled"
     order["date_u"] = now()
     database(order)
+
+    send_mail(
+        os.environ["MAIL_USERNAME"],
+        "Cancelled Order",
+        request.json["email_template_admin"]
+    )
+    send_mail(
+        user["email"],
+        "Cancelled Order",
+        request.json["email_template_user"].format(
+            user_name=order_user["name"]
+        )
+    )
 
     return jsonify({
         "status": 200,

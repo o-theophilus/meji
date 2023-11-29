@@ -8,6 +8,13 @@
 	import SVG from '$lib/svg.svelte';
 	import Info from '$lib/info.svelte';
 
+	import Email_Admin from './email_template_cancel_admin.svelte';
+	import Email_User from './email_template_cancel_user.svelte';
+	let email_template_admin;
+	let email_template_user;
+
+	let order = { ...$module.order };
+
 	let note = '';
 	let error = {};
 
@@ -25,19 +32,18 @@
 		error = {};
 
 		$loading = 'canceling . . .';
-		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/order_status_cancel/${$module.order.key}`,
-			{
-				method: 'put',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: $token
-				},
-				body: JSON.stringify({
-					note
-				})
-			}
-		);
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_status_cancel/${order.key}`, {
+			method: 'put',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			},
+			body: JSON.stringify({
+				note,
+				email_template_admin: email_template_admin.innerHTML.replace(/&amp;/g, '&'),
+				email_template_user: email_template_user.innerHTML.replace(/&amp;/g, '&')
+			})
+		});
 		resp = await resp.json();
 		$loading = false;
 
@@ -94,6 +100,13 @@
 		Cancel
 	</Button>
 </Form>
+
+<div bind:this={email_template_admin} style="display: none;">
+	<Email_Admin {order} />
+</div>
+<div bind:this={email_template_user} style="display: none;">
+	<Email_User {order} />
+</div>
 
 <style>
 </style>

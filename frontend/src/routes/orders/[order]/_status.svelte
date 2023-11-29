@@ -7,7 +7,7 @@
 	import IG from '$lib/input_group.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Info from '$lib/info.svelte';
-	import Email from './email_template.svelte';
+	import Email from './email_template_delivered.svelte';
 	let email_template;
 
 	let note = 'I approve this';

@@ -36,7 +36,8 @@ html {
 	user-select: none;
 }
 
-* {
+:not(.marked *) {
+/* * { */
 	margin: 0;
 	padding: 0;
 
@@ -44,7 +45,6 @@ html {
 	outline: none;
 	-webkit-tap-highlight-color: transparent;
 }
-
 
 h1 {
 	font-size: 1.2rem;
