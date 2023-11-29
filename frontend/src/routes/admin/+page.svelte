@@ -34,7 +34,7 @@
 			<br />
 		{/if}
 
-		[ - ] use brand font
+		[ - ] better cron log
 		<br />
 		[ - ] update brand guide
 		<br />

@@ -22,8 +22,9 @@ def now(day=0):
 
 
 reserved_words = [
-    "home", "shop", "save", "cart", "profile", "orders", "terms", "admin",
-    "omni", "user", "users", "store", "stores", "item", "items", "all"]
+    "meji", "home", "shop", "save", "cart", "profile", "orders", "terms",
+    "admin", "omni", "user", "users", "store", "stores", "item", "items",
+    "all"]
 
 
 def token_to_user(data):

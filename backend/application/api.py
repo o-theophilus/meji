@@ -5,6 +5,7 @@ from .database import database, query
 from datetime import datetime, timedelta
 import re
 import os
+from .log import log_template
 
 
 bp = Blueprint("test", __name__)
@@ -115,6 +116,13 @@ def cron():
     rem = rem[:10]
     database(rem, True)
 
+    database(log_template(
+        "Meji",
+        "ran cron",
+        None,
+        "auth"
+    ), db_name="log")
+
     return jsonify({
         "status": 200,
         "message": "successful"
@@ -155,7 +163,7 @@ def clean_copy_db():
     })
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def migration():
     data_base = Deta(os.environ["DETA_KEY"]).Base("main")
 
