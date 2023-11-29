@@ -1,23 +1,23 @@
 @font-face {
-	font-family: "tisa";
+	font-family: 'Tisa';
 	src: url(/font/TisaSansPro-Light.ttf);
 	font-weight: 300;
 }
 
 @font-face {
-	font-family: "tisa";
+	font-family: 'Tisa';
 	src: url(/font/TisaSansPro-Regular.ttf);
 	font-weight: 400;
 }
 
 @font-face {
-	font-family: "tisa";
+	font-family: 'Tisa';
 	src: url(/font/TisaSansPro-Bold.ttf);
 	font-weight: 500;
 }
 
 @font-face {
-	font-family: "tisa";
+	font-family: 'Tisa';
 	src: url(/font/TisaSansPro-Black.ttf);
 	font-weight: 600;
 }
@@ -28,7 +28,7 @@ textarea,
 select,
 input,
 button {
-	font-family: "tisa", 'Segoe UI', Tahoma, Verdana, sans-serif;
+	font-family: 'Tisa', 'Segoe UI', Tahoma, Verdana, sans-serif;
 	font-size: 14px;
 }
 

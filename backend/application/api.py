@@ -155,9 +155,9 @@ def clean_copy_db():
     })
 
 
-# @bp.get("/fix")
+@bp.get("/fix")
 def migration():
-    data_base = Deta(os.environ["DETA_KEY"]).Base("log")
+    data_base = Deta(os.environ["DETA_KEY"]).Base("main")
 
     res = data_base.fetch()
     entities = res.items
@@ -168,16 +168,15 @@ def migration():
     changed = []
     for x in entities:
         if (
-            x["type"] == "log"
-            and x["entity_type"] == "cart"
-            and x["action"] == "added_to_cart"
+            x["type"] == "item"
+            and x["tags"].count("male") > 1
         ):
 
-            x["action"] = "added_to"
+            x["tags"].remove("male")
             changed.append(x)
 
     # print(changed[0])
-    # print(len(changed))
+    print(len(changed))
 
     # while len(changed) > 0:
     #     data_base.put_many(changed[:25])

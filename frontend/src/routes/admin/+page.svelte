@@ -34,6 +34,10 @@
 			<br />
 		{/if}
 
+		[ - ] use brand font
+		<br />
+		[ - ] update brand guide
+		<br />
 		[ - ] does going back restore token
 		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
