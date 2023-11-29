@@ -1,51 +1,51 @@
-.marked ~ blockquote {
+.marked blockquote {
 	margin: auto 80px;
 }
 
-.marked ~ a {
+.marked a {
 	color: var(--cl1);
 	text-decoration: none;
 }
 
-.marked ~ a:hover {
+.marked a:hover {
 	text-decoration: underline;
 }
 
-.marked ~ h1,
-.marked ~ h2,
-.marked ~ h3,
-.marked ~ h4,
-.marked ~ h5,
-.marked ~ h6 {
+.marked h1,
+.marked h2,
+.marked h3,
+.marked h4,
+.marked h5,
+.marked h6 {
 	margin: 20px 0;
 	color: var(--ac1);
 }
 
-.marked ~ h1 {
-	font-size: 24px
+.marked h1 {
+	font-size: 20px
 }
 
-.marked ~ h2 {
-	font-size: 22.5px
+.marked h2 {
+	font-size: 18px
 }
 
-.marked ~ h3 {
-	font-size: 21.2px
+.marked h3 {
+	font-size: 16px
 }
 
-.marked ~ h4 {
-	font-size: 19.9px
+.marked h4 {
+	font-size: 14px
 }
 
-.marked ~ h5 {
-	font-size: 18.6px
+.marked h5 {
+	font-size: 12px
 }
 
-.marked ~ h6 {
-	font-size: 17.3px
+.marked h6 {
+	font-size: 10px
 }
 
-.marked ~ ol,
-.marked ~ ul {
+.marked ol,
+.marked ul {
 	padding-left: 24px;
 }
