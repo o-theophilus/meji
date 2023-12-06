@@ -102,20 +102,30 @@ def get_cart():
     cart["items"] = items
     cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
-    previous_receivers = []
+    pr_ = []
     for x in db:
         if (
             x["type"] == "order"
             and x["user"] == user["key"]
             and x["status"] == "delivered"
         ):
-            previous_receivers.append({
+            pr_.append({
                 "name": x["receiver"]["name"],
                 "phone": x["receiver"]["phone"],
                 "address": x["receiver"]["address"],
                 "date": x["date_u"],
             })
-    previous_receivers = sorted(previous_receivers, key=lambda d: d['date'])
+    pr_ = sorted(pr_, key=lambda d: d['date'])
+
+    pr = []
+    for x in pr_:
+        del x["date"]
+
+        if x not in pr:
+            pr.append(x)
+
+        if len(pr) == 5:
+            break
 
     database(log_template(
         user["key"],
@@ -127,7 +137,7 @@ def get_cart():
     return jsonify({
         "status": 200,
         "cart": cart,
-        "previous_receivers": previous_receivers[:5]
+        "previous_receivers": pr
     })
 
 

@@ -94,38 +94,36 @@
 	</svelte:fragment>
 
 	{#if previous_receivers.length > 0}
-		<div class="suggestion">
-			<div class="title">
-				Address suggestion{previous_receivers.length > 1 ? 's' : ''}
-				<ButtonFold
-					{open}
-					on:click={() => {
-						open = !open;
-					}}
-				/>
-			</div>
-			{#if open}
-				<div class="body" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-					{#each previous_receivers as r}
-						<Button
-							on:click={() => {
-								receiver = {
-									name: r.name,
-									phone: r.phone,
-									address: { ...r.address }
-								};
-							}}
-						>
-							<p>
-								{r.name} | {r.phone}
-								<br />
-								{r.address.line}, {r.address.local_area}, {r.address.postal_code}, {r.address.state}
-							</p>
-						</Button>
-					{/each}
-				</div>
-			{/if}
+		<div class="title">
+			Address suggestion{previous_receivers.length > 1 ? 's' : ''}
+			<ButtonFold
+				{open}
+				on:click={() => {
+					open = !open;
+				}}
+			/>
 		</div>
+		{#if open}
+			<div class="fold" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+				{#each previous_receivers as r}
+					<Button
+						on:click={() => {
+							receiver = {
+								name: r.name,
+								phone: r.phone,
+								address: { ...r.address }
+							};
+						}}
+					>
+						<p>
+							{r.name} |
+							{r.phone} |
+							{r.address.line}, {r.address.local_area}, {r.address.postal_code}, {r.address.state}
+						</p>
+					</Button>
+				{/each}
+			</div>
+		{/if}
 
 		<br />
 		<hr />
@@ -201,12 +199,6 @@
 </Form>
 
 <style>
-	.suggestion {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp2);
-	}
-
 	.title {
 		position: relative;
 
@@ -217,8 +209,12 @@
 		color: var(--ac1);
 	}
 
-	.body {
-		padding: var(--sp1);
+	.fold {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp1);
+
+		padding: var(--sp1) 0;
 		background-color: var(--ac6);
 	}
 

@@ -129,9 +129,10 @@ def cron():
     })
 
 
+# @bp.get("/fix")
 def clean_copy_db():
-    source = Deta(os.environ["DETA_KEY"]).Base("log_test")
-    target = Deta(os.environ["DETA_KEY"]).Base("log")
+    source = Deta(os.environ["DETA_KEY"]).Base("log")
+    target = Deta(os.environ["DETA_KEY"]).Base("log_test")
 
     def delete_target():
         res = target.fetch()
@@ -163,7 +164,6 @@ def clean_copy_db():
     })
 
 
-# @bp.get("/fix")
 def migration():
     data_base = Deta(os.environ["DETA_KEY"]).Base("main")
 
