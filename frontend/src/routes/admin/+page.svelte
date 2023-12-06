@@ -34,8 +34,6 @@
 			<br />
 		{/if}
 
-		[ - ] better cron log
-		<br />
 		[ - ] update brand guide
 		<br />
 		[ - ] does going back restore token

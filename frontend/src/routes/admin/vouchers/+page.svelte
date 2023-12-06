@@ -25,7 +25,7 @@
 		$portal = '';
 	}
 
-	let status = ['all', 'inactive', 'unused', 'used'];
+	let status = ['all', 'inactive', 'active', 'used', 'expired'];
 
 	let search = '';
 	let _search = '';
