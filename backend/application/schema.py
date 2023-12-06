@@ -140,7 +140,10 @@ def log_schema(log, db):
         _type = "item"
         key = log["entity"].split("_")[0]
 
-    user = None
+    user = {
+        "name": "Deleted User" if log["user"] != "meji" else "Meji",
+        "email": None
+    }
     entity = None
     for x in db:
         if x["type"] == "user" and x["key"] == log["user"]:
@@ -153,8 +156,8 @@ def log_schema(log, db):
         "key": log["key"],
         "date": log["date"],
         "user": {
-            "key": user["email"] if user else log['user'],
-            "name": user["name"] if user else "deleted_user"
+            "key": user["email"],
+            "name": user["name"]
         },
         "action": log["action"],
         "entity": {

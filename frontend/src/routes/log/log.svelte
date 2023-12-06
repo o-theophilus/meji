@@ -30,22 +30,24 @@
 	</span>
 	<br />
 
-	{#if log.user.name == 'deleted_user'}
-		<span class="bold"> Deleted User </span>
-	{:else}
+	{#if log.user.key}
 		<a data-sveltekit-preload-data="tap" href="/profile?search={log.user.key}">
 			{log.user.name}
 		</a>
-	{/if}
 
-	{#if $user.roles.includes('log:view')}
-		<button
-			on:click={() => {
-				emit('search', { user: log.user.key });
-			}}
-		>
-			&#9679;
-		</button>
+		{#if $user.roles.includes('log:view')}
+			<button
+				on:click={() => {
+					emit('search', { user: log.user.key });
+				}}
+			>
+				&#9679;
+			</button>
+		{/if}
+	{:else}
+		<span class="bold">
+			{log.user.name}
+		</span>
 	{/if}
 
 	{log.action}

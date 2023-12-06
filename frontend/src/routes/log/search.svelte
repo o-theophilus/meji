@@ -31,7 +31,8 @@
 			'signed_up',
 			'forgot_password',
 			'changed_password',
-			'confirmed_email'
+			'confirmed_email',
+			'ran_cron'
 		],
 		cart: [
 			'all',

@@ -73,7 +73,8 @@ def cron():
     seven_days_ago = datetime.now() - timedelta(days=7)
     thirty_days_ago = datetime.now() - timedelta(days=30)
 
-    mod = []
+    expired = []
+    logged_out = []
     rem = []
 
     for x in db:
@@ -85,7 +86,7 @@ def cron():
             ) < datetime.now()
         ):
             x["status"] = "expired"
-            mod.append(x)
+            expired.append(x)
 
         elif x["type"] == "user":
 
@@ -100,7 +101,7 @@ def cron():
 
             elif x["login"] and last_active < seven_days_ago:
                 x["login"] = False
-                mod.append(x)
+                logged_out.append(x)
 
             elif x["status"] == "anonymous":
                 cart = query({"type": "cart", "user": x["key"]}, db=db)
@@ -112,15 +113,20 @@ def cron():
                 elif last_active < thirty_days_ago:
                     rem.append(x)
 
-    database(mod)
+    database(expired+logged_out)
     rem = rem[:10]
     database(rem, True)
 
     database(log_template(
-        "Meji",
-        "ran cron",
+        "meji",
+        "ran_cron",
         None,
-        "auth"
+        "auth",
+        misc={
+            "expired_voucher": ", ".join([x["key"] for x in expired]),
+            "users_logged_out": ", ".join([x["email"] for x in logged_out]),
+            "anonymous_deleted": ", ".join([x["key"] for x in rem])
+        }
     ), db_name="log")
 
     return jsonify({
@@ -129,7 +135,6 @@ def cron():
     })
 
 
-# @bp.get("/fix")
 def clean_copy_db():
     source = Deta(os.environ["DETA_KEY"]).Base("log")
     target = Deta(os.environ["DETA_KEY"]).Base("log_test")
@@ -164,8 +169,9 @@ def clean_copy_db():
     })
 
 
+# @bp.get("/fix")
 def migration():
-    data_base = Deta(os.environ["DETA_KEY"]).Base("main")
+    data_base = Deta(os.environ["DETA_KEY"]).Base("log")
 
     res = data_base.fetch()
     entities = res.items
@@ -176,19 +182,18 @@ def migration():
     changed = []
     for x in entities:
         if (
-            x["type"] == "item"
-            and x["tags"].count("male") > 1
+            x["user"] == "Meji"
+            and x["action"] == "ran cron"
         ):
-
-            x["tags"].remove("male")
+            x["user"] = "meji"
+            x["action"] = "ran_cron"
             changed.append(x)
 
-    # print(changed[0])
     print(len(changed))
 
-    # while len(changed) > 0:
-    #     data_base.put_many(changed[:25])
-    #     changed = changed[25:]
+    while len(changed) > 0:
+        data_base.put_many(changed[:25])
+        changed = changed[25:]
 
     return jsonify({
         "status": 200,
