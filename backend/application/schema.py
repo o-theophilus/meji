@@ -141,8 +141,8 @@ def log_schema(log, db):
         key = log["entity"].split("_")[0]
 
     user = {
-        "name": "Deleted User" if log["user"] != "meji" else "Meji",
-        "email": None
+        "name": None if log["user"] != "meji" else "Meji",
+        "email": log["user"] if log["user"] != "meji" else None
     }
     entity = None
     for x in db:

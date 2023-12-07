@@ -30,24 +30,24 @@
 	</span>
 	<br />
 
-	{#if log.user.key}
-		<a data-sveltekit-preload-data="tap" href="/profile?search={log.user.key}">
+	{#if log.user.key && log.user.name}
+		<a data-sveltekit-preload-data="off" href="/profile?search={log.user.key}">
 			{log.user.name}
 		</a>
-
-		{#if $user.roles.includes('log:view')}
-			<button
-				on:click={() => {
-					emit('search', { user: log.user.key });
-				}}
-			>
-				&#9679;
-			</button>
-		{/if}
+	{:else if log.user.name}
+		<span class="bold"> {log.user.name} </span>
 	{:else}
-		<span class="bold">
-			{log.user.name}
-		</span>
+		<span class="bold"> Deleted User </span>
+	{/if}
+
+	{#if log.user.key && $user.roles.includes('log:view')}
+		<button
+			on:click={() => {
+				emit('search', { user: log.user.key });
+			}}
+		>
+			&#9679;
+		</button>
 	{/if}
 
 	{log.action}
@@ -57,7 +57,7 @@
 	{/if}
 
 	{#if log.entity.key}
-		<a data-sveltekit-preload-data="tap" {href}>
+		<a data-sveltekit-preload-data="off" {href}>
 			{log.entity.name}
 		</a>
 
