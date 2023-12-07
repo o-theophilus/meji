@@ -18,7 +18,7 @@
 	</a>
 	<div class="details">
 		<div>
-			<a href="/{item.slug}" data-sveltekit-preload-data="tap">
+			<a href="/{item.slug}" data-sveltekit-preload-data="off">
 				{item.name}
 			</a>
 

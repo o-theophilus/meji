@@ -8,7 +8,7 @@
 </script>
 
 <section class="item" class:list>
-	<a data-sveltekit-preload-data="tap" class="img" href="/{item.slug}">
+	<a data-sveltekit-preload-data="off" class="img" href="/{item.slug}">
 		<img
 			src={`${item.photos[0]}/200` || '/image/item.png'}
 			alt={item.name}
@@ -17,7 +17,7 @@
 	</a>
 
 	<div class="details_control">
-		<a data-sveltekit-preload-data="tap" href="/{item.slug}">
+		<a data-sveltekit-preload-data="off" href="/{item.slug}">
 			<div class="details">
 				<div class="name">
 					{item.name}
