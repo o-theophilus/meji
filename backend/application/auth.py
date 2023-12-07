@@ -333,7 +333,7 @@ def login():
         to_delete.append(out_user)
     database(to_delete, True)
 
-    database(log_template(
+    one = log_template(
         user["key"],
         "logged_in",
         None,
@@ -341,7 +341,19 @@ def login():
         misc={
             "from": out_user["key"]
         }
-    ), db_name="log")
+    )
+    two = log_template(
+        out_user["key"],
+        "logged_in",
+        None,
+        "auth",
+        misc={
+            "to": user["key"],
+            "name": user["name"]
+        }
+    )
+
+    database([one, two], db_name="log")
 
     return jsonify({
         "status": 200,
