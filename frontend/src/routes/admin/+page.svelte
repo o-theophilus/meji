@@ -34,6 +34,14 @@
 			<br />
 		{/if}
 
+		[ - ] integrate AI assistant
+		<br />
+		[ - ] move db to postgress
+		<br />
+		[ - ] write test
+		<br />
+		[ - ] more logs
+		<br />
 		[ - ] update brand guide
 		<br />
 		[ - ] does going back restore token
