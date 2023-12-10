@@ -2,35 +2,45 @@ from flask import request
 from .database import query
 from .tools import now
 from uuid import uuid4
-import json
+# import json
 
 
-def user_schema(user, db):
-    saves = query({"type": "save", "user": user["key"]}, True, db=db)
-    _cart = query({
-        "type": "cart",
-        "key": f"{user['key']}_cart",
-        "user": user["key"]}, db=db)
+def user_schema(user, data=[]):
+    # saves = query({"type": "save", "user": user["key"]}, True, db=db)
+    # _cart = query({
+    #     "type": "cart",
+    #     "key": f"{user['key']}_cart",
+    #     "user": user["key"]}, db=db)
 
     cart = []
-    if _cart:
-        for x in _cart["items"]:
-            variation = json.dumps(x['variation'], separators=(',', ':'))
-            cart.append(f"{x['key']}_{variation}")
+    saves = []
+    # if _cart:
+    #     for x in _cart["items"]:
+    #         variation = json.dumps(x['variation'], separators=(',', ':'))
+    #         cart.append(f"{x['key']}_{variation}")
     return {
         "key": user["key"],
 
         "name": user["name"],
         "email": user["email"],
         "phone": user["phone"],
-        "address": user["address"],
+        "address": {
+            "line": user["address_line"],
+            "country": user["address_country"],
+            "state": user["address_state"],
+            "local_area": user["address_local_area"],
+            "postal_code": user["address_postal_code"]
+        },
         "photo": (f"{request.host_url}photos/{user['photo']}"
                   if user["photo"] else None),
 
-        "acc_balance": user["acc_balance"],
+        "account_balance": user["account_balance"],
 
-        "setting": user["setting"],
-        "roles": user["roles"] if "roles" in user else [],
+        "setting": {
+            "theme": user["setting_theme"],
+            "item_view": user["setting_item_view"]
+        },
+        "roles": user["roles"],
         "status": user["status"],
         "login": user["login"],
 

@@ -1,12 +1,12 @@
 from flask import request, current_app
 from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime, timedelta
-from .database import query
 import smtplib
 from email.utils import formataddr
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from .postgres import query_run
 
 
 def token_tool():
@@ -27,7 +27,7 @@ reserved_words = [
     "all"]
 
 
-def token_to_user(data):
+def token_to_user(data=[]):
     if (
         "Authorization" not in request.headers or
         not request.headers["Authorization"]
@@ -40,7 +40,7 @@ def token_to_user(data):
     except Exception:
         return None
 
-    return query({"type": "user", "key": token}, db=data)
+    return query_run(('SELECT * FROM "user" WHERE key = %s;', [token]))
 
 
 def send_mail(to, subject, body):

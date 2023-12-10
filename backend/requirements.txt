@@ -4,3 +4,4 @@ python-dotenv
 pillow
 requests
 deta
+psycopg2-binary

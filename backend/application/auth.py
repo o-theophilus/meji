@@ -8,64 +8,52 @@ from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
 import os
+from datetime import datetime
+from .postgres import query_run
 
 
 bp = Blueprint("auth", __name__)
 
 
-def user_template(
-        name,
-        email,
-        password
-):
-    return {
-        "key": uuid4().hex,
-        "v": uuid4().hex,
-        "type": "user",
-        "date_c": now(),
-        "date_u": now(),
-        "status": "anonymous",  # signed_up, confirmed
+def user_template():
+    query = """INSERT INTO "user" (
+        key, version,
+        date_created, date_updated,
+        email, password
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s
+    )RETURNING *;"""
 
-        "name": name,
-        "email": email,
-        "phone": None,
-        "password": generate_password_hash(
-            password,
+    temp = uuid4().hex
+
+    data = [
+        uuid4().hex,
+        uuid4().hex,
+        datetime.now(),
+        datetime.now(),
+        temp,
+        generate_password_hash(
+            temp,
             method="scrypt"
-        ),
-        "address": {
-            "line": None,
-            "country": None,
-            "state": None,
-            "local_area": None,
-            "postal_code": None,
-        },
-        "photo": None,
-        "acc_balance": 0,
-        "roles": [],
-        "login": False,
-        "setting": {
-            "item_view": "grid",
-            "theme": "light"
-        },
-    }
+        )
+    ]
+
+    # "status": anonymous, signed_up, confirmed
+    return query, data
 
 
 @bp.post("/init")
 def init():
-    db = database()
-
     token = request.headers["Authorization"]
-    user = token_to_user(db)
+    user = token_to_user()
 
     if not user or user["status"] == "confirmed" and not user["login"]:
-        temp = uuid4().hex
-        user = database(user_template("anonymous", temp, temp))
+        user = query_run(user_template())
         token = token_tool().dumps(user["key"])
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db),
+        "user": user_schema(user),
         "token": token
     })
 

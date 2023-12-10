@@ -18,6 +18,7 @@ from . import item
 from . import item_get
 
 from . import storage
+from . import postgres
 
 
 def create_app():
@@ -49,5 +50,6 @@ def create_app():
     app.register_blueprint(feedback.bp)
 
     app.register_blueprint(storage.bp)
+    app.register_blueprint(postgres.bp)
 
     return app

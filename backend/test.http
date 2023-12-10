@@ -27,5 +27,19 @@ Authorization: {{Authorization}}
 
 ###
 
+#create_tables
+post  {{host}}/create_tables HTTP/1.1
+content-type: application/json
+Authorization: {{Authorization}}
+
+###
+
+#pgs
+post  {{host}}/pgs HTTP/1.1
+content-type: application/json
+Authorization: {{Authorization}}
+
+###
+
 
 
