@@ -4,6 +4,7 @@ from .schema import order_schema
 from .log import log_template
 from .database import database, query
 from math import ceil
+from .postgres import query_run
 
 bp = Blueprint("order_get", __name__)
 
@@ -12,7 +13,7 @@ bp = Blueprint("order_get", __name__)
 def get():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -58,7 +59,7 @@ def get():
 def get_one(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -78,12 +79,12 @@ def get_one(key):
             "error": "invalid request"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "viewed",
         order["key"],
         "order"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,

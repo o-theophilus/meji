@@ -27,7 +27,7 @@ reserved_words = [
     "all"]
 
 
-def token_to_user(data=[]):
+def token_to_user():
     if (
         "Authorization" not in request.headers or
         not request.headers["Authorization"]

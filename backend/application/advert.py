@@ -7,6 +7,7 @@ from .tools import now
 from .log import log_template
 from PIL import Image
 from math import ceil
+from .postgres import query_run
 
 bp = Blueprint("advert", __name__)
 
@@ -37,7 +38,7 @@ def advert_template(item):
 def get_advert(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -61,12 +62,12 @@ def get_advert(key):
     if not advert:
         advert = advert_template(item["key"])
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "viewed",
         advert["key"],
-        "advert",
-    ), db_name="log")
+        "advert"
+    ))
 
     return jsonify({
         "status": 200,
@@ -109,7 +110,7 @@ def adverts(status="", db=None):
 def add_photo(item_key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -184,13 +185,13 @@ def add_photo(item_key):
         misc[dim] = advert["photos"][dim]
 
     database(advert)
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "added_photo",
         advert["key"],
         "advert",
         misc=misc
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -203,7 +204,7 @@ def add_photo(item_key):
 def delete_photo(item_key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -264,13 +265,13 @@ def delete_photo(item_key):
         database(advert, True)
         advert = advert_template(item["key"])
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "deleted_photo",
         advert["key"],
         "advert",
         misc=misc
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -282,7 +283,7 @@ def delete_photo(item_key):
 def delete_all_photo(item_key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -319,13 +320,13 @@ def delete_all_photo(item_key):
             misc[x] = advert["photos"][x]
 
     database(advert, True)
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "deleted_photo",
         advert["key"],
         "advert",
         misc=misc
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -337,7 +338,7 @@ def delete_all_photo(item_key):
 def adverts_placement(item_key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -369,7 +370,7 @@ def adverts_placement(item_key):
                 "error": "invalid request"
             })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "changed_placement",
         advert["key"],
@@ -378,7 +379,7 @@ def adverts_placement(item_key):
             "from": advert["places"],
             "to": request.json["places"]
         }
-    ), db_name="log")
+    ))
 
     advert["places"] = request.json["places"]
     advert["date_u"] = now()

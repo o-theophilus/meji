@@ -11,7 +11,7 @@ bp = Blueprint("save", __name__)
 @bp.get("/save")
 def get_saves():
     db = database()
-    user = token_to_user(db)
+    user = token_to_user()
 
     page_no = 1
     size = 24
@@ -42,7 +42,7 @@ def get_saves():
 def save_item():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,

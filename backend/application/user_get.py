@@ -13,7 +13,7 @@ bp = Blueprint("user_get", __name__)
 def get_user():
     db = database()
 
-    me = token_to_user(db)
+    me = token_to_user()
     if not me:
         return jsonify({
             "status": 400,
@@ -61,7 +61,7 @@ def get_user():
 def get_users():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -123,7 +123,7 @@ def get_users():
 def admin_users():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -193,7 +193,7 @@ def get_transactions():
     db = database()
     log_db = database(db_name="log")
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,

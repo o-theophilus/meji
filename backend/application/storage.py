@@ -66,7 +66,7 @@ def get_photo(key, thumbnail=False):
 def photo_error():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -132,7 +132,7 @@ def photo_error():
 def delete_photo():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,

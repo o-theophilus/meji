@@ -3,33 +3,37 @@ from .tools import token_to_user
 from .schema import log_schema
 from .database import database, query
 from math import ceil
-from .tools import now
+from datetime import datetime
 from uuid import uuid4
 import re
+import json
 
 bp = Blueprint("log", __name__)
 
 
 def log_template(
-    user,
+    user_key,
     action,
-    entity,
+    entity_key=None,
     entity_type=None,
     status=200,
-    misc={},
+    misc={}
 ):
-    return {
-        "key": uuid4().hex,
-        "date": now(),
-        "type": "log",
-
-        "user": user,
-        "action": action,
-        "entity": entity,
-        "entity_type": entity_type,
-        "status": status,
-        "misc": misc
-    }
+    return ("""INSERT INTO log (
+        key,
+        date,
+        user_key,
+        action,
+        entity_key,
+        entity_type,
+        status,
+        misc
+    ) VALUES (
+        %s, %s, %s, %s, %s, %s, %s, %s
+    );""", [
+        uuid4().hex, datetime.now(),  user_key, action,
+        entity_key, entity_type, status, json.dumps(misc)
+    ])
 
 
 @bp.get("/logs")
@@ -37,7 +41,7 @@ def get_many():
     db = database()
     db_log = database(db_name="log")
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,

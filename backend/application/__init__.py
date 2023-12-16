@@ -21,9 +21,11 @@ from . import storage
 from . import postgres
 
 
-def create_app():
+def create_app(conf=None):
     app = Flask(__name__)
     app.config.from_prefixed_env()
+    if conf:
+        app.config.from_pyfile(conf)
     CORS(app)
 
     @app.route("/")

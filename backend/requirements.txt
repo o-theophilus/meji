@@ -5,3 +5,4 @@ pillow
 requests
 deta
 psycopg2-binary
+pytest

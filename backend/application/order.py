@@ -6,6 +6,7 @@ from .database import database, query
 from uuid import uuid4
 import requests
 import os
+from .postgres import query_run
 
 bp = Blueprint("order", __name__)
 
@@ -14,7 +15,7 @@ bp = Blueprint("order", __name__)
 def cart_to_order():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -110,7 +111,7 @@ def cart_to_order():
         'reference'] if request.json['reference'] else None
     cart["date_u"] = now()
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "created",
         cart["key"],
@@ -120,7 +121,7 @@ def cart_to_order():
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] - cart["transaction"]["account"]
         }
-    ), db_name="log")
+    ))
 
     user["acc_balance"] -= cart["transaction"]["account"]
     database(f"{user['key']}_cart", True)
@@ -152,7 +153,7 @@ def cart_to_order():
 def date(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -186,7 +187,7 @@ def date(key):
             **error
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "changed_delivery_date",
         order["key"],
@@ -195,7 +196,7 @@ def date(key):
             "from": order["delivery_date"],
             "to": f"{request.json['date']}T{request.json['time']}"
         }
-    ), db_name="log")
+    ))
 
     order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
     order["date_u"] = now()
@@ -211,7 +212,7 @@ def date(key):
 def status(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -259,7 +260,7 @@ def status(key):
             "note": "this field is required"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "changed_status",
         order["key"],
@@ -269,7 +270,7 @@ def status(key):
             "to": request.json['status'],
             "note": request.json["note"]
         }
-    ), db_name="log")
+    ))
 
     order["status"] = request.json["status"]
     order["date_u"] = now()
@@ -294,7 +295,7 @@ def status(key):
 def status_cancel(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -335,7 +336,7 @@ def status_cancel(key):
             "note": "this field is required"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "canceled",
         order["key"],
@@ -345,7 +346,7 @@ def status_cancel(key):
             "to": "canceled",
             "note": request.json["note"]
         }
-    ), db_name="log")
+    ))
 
     order["status"] = "canceled"
     order["date_u"] = now()

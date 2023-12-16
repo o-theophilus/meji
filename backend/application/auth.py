@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_tool, token_to_user, now, send_mail
+from .tools import token_tool, token_to_user, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .database import database, query
@@ -15,31 +15,29 @@ from .postgres import query_run
 bp = Blueprint("auth", __name__)
 
 
-def user_template():
-    query = """INSERT INTO "user" (
+def user_template(key=None):
+    temp = uuid4().hex
+    # "status": anonymous, signed_up, confirmed
+
+    return (
+        """INSERT INTO "user" (
         key, version,
         date_created, date_updated,
         email, password
     ) VALUES (
         %s, %s, %s, %s, %s, %s
-    )RETURNING *;"""
-
-    temp = uuid4().hex
-
-    data = [
-        uuid4().hex,
-        uuid4().hex,
-        datetime.now(),
-        datetime.now(),
-        temp,
-        generate_password_hash(
+    )RETURNING *;""", [
+            key if key else uuid4().hex,
+            uuid4().hex,
+            datetime.now(),
+            datetime.now(),
             temp,
-            method="scrypt"
-        )
-    ]
-
-    # "status": anonymous, signed_up, confirmed
-    return query, data
+            generate_password_hash(
+                temp,
+                method="scrypt"
+            )
+        ]
+    )
 
 
 @bp.post("/init")
@@ -48,7 +46,18 @@ def init():
     user = token_to_user()
 
     if not user or user["status"] == "confirmed" and not user["login"]:
-        user = query_run(user_template())
+        key = uuid4().hex
+        user = query_run(
+            [
+                user_template(key),
+                log_template(
+                    key,
+                    "created",
+                    None,
+                    "auth"
+                )
+            ]
+        )
         token = token_tool().dumps(user["key"])
 
     return jsonify({
@@ -60,9 +69,7 @@ def init():
 
 @bp.post("/user")
 def signup():
-    db = database()
-
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -88,7 +95,10 @@ def signup():
         error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
-    elif query({"type": "user", "email": request.json["email"]}, db=db):
+    elif query_run((
+        'SELECT * FROM "user" WHERE email = %s;',
+        [request.json["email"]]
+    )):
         error["email"] = "email taken"
 
     if "password" not in request.json or not request.json["password"]:
@@ -121,22 +131,49 @@ def signup():
         })
 
     if user["status"] != "anonymous":
-        user = user_template("anon", "anon", "anon")
+        user = query_run(
+            [
+                user_template(),
+                log_template(
+                    user["key"],
+                    "signed_up",
+                    None,
+                    "auth"
+                )
+            ]
+        )
 
-    user["name"] = request.json["name"]
-    user["email"] = request.json["email"]
-    user["password"] = generate_password_hash(
-        request.json["password"], method="scrypt")
-    user["date_u"] = now()
-    user["status"] = "signed_up"
-
-    user = database(user)
-    database(log_template(
-        user["key"],
-        "signed_up",
-        None,
-        "auth"
-    ), db_name="log")
+    query_run(
+        [
+            (
+                """UPDATE "user" SET
+                name = %s,
+                email = %s,
+                password = %s,
+                status = %s,
+                date_updated = %s
+                WHERE key = %s
+                ;""",
+                [
+                    request.json["name"],
+                    request.json["email"],
+                    generate_password_hash(
+                        request.json["password"],
+                        method="scrypt"
+                    ),
+                    "signed_up",
+                    datetime.now(),
+                    user["key"]
+                ]
+            ),
+            log_template(
+                user["key"],
+                "signed_up",
+                None,
+                "auth"
+            )
+        ]
+    )
 
     send_mail(
         user["email"],
@@ -196,7 +233,7 @@ def confirm_email(token):
         log["status"] = 201
         log["misc"] = {"error": "already confirmed"}
 
-    database(log, db_name="log")
+    database(log)
 
     return jsonify(output)
 
@@ -205,7 +242,7 @@ def confirm_email(token):
 def login():
     db = database()
 
-    out_user = token_to_user(db)
+    out_user = token_to_user()
     if not out_user:
         return jsonify({
             "status": 400,
@@ -341,7 +378,7 @@ def login():
         }
     )
 
-    database([one, two], db_name="log")
+    database([one, two])
 
     return jsonify({
         "status": 200,
@@ -353,7 +390,7 @@ def login():
 def logout():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -366,7 +403,7 @@ def logout():
     anon_user["setting"]["theme"] = user["setting"]["theme"]
     database([user, anon_user])
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "logged_out",
         None,
@@ -374,7 +411,7 @@ def logout():
         misc={
             "to": anon_user["key"]
         }
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -424,12 +461,12 @@ def forgot_password():
             name=user["name"]
         ))
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "forgot_password",
         None,
         "auth"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200
@@ -492,12 +529,12 @@ def change_password(token):
         request.json["password"], method="scrypt")
     database(user)
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "changed_password",
         None,
         "auth"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,

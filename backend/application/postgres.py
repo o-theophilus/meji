@@ -2,9 +2,7 @@ from flask import Blueprint, jsonify
 import os
 import psycopg2
 import psycopg2.extras
-from uuid import uuid4
-import json
-from datetime import datetime
+# import sqlite3
 
 
 bp = Blueprint("postgres", __name__)
@@ -44,48 +42,18 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
     action VARCHAR(20) NOT NULL,
     entity_key CHAR(32),
     entity_type VARCHAR(20),
-    status INT NOT NULL,
-    misc JSONB
+    status INT DEFAULT 200,
+    misc JSONB DEFAULT '{}'::JSONB,
+    FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE
 );"""
-
-
-def log_template2(
-    user_key,
-    action,
-    entity_key=None,
-    entity_type=None,
-    status=200,
-    misc={}
-):
-    query = """INSERT INTO log (
-        key,
-        date,
-        user_key,
-        action,
-        entity_key,
-        entity_type,
-        status,
-        misc
-    ) VALUES (
-        %s,
-        %s,
-        %s,
-        %s,
-        %s,
-        %s,
-        %s,
-        %s
-    );"""
-
-    data = [uuid4().hex, datetime.now(),  user_key, action,
-            entity_key, entity_type, status, json.dumps(misc)]
-
-    return query, data
 
 
 def query_run(query, many=False):
     con = psycopg2.connect(os.environ["DATABASE_URI"])
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    # con = sqlite3.connect(
+    # os.environ["DATABASE_URI"], check_same_thread=False)
+    # cur = con.cursor()
 
     out = []
 
@@ -129,14 +97,14 @@ def query_run(query, many=False):
 @bp.post("/create_tables")
 def create_tables():
 
-    query_run(
+    query_run([
         """
         DROP TABLE IF EXISTS "user";
         DROP TABLE IF EXISTS log;
         """,
         user_table,
         log_table
-    )
+    ])
 
     return jsonify({
         "status": 200,

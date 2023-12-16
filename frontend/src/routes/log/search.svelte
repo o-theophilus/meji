@@ -26,6 +26,7 @@
 		advert: ['all', 'viewed', 'added_photo', 'deleted_photo', 'changed_placement'],
 		auth: [
 			'all',
+			'created',
 			'logged_in',
 			'logged_out',
 			'signed_up',

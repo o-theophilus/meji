@@ -19,7 +19,7 @@ bp = Blueprint("user", __name__)
 def setting():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -48,7 +48,7 @@ def setting():
 def user_role(key):
     db = database()
 
-    me = token_to_user(db)
+    me = token_to_user()
     user = query({"type": "user", "key": key}, db=db)
 
     error = None
@@ -88,7 +88,7 @@ def user_role(key):
 def edit_user(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user or user["key"] != key:
         return jsonify({
             "status": 400,
@@ -156,7 +156,7 @@ def edit_user(key):
 def send_email_otp():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -230,7 +230,7 @@ def send_email_otp():
 def email():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
 
     error = {}
     if "email" not in request.json or not request.json["email"]:
@@ -284,7 +284,7 @@ def email():
 def send_password_otp():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -328,7 +328,7 @@ def send_password_otp():
 def password():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
 
     error = {}
     if "password" not in request.json or not request.json["password"]:
@@ -390,7 +390,7 @@ def password():
 def delete():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -427,7 +427,7 @@ def delete():
 def add_photo():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -463,7 +463,7 @@ def add_photo():
 def delete_photo():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,

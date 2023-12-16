@@ -7,6 +7,7 @@ from .log import log_template
 from math import ceil
 from datetime import datetime, date
 import re
+from .postgres import query_run
 
 bp = Blueprint("voucher", __name__)
 
@@ -27,7 +28,7 @@ def get_vouchers(db=None):
     if not db:
         db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -75,7 +76,7 @@ def get_vouchers(db=None):
 def get(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -107,7 +108,7 @@ def get(key):
 def create():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -175,7 +176,7 @@ def create():
         ))
 
     database(vouchers)
-    database(logs, db_name="log")
+    database(logs)
 
     return jsonify({
         "status": 200,
@@ -187,7 +188,7 @@ def create():
 def activate(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -233,7 +234,7 @@ def activate(key):
             "error": "invalid request"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "activated",
         voucher["key"],
@@ -243,7 +244,7 @@ def activate(key):
             "to": "active",
             "validity": validity
         }
-    ), db_name="log")
+    ))
 
     voucher["status"] = "active"
     voucher["validity"] = validity
@@ -259,7 +260,7 @@ def activate(key):
 def inactivate(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -281,12 +282,12 @@ def inactivate(key):
 
     voucher["status"] = "inactive"
     database(voucher)
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "deactivated",
         voucher["key"],
         "voucher"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -298,7 +299,7 @@ def inactivate(key):
 def delete(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -321,12 +322,12 @@ def delete(key):
     voucher["status"] = "deleted"
     database(voucher)
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "deleted",
         voucher["key"],
         "voucher"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -338,7 +339,7 @@ def delete(key):
 def use():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -370,21 +371,21 @@ def use():
     ):
         error = f"voucher {voucher['status']}"
 
-        database(log_template(
+        query_run(log_template(
             user["key"],
             "used",
             voucher["key"],
             "voucher",
             400,
             {"error": error}
-        ), db_name="log")
+        ))
 
         return jsonify({
             "status": 400,
             "error": error
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "used",
         voucher["key"],
@@ -394,7 +395,7 @@ def use():
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] + voucher["value"]
         }
-    ), db_name="log")
+    ))
 
     user["acc_balance"] += voucher["value"]
     voucher["status"] = "used"

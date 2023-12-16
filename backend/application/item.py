@@ -6,6 +6,7 @@ from uuid import uuid4
 from .database import database, query
 from .storage import storage
 from .log import log_template
+from .postgres import query_run
 
 bp = Blueprint("item", __name__)
 
@@ -14,7 +15,7 @@ bp = Blueprint("item", __name__)
 def add_new():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -61,12 +62,12 @@ def add_new():
         "available_quantity": 0,
     })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "created",
         item["key"],
         "item"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -78,7 +79,7 @@ def add_new():
 def edit_item(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -195,13 +196,13 @@ def edit_item(key):
     item["date_u"] = now()
     database(item)
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "edited",
         item["key"],
         "item",
         misc=request.json
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -213,7 +214,7 @@ def edit_item(key):
 def post_many_photo(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -264,7 +265,7 @@ def post_many_photo(key):
         file_names.append(fn)
 
     database(item)
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "added_photo",
         item["key"],
@@ -273,7 +274,7 @@ def post_many_photo(key):
             "added": ", ".join(file_names),
             "error": error
         }
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -287,7 +288,7 @@ def arrange_photo(key):
 
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -315,7 +316,7 @@ def arrange_photo(key):
             "error": "invalid request"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "arranged_photo",
         item["key"],
@@ -324,7 +325,7 @@ def arrange_photo(key):
             "from": item["photos"],
             "to": fix(request.json["photos"])
         }
-    ), db_name="log")
+    ))
 
     item["photos"] = fix(request.json["photos"])
     database(item)
@@ -340,7 +341,7 @@ def delete_photo(key):
 
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -374,7 +375,7 @@ def delete_photo(key):
     storage(file_name, delete=True)
     database(item)
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "deleted_photo",
         item["key"],
@@ -382,7 +383,7 @@ def delete_photo(key):
         misc={
             "photo": file_name
         }
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,

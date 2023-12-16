@@ -4,6 +4,7 @@ from .schema import user_schema, item_schema
 from .database import database, query
 from uuid import uuid4
 from .log import log_template
+from .postgres import query_run
 
 bp = Blueprint("cart", __name__)
 
@@ -75,7 +76,7 @@ def normalize_db(cart, db):
 @bp.get("/cart")
 def get_cart():
     db = database()
-    user = token_to_user(db)
+    user = token_to_user()
 
     cart = query({
         "type": "cart",
@@ -127,12 +128,12 @@ def get_cart():
         if len(pr) == 5:
             break
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "viewed",
         cart["key"],
         "cart"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -145,7 +146,7 @@ def get_cart():
 def add_to_cart():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -203,7 +204,7 @@ def add_to_cart():
     cart["date_u"] = now()
     database(cart)
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "added_to",
         cart["key"],
@@ -213,7 +214,7 @@ def add_to_cart():
             **request.json["variation"],
             "quantity": request.json["quantity"]
         }
-    ), db_name="log")
+    ))
 
     db = normalize_db(cart, db)
     return jsonify({
@@ -226,7 +227,7 @@ def add_to_cart():
 def cart_item_quantity():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -292,7 +293,7 @@ def cart_item_quantity():
     if len(cart["items"]) == 0:
         cart = cart_template(user)
 
-    database(log, db_name="log")
+    database(log)
 
     return jsonify({
         "status": 200,
@@ -305,7 +306,7 @@ def cart_item_quantity():
 def cart_receiver():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -393,7 +394,7 @@ def cart_receiver():
     log["misc"]["to"] = to_string(cart)
 
     database(cart)
-    database(log, db_name="log")
+    database(log)
 
     return jsonify({
         "status": 200,
@@ -405,7 +406,7 @@ def cart_receiver():
 def cart_account():
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -441,7 +442,7 @@ def cart_account():
             "amount": error
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "changed_amount",
         cart["key"],
@@ -450,7 +451,7 @@ def cart_account():
             "from": cart["transaction"]["account"],
             "to": request.json["amount"]
         }
-    ), db_name="log")
+    ))
 
     cart["transaction"]["account"] = request.json["amount"]
     cart["date_u"] = now()

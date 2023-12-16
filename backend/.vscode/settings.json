@@ -2,6 +2,7 @@
   "cSpell.ignoreWords": [
     "jsonify",
     "psycopg",
+    "pyfile",
     "signedup",
     "signout",
     "trxs"

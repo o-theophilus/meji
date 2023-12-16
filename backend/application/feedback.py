@@ -5,6 +5,7 @@ from .database import database, query
 from uuid import uuid4
 from math import ceil
 from .log import log_template
+from .postgres import query_run
 
 bp = Blueprint("feedback", __name__)
 
@@ -69,7 +70,7 @@ def get_feedbacks(user_key, item_key):
 def add_feedback(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -131,11 +132,11 @@ def add_feedback(key):
     feedback["date"] = now()
 
     database(feedback)
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "added_feedback",
         item["key"],
         "item"
-    ), db_name="log")
+    ))
 
     return get_feedbacks(user["key"], item["key"])

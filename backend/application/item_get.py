@@ -6,6 +6,7 @@ from math import ceil
 from .database import database, query
 from .advert import adverts
 import re
+from .postgres import query_run
 
 bp = Blueprint("item_get", __name__)
 
@@ -42,7 +43,7 @@ def all_tags(db=None):
 def get(key):
     db = database()
 
-    user = token_to_user(db)
+    user = token_to_user()
     if not user:
         return jsonify({
             "status": 400,
@@ -68,12 +69,12 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    database(log_template(
+    query_run(log_template(
         user["key"],
         "viewed",
         item["key"],
         "item"
-    ), db_name="log")
+    ))
 
     return jsonify({
         "status": 200,
@@ -106,7 +107,7 @@ def shop(
 ):
     if not db:
         db = database()
-    user = token_to_user(db)
+    user = token_to_user()
 
     if (
         "status" in request.args and user and (
@@ -204,7 +205,7 @@ def recently_viewed(user_key, item_key):
         "user": user_key,
         "action": "viewed",
         "entity_type": "item"
-    }, many=True, db_name="log")
+    }, many=True)
 
     logs = sorted(logs, key=lambda d: d["date"], reverse=True)
 
