@@ -42,15 +42,12 @@ def add_new():
         slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
     cur.execute("""
-            INSERT INTO item (key, version, date_created, date_updated,
-                name, slug)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO item (key, version, name, slug)
+            VALUES (%s, %s, %s, %s)
             RETURNING *;
         """, (
         uuid4().hex,
         uuid4().hex,
-        datetime.now(),
-        datetime.now(),
         request.json["name"],
         slug
     ))
@@ -252,15 +249,7 @@ def edit_item(key):
             **error
         })
 
-    cur.execute("""
-            UPDATE item
-            date_updated = %s
-            WHERE key = %s
-            RETURNING *;
-        """, (
-        datetime.now(),
-        item["key"]
-    ))
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
 
     cur.execute(log_template, (
@@ -338,12 +327,11 @@ def post_many_photo(key):
 
     cur.execute("""
             UPDATE item
-            SET photos = %s, date_updated = %s
+            SET photos = %s
             WHERE key = %s
             RETURNING *;
         """, (
         item["photos"] + file_names,
-        datetime.now(),
         item["key"]
     ))
     item = cur.fetchone()
@@ -415,12 +403,11 @@ def arrange_photo(key):
 
     cur.execute("""
             UPDATE item
-            SET photos = %s, date_updated = %s
+            SET photos = %s
             WHERE key = %s
             RETURNING *;
         """, (
         in_photos,
-        datetime.now(),
         item["key"]
     ))
     item = cur.fetchone()
@@ -471,12 +458,11 @@ def delete_photo(key):
     item["photos"].remove(file_name)
     cur.execute("""
             UPDATE item
-            SET photos = %s, date_updated = %s
+            SET photos = %s
             WHERE key = %s
             RETURNING *;
         """, (
         item["photos"],
-        datetime.now(),
         item["key"]
     ))
     item = cur.fetchone()
@@ -484,12 +470,11 @@ def delete_photo(key):
     if len(item["photos"]) == 0 and item["status"] == "live":
         cur.execute("""
                 UPDATE item
-                SET status = %s, date_updated = %s
+                SET status = %s
                 WHERE key = %s
                 RETURNING *;
             """, (
             "draft",
-            datetime.now(),
             item["key"]
         ))
         item = cur.fetchone()

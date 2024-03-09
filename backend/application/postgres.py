@@ -11,8 +11,6 @@ bp = Blueprint("postgres", __name__)
 item_table = """CREATE TABLE IF NOT EXISTS item (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
-    date_created TIMESTAMP NOT NULL,
-    date_updated TIMESTAMP NOT NULL,
     status VARCHAR(20) DEFAULT 'draft' NOT NULL,
 
     name VARCHAR(100) NOT NULL,
@@ -32,8 +30,6 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
 user_table = """CREATE TABLE IF NOT EXISTS "user" (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
-    date_created TIMESTAMP NOT NULL,
-    date_updated TIMESTAMP NOT NULL,
     status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
 
     name VARCHAR(100) DEFAULT 'anonymous',
@@ -66,6 +62,18 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
     status INT DEFAULT 200,
     misc JSONB DEFAULT '{}'::JSONB,
     FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE
+);"""
+
+# "status": inactive, active, used, deleted, expired
+voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
+    key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+    batch CHAR(32),
+    status VARCHAR(20) DEFAULT 'inactive' NOT NULL,
+
+    code VARCHAR(10) NOT NULL,
+    value FLOAT DEFAULT 0,
+    validity TIMESTAMP
 );"""
 
 

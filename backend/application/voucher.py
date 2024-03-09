@@ -1,13 +1,11 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now
+from .tools import token_to_user
 from uuid import uuid4
-from .database import database, query
 from .schema import user_schema
 from .log import log_template
 from math import ceil
 from datetime import datetime, date
-import re
-from .postgres import query_run
+from .postgres import db_close, db_open
 
 bp = Blueprint("voucher", __name__)
 
@@ -23,92 +21,11 @@ def voucher_schema(voucher):
     }
 
 
-@bp.get("/voucher")
-def get_vouchers(db=None):
-    if not db:
-        db = database()
-
-    user = token_to_user()
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "voucher:view" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    status = request.args["status"] if "status" in request.args else ""
-    search = request.args["search"] if "search" in request.args else ""
-    # sort = request.args["sort"] if "sort" in request.args else "latest"
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
-
-    vouchers = []
-    for x in db:
-        if x["type"] != "voucher":
-            continue
-        if status and x["status"] != status:
-            continue
-        if search and not re.search(search, x["key"], re.IGNORECASE):
-            continue
-
-        vouchers.append(x)
-
-    vouchers = sorted(vouchers, key=lambda d: d["date_c"], reverse=True)
-
-    total_page = ceil(len(vouchers) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    vouchers = vouchers[start: stop]
-
-    return {
-        "status": 200,
-        "vouchers": [voucher_schema(x) for x in vouchers],
-        "total_page": total_page
-    }
-
-
-@ bp.get("/voucher/<key>")
-def get(key):
-    db = database()
-
-    user = token_to_user()
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-    if "voucher:view" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    voucher = query({"type": "voucher", "key": key}, db=db)
-    if not voucher:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if "voucher:view_code" not in user["roles"]:
-        voucher["code"] = "#"
-
-    return jsonify({
-        "status": 200,
-        "voucher": voucher_schema(voucher),
-    })
-
-
 @bp.post("/voucher")
 def create():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -148,47 +65,137 @@ def create():
     if request.json["quantity"] > 1:
         batch = uuid4().hex
 
-    vouchers = []
-    logs = []
     for x in range(request.json["quantity"]):
-        key = uuid4().hex
-        vouchers.append({
-            "key": key,
-            "code": str(uuid4().hex)[:10],
-            "type": "voucher",
-            "date_c": now(),
-
-            "value": request.json["value"],
-            "status": "inactive",  # active, used, deleted, expired
-            "validity": None,
-
-            "user": None
-        })
-
-        logs.append(log_template(
-            user["key"],
-            "created",
-            key,
-            "voucher",
-            misc={
-                "batch": batch
-            }
+        voucher_key = uuid4().hex
+        cur.execute("""
+            INSERT INTO voucher (key, version, batch, code, value)
+            VALUES (%s, %s, %s, %s, %s);
+        """, (
+            voucher_key,
+            uuid4().hex,
+            batch,
+            str(uuid4().hex)[:10],
+            request.json["value"]
         ))
 
-    database(vouchers)
-    database(logs)
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "created",
+            voucher_key,
+            "voucher",
+            200,
+            {"batch": batch}
+        ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        **get_vouchers(db+vouchers)
+        **get_vouchers()
+    })
+
+
+@bp.get("/voucher")
+def get_vouchers():
+    con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    if "voucher:view" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    status = request.args["status"] if "status" in request.args else ""
+    search = request.args["search"] if "search" in request.args else ""
+    # sort = request.args["sort"] if "sort" in request.args else "latest"
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    page_size = int(request.args["page_size"]
+                    ) if "page_size" in request.args else 24
+
+    cur.execute("""
+        SELECT *, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM voucher v
+            WHERE v.status = %s
+            AND LOWER(v.key) LIKE LOWER(%s)
+            ORDER BY (
+                SELECT l.date
+                FROM log l
+                WHERE l.entity_key = v.key AND l.action = 'created'
+            ) DESC
+        ) AS subquery
+        LIMIT %s OFFSET %s;
+    """, (
+        status,
+        f'%{search}%',
+        page_size,
+        (page_no - 1) * page_size)
+    )
+    vouchers = cur.fetchall()
+
+    total_page = 0
+    if vouchers:
+        total_page = ceil(vouchers[0][-1] / page_size)
+
+    db_close(con, cur)
+
+    return {
+        "status": 200,
+        "vouchers": [voucher_schema(x) for x in vouchers],
+        "total_page": total_page
+    }
+
+
+@ bp.get("/voucher/<key>")
+def get(key):
+    con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+    if "voucher:view" not in user["roles"]:
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
+    voucher = cur.fetchone()
+    if not voucher:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    if "voucher:view_code" not in user["roles"]:
+        voucher["code"] = "#"
+
+    db_close(con, cur)
+
+    return jsonify({
+        "status": 200,
+        "voucher": voucher_schema(voucher),
     })
 
 
 @ bp.put("/voucher/<key>")
 def activate(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -227,28 +234,38 @@ def activate(key):
             "error": 'cannot be back dated'
         })
 
-    voucher = query({"type": "voucher", "key": key}, db=db)
+    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
+    voucher = cur.fetchone()
     if not voucher or voucher["status"] != "inactive":
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    query_run(log_template(
+    cur.execute("""
+            UPDATE voucher
+            SET status = %s, validity = %s
+            WHERE key = %s;
+        """, (
+        "active",
+        validity,
+        voucher["key"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "activated",
         voucher["key"],
         "voucher",
-        misc={
-            "from": voucher["status"],
-            "to": "active",
+        200,
+        {
             "validity": validity
         }
     ))
 
-    voucher["status"] = "active"
-    voucher["validity"] = validity
-    database(voucher)
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
@@ -258,9 +275,9 @@ def activate(key):
 
 @ bp.put("/voucher_/<key>")
 def inactivate(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -273,21 +290,36 @@ def inactivate(key):
             "error": "unauthorized access"
         })
 
-    voucher = query({"type": "voucher", "key": key}, db=db)
+    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
+    voucher = cur.fetchone()
     if not voucher or voucher["status"] != "active":
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    voucher["status"] = "inactive"
-    database(voucher)
-    query_run(log_template(
+    cur.execute("""
+            UPDATE voucher
+            SET status = %s, validity = %s
+            WHERE key = %s;
+        """, (
+        "inactive",
+        None,
+        voucher["key"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "deactivated",
         voucher["key"],
-        "voucher"
+        "voucher",
+        200,
+        None
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
@@ -297,9 +329,9 @@ def inactivate(key):
 
 @ bp.delete("/voucher/<key>")
 def delete(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -312,22 +344,36 @@ def delete(key):
             "error": "unauthorized access"
         })
 
-    voucher = query({"type": "voucher", "key": key}, db=db)
+    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
+    voucher = cur.fetchone()
     if not voucher or voucher["status"] != "inactive":
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    voucher["status"] = "deleted"
-    database(voucher)
+    cur.execute("""
+            UPDATE voucher
+            SET status = %s, validity = %s
+            WHERE key = %s;
+        """, (
+        "deleted",
+        None,
+        voucher["key"]
+    ))
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "deleted",
         voucher["key"],
-        "voucher"
+        "voucher",
+        200,
+        None
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
@@ -337,9 +383,9 @@ def delete(key):
 
 @bp.post("/use_voucher")
 def use():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -352,12 +398,9 @@ def use():
             "error": "this field is required"
         })
 
-    voucher = query(
-        {
-            "type": "voucher",
-            "code": request.json["code"].lower()
-        }, db=db
-    )
+    cur.execute('SELECT * FROM voucher WHERE code = %s;',
+                (request.json["code"].lower(),))
+    voucher = cur.fetchone()
     if not voucher or len(request.json["code"]) != 10:
         return jsonify({
             "status": 400,
@@ -371,7 +414,9 @@ def use():
     ):
         error = f"voucher {voucher['status']}"
 
-        query_run(log_template(
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
             user["key"],
             "used",
             voucher["key"],
@@ -385,23 +430,44 @@ def use():
             "error": error
         })
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "used",
         voucher["key"],
         "voucher",
-        misc={
+        200,
+        {
             "value": voucher["value"],
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] + voucher["value"]
         }
     ))
 
-    user["acc_balance"] += voucher["value"]
-    voucher["status"] = "used"
-    database([user, voucher])
+    cur.execute("""
+            UPDATE "user"
+            SET acc_balance = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (
+        user["acc_balance"] + voucher["value"],
+        voucher["key"]
+    ))
+    user = cur.fetchone()
+
+    cur.execute("""
+            UPDATE voucher
+            SET status = %s
+            WHERE key = %s;
+        """, (
+        "used",
+        voucher["key"]
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })

@@ -24,15 +24,12 @@ def init():
     if not user or user["status"] == "confirmed" and not user["login"]:
 
         cur.execute("""
-                INSERT INTO "user" (key, version, date_created, date_updated,
-                    email, password)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO "user" (key, version, email, password)
+                VALUES (%s, %s, %s, %s)
                 RETURNING *;
             """, (
             uuid4().hex,
             uuid4().hex,
-            datetime.now(),
-            datetime.now(),
             uuid4().hex,
             generate_password_hash(uuid4().hex, method="scrypt"))
         )
@@ -129,27 +126,23 @@ def signup():
 
     if user["status"] != "anonymous":
         cur.execute("""
-            INSERT INTO "user" (key, version, date_created, date_updated,
-                email, password)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO "user" (key, version, email, password)
+            VALUES (%s, %s, %s, %s)
             RETURNING *;
         """, (
-            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
-            uuid4().hex,
+            uuid4().hex, uuid4().hex, uuid4().hex,
             generate_password_hash(uuid4().hex, method="scrypt")))
         user = cur.fetchone()
 
     cur.execute("""
         UPDATE "user"
-        SET name = %s, email = %s, password = %s, status = %s,
-            date_updated = %s
+        SET name = %s, email = %s, password = %s, status = %s
         WHERE key = %s
         RETURNING *;""", (
         request.json["name"],
         request.json["email"],
         generate_password_hash(request.json["password"], method="scrypt"),
         "signed_up",
-        datetime.now(),
         user["key"]
     ))
     user = cur.fetchone()
@@ -211,10 +204,9 @@ def confirm_email(token):
 
     if user["status"] != "confirmed":
         cur.execute("""
-            UPDATE "user" SET status = %s, date_updated = %s
+            UPDATE "user" SET status = %s
             WHERE key = %s RETURNING *;""", (
             "confirmed",
-            datetime.now(),
             user["key"]
         ))
         user = cur.fetchone()
@@ -360,9 +352,9 @@ def login():
     # database(to_delete, True)
 
     cur.execute("""
-        UPDATE "user" SET login = %s, date_updated = %s
+        UPDATE "user" SET login = %s
         WHERE key = %s RETURNING *;""", (
-        True, datetime.now(), user["key"]
+        True, user["key"]
     ))
 
     cur.execute(log_template, (
@@ -394,19 +386,17 @@ def logout():
         })
 
     cur.execute("""
-        UPDATE "user" SET login = %s, date_updated = %s
+        UPDATE "user" SET login = %s
         WHERE key = %s RETURNING *;""", (
-        False, datetime.now(), user["key"]
+        False, user["key"]
     ))
 
     cur.execute("""
     INSERT INTO "user" (
-        key, version, date_created, date_updated, email, password,
-        setting_theme
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *;
+        key, version, email, password, setting_theme
+        ) VALUES (%s, %s, %s, %s, %s) RETURNING *;
     """, (
-        uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
-        uuid4().hex,
+        uuid4().hex, uuid4().hex, uuid4().hex,
         generate_password_hash(uuid4().hex, method="scrypt"),
         user["setting_theme"]
 
@@ -537,11 +527,10 @@ def change_password(token):
         })
 
     cur.execute("""
-        UPDATE "user" SET password = %s, date_updated = %s
+        UPDATE "user" SET password = %s
         WHERE key = %s RETURNING *;""", (
         generate_password_hash(
             request.json["password"], method="scrypt"),
-        datetime.now(),
         user["key"]
     ))
 
@@ -565,11 +554,11 @@ def admin():
     user = cur.fetchone()
     if not user:
         cur.execute("""
-                INSERT INTO "user" ( key, version, date_created, date_updated,
-                status, name, email, password, roles)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                INSERT INTO "user" ( key, version, status, name, email,
+                    password, roles)
+                VALUES (%s, %s, %s, %s, %s, %s, %s);
             """, (
-            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+            uuid4().hex, uuid4().hex,
             "confirmed", "Meji Admin", email, generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
             [
