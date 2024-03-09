@@ -2,63 +2,48 @@ from flask import Blueprint, jsonify, request
 from .tools import token_tool, token_to_user, send_mail
 from .schema import user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
-from .database import database, query
 from .log import log_template
-from .user_cart import cart_template, transaction
+# from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
 import os
 from datetime import datetime
-from .postgres import query_run
+from .postgres import db_close, db_open
 
 
 bp = Blueprint("auth", __name__)
 
 
-def user_template(key=None):
-    temp = uuid4().hex
-    # "status": anonymous, signed_up, confirmed
-
-    return (
-        """INSERT INTO "user" (
-        key, version,
-        date_created, date_updated,
-        email, password
-    ) VALUES (
-        %s, %s, %s, %s, %s, %s
-    )RETURNING *;""", [
-            key if key else uuid4().hex,
-            uuid4().hex,
-            datetime.now(),
-            datetime.now(),
-            temp,
-            generate_password_hash(
-                temp,
-                method="scrypt"
-            )
-        ]
-    )
+user_template = """
+    INSERT INTO "user" (
+        key, version, date_created, date_updated, email, password)
+    VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
+"""
 
 
 @bp.post("/init")
 def init():
+    con, cur = db_open()
+
     token = request.headers["Authorization"]
-    user = token_to_user()
+    user = token_to_user(cur)
 
     if not user or user["status"] == "confirmed" and not user["login"]:
-        key = uuid4().hex
-        user = query_run(
-            [
-                user_template(key),
-                log_template(
-                    key,
-                    "created",
-                    None,
-                    "auth"
-                )
-            ]
-        )
+
+        cur.execute(user_template, (
+            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+            uuid4().hex,
+            generate_password_hash(uuid4().hex, method="scrypt")))
+        user = cur.fetchone()
+
+        cur.execute(log_template, (
+            uuid4().hex, datetime.now(),  user["key"], "created", user["key"],
+            "auth", 200, None
+        ))
+
         token = token_tool().dumps(user["key"])
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
@@ -69,7 +54,9 @@ def init():
 
 @bp.post("/user")
 def signup():
-    user = token_to_user()
+    con, cur = db_open()
+
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -95,10 +82,9 @@ def signup():
         error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
-    elif query_run((
-        'SELECT * FROM "user" WHERE email = %s;',
-        [request.json["email"]]
-    )):
+    elif cur.execute(
+        'SELECT * FROM "user" WHERE email = %s;', (request.json["email"],)
+    ):
         error["email"] = "email taken"
 
     if "password" not in request.json or not request.json["password"]:
@@ -131,49 +117,31 @@ def signup():
         })
 
     if user["status"] != "anonymous":
-        user = query_run(
-            [
-                user_template(),
-                log_template(
-                    user["key"],
-                    "signed_up",
-                    None,
-                    "auth"
-                )
-            ]
-        )
+        cur.execute(user_template, (
+            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+            uuid4().hex,
+            generate_password_hash(uuid4().hex, method="scrypt")))
+        user = cur.fetchone()
 
-    query_run(
-        [
-            (
-                """UPDATE "user" SET
-                name = %s,
-                email = %s,
-                password = %s,
-                status = %s,
-                date_updated = %s
-                WHERE key = %s
-                ;""",
-                [
-                    request.json["name"],
-                    request.json["email"],
-                    generate_password_hash(
-                        request.json["password"],
-                        method="scrypt"
-                    ),
-                    "signed_up",
-                    datetime.now(),
-                    user["key"]
-                ]
-            ),
-            log_template(
-                user["key"],
-                "signed_up",
-                None,
-                "auth"
-            )
-        ]
-    )
+    cur.execute("""
+        UPDATE "user" SET name = %s, email = %s, password = %s, status = %s,
+        date_updated = %s WHERE key = %s RETURNING *;""", (
+        request.json["name"],
+        request.json["email"],
+        generate_password_hash(
+                request.json["password"],
+                method="scrypt"
+                ),
+        "signed_up",
+        datetime.now(),
+        user["key"]
+    ))
+    user = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(),  user["key"], "signed_up", user["key"],
+        "auth", 200, None
+    ))
 
     send_mail(
         user["email"],
@@ -186,6 +154,8 @@ def signup():
         )
     )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200
     })
@@ -196,7 +166,7 @@ max_age = 3600
 
 @bp.get("/confirm/<token>")
 def confirm_email(token):
-    db = database()
+    con, cur = db_open()
 
     try:
         token = token_tool().loads(token, max_age=max_age)
@@ -206,7 +176,8 @@ def confirm_email(token):
             "error": "invalid token"
         })
 
-    user = query({"type": "user", "key": token}, db=db)
+    cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
+    user = cur.fetchone()
     if not user:
         return jsonify({
             "status": 400,
@@ -215,34 +186,43 @@ def confirm_email(token):
 
     output = {
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     }
 
-    log = log_template(
-        user["key"],
-        "confirmed_email",
-        None,
-        "auth"
-    )
-
     if user["status"] != "confirmed":
-        user["status"] = "confirmed"
-        user = database(user)
+        cur.execute("""
+            UPDATE "user" SET status = %s, date_updated = %s
+            WHERE key = %s RETURNING *;""", (
+            "confirmed",
+            datetime.now(),
+            user["key"]
+        ))
+        user = cur.fetchone()
+        output['user'] = user_schema(user)
+
+        cur.execute(log_template, (
+            uuid4().hex, datetime.now(),  user["key"], "confirmed_email",
+            user["key"], "auth", 200, None
+        ))
+
     else:
         output['error'] = "email has already been confirmed"
-        log["status"] = 201
-        log["misc"] = {"error": "already confirmed"}
 
-    database(log)
+        cur.execute(log_template, (
+            uuid4().hex, datetime.now(), user["key"], "confirmed_email",
+            user["key"], "auth", 201, {"error": "already confirmed"}
+        ))
+
+    db_close(con, cur)
 
     return jsonify(output)
 
 
 @bp.post("/login")
 def login():
-    db = database()
+    con, cur = db_open()
 
-    out_user = token_to_user()
+    out_user = token_to_user(cur)
     if not out_user:
         return jsonify({
             "status": 400,
@@ -275,7 +255,9 @@ def login():
     if out_user["email"] == request.json["email"]:
         user = out_user
     else:
-        user = query({'type': "user", "email": request.json["email"]}, db=db)
+        cur.execute('SELECT * FROM "user" WHERE email = %s;',
+                    (request.json["email"],))
+        user = cur.fetchone()
 
     if (
         not user
@@ -303,82 +285,76 @@ def login():
             "error": "not confirmed"
         })
 
-    edited = []
-    to_delete = []
+    # edited = []
+    # to_delete = []
 
-    if out_user['key'] != user['key']:
-        anon_saves = []
-        saves = []
-        anon_cart = None
-        cart = None
+    # if out_user['key'] != user['key']:
+    #     anon_saves = []
+    #     saves = []
+    #     anon_cart = None
+    #     cart = None
 
-        for x in db:
-            if x["type"] == "save" and x["user"] == out_user['key']:
-                anon_saves.append(x)
-            elif x["type"] == "save" and x["user"] == user['key']:
-                saves.append(x)
-            elif x["type"] == "cart" and x["user"] == out_user['key']:
-                anon_cart = x
-            elif x["type"] == "cart" and x["user"] == user['key']:
-                cart = x
+    #     for x in db:
+    #         if x["type"] == "save" and x["user"] == out_user['key']:
+    #             anon_saves.append(x)
+    #         elif x["type"] == "save" and x["user"] == user['key']:
+    #             saves.append(x)
+    #         elif x["type"] == "cart" and x["user"] == out_user['key']:
+    #             anon_cart = x
+    #         elif x["type"] == "cart" and x["user"] == user['key']:
+    #             cart = x
 
-        keys = [x["item"] for x in saves]
-        for x in anon_saves:
-            if x["item"] in keys:
-                to_delete.append(x)
-            else:
-                x["user"] = user['key']
-                edited.append(x)
+    #     keys = [x["item"] for x in saves]
+    #     for x in anon_saves:
+    #         if x["item"] in keys:
+    #             to_delete.append(x)
+    #         else:
+    #             x["user"] = user['key']
+    #             edited.append(x)
 
-        if anon_cart:
-            if not cart:
-                cart = cart_template(user)
+    #     if anon_cart:
+    #         if not cart:
+    #             cart = cart_template(user)
 
-            keys = [f"{x['key']}_{x['variation']}" for x in cart["items"]]
-            for x in anon_cart["items"]:
-                if f"{x['key']}_{x['variation']}" not in keys:
-                    cart["items"].append(x)
+    #         keys = [f"{x['key']}_{x['variation']}" for x in cart["items"]]
+    #         for x in anon_cart["items"]:
+    #             if f"{x['key']}_{x['variation']}" not in keys:
+    #                 cart["items"].append(x)
 
-            for x in cart["items"]:
-                for y in anon_cart["items"]:
-                    x_key = f"{x['key']}_{x['variation']}"
-                    y_key = f"{y['key']}_{y['variation']}"
-                    if x_key == y_key:
-                        x["quantity"] = y["quantity"]
-                        break
+    #         for x in cart["items"]:
+    #             for y in anon_cart["items"]:
+    #                 x_key = f"{x['key']}_{x['variation']}"
+    #                 y_key = f"{y['key']}_{y['variation']}"
+    #                 if x_key == y_key:
+    #                     x["quantity"] = y["quantity"]
+    #                     break
 
-            cart = transaction(cart, db)
+    #         cart = transaction(cart, db)
 
-            to_delete.append(anon_cart)
-            edited.append(cart)
+    #         to_delete.append(anon_cart)
+    #         edited.append(cart)
 
-    user["login"] = True
-    database([*edited, user])
-    if out_user["status"] == "anonymous":
-        to_delete.append(out_user)
-    database(to_delete, True)
+    # database([*edited, user])
+    # if out_user["status"] == "anonymous":
+    # to_delete.append(out_user)
+    # database(to_delete, True)
 
-    one = log_template(
-        user["key"],
-        "logged_in",
-        None,
-        "auth",
-        misc={
-            "from": out_user["key"]
-        }
-    )
-    two = log_template(
-        out_user["key"],
-        "logged_in",
-        None,
-        "auth",
-        misc={
-            "to": user["key"],
-            "name": user["name"]
-        }
-    )
+    cur.execute("""
+        UPDATE "user" SET login = %s, date_updated = %s
+        WHERE key = %s RETURNING *;""", (
+        True, datetime.now(), user["key"]
+    ))
 
-    database([one, two])
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(), user["key"], "logged_in", user["key"],
+        "auth", 200, {"from": out_user["key"], "name": out_user["name"]}
+    ))
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(), out_user["key"], "logged_out",
+        out_user["key"], "auth", 200, {"to": user["key"], "name": user["name"]}
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
@@ -388,41 +364,53 @@ def login():
 
 @bp.delete("/logout")
 def logout():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    user["login"] = False
-    temp = uuid4().hex
-    anon_user = user_template("anonymous", temp, temp)
-    anon_user["setting"]["theme"] = user["setting"]["theme"]
-    database([user, anon_user])
-
-    query_run(log_template(
-        user["key"],
-        "logged_out",
-        None,
-        "auth",
-        misc={
-            "to": anon_user["key"]
-        }
+    cur.execute("""
+        UPDATE "user" SET login = %s, date_updated = %s
+        WHERE key = %s RETURNING *;""", (
+        False, datetime.now(), user["key"]
     ))
+
+    cur.execute("""
+    INSERT INTO "user" (
+        key, version, date_created, date_updated, email, password,
+        setting_theme
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *;
+    """, (
+        uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+        uuid4().hex,
+        generate_password_hash(uuid4().hex, method="scrypt"),
+        user["setting_theme"]
+
+    ))
+    anon_user = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(), user["key"], "logged_out",
+        user["key"], "auth", 200,
+        {"to": anon_user["key"], "name": anon_user["name"]}
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(anon_user, db),
+        "user": user_schema(anon_user),
         "token": token_tool().dumps(anon_user["key"])
     })
 
 
 @bp.post("/forgot_password")
 def forgot_password():
-    db = database()
+    con, cur = db_open()
 
     if (
        "email_template" not in request.json
@@ -444,7 +432,9 @@ def forgot_password():
             "error": error
         })
 
-    user = query({"type": "user", "email": request.json["email"]}, db=db)
+    cur.execute('SELECT * FROM "user" WHERE email = %s;',
+                (request.json["email"],))
+    user = cur.fetchone()
     if not user:
         return jsonify({
             "status": 400,
@@ -461,12 +451,12 @@ def forgot_password():
             name=user["name"]
         ))
 
-    query_run(log_template(
-        user["key"],
-        "forgot_password",
-        None,
-        "auth"
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(), user["key"], "forgot_password",
+        user["key"], "auth", 201, None
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200
@@ -475,7 +465,7 @@ def forgot_password():
 
 @bp.post("/forgot_password/<token>")
 def change_password(token):
-    db = database()
+    con, cur = db_open()
 
     try:
         token = token_tool().loads(token, max_age=max_age)
@@ -485,7 +475,8 @@ def change_password(token):
             "error": "invalid token"
         })
 
-    user = query({"type": "user", "key": token}, db=db)
+    cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
+    user = cur.fetchone()
     if not user:
         return jsonify({
             "status": 400,
@@ -525,61 +516,69 @@ def change_password(token):
             **error
         })
 
-    user["password"] = generate_password_hash(
-        request.json["password"], method="scrypt")
-    database(user)
+    cur.execute("""
+        UPDATE "user" SET password = %s, date_updated = %s
+        WHERE key = %s RETURNING *;""", (
+        generate_password_hash(
+            request.json["password"], method="scrypt"),
+        datetime.now(),
+        user["key"]
+    ))
 
-    query_run(log_template(
-        user["key"],
-        "changed_password",
-        None,
-        "auth"
+    cur.execute(log_template, (
+        uuid4().hex, datetime.now(), user["key"], "changed_password",
+        user["key"], "auth", 200, None
     ))
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.get("/admin_init")
 def admin():
-    db = database()
+    con, cur = db_open()
     email = os.environ["MAIL_USERNAME"]
 
-    user = query({"type": "user", "email": email}, db=db)
+    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
+    user = cur.fetchone()
     if not user:
-        user = user_template(
-            "Meji Admin",
-            email,
-            os.environ["MAIL_PASSWORD"]
-        )
-        user["status"] = "confirmed"
-        user["roles"] = [
-            "admin:manage_photo",
-            "user:view",
-            "user:view_balance",
-            "user:set_role",
-            "item:add",
-            "item:edit_photo",
-            "item:advert",
-            "item:edit_status",
-            "item:edit_name",
-            "item:edit_tag",
-            "item:edit_price",
-            "item:edit_info",
-            "item:edit_variation",
-            "voucher:view",
-            "voucher:add",
-            "voucher:view_code",
-            "voucher:status",
-            "log:view",
-            "order:view",
-            "order:edit_eta",
-            "order:status",
-            "order:cancel"
-        ]
-        database(user)
+        cur.execute("""
+                INSERT INTO "user" ( key, version, date_created, date_updated,
+                status, name, email, password, roles)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """, (
+            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+            "confirmed", "Meji Admin", email, generate_password_hash(
+                os.environ["MAIL_PASSWORD"], method="scrypt"),
+            [
+                "admin:manage_photo",
+                "user:view",
+                "user:view_balance",
+                "user:set_role",
+                "item:add",
+                "item:edit_photo",
+                "item:advert",
+                "item:edit_status",
+                "item:edit_name",
+                "item:edit_tag",
+                "item:edit_price",
+                "item:edit_info",
+                "item:edit_variation",
+                "voucher:view",
+                "voucher:add",
+                "voucher:view_code",
+                "voucher:status",
+                "log:view",
+                "order:view",
+                "order:edit_eta",
+                "order:status",
+                "order:cancel"
+            ]
+        ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200

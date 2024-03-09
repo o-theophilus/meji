@@ -5,7 +5,7 @@ from uuid import uuid4
 # import json
 
 
-def user_schema(user, data=[]):
+def user_schema(user):
     # saves = query({"type": "save", "user": user["key"]}, True, db=db)
     # _cart = query({
     #     "type": "cart",

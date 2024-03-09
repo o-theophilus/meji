@@ -34,8 +34,8 @@ Authorization: {{Authorization}}
 
 ###
 
-#pgs
-post  {{host}}/pgs HTTP/1.1
+#init
+post  {{host}}/init HTTP/1.1
 content-type: application/json
 Authorization: {{Authorization}}
 

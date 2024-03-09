@@ -8,6 +8,27 @@ import psycopg2.extras
 bp = Blueprint("postgres", __name__)
 
 
+item_table = """CREATE TABLE IF NOT EXISTS item (
+    key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+    date_created TIMESTAMP NOT NULL,
+    date_updated TIMESTAMP NOT NULL,
+    status VARCHAR(20) DEFAULT 'anonymous',
+
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    price FLOAT DEFAULT 0,
+    old_price FLOAT DEFAULT 0,
+    information TEXT,
+    photos TEXT[] DEFAULT ARRAY[]::TEXT[],
+    tags TEXT[] DEFAULT ARRAY[]::TEXT[],
+    adverts JSONB DEFAULT '{}'::JSONB,
+    variation JSONB DEFAULT '{}'::JSONB,
+
+    available_quantity INT DEFAULT 0,
+);"""
+
+# "status": anonymous, signed_up, confirmed
 user_table = """CREATE TABLE IF NOT EXISTS "user" (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
@@ -48,47 +69,35 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 );"""
 
 
-def query_run(query, many=False):
+def db_open():
     con = psycopg2.connect(os.environ["DATABASE_URI"])
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    # con = sqlite3.connect(
-    # os.environ["DATABASE_URI"], check_same_thread=False)
-    # cur = con.cursor()
+    return con, cur
+
+
+def db_close(con, cur):
+    con.commit()
+    cur.close()
+    con.close()
+
+
+def query_run(query, data=None, many=False):
+    con = psycopg2.connect(os.environ["DATABASE_URI"])
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     out = []
 
-    def inner(inp):
-        ret = []
-        data = []
-        if type(inp) is tuple and len(inp) == 2:
-            data = inp[1]
-            inp = inp[0]
-
-        cur.execute(inp, data)
-
-        try:
-            one = cur.fetchone()
-            # print("============> ", one)
-            if one:
-                ret.append(one)
-            ret += cur.fetchall()
-            # print("============> ", cur.fetchall())
-        except psycopg2.Error as e:
-            print("Error occurred:", e)
-
-        return ret
-
-    if type(query) is list:
-        for q in query:
-            out += inner(q)
-    else:
-        out += inner(query)
+    try:
+        cur.execute(query, data)
+        out = cur.fetchall()
+    except psycopg2.Error as e:
+        print("Error occurred:", e)
 
     con.commit()
     cur.close()
     con.close()
 
-    # out = [dict(x) for x in out]
+    out = [dict(x) for x in out]
     if many:
         return out
     return out[0] if out != [] else None
@@ -97,25 +106,14 @@ def query_run(query, many=False):
 @bp.post("/create_tables")
 def create_tables():
 
-    query_run([
-        """
+    query_run(
+        f"""
         DROP TABLE IF EXISTS "user";
         DROP TABLE IF EXISTS log;
-        """,
-        user_table,
-        log_table
-    ])
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-    })
-
-
-@bp.post("/pgs")
-def pgs():
-
-    # query_run(user_template())
+        {user_table};
+        {log_table};
+        """
+    )
 
     return jsonify({
         "status": 200,

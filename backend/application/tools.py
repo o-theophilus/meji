@@ -6,7 +6,6 @@ from email.utils import formataddr
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
-from .postgres import query_run
 
 
 def token_tool():
@@ -27,7 +26,7 @@ reserved_words = [
     "all"]
 
 
-def token_to_user():
+def token_to_user(cur):
     if (
         "Authorization" not in request.headers or
         not request.headers["Authorization"]
@@ -40,7 +39,8 @@ def token_to_user():
     except Exception:
         return None
 
-    return query_run(('SELECT * FROM "user" WHERE key = %s;', [token]))
+    cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
+    return cur.fetchone()
 
 
 def send_mail(to, subject, body):

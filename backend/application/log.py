@@ -11,29 +11,12 @@ import json
 bp = Blueprint("log", __name__)
 
 
-def log_template(
-    user_key,
-    action,
-    entity_key=None,
-    entity_type=None,
-    status=200,
-    misc={}
-):
-    return ("""INSERT INTO log (
-        key,
-        date,
-        user_key,
-        action,
-        entity_key,
-        entity_type,
-        status,
-        misc
-    ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s
-    );""", [
-        uuid4().hex, datetime.now(),  user_key, action,
-        entity_key, entity_type, status, json.dumps(misc)
-    ])
+log_template = """
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, status, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+"""
+# json.dumps(misc)
 
 
 @bp.get("/logs")
