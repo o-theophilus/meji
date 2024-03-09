@@ -13,7 +13,7 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
     version CHAR(32) NOT NULL,
     date_created TIMESTAMP NOT NULL,
     date_updated TIMESTAMP NOT NULL,
-    status VARCHAR(20) DEFAULT 'anonymous',
+    status VARCHAR(20) DEFAULT 'draft' NOT NULL,
 
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
@@ -34,7 +34,7 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
     version CHAR(32) NOT NULL,
     date_created TIMESTAMP NOT NULL,
     date_updated TIMESTAMP NOT NULL,
-    status VARCHAR(20) DEFAULT 'anonymous',
+    status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
 
     name VARCHAR(100) DEFAULT 'anonymous',
     email VARCHAR(255) UNIQUE NOT NULL,

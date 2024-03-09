@@ -14,13 +14,6 @@ from .postgres import db_close, db_open
 bp = Blueprint("auth", __name__)
 
 
-user_template = """
-    INSERT INTO "user" (
-        key, version, date_created, date_updated, email, password)
-    VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
-"""
-
-
 @bp.post("/init")
 def init():
     con, cur = db_open()
@@ -30,15 +23,30 @@ def init():
 
     if not user or user["status"] == "confirmed" and not user["login"]:
 
-        cur.execute(user_template, (
-            uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
+        cur.execute("""
+                INSERT INTO "user" (key, version, date_created, date_updated,
+                    email, password)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING *;
+            """, (
             uuid4().hex,
-            generate_password_hash(uuid4().hex, method="scrypt")))
+            uuid4().hex,
+            datetime.now(),
+            datetime.now(),
+            uuid4().hex,
+            generate_password_hash(uuid4().hex, method="scrypt"))
+        )
         user = cur.fetchone()
 
         cur.execute(log_template, (
-            uuid4().hex, datetime.now(),  user["key"], "created", user["key"],
-            "auth", 200, None
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "created",
+            user["key"],
+            "auth",
+            200,
+            None
         ))
 
         token = token_tool().dumps(user["key"])
@@ -75,6 +83,11 @@ def signup():
 
     error = {}
 
+    cur.execute('SELECT * FROM "user" WHERE email = %s;', (
+        request.json["email"],
+    ))
+    email_exist = cur.fetchone()
+
     if "name" not in request.json or not request.json["name"]:
         error["name"] = "this field is required"
 
@@ -82,9 +95,7 @@ def signup():
         error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
-    elif cur.execute(
-        'SELECT * FROM "user" WHERE email = %s;', (request.json["email"],)
-    ):
+    elif email_exist:
         error["email"] = "email taken"
 
     if "password" not in request.json or not request.json["password"]:
@@ -117,21 +128,26 @@ def signup():
         })
 
     if user["status"] != "anonymous":
-        cur.execute(user_template, (
+        cur.execute("""
+            INSERT INTO "user" (key, version, date_created, date_updated,
+                email, password)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING *;
+        """, (
             uuid4().hex, uuid4().hex, datetime.now(), datetime.now(),
             uuid4().hex,
             generate_password_hash(uuid4().hex, method="scrypt")))
         user = cur.fetchone()
 
     cur.execute("""
-        UPDATE "user" SET name = %s, email = %s, password = %s, status = %s,
-        date_updated = %s WHERE key = %s RETURNING *;""", (
+        UPDATE "user"
+        SET name = %s, email = %s, password = %s, status = %s,
+            date_updated = %s
+        WHERE key = %s
+        RETURNING *;""", (
         request.json["name"],
         request.json["email"],
-        generate_password_hash(
-                request.json["password"],
-                method="scrypt"
-                ),
+        generate_password_hash(request.json["password"], method="scrypt"),
         "signed_up",
         datetime.now(),
         user["key"]
@@ -139,7 +155,11 @@ def signup():
     user = cur.fetchone()
 
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(),  user["key"], "signed_up", user["key"],
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "signed_up",
+        user["key"],
         "auth", 200, None
     ))
 

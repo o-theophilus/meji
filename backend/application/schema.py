@@ -49,13 +49,11 @@ def user_schema(user):
     }
 
 
-def item_schema(item, db):
-    photos = [f"{request.host_url}photos/{x}" for x in item["photos"]]
-
+def item_schema(item):
     rating = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    for x in db:
-        if x["type"] == "feedback" and x["item"] == item["key"]:
-            rating[x["rating"]] += 1
+    # for x in db:
+    #     if x["type"] == "feedback" and x["item"] == item["key"]:
+    #         rating[x["rating"]] += 1
 
     return {
         "key": item["key"],
@@ -71,7 +69,7 @@ def item_schema(item, db):
 
         "variation": item["variation"],
 
-        "photos": photos,
+        "photos": [f"{request.host_url}photos/{x}" for x in item["photos"]],
         "status": item["status"],
 
         "tags": item["tags"],

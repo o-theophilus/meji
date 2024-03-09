@@ -1,21 +1,21 @@
 from flask import Blueprint, jsonify, request
-from .tools import reserved_words, token_to_user, now
+from .tools import reserved_words, token_to_user
 from .schema import item_schema
 import re
 from uuid import uuid4
-from .database import database, query
 from .storage import storage
 from .log import log_template
-from .postgres import query_run
+from .postgres import db_close, db_open
+from datetime import datetime
 
 bp = Blueprint("item", __name__)
 
 
 @bp.post("/item")
 def add_new():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -36,57 +36,58 @@ def add_new():
 
     slug = re.sub('-+', '-', re.sub(
         '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
-
-    item = query({"type": "item", "slug": slug}, db=db)
+    cur.execute('SELECT * FROM item WHERE slug = %s;', (slug,))
+    item = cur.fetchone()
     if item or slug in reserved_words:
         slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
-    item = database({
-        "key": uuid4().hex,
-        "v": uuid4().hex,
-        "type": "item",
-        "status": "draft",
-        "date_c": now(),
-        "date_u": now(),
+    cur.execute("""
+            INSERT INTO item (key, version, date_created, date_updated,
+                name, slug)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING *;
+        """, (
+        uuid4().hex,
+        uuid4().hex,
+        datetime.now(),
+        datetime.now(),
+        request.json["name"],
+        slug
+    ))
+    item = cur.fetchone()
 
-        "name": request.json["name"],
-        "slug": slug,
-        "price": 0,
-        "old_price": 0,
-        "info": '',
-        "photos": [],
-        "tags": [],
-        "ads": {},
-        "variation": {},
-
-        "available_quantity": 0,
-    })
-
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "created",
         item["key"],
-        "item"
+        "item",
+        200,
+        None
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db)
+        "item": item_schema(item)
     })
 
 
 @bp.put("/item/<key>")
 def edit_item(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    item = query({"type": "item", "key": key}, db=db)
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
     if not item:
         return jsonify({
             "status": 400,
@@ -108,7 +109,14 @@ def edit_item(key):
         elif request.json["status"] == "live" and not item["price"]:
             error["status"] = "add price"
         else:
-            item["status"] = request.json["status"]
+            cur.execute("""
+                    UPDATE item
+                    SET status = %s
+                    WHERE key = %s;
+                """, (
+                request.json["status"],
+                item["key"]
+            ))
 
     if "name" in request.json:
         if "item:edit_name" not in user["roles"]:
@@ -116,15 +124,23 @@ def edit_item(key):
         elif not request.json["name"]:
             error["name"] = "this field is required"
         else:
-            item["name"] = request.json["name"]
-
             slug = re.sub('-+', '-', re.sub(
                 '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
-            slug_in_use = query({"type": "item", "slug": slug}, db=db)
+            cur.execute('SELECT * FROM item WHERE slug = %s;', (slug,))
+            slug_in_use = cur.fetchone()
             if ((slug_in_use and slug_in_use['key'] != item["key"])
                     or slug in reserved_words):
                 slug = f"{slug}-{str(uuid4().hex)[:10]}"
-            item["slug"] = slug
+
+            cur.execute("""
+                    UPDATE item
+                    SET name = %s, slug = %s
+                    WHERE key = %s;
+                """, (
+                request.json["name"],
+                slug,
+                item["key"]
+            ))
 
     if "tags" in request.json:
         if "item:edit_tag" not in user["roles"]:
@@ -132,7 +148,14 @@ def edit_item(key):
         elif type(request.json["tags"]) is not list:
             error["tags"] = "this field is required"
         else:
-            item["tags"] = request.json["tags"]
+            cur.execute("""
+                    UPDATE item
+                    SET tags = %s
+                    WHERE key = %s;
+                """, (
+                request.json["tags"],
+                item["key"]
+            ))
 
     if "price" in request.json:
         item["price"] = None
@@ -146,9 +169,23 @@ def edit_item(key):
             ):
                 error["price"] = "please enter a valid price"
             else:
-                item["price"] = request.json["price"]
+                cur.execute("""
+                        UPDATE item
+                        SET price = %s
+                        WHERE key = %s;
+                    """, (
+                    request.json["price"],
+                    item["key"]
+                ))
         elif item["status"] == "live":
-            item["status"] = "draft"
+            cur.execute("""
+                    UPDATE item
+                    SET status = %s
+                    WHERE key = %s;
+                """, (
+                "draft",
+                item["key"]
+            ))
 
     if "old_price" in request.json:
         item["old_price"] = None
@@ -164,13 +201,27 @@ def edit_item(key):
             elif request.json["old_price"] <= request.json["price"]:
                 error["old_price"] = 'old price should be greater than price'
             else:
-                item["old_price"] = request.json["old_price"]
+                cur.execute("""
+                        UPDATE item
+                        SET old_price = %s
+                        WHERE key = %s;
+                    """, (
+                    request.json["old_price"],
+                    item["key"]
+                ))
 
     if "info" in request.json:
         if "item:edit_info" not in user["roles"]:
             error["info"] = "unauthorized access"
         else:
-            item["info"] = request.json["info"]
+            cur.execute("""
+                    UPDATE item
+                    SET information = %s
+                    WHERE key = %s;
+                """, (
+                request.json["information"],
+                item["key"]
+            ))
 
     if "variation" in request.json:
         if "item:edit_variation" not in user["roles"]:
@@ -185,7 +236,15 @@ def edit_item(key):
                     or len(variation[key]) == 0
                 ):
                     del variation[key]
-            item["variation"] = variation
+
+            cur.execute("""
+                    UPDATE item
+                    SET variation = %s
+                    WHERE key = %s;
+                """, (
+                variation,
+                item["key"]
+            ))
 
     if error != {}:
         return jsonify({
@@ -193,28 +252,41 @@ def edit_item(key):
             **error
         })
 
-    item["date_u"] = now()
-    database(item)
+    cur.execute("""
+            UPDATE item
+            date_updated = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (
+        datetime.now(),
+        item["key"]
+    ))
+    item = cur.fetchone()
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "edited",
         item["key"],
         "item",
-        misc=request.json
+        200,
+        request.json
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db)
+        "item": item_schema(item)
     })
 
 
 @bp.post("/photo/<key>")
 def post_many_photo(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -227,7 +299,8 @@ def post_many_photo(key):
             "error": "unauthorized access"
         })
 
-    item = query({"type": "item", "key": key}, db=db)
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
     if 'files' not in request.files or not item:
         return jsonify({
             "status": 400,
@@ -260,25 +333,37 @@ def post_many_photo(key):
 
     file_names = []
     for x in files:
-        fn = storage(x)
-        item["photos"].append(fn)
-        file_names.append(fn)
+        filename = storage(x)
+        file_names.append(filename)
 
-    database(item)
-    query_run(log_template(
+    cur.execute("""
+            UPDATE item
+            SET photos = %s, date_updated = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (
+        item["photos"] + file_names,
+        datetime.now(),
+        item["key"]
+    ))
+    item = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "added_photo",
         item["key"],
         "item",
-        misc={
-            "added": ", ".join(file_names),
-            "error": error
-        }
+        200,
+        {"added": ", ".join(file_names), "error": error}
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db),
+        "item": item_schema(item),
         "error": error
     })
 
@@ -286,7 +371,7 @@ def post_many_photo(key):
 @bp.put("/photo/<key>")
 def arrange_photo(key):
 
-    db = database()
+    con, cur = db_open()
 
     user = token_to_user()
     if not user:
@@ -301,45 +386,57 @@ def arrange_photo(key):
             "error": "unauthorized access"
         })
 
-    def fix(arr):
-        return [p.split("/")[-1] for p in arr]
-
-    item = query({"type": "item", "key": key}, db=db)
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
     if (
         not item
         or "photos" not in request.json
         or type(request.json["photos"]) is not list
-        or set(item["photos"]) != set(fix(request.json["photos"]))
+        or set(item["photos"]) != set(
+            [p.split("/")[-1] for p in request.json["photos"]])
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    query_run(log_template(
+    in_photos = [p.split("/")[-1] for p in request.json["photos"]]
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "arranged_photo",
         item["key"],
         "item",
-        misc={
-            "from": item["photos"],
-            "to": fix(request.json["photos"])
-        }
+        200,
+        {"from": item["photos"], "to": in_photos}
     ))
 
-    item["photos"] = fix(request.json["photos"])
-    database(item)
+    cur.execute("""
+            UPDATE item
+            SET photos = %s, date_updated = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (
+        in_photos,
+        datetime.now(),
+        item["key"]
+    ))
+    item = cur.fetchone()
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db)
+        "item": item_schema(item)
     })
 
 
 @bp.delete("/photo/<key>")
 def delete_photo(key):
 
-    db = database()
+    con, cur = db_open()
 
     user = token_to_user()
     if not user:
@@ -354,8 +451,8 @@ def delete_photo(key):
             "error": "unauthorized access"
         })
 
-    item = query({"type": "item", "key": key}, db=db)
-
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
     if (
         not item
         or "active_photo" not in request.json
@@ -369,23 +466,48 @@ def delete_photo(key):
 
     file_name = request.json["active_photo"].split("/")[-1]
 
-    item["photos"].remove(file_name)
-    if len(item["photos"]) == 0 and item["status"] == "live":
-        item["status"] = "draft"
     storage(file_name, delete=True)
-    database(item)
 
-    query_run(log_template(
+    item["photos"].remove(file_name)
+    cur.execute("""
+            UPDATE item
+            SET photos = %s, date_updated = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (
+        item["photos"],
+        datetime.now(),
+        item["key"]
+    ))
+    item = cur.fetchone()
+
+    if len(item["photos"]) == 0 and item["status"] == "live":
+        cur.execute("""
+                UPDATE item
+                SET status = %s, date_updated = %s
+                WHERE key = %s
+                RETURNING *;
+            """, (
+            "draft",
+            datetime.now(),
+            item["key"]
+        ))
+        item = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "deleted_photo",
         item["key"],
         "item",
-        misc={
-            "photo": file_name
-        }
+        200,
+        {"photo": file_name}
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item, db)
+        "item": item_schema(item)
     })
