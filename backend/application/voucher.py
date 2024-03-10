@@ -126,8 +126,7 @@ def get_vouchers():
         FROM (
             SELECT *
             FROM voucher v
-            WHERE v.status = %s
-            AND LOWER(v.key) LIKE LOWER(%s)
+            WHERE v.status = %s AND v.key ILIKE %s
             ORDER BY (
                 SELECT l.date
                 FROM log l
@@ -139,8 +138,8 @@ def get_vouchers():
         status,
         f'%{search}%',
         page_size,
-        (page_no - 1) * page_size)
-    )
+        (page_no - 1) * page_size
+    ))
     vouchers = cur.fetchall()
 
     total_page = 0
