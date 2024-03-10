@@ -61,8 +61,10 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
     entity_type VARCHAR(20),
     status INT DEFAULT 200,
     misc JSONB DEFAULT '{}'::JSONB,
-    FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE
+
+    FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
+# FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE
 
 # "status": inactive, active, used, deleted, expired
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
@@ -74,6 +76,17 @@ voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     code VARCHAR(10) NOT NULL,
     value FLOAT DEFAULT 0,
     validity TIMESTAMP
+);"""
+
+otp_table = """CREATE TABLE IF NOT EXISTS otp (
+    key CHAR(32) PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+
+    user_key CHAR(32) NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+
+    FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
 
 

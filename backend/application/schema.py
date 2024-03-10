@@ -1,7 +1,6 @@
 from flask import request
 from .database import query
 from .tools import now
-from uuid import uuid4
 # import json
 
 
@@ -204,20 +203,4 @@ def advert_schema(advert, db):
             "900x300": get_url('900x300')
         },
         "places": advert["places"]
-    }
-
-
-def otp_template(
-    user,
-    entity,
-    otp,
-):
-    return {
-        "key": uuid4().hex,
-        "date": now(),
-        "type": "otp",
-
-        "user": user,
-        "entity": entity,
-        "otp": otp,
     }

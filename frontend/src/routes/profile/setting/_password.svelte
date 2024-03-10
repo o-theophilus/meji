@@ -33,7 +33,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			message = 'emails containing the OTP has been sent to your email';
+			message = 'OTP has been sent to your email. The OTP will valid for 15 minutes';
 		} else {
 			error = resp;
 		}

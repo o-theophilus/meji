@@ -45,7 +45,8 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			message = 'emails containing the OTP has been sent to your current email and your new email';
+			message =
+				'OTP has been sent to your current email and your new email. The OTP will valid for 15 minutes';
 		} else {
 			error = resp;
 		}

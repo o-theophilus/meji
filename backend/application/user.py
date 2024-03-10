@@ -1,15 +1,16 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now, token_tool, send_mail
+from .tools import token_to_user, token_tool, send_mail
 from werkzeug.security import check_password_hash
-from .schema import user_schema, otp_template
-from .auth import user_template
-from .database import database, query
+from .schema import user_schema
 import re
 from werkzeug.security import generate_password_hash
 from .storage import storage
 import random
 from uuid import uuid4
 import os
+from .postgres import db_close, db_open
+from datetime import datetime, timedelta
+from .log import log_template
 
 
 bp = Blueprint("user", __name__)
@@ -17,9 +18,9 @@ bp = Blueprint("user", __name__)
 
 @bp.post("/setting")
 def setting():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -30,14 +31,50 @@ def setting():
         "theme" in request.json
         and request.json["theme"] in ["dark", "light"]
     ):
-        user["setting"]["theme"] = request.json["theme"]
+        cur.execute("""
+            UPDATE "user"
+            SET setting_theme = %s
+            WHERE key = %s;
+        """, (
+            request.json["theme"],
+            user["key"]
+        ))
+
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "changed_theme",
+            user["key"],
+            "user", 200,
+            {"from": user["setting_theme"], "to": request.json["theme"]}
+        ))
+
     if (
         "item_view" in request.json
         and request.json["item_view"] in ["grid", "list"]
     ):
-        user["setting"]["item_view"] = request.json["item_view"]
+        cur.execute("""
+            UPDATE "user"
+            SET setting_item_view = %s
+            WHERE key = %s;
+        """, (
+            request.json["item_view"],
+            user["key"]
+        ))
 
-    user = database(user)
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "changed_view",
+            user["key"],
+            "user", 200,
+            {"from": user["setting_item_view"],
+                "to": request.json["item_view"]}
+        ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200
@@ -46,10 +83,11 @@ def setting():
 
 @bp.post("/user_role/<key>")
 def user_role(key):
-    db = database()
+    con, cur = db_open()
 
-    me = token_to_user()
-    user = query({"type": "user", "key": key}, db=db)
+    me = token_to_user(cur)
+    cur.execute('SELECT * FROM "user" WHERE key = %s;', (key,))
+    user = cur.fetchone()
 
     error = None
     if not me or "user:set_role" not in me["roles"]:
@@ -74,21 +112,38 @@ def user_role(key):
             "error": error
         })
 
-    user["roles"] = request.json["roles"]
-    user["date_u"] = now()
-    user = database(user)
+    cur.execute("""
+        UPDATE "user"
+        SET roles = %s
+        WHERE key = %s;
+    """, (
+        request.json["roles"],
+        user["key"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        me["key"],
+        "changed_role",
+        user["key"],
+        "user", 200,
+        {"from": user["roles"], "to": request.json["roles"]}
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.put("/user/<key>")
 def edit_user(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user or user["key"] != key:
         return jsonify({
             "status": 400,
@@ -101,13 +156,27 @@ def edit_user(key):
         if not request.json["name"]:
             error['name'] = "this field is required"
         else:
-            user["name"] = request.json["name"]
+            cur.execute("""
+                UPDATE "user"
+                SET name = %s
+                WHERE key = %s;
+            """, (
+                request.json["name"],
+                user["key"]
+            ))
 
     if "phone" in request.json:
         if not request.json["phone"]:
             error['phone'] = "this field is required"
         else:
-            user["phone"] = request.json["phone"]
+            cur.execute("""
+                UPDATE "user"
+                SET phone = %s
+                WHERE key = %s;
+            """, (
+                request.json["phone"],
+                user["key"]
+            ))
 
     if (
         "line" in request.json
@@ -119,23 +188,58 @@ def edit_user(key):
         if not request.json["line"]:
             error["line"] = "this field is required"
         else:
-            user["address"]["line"] = request.json["line"]
+            cur.execute("""
+                UPDATE "user"
+                SET address_line = %s
+                WHERE key = %s;
+            """, (
+                request.json["line"],
+                user["key"]
+            ))
         if not request.json["state"]:
             error["state"] = "this field is required"
         else:
-            user["address"]["state"] = request.json["state"]
+            cur.execute("""
+                UPDATE "user"
+                SET address_state = %s
+                WHERE key = %s;
+            """, (
+                request.json["state"],
+                user["key"]
+            ))
         if not request.json["country"]:
             error["country"] = "this field is required"
         else:
-            user["address"]["country"] = request.json["country"]
+            cur.execute("""
+                UPDATE "user"
+                SET address_country = %s
+                WHERE key = %s;
+            """, (
+                request.json["country"],
+                user["key"]
+            ))
         if not request.json["local_area"]:
             error["local_area"] = "this field is required"
         else:
-            user["address"]["local_area"] = request.json["local_area"]
+            cur.execute("""
+                UPDATE "user"
+                SET address_local_area = %s
+                WHERE key = %s;
+            """, (
+                request.json["local_area"],
+                user["key"]
+            ))
         if not request.json["postal_code"]:
             error["postal_code"] = "this field is required"
         else:
-            user["address"]["postal_code"] = request.json["postal_code"]
+            cur.execute("""
+                UPDATE "user"
+                SET address_postal_code = %s
+                WHERE key = %s;
+            """, (
+                request.json["postal_code"],
+                user["key"]
+            ))
 
     if error != {}:
         return jsonify({
@@ -143,20 +247,30 @@ def edit_user(key):
             **error
         })
 
-    user["date_u"] = now()
-    user = database(user)
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "edited",
+        user["key"],
+        "user",
+        200,
+        request.json
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.post("/email_otp")
 def send_email_otp():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -180,31 +294,51 @@ def send_email_otp():
             "email": "please use a different email form your current email"
         })
 
-    exist = query({"type": "user", "email": request.json["email"]}, db=db)
+    cur.execute('SELECT * FROM "user" WHERE email = %s;',
+                (request.json["email"],))
+    exist = cur.fetchone()
     if exist:
         return jsonify({
             "status": 400,
             "email": "email is already in use"
         })
 
-    otps = query({"type": "otp", "user": user['key']}, many=True, db=db)
-    database(otps, delete=True)
+    cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
 
     otp_1 = str(random.randint(1000, 9999))
     otp_2 = str(random.randint(1000, 9999))
 
-    database([
-        otp_template(
-            user['key'],
-            user['email'],
-            otp_1
-        ),
-        otp_template(
-            user['key'],
-            request.json["email"],
-            otp_2
-        )
-    ])
+    cur.execute("""
+            INSERT INTO otp (key, date, user_key, code, email)
+            VALUES (%s, %s, %s, %s, %s);
+        """, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        otp_1,
+        user['email']
+    ))
+    cur.execute("""
+            INSERT INTO otp (key, date, user_key, code, email)
+            VALUES (%s, %s, %s, %s, %s);
+        """, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        otp_2,
+        request.json["email"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "requested",
+        user["key"],
+        "otp",
+        200,
+        {"to": f"{user['email']}, {request.json['email']}"}
+    ))
 
     send_mail(
         user["email"],
@@ -221,6 +355,8 @@ def send_email_otp():
         )
     )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200
     })
@@ -228,39 +364,60 @@ def send_email_otp():
 
 @bp.post("/email")
 def email():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
 
     error = {}
+    cur.execute('SELECT * FROM "user" WHERE email = %s;',
+                (request.json["email"],))
+    email_exist = cur.fetchone()
+
     if "email" not in request.json or not request.json["email"]:
         error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
     elif user["email"] == request.json["email"]:
         error["email"] = "please use a different email form your current email"
-    elif query({"type": "user", "email": request.json["email"]}, db=db):
+    elif email_exist:
         error["email"] = "email is already in use"
 
     if "otp_1" not in request.json or not request.json["otp_1"]:
         error["otp_1"] = "this field is required"
     else:
-        otp_1 = query(
-            {"type": "otp", "user": user['key'],
-                "entity": user['email'], "otp": request.json["otp_1"]},
-            db=db)
+        cur.execute("""
+            SELECT * FROM otp
+            WHERE user = %s, code = %s, email = %s;
+        """, (
+            user['key'],
+            request.json["otp_1"],
+            user['email']
+        ))
+        otp_1 = cur.fetchone()
 
         if not otp_1:
+            error["otp_1"] = "invalid OTP"
+        elif datetime.now() - otp_1["date"] > timedelta(minutes=15):
+            cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
             error["otp_1"] = "invalid OTP"
 
     if "otp_2" not in request.json or not request.json["otp_2"]:
         error["otp_2"] = "this field is required"
     else:
-        otp_2 = query(
-            {"type": "otp", "user": user['key'],
-                "entity": request.json["email"], "otp": request.json["otp_2"]},
-            db=db)
+        cur.execute("""
+            SELECT * FROM otp
+            WHERE user = %s, code = %s, email = %s;
+        """, (
+            user['key'],
+            request.json["otp_2"],
+            request.json["email"]
+        ))
+        otp_2 = cur.fetchone()
+
         if not otp_2:
+            error["otp_2"] = "invalid OTP"
+        elif datetime.now() - otp_2["date"] > timedelta(minutes=15):
+            cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
             error["otp_2"] = "invalid OTP"
 
     if error != {}:
@@ -269,22 +426,41 @@ def email():
             **error
         })
 
-    user["email"] = request.json["email"]
-    user = database(user)
-    database(otp_1, delete=True)
-    database(otp_2, delete=True)
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "changed_email",
+        user["key"],
+        "user",
+        200,
+        {"from": user['email'], "to": request.json['email']}
+    ))
+    cur.execute("""
+        UPDATE "user"
+        SET email = %s
+        WHERE key = %s
+        RETURNING *;
+    """, (
+        request.json["email"],
+        user["key"]
+    ))
+    user = cur.fetchone()
+    cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.post("/password_otp")
 def send_password_otp():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -300,15 +476,30 @@ def send_password_otp():
             "error": "invalid request"
         })
 
-    otps = query({"type": "otp", "user": user['key']}, many=True, db=db)
-    database(otps, delete=True)
+    cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
 
     otp = str(random.randint(1000, 9999))
 
-    database(otp_template(
-        user['key'],
-        user['email'],
-        otp
+    cur.execute("""
+            INSERT INTO otp (key, date, user_key, code, email)
+            VALUES (%s, %s, %s, %s, %s);
+        """, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        otp,
+        user["email"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "requested",
+        user["key"],
+        "otp",
+        200,
+        {"to": f"{user['email']}, {request.json['email']}"}
     ))
 
     send_mail(
@@ -319,6 +510,8 @@ def send_password_otp():
         )
     )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200
     })
@@ -326,9 +519,9 @@ def send_password_otp():
 
 @bp.post("/password")
 def password():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
 
     error = {}
     if "password" not in request.json or not request.json["password"]:
@@ -362,12 +555,20 @@ def password():
     if "otp" not in request.json or not request.json["otp"]:
         error["otp"] = "this field is required"
     else:
-        otp = query(
-            {"type": "otp", "user": user['key'],
-                "entity": user['email'], "otp": request.json["otp"]},
-            db=db)
+        cur.execute("""
+            SELECT * FROM otp
+            WHERE user = %s, code = %s, email = %s;
+        """, (
+            user['key'],
+            request.json["otp"],
+            user["email"]
+        ))
+        otp = cur.fetchone()
 
         if not otp:
+            error["otp"] = "invalid OTP"
+        elif datetime.now() - otp["date"] > timedelta(minutes=15):
+            cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
             error["otp"] = "invalid OTP"
 
     if error != {}:
@@ -376,10 +577,27 @@ def password():
             **error
         })
 
-    user["password"] = generate_password_hash(
-        request.json["password"], method="scrypt")
-    user = database(user)
-    database(otp, delete=True)
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "changed_password",
+        user["key"],
+        "user",
+        200,
+        None
+    ))
+    cur.execute("""
+        UPDATE "user"
+        SET password = %s
+        WHERE key = %s;
+    """, (
+        generate_password_hash(request.json["password"], method="scrypt"),
+        user["key"]
+    ))
+    cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200
@@ -388,9 +606,9 @@ def password():
 
 @ bp.delete("/user")
 def delete():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -409,25 +627,52 @@ def delete():
             "error": "incorrect password"
         })
 
-    user["status"] = "deleted"
-    user["login"] = False
-    temp = uuid4().hex
-    anon_user = user_template("anonymous", temp, temp)
-    anon_user["setting"]["theme"] = user["setting"]["theme"]
-    database([user, anon_user])
+    cur.execute("""
+        UPDATE "user"
+        SET status = %s, login = %s
+        WHERE key = %s;
+    """, (
+        "deleted",
+        False,
+        user["key"]
+    ))
+
+    cur.execute("""
+        INSERT INTO "user" (key, version, email, password, setting_theme)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING *;
+    """, (
+        uuid4().hex, uuid4().hex, uuid4().hex,
+        generate_password_hash(uuid4().hex, method="scrypt"),
+        user["setting_theme"]
+    ))
+    anon_user = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "deleted_account",
+        user["key"],
+        "user",
+        200,
+        None
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(anon_user, db),
+        "user": user_schema(anon_user),
         "token": token_tool().dumps(anon_user["key"])
     })
 
 
 @bp.post("/user_photo")
 def add_photo():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -450,20 +695,42 @@ def add_photo():
 
     if user["photo"]:
         storage(user["photo"], delete=True)
-    user["photo"] = storage(file)
-    database(user)
+
+    cur.execute("""
+        UPDATE "user"
+        SET photo = %s
+        WHERE key = %s
+        RETURNING *;
+    """, (
+        storage(file),
+        user["key"]
+    ))
+    user = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "updated_photo",
+        user["key"],
+        "user",
+        200,
+        None
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.delete("/user_photo")
 def delete_photo():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -471,8 +738,28 @@ def delete_photo():
         })
 
     storage(user["photo"].split("/")[-1], delete=True)
-    user["photo"] = None
-    database(user)
+
+    cur.execute("""
+        UPDATE "user"
+        SET photo = %s
+        WHERE key = %s;
+    """, (
+        None,
+        user["key"]
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "deleted_photo",
+        user["key"],
+        "user",
+        200,
+        None
+    ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200
