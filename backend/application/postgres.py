@@ -26,6 +26,17 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
     available_quantity INT DEFAULT 0,
 );"""
 
+save_table = """CREATE TABLE IF NOT EXISTS save (
+    key CHAR(32) PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+
+    user_key CHAR(32) NOT NULL,
+    item_key CHAR(32) NOT NULL,
+
+    FOREIGN KEY (user_key) REFERENCES "user"(key)
+    FOREIGN KEY (item_key) REFERENCES "item"(key)
+);"""
+
 # "status": anonymous, signed_up, confirmed
 user_table = """CREATE TABLE IF NOT EXISTS "user" (
     key CHAR(32) PRIMARY KEY,

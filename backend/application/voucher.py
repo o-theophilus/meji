@@ -142,16 +142,12 @@ def get_vouchers():
     ))
     vouchers = cur.fetchall()
 
-    total_page = 0
-    if vouchers:
-        total_page = ceil(vouchers[0][-1] / page_size)
-
     db_close(con, cur)
 
     return {
         "status": 200,
         "vouchers": [voucher_schema(x) for x in vouchers],
-        "total_page": total_page
+        "total_page": ceil(vouchers[0][-1] / page_size) if vouchers else 0
     }
 
 

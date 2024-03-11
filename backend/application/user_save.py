@@ -1,48 +1,62 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now
+from .tools import token_to_user
 from .schema import user_schema, item_schema
-from .database import database, query
 from math import ceil
 from uuid import uuid4
+from .postgres import db_close, db_open
+from datetime import datetime
 
 bp = Blueprint("save", __name__)
 
 
 @bp.get("/save")
 def get_saves():
-    db = database()
-    user = token_to_user()
+    con, cur = db_open()
+
+    user = token_to_user(cur)
 
     page_no = 1
-    size = 24
+    page_size = 24
 
-    items = []
-    saves = query({"type": "save", "user": user["key"]}, True, db=db)
-    saves = sorted(saves, key=lambda x: x["date"])
-    saves = [x["item"] for x in saves]
-    for x in db:
-        if x["type"] == "item" and x["key"] in saves:
-            items.append(x)
+    cur.execute("SELECT * FROM save WHERE user_key = %s;", (user["key"],))
+    saves = [x['item_key'] for x in cur.fetchall()]
 
-    items = sorted(items, key=lambda x: saves.index(x["key"]), reverse=True)
+    cur.execute("""
+        SELECT *, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM item i
+            WHERE %s = '{}' OR i.key IN %s
+            ORDER BY (
+                SELECT s.date
+                FROM save s
+                WHERE s.item_key = i.key
+            ) DESC
+        ) AS subquery
+        LIMIT %s OFFSET %s;
+    """, (
+        saves,
+        saves,
+        page_size,
+        (page_no - 1) * page_size
+    ))
 
-    total_page = ceil(len(items) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    items = items[start: stop]
+    items = cur.fetchall()
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "items": [item_schema(x, db) for x in items],
-        "total_page": total_page
+        "items": [item_schema(x) for x in items],
+        "total_page": ceil(items[0][-1] / page_size) if items else 0
     })
 
 
 @bp.post("/save")
 def save_item():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -59,32 +73,41 @@ def save_item():
             "error": "invalid request"
         })
 
-    item = query({"type": "item", "key": request.json["key"]}, db=db)
+    cur.execute("SELECT * FROM item WHERE key = %s;", (request.json["key"],))
+    item = cur.fetchone()
     if not item:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    saved_item = query({
-        "type": "save", "user": user["key"],
-        "item": item["key"]}, db=db)
+    cur.execute("""
+        SELECT *
+        FROM save
+        WHERE user_key = %s, item_key = %s;
+    """, (
+        user["key"],
+        request.json["key"]
+    ))
+    saved_item = cur.fetchone()
 
     if saved_item and not request.json["save"]:
-        database(saved_item, True)
-        db = [x for x in db if x["key"] != saved_item["key"]]
+        cur.execute("DELETE FROM save WHERE key = %s;", (saved_item["key"],))
 
     elif not saved_item and request.json["save"]:
-        save = database({
-            "key": uuid4().hex,
-            "date": now(),
-            "type": "save",
-            "user": user['key'],
-            "item": item['key'],
-        })
-        db.append(save)
+        cur.execute("""
+            INSERT INTO save (key, date, user_key, item_key)
+            VALUES (%s, %s, %s, %s);
+        """, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            item["key"]
+        ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db),
+        "user": user_schema(user),
     })

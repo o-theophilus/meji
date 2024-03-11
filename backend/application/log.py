@@ -51,12 +51,9 @@ def get():
         cur.execute("""
             SELECT key
             FROM "user"
-            WHERE key ILIKE %s OR name ILIKE %s OR email ILIKE %s;
-        """, (
-            f"%{user_id}%",
-            f"%{user_id}%",
-            f"%{user_id}%"
-        ))
+            WHERE CONCAT_WS(', ', key, name, email) ILIKE %s;
+        """, (f"%{user_id}%",)
+        )
         user_keys = [x['key'] for x in cur.fetchall()]
 
     entity_keys = []
@@ -128,14 +125,10 @@ def get():
 
     logs = cur.fetchall()
 
-    total_page = 0
-    if logs:
-        total_page = ceil(logs[0][-1] / page_size)
-
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
         "logs": [log_schema(x) for x in logs],
-        "total_page": total_page
+        "total_page": ceil(logs[0][-1] / page_size) if logs else 0
     })

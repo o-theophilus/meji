@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from .schema import user_schema
 from .tools import token_to_user
-from .database import database
 from math import ceil
-import re
+from .postgres import db_close, db_open
 
 
 bp = Blueprint("user_get", __name__)
@@ -11,9 +10,9 @@ bp = Blueprint("user_get", __name__)
 
 @bp.get("/user")
 def get_user():
-    db = database()
+    con, cur = db_open()
 
-    me = token_to_user()
+    me = token_to_user(cur)
     if not me:
         return jsonify({
             "status": 400,
@@ -30,17 +29,18 @@ def get_user():
             })
 
         if request.args["search"]:
-            for x in db:
-                if x["type"] == "user" and (
-                    x["key"] == request.args["search"]
-                    or x["email"] == request.args["search"]
-                ):
-                    user = x
+            cur.execute("""
+                SELECT *
+                FROM "user"
+                WHERE key = %s OR email = %s;
+            """, (
+                request.args["search"],
+                request.args["search"]
+            ))
+            user = cur.fetchone()
 
-                    if "user:view_balance" not in me["roles"]:
-                        user["acc_balance"] = "#"
-
-                    break
+            if user and "user:view_balance" not in me["roles"]:
+                user["acc_balance"] = "#"
 
         if not user:
             return jsonify({
@@ -51,17 +51,19 @@ def get_user():
     else:
         user = me
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200,
-        "user": user_schema(user, db)
+        "user": user_schema(user)
     })
 
 
 @bp.get("/users")
 def get_users():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -76,54 +78,58 @@ def get_users():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
-    sort = request.args["sort"] if "sort" in request.args else "latest"
+    sort_by = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
+    page_size = int(request.args["size"]) if "size" in request.args else 24
 
-    users = []
-    for x in db:
-        if x["type"] != "user":
-            continue
-        if status and x["status"] != status:
-            continue
-        if (
-            search
-            and not re.search(
-                search,
-                f"{x['key']} {x['name']} {x['email']}",
-                re.IGNORECASE
-            )
-        ):
-            continue
-        users.append(x)
+    sort_order = "DESC" if sort_by in ["latest", "name (z-a)"] else "ASC"
+    if sort_by in ["latest", "oldest"]:
+        sort_by = "date"
+    elif sort_by in ["name (a-z)", "name (z-a)"]:
+        sort_by = "name"
 
-    reverse = sort in ["latest", "name (z-a)"]
+    cur.execute("""
+        SELECT user.*, log.date AS date, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM "user"
+            WHERE status = %s AND CONCAT_WS(', ', key, name, email) ILIKE %s
+        ) AS user
+        LEFT JOIN log ON user.key = log.user_key
+            AND log.action = 'created'
+            AND log.entity_type = 'auth'
+        ORDER BY
+            CASE %s
+                WHEN 'name' THEN user.name
+                WHEN 'date' THEN log.date
+                ELSE log.date
+            END
+            %s
+        LIMIT %s OFFSET %s;
+    """, (
+        status,
+        f"%{search}%",
+        sort_by,
+        sort_order,
+        page_size,
+        (page_no - 1) * page_size
+    ))
+    users = cur.fetchall()
 
-    if sort in ["latest", "oldest"]:
-        sort = "date_c"
-    elif sort in ["name (a-z)", "name (z-a)"]:
-        sort = "name"
-
-    users = sorted(users, key=lambda d: d[sort].lower() if isinstance(
-        d[sort], str) else d[sort], reverse=reverse)
-
-    total_page = ceil(len(users) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    users = users[start: stop]
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "users": [user_schema(x, db) for x in users],
-        "total_page": total_page
+        "users": [user_schema(x) for x in users],
+        "total_page": ceil(users[0][-1] / page_size) if users else 0
     })
 
 
 @bp.get("/admin_users")
 def admin_users():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -131,7 +137,7 @@ def admin_users():
         })
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
+    page_size = int(request.args["size"]) if "size" in request.args else 24
 
     search = "all:all:all"
     if "search" in request.args:
@@ -144,88 +150,109 @@ def admin_users():
             "error": "invalid search"
         })
 
-    _user, _type, _role = search
+    user_key, role_type, role_action = search
 
     if "user:view" not in user["roles"]:
-        _user = user["key"]
+        user_key = user["key"]
 
-    users = []
-    for x in db:
-        if x["type"] != "user" or len(x["roles"]) == 0:
-            continue
+    cur.execute("""
+        SELECT user.*, log.date AS date, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM "user"
+            WHERE
+                (length(roles) > 0)
+                AND (%s = 'all' OR CONCAT_WS(', ', key, name, email) ILIKE %s)
+                AND (%s = 'all' OR ARRAY_TO_STRING(roles, ',') ILIKE %s)
+                AND (%s = 'all' OR ARRAY_TO_STRING(roles, ',') ILIKE %s)
+        ) AS user
+        LEFT JOIN log ON user.key = log.user_key
+            AND log.action = 'created'
+            AND log.entity_type = 'auth'
+        ORDER BY
+            CASE %s
+                WHEN 'name' THEN user.name
+                WHEN 'date' THEN log.date
+                ELSE log.date
+            END
+            %s
+        LIMIT %s OFFSET %s;
+    """, (
+        user_key, f"%{user_key}%",
+        role_type, f"%{role_type}:%",
+        role_action, f"%{role_type}:{role_action}%",
+        page_size,
+        (page_no - 1) * page_size
+    ))
+    users = cur.fetchall()
 
-        if _user != 'all':
-            if not re.search(
-                _user,
-                f"{x['key']} {x['name']} {x['email']}",
-                re.IGNORECASE
-            ):
-                continue
+    users = cur.fetchall()
 
-        if _type != 'all':
-            x_types = [y.split(":")[0] for y in x["roles"]]
-            if _type not in x_types:
-                continue
-
-        if _role != 'all':
-            if f"{_type}:{_role}" not in x["roles"]:
-                continue
-
-        users.append(x)
-
-    users = sorted(users, key=lambda d: len(d["roles"]), reverse=True)
-
-    total_page = ceil(len(users) / size)
-
-    start = (page_no - 1) * size
-    stop = start + size
-    users = users[start: stop]
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "users": [user_schema(x, db) for x in users],
-        "total_page": total_page
+        "users": [user_schema(x) for x in users],
+        "total_page": ceil(users[0][-1] / page_size) if users else 0
     })
+
+
+def trx_schema(x):
+    return {
+        "date": x["date"],
+        "direction": ("credit" if x["entity_type"] == "voucher"
+                      else "debit"),
+        "entity": x["entity"],
+        "entity_type": x["entity_type"],
+        "status": x["status"],
+        "misc": x["misc"]
+    }
 
 
 @bp.get("/transactions")
 def get_transactions():
-    db = database()
-    log_db = database(db_name="log")
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    def trx_schema(y, dir):
-        return {
-            "date": y["date"],
-            "direction": dir,
-            "entity": y["entity"],
-            "entity_type": y["entity_type"],
-            "status": y["status"],
-            "misc": y["misc"]
-        }
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    page_size = int(request.args["size"]) if "size" in request.args else 24
 
-    trxs = []
-    for x in log_db:
-        if x["type"] == "log" and x["user"] == user["key"]:
-            if x["entity_type"] == "voucher" and x["action"] == "used":
-                trxs.append(trx_schema(x, "credit"))
+    cur.execute("""
+        SELECT *, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM "user"
+            WHERE user_key = %s AND (
+                (
+                    entity_type = "voucher"
+                    AND action = "used")
+                OR
+                (
+                    entity_type = "order"
+                    AND action = "created"
+                    AND (misc->>'value')::numeric > 0
+                )
+            )
+        ) AS subquery
+        ORDER BY date DESC
+        LIMIT %s OFFSET %s;
+    """, (
+        user["key"],
+        page_size,
+        (page_no - 1) * page_size
+    ))
+    trans = cur.fetchall()
 
-            elif (
-                x["entity_type"] == "order"
-                and x["action"] == "created"
-                and x["misc"]
-                and "value" in x["misc"]
-                and x["misc"]["value"] > 0
-            ):
-                trxs.append(trx_schema(x, "debit"))
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "transactions": trxs
+        "transactions": [trx_schema(x) for x in trans],
+        "total_page": ceil(trans[0][-1] / page_size) if trans else 0
     })
