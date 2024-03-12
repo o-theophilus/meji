@@ -45,18 +45,7 @@ def get():
     if "log:view" not in user["roles"]:
         user_id = user["key"]
 
-    user_keys = []
-    if user_id != "all":
-
-        cur.execute("""
-            SELECT key
-            FROM "user"
-            WHERE CONCAT_WS(', ', key, name, email) ILIKE %s;
-        """, (f"%{user_id}%",)
-        )
-        user_keys = [x['key'] for x in cur.fetchall()]
-
-    entity_keys = []
+    search_columns = []
     if entity_type != "all":
         cur.execute("""
             SELECT EXISTS (
@@ -73,51 +62,52 @@ def get():
                 FROM information_schema.columns
                 WHERE table_name = %s;
             """, (entity_type,))
-            table_columns = [x[0] for x in cur.fetchall()]
 
-            search_columns = set(['key', 'name', 'email']
-                                 ).intersection(set(table_columns))
+            search_columns = [x[0] for x in cur.fetchall()
+                              if x[0] in ['name', 'email']]
 
-            cur.execute(f"""
-                SELECT key
-                FROM "{entity_type}"
-                WHERE {' OR '.join(f"{x} ILIKE %s" for x in search_columns)};
-            """, tuple(
-                [f'%{entity_id}%' for _ in range(len(search_columns))]
-            ))
-
-            entity_keys = [x['key'] for x in cur.fetchall()]
-
-    cur.execute("""
-        SELECT *, COUNT(*) OVER() AS total_items
+    cur.execute(f"""
+        SELECT log.*,
+            user.name AS user_name,
+            {
+                f"{entity_type}.name AS entity_name,"
+                if "name" in search_columns else
+                f"entity_key.key AS entity_name,"
+                if search_columns != [] else ""
+            }
+            COUNT(*) OVER() AS total_items
         FROM (
             SELECT *
             FROM log
+            LEFT JOIN "user" ON log.user_key = user.key
+            {
+                f'''
+                LEFT JOIN '{entity_type}' ON log.entity_key = {entity_type}.key
+                '''
+                if search_columns != [] else ""
+            }
             WHERE
-                (%s = 'all' OR user_key ILIKE %s OR %s = '{}'
-                    OR user_key IN %s)
-                AND (%s = 'all' OR entity_key ILIKE %s OR %s = '{}'
-                    OR entity_key IN %s)
-                AND (%s = 'all' OR entity_type = %s)
-                AND (%s = 'all' OR action = %s)
-            ORDER BY date DESC
+                (%s = 'all' OR CONCAT_WS(', ',
+                    log.key, user.name, user.email) ILIKE %s)
+                AND (%s = 'all' OR log.entity_type = %s)
+                AND (%s = 'all' OR log.action = %s)
+            {
+                f'''
+                AND (
+                    {entity_id} = 'all' OR CONCAT_WS(', ',
+                    log.key, {', '.join([f"{entity_type}.{x}"
+                    for x in search_columns])}) ILIKE %{entity_id}%)
+                )
+                '''
+                if search_columns != [] else ""
+            }
         ) AS subquery
+        ORDER BY date DESC
         LIMIT %s OFFSET %s;
     """, (
-        user_id,
-        f"%{user_id}%",
-        user_keys,
-        user_keys,
-
-        entity_id,
-        f"%{entity_id}%",
-        entity_keys,
-        entity_keys,
-
-        entity_type,
-        entity_type,
-        user_action,
-        user_action,
+        user_id, f"%{user_id}%",
+        entity_type, entity_type,
+        user_action, user_action,
 
         page_size,
         (page_no - 1) * page_size
