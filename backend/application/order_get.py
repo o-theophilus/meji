@@ -2,75 +2,93 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .schema import order_schema
 from .log import log_template
-from .database import database, query
+from uuid import uuid4
 from math import ceil
-from .postgres import query_run
+from .postgres import db_close, db_open
+from datetime import datetime
 
 bp = Blueprint("order_get", __name__)
 
 
 @bp.get("/orders")
 def get():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    size = int(request.args["size"]) if "size" in request.args else 24
     status = request.args["status"] if "status" in request.args else "created"
-    is_admin = "admin" in request.args
+    search = request.args["search"]
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    page_size = int(request.args["size"]) if "size" in request.args else 24
+    sort_order = "DESC" if True else "ASC"
+    sort_by = "date"
 
-    if is_admin and "order:view" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
+    cur.execute("""
+        SELECT o.*, COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *
+            FROM "order"
+            WHERE status = %s
+                AND (%s = '' OR CONCAT_WS(', ', key, name, email) ILIKE %s)
+                AND (user_key = %s OR %s)
+        ) AS o
+        LEFT JOIN log ON o.key = log.user_key
+            AND log.action = 'created'
+            AND log.entity_type = 'order'
+        ORDER BY
+            CASE %s
+                WHEN 'amount' THEN order.transaction_account_debit
+                WHEN 'date' THEN log.date
+                ELSE log.date
+            END
+            %s
+        LIMIT %s OFFSET %s;
+    """, (
+        status,
+        search, f"%{search}%",
+        user["key"],
+        "admin" in request.args and "order:view" not in user["roles"],
+        sort_order, sort_by,
+        page_size, (page_no - 1) * page_size
+    ))
+    orders = cur.fetchall()
 
-    orders = []
-    for x in db:
-        if x["type"] != "order":
-            continue
-        if status and x["status"] != status:
-            continue
-        if not is_admin and x["user"] != user["key"]:
-            continue
-        orders.append(x)
-
-    # orders = sorted(orders, key=lambda d: d["date_u"])
-
-    total_page = ceil(len(orders) / size)
-    start = (page_no - 1) * size
-    stop = start + size
-    orders = orders[start: stop]
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "orders": [order_schema(order, db) for order in orders],
-        "total_page": total_page
+        "orders": [order_schema(order) for order in orders],
+        "total_page": ceil(orders[0][-1] / page_size) if orders else 0
     })
 
 
 @bp.get("/order/<key>")
 def get_one(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    order = query({"type": "order", "key": key}, db=db)
+    cur.execute("""
+        SELECT *
+        FROM "order"
+        WHERE key = %s;
+    """, (key,))
+    order = cur.fetchone()
+
     if (
         not order
         or (
-            order["user"] != user["key"]
+            order["user_key"] != user["key"]
             and "order:view" not in user["roles"]
         )
     ):
@@ -79,14 +97,20 @@ def get_one(key):
             "error": "invalid request"
         })
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "viewed",
         order["key"],
-        "order"
+        "order",
+        200,
+        None
     ))
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db),
+        "order": order_schema(order)
     })

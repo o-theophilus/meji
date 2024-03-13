@@ -158,7 +158,7 @@ def admin_users():
         user_key = user["key"]
 
     cur.execute("""
-        SELECT user.*, log.date AS date, COUNT(*) OVER() AS total_items
+        SELECT user.*, COUNT(*) OVER() AS total_items
         FROM (
             SELECT *
             FROM "user"
