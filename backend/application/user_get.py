@@ -138,6 +138,8 @@ def admin_users():
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
+    sort_order = "DESC" if True else "ASC"
+    sort_by = "date"
 
     search = "all:all:all"
     if "search" in request.args:
@@ -181,6 +183,8 @@ def admin_users():
         user_key, f"%{user_key}%",
         role_type, f"%{role_type}:%",
         role_action, f"%{role_type}:{role_action}%",
+        sort_order,
+        sort_by,
         page_size,
         (page_no - 1) * page_size
     ))

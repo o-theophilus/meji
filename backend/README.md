@@ -16,3 +16,5 @@ deleted_photo
 
 # Add to log otp
 requested
+user_save -> remove date from save table
+user_cart -> remove date from cart table

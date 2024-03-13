@@ -4,19 +4,8 @@ from .tools import now
 # import json
 
 
-def user_schema(user):
-    # saves = query({"type": "save", "user": user["key"]}, True, db=db)
-    # _cart = query({
-    #     "type": "cart",
-    #     "key": f"{user['key']}_cart",
-    #     "user": user["key"]}, db=db)
+def user_schema(user, cart=[], saves=[]):
 
-    cart = []
-    saves = []
-    # if _cart:
-    #     for x in _cart["items"]:
-    #         variation = json.dumps(x['variation'], separators=(',', ':'))
-    #         cart.append(f"{x['key']}_{variation}")
     return {
         "key": user["key"],
 
@@ -43,7 +32,7 @@ def user_schema(user):
         "status": user["status"],
         "login": user["login"],
 
-        "saves": [x["item"] for x in saves],
+        "saves": saves,
         "cart": cart
     }
 

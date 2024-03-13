@@ -116,27 +116,35 @@ def get_vouchers():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
-    # sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["page_size"]
                     ) if "page_size" in request.args else 24
+    sort_order = "DESC" if True else "ASC"
+    sort_by = "date"
 
     cur.execute("""
-        SELECT *, COUNT(*) OVER() AS total_items
+        SELECT voucher.*, COUNT(*) OVER() AS total_items
         FROM (
             SELECT *
-            FROM voucher v
-            WHERE v.status = %s AND v.key ILIKE %s
-            ORDER BY (
-                SELECT l.date
-                FROM log l
-                WHERE l.entity_key = v.key AND l.action = 'created'
-            ) DESC
-        ) AS subquery
+            FROM voucher
+            WHERE status = %s AND key ILIKE %s
+        ) AS voucher
+        LEFT JOIN log ON voucher.key = log.entity_key
+            AND log.action = 'created'
+            AND log.entity_type = 'voucher'
+        ORDER BY
+            CASE %s
+                WHEN 'value' THEN voucher.value
+                WHEN 'date' THEN log.date
+                ELSE log.date
+            END
+            %s
         LIMIT %s OFFSET %s;
     """, (
         status,
         f'%{search}%',
+        sort_order,
+        sort_by,
         page_size,
         (page_no - 1) * page_size
     ))

@@ -33,8 +33,45 @@ save_table = """CREATE TABLE IF NOT EXISTS save (
     user_key CHAR(32) NOT NULL,
     item_key CHAR(32) NOT NULL,
 
+    FOREIGN KEY (user_key) REFERENCES "user"(key),
+    FOREIGN KEY (item_key) REFERENCES item(key)
+);"""
+
+cart_table = """CREATE TABLE IF NOT EXISTS cart (
+    user_key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+
+    delivery_date TIMESTAMP,
+
+    receiver_name VARCHAR(100) NOT NULL,
+    receiver_phone VARCHAR(100),
+    receiver_address_line VARCHAR(100),
+    receiver_address_country VARCHAR(100),
+    receiver_address_state VARCHAR(100),
+    receiver_address_local_area VARCHAR(100),
+    receiver_address_postal_code VARCHAR(100),
+
+    transaction_delivery_fee FLOAT DEFAULT 1500,
+    transaction_total_items FLOAT DEFAULT 0,
+    transaction_account_debit FLOAT DEFAULT 0,
+    transaction_pay FLOAT DEFAULT 0,
+    transaction_pay_reference VARCHAR(100),
+
     FOREIGN KEY (user_key) REFERENCES "user"(key)
-    FOREIGN KEY (item_key) REFERENCES "item"(key)
+);"""
+
+cart_item_table = """CREATE TABLE IF NOT EXISTS cart_item (
+    key CHAR(32) PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+
+    user_key CHAR(32) NOT NULL,
+    item_key CHAR(32) NOT NULL,
+
+    variation JSONB DEFAULT '{}'::JSONB,
+    quantity INT DEFAULT 0,
+
+    FOREIGN KEY (user_key) REFERENCES cart(user_key) ON DELETE CASCADE,
+    FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 
 # "status": anonymous, signed_up, confirmed
@@ -75,7 +112,6 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 
     FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
-# FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE
 
 # "status": inactive, active, used, deleted, expired
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (

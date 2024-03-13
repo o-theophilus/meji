@@ -17,26 +17,30 @@ def get_saves():
 
     page_no = 1
     page_size = 24
-
-    cur.execute("SELECT * FROM save WHERE user_key = %s;", (user["key"],))
-    saves = [x['item_key'] for x in cur.fetchall()]
+    sort_order = "DESC" if True else "ASC"
+    sort_by = "date"
 
     cur.execute("""
-        SELECT *, COUNT(*) OVER() AS total_items
+        SELECT item.*, COUNT(*) OVER() AS total_items
         FROM (
             SELECT *
-            FROM item i
-            WHERE %s = '{}' OR i.key IN %s
-            ORDER BY (
-                SELECT s.date
-                FROM save s
-                WHERE s.item_key = i.key
-            ) DESC
-        ) AS subquery
+            FROM save
+            WHERE user_key = %s
+        ) AS save
+        LEFT JOIN item ON save.user_key = item.key
+        ORDER BY
+            CASE %s
+                WHEN 'name' THEN item.name
+                WHEN 'price' THEN item.price
+                WHEN 'date' THEN save.date
+                ELSE save.date
+            END
+            %s
         LIMIT %s OFFSET %s;
     """, (
-        saves,
-        saves,
+        user["key"],
+        sort_by,
+        sort_order,
         page_size,
         (page_no - 1) * page_size
     ))
