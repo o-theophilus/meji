@@ -1,34 +1,36 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now, send_mail
+from .tools import token_to_user, send_mail
 from .schema import order_schema, user_schema
 from .log import log_template
-from .database import database, query
 from uuid import uuid4
 import requests
 import os
-from .postgres import query_run
+from .postgres import db_close, db_open
+from datetime import datetime
 
 bp = Blueprint("order", __name__)
 
 
 @bp.post("/order")
 def cart_to_order():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    cart = query({
-        "type": "cart",
-        "key": f"{user['key']}_cart",
-        "user": user["key"]}, db=db)
+    cur.execute("""
+        SELECT *
+        FROM "order"
+        WHERE user_key = %s, status = "cart";
+    """, (user["key"],))
+    order = cur.fetchone()
 
     if (
-        not cart
+        not order
         or "email_template_admin" not in request.json
         or not request.json["email_template_admin"]
         or "email_template_user" not in request.json
@@ -41,40 +43,36 @@ def cart_to_order():
         })
 
     if (
-        not cart["receiver"]
-        or not cart["receiver"]["name"]
-        or not cart["receiver"]["phone"]
-        or not cart["receiver"]["address"]
-        or not cart["receiver"]["address"]["line"]
-        or not cart["receiver"]["address"]["state"]
-        or not cart["receiver"]["address"]["country"]
-        or not cart["receiver"]["address"]["postal_code"]
+        not order["receiver_name"]
+        or not order["receiver_phone"]
+        or not order["receiver_address"]
+        or not order["receiver_address_line"]
+        or not order["receiver_address_state"]
+        or not order["receiver_address_country"]
+        or not order["receiver_address_postal_code"]
     ):
         return jsonify({
             "status": 400,
             "error": "invalid delivery address"
         })
 
-    total_pay = cart["transaction"]["total_items"] + cart[
-        "transaction"]["delivery_fee"] - cart["transaction"]["account"]
+    to_pay = order["cost_items"] + order[
+        "cost_delivery"] - order["pay_account"]
 
-    if total_pay > 0:
+    if to_pay > 0:
         if not request.json['reference']:
             return jsonify({
                 "status": 400,
                 "error": "invalid request"
             })
 
-        for x in db:
-            if (
-                x["type"] == "order"
-                and x["transaction"][
-                    "pay_reference"] == request.json['reference']
-            ):
-                return jsonify({
-                    "status": 400,
-                    "error": "invalid request"
-                })
+        cur.execute("SELECT * FROM 'order'' WHERE pay_reference = %s;",
+                    (request.json['reference'],))
+        if cur.fetchone():
+            return jsonify({
+                "status": 400,
+                "error": "invalid request"
+            })
 
         ref = request.json['reference']
         resp = requests.get(
@@ -94,7 +92,7 @@ def cart_to_order():
             or "reference" not in resp["data"]
             or resp["data"]["reference"] != request.json["reference"]
             or "amount" not in resp["data"]
-            or resp["data"]["amount"]/100 != total_pay
+            or resp["data"]["amount"]/100 != to_pay
             or "currency" not in resp["data"]
             or resp["data"]["currency"] != "NGN"
         ):
@@ -103,57 +101,74 @@ def cart_to_order():
                 "error": "invalid transaction"
             })
 
-    cart["key"] = str(uuid4().hex)[:10]
-    cart["type"] = "order"
-    cart["status"] = "created"
-    cart["transaction"]["pay"] = total_pay
-    cart["transaction"]["pay_reference"] = request.json[
-        'reference'] if request.json['reference'] else None
-    cart["date_u"] = now()
-
-    query_run(log_template(
-        user["key"],
-        "created",
-        cart["key"],
-        "order",
-        misc={
-            "value": cart["transaction"]["account"],
-            "balance": user["acc_balance"],
-            "new_balance": user["acc_balance"] - cart["transaction"]["account"]
-        }
+    cur.execute("""
+        UPDATE "user"
+        SET account_balance = account_balance - %s
+        WHERE key = %s;
+    """, (
+        order["pay_account"],
+        user["key"]
     ))
 
-    user["acc_balance"] -= cart["transaction"]["account"]
-    database(f"{user['key']}_cart", True)
-    database([user, cart])
+    cur.execute("""
+        UPDATE "order"
+        SET
+            status = "created",
+            pay_user = %s,
+            pay_reference = %s
+        WHERE user_key = %s, status = "cart"
+        RETURNING *;
+    """, (
+        to_pay,
+        request.json['reference'] if request.json['reference'] else None,
+        user["key"]
+    ))
+    order = cur.fetchone()
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "created",
+        order["key"],
+        "order",
+        200,
+        {
+            "debit": order["pay_account"],
+            "account_balance": user["acc_balance"] + order["pay_account"],
+            "new_balance": user["acc_balance"]
+        }
+    ))
 
     send_mail(
         os.environ["MAIL_USERNAME"],
         "New Order",
         request.json["email_template_admin"].format(
-            order_key=cart["key"]
+            order_key=order["key"]
         )
     )
     send_mail(
         user["email"],
         "Processing Order",
         request.json["email_template_user"].format(
-            order_key=cart["key"]
+            order_key=order["key"]
         )
     )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200,
-        "order": order_schema(cart, db),
-        "user": user_schema(user, db)
+        "order": order_schema(order),
+        "user": user_schema(user)
     })
 
 
 @bp.put("/order_eta/<key>")
 def date(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -166,7 +181,9 @@ def date(key):
             "error": "unauthorized access"
         })
 
-    order = query({"type": "order", "key": key}, db=db)
+    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    order = cur.fetchone()
+
     if not order:
         return jsonify({
             "status": 400,
@@ -187,32 +204,47 @@ def date(key):
             **error
         })
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "changed_delivery_date",
         order["key"],
         "order",
-        misc={
+        200,
+        {
             "from": order["delivery_date"],
             "to": f"{request.json['date']}T{request.json['time']}"
         }
     ))
 
-    order["delivery_date"] = f"{request.json['date']}T{request.json['time']}"
-    order["date_u"] = now()
-    database(order)
+    cur.execute("""
+        UPDATE "order"
+        SET delivery_date = %s
+        WHERE key = %s
+        RETURNING *;
+    """, (
+        datetime.strptime(
+            f"{request.json['date']}T{request.json['time']}",
+            "%Y-%m-%dT%H:%M:%S"
+        ),
+        key
+    ))
+    order = cur.fetchone()
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db)
+        "order": order_schema(order)
     })
 
 
 @bp.put("/order_status/<key>")
 def status(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -226,12 +258,16 @@ def status(key):
         })
 
     status = ['created', 'processing', 'enroute', 'delivered']
-    order = query({"type": "order", "key": key}, db=db)
+
+    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    order = cur.fetchone()
 
     if order and order["user"] == user["key"]:
         order_user = user
     else:
-        order_user = query({"type": "user", "key": order["user"]}, db=db)
+        cur.execute("SELECT * FROM 'user' WHERE key = %s;",
+                    (order["user_key"],))
+        order_user = cur.fetchone()
 
     if (
         not order or not order_user
@@ -260,21 +296,31 @@ def status(key):
             "note": "this field is required"
         })
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "changed_status",
         order["key"],
         "order",
-        misc={
+        200,
+        {
             "from": order['status'],
             "to": request.json['status'],
             "note": request.json["note"]
         }
     ))
 
-    order["status"] = request.json["status"]
-    order["date_u"] = now()
-    database(order)
+    cur.execute("""
+        UPDATE "order"
+        SET status = %s
+        WHERE key = %s
+        RETURNING *;
+    """, (
+        request.json["status"],
+        key
+    ))
+    order = cur.fetchone()
 
     if request.json["status"] == "delivered":
         send_mail(
@@ -285,25 +331,30 @@ def status(key):
             )
         )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db)
+        "order": order_schema(order)
     })
 
 
 @bp.put("/order_status_cancel/<key>")
 def status_cancel(key):
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
-    order = query({"type": "order", "key": key}, db=db)
-    order_user = query({"type": "user", "key": order["user"]}, db=db)
+    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    order = cur.fetchone()
+    cur.execute("SELECT * FROM 'user' WHERE key = %s;",
+                (order["user_key"],))
+    order_user = cur.fetchone()
 
     if (
         "order:cancel" not in user["roles"]
@@ -336,21 +387,28 @@ def status_cancel(key):
             "note": "this field is required"
         })
 
-    query_run(log_template(
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
         user["key"],
         "canceled",
         order["key"],
         "order",
-        misc={
-            "from": order["status"],
+        200,
+        {
+            "from": order['status'],
             "to": "canceled",
             "note": request.json["note"]
         }
     ))
 
-    order["status"] = "canceled"
-    order["date_u"] = now()
-    database(order)
+    cur.execute("""
+        UPDATE "order"
+        SET status = "canceled"
+        WHERE key = %s
+        RETURNING *;
+    """, (key))
+    order = cur.fetchone()
 
     send_mail(
         os.environ["MAIL_USERNAME"],
@@ -365,7 +423,9 @@ def status_cancel(key):
         )
     )
 
+    db_close(con, cur)
+
     return jsonify({
         "status": 200,
-        "order": order_schema(order, db)
+        "order": order_schema(order)
     })

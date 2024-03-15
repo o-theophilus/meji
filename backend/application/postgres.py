@@ -37,9 +37,13 @@ save_table = """CREATE TABLE IF NOT EXISTS save (
     FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 
-cart_table = """CREATE TABLE IF NOT EXISTS cart (
-    user_key CHAR(32) PRIMARY KEY,
+
+# "cart", 'created', 'processing', 'enroute', 'delivered'
+order_table = """CREATE TABLE IF NOT EXISTS "order" (
+    key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
+    user_key CHAR(32) NOT NULL,
+    status VARCHAR(20) DEFAULT 'cart' NOT NULL,
 
     delivery_date TIMESTAMP,
 
@@ -51,26 +55,27 @@ cart_table = """CREATE TABLE IF NOT EXISTS cart (
     receiver_address_local_area VARCHAR(100),
     receiver_address_postal_code VARCHAR(100),
 
-    transaction_delivery_fee FLOAT DEFAULT 1500,
-    transaction_total_items FLOAT DEFAULT 0,
-    transaction_account_debit FLOAT DEFAULT 0,
-    transaction_pay FLOAT DEFAULT 0,
-    transaction_pay_reference VARCHAR(100),
+    cost_delivery FLOAT DEFAULT 1500,
+    cost_items FLOAT DEFAULT 0,
+    pay_account FLOAT DEFAULT 0,
+    pay_user FLOAT DEFAULT 0,
+    pay_reference VARCHAR(100),
 
     FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
 
-cart_item_table = """CREATE TABLE IF NOT EXISTS cart_item (
+
+order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
     key CHAR(32) PRIMARY KEY,
     date TIMESTAMP NOT NULL,
 
-    user_key CHAR(32) NOT NULL,
+    order_key CHAR(32) NOT NULL,
     item_key CHAR(32) NOT NULL,
 
     variation JSONB DEFAULT '{}'::JSONB,
     quantity INT DEFAULT 0,
 
-    FOREIGN KEY (user_key) REFERENCES cart(user_key) ON DELETE CASCADE,
+    FOREIGN KEY (order_key) REFERENCES order(order_key) ON DELETE CASCADE,
     FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 

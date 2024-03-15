@@ -34,29 +34,45 @@ def add_to_cart():
         })
 
     cur.execute("""
-        INSERT INTO cart_item (user_key, item_key, variation, quantity)
+        INSERT INTO "order" (key, version, user_key)
+        SELECT (%s, %s, %s)
+        WHERE NOT EXISTS (
+            SELECT 1 FROM cart WHERE user_key = %s AND status = 'cart'
+        )
+        RETURNING *;
+    """, (
+        uuid4().hex,
+        uuid4().hex,
+        user["key"],
+        user["key"]
+    ))
+    cart = cur.fetchone()
+
+    cur.execute("""
+        INSERT INTO order_item (order_key, item_key, variation, quantity)
         VALUES (%s, %s, %s, %s);
-        ON CONFLICT (user_key, item_key, variation)
+        ON CONFLICT (order_key, item_key, variation)
         DO UPDATE SET quantity = quantity + EXCLUDED.quantity
         RETURNING *;
     """, (
         user["key"],
-        request.json["key"],
+        cart["key"],
         request.json["variation"],
         request.json["quantity"]
     ))
 
     cur.execute("""
-        INSERT INTO cart (user_key, transaction_total_items)
-        SELECT %s, SUM(cart_item.quantity * item.price) AS total
-        FROM cart_item
-        LEFT JOIN item ON cart_item.item_key = item.key
-        WHERE cart_item.user_key = %s
-        ON CONFLICT (user_key)
-        DO UPDATE SET transaction_total_items = EXCLUDED.total;
+        UPDATE "order"
+        SET cost_items = (
+            SELECT SUM(order_item.quantity * item.price)
+            FROM order_item
+            LEFT JOIN item ON order_item.item_key = item.key
+            WHERE order_item.order_key = %s
+        )
+        WHERE key = %s;
     """, (
-        user["key"],
-        user["key"]
+        cart["key"],
+        cart["key"]
     ))
 
     cur.execute(log_template, (
@@ -64,10 +80,11 @@ def add_to_cart():
         datetime.now(),
         user["key"],
         "added_to",
-        request.json["key"],
+        cart["key"],
         "cart",
         200,
         {
+            "key": request.json["key"],
             **request.json["variation"],
             "quantity": request.json["quantity"]
         }
@@ -93,27 +110,33 @@ def get_cart():
         })
 
     cur.execute("""
-        INSERT INTO cart (user_key)
-        VALUES (%s)
-        ON CONFLICT (user_key) DO UPDATE
-        SET transaction_account = CASE
-            WHEN cart.transaction_account > %s THEN 0
-            ELSE cart.transaction_account
+        INSERT INTO "order" (key, version, user_key)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (user_key, status)
+        DO UPDATE
+        SET pay_account = CASE
+            WHEN pay_account > %s THEN 0
+            ELSE pay_account
         END
         RETURNING *;
-    """, (user["key"], user["account_balance"]))
+    """, (
+        uuid4().hex,
+        uuid4().hex,
+        user["key"],
+        user["account_balance"]
+    ))
     cart = cur.fetchone()
 
     cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
     cur.execute("""
-        SELECT item.*, cart_item.variation AS variation,
-            cart_item.quantity AS quantity
-        FROM cart_item
-        LEFT JOIN item ON cart_item.item_key = item.key
-        WHERE cart_item.user_key = %s;
-    """, (user["key"],))
-    items = cur.fetchone()
+        SELECT item.*, order_item.variation AS variation,
+            order_item.quantity AS quantity
+        FROM order_item
+        LEFT JOIN item ON order_item.item_key = item.key
+        WHERE order_item.order_key = %s;
+    """, (cart["key"],))
+    items = cur.fetchall()
 
     cur.execute("""
         SELECT DISTINCT
@@ -142,7 +165,7 @@ def get_cart():
         datetime.now(),
         user["key"],
         "viewed",
-        user["key"],
+        cart["key"],
         "cart",
         200,
         None
@@ -153,13 +176,14 @@ def get_cart():
     return jsonify({
         "status": 200,
         "cart": cart,
+        # TODO => user proper schema
         "items": [item_schema(x) for x in items],
         "previous_receivers": pr
     })
 
 
-@bp.put("/cart_item_quantity")
-def cart_item_quantity():
+@bp.put("/item_quantity")
+def item_quantity():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -169,6 +193,25 @@ def cart_item_quantity():
             "error": "invalid token"
         })
 
+    cur.execute("""
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = "cart";
+    """, (user["key"],))
+    cart = cur.fetchone()
+
+    cur.execute("""
+        SELECT *
+        FROM order_item
+        WHERE order_key = %s
+            AND item_key = %s
+            AND variation = %s;
+    """, (
+        cart["key"],
+        request.json["key"],
+        request.json["variation"]
+    ))
+    cart_item = cur.fetchone()
+
     if (
         "key" not in request.json
         or not request.json["key"]
@@ -176,6 +219,8 @@ def cart_item_quantity():
         or "quantity" not in request.json
         or type(request.json["quantity"]) is not int
         or request.json["quantity"] < 0
+        or not cart
+        or not cart_item
     ):
         return jsonify({
             "status": 400,
@@ -183,35 +228,15 @@ def cart_item_quantity():
         })
 
     cur.execute("""
-        SELECT *
-        FROM cart_item
-        WHERE user_key = %s AND item_key = %s;
-    """, (
-        user["key"],
-        request.json["key"],
-    ))
-    cart_item = cur.fetchone()
-    if not cart_item:
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute("""
-        UPDATE cart_item
+        UPDATE order_item
         SET quantity = %s
-        WHERE
-            user_key = %s
-            AND item_key = %s
-            AND variation = %s;
+        WHERE key = %s;
 
-        DELETE FROM cart_item
+        DELETE FROM order_item
         WHERE quantity = 0;
     """, (
         request.json["quantity"],
-        user["key"],
-        request.json["key"],
-        request.json["variation"]
+        cart_item["key"]
     ))
 
     cur.execute(log_template, (
@@ -220,43 +245,48 @@ def cart_item_quantity():
         user["key"],
         "changed_quantity" if request.json["quantity"
                                            ] > 0 else "removed_from",
-        request.json["key"],
+        cart["key"],
         "cart",
         200,
         {
+            "key": request.json["key"],
             **request.json["variation"],
             "from_quantity": cart_item["quantity"],
             "to_quantity": request.json["quantity"]
         } if request.json["quantity"] > 0 else {
+            "key": request.json["key"],
             **request.json["variation"]
         }
     ))
 
-    cur.execute("SELECT * FROM cart_item WHERE user_key = %s;", (user["key"],))
+    cur.execute("""
+        SELECT item.*, order_item.variation AS variation,
+            order_item.quantity AS quantity
+        FROM order_item
+        LEFT JOIN item ON order_item.item_key = item.key
+        WHERE order_item.order_key = %s;
+    """, (cart["key"],))
     items = cur.fetchall()
 
     cart = []
-    if items.length == 0:
+    if items.length != 0:
         cur.execute("""
-            UPDATE cart
-            SET transaction_total_items = (
-                SELECT SUM(cart_item.quantity * item.price)
-                FROM cart_item
-                LEFT JOIN item ON cart_item.item_key = item.key
-                WHERE cart_item.user_key = %s
+            UPDATE "order"
+            SET cost_items = (
+                SELECT SUM(order_item.quantity * item.price)
+                FROM order_item
+                LEFT JOIN item ON order_item.item_key = item.key
+                WHERE order_item.order_key = %s
             )
-            WHERE user_key = %s
+            WHERE key = %s
             RETURNING *;
         """, (
-            user["key"],
-            user["key"]
+            cart["key"],
+            cart["key"]
         ))
         cart = cur.fetchone()
     else:
-        cur.execute("""
-            DELETE FROM cart
-            WHERE user_key = %s;
-        """, (user["key"],))
+        cur.execute("DELETE FROM 'order'' WHERE key = %s;", (cart["key"],))
 
     db_close(con, cur)
 
@@ -264,7 +294,8 @@ def cart_item_quantity():
         "status": 200,
         "user": user_schema(user),
         "cart": cart,
-        "items": [item_schema(x) for x in items],
+        # TODO => user proper schema
+        "items": [item_schema(x) for x in items]
     })
 
 
@@ -279,8 +310,12 @@ def cart_receiver():
             "error": "invalid token"
         })
 
-    cur.execute("SELECT * FROM cart WHERE user_key = %s;", (user["key"],))
+    cur.execute("""
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = "cart";
+    """, (user["key"],))
     cart = cur.fetchone()
+
     if not cart:
         return jsonify({
             "status": 400,
@@ -331,7 +366,7 @@ def cart_receiver():
         datetime.now(),
         user["key"],
         "edited_receiver",
-        user["key"],
+        cart["key"],
         "cart",
         200,
         {
@@ -357,7 +392,7 @@ def cart_receiver():
     ))
 
     cur.execute("""
-        UPDATE cart
+        UPDATE "order"
         SET
             receiver_name = %s,
             receiver_phone = %s,
@@ -366,7 +401,7 @@ def cart_receiver():
             receiver_address_state = %s,
             receiver_address_local_area = %s,
             receiver_address_postal_code = %s
-        WHERE user_key = %s;
+        WHERE key = %s;
         RETURNING *
     """, (
         request.json["name"],
@@ -376,7 +411,7 @@ def cart_receiver():
         request.json["address_country"],
         request.json["address_local_area"],
         request.json["address_postal_code"],
-        user["key"]
+        cart["key"]
     ))
     cart = cur.fetchone()
 
@@ -399,8 +434,12 @@ def cart_account():
             "error": "invalid token"
         })
 
-    cur.execute("SELECT * FROM cart WHERE user_key = %s;", (user["key"],))
+    cur.execute("""
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = "cart";
+    """, (user["key"],))
     cart = cur.fetchone()
+
     if not cart:
         return jsonify({
             "status": 400,
@@ -417,8 +456,7 @@ def cart_account():
         error = "Please enter a valid amount"
     elif request.json["amount"] > user["account_balance"]:
         error = "amount larger than available balance"
-    elif request.json["amount"] > cart["transaction"][
-            "total_items"] + cart["transaction"]["delivery_fee"]:
+    elif request.json["amount"] > cart["cost_items"] + cart["cost_delivery"]:
         error = "amount larger than total cost "
     if error:
         return jsonify({
@@ -431,23 +469,23 @@ def cart_account():
         datetime.now(),
         user["key"],
         "changed_amount",
-        user["key"],
+        cart["key"],
         "cart",
         200,
         {
-            "from": cart["transaction_account_debit"],
+            "from": cart["pay_account_debit"],
             "to": request.json["amount"]
         }
     ))
 
     cur.execute("""
-        UPDATE cart
-        SET transaction_account_debit = %s
-        WHERE user_key = %s;
+        UPDATE "order"
+        SET pay_account_debit = %s
+        WHERE key = %s;
         RETURNING *
     """, (
         request.json["amount"],
-        user["key"]
+        cart["key"]
     ))
     cart = cur.fetchone()
 
