@@ -34,6 +34,7 @@ def get():
             SELECT *
             FROM "order"
             WHERE status = %s
+                AND status != "cart"
                 AND (%s = '' OR CONCAT_WS(', ', key, name, email) ILIKE %s)
                 AND (user_key = %s OR %s)
         ) AS o
@@ -79,9 +80,23 @@ def get_one(key):
         })
 
     cur.execute("""
-        SELECT *
+        SELECT *,
+        (
+            SELECT ARRAY_AGG(ROW(
+                item.slug,
+                item.name,
+                item.price,
+                item.photos,
+                order_item.variation,
+                order_item.quantity
+            )::jsonb)
+            FROM order_item
+            LEFT JOIN item ON order_item.item_key = item.key
+            WHERE order_key = "order".key
+
+        ) AS items
         FROM "order"
-        WHERE key = %s;
+        WHERE key = %s AND status != 'cart';
     """, (key,))
     order = cur.fetchone()
 
@@ -112,5 +127,5 @@ def get_one(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order)
+        "order": order_schema(order),
     })

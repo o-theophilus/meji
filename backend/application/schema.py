@@ -1,11 +1,8 @@
 from flask import request
-from .database import query
 from .tools import now
-# import json
 
 
-def user_schema(user, cart=[], saves=[]):
-
+def user_schema(user, saves=[], cart=[]):
     return {
         "key": user["key"],
 
@@ -38,11 +35,6 @@ def user_schema(user, cart=[], saves=[]):
 
 
 def item_schema(item):
-    rating = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    # for x in db:
-    #     if x["type"] == "feedback" and x["item"] == item["key"]:
-    #         rating[x["rating"]] += 1
-
     return {
         "key": item["key"],
 
@@ -61,11 +53,11 @@ def item_schema(item):
         "status": item["status"],
 
         "tags": item["tags"],
-        "rating": rating
+        "ratings": item["ratings"]
     }
 
 
-def order_schema(order, db):
+def order_schema(order):
     items = []
 
     for x in order["items"]:
@@ -98,7 +90,7 @@ def order_schema(order, db):
     }
 
 
-def feedback_schema(fb, db):
+def feedback_schema(fb):
     user = query({"type": "user", "key": fb["user"]}, db=db)
 
     return {
@@ -114,7 +106,7 @@ def feedback_schema(fb, db):
     }
 
 
-def log_schema(log, db):
+def log_schema(log):
 
     key = log["entity"]
     _type = log["entity_type"]
@@ -170,7 +162,7 @@ def log_schema(log, db):
     }
 
 
-def advert_schema(advert, db):
+def advert_schema(advert):
     item = query({"type": "item", "key": advert["item"]}, db=db)
 
     def get_url(dim):

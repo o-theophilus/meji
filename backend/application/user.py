@@ -764,3 +764,13 @@ def delete_photo():
     return jsonify({
         "status": 200
     })
+
+# TODO: Add to log "user"
+# changed_theme
+# changed_view
+# changed_role
+# changed_email
+# changed_password
+# deleted_account
+# updated_photo
+# deleted_photo

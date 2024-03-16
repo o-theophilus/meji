@@ -67,7 +67,6 @@ order_table = """CREATE TABLE IF NOT EXISTS "order" (
 
 order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
     key CHAR(32) PRIMARY KEY,
-    date TIMESTAMP NOT NULL,
 
     order_key CHAR(32) NOT NULL,
     item_key CHAR(32) NOT NULL,
@@ -75,7 +74,7 @@ order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
     variation JSONB DEFAULT '{}'::JSONB,
     quantity INT DEFAULT 0,
 
-    FOREIGN KEY (order_key) REFERENCES order(order_key) ON DELETE CASCADE,
+    FOREIGN KEY (order_key) REFERENCES order(key) ON DELETE CASCADE,
     FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 
@@ -130,6 +129,9 @@ voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     validity TIMESTAMP
 );"""
 
+# TODO:
+# Move date to log_table
+# Add [otp]->[requested] to frontend log
 otp_table = """CREATE TABLE IF NOT EXISTS otp (
     key CHAR(32) PRIMARY KEY,
     date TIMESTAMP NOT NULL,
@@ -139,6 +141,33 @@ otp_table = """CREATE TABLE IF NOT EXISTS otp (
     email VARCHAR(255) UNIQUE NOT NULL,
 
     FOREIGN KEY (user_key) REFERENCES "user"(key)
+);"""
+
+# TODO: Remover version from n on financial ops
+feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
+    key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+
+    user_key CHAR(32) NOT NULL,
+    item_key CHAR(32) NOT NULL,
+
+    rating INT DEFAULT 0,
+    review TEXT,
+
+    FOREIGN KEY (user_key) REFERENCES 'user'(key) ON DELETE CASCADE,
+    FOREIGN KEY (item_key) REFERENCES item(key)
+);"""
+
+advert_table = """CREATE TABLE IF NOT EXISTS advert (
+    key CHAR(32) PRIMARY KEY,
+
+    placement TEXT[] DEFAULT ARRAY[]::TEXT[],
+    photo_300x300 VARCHAR(36),
+    photo_300x600 VARCHAR(36),
+    photo_600x300 VARCHAR(36),
+    photo_900x300 VARCHAR(36),
+
+    FOREIGN KEY (item_key) REFERENCES item(key) ON DELETE CASCADE
 );"""
 
 
