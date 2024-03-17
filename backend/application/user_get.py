@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .schema import user_schema
-from .tools import token_to_user
+from .tools import token_to_user, user_schema
 from math import ceil
 from .postgres import db_close, db_open
 
@@ -9,7 +8,7 @@ bp = Blueprint("user_get", __name__)
 
 
 @bp.get("/user")
-def get_user():
+def get():
     con, cur = db_open()
 
     me = token_to_user(cur)
@@ -60,7 +59,7 @@ def get_user():
 
 
 @bp.get("/users")
-def get_users():
+def get_many():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -90,21 +89,26 @@ def get_users():
 
     cur.execute("""
         SELECT user.*, log.date AS date, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM "user"
-            WHERE status = %s AND CONCAT_WS(', ', key, name, email) ILIKE %s
-        ) AS user
+        FROM "user"
         LEFT JOIN log ON user.key = log.user_key
             AND log.action = 'created'
             AND log.entity_type = 'auth'
+        WHERE
+            status = %s
+            AND CONCAT_WS(', ', user.key, user.name, user.email) ILIKE %s
         ORDER BY
             CASE %s
-                WHEN 'name' THEN user.name
-                WHEN 'date' THEN log.date
+                WHEN 'latest' THEN log.date
+                WHEN 'oldest' THEN log.date
+                WHEN "name (a-z)" THEN user.name
+                WHEN "name (z-a)" THEN user.name
                 ELSE log.date
+            END,
+            CASE %s
+                WHEN 'oldest' THEN ASC
+                WHEN "name (a-z)" THEN ASC
+                ELSE DESC
             END
-            %s
         LIMIT %s OFFSET %s;
     """, (
         status,
@@ -125,7 +129,7 @@ def get_users():
     })
 
 
-@bp.get("/admin_users")
+@bp.get("/user/admin")
 def admin_users():
     con, cur = db_open()
 
@@ -159,25 +163,29 @@ def admin_users():
 
     cur.execute("""
         SELECT user.*, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM "user"
-            WHERE
-                (length(roles) > 0)
-                AND (%s = 'all' OR CONCAT_WS(', ', key, name, email) ILIKE %s)
-                AND (%s = 'all' OR ARRAY_TO_STRING(roles, ',') ILIKE %s)
-                AND (%s = 'all' OR ARRAY_TO_STRING(roles, ',') ILIKE %s)
-        ) AS user
+        FROM "user"
         LEFT JOIN log ON user.key = log.user_key
             AND log.action = 'created'
             AND log.entity_type = 'auth'
+        WHERE
+            (length(user.roles) > 0)
+            AND (%s = 'all'
+                OR CONCAT_WS(', ', user.key, user.name, user.email) ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
         ORDER BY
             CASE %s
-                WHEN 'name' THEN user.name
-                WHEN 'date' THEN log.date
+                WHEN 'latest' THEN log.date
+                WHEN 'oldest' THEN log.date
+                WHEN "name (a-z)" THEN user.name
+                WHEN "name (z-a)" THEN user.name
                 ELSE log.date
+            END,
+            CASE %s
+                WHEN 'oldest' THEN ASC
+                WHEN "name (a-z)" THEN ASC
+                ELSE DESC
             END
-            %s
         LIMIT %s OFFSET %s;
     """, (
         user_key, f"%{user_key}%",
@@ -213,7 +221,7 @@ def trx_schema(x):
     }
 
 
-@bp.get("/transactions")
+@bp.get("/user/transactions")
 def get_transactions():
     con, cur = db_open()
 

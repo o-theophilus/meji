@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user
-from .schema import item_schema, feedback_schema
+from .tools import token_to_user, item_schema
 from uuid import uuid4
 from math import ceil
 from .log import log_template
@@ -8,6 +7,22 @@ from .postgres import db_close, db_open
 from datetime import datetime
 
 bp = Blueprint("feedback", __name__)
+
+
+# def feedback_schema(fb):
+#     user = query({"type": "user", "key": fb["user"]}, db=db)
+
+#     return {
+#         "key": fb["key"],
+#         "user": {
+#             "key": user["key"],
+#             "name": user["name"],
+#             "photo": user["photo"],
+#         },
+#         "rating": fb["rating"],
+#         "review": fb["review"],
+#         "date": fb["date"],
+#     }
 
 
 @bp.post("/feedback/<key>")
@@ -121,26 +136,24 @@ def get_feedbacks(user_key, item_key):
         })
 
     cur.execute("""
-        SELECT f.*, log.date AS date, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM feedback
-            WHERE item_key = %s
-        ) AS f
-        LEFT JOIN log ON f.key = log.entity_key
+        SELECT feedback.*, log.date AS date, COUNT(*) OVER() AS total_items
+        FROM feedback
+        LEFT JOIN log ON feedback.key = log.entity_key
             AND log.action = 'added_feedback'
             AND log.entity_type = 'feedback'
+        WHERE feedback.item_key = %s
         ORDER BY
             CASE %s
                 WHEN 'latest' THEN log.date
                 WHEN 'oldest' THEN log.date
-                WHEN "rating" THEN feedback.rating
+                WHEN "high_rating" THEN feedback.rating
+                WHEN "low_rating" THEN feedback.rating
                 ELSE log.date
             END,
             CASE %s
-                WHEN 'latest' THEN DESC
-                WHEN "rating" THEN DESC
-                ELSE ASC
+                WHEN 'oldest' THEN ASC
+                WHEN 'low_rating' THEN ASC
+                ELSE DESC
             END
         LIMIT %s OFFSET %s;
     """, (
@@ -176,7 +189,8 @@ def get_feedbacks(user_key, item_key):
     return jsonify({
         "status": 200,
         "item": item_schema(item),
-        "feedbacks": [feedback_schema(x) for x in feedbacks],
+        # "feedbacks": [feedback_schema(x) for x in feedbacks],
+        "feedbacks": feedbacks,
         "give_feedback": has_purchased and not has_feedback,
         "total_page": ceil(feedbacks[0][-1] / page_size) if feedbacks else 0
     })

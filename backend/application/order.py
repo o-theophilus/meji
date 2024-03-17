@@ -1,14 +1,42 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, send_mail
-from .schema import order_schema, user_schema
+from .tools import token_to_user, send_mail, now, user_schema
 from .log import log_template
 from uuid import uuid4
 import requests
 import os
 from .postgres import db_close, db_open
 from datetime import datetime
+from math import ceil
 
 bp = Blueprint("order", __name__)
+
+
+def order_schema(order):
+    return {
+        "key": order["key"],
+        "user_key": order["user_key"],
+        "status": order["status"],
+
+        "delivery_date": order["delivery_date"] if order[
+            "delivery_date"] else f"{now(4).split('T')[0]}T10:00",
+
+        "receiver_name": order["receiver_name"],
+        "receiver_phone": order["receiver_phone"],
+        "receiver_address_line": order["receiver_address_line"],
+        "receiver_address_country": order["receiver_address_country"],
+        "receiver_address_state": order["receiver_address_state"],
+        "receiver_address_local_area": order["receiver_address_local_area"],
+        "receiver_address_postal_code": order["receiver_address_postal_code"],
+
+        "cost_delivery": order["cost_delivery"],
+        "cost_items": order["cost_items"],
+        "pay_account": order["pay_account"],
+        "pay_user": order["pay_user"],
+        "pay_reference": order["pay_reference"],
+
+        "items": order["items"],
+
+    }
 
 
 @bp.post("/order")
@@ -164,7 +192,142 @@ def cart_to_order():
     })
 
 
-@bp.put("/order_eta/<key>")
+@bp.get("/order")
+def get_many():
+    con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    status = request.args["status"] if "status" in request.args else "created"
+    search = request.args["search"]
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    page_size = int(request.args["size"]) if "size" in request.args else 24
+    sort_by = "latest"
+
+    cur.execute("""
+        SELECT o.*, COUNT(*) OVER() AS total_items,
+            ARRAY(
+                SELECT JSON_BUILD_OBJECT(
+                    'slug', item.slug,
+                    'name', item.name,
+                    'price', item.price,
+                    'photo', COALESCE(item.photos[1], NULL),
+                    'variation', order_item.variation,
+                    'quantity', order_item.quantity
+                )
+                FROM order_item
+                LEFT JOIN item ON order_item.item_key = item.key
+                WHERE order_item.order_key = o.key
+            ) AS items
+        FROM "order" AS o
+        LEFT JOIN log ON o.key = log.user_key
+            AND log.action = 'created'
+            AND log.entity_type = 'order'
+        WHERE o.status = %s
+            AND o.status != 'cart'
+            AND (%s = '' OR CONCAT_WS(', ', o.key, o.name, o.email) ILIKE %s)
+            AND (o.user_key = %s OR %s)
+        ORDER BY
+            CASE %s
+                WHEN 'latest' THEN log.date
+                WHEN 'oldest' THEN log.date
+                WHEN 'high_cost' THEN o.pay_account
+                WHEN 'low_cost' THEN o.pay_account
+                ELSE log.date
+            END,
+            CASE %s
+                WHEN 'oldest' THEN ASC
+                WHEN "low_cost" THEN ASC
+                ELSE DESC
+            END
+        LIMIT %s OFFSET %s;
+    """, (
+        status,
+        search, f"%{search}%",
+        user["key"],
+        "admin" in request.args and "order:view" not in user["roles"],
+        sort_by, sort_by,
+        page_size, (page_no - 1) * page_size
+    ))
+    orders = cur.fetchall()
+
+    db_close(con, cur)
+
+    return jsonify({
+        "status": 200,
+        "orders": [order_schema(order) for order in orders],
+        "total_page": ceil(orders[0][-1] / page_size) if orders else 0
+    })
+
+
+@bp.get("/order/<key>")
+def get(key):
+    con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    cur.execute("""
+        SELECT *,
+            ARRAY(
+                SELECT JSON_BUILD_OBJECT(
+                    'slug', item.slug,
+                    'name', item.name,
+                    'price', item.price,
+                    'photo', COALESCE(item.photos[1], NULL),
+                    'variation', order_item.variation,
+                    'quantity', order_item.quantity
+                )
+                FROM order_item
+                LEFT JOIN item ON order_item.item_key = item.key
+                WHERE order_item.order_key = o.key
+            ) AS items
+        FROM 'order'
+        WHERE key = %s AND status != 'cart';
+    """, (key,))
+    order = cur.fetchone()
+
+    if (
+        not order
+        or (
+            order["user_key"] != user["key"]
+            and "order:view" not in user["roles"]
+        )
+    ):
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "viewed",
+        order["key"],
+        "order",
+        200,
+        None
+    ))
+
+    db_close(con, cur)
+
+    return jsonify({
+        "status": 200,
+        "order": order_schema(order)
+    })
+
+
+@bp.put("/order/eta/<key>")
 def date(key):
     con, cur = db_open()
 
@@ -240,7 +403,7 @@ def date(key):
     })
 
 
-@bp.put("/order_status/<key>")
+@bp.put("/order/status/<key>")
 def status(key):
     con, cur = db_open()
 
@@ -339,8 +502,8 @@ def status(key):
     })
 
 
-@bp.put("/order_status_cancel/<key>")
-def status_cancel(key):
+@bp.put("/order/cancel/<key>")
+def cancel(key):
     con, cur = db_open()
 
     user = token_to_user(cur)

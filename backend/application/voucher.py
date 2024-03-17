@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user
+from .tools import token_to_user, user_schema
 from uuid import uuid4
-from .schema import user_schema
 from .log import log_template
 from math import ceil
 from datetime import datetime, date
@@ -93,12 +92,12 @@ def create():
 
     return jsonify({
         "status": 200,
-        **get_vouchers()
+        **get_many()
     })
 
 
 @bp.get("/voucher")
-def get_vouchers():
+def get_many():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -124,21 +123,24 @@ def get_vouchers():
 
     cur.execute("""
         SELECT voucher.*, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM voucher
-            WHERE status = %s AND key ILIKE %s
-        ) AS voucher
+        FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'voucher'
+        WHERE voucher.status = %s AND voucher.key ILIKE %s
         ORDER BY
             CASE %s
-                WHEN 'value' THEN voucher.value
-                WHEN 'date' THEN log.date
+                WHEN 'latest' THEN log.date
+                WHEN 'oldest' THEN log.date
+                WHEN 'high_value' THEN voucher.value
+                WHEN 'low_value' THEN voucher.value
                 ELSE log.date
+            END,
+            CASE %s
+                WHEN 'oldest' THEN ASC
+                WHEN "high_value" THEN ASC
+                ELSE DESC
             END
-            %s
         LIMIT %s OFFSET %s;
     """, (
         status,
@@ -276,8 +278,8 @@ def activate(key):
     })
 
 
-@ bp.put("/voucher_/<key>")
-def inactivate(key):
+@ bp.put("/voucher/deactivate/<key>")
+def deactivate(key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -384,7 +386,7 @@ def delete(key):
     })
 
 
-@bp.post("/use_voucher")
+@bp.post("/voucher/use")
 def use():
     con, cur = db_open()
 

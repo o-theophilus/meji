@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user
-from .schema import item_schema
+from .tools import token_to_user, item_schema
 from .log import log_template
 from math import ceil
 from .advert import adverts
@@ -12,7 +11,7 @@ from uuid import uuid4
 bp = Blueprint("item_get", __name__)
 
 
-@bp.get("/tags")
+@bp.get("/tag")
 def all_tags():
     con, cur = db_open()
 
@@ -140,8 +139,8 @@ def shop(
 
     cur.execute("""
         SELECT
-            i.*,
-            (i.old_price - i.price) * 100 / i.old_price AS discount,
+            item.*,
+            (item.old_price - item.price) * 100 / item.old_price AS discount,
             (
                 SELECT
                     CASE
@@ -149,47 +148,42 @@ def shop(
                         ELSE SUM(rating) / COUNT(*) OVER ()
                     END AS rating
                 FROM feedback
-                WHERE item_key = i.key
+                WHERE item_key = item.key
             ) AS rating,
             (
                 SELECT ARRAY_AGG(rating)
                 FROM feedback
-                WHERE item_key = i.key
+                WHERE item_key = item.key
             ) AS ratings,
             COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM item
-            WHERE
-                status = %s
-                AND name ILIKE %s
-                AND CASE WHEN %s
-                    THEN ALL(x IN (tags) FOR x IN %s)
-                    ELSE ANY(x IN (tags) FOR x IN %s)
-                END
-        ) AS i
-        LEFT JOIN log ON i.key = log.user_key
+        FROM item
+        LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'item'
+        WHERE
+            item.status = %s
+            AND item.name ILIKE %s
+            AND CASE WHEN %s
+                THEN ALL(x IN (item.tags) FOR x IN %s)
+                ELSE ANY(x IN (item.tags) FOR x IN %s)
+            END
         ORDER BY
             CASE %s
                 WHEN 'latest' THEN log.date
                 WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN i.name
-                WHEN "name (z-a)" THEN i.name
-                WHEN "cheap" THEN i.price
-                WHEN "expensive" THEN i.price
+                WHEN "name (a-z)" THEN item.name
+                WHEN "name (z-a)" THEN item.name
+                WHEN "cheap" THEN item.price
+                WHEN "expensive" THEN item.price
                 WHEN "discount" THEN discount
                 WHEN "rating" THEN rating
                 ELSE log.date
             END,
             CASE %s
-                WHEN 'latest' THEN DESC
-                WHEN "name (z-a)" THEN DESC
-                WHEN "expensive" THEN DESC
-                WHEN "discount" THEN DESC
-                WHEN "rating" THEN DESC
-                ELSE ASC
+                WHEN 'oldest' THEN ASC
+                WHEN "name (a-z)" THEN ASC
+                WHEN "cheap" THEN ASC
+                ELSE DESC
             END
         LIMIT %s OFFSET %s;
     """, (

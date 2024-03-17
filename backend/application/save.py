@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user
-from .schema import user_schema, item_schema
+from .tools import token_to_user, user_schema, item_schema
 from math import ceil
 from uuid import uuid4
 from .postgres import db_close, db_open
@@ -10,37 +9,42 @@ bp = Blueprint("save", __name__)
 
 
 @bp.get("/save")
-def get_saves():
+def get():
     con, cur = db_open()
 
     user = token_to_user(cur)
 
     page_no = 1
     page_size = 24
-    sort_order = "DESC" if True else "ASC"
-    sort_by = "date"
+    sort_by = "latest"
 
     cur.execute("""
         SELECT item.*, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM save
-            WHERE user_key = %s
-        ) AS save
+        FROM save
         LEFT JOIN item ON save.user_key = item.key
+        WHERE save.user_key = %s
         ORDER BY
             CASE %s
-                WHEN 'name' THEN item.name
-                WHEN 'price' THEN item.price
-                WHEN 'date' THEN save.date
-                ELSE save.date
+                WHEN 'latest' THEN log.date
+                WHEN 'oldest' THEN log.date
+                WHEN "name (a-z)" THEN save.name
+                WHEN "name (z-a)" THEN save.name
+                WHEN "cheap" THEN save.price
+                WHEN "expensive" THEN save.price
+                WHEN "discount" THEN discount
+                WHEN "rating" THEN rating
+                ELSE log.date
+            END,
+            CASE %s
+                WHEN 'oldest' THEN ASC
+                WHEN "name (a-z)" THEN ASC
+                WHEN "cheap" THEN ASC
+                ELSE DESC
             END
-            %s
         LIMIT %s OFFSET %s;
     """, (
         user["key"],
-        sort_by,
-        sort_order,
+        sort_by, sort_by,
         page_size,
         (page_no - 1) * page_size
     ))
@@ -57,7 +61,7 @@ def get_saves():
 
 
 @bp.post("/save")
-def save_item():
+def save():
     con, cur = db_open()
 
     user = token_to_user(cur)

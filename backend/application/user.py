@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, token_tool, send_mail
+from .tools import token_to_user, token_tool, send_mail, user_schema
 from werkzeug.security import check_password_hash
-from .schema import user_schema
 import re
 from werkzeug.security import generate_password_hash
 from .storage import storage
@@ -16,7 +15,7 @@ from .log import log_template
 bp = Blueprint("user", __name__)
 
 
-@bp.post("/setting")
+@bp.put("/user/setting")
 def setting():
     con, cur = db_open()
 
@@ -81,7 +80,7 @@ def setting():
     })
 
 
-@bp.post("/user_role/<key>")
+@bp.put("/user/role/<key>")
 def user_role(key):
     con, cur = db_open()
 
@@ -266,7 +265,7 @@ def edit_user(key):
     })
 
 
-@bp.post("/email_otp")
+@bp.post("/user/email/otp")
 def send_email_otp():
     con, cur = db_open()
 
@@ -362,7 +361,7 @@ def send_email_otp():
     })
 
 
-@bp.post("/email")
+@bp.put("/user/email")
 def email():
     con, cur = db_open()
 
@@ -456,7 +455,7 @@ def email():
     })
 
 
-@bp.post("/password_otp")
+@bp.post("/user/password/otp")
 def send_password_otp():
     con, cur = db_open()
 
@@ -517,7 +516,7 @@ def send_password_otp():
     })
 
 
-@bp.post("/password")
+@bp.put("/user/password")
 def password():
     con, cur = db_open()
 
@@ -668,7 +667,7 @@ def delete():
     })
 
 
-@bp.post("/user_photo")
+@bp.put("/user/photo")
 def add_photo():
     con, cur = db_open()
 
@@ -726,7 +725,7 @@ def add_photo():
     })
 
 
-@bp.delete("/user_photo")
+@bp.delete("/user/photo")
 def delete_photo():
     con, cur = db_open()
 

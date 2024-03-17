@@ -1,10 +1,65 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
-from .schema import log_schema
 from math import ceil
 from .postgres import db_close, db_open
 
 bp = Blueprint("log", __name__)
+
+
+# def log_schema(log):
+
+#     key = log["entity"]
+#     _type = log["entity_type"]
+
+#     if log["entity_type"] == "auth":
+#         log["entity_type"] = None
+#         log["entity"] = None
+
+#     elif log["entity_type"] == "cart":
+#         if log["action"] in ['added_to', 'removed_from',
+#                              'changed_quantity']:
+#             _type = "item"
+#             key = log["misc"]["key"]
+#             del log["misc"]["key"]
+#         else:
+#             log["entity"] = None
+
+#     elif log["entity_type"] == "advert":
+#         _type = "item"
+#         key = log["entity"].split("_")[0]
+
+#     user = {
+#         "name": None if log["user"] != "meji" else "Meji",
+#         "email": log["user"] if log["user"] != "meji" else None
+#     }
+#     entity = None
+#     for x in db:
+#         if x["type"] == "user" and x["key"] == log["user"]:
+#             user = x
+
+#         elif log["entity"] and x["type"] == _type and x["key"] == key:
+#             entity = x
+
+#     return {
+#         "key": log["key"],
+#         "date": log["date"],
+#         "user": {
+#             "key": user["email"],
+#             "name": user["name"]
+#         },
+#         "action": log["action"],
+#         "entity": {
+#             "key": entity["slug"] if (
+#                 entity and entity["type"] == "item"
+#             ) else log["entity"],
+#             "type": log["entity_type"],
+#             "name": entity["name"] if (
+#                 entity and 'name' in entity
+#             ) else log["entity"],
+#         },
+#         "status": log["status"],
+#         "misc": log["misc"]
+#     }
 
 
 log_template = """
@@ -14,7 +69,7 @@ log_template = """
 """
 
 
-@bp.get("/logs")
+@bp.get("/log")
 def get():
     con, cur = db_open()
 
@@ -76,32 +131,29 @@ def get():
                 if search_columns != [] else ""
             }
             COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM log
-            LEFT JOIN "user" ON log.user_key = user.key
-            {
-                f'''
-                LEFT JOIN '{entity_type}' ON log.entity_key = {entity_type}.key
-                '''
-                if search_columns != [] else ""
-            }
-            WHERE
-                (%s = 'all' OR CONCAT_WS(', ',
-                    log.key, user.name, user.email) ILIKE %s)
-                AND (%s = 'all' OR log.entity_type = %s)
-                AND (%s = 'all' OR log.action = %s)
-            {
-                f'''
-                AND (
-                    {entity_id} = 'all' OR CONCAT_WS(', ',
-                    log.key, {', '.join([f"{entity_type}.{x}"
-                    for x in search_columns])}) ILIKE %{entity_id}%)
-                )
-                '''
-                if search_columns != [] else ""
-            }
-        ) AS subquery
+        FROM log
+        LEFT JOIN "user" ON log.user_key = user.key
+        {
+            f'''
+            LEFT JOIN '{entity_type}' ON log.entity_key = {entity_type}.key
+            '''
+            if search_columns != [] else ""
+        }
+        WHERE
+            (%s = 'all' OR CONCAT_WS(', ',
+                log.key, user.name, user.email) ILIKE %s)
+            AND (%s = 'all' OR log.entity_type = %s)
+            AND (%s = 'all' OR log.action = %s)
+        {
+            f'''
+            AND (
+                {entity_id} = 'all' OR CONCAT_WS(', ',
+                log.key, {', '.join([f"{entity_type}.{x}"
+                for x in search_columns])}) ILIKE %{entity_id}%)
+            )
+            '''
+            if search_columns != [] else ""
+        }
         ORDER BY date DESC
         LIMIT %s OFFSET %s;
     """, (
@@ -119,6 +171,7 @@ def get():
 
     return jsonify({
         "status": 200,
-        "logs": [log_schema(x) for x in logs],
+        # "logs": [log_schema(x) for x in logs],
+        "logs": logs,
         "total_page": ceil(logs[0][-1] / page_size) if logs else 0
     })

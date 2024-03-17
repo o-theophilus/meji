@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
-from .schema import advert_schema
 from .storage import storage
 from .log import log_template
 from PIL import Image
@@ -14,6 +13,31 @@ bp = Blueprint("advert", __name__)
 
 dimensions = ["300x300", "300x600", "600x300", "900x300"]
 ad_space = ['home_1', 'home_2', 'home_3', 'shop', 'save']
+
+
+# def advert_schema(advert):
+#     item = query({"type": "item", "key": advert["item"]}, db=db)
+
+#     def get_url(dim):
+#         if advert['photos'][dim]:
+#             return f"{request.host_url}photos/{advert['photos'][dim]}"
+#         return None
+
+#     return {
+#         "key": advert["key"],
+#         "item": {
+#             "slug": item["slug"],
+#             "name": item["name"],
+#             "photo": f"{request.host_url}photos/{item['photos'][0]}",
+#         },
+#         "photos": {
+#             "300x300": get_url('300x300'),
+#             "300x600": get_url('300x600'),
+#             "600x300": get_url('600x300'),
+#             "900x300": get_url('900x300')
+#         },
+#         "places": advert["places"]
+#     }
 
 
 @bp.post("/advert/<item_key>")
@@ -103,13 +127,14 @@ def add_photo(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert),
+        "advert": advert,
+        # "advert": advert_schema(advert),
         "error": error
     })
 
 
 @bp.get("/advert/<item_key>")
-def get_advert(item_key):
+def get(item_key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -156,13 +181,14 @@ def get_advert(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert) if advert else None,
+        # "advert": advert_schema(advert) if advert else None,
+        "advert": advert,
         "ad_space": ad_space
     })
 
 
 @bp.get("/advert")
-def adverts(placement=""):
+def get_many(placement=""):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
@@ -185,13 +211,14 @@ def adverts(placement=""):
 
     return jsonify({
         "status": 200,
-        "adverts": [advert_schema(x) for x in adverts],
+        # "adverts": [advert_schema(x) for x in adverts],
+        "adverts": adverts,
         "ad_space": ad_space,
         "total_page": ceil(adverts[0][-1] / page_size) if adverts else 0
     })
 
 
-@bp.delete("/advert/<item_key>")
+@bp.delete("/advert/photo/<item_key>")
 def delete_photo(item_key):
     con, cur = db_open()
 
@@ -274,12 +301,13 @@ def delete_photo(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert) if advert else None,
+        # "advert": advert_schema(advert) if advert else None,
+        "advert": advert,
     })
 
 
-@bp.delete("/advert_all/<item_key>")
-def delete_all_photo(item_key):
+@bp.delete("/advert/<item_key>")
+def delete(item_key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -338,7 +366,7 @@ def delete_all_photo(item_key):
 
 
 @bp.put("/advert/<item_key>")
-def adverts_placement(item_key):
+def placement(item_key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -413,5 +441,6 @@ def adverts_placement(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert)
+        "advert": advert
+        # "advert": advert_schema(advert)
     })

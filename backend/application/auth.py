@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_tool, token_to_user, send_mail
-from .schema import user_schema
+from .tools import token_tool, token_to_user, send_mail, user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from .log import log_template
 # from .user_cart import cart_template, transaction
@@ -12,6 +11,8 @@ from .postgres import db_close, db_open
 
 
 bp = Blueprint("auth", __name__)
+
+max_age = 3600
 
 
 @bp.post("/init")
@@ -57,7 +58,7 @@ def init():
     })
 
 
-@bp.post("/user")
+@bp.post("/signup")
 def signup():
     con, cur = db_open()
 
@@ -172,9 +173,6 @@ def signup():
     return jsonify({
         "status": 200
     })
-
-
-max_age = 3600
 
 
 @bp.get("/confirm/<token>")

@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import reserved_words, token_to_user
-from .schema import item_schema
+from .tools import reserved_words, token_to_user, item_schema
 import re
 from uuid import uuid4
 from .storage import storage
@@ -12,7 +11,7 @@ bp = Blueprint("item", __name__)
 
 
 @bp.post("/item")
-def add_new():
+def add():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -73,7 +72,7 @@ def add_new():
 
 
 @bp.put("/item/<key>")
-def edit_item(key):
+def edit(key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -271,8 +270,8 @@ def edit_item(key):
     })
 
 
-@bp.post("/photo/<key>")
-def post_many_photo(key):
+@bp.put("/item/photo/<key>")
+def add_photos(key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -356,8 +355,8 @@ def post_many_photo(key):
     })
 
 
-@bp.put("/photo/<key>")
-def arrange_photo(key):
+@bp.put("/item/photo/order/<key>")
+def order_photo(key):
 
     con, cur = db_open()
 
@@ -420,7 +419,7 @@ def arrange_photo(key):
     })
 
 
-@bp.delete("/photo/<key>")
+@bp.delete("/item/photo/<key>")
 def delete_photo(key):
 
     con, cur = db_open()

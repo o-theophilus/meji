@@ -9,9 +9,8 @@ from . import feedback
 from . import advert
 
 from . import auth
-from . import user_save
-from . import user_cart
-from . import order_get
+from . import save
+from . import cart
 from . import order
 from . import log
 from . import item
@@ -39,10 +38,9 @@ def create_app(conf=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(user_get.bp)
-    app.register_blueprint(user_save.bp)
-    app.register_blueprint(user_cart.bp)
+    app.register_blueprint(save.bp)
+    app.register_blueprint(cart.bp)
     app.register_blueprint(order.bp)
-    app.register_blueprint(order_get.bp)
     app.register_blueprint(voucher.bp)
     app.register_blueprint(log.bp)
 

@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now
-from .schema import user_schema, item_schema
+from .tools import token_to_user, now, user_schema, item_schema
 from uuid import uuid4
 from .log import log_template
 from .postgres import db_close, db_open
@@ -99,7 +98,7 @@ def add_to_cart():
 
 
 @bp.get("/cart")
-def get_cart():
+def get():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -182,8 +181,8 @@ def get_cart():
     })
 
 
-@bp.put("/item_quantity")
-def item_quantity():
+@bp.put("/cart/quantity")
+def quantity():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -299,8 +298,8 @@ def item_quantity():
     })
 
 
-@bp.put("/cart_receiver")
-def cart_receiver():
+@bp.put("/cart/receiver")
+def receiver():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -423,8 +422,8 @@ def cart_receiver():
     })
 
 
-@bp.put("/cart_account")
-def cart_account():
+@bp.put("/cart/account")
+def account():
     con, cur = db_open()
 
     user = token_to_user(cur)
