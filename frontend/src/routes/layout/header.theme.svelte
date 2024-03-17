@@ -6,8 +6,8 @@
 	const submit = async () => {
 		$user.setting.theme = $user.setting.theme == 'light' ? 'dark' : 'light';
 
-		const _resp = await fetch(`${import.meta.env.VITE_BACKEND}/setting`, {
-			method: 'post',
+		await fetch(`${import.meta.env.VITE_BACKEND}/user/setting`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token

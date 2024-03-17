@@ -1,4 +1,6 @@
 <script>
+	import { page } from '$app/stores';
+
 	const go = (name) => {
 		document.querySelector(`#${name}`).scrollIntoView({
 			behavior: 'smooth'
@@ -14,27 +16,37 @@
 	>
 		Home
 	</button>
-	<button
-		on:click={() => {
-			go('tag');
-		}}
-	>
-		Tags
-	</button>
-	<button
-		on:click={() => {
-			go('new_arrivals');
-		}}
-	>
-		New Arrivals
-	</button>
-	<button
-		on:click={() => {
-			go('offers');
-		}}
-	>
-		Offers
-	</button>
+
+	{#if $page.data.tags.length > 0}
+		<button
+			on:click={() => {
+				go('tag');
+			}}
+		>
+			Tags
+		</button>
+	{/if}
+
+	{#if $page.data.new_arrivals.length > 0}
+		<button
+			on:click={() => {
+				go('new_arrivals');
+			}}
+		>
+			New Arrivals
+		</button>
+	{/if}
+
+	{#if $page.data.offers.length > 0}
+		<button
+			on:click={() => {
+				go('offers');
+			}}
+		>
+			Offers
+		</button>
+	{/if}
+
 	<button
 		on:click={() => {
 			go('about');
@@ -42,9 +54,10 @@
 	>
 		About Us
 	</button>
+
 	<button
 		on:click={() => {
-			go("contact");
+			go('contact');
 		}}
 	>
 		Contact

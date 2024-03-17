@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from .log import log_template
 from math import ceil
-from .advert import adverts
+from .advert import get_all_advert
 import re
 from .postgres import db_close, db_open
 from datetime import datetime
@@ -16,7 +16,7 @@ def all_tags():
     con, cur = db_open()
 
     cur.execute("SELECT tags FROM item WHERE status = 'live';")
-    temp = cur.fetchone()
+    temp = cur.fetchall()
 
     tags = []
     for x in temp:
@@ -105,7 +105,7 @@ def shop(
     status="live",
     search="",
     tag="",
-    sort_by="latest",
+    sort="latest",
     page_no=1,
     page_size=24
 ):
@@ -123,8 +123,8 @@ def shop(
         search = request.args["search"]
     if "tag" in request.args:
         tag = request.args["tag"]
-    if "sort_by" in request.args:
-        sort_by = request.args["sort_by"]
+    if "sort" in request.args:
+        sort = request.args["sort"]
     if "page_no" in request.args:
         page_no = int(request.args["page_no"])
     if "page_size" in request.args:
@@ -137,65 +137,63 @@ def shop(
     tags = tag.split(",")
     tags = [] if not tags[0] else tags
 
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name',
+        'cheap': 'item.price',
+        'expensive': 'item.price',
+        'discount': 'discount',
+        'rating': 'rating'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC',
+        'cheap': 'ASC',
+        'expensive': 'DESC',
+        'discount': 'DESC',
+        'rating': 'DESC'
+    }
+
     cur.execute("""
         SELECT
             item.*,
-            (item.old_price - item.price) * 100 / item.old_price AS discount,
-            (
-                SELECT
-                    CASE
-                        WHEN COUNT(*) OVER () = 0 THEN NULL
-                        ELSE SUM(rating) / COUNT(*) OVER ()
-                    END AS rating
-                FROM feedback
-                WHERE item_key = item.key
-            ) AS rating,
-            (
-                SELECT ARRAY_AGG(rating)
-                FROM feedback
-                WHERE item_key = item.key
-            ) AS ratings,
-            COUNT(*) OVER() AS total_items
+            COUNT(*) OVER() AS total_items,
+            COALESCE(
+                100 * (item.old_price - item.price) / item.old_price, 0
+            ) AS discount,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN NULL
+                ELSE SUM(feedback.rating) / COUNT(feedback.*)
+            END AS rating,
+            ARRAY_AGG(feedback.rating) AS ratings
         FROM item
         LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'item'
+        LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
             item.status = %s
             AND item.name ILIKE %s
-            AND CASE WHEN %s
-                THEN ALL(x IN (item.tags) FOR x IN %s)
-                ELSE ANY(x IN (item.tags) FOR x IN %s)
-            END
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN item.name
-                WHEN "name (z-a)" THEN item.name
-                WHEN "cheap" THEN item.price
-                WHEN "expensive" THEN item.price
-                WHEN "discount" THEN discount
-                WHEN "rating" THEN rating
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "name (a-z)" THEN ASC
-                WHEN "cheap" THEN ASC
-                ELSE DESC
-            END
+            AND
+                CASE
+                    WHEN %s THEN %s = ALL(item.tags)
+                    ELSE %s = ANY(item.tags)
+                END
+
+        GROUP BY item.key, log.date
+
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
-        status,
-        f"%{search}%",
-        multiply,
-        tags,
-        tags,
-        sort_by,
-        sort_by,
-        page_size,
-        (page_no - 1) * page_size
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
+        status, f"%{search}%", multiply, tags, tags,
+        page_size, (page_no - 1) * page_size
     ))
     items = cur.fetchall()
 
@@ -213,9 +211,9 @@ def home():
     return jsonify({
         "status": 200,
         "tags": all_tags().json["tags"],
-        "new_arrivals": shop(sort_by="latest", page_size=8).json["items"],
-        "offers": shop(sort_by="discount", page_size=8).json["items"],
-        "adverts": adverts("home_1").json["adverts"]
+        "new_arrivals": shop(sort="latest", page_size=8).json["items"],
+        "offers": shop(sort="discount", page_size=8).json["items"],
+        "adverts": get_all_advert("home_1").json["adverts"]
     })
 
 

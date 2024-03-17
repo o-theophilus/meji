@@ -7,6 +7,7 @@ from math import ceil
 from .postgres import db_close, db_open
 from datetime import datetime
 from uuid import uuid4
+import json
 
 bp = Blueprint("advert", __name__)
 
@@ -120,7 +121,7 @@ def add_photo(item_key):
         advert["key"],
         "advert",
         200,
-        {"photo": log_misc}
+        json.dumps({"photo": log_misc})
     ))
 
     db_close(con, cur)
@@ -188,7 +189,7 @@ def get(item_key):
 
 
 @bp.get("/advert")
-def get_many(placement=""):
+def get_all_advert(placement=""):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
@@ -294,7 +295,7 @@ def delete_photo(item_key):
         advert["key"],
         "advert",
         200,
-        {"photo": f"{request.json['size']}: {request.json['photo']}"}
+        json.dumps({f"{request.json['size']}: {request.json['photo']}"})
     ))
 
     db_close(con, cur)
@@ -354,7 +355,7 @@ def delete(item_key):
         advert["key"],
         "advert",
         200,
-        {"photo": log_misc}
+        json.dumps({"photo": log_misc})
     ))
 
     db_close(con, cur)
@@ -423,10 +424,10 @@ def placement(item_key):
         advert["key"],
         "advert",
         200,
-        {
+        json.dumps({
             "from": advert["places"],
             "to": request.json["places"]
-        }
+        })
     ))
 
     cur.execute("""

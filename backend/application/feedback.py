@@ -5,6 +5,7 @@ from math import ceil
 from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
+import json
 
 bp = Blueprint("feedback", __name__)
 
@@ -104,10 +105,10 @@ def add_feedback(item_key):
         feedback["key"],
         "feedback",
         200,
-        {
+        json.dumps({
             "rating":  request.json["rating"],
             "review": request.json["review"]
-        }
+        })
     ))
 
     db_close(con, cur)

@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import { module } from '$lib/store.js';
 
 	import Center from '$lib/center.svelte';
@@ -8,20 +9,19 @@
 	import Tag from './tag.svelte';
 	import Tags from './_tags.svelte';
 
-	export let tags = [];
 	let width;
 </script>
 
 <svelte:window bind:innerWidth={width} />
 
-{#if tags.length > 0}
+{#if $page.data.tags.length > 0}
 	<div id="tag" />
 	<Center>
 		<section class="card">
 			<div class="ctitle">Tags</div>
 
 			<div class="item_area">
-				{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
+				{#each $page.data.tags.slice(0, width < 1000 ? 6 : 8) as tag}
 					<Tag {tag} />
 				{/each}
 			</div>
@@ -31,7 +31,7 @@
 				on:click={() => {
 					$module = {
 						module: Tags,
-						tags
+						tags: $page.data.tags
 					};
 				}}
 			>

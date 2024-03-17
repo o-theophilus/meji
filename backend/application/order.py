@@ -7,6 +7,7 @@ import os
 from .postgres import db_close, db_open
 from datetime import datetime
 from math import ceil
+import json
 
 bp = Blueprint("order", __name__)
 
@@ -161,11 +162,11 @@ def cart_to_order():
         order["key"],
         "order",
         200,
-        {
+        json.dumps({
             "debit": order["pay_account"],
             "account_balance": user["acc_balance"] + order["pay_account"],
             "new_balance": user["acc_balance"]
-        }
+        })
     ))
 
     send_mail(
@@ -375,10 +376,10 @@ def date(key):
         order["key"],
         "order",
         200,
-        {
+        json.dumps({
             "from": order["delivery_date"],
             "to": f"{request.json['date']}T{request.json['time']}"
-        }
+        })
     ))
 
     cur.execute("""
@@ -467,11 +468,11 @@ def status(key):
         order["key"],
         "order",
         200,
-        {
+        json.dumps({
             "from": order['status'],
             "to": request.json['status'],
             "note": request.json["note"]
-        }
+        })
     ))
 
     cur.execute("""
@@ -558,11 +559,11 @@ def cancel(key):
         order["key"],
         "order",
         200,
-        {
+        json.dumps({
             "from": order['status'],
             "to": "canceled",
             "note": request.json["note"]
-        }
+        })
     ))
 
     cur.execute("""

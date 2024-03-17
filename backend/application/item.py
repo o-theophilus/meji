@@ -6,6 +6,7 @@ from .storage import storage
 from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
+import json
 
 bp = Blueprint("item", __name__)
 
@@ -343,7 +344,10 @@ def add_photos(key):
         item["key"],
         "item",
         200,
-        {"added": ", ".join(file_names), "error": error}
+        json.dumps({
+            "added": ", ".join(file_names),
+            "error": error
+        })
     ))
 
     db_close(con, cur)
@@ -397,7 +401,10 @@ def order_photo(key):
         item["key"],
         "item",
         200,
-        {"from": item["photos"], "to": in_photos}
+        json.dumps({
+            "from": item["photos"],
+            "to": in_photos
+        })
     ))
 
     cur.execute("""
@@ -486,7 +493,7 @@ def delete_photo(key):
         item["key"],
         "item",
         200,
-        {"photo": file_name}
+        json.dumps({"photo": file_name})
     ))
 
     db_close(con, cur)

@@ -2,10 +2,36 @@ from flask import Blueprint, jsonify
 import os
 import psycopg2
 import psycopg2.extras
-# import sqlite3
 
 
 bp = Blueprint("postgres", __name__)
+
+
+# "status": anonymous, signed_up, confirmed
+user_table = """CREATE TABLE IF NOT EXISTS "user" (
+    key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+    status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
+
+    name VARCHAR(100) DEFAULT 'anonymous',
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone VARCHAR(100),
+    password VARCHAR(200) NOT NULL,
+
+    address_line VARCHAR(100),
+    address_country VARCHAR(100),
+    address_state VARCHAR(100),
+    address_local_area VARCHAR(100),
+    address_postal_code VARCHAR(100),
+
+    photo VARCHAR(36),
+    account_balance FLOAT DEFAULT 0,
+    roles TEXT[] DEFAULT ARRAY[]::TEXT[],
+    login BOOLEAN DEFAULT FALSE,
+
+    setting_theme VARCHAR(20) DEFAULT 'light',
+    setting_item_view VARCHAR(20) DEFAULT 'grid'
+);"""
 
 
 item_table = """CREATE TABLE IF NOT EXISTS item (
@@ -23,8 +49,9 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
     adverts JSONB DEFAULT '{}'::JSONB,
     variation JSONB DEFAULT '{}'::JSONB,
 
-    available_quantity INT DEFAULT 0,
+    available_quantity INT DEFAULT 0
 );"""
+
 
 save_table = """CREATE TABLE IF NOT EXISTS save (
     key CHAR(32) PRIMARY KEY,
@@ -74,35 +101,51 @@ order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
     variation JSONB DEFAULT '{}'::JSONB,
     quantity INT DEFAULT 0,
 
-    FOREIGN KEY (order_key) REFERENCES order(key) ON DELETE CASCADE,
+    FOREIGN KEY (order_key) REFERENCES "order"(key) ON DELETE CASCADE,
     FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 
-# "status": anonymous, signed_up, confirmed
-user_table = """CREATE TABLE IF NOT EXISTS "user" (
+
+# TODO: Remover version from n on financial ops
+feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
-    status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
 
-    name VARCHAR(100) DEFAULT 'anonymous',
-    email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(100),
-    password VARCHAR(200) NOT NULL,
+    user_key CHAR(32) NOT NULL,
+    item_key CHAR(32) NOT NULL,
 
-    address_line VARCHAR(100),
-    address_country VARCHAR(100),
-    address_state VARCHAR(100),
-    address_local_area VARCHAR(100),
-    address_postal_code VARCHAR(100),
+    rating INT DEFAULT 0,
+    review TEXT,
 
-    photo VARCHAR(36),
-    account_balance FLOAT DEFAULT 0,
-    roles TEXT[] DEFAULT ARRAY[]::TEXT[],
-    login BOOLEAN DEFAULT FALSE,
-
-    setting_theme VARCHAR(20) DEFAULT 'light',
-    setting_item_view VARCHAR(20) DEFAULT 'grid'
+    FOREIGN KEY (user_key) REFERENCES "user"(key) ON DELETE CASCADE,
+    FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
+
+advert_table = """CREATE TABLE IF NOT EXISTS advert (
+    key CHAR(32) PRIMARY KEY,
+
+    placement TEXT[] DEFAULT ARRAY[]::TEXT[],
+    photo_300x300 VARCHAR(36),
+    photo_300x600 VARCHAR(36),
+    photo_600x300 VARCHAR(36),
+    photo_900x300 VARCHAR(36),
+
+    FOREIGN KEY (key) REFERENCES item(key) ON DELETE CASCADE
+);"""
+
+
+# "status": inactive, active, used, deleted, expired
+voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
+    key CHAR(32) PRIMARY KEY,
+    version CHAR(32) NOT NULL,
+    batch CHAR(32),
+    status VARCHAR(20) DEFAULT 'inactive' NOT NULL,
+
+    code VARCHAR(10) NOT NULL,
+    value FLOAT DEFAULT 0,
+    validity TIMESTAMP
+);"""
+
 
 log_table = """CREATE TABLE IF NOT EXISTS log (
     key CHAR(32) PRIMARY KEY,
@@ -117,17 +160,6 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
     FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
 
-# "status": inactive, active, used, deleted, expired
-voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
-    key CHAR(32) PRIMARY KEY,
-    version CHAR(32) NOT NULL,
-    batch CHAR(32),
-    status VARCHAR(20) DEFAULT 'inactive' NOT NULL,
-
-    code VARCHAR(10) NOT NULL,
-    value FLOAT DEFAULT 0,
-    validity TIMESTAMP
-);"""
 
 # TODO:
 # Move date to log_table
@@ -143,33 +175,6 @@ otp_table = """CREATE TABLE IF NOT EXISTS otp (
     FOREIGN KEY (user_key) REFERENCES "user"(key)
 );"""
 
-# TODO: Remover version from n on financial ops
-feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
-    key CHAR(32) PRIMARY KEY,
-    version CHAR(32) NOT NULL,
-
-    user_key CHAR(32) NOT NULL,
-    item_key CHAR(32) NOT NULL,
-
-    rating INT DEFAULT 0,
-    review TEXT,
-
-    FOREIGN KEY (user_key) REFERENCES 'user'(key) ON DELETE CASCADE,
-    FOREIGN KEY (item_key) REFERENCES item(key)
-);"""
-
-advert_table = """CREATE TABLE IF NOT EXISTS advert (
-    key CHAR(32) PRIMARY KEY,
-
-    placement TEXT[] DEFAULT ARRAY[]::TEXT[],
-    photo_300x300 VARCHAR(36),
-    photo_300x600 VARCHAR(36),
-    photo_600x300 VARCHAR(36),
-    photo_900x300 VARCHAR(36),
-
-    FOREIGN KEY (item_key) REFERENCES item(key) ON DELETE CASCADE
-);"""
-
 
 def db_open():
     con = psycopg2.connect(os.environ["DATABASE_URI"])
@@ -183,39 +188,34 @@ def db_close(con, cur):
     con.close()
 
 
-def query_run(query, data=None, many=False):
-    con = psycopg2.connect(os.environ["DATABASE_URI"])
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+@bp.post("/create_table")
+def create_table():
+    con, cur = db_open()
 
-    out = []
-
-    try:
-        cur.execute(query, data)
-        out = cur.fetchall()
-    except psycopg2.Error as e:
-        print("Error occurred:", e)
-
-    con.commit()
-    cur.close()
-    con.close()
-
-    out = [dict(x) for x in out]
-    if many:
-        return out
-    return out[0] if out != [] else None
-
-
-@bp.post("/create_tables")
-def create_tables():
-
-    query_run(
-        f"""
-        DROP TABLE IF EXISTS "user";
+    cur.execute(f"""
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS save;
+        DROP TABLE IF EXISTS "order" CASCADE;
+        DROP TABLE IF EXISTS order_item;
+        DROP TABLE IF EXISTS feedback;
+        DROP TABLE IF EXISTS advert;
+        DROP TABLE IF EXISTS voucher;
         DROP TABLE IF EXISTS log;
+        DROP TABLE IF EXISTS otp;
         {user_table};
+        {item_table};
+        {save_table};
+        {order_table};
+        {order_item_table};
+        {feedback_table};
+        {advert_table};
+        {voucher_table};
         {log_table};
-        """
-    )
+        {otp_table};
+    """)
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,

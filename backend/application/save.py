@@ -16,37 +16,57 @@ def get():
 
     page_no = 1
     page_size = 24
-    sort_by = "latest"
+    sort = "latest"
 
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name',
+        'cheap': 'item.price',
+        'expensive': 'item.price',
+        'discount': 'discount',
+        'rating': 'rating'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC',
+        'cheap': 'ASC',
+        'expensive': 'DESC',
+        'discount': 'DESC',
+        'rating': 'DESC'
+    }
     cur.execute("""
-        SELECT item.*, COUNT(*) OVER() AS total_items
+        SELECT
+            item.*,
+            COUNT(*) OVER() AS total_items,
+            COALESCE(
+                100 * (item.old_price - item.price) / item.old_price, 0
+            ) AS discount,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN NULL
+                ELSE SUM(feedback.rating) / COUNT(feedback.*)
+            END AS rating
         FROM save
-        LEFT JOIN item ON save.user_key = item.key
+        LEFT JOIN item ON item.key = save.item_key
+        LEFT JOIN log ON item.key = log.entity_key
+            AND log.action = 'created'
+            AND log.entity_type = 'item'
+        LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE save.user_key = %s
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN save.name
-                WHEN "name (z-a)" THEN save.name
-                WHEN "cheap" THEN save.price
-                WHEN "expensive" THEN save.price
-                WHEN "discount" THEN discount
-                WHEN "rating" THEN rating
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "name (a-z)" THEN ASC
-                WHEN "cheap" THEN ASC
-                ELSE DESC
-            END
+
+        GROUP BY item.key, log.date
+
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
         user["key"],
-        sort_by, sort_by,
-        page_size,
-        (page_no - 1) * page_size
+        page_size, (page_no - 1) * page_size
     ))
 
     items = cur.fetchall()

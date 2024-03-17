@@ -8,6 +8,7 @@ from uuid import uuid4
 import os
 from datetime import datetime
 from .postgres import db_close, db_open
+import json
 
 
 bp = Blueprint("auth", __name__)
@@ -211,16 +212,28 @@ def confirm_email(token):
         output['user'] = user_schema(user)
 
         cur.execute(log_template, (
-            uuid4().hex, datetime.now(),  user["key"], "confirmed_email",
-            user["key"], "auth", 200, None
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "confirmed_email",
+            user["key"],
+            "auth",
+            200,
+            None
         ))
 
     else:
         output['error'] = "email has already been confirmed"
 
         cur.execute(log_template, (
-            uuid4().hex, datetime.now(), user["key"], "confirmed_email",
-            user["key"], "auth", 201, {"error": "already confirmed"}
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "confirmed_email",
+            user["key"],
+            "auth",
+            201,
+            json.dumps({"error": "already confirmed"})
         ))
 
     db_close(con, cur)
@@ -356,12 +369,28 @@ def login():
     ))
 
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(), user["key"], "logged_in", user["key"],
-        "auth", 200, {"from": out_user["key"], "name": out_user["name"]}
+        uuid4().hex, datetime.now(),
+        user["key"],
+        "logged_in",
+        user["key"],
+        "auth",
+        200,
+        json.dumps({
+            "from": out_user["key"],
+            "name": out_user["name"]
+        })
     ))
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(), out_user["key"], "logged_out",
-        out_user["key"], "auth", 200, {"to": user["key"], "name": user["name"]}
+        uuid4().hex,
+        datetime.now(),
+        out_user["key"],
+        "logged_out",
+        out_user["key"],
+        "auth", 200,
+        json.dumps({
+            "to": user["key"],
+            "name": user["name"]
+        })
     ))
 
     db_close(con, cur)
@@ -401,9 +430,17 @@ def logout():
     anon_user = cur.fetchone()
 
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(), user["key"], "logged_out",
-        user["key"], "auth", 200,
-        {"to": anon_user["key"], "name": anon_user["name"]}
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "logged_out",
+        user["key"],
+        "auth",
+        200,
+        json.dumps({
+            "to": anon_user["key"],
+            "name": anon_user["name"]
+        })
     ))
 
     db_close(con, cur)
@@ -459,8 +496,14 @@ def forgot_password():
         ))
 
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(), user["key"], "forgot_password",
-        user["key"], "auth", 201, None
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "forgot_password",
+        user["key"],
+        "auth",
+        201,
+        None
     ))
 
     db_close(con, cur)
@@ -532,8 +575,14 @@ def change_password(token):
     ))
 
     cur.execute(log_template, (
-        uuid4().hex, datetime.now(), user["key"], "changed_password",
-        user["key"], "auth", 200, None
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "changed_password",
+        user["key"],
+        "auth",
+        200,
+        None
     ))
 
     return jsonify({

@@ -5,6 +5,7 @@ from .log import log_template
 from math import ceil
 from datetime import datetime, date
 from .postgres import db_close, db_open
+import json
 
 bp = Blueprint("voucher", __name__)
 
@@ -85,7 +86,7 @@ def create():
             voucher_key,
             "voucher",
             200,
-            {"batch": batch}
+            json.dumps({"batch": batch})
         ))
 
     db_close(con, cur)
@@ -265,9 +266,7 @@ def activate(key):
         voucher["key"],
         "voucher",
         200,
-        {
-            "validity": validity
-        }
+        json.dumps({"validity": validity})
     ))
 
     db_close(con, cur)
@@ -427,7 +426,7 @@ def use():
             voucher["key"],
             "voucher",
             400,
-            {"error": error}
+            json.dumps({"error": error})
         ))
 
         return jsonify({
@@ -443,11 +442,11 @@ def use():
         voucher["key"],
         "voucher",
         200,
-        {
+        json.dumps({
             "value": voucher["value"],
             "balance": user["acc_balance"],
             "new_balance": user["acc_balance"] + voucher["value"]
-        }
+        })
     ))
 
     cur.execute("""

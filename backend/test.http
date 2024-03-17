@@ -28,7 +28,7 @@ Authorization: {{Authorization}}
 ###
 
 #create_tables
-post  {{host}}/create_tables HTTP/1.1
+post  {{host}}/create_table HTTP/1.1
 content-type: application/json
 Authorization: {{Authorization}}
 

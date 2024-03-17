@@ -10,6 +10,7 @@ import os
 from .postgres import db_close, db_open
 from datetime import datetime, timedelta
 from .log import log_template
+import json
 
 
 bp = Blueprint("user", __name__)
@@ -45,8 +46,12 @@ def setting():
             user["key"],
             "changed_theme",
             user["key"],
-            "user", 200,
-            {"from": user["setting_theme"], "to": request.json["theme"]}
+            "user",
+            200,
+            json.dumps({
+                "from": user["setting_theme"],
+                "to": request.json["theme"]
+            })
         ))
 
     if (
@@ -69,8 +74,10 @@ def setting():
             "changed_view",
             user["key"],
             "user", 200,
-            {"from": user["setting_item_view"],
-                "to": request.json["item_view"]}
+            json.dumps({
+                "from": user["setting_item_view"],
+                "to": request.json["item_view"]
+            })
         ))
 
     db_close(con, cur)
@@ -127,7 +134,10 @@ def user_role(key):
         "changed_role",
         user["key"],
         "user", 200,
-        {"from": user["roles"], "to": request.json["roles"]}
+        json.dumps({
+            "from": user["roles"],
+            "to": request.json["roles"]
+        })
     ))
 
     db_close(con, cur)
@@ -336,7 +346,7 @@ def send_email_otp():
         user["key"],
         "otp",
         200,
-        {"to": f"{user['email']}, {request.json['email']}"}
+        json.dumps({"to": f"{user['email']}, {request.json['email']}"})
     ))
 
     send_mail(
@@ -433,7 +443,10 @@ def email():
         user["key"],
         "user",
         200,
-        {"from": user['email'], "to": request.json['email']}
+        json.dumps({
+            "from": user['email'],
+            "to": request.json['email']
+        })
     ))
     cur.execute("""
         UPDATE "user"
@@ -498,7 +511,7 @@ def send_password_otp():
         user["key"],
         "otp",
         200,
-        {"to": f"{user['email']}, {request.json['email']}"}
+        json.dumps({"to": f"{user['email']}, {request.json['email']}"})
     ))
 
     send_mail(

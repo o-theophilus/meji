@@ -41,7 +41,7 @@
 			_selected = x.split(',');
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
 		resp = await resp.json();
 		if (resp.status == 200) {
 			tags = resp.tags;

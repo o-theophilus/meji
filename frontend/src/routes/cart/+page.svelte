@@ -3,6 +3,7 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
+	import Card from '$lib/card.svelte';
 
 	import Cart from './cart.svelte';
 	import Delivery from './delivery.svelte';
@@ -55,7 +56,9 @@
 	<div class="ctitle">Cart</div>
 </Center>
 
-{#if state == 0}
+{#if !cart}
+	<Card>no item here</Card>
+{:else if state == 0}
 	<Cart
 		{cart}
 		on:next={() => {

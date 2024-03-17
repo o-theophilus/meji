@@ -5,8 +5,6 @@ from .database import database, query
 from datetime import datetime, timedelta
 import re
 import os
-from .log import log_template
-from .postgres import query_run
 
 
 bp = Blueprint("test", __name__)
@@ -118,17 +116,17 @@ def cron():
     rem = rem[:10]
     database(rem, True)
 
-    query_run(log_template(
-        "meji",
-        "ran_cron",
-        None,
-        "auth",
-        misc={
-            "expired_voucher": ", ".join([x["key"] for x in expired]),
-            "users_logged_out": ", ".join([x["email"] for x in logged_out]),
-            "anonymous_deleted": ", ".join([x["key"] for x in rem])
-        }
-    ))
+    # query_run(log_template(
+    #     "meji",
+    #     "ran_cron",
+    #     None,
+    #     "auth",
+    #     misc={
+    #         "expired_voucher": ", ".join([x["key"] for x in expired]),
+    #         "users_logged_out": ", ".join([x["email"] for x in logged_out]),
+    #         "anonymous_deleted": ", ".join([x["key"] for x in rem])
+    #     }
+    # ))
 
     return jsonify({
         "status": 200,

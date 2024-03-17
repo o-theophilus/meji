@@ -19,56 +19,52 @@
 </script>
 
 <Card>
-	{#if cart.items.length == 0}
-		no item here
-	{:else}
-		<div class="ctitle">Item{cart.items.length ? 's' : ''}</div>
+	<div class="ctitle">Item{cart.items.length ? 's' : ''}</div>
 
-		<br />
-		<br />
+	<br />
+	<br />
 
-		<div class="items">
-			{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
-				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<Item bind:item />
-				</div>
-			{/each}
-		</div>
-
-		<br />
-
-		<div class="total_amount">
-			<div class="total">Item{cart.items.length ? 's' : ''} Total Price</div>
-			<div class="amount">
-				₦{cart.transaction.total_items.toLocaleString()}
+	<div class="items">
+		{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
+			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+				<Item bind:item />
 			</div>
+		{/each}
+	</div>
+
+	<br />
+
+	<div class="total_amount">
+		<div class="total">Item{cart.items.length ? 's' : ''} Total Price</div>
+		<div class="amount">
+			₦{cart.transaction.total_items.toLocaleString()}
 		</div>
+	</div>
 
+	<br />
+
+	<Button
+		class="primary"
+		on:click={() => {
+			if ($user.login) {
+				emit('next');
+			} else {
+				$module = {
+					module: Login,
+					message: 'please login to checkout'
+				};
+			}
+		}}
+	>
+		<SVG type="cart_out" />
+		Checkout
+	</Button>
+
+	{#if error.error}
 		<br />
-
-		<Button
-			class="primary"
-			on:click={() => {
-				if ($user.login) {
-					emit('next');
-				} else {
-					$module = {
-						module: Login,
-						message: 'please login to checkout'
-					};
-				}
-			}}
-		>
-			<SVG type="cart_out" />
-			Checkout
-		</Button>
-
-		{#if error.error}
-			<br />
-			<span class="error">
-				{error.error}
-			</span>
-		{/if}
+		<span class="error">
+			{error.error}
+		</span>
 	{/if}
 </Card>
 

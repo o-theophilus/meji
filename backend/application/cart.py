@@ -4,6 +4,7 @@ from uuid import uuid4
 from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
+import json
 
 bp = Blueprint("cart", __name__)
 
@@ -82,11 +83,11 @@ def add_to_cart():
         cart["key"],
         "cart",
         200,
-        {
+        json.dumps({
             "key": request.json["key"],
             **request.json["variation"],
             "quantity": request.json["quantity"]
-        }
+        })
     ))
 
     db_close(con, cur)
@@ -109,73 +110,78 @@ def get():
         })
 
     cur.execute("""
-        INSERT INTO "order" (key, version, user_key)
-        VALUES (%s, %s, %s)
-        ON CONFLICT (user_key, status)
-        DO UPDATE
-        SET pay_account = CASE
-            WHEN pay_account > %s THEN 0
-            ELSE pay_account
-        END
-        RETURNING *;
-    """, (
-        uuid4().hex,
-        uuid4().hex,
-        user["key"],
-        user["account_balance"]
-    ))
+        SELECT *,
+            ARRAY(
+                SELECT JSON_BUILD_OBJECT(
+                    'slug', item.slug,
+                    'name', item.name,
+                    'price', item.price,
+                    'photo', COALESCE(item.photos[1], NULL),
+                    'variation', order_item.variation,
+                    'quantity', order_item.quantity
+                )
+                FROM order_item
+                LEFT JOIN item ON order_item.item_key = item.key
+                WHERE order_item.order_key = "order".key
+            ) AS items
+        FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
     cart = cur.fetchone()
 
-    cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
+    pr = []
+    items = []
 
-    cur.execute("""
-        SELECT item.*, order_item.variation AS variation,
-            order_item.quantity AS quantity
-        FROM order_item
-        LEFT JOIN item ON order_item.item_key = item.key
-        WHERE order_item.order_key = %s;
-    """, (cart["key"],))
-    items = cur.fetchall()
+    if cart:
+        cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
-    cur.execute("""
-        SELECT DISTINCT
-            o.receiver_name,
-            o.receiver_phone,
-            o.receiver_address_line,
-            o.receiver_address_country,
-            o.receiver_address_state,
-            o.receiver_address_local_area,
-            o.receiver_address_postal_code
-        FROM (
-            SELECT *
-            FROM "order"
-            WHERE user_key = %s AND status = "delivered"
-        ) AS o
-        LEFT JOIN log ON o.key = log.entity_key
-            AND log.entity_type = 'order'
-            AND log.action = 'delivered'
-        ORDER BY log.date DESC
-        LIMIT 5;
-    """, (user["key"],))
-    pr = cur.fetchone()
+        cur.execute("""
+            SELECT item.*, order_item.variation AS variation,
+                order_item.quantity AS quantity
+            FROM order_item
+            LEFT JOIN item ON order_item.item_key = item.key
+            WHERE order_item.order_key = %s;
+        """, (cart["key"],))
+        items = cur.fetchall()
 
-    cur.execute(log_template, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "viewed",
-        cart["key"],
-        "cart",
-        200,
-        None
-    ))
+        cur.execute("""
+            SELECT DISTINCT
+                o.receiver_name,
+                o.receiver_phone,
+                o.receiver_address_line,
+                o.receiver_address_country,
+                o.receiver_address_state,
+                o.receiver_address_local_area,
+                o.receiver_address_postal_code
+            FROM (
+                SELECT *
+                FROM "order"
+                WHERE user_key = %s AND status = "delivered"
+            ) AS o
+            LEFT JOIN log ON o.key = log.entity_key
+                AND log.entity_type = 'order'
+                AND log.action = 'delivered'
+            ORDER BY log.date DESC
+            LIMIT 5;
+        """, (user["key"],))
+        pr = cur.fetchone()
+
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "viewed",
+            cart["key"],
+            "cart",
+            200,
+            None
+        ))
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
         "cart": cart,
-        # TODO => user proper schema
         "items": [item_schema(x) for x in items],
         "previous_receivers": pr
     })
@@ -247,7 +253,7 @@ def quantity():
         cart["key"],
         "cart",
         200,
-        {
+        json.dumps({
             "key": request.json["key"],
             **request.json["variation"],
             "from_quantity": cart_item["quantity"],
@@ -255,7 +261,7 @@ def quantity():
         } if request.json["quantity"] > 0 else {
             "key": request.json["key"],
             **request.json["variation"]
-        }
+        })
     ))
 
     cur.execute("""
@@ -368,7 +374,7 @@ def receiver():
         cart["key"],
         "cart",
         200,
-        {
+        json.dumps({
             "from": f"""
                 {cart["receiver_name"]} |
                 {cart["receiver_phone"]} |
@@ -387,7 +393,7 @@ def receiver():
                 {request.json["address_local_area"]} |
                 {request.json["address_postal_code"]}
             """
-        }
+        })
     ))
 
     cur.execute("""
@@ -471,10 +477,10 @@ def account():
         cart["key"],
         "cart",
         200,
-        {
+        json.dumps({
             "from": cart["pay_account_debit"],
             "to": request.json["amount"]
-        }
+        })
     ))
 
     cur.execute("""
