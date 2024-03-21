@@ -4,7 +4,7 @@
 	import SVG from '$lib/svg.svelte';
 
 	const submit = async () => {
-		$user.setting.theme = $user.setting.theme == 'light' ? 'dark' : 'light';
+		$user.setting_theme = $user.setting_theme == 'light' ? 'dark' : 'light';
 
 		await fetch(`${import.meta.env.VITE_BACKEND}/user/setting`, {
 			method: 'put',
@@ -12,7 +12,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ theme: $user.setting.theme })
+			body: JSON.stringify({ theme: $user.setting_theme })
 		});
 	};
 </script>
@@ -25,7 +25,7 @@
 		}}
 	>
 		<div class="block">
-			<div class="switch" class:dark={$user.setting.theme == 'dark'}>
+			<div class="switch" class:dark={$user.setting_theme == 'dark'}>
 				<div>
 					<SVG type="light" size="12" />
 				</div>

@@ -4,6 +4,7 @@ from flask_cors import CORS
 from . import api
 from . import user
 from . import user_get
+from . import admin
 from . import voucher
 from . import feedback
 from . import advert
@@ -38,6 +39,7 @@ def create_app(conf=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(user_get.bp)
+    app.register_blueprint(admin.bp)
     app.register_blueprint(save.bp)
     app.register_blueprint(cart.bp)
     app.register_blueprint(order.bp)

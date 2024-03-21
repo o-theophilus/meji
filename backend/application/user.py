@@ -1,13 +1,11 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, token_tool, send_mail, user_schema
-from werkzeug.security import check_password_hash
 import re
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from .storage import storage
 import random
-from uuid import uuid4
-import os
 from .postgres import db_close, db_open
+from uuid import uuid4
 from datetime import datetime, timedelta
 from .log import log_template
 import json
@@ -45,7 +43,7 @@ def setting():
             datetime.now(),
             user["key"],
             "changed_theme",
-            user["key"],
+            None,
             "user",
             200,
             json.dumps({
@@ -72,7 +70,7 @@ def setting():
             datetime.now(),
             user["key"],
             "changed_view",
-            user["key"],
+            None,
             "user", 200,
             json.dumps({
                 "from": user["setting_item_view"],
@@ -84,67 +82,6 @@ def setting():
 
     return jsonify({
         "status": 200
-    })
-
-
-@bp.put("/user/role/<key>")
-def user_role(key):
-    con, cur = db_open()
-
-    me = token_to_user(cur)
-    cur.execute('SELECT * FROM "user" WHERE key = %s;', (key,))
-    user = cur.fetchone()
-
-    error = None
-    if not me or "user:set_role" not in me["roles"]:
-        error = "unauthorized access"
-    elif "password" not in request.json:
-        error = "this field is required"
-    elif not check_password_hash(me["password"], request.json["password"]):
-        error = "incorrect password"
-    elif (
-        not user
-        or me["key"] == user["key"]
-        or "roles" not in request.json
-        or type(request.json["roles"]) is not list
-        or user["email"] == os.environ["MAIL_USERNAME"]
-        or user["status"] != "confirmed"
-    ):
-        error = "invalid request"
-
-    if error:
-        return jsonify({
-            "status": 400,
-            "error": error
-        })
-
-    cur.execute("""
-        UPDATE "user"
-        SET roles = %s
-        WHERE key = %s;
-    """, (
-        request.json["roles"],
-        user["key"]
-    ))
-
-    cur.execute(log_template, (
-        uuid4().hex,
-        datetime.now(),
-        me["key"],
-        "changed_role",
-        user["key"],
-        "user", 200,
-        json.dumps({
-            "from": user["roles"],
-            "to": request.json["roles"]
-        })
-    ))
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "user": user_schema(user)
     })
 
 
@@ -261,7 +198,7 @@ def edit_user(key):
         datetime.now(),
         user["key"],
         "edited",
-        user["key"],
+        None,
         "user",
         200,
         request.json
@@ -343,7 +280,7 @@ def send_email_otp():
         datetime.now(),
         user["key"],
         "requested",
-        user["key"],
+        None,
         "otp",
         200,
         json.dumps({"to": f"{user['email']}, {request.json['email']}"})
@@ -440,7 +377,7 @@ def email():
         datetime.now(),
         user["key"],
         "changed_email",
-        user["key"],
+        None,
         "user",
         200,
         json.dumps({
@@ -508,7 +445,7 @@ def send_password_otp():
         datetime.now(),
         user["key"],
         "requested",
-        user["key"],
+        None,
         "otp",
         200,
         json.dumps({"to": f"{user['email']}, {request.json['email']}"})
@@ -594,7 +531,7 @@ def password():
         datetime.now(),
         user["key"],
         "changed_password",
-        user["key"],
+        None,
         "user",
         200,
         None
@@ -665,7 +602,7 @@ def delete():
         datetime.now(),
         user["key"],
         "deleted_account",
-        user["key"],
+        None,
         "user",
         200,
         None
@@ -724,7 +661,7 @@ def add_photo():
         datetime.now(),
         user["key"],
         "updated_photo",
-        user["key"],
+        None,
         "user",
         200,
         None
@@ -765,7 +702,7 @@ def delete_photo():
         datetime.now(),
         user["key"],
         "deleted_photo",
-        user["key"],
+        None,
         "user",
         200,
         None
@@ -776,13 +713,3 @@ def delete_photo():
     return jsonify({
         "status": 200
     })
-
-# TODO: Add to log "user"
-# changed_theme
-# changed_view
-# changed_role
-# changed_email
-# changed_password
-# deleted_account
-# updated_photo
-# deleted_photo

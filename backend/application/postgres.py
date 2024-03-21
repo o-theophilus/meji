@@ -46,7 +46,6 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
     information TEXT,
     photos TEXT[] DEFAULT ARRAY[]::TEXT[],
     tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-    adverts JSONB DEFAULT '{}'::JSONB,
     variation JSONB DEFAULT '{}'::JSONB,
 
     available_quantity INT DEFAULT 0
@@ -153,7 +152,7 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
     user_key CHAR(32) NOT NULL,
     action VARCHAR(20) NOT NULL,
     entity_key CHAR(32),
-    entity_type VARCHAR(20),
+    entity_type VARCHAR(20) NOT NULL,
     status INT DEFAULT 200,
     misc JSONB DEFAULT '{}'::JSONB,
 
@@ -163,7 +162,6 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 
 # TODO:
 # Move date to log_table
-# Add [otp]->[requested] to frontend log
 otp_table = """CREATE TABLE IF NOT EXISTS otp (
     key CHAR(32) PRIMARY KEY,
     date TIMESTAMP NOT NULL,

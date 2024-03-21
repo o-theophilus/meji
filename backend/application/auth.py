@@ -5,7 +5,6 @@ from .log import log_template
 # from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
-import os
 from datetime import datetime
 from .postgres import db_close, db_open
 import json
@@ -24,14 +23,15 @@ def init():
     user = token_to_user(cur)
 
     if not user or user["status"] == "confirmed" and not user["login"]:
-
+        key = uuid4().hex
         cur.execute("""
-                INSERT INTO "user" (key, version, email, password)
+                INSERT INTO "user" (key, version, name, email, password)
                 VALUES (%s, %s, %s, %s)
                 RETURNING *;
             """, (
+            key,
             uuid4().hex,
-            uuid4().hex,
+            f"user_{key[-4:]}",
             uuid4().hex,
             generate_password_hash(uuid4().hex, method="scrypt"))
         )
@@ -42,7 +42,7 @@ def init():
             datetime.now(),
             user["key"],
             "created",
-            user["key"],
+            None,
             "auth",
             200,
             None
@@ -82,11 +82,6 @@ def signup():
 
     error = {}
 
-    cur.execute('SELECT * FROM "user" WHERE email = %s;', (
-        request.json["email"],
-    ))
-    email_exist = cur.fetchone()
-
     if "name" not in request.json or not request.json["name"]:
         error["name"] = "this field is required"
 
@@ -94,8 +89,11 @@ def signup():
         error["email"] = "this field is required"
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error["email"] = "Please enter a valid email"
-    elif email_exist:
-        error["email"] = "email taken"
+    else:
+        cur.execute('SELECT * FROM "user" WHERE email = %s;', (
+            request.json["email"],))
+        if cur.fetchone():
+            error["email"] = "email taken"
 
     if "password" not in request.json or not request.json["password"]:
         error["password"] = "this field is required"
@@ -154,8 +152,10 @@ def signup():
         datetime.now(),
         user["key"],
         "signed_up",
-        user["key"],
-        "auth", 200, None
+        None,
+        "auth",
+        200,
+        None
     ))
 
     send_mail(
@@ -216,7 +216,7 @@ def confirm_email(token):
             datetime.now(),
             user["key"],
             "confirmed_email",
-            user["key"],
+            None,
             "auth",
             200,
             None
@@ -230,7 +230,7 @@ def confirm_email(token):
             datetime.now(),
             user["key"],
             "confirmed_email",
-            user["key"],
+            None,
             "auth",
             201,
             json.dumps({"error": "already confirmed"})
@@ -372,7 +372,7 @@ def login():
         uuid4().hex, datetime.now(),
         user["key"],
         "logged_in",
-        user["key"],
+        None,
         "auth",
         200,
         json.dumps({
@@ -385,7 +385,7 @@ def login():
         datetime.now(),
         out_user["key"],
         "logged_out",
-        out_user["key"],
+        None,
         "auth", 200,
         json.dumps({
             "to": user["key"],
@@ -434,7 +434,7 @@ def logout():
         datetime.now(),
         user["key"],
         "logged_out",
-        user["key"],
+        None,
         "auth",
         200,
         json.dumps({
@@ -452,7 +452,7 @@ def logout():
     })
 
 
-@bp.post("/forgot_password")
+@bp.post("/forgot/password")
 def forgot_password():
     con, cur = db_open()
 
@@ -500,7 +500,7 @@ def forgot_password():
         datetime.now(),
         user["key"],
         "forgot_password",
-        user["key"],
+        None,
         "auth",
         201,
         None
@@ -513,7 +513,7 @@ def forgot_password():
     })
 
 
-@bp.post("/forgot_password/<token>")
+@bp.post("/forgot/password/<token>")
 def change_password(token):
     con, cur = db_open()
 
@@ -579,7 +579,7 @@ def change_password(token):
         datetime.now(),
         user["key"],
         "changed_password",
-        user["key"],
+        None,
         "auth",
         200,
         None
@@ -588,53 +588,4 @@ def change_password(token):
     return jsonify({
         "status": 200,
         "user": user_schema(user)
-    })
-
-
-@bp.get("/admin_init")
-def admin():
-    con, cur = db_open()
-    email = os.environ["MAIL_USERNAME"]
-
-    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
-    user = cur.fetchone()
-    if not user:
-        cur.execute("""
-                INSERT INTO "user" ( key, version, status, name, email,
-                    password, roles)
-                VALUES (%s, %s, %s, %s, %s, %s, %s);
-            """, (
-            uuid4().hex, uuid4().hex,
-            "confirmed", "Meji Admin", email, generate_password_hash(
-                os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [
-                "admin:manage_photo",
-                "user:view",
-                "user:view_balance",
-                "user:set_role",
-                "item:add",
-                "item:edit_photo",
-                "item:advert",
-                "item:edit_status",
-                "item:edit_name",
-                "item:edit_tag",
-                "item:edit_price",
-                "item:edit_info",
-                "item:edit_variation",
-                "voucher:view",
-                "voucher:add",
-                "voucher:view_code",
-                "voucher:status",
-                "log:view",
-                "order:view",
-                "order:edit_eta",
-                "order:status",
-                "order:cancel"
-            ]
-        ))
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200
     })

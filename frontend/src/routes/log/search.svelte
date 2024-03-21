@@ -10,40 +10,7 @@
 	export let page_name;
 
 	let actions = {
-		all: ['all'],
-		item: [
-			'all',
-			'created',
-			'edited',
-			'viewed',
-			'added_photo',
-			'arranged_photo',
-			'deleted_photo',
-			'added_feedback'
-		],
-		order: ['all', 'viewed', 'created', 'changed_delivery_date', 'changed_status', 'canceled'],
-		voucher: ['all', 'created', 'activated', 'deactivated', 'used', 'deleted'],
-		advert: ['all', 'viewed', 'added_photo', 'deleted_photo', 'changed_placement'],
-		auth: [
-			'all',
-			'created',
-			'logged_in',
-			'logged_out',
-			'signed_up',
-			'forgot_password',
-			'changed_password',
-			'confirmed_email',
-			'ran_cron'
-		],
-		cart: [
-			'all',
-			'viewed',
-			'added_to',
-			'removed_from',
-			'changed_quantity',
-			'edited_receiver',
-			'changed_amount'
-		]
+		all: ['all']
 	};
 
 	let in_user = '';
@@ -53,7 +20,14 @@
 
 	let snap = `${in_user}:${in_type}:${in_action}:${in_entity}`;
 
-	onMount(() => {
+	onMount(async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/log/action`);
+		resp = await resp.json();
+
+		if (resp.status == 200) {
+			actions = resp.actions;
+		}
+
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			let temp = params.get('search');

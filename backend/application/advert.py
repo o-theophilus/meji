@@ -153,7 +153,7 @@ def get(item_key):
 
     cur.execute("""
         SELECT * FROM item WHERE slug = %s or key = %s;
-    """, (item_key,))
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     cur.execute("""
@@ -167,16 +167,17 @@ def get(item_key):
             "error": "invalid request"
         })
 
-    cur.execute(log_template, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "viewed",
-        advert["key"],
-        "advert",
-        200,
-        None
-    ))
+    if advert:
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "viewed",
+            advert["key"],
+            "advert",
+            200,
+            None
+        ))
 
     db_close(con, cur)
 
@@ -215,7 +216,7 @@ def get_all_advert(placement=""):
         # "adverts": [advert_schema(x) for x in adverts],
         "adverts": adverts,
         "ad_space": ad_space,
-        "total_page": ceil(adverts[0][-1] / page_size) if adverts else 0
+        "total_page": ceil(adverts[0]["total_items"] / page_size) if adverts else 0
     })
 
 

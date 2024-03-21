@@ -158,7 +158,7 @@ def get_many():
     return {
         "status": 200,
         "vouchers": [voucher_schema(x) for x in vouchers],
-        "total_page": ceil(vouchers[0][-1] / page_size) if vouchers else 0
+        "total_page": ceil(vouchers[0]["total_items"] / page_size) if vouchers else 0
     }
 
 

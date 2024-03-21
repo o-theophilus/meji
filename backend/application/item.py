@@ -52,6 +52,7 @@ def add():
         slug
     ))
     item = cur.fetchone()
+    item["ratings"] = []
 
     cur.execute(log_template, (
         uuid4().hex,
@@ -249,7 +250,17 @@ def edit(key):
             **error
         })
 
-    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.key = %s
+        GROUP BY item.key;
+    """, (key,))
     item = cur.fetchone()
 
     cur.execute(log_template, (
@@ -260,7 +271,7 @@ def edit(key):
         item["key"],
         "item",
         200,
-        request.json
+        json.dumps(request.json)
     ))
 
     db_close(con, cur)
@@ -271,7 +282,7 @@ def edit(key):
     })
 
 
-@bp.put("/item/photo/<key>")
+@bp.post("/item/photo/<key>")
 def add_photos(key):
     con, cur = db_open()
 
@@ -328,12 +339,23 @@ def add_photos(key):
     cur.execute("""
             UPDATE item
             SET photos = %s
-            WHERE key = %s
-            RETURNING *;
+            WHERE key = %s;
         """, (
         item["photos"] + file_names,
         item["key"]
     ))
+
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.key = %s
+        GROUP BY item.key;
+    """, (key,))
     item = cur.fetchone()
 
     cur.execute(log_template, (
@@ -359,7 +381,7 @@ def add_photos(key):
     })
 
 
-@bp.put("/item/photo/order/<key>")
+@bp.put("/item/photo/<key>")
 def order_photo(key):
 
     con, cur = db_open()
@@ -410,12 +432,23 @@ def order_photo(key):
     cur.execute("""
             UPDATE item
             SET photos = %s
-            WHERE key = %s
-            RETURNING *;
+            WHERE key = %s;
         """, (
         in_photos,
         item["key"]
     ))
+
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.key = %s
+        GROUP BY item.key;
+    """, (key,))
     item = cur.fetchone()
 
     db_close(con, cur)
@@ -465,25 +498,34 @@ def delete_photo(key):
     cur.execute("""
             UPDATE item
             SET photos = %s
-            WHERE key = %s
-            RETURNING *;
+            WHERE key = %s;
         """, (
         item["photos"],
         item["key"]
     ))
-    item = cur.fetchone()
 
     if len(item["photos"]) == 0 and item["status"] == "live":
         cur.execute("""
                 UPDATE item
                 SET status = %s
-                WHERE key = %s
-                RETURNING *;
+                WHERE key = %s;
             """, (
             "draft",
             item["key"]
         ))
-        item = cur.fetchone()
+
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.key = %s
+        GROUP BY item.key;
+    """, (key,))
+    item = cur.fetchone()
 
     cur.execute(log_template, (
         uuid4().hex,

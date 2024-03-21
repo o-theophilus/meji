@@ -42,4 +42,12 @@ Authorization: {{Authorization}}
 ###
 
 
+#init
+get  {{host}}/item/baggy HTTP/1.1
+content-type: application/json
+Authorization: {{Authorization}}
+
+###
+
+
 

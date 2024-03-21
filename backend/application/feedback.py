@@ -10,22 +10,6 @@ import json
 bp = Blueprint("feedback", __name__)
 
 
-# def feedback_schema(fb):
-#     user = query({"type": "user", "key": fb["user"]}, db=db)
-
-#     return {
-#         "key": fb["key"],
-#         "user": {
-#             "key": user["key"],
-#             "name": user["name"],
-#             "photo": user["photo"],
-#         },
-#         "rating": fb["rating"],
-#         "review": fb["review"],
-#         "date": fb["date"],
-#     }
-
-
 @bp.post("/feedback/<key>")
 def add_feedback(item_key):
     con, cur = db_open()
@@ -120,14 +104,21 @@ def add_feedback(item_key):
 def get_feedbacks(user_key, item_key):
     con, cur = db_open()
 
-    sort_by = request.args["sort"] if "sort" in request.args else "latest"
+    sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
 
     cur.execute("""
-        SELECT * FROM item
-        WHERE slug = %s or  key = %s;
-    """, (item_key,))
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.slug = %s or item.key = %s
+        GROUP BY item.key;
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     if not item:
@@ -136,31 +127,42 @@ def get_feedbacks(user_key, item_key):
             "error": "invalid request"
         })
 
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'high_rating': 'feedback.rating',
+        'low_rating': 'feedback.rating'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'high_rating': 'DESC',
+        'low_rating': 'ASC'
+    }
+
     cur.execute("""
-        SELECT feedback.*, log.date AS date, COUNT(*) OVER() AS total_items
+        SELECT
+            feedback.key,
+            feedback.rating,
+            feedback.review,
+            log.date AS date,
+            "user".key AS user_key,
+            "user".name AS user_name,
+            "user".photo AS user_photo,
+            COUNT(*) OVER() AS total_items
         FROM feedback
         LEFT JOIN log ON feedback.key = log.entity_key
             AND log.action = 'added_feedback'
             AND log.entity_type = 'feedback'
+        LEFT JOIN "user" ON feedback.user_key = "user".key
         WHERE feedback.item_key = %s
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "high_rating" THEN feedback.rating
-                WHEN "low_rating" THEN feedback.rating
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN 'low_rating' THEN ASC
-                ELSE DESC
-            END
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
         item["key"],
-        sort_by,
-        sort_by,
         page_size,
         (page_no - 1) * page_size
     ))
@@ -177,11 +179,11 @@ def get_feedbacks(user_key, item_key):
         cur.execute("""
             SELECT order_item.*
             FROM order_item
-            LEFT JOIN 'order' ON order_item.order_key = order.key
+            LEFT JOIN "order" ON order_item.order_key = "order".key
             WHERE
                 order_item.item_key = %s
-                AND order.user_key = %s;
-                AND order.status = "delivered";
+                AND "order".user_key = %s
+                AND "order".status = 'delivered';
         """, (item["key"], user_key))
         has_purchased = cur.fetchone()
 
@@ -190,8 +192,7 @@ def get_feedbacks(user_key, item_key):
     return jsonify({
         "status": 200,
         "item": item_schema(item),
-        # "feedbacks": [feedback_schema(x) for x in feedbacks],
         "feedbacks": feedbacks,
         "give_feedback": has_purchased and not has_feedback,
-        "total_page": ceil(feedbacks[0][-1] / page_size) if feedbacks else 0
+        "total_page": ceil(feedbacks[0]["total_items"] / page_size) if feedbacks else 0
     })

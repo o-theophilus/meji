@@ -3,7 +3,6 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	export let item = {};
 	export let edit_mode = false;
@@ -29,7 +28,7 @@
 		error = {};
 
 		$loading = `${method == 'delete' ? 'deleting' : 'saving'} . . .`;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/photo/${item.key}`, {
 			method: method,
 			headers: {
 				'Content-Type': 'application/json',
@@ -97,7 +96,7 @@
 		}
 
 		$loading = 'uploading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/photo/${item.key}`, {
 			method: 'post',
 			headers: {
 				Authorization: $token

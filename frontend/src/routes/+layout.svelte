@@ -22,7 +22,7 @@
 
 <svelte:window bind:innerWidth bind:scrollY />
 
-<main class:dark={$user.setting.theme == 'dark'} id="top">
+<main class:dark={$user.setting_theme == 'dark'} id="top">
 	<Header />
 	<div class="page">
 		<slot />

@@ -5,19 +5,19 @@
 	import SVG from '$lib/svg.svelte';
 
 	const save_view = async () => {
-		$user.setting.item_view = $user.setting.item_view == 'grid' ? 'list' : 'grid';
-		const resp = await fetch(`${import.meta.env.VITE_BACKEND}/setting`, {
-			method: 'post',
+		$user.setting_item_view = $user.setting_item_view == 'grid' ? 'list' : 'grid';
+		const resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/setting`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ item_view: $user.setting.item_view })
+			body: JSON.stringify({ item_view: $user.setting_item_view })
 		});
 	};
 </script>
 
 <Button class="outline" on:click={save_view}>
-	<SVG type={$user.setting.item_view == 'grid' ? 'shop_active' : 'list'} />
+	<SVG type={$user.setting_item_view == 'grid' ? 'shop_active' : 'list'} />
 	view
 </Button>

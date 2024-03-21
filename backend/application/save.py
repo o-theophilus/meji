@@ -76,7 +76,7 @@ def get():
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
-        "total_page": ceil(items[0][-1] / page_size) if items else 0
+        "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 
 

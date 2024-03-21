@@ -262,7 +262,7 @@ def get_many():
     return jsonify({
         "status": 200,
         "orders": [order_schema(order) for order in orders],
-        "total_page": ceil(orders[0][-1] / page_size) if orders else 0
+        "total_page": ceil(orders[0]["total_items"] / page_size) if orders else 0
     })
 
 

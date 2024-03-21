@@ -77,7 +77,7 @@
 
 		<div>
 			{#if edit_mode && $user.roles.includes('item:advert')}
-				<Button class="link" href="/admin/adverts/{item.key}_advert">Advert &gt;</Button>
+				<Button class="link" href="/admin/adverts/{item.key}">Advert &gt;</Button>
 				<br />
 				<br />
 			{/if}

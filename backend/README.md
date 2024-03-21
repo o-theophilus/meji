@@ -18,7 +18,7 @@ key | options
 cur.execute("""
     SELECT *
     FROM item_table
-    WHERE %s = ANY(item.tags);
+    WHERE ARRAY[%s] @> item.tags;
 """, (["a", "b"],))
 output = cur.fetchall()
 

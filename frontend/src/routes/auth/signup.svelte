@@ -59,7 +59,7 @@
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
 		$loading = 'loading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/signup`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

@@ -34,6 +34,8 @@
 			<br />
 		{/if}
 
+		TODO:
+		<br />
 		[ - ] integrate AI assistant
 		<br />
 		[ - ] move db to postgress

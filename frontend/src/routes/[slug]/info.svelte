@@ -31,7 +31,7 @@
 	let feedbacks = [];
 	let give_feedback = false;
 
-	let open_info = true && item.info;
+	let open_info = true && item.information;
 	let open_feedback = feedbacks && feedbacks.length > 0;
 	let open_variation = Object.keys(item.variation).length > 0;
 	let open_discount = false;
@@ -224,8 +224,8 @@
 </div>
 {#if open_info}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		{#if item.info}
-			<Marked md={item.info} />
+		{#if item.information}
+			<Marked md={item.information} />
 		{:else}
 			No information
 		{/if}

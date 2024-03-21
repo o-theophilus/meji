@@ -54,14 +54,15 @@ def get(key):
         })
 
     cur.execute("""
-        SELECT *,
-        (
-            SELECT ARRAY_AGG(rating)
-            FROM feedback
-            WHERE feedback.item_key = item.key
-        ) AS ratings
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
         FROM item
-        WHERE slug = %s or key = %s;
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.slug = %s or item.key = %s
+        GROUP BY item.key;
     """, (key, key))
     item = cur.fetchone()
 
@@ -159,40 +160,42 @@ def shop(
         'rating': 'DESC'
     }
 
+    query = ""
+    if tags != []:
+        query = "AND ARRAY[%s] && item.tags"
+        if multiply:
+            query = "AND ARRAY[%s] @> item.tags"
+
     cur.execute("""
         SELECT
             item.*,
-            COUNT(*) OVER() AS total_items,
-            COALESCE(
-                100 * (item.old_price - item.price) / item.old_price, 0
-            ) AS discount,
             CASE
-                WHEN COUNT(feedback.*) = 0 THEN NULL
+                WHEN item.old_price = 0 THEN 0
+                ELSE (100 * (item.old_price - item.price)) / item.old_price
+            END AS discount,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN 0
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
             END AS rating,
-            ARRAY_AGG(feedback.rating) AS ratings
+            ARRAY_AGG(feedback.rating) AS ratings,
+            COUNT(*) OVER() AS total_items
         FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
         LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'item'
-        LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
             item.status = %s
-            AND item.name ILIKE %s
-            AND
-                CASE
-                    WHEN %s THEN %s = ALL(item.tags)
-                    ELSE %s = ANY(item.tags)
-                END
-
+            AND (%s IS NULL OR item.name ILIKE %s) {}
         GROUP BY item.key, log.date
-
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
+        query,
         order_by[sort], order_dir[sort]
     ), (
-        status, f"%{search}%", multiply, tags, tags,
+        status,
+        f"%{search}%", f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
     items = cur.fetchall()
@@ -201,8 +204,8 @@ def shop(
 
     return jsonify({
         "status": 200,
-        "items": [item_schema(item) for item in items],
-        "total_page": ceil(items[0][-1] / page_size) if items else 0
+        "items": [item_schema(x) for x in items],
+        "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 
 
@@ -222,23 +225,17 @@ def recently_viewed(user_key, item_key):
     con, cur = db_open()
 
     cur.execute("""
-        SELECT DISTINCT *
-        FROM (
-            SELECT item.*
-            FROM (
-                SELECT *
-                FROM log
-                WHERE
-                    user_key = %s
-                    AND action = "viewed"
-                    AND entity_type = "item"
-                    AND entity_key != %s
-            ) AS l
-            LEFT JOIN item ON
-                log.entity_key = item.key
-                AND item.status = 'live'
-            ORDER BY log.date DESC
-        )
+        SELECT DISTINCT ON (item.key) item.*
+        FROM item
+        LEFT JOIN log ON
+            item.key = log.entity_key
+            AND item.status = 'live'
+        WHERE
+            log.user_key = %s
+            AND log.action = 'viewed'
+            AND log.entity_type = 'item'
+            AND log.entity_key != %s
+        ORDER BY item.key, log.date DESC
         LIMIT 8 OFFSET 0;
     """, (user_key, item_key))
     items = cur.fetchall()
@@ -251,7 +248,7 @@ def recently_viewed(user_key, item_key):
     })
 
 
-@bp.get("/similar_items/<key>")
+@bp.get("/similar_items/<item_key>")
 def similar_items(item_key):
     con, cur = db_open()
 
@@ -260,7 +257,7 @@ def similar_items(item_key):
         FROM item
         WHERE key = %s OR slug = %s
     """, (item_key, item_key))
-    item = cur.fetchall()
+    item = cur.fetchone()
 
     if not item:
         return jsonify({
@@ -268,17 +265,24 @@ def similar_items(item_key):
             "items": []
         })
 
-    def get_keywords(x):
-        tags = [*x["tags"], *re.split(r'\s+', x["name"].lower())]
-        return list(set(tags))
-
-    item_keywords = get_keywords(item)
+    item_keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
 
     cur.execute("""
-        SELECT *,
-            COUNT(INTERSECT(tags_list + STRING_TO_ARRAY(name), %s)) AS likeness
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
+            (
+                SELECT COUNT(*)
+                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
+                WHERE tag_or_name = ANY(%s)
+            ) AS likeness
         FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE status = 'live'
+        GROUP BY item.key
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
     """, (item_keywords,))
@@ -297,33 +301,6 @@ def customer_view(user_key, item_key):
     con, cur = db_open()
 
     cur.execute("""
-        WITH p_log AS (
-            SELECT *,
-                ROW_NUMBER() OVER (
-                    PARTITION BY user_key
-                    ORDER BY date
-                ) AS row_num
-            FROM log
-            WHERE action = 'viewed'
-            AND entity_type = 'item'
-            AND user_key != %s
-        )
-
-        SELECT item.*
-        FROM p_log
-        LEFT JOIN item ON
-            p_log.entity_key = item.key
-            AND item.status = 'live'
-        WHERE row_num = (
-            SELECT row_num + 1
-            FROM p_log
-            WHERE entity_key = %s
-        )
-        LIMIT 8 OFFSET 0;
-    """, (user_key, item_key,))
-    items = cur.fetchall()
-
-    cur.execute("""
         SELECT item.*, log.user_key AS user_key
         FROM log
         LEFT JOIN item ON log.entity_key = item.key
@@ -331,7 +308,7 @@ def customer_view(user_key, item_key):
         AND log.entity_type = 'item'
         AND log.user_key != %s
         ORDER BY log.date ASC;
-    """, (user_key, item_key,))
+    """, (user_key,))
     views = cur.fetchall()
 
     unique_user = []

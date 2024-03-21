@@ -125,87 +125,7 @@ def get_many():
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
-        "total_page": ceil(users[0][-1] / page_size) if users else 0
-    })
-
-
-@bp.get("/user/admin")
-def admin_users():
-    con, cur = db_open()
-
-    user = token_to_user(cur)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["size"]) if "size" in request.args else 24
-    sort_order = "DESC" if True else "ASC"
-    sort_by = "date"
-
-    search = "all:all:all"
-    if "search" in request.args:
-        search = request.args["search"]
-
-    search = search.split(":")
-    if len(search) != 3:
-        return jsonify({
-            "status": 400,
-            "error": "invalid search"
-        })
-
-    user_key, role_type, role_action = search
-
-    if "user:view" not in user["roles"]:
-        user_key = user["key"]
-
-    cur.execute("""
-        SELECT user.*, COUNT(*) OVER() AS total_items
-        FROM "user"
-        LEFT JOIN log ON user.key = log.user_key
-            AND log.action = 'created'
-            AND log.entity_type = 'auth'
-        WHERE
-            (length(user.roles) > 0)
-            AND (%s = 'all'
-                OR CONCAT_WS(', ', user.key, user.name, user.email) ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN user.name
-                WHEN "name (z-a)" THEN user.name
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "name (a-z)" THEN ASC
-                ELSE DESC
-            END
-        LIMIT %s OFFSET %s;
-    """, (
-        user_key, f"%{user_key}%",
-        role_type, f"%{role_type}:%",
-        role_action, f"%{role_type}:{role_action}%",
-        sort_order,
-        sort_by,
-        page_size,
-        (page_no - 1) * page_size
-    ))
-    users = cur.fetchall()
-
-    users = cur.fetchall()
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "users": [user_schema(x) for x in users],
-        "total_page": ceil(users[0][-1] / page_size) if users else 0
+        "total_page": ceil(users[0]["total_items"] / page_size) if users else 0
     })
 
 
@@ -266,5 +186,5 @@ def get_transactions():
     return jsonify({
         "status": 200,
         "transactions": [trx_schema(x) for x in trans],
-        "total_page": ceil(trans[0][-1] / page_size) if trans else 0
+        "total_page": ceil(trans[0]["total_items"] / page_size) if trans else 0
     })

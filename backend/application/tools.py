@@ -72,22 +72,21 @@ def user_schema(user, saves=[], cart=[]):
         "name": user["name"],
         "email": user["email"],
         "phone": user["phone"],
-        "address": {
-            "line": user["address_line"],
-            "country": user["address_country"],
-            "state": user["address_state"],
-            "local_area": user["address_local_area"],
-            "postal_code": user["address_postal_code"]
-        },
+
+        "address_line": user["address_line"],
+        "address_country": user["address_country"],
+        "address_state": user["address_state"],
+        "address_local_area": user["address_local_area"],
+        "address_postal_code": user["address_postal_code"],
+
         "photo": (f"{request.host_url}photos/{user['photo']}"
                   if user["photo"] else None),
 
         "account_balance": user["account_balance"],
 
-        "setting": {
-            "theme": user["setting_theme"],
-            "item_view": user["setting_item_view"]
-        },
+        "setting_theme": user["setting_theme"],
+        "setting_item_view": user["setting_item_view"],
+
         "roles": user["roles"],
         "status": user["status"],
         "login": user["login"],
@@ -100,21 +99,18 @@ def user_schema(user, saves=[], cart=[]):
 def item_schema(item):
     return {
         "key": item["key"],
-
-        "date_c": item["date_c"],
-        "date_u": item["date_u"],
+        "status": item["status"],
 
         "slug": item["slug"],
         "name": item["name"],
         "price": item["price"],
         "old_price": item["old_price"],
-        "info": item["info"],
+        "information": item["information"],
 
-        "variation": item["variation"],
 
         "photos": [f"{request.host_url}photos/{x}" for x in item["photos"]],
-        "status": item["status"],
-
+        "variation": item["variation"],
         "tags": item["tags"],
+
         "ratings": item["ratings"]
     }

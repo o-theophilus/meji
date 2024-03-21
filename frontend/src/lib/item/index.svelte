@@ -10,7 +10,7 @@
 <section class="item" class:list>
 	<a data-sveltekit-preload-data="off" class="img" href="/{item.slug}">
 		<img
-			src={`${item.photos[0]}/200` || '/image/item.png'}
+			src={item.photos.length > 0 ? `${item.photos[0]}/200` : '/image/item.png'}
 			alt={item.name}
 			onerror="this.src='/image/item.png'"
 		/>

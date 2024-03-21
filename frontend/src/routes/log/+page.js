@@ -1,11 +1,10 @@
-import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
 
 	let page_name = "logs"
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/logs`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/log`)
 	if (url.search) {
 		let temp = get(state)
 		temp[page_name] = url.search
@@ -25,7 +24,6 @@ export const load = async ({ fetch, url, parent }) => {
 	});
 	resp = await resp.json();
 	loading.set(false)
-
 
 	if (resp.status == 200) {
 		resp.page_name = page_name

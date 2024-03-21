@@ -209,10 +209,10 @@
 						<br />
 						Balance:
 
-						{#if user.acc_balance != '#'}
-							₦{user.acc_balance.toLocaleString()}
+						{#if user.account_balance != '#'}
+							₦{user.account_balance.toLocaleString()}
 						{:else}
-							{user.acc_balance}##
+							{user.account_balance}##
 						{/if}
 					</p>
 

@@ -11,7 +11,7 @@
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 	let { page_name } = data;
-
+	
 	let search;
 </script>
 

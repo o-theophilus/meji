@@ -1,20 +1,19 @@
 <script>
 	import { user } from '$lib/store.js';
-	import Button from '$lib/button.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	let emit = createEventDispatcher();
 	export let log;
 
 	let href = '';
-	if (['item', 'cart'].includes(log.entity.type)) {
-		href = `/${log.entity.key}`;
-	} else if (log.entity.type == 'order') {
-		href = `/orders/${log.entity.key}`;
-	} else if (log.entity.type == 'voucher') {
-		href = `/admin/vouchers/${log.entity.key}`;
-	} else if (log.entity.type == 'advert') {
-		href = `/admin/adverts/${log.entity.key}`;
+	if (['item', 'cart'].includes(log.entity_type)) {
+		href = `/${log.entity_key}`;
+	} else if (log.entity_type == 'order') {
+		href = `/orders/${log.entity_key}`;
+	} else if (log.entity_type == 'voucher') {
+		href = `/admin/vouchers/${log.entity_key}`;
+	} else if (log.entity_type == 'advert') {
+		href = `/admin/adverts/${log.entity_key}`;
 	}
 </script>
 
@@ -30,20 +29,19 @@
 	</span>
 	<br />
 
-	{#if log.user.key && log.user.name}
-		<a data-sveltekit-preload-data="off" href="/profile?search={log.user.key}">
-			{log.user.name}
+	<!-- TODO: FOR DELETED USERS -->
+	{#if log.user_name}
+		<a data-sveltekit-preload-data="off" href="/profile?search={log.user_key}">
+			{log.user_name}
 		</a>
-	{:else if log.user.name}
-		<span class="bold"> {log.user.name} </span>
 	{:else}
 		<span class="bold"> Deleted User </span>
 	{/if}
 
-	{#if log.user.key && $user.roles.includes('log:view')}
+	{#if log.user_key && $user.roles.includes('log:view')}
 		<button
 			on:click={() => {
-				emit('search', { user: log.user.key });
+				emit('search', { user: log.user_key });
 			}}
 		>
 			&#9679;
@@ -52,28 +50,30 @@
 
 	{log.action}
 
-	{#if log.entity.type}
-		{log.entity.type}
+	{#if !['auth', 'user'].includes(log.entity_type)}
+		{log.entity_type}
 	{/if}
 
-	{#if log.entity.key}
+	{#if !['auth', 'user', 'otp'].includes(log.entity_type)}
 		<a data-sveltekit-preload-data="off" {href}>
-			{log.entity.name}
+			{log.entity_name}
 		</a>
 
 		<button
 			on:click={() => {
-				emit('search', { entity: log.entity.key });
+				emit('search', { entity: log.entity_key });
 			}}
 		>
 			&#9679;
 		</button>
 	{/if}
 
-	{#each Object.entries(log.misc) as [key, value]}
-		<br />
-		{key}: {value}
-	{/each}
+	{#if log.misc}
+		{#each Object.entries(log.misc) as [key, value]}
+			<br />
+			{key}: {value}
+		{/each}
+	{/if}
 </section>
 
 <style>

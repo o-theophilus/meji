@@ -105,9 +105,9 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<div class="item_area" class:list={$user.setting.item_view == 'list'}>
+		<div class="item_area" class:list={$user.setting_item_view == 'list'}>
 			{#each items as item (item.key)}
-				<Item {item} list={$user.setting.item_view == 'list'} />
+				<Item {item} list={$user.setting_item_view == 'list'} />
 			{/each}
 		</div>
 	</Center>
