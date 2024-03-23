@@ -18,11 +18,11 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
     phone VARCHAR(100),
     password VARCHAR(200) NOT NULL,
 
-    address_line VARCHAR(100),
-    address_country VARCHAR(100),
-    address_state VARCHAR(100),
-    address_local_area VARCHAR(100),
-    address_postal_code VARCHAR(100),
+    line VARCHAR(100),
+    country VARCHAR(100),
+    state VARCHAR(100),
+    local_area VARCHAR(100),
+    postal_code VARCHAR(100),
 
     photo VARCHAR(36),
     account_balance FLOAT DEFAULT 0,
@@ -73,13 +73,13 @@ order_table = """CREATE TABLE IF NOT EXISTS "order" (
 
     delivery_date TIMESTAMP,
 
-    receiver_name VARCHAR(100) NOT NULL,
-    receiver_phone VARCHAR(100),
-    receiver_address_line VARCHAR(100),
-    receiver_address_country VARCHAR(100),
-    receiver_address_state VARCHAR(100),
-    receiver_address_local_area VARCHAR(100),
-    receiver_address_postal_code VARCHAR(100),
+    name VARCHAR(100),
+    phone VARCHAR(100),
+    line VARCHAR(100),
+    country VARCHAR(100),
+    state VARCHAR(100),
+    local_area VARCHAR(100),
+    postal_code VARCHAR(100),
 
     cost_delivery FLOAT DEFAULT 1500,
     cost_items FLOAT DEFAULT 0,
@@ -190,27 +190,31 @@ def db_close(con, cur):
 def create_table():
     con, cur = db_open()
 
+    # cur.execute(f"""
+    #     DROP TABLE IF EXISTS "user" CASCADE;
+    #     DROP TABLE IF EXISTS item CASCADE;
+    #     DROP TABLE IF EXISTS save;
+    #     DROP TABLE IF EXISTS "order" CASCADE;
+    #     DROP TABLE IF EXISTS order_item;
+    #     DROP TABLE IF EXISTS feedback;
+    #     DROP TABLE IF EXISTS advert;
+    #     DROP TABLE IF EXISTS voucher;
+    #     DROP TABLE IF EXISTS log;
+    #     DROP TABLE IF EXISTS otp;
+    #     {user_table};
+    #     {item_table};
+    #     {save_table};
+    #     {order_table};
+    #     {order_item_table};
+    #     {feedback_table};
+    #     {advert_table};
+    #     {voucher_table};
+    #     {log_table};
+    #     {otp_table};
+    # """)
     cur.execute(f"""
-        DROP TABLE IF EXISTS "user" CASCADE;
-        DROP TABLE IF EXISTS item CASCADE;
-        DROP TABLE IF EXISTS save;
         DROP TABLE IF EXISTS "order" CASCADE;
-        DROP TABLE IF EXISTS order_item;
-        DROP TABLE IF EXISTS feedback;
-        DROP TABLE IF EXISTS advert;
-        DROP TABLE IF EXISTS voucher;
-        DROP TABLE IF EXISTS log;
-        DROP TABLE IF EXISTS otp;
-        {user_table};
-        {item_table};
-        {save_table};
         {order_table};
-        {order_item_table};
-        {feedback_table};
-        {advert_table};
-        {voucher_table};
-        {log_table};
-        {otp_table};
     """)
 
     db_close(con, cur)

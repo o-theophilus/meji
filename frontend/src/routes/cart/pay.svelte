@@ -13,7 +13,7 @@
 	let emit = createEventDispatcher();
 
 	export let cart;
-	$: pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
+	$: pay = cart.cost_items + cart.cost_delivery - cart.pay_account;
 </script>
 
 <Card>
@@ -36,26 +36,26 @@
 	<div class="grid">
 		<div class="title">Total Item</div>
 		<div class="value">
-			₦{cart.transaction.total_items.toLocaleString()}
+			₦{cart.cost_items.toLocaleString()}
 		</div>
 		<div class="title">Delivery Fee</div>
 		<div class="value">
-			₦{cart.transaction.delivery_fee.toLocaleString()}
+			₦{cart.cost_delivery.toLocaleString()}
 		</div>
 
 		<span>&nbsp;</span>
 		<span>&nbsp;</span>
 
-		{#if $user.acc_balance > 0}
+		{#if $user.account_balance > 0}
 			<div class="title">
-				Acc. Bal ₦{$user.acc_balance.toLocaleString()}
+				Acc. Bal ₦{$user.account_balance.toLocaleString()}
 			</div>
 			<div class="value">
-				{#if cart.transaction.account > 0}
+				{#if cart.pay_account > 0}
 					-
 				{/if}
 
-				₦{cart.transaction.account.toLocaleString()}
+				₦{cart.pay_account.toLocaleString()}
 			</div>
 		{/if}
 
@@ -70,7 +70,7 @@
 			Add Voucher
 		</Button>
 
-		{#if $user.acc_balance > 0}
+		{#if $user.account_balance > 0}
 			<div class="value">
 				<Button
 					class="link"

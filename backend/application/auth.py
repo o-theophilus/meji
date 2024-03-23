@@ -50,11 +50,31 @@ def init():
 
         token = token_tool().dumps(user["key"])
 
+    cur.execute("""
+        SELECT
+            CASE
+                WHEN COUNT(save.*) = 0 THEN ARRAY[]::character[]
+                ELSE ARRAY_AGG(save.item_key)
+            END AS saves
+        FROM save
+        WHERE save.user_key = %s;
+    """, (user["key"],))
+    saves = cur.fetchone()
+
+    cur.execute("""
+        SELECT order_item.key, order_item.variation
+        FROM order_item
+        LEFT JOIN "order" ON order_item.order_key = "order".key
+        WHERE "order".user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchall()
+    cart = [f"{x['key']}_{json.dumps(x['variation'])}" for x in cart]
+
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user),
+        "user": user_schema(user, saves["saves"], cart),
         "token": token
     })
 

@@ -5,14 +5,9 @@
 <b>Receiver</b>
 <br />
 Name:
-{order.receiver.name}
+{order.name}
 <br />
 Phone:
-{order.receiver.phone}
+{order.phone}
 <br />
-Address:
-{order.receiver.address.line},
-{order.receiver.address.local_area},
-{order.receiver.address.state},
-{order.receiver.address.country},
-{order.receiver.address.postal_code}.
+Address: {order.line}, {order.local_area}, {order.state}, {order.country}, {order.postal_code}.

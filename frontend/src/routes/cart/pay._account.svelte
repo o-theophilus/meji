@@ -41,8 +41,8 @@
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'account',
-				data: resp.cart.transaction.account
+				type: 'cart',
+				data: resp.cart
 			};
 			$module = '';
 			$toast = {

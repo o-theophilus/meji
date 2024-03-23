@@ -225,18 +225,31 @@ def recently_viewed(user_key, item_key):
     con, cur = db_open()
 
     cur.execute("""
-        SELECT DISTINCT ON (item.key) item.*
-        FROM item
-        LEFT JOIN log ON
-            item.key = log.entity_key
-            AND item.status = 'live'
-        WHERE
-            log.user_key = %s
-            AND log.action = 'viewed'
-            AND log.entity_type = 'item'
-            AND log.entity_key != %s
-        ORDER BY item.key, log.date DESC
-        LIMIT 8 OFFSET 0;
+        SELECT *
+        FROM (
+            SELECT
+                DISTINCT ON (item.key) item.*,
+                log.date AS date,
+                CASE
+                    WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                    ELSE ARRAY_AGG(feedback.rating)
+                END AS ratings
+            FROM item
+            LEFT JOIN log ON
+                item.key = log.entity_key
+                AND item.status = 'live'
+            LEFT JOIN feedback ON item.key = feedback.item_key
+            WHERE
+                log.user_key = %s
+                AND log.action = 'viewed'
+                AND log.entity_type = 'item'
+                AND log.entity_key != %s
+            GROUP BY item.key, log.date
+            ORDER BY item.key DESC
+        ) as x
+        ORDER BY x.date DESC
+        LIMIT 8 OFFSET 0
+        ;
     """, (user_key, item_key))
     items = cur.fetchall()
 
@@ -281,11 +294,11 @@ def similar_items(item_key):
             ) AS likeness
         FROM item
         LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE status = 'live'
+        WHERE item.status = 'live' AND item.key != %s
         GROUP BY item.key
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
-    """, (item_keywords,))
+    """, (item_keywords, item["key"]))
     items = cur.fetchall()
 
     db_close(con, cur)
@@ -301,12 +314,20 @@ def customer_view(user_key, item_key):
     con, cur = db_open()
 
     cur.execute("""
-        SELECT item.*, log.user_key AS user_key
+        SELECT
+            item.*,
+            log.user_key AS user_key,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
         FROM log
         LEFT JOIN item ON log.entity_key = item.key
+        LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE log.action = 'viewed'
         AND log.entity_type = 'item'
         AND log.user_key != %s
+        GROUP BY item.key, log.user_key, log.date
         ORDER BY log.date ASC;
     """, (user_key,))
     views = cur.fetchall()

@@ -34,32 +34,75 @@ def add_to_cart():
         })
 
     cur.execute("""
-        INSERT INTO "order" (key, version, user_key)
-        SELECT (%s, %s, %s)
-        WHERE NOT EXISTS (
-            SELECT 1 FROM cart WHERE user_key = %s AND status = 'cart'
-        )
-        RETURNING *;
-    """, (
-        uuid4().hex,
-        uuid4().hex,
-        user["key"],
-        user["key"]
-    ))
-    cart = cur.fetchone()
+        SELECT *
+        FROM item
+        WHERE key = %s;
+    """, (request.json["key"],))
+    item = cur.fetchone()
+    if not item:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
     cur.execute("""
-        INSERT INTO order_item (order_key, item_key, variation, quantity)
-        VALUES (%s, %s, %s, %s);
-        ON CONFLICT (order_key, item_key, variation)
-        DO UPDATE SET quantity = quantity + EXCLUDED.quantity
-        RETURNING *;
+        SELECT *
+        FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
+
+    if not cart:
+        cur.execute("""
+            INSERT INTO "order" (key, version, user_key)
+            VALUES (%s, %s, %s)
+            RETURNING *;
+        """, (
+            uuid4().hex,
+            uuid4().hex,
+            user["key"]
+        ))
+        cart = cur.fetchone()
+
+    cur.execute("""
+        SELECT *
+        FROM order_item
+        WHERE
+            order_key = %s
+            AND item_key = %s
+            AND variation = %s;
     """, (
-        user["key"],
         cart["key"],
-        request.json["variation"],
-        request.json["quantity"]
+        item["key"],
+        json.dumps(request.json["variation"])
     ))
+    if cur.fetchone():
+        cur.execute("""
+            UPDATE order_item
+            SET order_item.quantity = order_item.quantity + %s;
+            WHERE
+                order_key = %s
+                AND item_key = %s
+                AND variation = %s;
+        """, (
+            request.json["quantity"],
+            cart["key"],
+            item["key"],
+            json.dumps(request.json["variation"]),
+        ))
+
+    else:
+        cur.execute("""
+            INSERT INTO order_item (
+                key, order_key, item_key, variation, quantity)
+            VALUES (%s, %s, %s, %s, %s);
+        """, (
+            uuid4().hex,
+            cart["key"],
+            item["key"],
+            json.dumps(request.json["variation"]),
+            request.json["quantity"]
+        ))
 
     cur.execute("""
         UPDATE "order"
@@ -90,11 +133,19 @@ def add_to_cart():
         })
     ))
 
+    cur.execute("""
+        SELECT key, variation
+        FROM order_item
+        WHERE order_key = %s;
+    """, (cart["key"],))
+    cart = cur.fetchall()
+    cart = [f"{x['key']}_{json.dumps(x['variation'])}" for x in cart]
+
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user, cart=cart)
     })
 
 
@@ -130,41 +181,33 @@ def get():
     cart = cur.fetchone()
 
     pr = []
-    items = []
-
     if cart:
         cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
-        cur.execute("""
-            SELECT item.*, order_item.variation AS variation,
-                order_item.quantity AS quantity
-            FROM order_item
-            LEFT JOIN item ON order_item.item_key = item.key
-            WHERE order_item.order_key = %s;
-        """, (cart["key"],))
-        items = cur.fetchall()
+        for x in cart["items"]:
+            x["photo"] = f"{request.host_url}photos/{x['photo']}"
 
         cur.execute("""
             SELECT DISTINCT
-                o.receiver_name,
-                o.receiver_phone,
-                o.receiver_address_line,
-                o.receiver_address_country,
-                o.receiver_address_state,
-                o.receiver_address_local_area,
-                o.receiver_address_postal_code
-            FROM (
-                SELECT *
-                FROM "order"
-                WHERE user_key = %s AND status = "delivered"
-            ) AS o
-            LEFT JOIN log ON o.key = log.entity_key
+                "order".name,
+                "order".phone,
+                "order".line,
+                "order".country,
+                "order".state,
+                "order".local_area,
+                "order".postal_code,
+                log.date
+            FROM "order"
+            LEFT JOIN log ON "order".key = log.entity_key
+            WHERE
+                "order".user_key = %s
+                AND "order".status = 'delivered'
                 AND log.entity_type = 'order'
                 AND log.action = 'delivered'
             ORDER BY log.date DESC
             LIMIT 5;
         """, (user["key"],))
-        pr = cur.fetchone()
+        pr = cur.fetchall()
 
         cur.execute(log_template, (
             uuid4().hex,
@@ -182,7 +225,6 @@ def get():
     return jsonify({
         "status": 200,
         "cart": cart,
-        "items": [item_schema(x) for x in items],
         "previous_receivers": pr
     })
 
@@ -317,7 +359,7 @@ def receiver():
 
     cur.execute("""
         SELECT * FROM "order"
-        WHERE user_key = %s AND status = "cart";
+        WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
 
@@ -332,33 +374,16 @@ def receiver():
         error["name"] = "this field is required"
     if "phone" not in request.json or not request.json["phone"]:
         error["phone"] = "this field is required"
-
-    if "address" not in request.json or not request.json["address"]:
-        error["line"] = "this field is required"
+    if "line" not in request.json or not request.json["line"]:
+        error = "this field is required"
+    if "state" not in request.json or not request.json["state"]:
         error["state"] = "this field is required"
+    if "country" not in request.json or not request.json["country"]:
         error["country"] = "this field is required"
+    if "local_area" not in request.json or not request.json["local_area"]:
+        error["local_area"] = "this field is required"
+    if "postal_code" not in request.json or not request.json["postal_code"]:
         error["postal_code"] = "this field is required"
-    else:
-        if (
-            "line" not in request.json["address"]
-            or not request.json["address"]["line"]
-        ):
-            error["address"] = "this field is required"
-        if (
-            "state" not in request.json["address"]
-            or not request.json["address"]["state"]
-        ):
-            error["state"] = "this field is required"
-        if (
-            "country" not in request.json["address"]
-            or not request.json["address"]["country"]
-        ):
-            error["country"] = "this field is required"
-        if (
-            "postal_code" not in request.json["address"]
-            or not request.json["address"]["postal_code"]
-        ):
-            error["postal_code"] = "this field is required"
 
     if error != {}:
         return jsonify({
@@ -376,22 +401,22 @@ def receiver():
         200,
         json.dumps({
             "from": f"""
-                {cart["receiver_name"]} |
-                {cart["receiver_phone"]} |
-                {cart["receiver_address_line"]} |
-                {cart["receiver_address_country"]} |
-                {cart["receiver_address_state"]} |
-                {cart["receiver_address_local_area"]} |
-                {cart["receiver_address_postal_code"]}
+                {cart["name"]} |
+                {cart["phone"]} |
+                {cart["line"]} |
+                {cart["country"]} |
+                {cart["state"]} |
+                {cart["local_area"]} |
+                {cart["postal_code"]}
             """,
             "to": f"""
                 {request.json["name"]} |
                 {request.json["phone"]} |
-                {request.json["address_line"]} |
-                {request.json["address_state"]} |
-                {request.json["address_country"]} |
-                {request.json["address_local_area"]} |
-                {request.json["address_postal_code"]}
+                {request.json["line"]} |
+                {request.json["state"]} |
+                {request.json["country"]} |
+                {request.json["local_area"]} |
+                {request.json["postal_code"]}
             """
         })
     ))
@@ -399,26 +424,27 @@ def receiver():
     cur.execute("""
         UPDATE "order"
         SET
-            receiver_name = %s,
-            receiver_phone = %s,
-            receiver_address_line = %s,
-            receiver_address_country = %s,
-            receiver_address_state = %s,
-            receiver_address_local_area = %s,
-            receiver_address_postal_code = %s
-        WHERE key = %s;
-        RETURNING *
+            name = %s,
+            phone = %s,
+            line = %s,
+            country = %s,
+            state = %s,
+            local_area = %s,
+            postal_code = %s
+        WHERE key = %s
+        RETURNING *;
     """, (
         request.json["name"],
         request.json["phone"],
-        request.json["address_line"],
-        request.json["address_state"],
-        request.json["address_country"],
-        request.json["address_local_area"],
-        request.json["address_postal_code"],
+        request.json["line"],
+        request.json["country"],
+        request.json["state"],
+        request.json["local_area"],
+        request.json["postal_code"],
         cart["key"]
     ))
     cart = cur.fetchone()
+    cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
     db_close(con, cur)
 

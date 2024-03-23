@@ -14,34 +14,42 @@
 	let { cart } = $module;
 	let { previous_receivers } = $module;
 
-	let receiver = { ...cart.receiver };
-	receiver.address.country = 'Nigeria';
-	receiver.address.state = 'Lagos';
+	let form = {
+		name: cart.name,
+		phone: cart.phone,
+		line: cart.line,
+		country: cart.country,
+		state: cart.state,
+		local_area: cart.local_area,
+		postal_code: cart.postal_code
+	};
+	form.country = 'Nigeria';
+	form.state = 'Lagos';
 
 	let error = {};
 
 	const validate = () => {
 		error = {};
-		if (!receiver.name) {
+		if (!form.name) {
 			error.name = 'This field is required';
 		}
-		if (!receiver.phone) {
+		if (!form.phone) {
 			error.phone = 'This field is required';
 		}
-		if (!receiver.address.line) {
+		if (!form.line) {
 			error.line = 'This field is required';
 		}
-		if (!receiver.address.country) {
+		if (!form.country) {
 			error.country = 'This field is required';
 		}
-		if (!receiver.address.state) {
+		if (!form.state) {
 			error.state = 'This field is required';
 		}
-		if (!receiver.address.local_area) {
+		if (!form.local_area) {
 			error.local_area = 'This field is required';
 		}
-		if (!receiver.address.postal_code) {
-			error.postal_code = 'This field is required';
+		if (!form.postal_code) {
+			error.local_area = 'This field is required';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -49,21 +57,21 @@
 
 	const submit = async () => {
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_receiver`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(receiver)
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'receiver',
-				data: resp.cart.receiver
+				type: 'cart',
+				data: resp.cart
 			};
 			$module = '';
 			$toast = {
@@ -78,7 +86,7 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == cart.receiver.address.country) {
+			if (countries[i].name == cart.country) {
 				states = countries[i].states;
 				break;
 			}
@@ -105,20 +113,22 @@
 		</div>
 		{#if open}
 			<div class="fold" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-				{#each previous_receivers as r}
+				{#each previous_receivers as x}
 					<Button
 						on:click={() => {
-							receiver = {
-								name: r.name,
-								phone: r.phone,
-								address: { ...r.address }
+							form = {
+								name: x.name,
+								phone: x.phone,
+								line: x.line,
+								country: x.country,
+								state: x.state,
+								local_area: x.local_area,
+								postal_code: x.postal_code
 							};
 						}}
 					>
 						<p>
-							{r.name} |
-							{r.phone} |
-							{r.address.line}, {r.address.local_area}, {r.address.postal_code}, {r.address.state}
+							{x.name} | {x.phone} | {x.line}, {x.local_area}, {x.postal_code}, {x.state}
 						</p>
 					</Button>
 				{/each}
@@ -130,9 +140,9 @@
 		<br />
 	{/if}
 
-	<IG name="name" {error} bind:value={receiver.name} type="text" placeholder="Name here" />
+	<IG name="name" {error} bind:value={form.name} type="text" placeholder="Name here" />
 
-	<IG name="phone" {error} bind:value={receiver.phone} type="tel" placeholder="Phone here" />
+	<IG name="phone" {error} bind:value={form.phone} type="tel" placeholder="Phone here" />
 
 	<hr />
 	<br />
@@ -141,17 +151,17 @@
 		name="line"
 		label="address"
 		{error}
-		bind:value={receiver.address.line}
+		bind:value={form.line}
 		type="text"
 		placeholder="Delivery address here"
 	/>
 
 	<IG name="country" {error} let:id>
 		<select
-			bind:value={receiver.address.country}
+			bind:value={form.country}
 			{id}
 			on:input={() => {
-				receiver.address.state = '';
+				form.state = '';
 			}}
 			disabled
 		>
@@ -163,10 +173,10 @@
 	</IG>
 
 	<IG name="state" {error} let:id>
-		<select bind:value={receiver.address.state} {id} disabled>
-			<option value="" selected disabled hidden> Select country </option>
-			{#each states as state}
-				<option value={state.name}> {state.name} </option>
+		<select bind:value={form.state} {id} disabled>
+			<option value="" selected disabled hidden> Select state </option>
+			{#each states as x}
+				<option value={x.name}> {x.name} </option>
 			{/each}
 		</select>
 	</IG>
@@ -175,7 +185,7 @@
 		name="local_area"
 		label="Local Government Area"
 		{error}
-		bind:value={receiver.address.local_area}
+		bind:value={form.local_area}
 		type="text"
 		placeholder="Your local government area here"
 	/>
@@ -183,7 +193,7 @@
 	<IG
 		name="postal_code"
 		{error}
-		bind:value={receiver.address.postal_code}
+		bind:value={form.postal_code}
 		type="text"
 		placeholder="Your postal code here"
 	/>

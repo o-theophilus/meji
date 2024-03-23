@@ -1,7 +1,6 @@
 <script>
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { page } from '$app/stores';
 	import { user, module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
@@ -14,7 +13,6 @@
 	let emit = createEventDispatcher();
 
 	export let cart;
-
 	let error = {};
 </script>
 
@@ -37,7 +35,7 @@
 	<div class="total_amount">
 		<div class="total">Item{cart.items.length ? 's' : ''} Total Price</div>
 		<div class="amount">
-			₦{cart.transaction.total_items.toLocaleString()}
+			₦{cart.cost_items.toLocaleString()}
 		</div>
 	</div>
 

@@ -5,6 +5,10 @@ from .database import database, query
 from datetime import datetime, timedelta
 import re
 import os
+from .log import log_template
+from .postgres import db_close, db_open
+from uuid import uuid4
+import json
 
 
 bp = Blueprint("test", __name__)
@@ -168,7 +172,6 @@ def clean_copy_db():
     })
 
 
-# @bp.get("/fix")
 def migration():
     data_base = Deta(os.environ["DETA_KEY"]).Base("log")
 
@@ -197,4 +200,72 @@ def migration():
     return jsonify({
         "status": 200,
         "changed": len(changed)
+    })
+
+
+# @bp.get("/fix")
+def deta_to_postgres():
+    con, cur = db_open()
+
+    source = Deta(os.environ["DETA_KEY"]).Base("main")
+
+    res = source.fetch()
+    entities = res.items
+    while res.last:
+        res = source.fetch(last=res.last)
+        entities += res.items
+
+    for x in entities:
+        if x["type"] == "item":
+            cur.execute("""
+                INSERT INTO item (
+                    key,
+                    version,
+                    status,
+
+                    name,
+                    slug,
+                    price,
+                    old_price,
+                    information,
+                    photos,
+                    tags,
+                    variation,
+
+                    available_quantity
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """, (
+                x["key"],
+                x["v"],
+                x["status"],
+
+                x["name"],
+                x["slug"],
+                x["price"],
+                x["old_price"],
+                x["info"],
+                x["photos"],
+                x["tags"],
+                json.dumps(x["variation"]),
+
+                x["available_quantity"]
+            ))
+
+            cur.execute(log_template, (
+                uuid4().hex,
+                x["date_c"],
+                "46a28cf075b048a581615c8cb508d0c3",
+                "created",
+                x["key"],
+                "item",
+                200,
+                None
+            ))
+
+    db_close(con, cur)
+
+    return jsonify({
+        "status": 200,
+        "message": "successful",
     })

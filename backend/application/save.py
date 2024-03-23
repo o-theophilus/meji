@@ -43,15 +43,17 @@ def get():
         SELECT
             item.*,
             COUNT(*) OVER() AS total_items,
-            COALESCE(
-                100 * (item.old_price - item.price) / item.old_price, 0
-            ) AS discount,
+            CASE
+                WHEN item.old_price = 0 THEN 0
+                ELSE (100 * (item.old_price - item.price)) / item.old_price
+            END AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN NULL
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
-            END AS rating
-        FROM save
-        LEFT JOIN item ON item.key = save.item_key
+            END AS rating,
+        ARRAY_AGG(feedback.rating) AS ratings
+        FROM item
+        LEFT JOIN save ON item.key = save.item_key
         LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'item'
@@ -112,7 +114,7 @@ def save():
     cur.execute("""
         SELECT *
         FROM save
-        WHERE user_key = %s, item_key = %s;
+        WHERE user_key = %s AND item_key = %s;
     """, (
         user["key"],
         request.json["key"]
@@ -133,9 +135,20 @@ def save():
             item["key"]
         ))
 
+    cur.execute("""
+        SELECT
+            CASE
+                WHEN COUNT(save.*) = 0 THEN ARRAY[]::character[]
+                ELSE ARRAY_AGG(save.item_key)
+            END AS saves
+        FROM save
+        WHERE save.user_key = %s;
+    """, (user["key"],))
+    saves = cur.fetchone()
+
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user),
+        "user": user_schema(user, saves=saves["saves"]),
     })

@@ -16,13 +16,13 @@
 	export let previous_receivers = [];
 
 	$: complete_address =
-		cart.receiver.name &&
-		cart.receiver.phone &&
-		cart.receiver.address.line &&
-		cart.receiver.address.state &&
-		cart.receiver.address.country &&
-		cart.receiver.address.local_area &&
-		cart.receiver.address.postal_code;
+		cart.name &&
+		cart.phone &&
+		cart.line &&
+		cart.state &&
+		cart.country &&
+		cart.local_area &&
+		cart.postal_code;
 </script>
 
 <Card>
@@ -64,7 +64,7 @@
 	<br />
 
 	<span class="bold">Delivery fee:</span>
-	₦{cart.transaction.delivery_fee.toLocaleString()}
+	₦{cart.cost_delivery.toLocaleString()}
 
 	<br />
 	<br />

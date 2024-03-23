@@ -55,7 +55,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			$user = resp.user;
+			$user.cart = resp.user.cart;
 		} else {
 			$toast = {
 				status: 400,

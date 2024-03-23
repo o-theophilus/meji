@@ -156,8 +156,6 @@ def edit(key):
             ))
 
     if "price" in request.json:
-        item["price"] = None
-
         if "item:edit_price" not in user["roles"]:
             error["price"] = "unauthorized access"
         elif request.json["price"]:
@@ -175,6 +173,8 @@ def edit(key):
                     request.json["price"],
                     item["key"]
                 ))
+                item["price"] = request.json["price"]
+
         elif item["status"] == "live":
             cur.execute("""
                     UPDATE item

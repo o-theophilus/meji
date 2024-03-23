@@ -33,14 +33,8 @@
 				cart.transaction.total_items += cart.items[x].quantity * cart.items[x].price;
 			}
 			cart.items = items;
-		}
-
-		if ($portal.type == 'receiver') {
-			cart.receiver = $portal.data;
-		}
-
-		if ($portal.type == 'account') {
-			cart.transaction.account = $portal.data;
+		} else {
+			cart = $portal.data;
 		}
 
 		$portal = '';

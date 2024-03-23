@@ -1,7 +1,5 @@
 <script>
 	export let order;
-	$: r = order.receiver;
-	$: a = r.address;
 </script>
 
 <div class="bold">
@@ -13,8 +11,8 @@
 <div class="grid">
 	<div>Name:</div>
 	<div>
-		{#if r.name}
-			{r.name}
+		{#if order.name}
+			{order.name}
 		{:else}
 			No Name
 		{/if}
@@ -22,8 +20,8 @@
 
 	<div>Phone:</div>
 	<div>
-		{#if r.phone}
-			{r.phone}
+		{#if order.phone}
+			{order.phone}
 		{:else}
 			No Phone
 		{/if}
@@ -31,8 +29,8 @@
 
 	<div>Address:</div>
 	<div>
-		{#if a.line && a.state && a.country && a.local_area && a.postal_code}
-			{a.line}, {a.local_area}, {a.state}, {a.country}, {a.postal_code}.
+		{#if order.line && order.state && order.country && order.local_area && order.postal_code}
+			{order.line}, {order.local_area}, {order.state}, {order.country}, {order.postal_code}.
 		{:else}
 			No Address
 		{/if}
