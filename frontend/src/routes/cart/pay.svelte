@@ -13,6 +13,7 @@
 	let emit = createEventDispatcher();
 
 	export let cart;
+	export let items;
 	$: pay = cart.cost_items + cart.cost_delivery - cart.pay_account;
 </script>
 
@@ -102,7 +103,7 @@
 	<br />
 	<br />
 
-	<MakePayment {cart} {pay} />
+	<MakePayment {cart} {items} {pay} />
 </Card>
 
 <style>

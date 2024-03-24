@@ -5,6 +5,8 @@
 	import Order_url from './email_template__order_url.svelte';
 
 	export let order;
+	export let items;
+	console.log(items);
 
 	let dt, period_of_day, date_time;
 	$: {
@@ -35,7 +37,7 @@
 	<Receiver {order} />
 	<br />
 	<br />
-	<Items {order} />
+	<Items {items} />
 	<br />
 	<br />
 	Thank you for your patronage.

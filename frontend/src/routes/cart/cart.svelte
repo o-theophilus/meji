@@ -13,17 +13,18 @@
 	let emit = createEventDispatcher();
 
 	export let cart;
+	export let items;
 	let error = {};
 </script>
 
 <Card>
-	<div class="ctitle">Item{cart.items.length ? 's' : ''}</div>
+	<div class="ctitle">Item{items.length ? 's' : ''}</div>
 
 	<br />
 	<br />
 
 	<div class="items">
-		{#each cart.items as item (`${item.key}${JSON.stringify(item.variation)}`)}
+		{#each items as item (`${item.key}${JSON.stringify(item.variation)}`)}
 			<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 				<Item bind:item />
 			</div>
@@ -33,7 +34,7 @@
 	<br />
 
 	<div class="total_amount">
-		<div class="total">Item{cart.items.length ? 's' : ''} Total Price</div>
+		<div class="total">Item{items.length ? 's' : ''} Total Price</div>
 		<div class="amount">
 			₦{cart.cost_items.toLocaleString()}
 		</div>

@@ -1,10 +1,10 @@
 <script>
 	import { page } from '$app/stores';
-	export let order;
+	export let items;
 </script>
 
-<b>Item{order.items.length > 1 ? 's' : ''}:</b>
-{#each order.items as x}
+<b>Item{items.length > 1 ? 's' : ''}:</b>
+{#each items as x}
 	<br />
 	<br />
 	<img

@@ -12,6 +12,7 @@
 
 	let note = 'I approve this';
 	let order = { ...$module.order };
+	let items = [...$module.items];
 	let status = ['created', 'processing', 'enroute', 'delivered'];
 	let index = status.indexOf(order.status);
 	let error = {};
@@ -130,7 +131,7 @@ to: **${status}**
 </Form>
 
 <div bind:this={email_template} style="display: none;">
-	<Email {order} />
+	<Email {order} {items} />
 </div>
 
 <style>

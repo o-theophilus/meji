@@ -11,6 +11,7 @@
 	let email_template_user;
 
 	export let cart;
+	export let items;
 	export let pay;
 	let error = {};
 
@@ -112,10 +113,10 @@
 </p>
 
 <div bind:this={email_template_admin} style="display: none;">
-	<Email_Admin order={cart} />
+	<Email_Admin order={cart} {items} />
 </div>
 <div bind:this={email_template_user} style="display: none;">
-	<Email_User order={cart} />
+	<Email_User order={cart} {items} />
 </div>
 
 <style>

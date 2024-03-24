@@ -14,6 +14,7 @@
 	let email_template_user;
 
 	let order = { ...$module.order };
+	let items = { ...$module.items };
 
 	let note = '';
 	let error = {};
@@ -102,10 +103,10 @@
 </Form>
 
 <div bind:this={email_template_admin} style="display: none;">
-	<Email_Admin {order} />
+	<Email_Admin {order} {items} />
 </div>
 <div bind:this={email_template_user} style="display: none;">
-	<Email_User {order} />
+	<Email_User {order} {items} />
 </div>
 
 <style>

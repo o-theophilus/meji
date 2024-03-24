@@ -8,7 +8,7 @@
 	import SVG from '$lib/svg.svelte';
 	import Back from '$lib/button.back.svelte';
 
-	import Item from './items.svelte';
+	import Items from './items.svelte';
 	import Eta from './eta.svelte';
 	import Receiver from '../../cart/delivery.receiver.svelte';
 	import Status from './_status.svelte';
@@ -17,6 +17,7 @@
 
 	export let data;
 	let { order } = data;
+	let { items } = data;
 	let date_time = order.delivery_date.split('T');
 
 	$: if ($portal && $portal.type == 'order') {
@@ -54,7 +55,7 @@
 
 	<div class="block">
 		<div>
-			<Item {order} />
+			<Items {order} {items} />
 		</div>
 
 		<div class="hr" />
@@ -93,7 +94,8 @@
 					on:click={() => {
 						$module = {
 							module: Status,
-							order
+							order,
+							items
 						};
 					}}
 				>
@@ -107,7 +109,8 @@
 					on:click={() => {
 						$module = {
 							module: Cancel,
-							order
+							order,
+							items
 						};
 					}}
 				>

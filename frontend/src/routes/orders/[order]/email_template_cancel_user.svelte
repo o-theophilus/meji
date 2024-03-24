@@ -5,6 +5,7 @@
 	import Items from './email_template__items.svelte';
 
 	export let order;
+	export let items;
 </script>
 
 <Template>
@@ -26,7 +27,7 @@ color: #1d9bf0;
 
 	<br />
 	<br />
-	<Items {order} />
+	<Items {items} />
 	<br />
 	<br />
 	Best regards,

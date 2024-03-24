@@ -1,5 +1,5 @@
 <script>
-	import { portal } from '$lib/store.js';
+	import { user, portal } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
@@ -11,28 +11,50 @@
 
 	export let data;
 	let { cart } = data;
-	let { previous_receivers } = data;
+	let { items } = data;
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
-			let items = [];
-			cart.transaction.total_items = 0;
-			for (const x in cart.items) {
-				if (
-					`${cart.items[x].key}_${JSON.stringify(cart.items[x].variation)}` ==
-					`${$portal.data.key}_${JSON.stringify($portal.data.variation)}`
-				) {
-					cart.items[x].quantity = $portal.data.quantity;
-					if (cart.items[x].quantity > 0) {
-						items.push(cart.items[x]);
+			let temp_items = [];
+			let temp_cart = [];
+			let temp_cost = 0;
+
+			for (const x in items) {
+				let xid = `${items[x].key}_${JSON.stringify(items[x].variation)}`;
+				if (xid == `${$portal.data.key}_${JSON.stringify($portal.data.variation)}`) {
+					items[x].quantity = $portal.data.quantity;
+					if (items[x].quantity > 0) {
+						temp_items.push(items[x]);
+						temp_cart.push(xid);
 					}
 				} else {
-					items.push(cart.items[x]);
+					temp_items.push(items[x]);
+					temp_cart.push(xid);
 				}
 
-				cart.transaction.total_items += cart.items[x].quantity * cart.items[x].price;
+				temp_cost += items[x].quantity * items[x].price;
 			}
-			cart.items = items;
+
+			items = temp_items;
+			$user.cart = temp_cart;
+			cart.cost_items = temp_cost;
+
+			if (items.length == 0) {
+				cart = null;
+			}
+		} else if ($portal.type == 'items_done') {
+			cart = $portal.data.cart;
+			items = $portal.data.items;
+			console.log("done");
+			console.log(items);
+		} else if ($portal.type == 'receiver') {
+			cart.name = $portal.data.name;
+			cart.phone = $portal.data.phone;
+			cart.line = $portal.data.line;
+			cart.country = $portal.data.country;
+			cart.state = $portal.data.state;
+			cart.local_area = $portal.data.local_area;
+			cart.postal_code = $portal.data.postal_code;
 		} else {
 			cart = $portal.data;
 		}
@@ -55,6 +77,7 @@
 {:else if state == 0}
 	<Cart
 		{cart}
+		{items}
 		on:next={() => {
 			state = 1;
 		}}
@@ -62,7 +85,6 @@
 {:else if state == 1}
 	<Delivery
 		{cart}
-		{previous_receivers}
 		on:next={() => {
 			state = 2;
 		}}
@@ -73,6 +95,7 @@
 {:else if state == 2}
 	<Pay
 		{cart}
+		{items}
 		on:back={() => {
 			state = 1;
 		}}

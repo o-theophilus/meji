@@ -12,34 +12,6 @@ import json
 bp = Blueprint("order", __name__)
 
 
-def order_schema(order):
-    return {
-        "key": order["key"],
-        "user_key": order["user_key"],
-        "status": order["status"],
-
-        "delivery_date": order["delivery_date"] if order[
-            "delivery_date"] else f"{now(4).split('T')[0]}T10:00",
-
-        "receiver_name": order["receiver_name"],
-        "receiver_phone": order["receiver_phone"],
-        "receiver_address_line": order["receiver_address_line"],
-        "receiver_address_country": order["receiver_address_country"],
-        "receiver_address_state": order["receiver_address_state"],
-        "receiver_address_local_area": order["receiver_address_local_area"],
-        "receiver_address_postal_code": order["receiver_address_postal_code"],
-
-        "cost_delivery": order["cost_delivery"],
-        "cost_items": order["cost_items"],
-        "pay_account": order["pay_account"],
-        "pay_user": order["pay_user"],
-        "pay_reference": order["pay_reference"],
-
-        "items": order["items"],
-
-    }
-
-
 @bp.post("/order")
 def cart_to_order():
     con, cur = db_open()
@@ -54,7 +26,7 @@ def cart_to_order():
     cur.execute("""
         SELECT *
         FROM "order"
-        WHERE user_key = %s, status = "cart";
+        WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     order = cur.fetchone()
 
@@ -72,13 +44,13 @@ def cart_to_order():
         })
 
     if (
-        not order["receiver_name"]
-        or not order["receiver_phone"]
-        or not order["receiver_address"]
-        or not order["receiver_address_line"]
-        or not order["receiver_address_state"]
-        or not order["receiver_address_country"]
-        or not order["receiver_address_postal_code"]
+        not order["name"]
+        or not order["phone"]
+        or not order["line"]
+        or not order["country"]
+        or not order["state"]
+        or not order["local_area"]
+        or not order["postal_code"]
     ):
         return jsonify({
             "status": 400,
@@ -95,7 +67,7 @@ def cart_to_order():
                 "error": "invalid request"
             })
 
-        cur.execute("SELECT * FROM 'order'' WHERE pay_reference = %s;",
+        cur.execute("""SELECT * FROM "order" WHERE pay_reference = %s;""",
                     (request.json['reference'],))
         if cur.fetchone():
             return jsonify({
@@ -132,7 +104,7 @@ def cart_to_order():
 
     cur.execute("""
         UPDATE "user"
-        SET account_balance = account_balance - %s
+        SET account_balance = "user".account_balance - %s
         WHERE key = %s;
     """, (
         order["pay_account"],
@@ -142,10 +114,10 @@ def cart_to_order():
     cur.execute("""
         UPDATE "order"
         SET
-            status = "created",
+            status = 'created',
             pay_user = %s,
             pay_reference = %s
-        WHERE user_key = %s, status = "cart"
+        WHERE user_key = %s AND status = 'cart'
         RETURNING *;
     """, (
         to_pay,
@@ -164,8 +136,8 @@ def cart_to_order():
         200,
         json.dumps({
             "debit": order["pay_account"],
-            "account_balance": user["acc_balance"] + order["pay_account"],
-            "new_balance": user["acc_balance"]
+            "account_balance": user["account_balance"] + order["pay_account"],
+            "new_balance": user["account_balance"]
         })
     ))
 
@@ -188,7 +160,7 @@ def cart_to_order():
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order),
+        "order": order,
         "user": user_schema(user)
     })
 
@@ -205,15 +177,31 @@ def get_many():
         })
 
     status = request.args["status"] if "status" in request.args else "created"
-    search = request.args["search"]
+    search = request.args["search"] if "search" in request.args else None
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    sort_by = "latest"
+    sort = request.args["sort"] if "sort" in request.args else "latest"
+
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'low_cost': '"order".pay_account',
+        'high_cost': '"order".pay_account'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'low_cost': 'ASC',
+        'high_cost': 'DESC'
+    }
 
     cur.execute("""
-        SELECT o.*, COUNT(*) OVER() AS total_items,
+        SELECT
+            "order".*,
             ARRAY(
                 SELECT JSON_BUILD_OBJECT(
+                    'key', item.key,
                     'slug', item.slug,
                     'name', item.name,
                     'price', item.price,
@@ -223,36 +211,26 @@ def get_many():
                 )
                 FROM order_item
                 LEFT JOIN item ON order_item.item_key = item.key
-                WHERE order_item.order_key = o.key
-            ) AS items
-        FROM "order" AS o
-        LEFT JOIN log ON o.key = log.user_key
+                WHERE order_item.order_key = "order".key
+            ) AS items,
+            COUNT(*) OVER() AS total_items
+        FROM "order"
+        LEFT JOIN log ON "order".key = log.user_key
             AND log.action = 'created'
             AND log.entity_type = 'order'
-        WHERE o.status = %s
-            AND o.status != 'cart'
-            AND (%s = '' OR CONCAT_WS(', ', o.key, o.name, o.email) ILIKE %s)
-            AND (o.user_key = %s OR %s)
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN 'high_cost' THEN o.pay_account
-                WHEN 'low_cost' THEN o.pay_account
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "low_cost" THEN ASC
-                ELSE DESC
-            END
+        WHERE "order".status = %s
+            AND "order".status != 'cart'
+            AND (%s IS NULL OR "order".key ILIKE %s)
+            AND ("order".user_key = %s OR %s)
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
         status,
         search, f"%{search}%",
         user["key"],
         "admin" in request.args and "order:view" not in user["roles"],
-        sort_by, sort_by,
         page_size, (page_no - 1) * page_size
     ))
     orders = cur.fetchall()
@@ -261,8 +239,9 @@ def get_many():
 
     return jsonify({
         "status": 200,
-        "orders": [order_schema(order) for order in orders],
-        "total_page": ceil(orders[0]["total_items"] / page_size) if orders else 0
+        "orders": orders,
+        "total_page": ceil(
+            orders[0]["total_items"] / page_size) if orders else 0
     })
 
 
@@ -278,27 +257,30 @@ def get(key):
         })
 
     cur.execute("""
-        SELECT *,
-            ARRAY(
-                SELECT JSON_BUILD_OBJECT(
-                    'slug', item.slug,
-                    'name', item.name,
-                    'price', item.price,
-                    'photo', COALESCE(item.photos[1], NULL),
-                    'variation', order_item.variation,
-                    'quantity', order_item.quantity
-                )
-                FROM order_item
-                LEFT JOIN item ON order_item.item_key = item.key
-                WHERE order_item.order_key = o.key
-            ) AS items
-        FROM 'order'
+        SELECT *
+        FROM "order"
         WHERE key = %s AND status != 'cart';
     """, (key,))
     order = cur.fetchone()
 
+    cur.execute("""
+        SELECT
+            item.key AS key,
+            item.slug AS slug,
+            item.name AS name,
+            item.price AS price,
+            COALESCE(item.photos[1], NULL) AS photo,
+            order_item.variation AS variation,
+            order_item.quantity AS quantity
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        WHERE order_item.order_key = %s;
+    """, (order["key"],))
+    items = cur.fetchall()
+
     if (
         not order
+        or items == []
         or (
             order["user_key"] != user["key"]
             and "order:view" not in user["roles"]
@@ -308,6 +290,15 @@ def get(key):
             "status": 400,
             "error": "invalid request"
         })
+
+    order["delivery_date"] = (
+        str(order["delivery_date"]).replace(" ", "T")
+        if order["delivery_date"] else
+        f"{now(4).split('T')[0]}T10:00"
+    )
+
+    for x in items:
+        x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
     cur.execute(log_template, (
         uuid4().hex,
@@ -324,7 +315,8 @@ def get(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order)
+        "order": order,
+        "items": items
     })
 
 
@@ -345,7 +337,7 @@ def date(key):
             "error": "unauthorized access"
         })
 
-    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
 
     if not order:
@@ -372,12 +364,12 @@ def date(key):
         uuid4().hex,
         datetime.now(),
         user["key"],
-        "changed_delivery_date",
+        "changed_date",
         order["key"],
         "order",
         200,
         json.dumps({
-            "from": order["delivery_date"],
+            "from": str(order["delivery_date"]).replace(" ", "T"),
             "to": f"{request.json['date']}T{request.json['time']}"
         })
     ))
@@ -390,17 +382,18 @@ def date(key):
     """, (
         datetime.strptime(
             f"{request.json['date']}T{request.json['time']}",
-            "%Y-%m-%dT%H:%M:%S"
+            "%Y-%m-%dT%H:%M"
         ),
         key
     ))
     order = cur.fetchone()
+    order["delivery_date"] = str(order["delivery_date"]).replace(" ", "T")
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order)
+        "order": order
     })
 
 
@@ -423,13 +416,13 @@ def status(key):
 
     status = ['created', 'processing', 'enroute', 'delivered']
 
-    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
 
     if order and order["user"] == user["key"]:
         order_user = user
     else:
-        cur.execute("SELECT * FROM 'user' WHERE key = %s;",
+        cur.execute("""SELECT * FROM "user" WHERE key = %s;""",
                     (order["user_key"],))
         order_user = cur.fetchone()
 
@@ -499,7 +492,7 @@ def status(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order)
+        "order": order
     })
 
 
@@ -514,9 +507,9 @@ def cancel(key):
             "error": "invalid token"
         })
 
-    cur.execute("SELECT * FROM 'order' WHERE key = %s;", (key,))
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-    cur.execute("SELECT * FROM 'user' WHERE key = %s;",
+    cur.execute("""SELECT * FROM "user" WHERE key = %s;""",
                 (order["user_key"],))
     order_user = cur.fetchone()
 
@@ -568,7 +561,7 @@ def cancel(key):
 
     cur.execute("""
         UPDATE "order"
-        SET status = "canceled"
+        SET status = 'canceled'
         WHERE key = %s
         RETURNING *;
     """, (key))
@@ -591,5 +584,5 @@ def cancel(key):
 
     return jsonify({
         "status": 200,
-        "order": order_schema(order)
+        "order": order
     })

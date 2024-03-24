@@ -55,8 +55,8 @@ def storage(
         return name
 
 
-@bp.get("/photos/<key>")
-@bp.get("/photos/<key>/<thumbnail>")
+@bp.get("/photo/<key>")
+@bp.get("/photo/<key>/<thumbnail>")
 def get_photo(key, thumbnail=False):
     photo = storage(key, thumbnail=thumbnail)
     return send_file(photo, mimetype="image/jpg")

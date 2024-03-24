@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { portal, module, loading, toast } from '$lib/store.js';
@@ -12,8 +13,7 @@
 	import IG from '$lib/input_group.svelte';
 
 	let { cart } = $module;
-	let { previous_receivers } = $module;
-
+	
 	let form = {
 		name: cart.name,
 		phone: cart.phone,
@@ -51,7 +51,7 @@
 		if (!form.postal_code) {
 			error.local_area = 'This field is required';
 		}
-
+		
 		Object.keys(error).length === 0 && submit();
 	};
 
@@ -70,7 +70,7 @@
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'cart',
+				type: 'receiver',
 				data: resp.cart
 			};
 			$module = '';
@@ -86,12 +86,37 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == cart.country) {
+			if (countries[i].name == form.country) {
 				states = countries[i].states;
 				break;
 			}
 		}
 	}
+
+	// TODO: load only when first opened
+	// let loading_complete = false;
+	let previous_receivers = [];
+	onMount(async () => {
+		if (previous_receivers.length == 0) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+				method: 'get',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: $token
+				}
+			});
+			resp = await resp.json();
+			// loading_complete = true;
+
+			if (resp.status == 200) {
+				previous_receivers = resp.previous_receivers;
+				// $portal = {
+				// 	type: 'previous_receivers',
+				// 	data: resp.previous_receivers
+				// };
+			}
+		}
+	});
 
 	let open = false;
 </script>

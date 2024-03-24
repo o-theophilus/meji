@@ -28,7 +28,7 @@
 			message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 		};
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_item_quantity`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -43,9 +43,16 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			$user = resp.user;
+			$user.cart = resp.user.cart;
+
+			$portal = {
+				type: 'items_done',
+				data: {
+					cart: resp.cart,
+					items: resp.items
+				}
+			};
 		} else {
-			// error = resp;
 			$toast = {
 				status: 400,
 				message: resp.error

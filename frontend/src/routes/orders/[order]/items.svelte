@@ -2,6 +2,7 @@
 	import Value from '$lib/item/variation_value.svelte';
 
 	export let order;
+	export let items;
 </script>
 
 <div class="grid">
@@ -11,7 +12,7 @@
 	<div class="th">Qty</div>
 	<div class="th">Cost</div>
 
-	{#each order.items as item, i}
+	{#each items as item, i}
 		<div>
 			{i + 1}
 		</div>
@@ -39,15 +40,15 @@
 		</div>
 	{/each}
 
-	<div>{order.items.length + 1}</div>
+	<div>{items.length + 1}</div>
 	<div class="bold left">Delivery Fee</div>
 	<span />
 	<span />
-	<div class="right">₦{order.transaction.delivery_fee.toLocaleString()}</div>
+	<div class="right">₦{order.cost_delivery.toLocaleString()}</div>
 
 	<div class="bold right wide">Total</div>
 	<div class="bold right">
-		₦{(order.transaction.total_items + order.transaction.delivery_fee).toLocaleString()}
+		₦{(order.cost_items + order.cost_delivery).toLocaleString()}
 	</div>
 </div>
 

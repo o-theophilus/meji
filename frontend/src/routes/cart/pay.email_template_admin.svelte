@@ -8,6 +8,7 @@
 	import Eta from '../orders/[order]/email_template__eta.svelte';
 
 	export let order;
+	export let items;
 </script>
 
 <Template>
@@ -54,7 +55,7 @@ color: #1d9bf0;
 	<Eta {order} />
 	<br />
 	<br />
-	<Items {order} />
+	<Items {items} />
 	<br />
 	<br />
 	Best regards,

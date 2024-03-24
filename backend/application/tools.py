@@ -79,7 +79,7 @@ def user_schema(user, saves=[], cart=[]):
         "address_local_area": user["address_local_area"],
         "address_postal_code": user["address_postal_code"],
 
-        "photo": (f"{request.host_url}photos/{user['photo']}"
+        "photo": (f"{request.host_url}photo/{user['photo']}"
                   if user["photo"] else None),
 
         "account_balance": user["account_balance"],
@@ -108,7 +108,7 @@ def item_schema(item):
         "information": item["information"],
 
 
-        "photos": [f"{request.host_url}photos/{x}" for x in item["photos"]],
+        "photos": [f"{request.host_url}photo/{x}" for x in item["photos"]],
         "variation": item["variation"],
         "tags": item["tags"],
 

@@ -6,9 +6,9 @@
 	import IG from '$lib/input_group.svelte';
 
 	let cart = { ...$module.cart };
-	let pay = cart.transaction.total_items + cart.transaction.delivery_fee - cart.transaction.account;
+	let pay = cart.cost_items + cart.cost_delivery - cart.pay_account;
 	let error = {};
-	let amount = cart.transaction.account;
+	let amount = cart.pay_account;
 
 	const validate = async () => {
 		error = {};
@@ -28,7 +28,7 @@
 
 	const submit = async () => {
 		$loading = 'loading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart_account`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/account`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
