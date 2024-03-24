@@ -13,7 +13,7 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
     version CHAR(32) NOT NULL,
     status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
 
-    name VARCHAR(100) DEFAULT 'anonymous',
+    name VARCHAR(100) DEFAULT NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(100),
     password VARCHAR(200) NOT NULL,
@@ -105,7 +105,7 @@ order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
 );"""
 
 
-# TODO: Remover version from n on financial ops
+# TODO: Remover version from non financial ops
 feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,

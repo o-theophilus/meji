@@ -69,8 +69,9 @@
 	{/if}
 
 	{#if log.misc}
-		{#each Object.entries(log.misc) as [key, value]}
-			<br />
+		<br />
+		{#each Object.entries(log.misc) as [key, value], i}
+			{#if i != 0},{/if}
 			{key}: {value}
 		{/each}
 	{/if}

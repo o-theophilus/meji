@@ -253,22 +253,20 @@ def send_email_otp():
 
     otp_1 = str(random.randint(1000, 9999))
     otp_2 = str(random.randint(1000, 9999))
+    key_1 = uuid4().hex
+    key_2 = uuid4().hex
 
     cur.execute("""
             INSERT INTO otp (key, date, user_key, code, email)
-            VALUES (%s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s), (%s, %s, %s, %s, %s);
         """, (
-        uuid4().hex,
+        key_1,
         datetime.now(),
         user["key"],
         otp_1,
-        user['email']
-    ))
-    cur.execute("""
-            INSERT INTO otp (key, date, user_key, code, email)
-            VALUES (%s, %s, %s, %s, %s);
-        """, (
-        uuid4().hex,
+        user['email'],
+
+        key_2,
         datetime.now(),
         user["key"],
         otp_2,
@@ -280,10 +278,20 @@ def send_email_otp():
         datetime.now(),
         user["key"],
         "requested",
-        None,
+        key_1,
         "otp",
         200,
-        json.dumps({"to": f"{user['email']}, {request.json['email']}"})
+        json.dumps({"to": user['email']})
+    ))
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "requested",
+        key_2,
+        "otp",
+        200,
+        json.dumps({"to": request.json['email']})
     ))
 
     send_mail(
@@ -428,12 +436,13 @@ def send_password_otp():
     cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
 
     otp = str(random.randint(1000, 9999))
+    key = uuid4().hex
 
     cur.execute("""
             INSERT INTO otp (key, date, user_key, code, email)
             VALUES (%s, %s, %s, %s, %s);
         """, (
-        uuid4().hex,
+        key,
         datetime.now(),
         user["key"],
         otp,
@@ -445,10 +454,10 @@ def send_password_otp():
         datetime.now(),
         user["key"],
         "requested",
-        None,
+        key,
         "otp",
         200,
-        json.dumps({"to": f"{user['email']}, {request.json['email']}"})
+        json.dumps({"to": user['email']})
     ))
 
     send_mail(

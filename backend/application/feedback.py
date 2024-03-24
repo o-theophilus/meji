@@ -80,7 +80,6 @@ def add_feedback(item_key):
     ))
     feedback = cur.fetchone()
 
-    # TODO: Add [feedback]->[added_feedback] to frontend log
     cur.execute(log_template, (
         uuid4().hex,
         datetime.now(),
@@ -194,5 +193,6 @@ def get_feedbacks(user_key, item_key):
         "item": item_schema(item),
         "feedbacks": feedbacks,
         "give_feedback": has_purchased and not has_feedback,
-        "total_page": ceil(feedbacks[0]["total_items"] / page_size) if feedbacks else 0
+        "total_page": ceil(feedbacks[0][
+            "total_items"] / page_size) if feedbacks else 0
     })

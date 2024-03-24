@@ -45,8 +45,6 @@
 		} else if ($portal.type == 'items_done') {
 			cart = $portal.data.cart;
 			items = $portal.data.items;
-			console.log("done");
-			console.log(items);
 		} else if ($portal.type == 'receiver') {
 			cart.name = $portal.data.name;
 			cart.phone = $portal.data.phone;

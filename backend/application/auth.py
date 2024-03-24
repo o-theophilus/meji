@@ -312,7 +312,7 @@ def login():
             "error": "your email or password is incorrect"
         })
 
-    if user["status"] != "confirmed":
+    if user["status"] == "signed_up":
         send_mail(
             user["email"],
             "Welcome to Meji! Please Confirm Your Email to Get Started",
@@ -398,20 +398,22 @@ def login():
         json.dumps({
             "from": out_user["key"],
             "name": out_user["name"]
-        })
+        }) if user["key"] != out_user["key"] else None
     ))
-    cur.execute(log_template, (
-        uuid4().hex,
-        datetime.now(),
-        out_user["key"],
-        "logged_out",
-        None,
-        "auth", 200,
-        json.dumps({
-            "to": user["key"],
-            "name": user["name"]
-        })
-    ))
+
+    if user["key"] != out_user["key"]:
+        cur.execute(log_template, (
+            uuid4().hex,
+            datetime.now(),
+            out_user["key"],
+            "logged_out",
+            None,
+            "auth", 200,
+            json.dumps({
+                "to": user["key"],
+                "name": user["name"]
+            })
+        ))
 
     db_close(con, cur)
 
@@ -438,12 +440,13 @@ def logout():
         False, user["key"]
     ))
 
+    key = uuid4().hex
     cur.execute("""
         INSERT INTO "user" (
-            key, version, email, password, setting_theme
-        ) VALUES (%s, %s, %s, %s, %s) RETURNING *;
+            key, version, name, email, password, setting_theme
+        ) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
     """, (
-        uuid4().hex, uuid4().hex, uuid4().hex,
+        key, uuid4().hex, f"user_{key[-4:]}", uuid4().hex,
         generate_password_hash(uuid4().hex, method="scrypt"),
         user["setting_theme"]
     ))
@@ -460,6 +463,20 @@ def logout():
         json.dumps({
             "to": anon_user["key"],
             "name": anon_user["name"]
+        })
+    ))
+
+    cur.execute(log_template, (
+        uuid4().hex,
+        datetime.now(),
+        anon_user["key"],
+        "created",
+        None,
+        "auth",
+        200,
+        json.dumps({
+            "from": user["key"],
+            "name": user["name"]
         })
     ))
 

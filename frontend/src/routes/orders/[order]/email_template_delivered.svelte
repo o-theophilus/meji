@@ -6,7 +6,6 @@
 
 	export let order;
 	export let items;
-	console.log(items);
 
 	let dt, period_of_day, date_time;
 	$: {

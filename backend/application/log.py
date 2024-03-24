@@ -6,6 +6,7 @@ from .postgres import db_close, db_open
 bp = Blueprint("log", __name__)
 
 
+# TODO: do not use this template
 log_template = """
     INSERT INTO log (
         key, date, user_key, action, entity_key, entity_type, status, misc
@@ -63,6 +64,8 @@ def get():
             AND log.entity_key = voucher.key
         LEFT JOIN advert ON log.entity_type = 'advert'
             AND log.entity_key = advert.key
+        LEFT JOIN otp ON log.entity_type = 'otp'
+            AND log.entity_key = otp.key
         WHERE
             (%s = 'all' OR CONCAT_WS(
                 ', ', log.user_key, "user".name, "user".email
@@ -70,10 +73,8 @@ def get():
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
             AND (%s = 'all' OR CONCAT_WS(
-                ', ', log.entity_key, "user".name, "user".email, item.name,
-                "order".key, voucher.key, advert.key
+                ', ', log.entity_key, "user".name, "user".email, item.name
             ) ILIKE %s)
-
         ORDER BY log.date DESC
         LIMIT %s OFFSET %s;
     """, (
