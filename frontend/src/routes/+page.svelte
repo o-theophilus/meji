@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { module } from '$lib/store.js';
+	import { module, loading } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
 	import Advert from '$lib/advert/index.svelte';
@@ -24,6 +24,7 @@
 	let { adverts } = data;
 
 	onMount(() => {
+		$loading = false;
 		if ($page.url.searchParams.has('module')) {
 			let _module = {};
 			switch ($page.url.searchParams.get('module')) {

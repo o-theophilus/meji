@@ -3,7 +3,6 @@ from .tools import reserved_words, token_to_user, item_schema
 import re
 from uuid import uuid4
 from .storage import storage
-from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
 import json
@@ -54,15 +53,17 @@ def add():
     item = cur.fetchone()
     item["ratings"] = []
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "created",
         item["key"],
-        "item",
-        200,
-        None
+        "item"
     ))
 
     db_close(con, cur)
@@ -263,14 +264,17 @@ def edit(key):
     """, (key,))
     item = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "edited",
         item["key"],
         "item",
-        200,
         json.dumps(request.json)
     ))
 
@@ -358,14 +362,17 @@ def add_photos(key):
     """, (key,))
     item = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "added_photo",
         item["key"],
         "item",
-        200,
         json.dumps({
             "added": ", ".join(file_names),
             "error": error
@@ -415,14 +422,17 @@ def order_photo(key):
 
     in_photos = [p.split("/")[-1] for p in request.json["photos"]]
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "arranged_photo",
         item["key"],
         "item",
-        200,
         json.dumps({
             "from": item["photos"],
             "to": in_photos
@@ -527,14 +537,17 @@ def delete_photo(key):
     """, (key,))
     item = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted_photo",
         item["key"],
         "item",
-        200,
         json.dumps({"photo": file_name})
     ))
 

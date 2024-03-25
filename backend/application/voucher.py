@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, user_schema
 from uuid import uuid4
-from .log import log_template
 from math import ceil
 from datetime import datetime, date
 from .postgres import db_close, db_open
@@ -78,14 +77,17 @@ def create():
             request.json["value"]
         ))
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type, misc
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "created",
             voucher_key,
             "voucher",
-            200,
             json.dumps({"batch": batch})
         ))
 
@@ -158,7 +160,8 @@ def get_many():
     return {
         "status": 200,
         "vouchers": [voucher_schema(x) for x in vouchers],
-        "total_page": ceil(vouchers[0]["total_items"] / page_size) if vouchers else 0
+        "total_page": ceil(vouchers[0][
+            "total_items"] / page_size) if vouchers else 0
     }
 
 
@@ -258,14 +261,17 @@ def activate(key):
         voucher["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "activated",
         voucher["key"],
         "voucher",
-        200,
         json.dumps({"validity": validity})
     ))
 
@@ -312,15 +318,17 @@ def deactivate(key):
         voucher["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deactivated",
         voucher["key"],
-        "voucher",
-        200,
-        None
+        "voucher"
     ))
 
     db_close(con, cur)
@@ -366,15 +374,17 @@ def delete(key):
         voucher["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type
+    ) VALUES (%s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted",
         voucher["key"],
-        "voucher",
-        200,
-        None
+        "voucher"
     ))
 
     db_close(con, cur)
@@ -418,7 +428,12 @@ def use():
     ):
         error = f"voucher {voucher['status']}"
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key,
+                entity_type, status, misc
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
@@ -434,14 +449,17 @@ def use():
             "error": error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "used",
         voucher["key"],
         "voucher",
-        200,
         json.dumps({
             "value": voucher["value"],
             "balance": user["acc_balance"],

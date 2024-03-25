@@ -48,6 +48,8 @@
 		<br />
 		[ - ] does going back restore token
 		<br />
+		[ - ] pressing tab-key on login and signup form should skip the show password button
+		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
 	</div>
 </Card>

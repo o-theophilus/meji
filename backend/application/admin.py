@@ -6,7 +6,6 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 from datetime import datetime
-from .log import log_template
 import json
 
 
@@ -185,14 +184,17 @@ def user_role(key):
         user["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         me["key"],
         "changed_role",
         user["key"],
         "admin",
-        200,
         json.dumps({
             "from": user["roles"],
             "to": request.json["roles"]

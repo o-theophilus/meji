@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, send_mail, now, user_schema
-from .log import log_template
 from uuid import uuid4
 import requests
 import os
@@ -126,14 +125,17 @@ def cart_to_order():
     ))
     order = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "created",
         order["key"],
         "order",
-        200,
         json.dumps({
             "debit": order["pay_account"],
             "account_balance": user["account_balance"] + order["pay_account"],
@@ -300,15 +302,17 @@ def get(key):
     for x in items:
         x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type
+    ) VALUES (%s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "viewed",
         order["key"],
-        "order",
-        200,
-        None
+        "order"
     ))
 
     db_close(con, cur)
@@ -360,14 +364,17 @@ def date(key):
             **error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_date",
         order["key"],
         "order",
-        200,
         json.dumps({
             "from": str(order["delivery_date"]).replace(" ", "T"),
             "to": f"{request.json['date']}T{request.json['time']}"
@@ -453,14 +460,17 @@ def status(key):
             "note": "this field is required"
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_status",
         order["key"],
         "order",
-        200,
         json.dumps({
             "from": order['status'],
             "to": request.json['status'],
@@ -544,14 +554,17 @@ def cancel(key):
             "note": "this field is required"
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "canceled",
         order["key"],
         "order",
-        200,
         json.dumps({
             "from": order['status'],
             "to": "canceled",

@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_tool, token_to_user, send_mail, user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
-from .log import log_template
 # from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
@@ -37,15 +36,17 @@ def init():
         )
         user = cur.fetchone()
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "created",
             None,
-            "auth",
-            200,
-            None
+            "auth"
         ))
 
         token = token_tool().dumps(user["key"])
@@ -167,15 +168,17 @@ def signup():
     ))
     user = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "signed_up",
         None,
-        "auth",
-        200,
-        None
+        "auth"
     ))
 
     send_mail(
@@ -231,21 +234,28 @@ def confirm_email(token):
         user = cur.fetchone()
         output['user'] = user_schema(user)
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "confirmed_email",
             None,
-            "auth",
-            200,
-            None
+            "auth"
         ))
 
     else:
         output['error'] = "email has already been confirmed"
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                    key, date, user_key, action, entity_key,
+                    entity_type, status, misc
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
@@ -294,32 +304,33 @@ def login():
             **error
         })
 
-    user = None
+    in_user = None
     if out_user["email"] == request.json["email"]:
-        user = out_user
+        in_user = out_user
     else:
         cur.execute('SELECT * FROM "user" WHERE email = %s;',
                     (request.json["email"],))
-        user = cur.fetchone()
+        in_user = cur.fetchone()
 
     if (
-        not user
-        or not check_password_hash(user["password"], request.json["password"])
-        or user["status"] == "anonymous"
+        not in_user
+        or in_user["status"] == "anonymous"
+        or not check_password_hash(
+            in_user["password"], request.json["password"])
     ):
         return jsonify({
             "status": 400,
             "error": "your email or password is incorrect"
         })
 
-    if user["status"] == "signed_up":
+    if in_user["status"] == "signed_up":
         send_mail(
-            user["email"],
+            in_user["email"],
             "Welcome to Meji! Please Confirm Your Email to Get Started",
             request.json['email_template'].format(
-                name=user["name"],
+                name=in_user["name"],
                 token=token_tool().dumps(
-                    user["key"]
+                    in_user["key"]
                 )
             ))
 
@@ -328,90 +339,123 @@ def login():
             "error": "not confirmed"
         })
 
-    # edited = []
-    # to_delete = []
+    if out_user['key'] != in_user['key'] and out_user['status'] == "anonymous":
+        cur.execute('SELECT * FROM save WHERE user_key = %s;',
+                    (out_user["key"],))
+        out_saves = cur.fetchall()
+        cur.execute('SELECT * FROM save WHERE user_key = %s;',
+                    (in_user["key"],))
+        in_saves = cur.fetchall()
+        in_saves = [x["item_key"] for x in in_saves]
+        for x in out_saves:
+            if x["item_key"] not in in_saves:
+                cur.execute("""
+                    UPDATE save
+                    SET user_key = %s
+                    WHERE key = %s;
+                """, (
+                    in_user["key"],
+                    x["key"]
+                ))
 
-    # if out_user['key'] != user['key']:
-    #     anon_saves = []
-    #     saves = []
-    #     anon_cart = None
-    #     cart = None
+        out_items = []
+        in_items = []
 
-    #     for x in db:
-    #         if x["type"] == "save" and x["user"] == out_user['key']:
-    #             anon_saves.append(x)
-    #         elif x["type"] == "save" and x["user"] == user['key']:
-    #             saves.append(x)
-    #         elif x["type"] == "cart" and x["user"] == out_user['key']:
-    #             anon_cart = x
-    #         elif x["type"] == "cart" and x["user"] == user['key']:
-    #             cart = x
+        cur.execute("""
+            SELECT * FROM "order"
+            WHERE "order".user_key = %s AND "order".status = 'cart';
+        """, (out_user["key"],))
+        out_cart = cur.fetchone()
+        if out_cart:
+            cur.execute("""
+                SELECT * FROM order_item WHERE order_item.order_key = %s;
+            """, (out_cart["key"],))
+            out_items = cur.fetchall()
+        cur.execute("""
+            SELECT * FROM "order"
+            WHERE "order".user_key = %s AND "order".status = 'cart';
+        """, (in_user["key"],))
+        in_cart = cur.fetchone()
+        if in_cart:
+            cur.execute("""
+                SELECT * FROM order_item WHERE order_item.order_key = %s;
+            """, (in_cart["key"],))
+            in_items = cur.fetchall()
 
-    #     keys = [x["item"] for x in saves]
-    #     for x in anon_saves:
-    #         if x["item"] in keys:
-    #             to_delete.append(x)
-    #         else:
-    #             x["user"] = user['key']
-    #             edited.append(x)
+        available_items = [
+            f"{x['item_key']}_{json.dumps(x['variation'])}" for x in in_items]
+        for x in out_items:
+            if (f"{x['item_key']}_{json.dumps(x['variation'])}"
+                    in available_items):
+                cur.execute("""
+                    UPDATE order_item
+                    SET quantity = %s
+                    WHERE
+                        order_item.order_key = %s
+                        AND order_item.item_key = %s
+                        AND order_item.variation = %s;
+                """, (
+                    x["quantity"],
+                    in_cart["key"],
+                    x["item_key"],
+                    json.dumps(x["variation"])
+                ))
+            else:
+                cur.execute("""
+                    UPDATE order_item SET order_key = %s WHERE key = %s;
+                """, (
+                    in_cart["key"],
+                    x["key"]
+                ))
 
-    #     if anon_cart:
-    #         if not cart:
-    #             cart = cart_template(user)
-
-    #         keys = [f"{x['key']}_{x['variation']}" for x in cart["items"]]
-    #         for x in anon_cart["items"]:
-    #             if f"{x['key']}_{x['variation']}" not in keys:
-    #                 cart["items"].append(x)
-
-    #         for x in cart["items"]:
-    #             for y in anon_cart["items"]:
-    #                 x_key = f"{x['key']}_{x['variation']}"
-    #                 y_key = f"{y['key']}_{y['variation']}"
-    #                 if x_key == y_key:
-    #                     x["quantity"] = y["quantity"]
-    #                     break
-
-    #         cart = transaction(cart, db)
-
-    #         to_delete.append(anon_cart)
-    #         edited.append(cart)
-
-    # database([*edited, user])
-    # if out_user["status"] == "anonymous":
-    # to_delete.append(out_user)
-    # database(to_delete, True)
+        # TODO: REMOVE:
+        # DELETE 'FROM order_item WHERE order_key = %s' IF CASCADE WORKS
+        cur.execute("""
+            DELETE FROM save WHERE user_key = %s;
+            DELETE FROM order_item WHERE order_key = %s;
+            DELETE FROM "order" WHERE "order".key = %s
+                AND "order".status = 'cart';
+        """, (
+            out_user["key"], out_cart["key"], out_cart["key"]
+        ))
 
     cur.execute("""
         UPDATE "user" SET login = %s
         WHERE key = %s RETURNING *;""", (
-        True, user["key"]
+        True, in_user["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex, datetime.now(),
-        user["key"],
+        in_user["key"],
         "logged_in",
         None,
         "auth",
-        200,
         json.dumps({
             "from": out_user["key"],
             "name": out_user["name"]
-        }) if user["key"] != out_user["key"] else None
+        }) if in_user["key"] != out_user["key"] else None
     ))
 
-    if user["key"] != out_user["key"]:
-        cur.execute(log_template, (
+    if in_user["key"] != out_user["key"]:
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type, misc
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             out_user["key"],
             "logged_out",
             None,
-            "auth", 200,
+            "auth",
             json.dumps({
-                "to": user["key"],
-                "name": user["name"]
+                "to": in_user["key"],
+                "name": in_user["name"]
             })
         ))
 
@@ -419,7 +463,7 @@ def login():
 
     return jsonify({
         "status": 200,
-        "token": token_tool().dumps(user["key"])
+        "token": token_tool().dumps(in_user["key"])
     })
 
 
@@ -452,28 +496,34 @@ def logout():
     ))
     anon_user = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "logged_out",
         None,
         "auth",
-        200,
         json.dumps({
             "to": anon_user["key"],
             "name": anon_user["name"]
         })
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         anon_user["key"],
         "created",
         None,
         "auth",
-        200,
         json.dumps({
             "from": user["key"],
             "name": user["name"]
@@ -532,15 +582,18 @@ def forgot_password():
             name=user["name"]
         ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, status
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "forgot_password",
         None,
         "auth",
-        201,
-        None
+        201
     ))
 
     db_close(con, cur)
@@ -611,15 +664,17 @@ def change_password(token):
         user["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type
+    ) VALUES (%s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_password",
         None,
-        "auth",
-        200,
-        None
+        "auth"
     ))
 
     return jsonify({

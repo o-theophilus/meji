@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now, user_schema
 from uuid import uuid4
-from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
 import json
@@ -118,14 +117,17 @@ def add_to_cart():
         cart["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "added_to",
         cart["key"],
         "cart",
-        200,
         json.dumps({
             "key": request.json["key"],
             **request.json["variation"],
@@ -134,7 +136,7 @@ def add_to_cart():
     ))
 
     cur.execute("""
-        SELECT key, variation
+        SELECT item_key, variation
         FROM order_item
         WHERE order_key = %s;
     """, (cart["key"],))
@@ -146,7 +148,7 @@ def add_to_cart():
         "status": 200,
         "user": user_schema(
             user,
-            cart=[f"{x['key']}_{json.dumps(x['variation'])}"
+            cart=[f"{x['item_key']}_{json.dumps(x['variation'])}"
                   for x in cart_items]
         )
     })
@@ -232,15 +234,17 @@ def get():
         for x in items:
             x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "viewed",
             cart["key"],
-            "cart",
-            200,
-            None
+            "cart"
         ))
 
     db_close(con, cur)
@@ -313,7 +317,11 @@ def quantity():
         item["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -321,7 +329,6 @@ def quantity():
             "quantity"] > 0 else "removed_from",
         cart["key"],
         "cart",
-        200,
         json.dumps({
             "key": request.json["key"],
             **request.json["variation"],
@@ -431,14 +438,17 @@ def receiver():
             **error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "edited_receiver",
         cart["key"],
         "cart",
-        200,
         json.dumps({
             "from": f"""
                 {cart["name"]} |
@@ -534,14 +544,17 @@ def account():
             "amount": error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_amount",
         cart["key"],
         "cart",
-        200,
         json.dumps({
             "from": cart["pay_account"],
             "to": request.json["amount"]

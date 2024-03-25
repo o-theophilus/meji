@@ -7,7 +7,6 @@ import random
 from .postgres import db_close, db_open
 from uuid import uuid4
 from datetime import datetime, timedelta
-from .log import log_template
 import json
 
 
@@ -38,14 +37,17 @@ def setting():
             user["key"]
         ))
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type, misc
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "changed_theme",
             None,
             "user",
-            200,
             json.dumps({
                 "from": user["setting_theme"],
                 "to": request.json["theme"]
@@ -65,13 +67,17 @@ def setting():
             user["key"]
         ))
 
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type, misc
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "changed_view",
             None,
-            "user", 200,
+            "user",
             json.dumps({
                 "from": user["setting_item_view"],
                 "to": request.json["item_view"]
@@ -193,14 +199,17 @@ def edit_user(key):
             **error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "edited",
         None,
         "user",
-        200,
         request.json
     ))
 
@@ -273,24 +282,25 @@ def send_email_otp():
         request.json["email"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s), (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "requested",
         key_1,
         "otp",
-        200,
-        json.dumps({"to": user['email']})
-    ))
-    cur.execute(log_template, (
+        json.dumps({"to": user['email']}),
+
         uuid4().hex,
         datetime.now(),
         user["key"],
         "requested",
         key_2,
         "otp",
-        200,
         json.dumps({"to": request.json['email']})
     ))
 
@@ -380,14 +390,17 @@ def email():
             **error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_email",
         None,
         "user",
-        200,
         json.dumps({
             "from": user['email'],
             "to": request.json['email']
@@ -449,14 +462,17 @@ def send_password_otp():
         user["email"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type, misc
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "requested",
         key,
         "otp",
-        200,
         json.dumps({"to": user['email']})
     ))
 
@@ -535,15 +551,17 @@ def password():
             **error
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type
+    ) VALUES (%s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_password",
         None,
-        "user",
-        200,
-        None
+        "user"
     ))
     cur.execute("""
         UPDATE "user"
@@ -606,15 +624,17 @@ def delete():
     ))
     anon_user = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+    INSERT INTO log (
+        key, date, user_key, action, entity_key, entity_type
+    ) VALUES (%s, %s, %s, %s, %s, %s);
+""", (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted_account",
         None,
-        "user",
-        200,
-        None
+        "user"
     ))
 
     db_close(con, cur)
@@ -665,15 +685,17 @@ def add_photo():
     ))
     user = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "updated_photo",
         None,
-        "user",
-        200,
-        None
+        "user"
     ))
 
     db_close(con, cur)
@@ -706,15 +728,17 @@ def delete_photo():
         user["key"]
     ))
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted_photo",
         None,
-        "user",
-        200,
-        None
+        "user"
     ))
 
     db_close(con, cur)

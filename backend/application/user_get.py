@@ -141,7 +141,7 @@ def trx_schema(x):
     }
 
 
-@bp.get("/user/transactions")
+@bp.get("/user/transaction")
 def get_transactions():
     con, cur = db_open()
 
@@ -157,22 +157,20 @@ def get_transactions():
 
     cur.execute("""
         SELECT *, COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *
-            FROM "user"
-            WHERE user_key = %s AND (
+        FROM "user"
+        LEFT JOIN log ON "user".key = log.user_key
+        WHERE
+            user_key = %s AND (
                 (
-                    entity_type = "voucher"
-                    AND action = "used")
-                OR
-                (
-                    entity_type = "order"
-                    AND action = "created"
-                    AND (misc->>'value')::numeric > 0
+                    log.entity_type = 'voucher'
+                    AND log.action = 'used'
+                ) OR (
+                    log.entity_type = 'order'
+                    AND log.action = 'created'
+                    AND (log.misc->>'pay_account')::numeric > 0
                 )
             )
-        ) AS subquery
-        ORDER BY date DESC
+        ORDER BY log.date DESC
         LIMIT %s OFFSET %s;
     """, (
         user["key"],

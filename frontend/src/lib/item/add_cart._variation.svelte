@@ -1,5 +1,5 @@
 <script>
-	import { module, user, toast } from '$lib/store.js';
+	import { module, user, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -28,17 +28,14 @@
 	};
 
 	const submit = async () => {
+		$loading = true;
+
 		let key = `${item.key}_${JSON.stringify(vars_)}`;
 		if (!$user.cart.includes(key)) {
 			$user.cart.push(key);
 			$user = $user;
 		}
-		$module = '';
-		$toast = {
-			status: 200,
-			message: `${item.name} added to cart`
-		};
-
+		
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
 			headers: {
@@ -53,6 +50,13 @@
 			})
 		});
 		resp = await resp.json();
+		
+		$loading = false;
+		$module = '';
+		$toast = {
+			status: 200,
+			message: `${item.name} added to cart`
+		};
 
 		if (resp.status == 200) {
 			$user.cart = resp.user.cart;
@@ -131,7 +135,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp1);
-		
+
 		color: var(--ac1);
 	}
 
@@ -139,7 +143,7 @@
 		font-weight: 500;
 		text-transform: capitalize;
 	}
-	
+
 	.value_row {
 		display: flex;
 		flex-wrap: wrap;

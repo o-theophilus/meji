@@ -5,7 +5,6 @@ from .database import database, query
 from datetime import datetime, timedelta
 import re
 import os
-from .log import log_template
 from .postgres import db_close, db_open
 from uuid import uuid4
 import json
@@ -120,7 +119,11 @@ def cron():
     rem = rem[:10]
     database(rem, True)
 
-    # query_run(log_template(
+    # query_run("""
+#     INSERT INTO log (
+#         key, date, user_key, action, entity_key, entity_type, status, misc
+#     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+# """(
     #     "meji",
     #     "ran_cron",
     #     None,
@@ -252,15 +255,17 @@ def deta_to_postgres():
                 x["available_quantity"]
             ))
 
-            cur.execute(log_template, (
+            cur.execute("""
+                INSERT INTO log (
+                    key, date, user_key, action, entity_key, entity_type
+                ) VALUES (%s, %s, %s, %s, %s, %s);
+            """, (
                 uuid4().hex,
                 x["date_c"],
                 "46a28cf075b048a581615c8cb508d0c3",
                 "created",
                 x["key"],
-                "item",
-                200,
-                None
+                "item"
             ))
 
     db_close(con, cur)

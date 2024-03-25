@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from uuid import uuid4
 from math import ceil
-from .log import log_template
 from .postgres import db_close, db_open
 from datetime import datetime
 import json
@@ -80,14 +79,17 @@ def add_feedback(item_key):
     ))
     feedback = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "added_feedback",
         feedback["key"],
         "feedback",
-        200,
         json.dumps({
             "rating":  request.json["rating"],
             "review": request.json["review"]

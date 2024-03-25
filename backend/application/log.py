@@ -6,14 +6,6 @@ from .postgres import db_close, db_open
 bp = Blueprint("log", __name__)
 
 
-# TODO: do not use this template
-log_template = """
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, status, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-"""
-
-
 @bp.get("/log")
 def get():
     con, cur = db_open()

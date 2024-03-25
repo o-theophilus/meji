@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
-from .log import log_template
 from math import ceil
 from .advert import get_all_advert
 import re
@@ -82,15 +81,17 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "viewed",
         item["key"],
-        "item",
-        200,
-        None
+        "item"
     ))
 
     db_close(con, cur)
@@ -321,42 +322,44 @@ def customer_view(user_key, item_key):
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
-        FROM log
-        LEFT JOIN item ON log.entity_key = item.key
+        FROM item
+        LEFT JOIN log ON item.key = log.entity_key
         LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE log.action = 'viewed'
-        AND log.entity_type = 'item'
-        AND log.user_key != %s
+        WHERE
+            log.entity_type = 'item'
+            AND log.action = 'viewed'
+            AND log.user_key != %s
+            AND item.status = 'live'
         GROUP BY item.key, log.user_key, log.date
         ORDER BY log.date ASC;
     """, (user_key,))
     views = cur.fetchall()
 
-    unique_user = []
-    unique_items = []
+    picked_user = []
+    picked_items = []
     pick_next_item = []
     items = []
-    all_item_keys = []
+    all_picked_item_keys = []
 
     for x in views:
-        if x["user_key"] not in unique_user:
-            if x["entity_key"] == item_key:
+        if x["user_key"] not in picked_user:
+            if x["key"] == item_key:
                 pick_next_item.append(x["user_key"])
 
             elif x["user_key"] in pick_next_item:
                 pick_next_item.remove(x["user_key"])
-                unique_user.append(x["user_key"])
-                all_item_keys.append(x["item_key"])
+                picked_user.append(x["user_key"])
+                all_picked_item_keys.append(x["key"])
 
-                if x["item_key"] not in unique_items:
+                if x["key"] not in picked_items:
                     items.append(x)
-                    unique_items.append(x["item_key"])
+                    picked_items.append(x["key"])
 
     item_count = []
     for x in items:
         item_count.append({
             "item":  x,
-            "count":  all_item_keys.count(x["item_key"])
+            "count":  all_picked_item_keys.count(x["key"])
         })
 
     item_count = sorted(item_count, key=lambda d: d["count"], reverse=True)

@@ -5,7 +5,7 @@
 	import Button from '$lib/button.svelte';
 
 	const submit = async () => {
-		$loading = "loading . . .";
+		$loading = true;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
 			method: 'delete',
 			headers: {
@@ -14,7 +14,8 @@
 			}
 		});
 		resp = await resp.json();
-		$loading = false;
+		// $loading = false;
+		// TODO: load until homepage
 
 		if (resp.status == 200) {
 			$token = resp.token;

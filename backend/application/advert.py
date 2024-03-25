@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from .storage import storage
-from .log import log_template
 from PIL import Image
 from math import ceil
 from .postgres import db_close, db_open
@@ -113,14 +112,17 @@ def add_photo(item_key):
             "error": error if not error else "no file"
         })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "added_photo",
         advert["key"],
         "advert",
-        200,
         json.dumps({"photo": log_misc})
     ))
 
@@ -168,15 +170,17 @@ def get(item_key):
         })
 
     if advert:
-        cur.execute(log_template, (
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
             uuid4().hex,
             datetime.now(),
             user["key"],
             "viewed",
             advert["key"],
-            "advert",
-            200,
-            None
+            "advert"
         ))
 
     db_close(con, cur)
@@ -216,7 +220,8 @@ def get_all_advert(placement=""):
         # "adverts": [advert_schema(x) for x in adverts],
         "adverts": adverts,
         "ad_space": ad_space,
-        "total_page": ceil(adverts[0]["total_items"] / page_size) if adverts else 0
+        "total_page": ceil(adverts[0][
+            "total_items"] / page_size) if adverts else 0
     })
 
 
@@ -288,14 +293,17 @@ def delete_photo(item_key):
     cur.execute("SELECT * FROM advert WHERE key = %s;", (item["key"],))
     advert = cur.fetchone()
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted_photo",
         advert["key"],
         "advert",
-        200,
         json.dumps({f"{request.json['size']}: {request.json['photo']}"})
     ))
 
@@ -348,14 +356,17 @@ def delete(item_key):
             log_misc = f"{log_misc}, {temp}" if log_misc else temp
             storage(advert[f"photos_{x}"], delete=True)
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "deleted_photo",
         advert["key"],
         "advert",
-        200,
         json.dumps({"photo": log_misc})
     ))
 
@@ -417,14 +428,17 @@ def placement(item_key):
                 "error": "invalid request"
             })
 
-    cur.execute(log_template, (
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
         "changed_placement",
         advert["key"],
         "advert",
-        200,
         json.dumps({
             "from": advert["places"],
             "to": request.json["places"]
