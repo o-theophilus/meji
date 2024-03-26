@@ -25,7 +25,7 @@ def init():
         key = uuid4().hex
         cur.execute("""
                 INSERT INTO "user" (key, version, name, email, password)
-                VALUES (%s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING *;
             """, (
             key,
