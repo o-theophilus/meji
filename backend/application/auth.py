@@ -408,16 +408,19 @@ def login():
                     x["key"]
                 ))
 
+        cur.execute("DELETE FROM save WHERE user_key = %s;",
+                    (out_user["key"],))
+
         # TODO: REMOVE:
         # DELETE 'FROM order_item WHERE order_key = %s' IF CASCADE WORKS
-        cur.execute("""
-            DELETE FROM save WHERE user_key = %s;
-            DELETE FROM order_item WHERE order_key = %s;
-            DELETE FROM "order" WHERE "order".key = %s
-                AND "order".status = 'cart';
-        """, (
-            out_user["key"], out_cart["key"], out_cart["key"]
-        ))
+        if out_cart:
+            cur.execute("""
+                DELETE FROM order_item WHERE order_key = %s;
+                DELETE FROM "order" WHERE "order".key = %s
+                    AND "order".status = 'cart';
+            """, (
+                out_cart["key"], out_cart["key"]
+            ))
 
     cur.execute("""
         UPDATE "user" SET login = %s

@@ -21,7 +21,8 @@ export const set_state = (page_name, key, value) => {
 	if (value == '') {
 		_page.url.searchParams.delete(key);
 	}
-	if (['tag', 'search', "status"].includes(key)) {
+	// if (['tag', 'search', "status", "sort"].includes(key)) {
+	if (key != "page_no") {
 		_page.url.searchParams.delete("page_no");
 	}
 

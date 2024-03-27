@@ -25,6 +25,7 @@
 	on:change={(e) => {
 		sort_items(e.target.value);
 	}}
+	value={default_value}
 >
 	{#each array as x}
 		<option value={x}>

@@ -163,9 +163,10 @@ def shop(
 
     query = ""
     if tags != []:
-        query = "AND ARRAY[%s] && item.tags"
-        if multiply:
-            query = "AND ARRAY[%s] @> item.tags"
+        query = f"""
+            AND cardinality(item.tags) > 0
+            AND item.tags {"@>" if multiply else "&&"} ARRAY[{tags}]
+        """
 
     cur.execute("""
         SELECT
@@ -187,7 +188,7 @@ def shop(
             AND log.entity_type = 'item'
         WHERE
             item.status = %s
-            AND (%s IS NULL OR item.name ILIKE %s) {}
+            AND (%s = '' OR item.name ILIKE %s) {}
         GROUP BY item.key, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
@@ -196,7 +197,7 @@ def shop(
         order_by[sort], order_dir[sort]
     ), (
         status,
-        f"%{search}%", f"%{search}%",
+        search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
     items = cur.fetchall()
