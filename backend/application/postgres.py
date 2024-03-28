@@ -41,8 +41,8 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
 
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
-    price FLOAT DEFAULT 0,
-    old_price FLOAT DEFAULT 0,
+    price FLOAT DEFAULT 0 NOT NULL,
+    old_price FLOAT DEFAULT 0 NOT NULL,
     information TEXT,
     photos TEXT[] DEFAULT ARRAY[]::TEXT[],
     tags TEXT[] DEFAULT ARRAY[]::TEXT[],
@@ -120,6 +120,8 @@ feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
     FOREIGN KEY (item_key) REFERENCES item(key)
 );"""
 
+
+# TODO: change placement to location
 advert_table = """CREATE TABLE IF NOT EXISTS advert (
     key CHAR(32) PRIMARY KEY,
 

@@ -1,29 +1,18 @@
 <script>
-	import { onMount } from 'svelte';
 	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
 
 	export let advert;
+	console.log(advert);
+	export let item;
 	let input;
 	let dragover = false;
 	let error = {};
 	let def_size = '300x300';
-	let active_photo = {
-		size: def_size,
-		photo: null
-	};
-
-	let available_sizes = [];
-	const set_available_sizes = () => {
-		available_sizes = [];
-		for (const [dim, url] of Object.entries(advert.photos)) {
-			if (url) {
-				available_sizes.push(dim);
-			}
-		}
-	};
+	let active_size = '300x300';
+	let sizes = ['300x300', '300x600', '600x300', '900x300'];
 
 	const remove_photo = async () => {
 		error = {};
@@ -35,17 +24,13 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(active_photo)
+			body: JSON.stringify(active_size)
 		});
 		resp = await resp.json();
 		$loading = false;
 
 		if (resp.status == 200) {
-			advert = resp.advert;
-			active_photo = {
-				size: def_size,
-				photo: advert.photos[def_size]
-			};
+			active_size = def_size;
 			$portal = {
 				type: 'advert',
 				data: resp.advert
@@ -54,7 +39,6 @@
 				status: 200,
 				message: available_sizes.length > 0 ? 'Photo deleted' : 'Advert Deleted'
 			};
-			set_available_sizes();
 		} else {
 			error = resp;
 		}
@@ -75,20 +59,15 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			advert = resp.advert;
-			active_photo = {
-				size: def_size,
-				photo: advert.photos[def_size]
-			};
-			$portal = {
-				type: 'advert',
-				data: resp.advert
-			};
+			(active_size = def_size),
+				($portal = {
+					type: 'advert',
+					data: resp.advert
+				});
 			$toast = {
 				status: 200,
 				message: 'Advert Deleted'
 			};
-			set_available_sizes();
 		} else {
 			error = resp;
 		}
@@ -120,21 +99,19 @@
 			let err = '';
 			if (media != 'image' || ['svg+xml', 'x-icon'].includes(type)) {
 				err = `${file.name} => invalid file`;
-			} else if (available_sizes.includes(dim)) {
-				err = `${file.name} => already picked`;
-			} else if (!['300x300', '300x600', '600x300', '900x300'].includes(dim)) {
+			} else if (!sizes.includes(dim)) {
 				err = `${file.name} => invalid dimension`;
+			} else if (advert[`photo_${dim}`]) {
+				err = `${file.name} => already picked`;
 			}
 
 			if (err) {
 				error.error = error.error ? `${error.error}, ${err}` : err;
 			} else {
-				available_sizes.push(dim);
 				files.push(file);
 			}
 		}
 
-		set_available_sizes();
 		files.length > 0 && upload_input(files);
 	};
 
@@ -156,12 +133,8 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			advert = resp.advert;
-			if (!active_photo.photo) {
-				active_photo = {
-					size: def_size,
-					photo: advert.photos[def_size]
-				};
+			if (!active_size.photo) {
+				active_size = def_size;
 			}
 			$portal = {
 				type: 'advert',
@@ -171,7 +144,7 @@
 				status: 200,
 				message: 'Advert Updated'
 			};
-			set_available_sizes();
+
 			if (resp.error) {
 				error.error = error.error ? `${error.error}, ${resp.error}` : resp.error;
 			}
@@ -179,19 +152,11 @@
 			error = resp;
 		}
 	};
-
-	onMount(async () => {
-		active_photo = {
-			size: def_size,
-			photo: advert.photos[def_size]
-		};
-		set_available_sizes();
-	});
 </script>
 
 <img
-	src={active_photo.photo || '/image/item.png'}
-	alt={advert.item.name}
+	src={advert[`photo_${active_size}`] || '/image/item.png'}
+	alt={item.name}
 	onerror="this.src='/image/item.png'"
 	class:dragover
 	on:click={() => {
@@ -226,16 +191,16 @@
 <br />
 
 <div class="row">
-	{#each Object.entries(advert.photos) as [size, photo]}
+	{#each sizes as size}
 		<img
-			src={photo ? `${photo}/200` : '/image/item.png'}
-			alt="{advert.item.name} {size}"
+			src={advert[`photo_${size}`] ? `${advert[`photo_${active_size}`]}/200` : '/image/item.png'}
+			alt="{item.name} {size}"
 			onerror="this.src='/image/item.png'"
 			on:click={() => {
 				error = {};
-				active_photo = { size, photo };
+				active_size = size;
 			}}
-			class:active={active_photo.size == size}
+			class:active={active_size == size}
 			role="presentation"
 		/>
 	{/each}
@@ -248,18 +213,19 @@
 		on:click={() => {
 			input.click();
 		}}
-		disabled={available_sizes.length >= 4}
 	>
+		<!-- disabled={available_sizes.length >= 4} -->
 		Add
 	</Button>
 
-	<Button class="hover_red" on:click={remove_photo} disabled={!active_photo.photo}
+	<Button class="hover_red" on:click={remove_photo} disabled={!advert[`photo_${active_size}`]}
 		>Remove</Button
 	>
 </div>
 <br />
 <div class="row">
-	<Button class="hover_red" on:click={delete_advert} disabled={available_sizes.length <= 0}>
+	<Button class="hover_red" on:click={delete_advert}>
+		<!-- disabled={available_sizes.length <= 0} -->
 		Delete Advert
 	</Button>
 </div>

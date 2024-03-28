@@ -15,31 +15,6 @@ dimensions = ["300x300", "300x600", "600x300", "900x300"]
 ad_space = ['home_1', 'home_2', 'home_3', 'shop', 'save']
 
 
-# def advert_schema(advert):
-#     item = query({"type": "item", "key": advert["item"]}, db=db)
-
-#     def get_url(dim):
-#         if advert['photos'][dim]:
-#             return f"{request.host_url}photos/{advert['photos'][dim]}"
-#         return None
-
-#     return {
-#         "key": advert["key"],
-#         "item": {
-#             "slug": item["slug"],
-#             "name": item["name"],
-#             "photo": f"{request.host_url}photos/{item['photos'][0]}",
-#         },
-#         "photos": {
-#             "300x300": get_url('300x300'),
-#             "300x600": get_url('300x600'),
-#             "600x300": get_url('600x300'),
-#             "900x300": get_url('900x300')
-#         },
-#         "places": advert["places"]
-#     }
-
-
 @bp.post("/advert/<item_key>")
 def add_photo(item_key):
     con, cur = db_open()
@@ -59,23 +34,24 @@ def add_photo(item_key):
 
     cur.execute("""
         SELECT * FROM item WHERE slug = %s or key = %s;
-    """, (item_key,))
+    """, (item_key, item_key))
     item = cur.fetchone()
-
-    cur.execute("""
-        INSERT INTO advert (key)
-        VALUES (%s)
-        ON CONFLICT (key) DO NOTHING;
-
-        SELECT * FROM advert WHERE key = %s;
-    """, (item["key"], item["key"]))
-    advert = cur.fetchone()
 
     if not item or 'files' not in request.files:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
+
+    cur.execute("""
+        SELECT * FROM advert WHERE key = %s;
+    """, (item["key"],))
+    advert = cur.fetchone()
+    if not advert:
+        cur.execute("""
+            INSERT INTO advert (key) VALUES (%s) RETURNING *;
+        """, (item["key"],))
+        advert = cur.fetchone()
 
     error = ""
     log_misc = ""
@@ -100,11 +76,16 @@ def add_photo(item_key):
             log_misc = f"{log_misc}, {temp}" if log_misc else temp
             cur.execute("""
                 UPDATE advert
-                SET photo_%s = %s
+                SET photo_{} = %s
                 WHERE key = %s
                 RETURNING *;
-            """, (dim, filename, item["key"]))
+            """.format(dim), (filename, item["key"]))
             advert = cur.fetchone()
+
+            for x in dimensions:
+                n = f"photo_{x}"
+                if advert[n]:
+                    advert[n] = f"{request.host_url}photo/{advert[n]}"
 
     if not log_misc:
         return jsonify({
@@ -131,7 +112,6 @@ def add_photo(item_key):
     return jsonify({
         "status": 200,
         "advert": advert,
-        # "advert": advert_schema(advert),
         "error": error
     })
 
@@ -157,19 +137,23 @@ def get(item_key):
         SELECT * FROM item WHERE slug = %s or key = %s;
     """, (item_key, item_key))
     item = cur.fetchone()
-
-    cur.execute("""
-        SELECT * FROM advert WHERE key = %s;
-    """, (item["key"],))
-    advert = cur.fetchone()
-
     if not item:
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
+    cur.execute("""
+        SELECT * FROM advert WHERE key = %s;
+    """, (item["key"],))
+    advert = cur.fetchone()
+
     if advert:
+        for x in dimensions:
+            n = f"photo_{x}"
+            if advert[n]:
+                advert[n] = f"{request.host_url}photo/{advert[n]}"
+
         cur.execute("""
             INSERT INTO log (
                 key, date, user_key, action, entity_key, entity_type
@@ -182,13 +166,22 @@ def get(item_key):
             advert["key"],
             "advert"
         ))
+    else:
+        advert = {
+            "key": item["key"],
+            "placement": [],
+            "photo_300x300": None,
+            "photo_300x600": None,
+            "photo_600x300": None,
+            "photo_900x300": None
+        }
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        # "advert": advert_schema(advert) if advert else None,
         "advert": advert,
+        "item": item,
         "ad_space": ad_space
     })
 

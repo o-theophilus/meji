@@ -5,21 +5,6 @@
 @Authorization = IjI1Zjc1NjRiN2NkMTQyYTY5MjlhMTMzZTkzODRlYzU2Ig.YFI30g.yNCajtuI6kwYj65OiHT5KGsxya0
 
 
-#Create
-post  {{host}}/user HTTP/1.1
-content-type: application/json
-
-{
-    "name": "oodsoo",
-    "username": "wwww",
-    "email" : "wwww@wwwww.com",
-    "phone" : "ozxzxzxoooO",
-    "password": "1Qqqqqqq",
-    "confirm_url": "example.com/confirm",
-    "confirm_email": "<a href='{0}'> Click here </a>"
-}
-###
-
 #fix
 get  {{host}}/fix HTTP/1.1
 content-type: application/json
@@ -28,26 +13,14 @@ Authorization: {{Authorization}}
 ###
 
 #create_tables
-post  {{host}}/create_table HTTP/1.1
-content-type: application/json
-Authorization: {{Authorization}}
-
-###
-
-#init
-post  {{host}}/init HTTP/1.1
-content-type: application/json
-Authorization: {{Authorization}}
+# post  {{host}}/create_table HTTP/1.1
+# content-type: application/json
+# Authorization: {{Authorization}}
 
 ###
 
 
-#init
-get  {{host}}/shop HTTP/1.1
-content-type: application/json
-Authorization: {{Authorization}}
 
-###
 
 
 

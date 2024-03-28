@@ -172,16 +172,19 @@ def shop(
         SELECT
             item.*,
             CASE
-                WHEN item.old_price = 0 THEN 0
-                ELSE (100 * (item.old_price - item.price)) / item.old_price
-            END AS discount,
-            CASE
                 WHEN COUNT(feedback.*) = 0 THEN 0
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
             END AS rating,
             ARRAY_AGG(feedback.rating) AS ratings,
             COUNT(*) OVER() AS total_items
-        FROM item
+        FROM (
+            SELECT *,
+                CASE
+                    WHEN old_price = 0 THEN 0
+                    ELSE (100 * (old_price - price)) / old_price
+                END AS discount
+            FROM item
+        ) AS item
         LEFT JOIN feedback ON item.key = feedback.item_key
         LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
@@ -189,7 +192,11 @@ def shop(
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {}
-        GROUP BY item.key, log.date
+        GROUP BY
+            item.key, item.version, item.status, item.name, item.slug,
+            item.price, item.old_price, item.information, item.photos,
+            item.tags, item.adverts, item.variation, item.available_quantity,
+            item.discount, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(

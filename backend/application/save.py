@@ -42,17 +42,20 @@ def get():
     cur.execute("""
         SELECT
             item.*,
-            COUNT(*) OVER() AS total_items,
-            CASE
-                WHEN item.old_price = 0 THEN 0
-                ELSE (100 * (item.old_price - item.price)) / item.old_price
-            END AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN NULL
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
             END AS rating,
-        ARRAY_AGG(feedback.rating) AS ratings
-        FROM item
+            ARRAY_AGG(feedback.rating) AS ratings,
+            COUNT(*) OVER() AS total_items
+        FROM (
+            SELECT *,
+                CASE
+                    WHEN old_price = 0 THEN 0
+                    ELSE (100 * (old_price - price)) / old_price
+                END AS discount
+            FROM item
+        ) AS item
         LEFT JOIN save ON item.key = save.item_key
         LEFT JOIN log ON item.key = log.entity_key
             AND log.action = 'created'
@@ -60,8 +63,11 @@ def get():
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE save.user_key = %s
 
-        GROUP BY item.key, log.date
-
+        GROUP BY
+            item.key, item.version, item.status, item.name, item.slug,
+            item.price, item.old_price, item.information, item.photos,
+            item.tags, item.adverts, item.variation, item.available_quantity,
+            item.discount, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(

@@ -9,7 +9,7 @@
 	export let ad_space;
 	let error = {};
 
-	let places = advert.places;
+	let places = advert.placement;
 
 	const select = (_in) => {
 		if (!places.includes(_in)) {
@@ -20,16 +20,6 @@
 		}
 	};
 
-	let available_sizes = [];
-	$: {
-		available_sizes = [];
-		for (const [dim, url] of Object.entries(advert.photos)) {
-			if (url) {
-				available_sizes.push(dim);
-			}
-		}
-		available_sizes = available_sizes;
-	}
 
 	const submit = async () => {
 		error = {};
@@ -87,11 +77,11 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={submit} disabled={available_sizes.length != 4}>
+	<Button class="primary" on:click={submit} 
+	>
+	<!-- disabled={available_sizes.length != 4} -->
 		Save Placement
 	</Button>
-	<br />
-	<Button class="link" href="/{advert.item.slug}">{advert.item.name} &gt;</Button>
 </div>
 
 <style>

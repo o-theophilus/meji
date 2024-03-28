@@ -4,13 +4,15 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
+	import Button from '$lib/button.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Advert from './advert.svelte';
 	import Placement from './place.svelte';
 
 	export let data;
-	let advert = data.advert;
-	let ad_space = data.ad_space;
+	let { advert } = data;
+	let { item } = data;
+	let { ad_space } = data;
 
 	$: if ($portal) {
 		if ($portal.type == 'advert') {
@@ -20,14 +22,17 @@
 	}
 </script>
 
-<Meta title={advert.item.name} description={advert.item.name} image={advert.item.photo} />
+<Meta title={item.name} description={item.name} image={item.photos[0]} />
 
 <Center>
 	<br />
 	<div class="ctitle">
 		<div class="ctitle">
 			<Back />
-			{advert.item.name} - Adverts
+			<Button class="link" href="/{item.slug}">
+				{item.name}
+			</Button>
+			- Adverts
 		</div>
 	</div>
 </Center>
@@ -35,11 +40,11 @@
 <Card>
 	<section class="block">
 		<div>
-			<Advert {advert} />
+			<Advert {item} {advert} />
 		</div>
 
 		<div>
-			<Placement {advert} {ad_space}/>
+			<Placement {advert} {ad_space} />
 		</div>
 	</section>
 </Card>

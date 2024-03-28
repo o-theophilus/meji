@@ -50,6 +50,8 @@
 		<br />
 		[ - ] pressing tab-key on login and signup form should skip the show password button
 		<br />
+		[ - ] shop tag should be a module, not dropdown
+		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
 	</div>
 </Card>

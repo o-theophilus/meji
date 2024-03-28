@@ -157,6 +157,9 @@ def edit(key):
             ))
 
     if "price" in request.json:
+        if not request.json["price"]:
+            request.json["price"] = 0
+
         if "item:edit_price" not in user["roles"]:
             error["price"] = "unauthorized access"
         elif request.json["price"]:
@@ -186,18 +189,30 @@ def edit(key):
                 item["key"]
             ))
 
+    if item["old_price"] > 0 and item["price"] >= item["old_price"]:
+        cur.execute("""
+            UPDATE item
+            SET old_price = 0
+            WHERE key = %s;
+        """, (item["key"],))
+
     if "old_price" in request.json:
-        item["old_price"] = None
+        if not request.json["old_price"]:
+            request.json["old_price"] = 0
 
         if "item:edit_price" not in user["roles"]:
             error["price"] = "unauthorized access"
-        elif item["price"] and request.json["old_price"]:
+
+        elif item["price"]:
             if (
                 type(request.json["old_price"]) not in [int, float]
                 or request.json["old_price"] < 0
             ):
                 error["old_price"] = "please enter a valid price"
-            elif request.json["old_price"] <= request.json["price"]:
+            elif (
+                request.json["old_price"] > 0
+                and request.json["old_price"] <= item["price"]
+            ):
                 error["old_price"] = 'old price should be greater than price'
             else:
                 cur.execute("""
