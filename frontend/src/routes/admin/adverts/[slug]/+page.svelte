@@ -7,12 +7,13 @@
 	import Button from '$lib/button.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Advert from './advert.svelte';
-	import Placement from './place.svelte';
+	import Space from './space.svelte';
 
 	export let data;
 	let { advert } = data;
 	let { item } = data;
-	let { ad_space } = data;
+	let { sizes } = data;
+	let { spaces } = data;
 
 	$: if ($portal) {
 		if ($portal.type == 'advert') {
@@ -20,6 +21,16 @@
 		}
 		$portal = '';
 	}
+
+	let photo_length = (a) => {
+		let count = 0;
+		for (let x of sizes) {
+			if (a[`photo_${x}`]) {
+				count++;
+			}
+		}
+		return count;
+	};
 </script>
 
 <Meta title={item.name} description={item.name} image={item.photos[0]} />
@@ -40,11 +51,11 @@
 <Card>
 	<section class="block">
 		<div>
-			<Advert {item} {advert} />
+			<Advert {item} {advert} {sizes} {photo_length} />
 		</div>
 
 		<div>
-			<Placement {advert} {ad_space} />
+			<Space {advert} {spaces} disabled={photo_length(advert) == 0} />
 		</div>
 	</section>
 </Card>

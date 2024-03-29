@@ -6,20 +6,20 @@
 	import Check from '$lib/button.check.svelte';
 
 	export let advert;
-	export let ad_space;
+	export let spaces;
+	export let disabled;
 	let error = {};
 
-	let places = advert.placement;
+	$: s_spaces = advert.spaces;
 
 	const select = (_in) => {
-		if (!places.includes(_in)) {
-			places.push(_in);
-			places = places;
+		if (!s_spaces.includes(_in)) {
+			s_spaces.push(_in);
+			s_spaces = s_spaces;
 		} else {
-			places = places.filter((x) => x != _in);
+			s_spaces = s_spaces.filter((x) => x != _in);
 		}
 	};
-
 
 	const submit = async () => {
 		error = {};
@@ -30,7 +30,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ places })
+			body: JSON.stringify({ spaces: s_spaces })
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -42,7 +42,7 @@
 			};
 			$toast = {
 				status: 200,
-				message: 'Placement saved'
+				message: 'Spaces saved'
 			};
 		} else {
 			error = resp;
@@ -51,17 +51,18 @@
 </script>
 
 <div>
-	<div class="title">Placement</div>
+	<div class="title">Ads Spaces</div>
 
 	<br />
 
-	<div class="placements">
-		{#each ad_space as x}
+	<div class="spaces">
+		{#each spaces as x}
 			<Check
-				active={places.includes(x)}
+				active={s_spaces.includes(x)}
 				on:click={() => {
 					select(x);
 				}}
+				{disabled}
 			>
 				{x}
 			</Check>
@@ -77,11 +78,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={submit} 
-	>
-	<!-- disabled={available_sizes.length != 4} -->
-		Save Placement
-	</Button>
+	<Button class="primary" on:click={submit} {disabled}>Save Space</Button>
 </div>
 
 <style>
@@ -89,7 +86,7 @@
 		font-weight: 600;
 	}
 
-	.placements {
+	.spaces {
 		display: flex;
 		gap: var(--sp1);
 		flex-wrap: wrap;

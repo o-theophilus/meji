@@ -5,39 +5,38 @@
 	import Button from '$lib/button.svelte';
 
 	export let advert;
-	console.log(advert);
 	export let item;
+	export let sizes;
+	export let photo_length;
 	let input;
 	let dragover = false;
 	let error = {};
-	let def_size = '300x300';
-	let active_size = '300x300';
-	let sizes = ['300x300', '300x600', '600x300', '900x300'];
+	let active_size = sizes[0];
 
 	const remove_photo = async () => {
 		error = {};
 
 		$loading = 'removing . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/photo/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(active_size)
+			body: JSON.stringify({ size: active_size })
 		});
 		resp = await resp.json();
 		$loading = false;
 
 		if (resp.status == 200) {
-			active_size = def_size;
+			active_size = sizes[0];
 			$portal = {
 				type: 'advert',
 				data: resp.advert
 			};
 			$toast = {
 				status: 200,
-				message: available_sizes.length > 0 ? 'Photo deleted' : 'Advert Deleted'
+				message: photo_length(resp.advert) > 0 ? 'Photo deleted' : 'Advert Deleted'
 			};
 		} else {
 			error = resp;
@@ -48,7 +47,7 @@
 		error = {};
 
 		$loading = 'deleting . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_all/${advert.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${advert.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -59,7 +58,7 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			(active_size = def_size),
+			(active_size = sizes[0]),
 				($portal = {
 					type: 'advert',
 					data: resp.advert
@@ -91,6 +90,8 @@
 		let files = [];
 		error = {};
 
+		let new_pick = [];
+
 		for (let i = 0; i < input.files.length; i++) {
 			let file = input.files[i];
 			let [media, type] = file.type.split('/');
@@ -102,12 +103,15 @@
 			} else if (!sizes.includes(dim)) {
 				err = `${file.name} => invalid dimension`;
 			} else if (advert[`photo_${dim}`]) {
-				err = `${file.name} => already picked`;
+				err = `${file.name} => slot occupied`;
+			} else if (new_pick.includes(dim)) {
+				err = `${file.name} => slot picked`;
 			}
 
 			if (err) {
 				error.error = error.error ? `${error.error}, ${err}` : err;
 			} else {
+				new_pick.push(dim);
 				files.push(file);
 			}
 		}
@@ -134,7 +138,7 @@
 
 		if (resp.status == 200) {
 			if (!active_size.photo) {
-				active_size = def_size;
+				active_size = sizes[0];
 			}
 			$portal = {
 				type: 'advert',
@@ -159,20 +163,25 @@
 	alt={item.name}
 	onerror="this.src='/image/item.png'"
 	class:dragover
+	class:can_hover={photo_length(advert) < sizes.length}
 	on:click={() => {
-		input.click();
+		if (photo_length(advert) < sizes.length) {
+			input.click();
+		}
 	}}
 	on:dragover|preventDefault={() => {
-		dragover = true;
+		dragover = photo_length(advert) < sizes.length;
 	}}
 	on:dragleave|preventDefault={() => {
 		dragover = false;
 	}}
 	on:drop={(e) => {
 		dragover = false;
-		e.preventDefault();
-		input.files = e.dataTransfer.files;
-		on_input();
+		if (photo_length(advert) < sizes.length) {
+			e.preventDefault();
+			input.files = e.dataTransfer.files;
+			on_input();
+		}
 	}}
 	role="presentation"
 />
@@ -191,16 +200,16 @@
 <br />
 
 <div class="row">
-	{#each sizes as size}
+	{#each sizes as x}
 		<img
-			src={advert[`photo_${size}`] ? `${advert[`photo_${active_size}`]}/200` : '/image/item.png'}
-			alt="{item.name} {size}"
+			src={advert[`photo_${x}`] ? `${advert[`photo_${x}`]}/200` : '/image/item.png'}
+			alt="{item.name} {x}"
 			onerror="this.src='/image/item.png'"
 			on:click={() => {
 				error = {};
-				active_size = size;
+				active_size = x;
 			}}
-			class:active={active_size == size}
+			class:active={active_size == x}
 			role="presentation"
 		/>
 	{/each}
@@ -213,8 +222,8 @@
 		on:click={() => {
 			input.click();
 		}}
+		disabled={sizes.length == photo_length(advert)}
 	>
-		<!-- disabled={available_sizes.length >= 4} -->
 		Add
 	</Button>
 
@@ -224,8 +233,7 @@
 </div>
 <br />
 <div class="row">
-	<Button class="hover_red" on:click={delete_advert}>
-		<!-- disabled={available_sizes.length <= 0} -->
+	<Button class="hover_red" on:click={delete_advert} disabled={photo_length(advert) == 0}>
 		Delete Advert
 	</Button>
 </div>
@@ -246,7 +254,8 @@
 		transition: var(--trans1);
 	}
 
-	img:hover,
+	.row img:hover,
+	img:hover.can_hover,
 	img.dragover {
 		border-color: var(--cl1);
 		cursor: pointer;

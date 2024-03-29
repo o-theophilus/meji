@@ -12,7 +12,8 @@
 	$: adverts = data.adverts;
 	$: total_page = data.total_page;
 	let { page_name } = data;
-	let { ad_space } = data;
+	let { spaces } = data;
+	let { sizes } = data;
 </script>
 
 <Meta title="Adverts" description="Advert" />
@@ -28,11 +29,11 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={['all', ...ad_space]} default_value="all" />
+	<Status {page_name} array={['all', ...spaces]} default_value="all" />
 	<br />
 
 	{#each adverts as advert}
-		<Item {advert} />
+		<Item {advert} {sizes} />
 	{:else}
 		no item here
 	{/each}

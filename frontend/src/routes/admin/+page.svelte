@@ -48,6 +48,8 @@
 		<br />
 		[ - ] does going back restore token
 		<br />
+		[ - ] use version for financial ops
+		<br />
 		[ - ] pressing tab-key on login and signup form should skip the show password button
 		<br />
 		[ - ] shop tag should be a module, not dropdown

@@ -66,51 +66,16 @@ def send_mail(to, subject, body):
 
 
 def user_schema(user, saves=[], cart=[]):
-    return {
-        "key": user["key"],
-
-        "name": user["name"],
-        "email": user["email"],
-        "phone": user["phone"],
-
-        "address_line": user["address_line"],
-        "address_country": user["address_country"],
-        "address_state": user["address_state"],
-        "address_local_area": user["address_local_area"],
-        "address_postal_code": user["address_postal_code"],
-
-        "photo": (f"{request.host_url}photo/{user['photo']}"
-                  if user["photo"] else None),
-
-        "account_balance": user["account_balance"],
-
-        "setting_theme": user["setting_theme"],
-        "setting_item_view": user["setting_item_view"],
-
-        "roles": user["roles"],
-        "status": user["status"],
-        "login": user["login"],
-
-        "saves": saves,
-        "cart": cart
-    }
+    del user["version"]
+    del user["password"]
+    user["photo"] = (f"{request.host_url}photo/{user['photo']}"
+                     if user["photo"] else None)
+    user["saves"] = saves
+    user["cart"] = cart
+    return user
 
 
 def item_schema(item):
-    return {
-        "key": item["key"],
-        "status": item["status"],
-
-        "slug": item["slug"],
-        "name": item["name"],
-        "price": item["price"],
-        "old_price": item["old_price"],
-        "information": item["information"],
-
-
-        "photos": [f"{request.host_url}photo/{x}" for x in item["photos"]],
-        "variation": item["variation"],
-        "tags": item["tags"],
-
-        "ratings": item["ratings"]
-    }
+    del item["available_quantity"]
+    item["photos"] = [f"{request.host_url}photo/{x}" for x in item["photos"]]
+    return item

@@ -11,8 +11,29 @@ import json
 bp = Blueprint("advert", __name__)
 
 
-dimensions = ["300x300", "300x600", "600x300", "900x300"]
-ad_space = ['home_1', 'home_2', 'home_3', 'shop', 'save']
+sizes = ["300x300", "300x600", "600x300", "900x300"]
+spaces = ['home_1', 'home_2', 'home_3', 'shop', 'save']
+
+
+def advert_schema(advert):
+    advert["spaces"] = advert["placement"]
+    del advert["placement"]
+    for x in sizes:
+        n = f"photo_{x}"
+        if advert[n]:
+            advert[n] = f"{request.host_url}photo/{advert[n]}"
+    return advert
+
+
+def null_advert(key):
+    return {
+        "key": key,
+        "spaces": [],
+        "photo_300x300": None,
+        "photo_300x600": None,
+        "photo_600x300": None,
+        "photo_900x300": None
+    }
 
 
 @bp.post("/advert/<item_key>")
@@ -33,7 +54,7 @@ def add_photo(item_key):
         })
 
     cur.execute("""
-        SELECT * FROM item WHERE slug = %s or key = %s;
+        SELECT * FROM item WHERE slug = %s OR key = %s;
     """, (item_key, item_key))
     item = cur.fetchone()
 
@@ -55,6 +76,8 @@ def add_photo(item_key):
 
     error = ""
     log_misc = ""
+    new_pick = []
+
     for x in request.files.getlist("files"):
         media, format = x.content_type.split("/")
         dim = Image.open(x).size
@@ -63,10 +86,12 @@ def add_photo(item_key):
         err = ""
         if media != "image" or format in ['svg+xml', 'x-icon']:
             err = f"{x.filename} => invalid file"
-        elif dim not in dimensions:
+        elif dim not in sizes:
             err = f"{x.filename} => invalid dimension"
         elif advert[f"photo_{dim}"]:
-            err = f"{x.filename} => already picked"
+            err = f"{x.filename} => slot occupied"
+        elif dim in new_pick:
+            err = f"{x.filename} => slot picked"
 
         if err:
             error = f"{error}, {err}" if error else err
@@ -74,18 +99,13 @@ def add_photo(item_key):
             filename = storage(x)
             temp = f"{dim}: {filename}"
             log_misc = f"{log_misc}, {temp}" if log_misc else temp
+            new_pick.append(dim)
+
             cur.execute("""
                 UPDATE advert
                 SET photo_{} = %s
-                WHERE key = %s
-                RETURNING *;
+                WHERE key = %s;
             """.format(dim), (filename, item["key"]))
-            advert = cur.fetchone()
-
-            for x in dimensions:
-                n = f"photo_{x}"
-                if advert[n]:
-                    advert[n] = f"{request.host_url}photo/{advert[n]}"
 
     if not log_misc:
         return jsonify({
@@ -107,11 +127,18 @@ def add_photo(item_key):
         json.dumps({"photo": log_misc})
     ))
 
+    cur.execute("""
+        SELECT *
+        FROM advert
+        WHERE key = %s;
+    """, (item["key"],))
+    advert = cur.fetchone()
+
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "advert": advert,
+        "advert": advert_schema(advert),
         "error": error
     })
 
@@ -134,7 +161,7 @@ def get(item_key):
         })
 
     cur.execute("""
-        SELECT * FROM item WHERE slug = %s or key = %s;
+        SELECT * FROM item WHERE slug = %s OR key = %s;
     """, (item_key, item_key))
     item = cur.fetchone()
     if not item:
@@ -149,11 +176,6 @@ def get(item_key):
     advert = cur.fetchone()
 
     if advert:
-        for x in dimensions:
-            n = f"photo_{x}"
-            if advert[n]:
-                advert[n] = f"{request.host_url}photo/{advert[n]}"
-
         cur.execute("""
             INSERT INTO log (
                 key, date, user_key, action, entity_key, entity_type
@@ -166,53 +188,55 @@ def get(item_key):
             advert["key"],
             "advert"
         ))
-    else:
-        advert = {
-            "key": item["key"],
-            "placement": [],
-            "photo_300x300": None,
-            "photo_300x600": None,
-            "photo_600x300": None,
-            "photo_900x300": None
-        }
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "advert": advert,
+        "advert": advert_schema(advert) if advert else null_advert(
+            item["key"]),
         "item": item,
-        "ad_space": ad_space
+        "spaces": spaces,
+        "sizes": sizes
     })
 
 
+# TODO: if item.status not live
 @bp.get("/advert")
-def get_all_advert(placement=""):
+def get_all_advert(space=""):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    place = request.args["status"] if "status" in request.args else placement
+    space = request.args["status"] if "status" in request.args else space
 
     cur.execute("""
-        SELECT *, COUNT(*) OVER() AS total_items
+        SELECT
+            advert.*,
+            item.name AS name,
+            COALESCE(item.photos[1], NULL) AS photo,
+            COUNT(*) OVER() AS total_items
         FROM advert
-        WHERE %s = ANY(placement)
+        LEFT JOIN item ON advert.key = item.key
+        WHERE %s = '' OR %s = ANY(placement)
         LIMIT %s OFFSET %s;
     """, (
-        place,
+        space, space,
         page_size,
         (page_no - 1) * page_size
     ))
     adverts = cur.fetchall()
 
+    for x in adverts:
+        x["photo"] = f"{request.host_url}photo/{x['photo']}"
+
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        # "adverts": [advert_schema(x) for x in adverts],
-        "adverts": adverts,
-        "ad_space": ad_space,
+        "adverts": [advert_schema(x) for x in adverts],
+        "spaces": spaces,
+        "sizes": sizes,
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
     })
@@ -236,20 +260,18 @@ def delete_photo(item_key):
         })
 
     cur.execute("""
-        SELECT * FROM item WHERE slug = %s or key = %s;
-    """, (item_key,))
+        SELECT * FROM item WHERE slug = %s OR key = %s;
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     cur.execute("""
         SELECT * FROM advert WHERE key = %s;
-    """, (item["key"], item["key"]))
+    """, (item["key"],))
     advert = cur.fetchone()
 
     if (
         not item
         or not advert
-        or "photo" not in request.json
-        or not request.json["photo"]
         or "size" not in request.json
         or not request.json["size"]
     ):
@@ -259,17 +281,17 @@ def delete_photo(item_key):
         })
 
     dim = request.json["size"]
+    photo = advert[f"photo_{dim}"]
 
     if (
-        dim not in dimensions or
-        request.json["photo"].split("/")[-1] != advert[f"photos_{dim}"]
+        dim not in sizes or not photo
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    storage(advert[f"photos_{dim}"], delete=True)
+    storage(photo, delete=True)
 
     cur.execute(f"""
         UPDATE advert SET photo_{dim} = NULL
@@ -295,17 +317,17 @@ def delete_photo(item_key):
         datetime.now(),
         user["key"],
         "deleted_photo",
-        advert["key"],
+        item["key"],
         "advert",
-        json.dumps({f"{request.json['size']}: {request.json['photo']}"})
+        json.dumps({"photo": f"{photo} ({dim})"})
     ))
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        # "advert": advert_schema(advert) if advert else None,
-        "advert": advert,
+        "advert": advert_schema(advert) if advert else null_advert(
+            item["key"])
     })
 
 
@@ -327,13 +349,13 @@ def delete(item_key):
         })
 
     cur.execute("""
-        SELECT * FROM item WHERE slug = %s or key = %s;
-    """, (item_key,))
+        SELECT * FROM item WHERE slug = %s OR key = %s;
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     cur.execute("""
         SELECT * FROM advert WHERE key = %s;
-    """, (item["key"], item["key"]))
+    """, (item["key"],))
     advert = cur.fetchone()
 
     if not item or not advert:
@@ -343,11 +365,15 @@ def delete(item_key):
         })
 
     log_misc = ""
-    for x in dimensions:
-        if advert[f"photos_{x}"]:
-            temp = f"{x}: {advert[f'photos_{x}']}"
+    for x in sizes:
+        if advert[f"photo_{x}"]:
+            temp = f"{x}: {advert[f'photo_{x}']}"
             log_misc = f"{log_misc}, {temp}" if log_misc else temp
-            storage(advert[f"photos_{x}"], delete=True)
+            storage(advert[f"photo_{x}"], delete=True)
+
+    cur.execute("""
+        DELETE FROM advert WHERE key = %s;
+    """, (advert["key"],))
 
     cur.execute("""
         INSERT INTO log (
@@ -367,12 +393,12 @@ def delete(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": None
+        "advert": null_advert(item["key"])
     })
 
 
 @bp.put("/advert/<item_key>")
-def placement(item_key):
+def ad_spaces(item_key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -389,8 +415,8 @@ def placement(item_key):
         })
 
     cur.execute("""
-        SELECT * FROM item WHERE slug = %s or key = %s;
-    """, (item_key,))
+        SELECT * FROM item WHERE slug = %s OR key = %s;
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     cur.execute("""
@@ -405,21 +431,20 @@ def placement(item_key):
     if (
         not item
         or not advert
-        or "places" not in request.json
-        or type(request.json["places"]) is not list
-        or not all(y in ad_space for y in request.json["places"])
+        or "spaces" not in request.json
+        or type(request.json["spaces"]) is not list
+        or not all(y in spaces for y in request.json["spaces"])
     ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    for x in dimensions:
-        if not advert[f"photos_{x}"]:
-            return jsonify({
-                "status": 400,
-                "error": "invalid request"
-            })
+    if [x for x in sizes if advert[f"photo_{x}"]] == []:
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
     cur.execute("""
         INSERT INTO log (
@@ -429,12 +454,12 @@ def placement(item_key):
         uuid4().hex,
         datetime.now(),
         user["key"],
-        "changed_placement",
+        "changed_spaces",
         advert["key"],
         "advert",
         json.dumps({
-            "from": advert["places"],
-            "to": request.json["places"]
+            "from": advert["placement"],
+            "to": request.json["spaces"]
         })
     ))
 
@@ -443,13 +468,12 @@ def placement(item_key):
         SET placement = %s
         WHERE key = %s
         RETURNING *;
-    """, (request.json["places"], item["key"],))
+    """, (request.json["spaces"], item["key"],))
     advert = cur.fetchone()
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "advert": advert
-        # "advert": advert_schema(advert)
+        "advert": advert_schema(advert)
     })

@@ -36,7 +36,6 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
 
 item_table = """CREATE TABLE IF NOT EXISTS item (
     key CHAR(32) PRIMARY KEY,
-    version CHAR(32) NOT NULL,
     status VARCHAR(20) DEFAULT 'draft' NOT NULL,
 
     name VARCHAR(100) NOT NULL,
@@ -105,10 +104,8 @@ order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
 );"""
 
 
-# TODO: Remover version from non financial ops
 feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
     key CHAR(32) PRIMARY KEY,
-    version CHAR(32) NOT NULL,
 
     user_key CHAR(32) NOT NULL,
     item_key CHAR(32) NOT NULL,
@@ -121,11 +118,10 @@ feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
 );"""
 
 
-# TODO: change placement to location
 advert_table = """CREATE TABLE IF NOT EXISTS advert (
     key CHAR(32) PRIMARY KEY,
 
-    placement TEXT[] DEFAULT ARRAY[]::TEXT[],
+    spaces TEXT[] DEFAULT ARRAY[]::TEXT[],
     photo_300x300 VARCHAR(36),
     photo_300x600 VARCHAR(36),
     photo_600x300 VARCHAR(36),

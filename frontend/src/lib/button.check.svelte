@@ -1,11 +1,11 @@
 <script>
 	import Button from '$lib/button.svelte';
 	export let active = false;
+	export let disabled;
 </script>
 
-<!-- <Button class="{active ? 'primary' : ''} small" on:click> -->
-<Button class="small" on:click>
-	<input type="checkbox" checked={active} />
+<Button class="small" on:click {disabled}>
+	<input type="checkbox" checked={active} {disabled} />
 	<slot />
 </Button>
 
