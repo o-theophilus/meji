@@ -4,11 +4,12 @@
 
 	export let adverts = [];
 	export let size = '';
-	let use_size = '300x300';
+	let sizes = ['300x300', '300x600', '600x300', '900x300'];
+	let use_size = sizes[0];
 	let index = 0;
 	let width = 0;
 
-	$: if (['300x300', '300x600', '600x300', '900x300'].includes(size)) {
+	$: if (sizes.includes(size)) {
 		use_size = size;
 	} else if (width < 600) {
 		use_size = '300x300';
