@@ -203,24 +203,30 @@ def get(item_key):
 
 # TODO: if item.status not live
 @bp.get("/advert")
-def get_all_advert(space=""):
+def get_all_advert(space="", is_ready=False):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
     space = request.args["status"] if "status" in request.args else space
 
+    ready = ""
+    if is_ready:
+        for x in sizes:
+            ready = f"{ready} AND photo_{x} IS NOT NULL"
+
     cur.execute("""
         SELECT
             advert.*,
             item.name AS name,
+            item.slug AS slug,
             COALESCE(item.photos[1], NULL) AS photo,
             COUNT(*) OVER() AS total_items
         FROM advert
         LEFT JOIN item ON advert.key = item.key
-        WHERE %s = '' OR %s = ANY(placement)
+        WHERE %s = '' OR %s = ANY(placement) {}
         LIMIT %s OFFSET %s;
-    """, (
+    """.format(ready), (
         space, space,
         page_size,
         (page_no - 1) * page_size

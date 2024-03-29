@@ -54,7 +54,7 @@
 <Meta title="Home" description="Home" />
 
 <Hero />
-<!-- <Advert {adverts} /> -->
+<Advert {adverts} />
 <Tags />
 <Group name="New Arrivals" items={new_arrivals}>
 	<Button class="link small" href="/shop?sort=latest">more &gt;</Button>

@@ -3,7 +3,21 @@
 	let emit = createEventDispatcher();
 
 	export let count;
-	export let index = 0;
+	let index = 0;
+
+	const auto_scroll = () => {
+		index += 1;
+		if (index > count - 1) {
+			index = 0;
+		}
+		emit('ok', index);
+	};
+
+	let timer = setInterval(auto_scroll, 1000 * 5);
+	const reset_timer = () => {
+		clearInterval(timer);
+		timer = setInterval(auto_scroll, 1000 * 5);
+	};
 </script>
 
 {#if count > 1}
@@ -16,6 +30,7 @@
 				role="button"
 				tabindex="0"
 				on:click={() => {
+					reset_timer();
 					index = i;
 					emit('ok', i);
 				}}
@@ -26,14 +41,12 @@
 
 <style>
 	.control {
-		position: absolute;
-		bottom: 24px;
-
+		padding: 24px;
+		
 		display: flex;
 		gap: var(--sp1);
-		justify-content: center;
-
-		width: 100%;
+		
+		width: fit-content;
 	}
 
 	.btn {
@@ -43,14 +56,14 @@
 		height: var(--size);
 
 		border-radius: var(--size);
-
 		background-color: var(--cl1);
-
 		transition: var(--trans1);
+		
+		cursor: pointer;
 	}
-
+	
 	.btn:hover {
-		width: calc(var(--size) * 2.5);
+		background-color: var(--cl2);
 	}
 
 	.btn.active {

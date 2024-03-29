@@ -46,7 +46,10 @@ def get():
                 WHEN COUNT(feedback.*) = 0 THEN NULL
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
             END AS rating,
-            ARRAY_AGG(feedback.rating) AS ratings,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
             COUNT(*) OVER() AS total_items
         FROM (
             SELECT *,

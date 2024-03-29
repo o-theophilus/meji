@@ -1,26 +1,17 @@
 <script>
 	import SVG from '$lib/svg.svelte';
 
-	export let rating;
+	export let ratings = [];
 	export let href = '';
 
 	let sum = 0;
-	let count = 0;
 
-	$: if (typeof rating == 'object') {
-		sum = 0;
-		count = 0;
-
-		for (const x of Object.entries(rating)) {
-			sum += x[0] * x[1];
-			count += x[1];
-		}
-
-		sum = sum / count;
-		sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
-	} else {
-		sum = rating;
+	for (const x of ratings) {
+		sum += x[1];
 	}
+
+	sum /= ratings.length;
+	sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
 </script>
 
 {#if sum > 0}
@@ -33,8 +24,8 @@
 		<div>
 			{sum}
 			<SVG type="star" />
-			{#if count}
-				{count} rating{#if count > 1}s{/if}
+			{#if ratings.length > 0}
+				{ratings.length} rating{#if ratings.length > 1}s{/if}
 			{/if}
 		</div>
 	{/if}

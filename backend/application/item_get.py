@@ -175,7 +175,10 @@ def shop(
                 WHEN COUNT(feedback.*) = 0 THEN 0
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
             END AS rating,
-            ARRAY_AGG(feedback.rating) AS ratings,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
             COUNT(*) OVER() AS total_items
         FROM (
             SELECT *,
@@ -208,6 +211,7 @@ def shop(
         page_size, (page_no - 1) * page_size
     ))
     items = cur.fetchall()
+    print(items[0])
 
     db_close(con, cur)
 
@@ -225,7 +229,7 @@ def home():
         "tags": all_tags().json["tags"],
         "new_arrivals": shop(sort="latest", page_size=8).json["items"],
         "offers": shop(sort="discount", page_size=8).json["items"],
-        "adverts": get_all_advert("home_1").json["adverts"]
+        "adverts": get_all_advert("home_1", True).json["adverts"]
     })
 
 
