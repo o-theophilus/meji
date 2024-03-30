@@ -16,8 +16,6 @@ spaces = ['home_1', 'home_2', 'home_3', 'shop', 'save']
 
 
 def advert_schema(advert):
-    advert["spaces"] = advert["placement"]
-    del advert["placement"]
     for x in sizes:
         n = f"photo_{x}"
         if advert[n]:
@@ -224,7 +222,7 @@ def get_all_advert(space="", is_ready=False):
             COUNT(*) OVER() AS total_items
         FROM advert
         LEFT JOIN item ON advert.key = item.key
-        WHERE %s = '' OR %s = ANY(placement) {}
+        WHERE %s = '' OR %s = ANY(spaces) {}
         LIMIT %s OFFSET %s;
     """.format(ready), (
         space, space,
@@ -464,14 +462,14 @@ def ad_spaces(item_key):
         advert["key"],
         "advert",
         json.dumps({
-            "from": advert["placement"],
+            "from": advert["spaces"],
             "to": request.json["spaces"]
         })
     ))
 
     cur.execute("""
         UPDATE advert
-        SET placement = %s
+        SET spaces = %s
         WHERE key = %s
         RETURNING *;
     """, (request.json["spaces"], item["key"],))

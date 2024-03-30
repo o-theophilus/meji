@@ -56,7 +56,7 @@ def create():
     for x in range(request.json["quantity"]):
         voucher_key = uuid4().hex
         cur.execute("""
-            INSERT INTO voucher (key, version, batch, code, value)
+            INSERT INTO voucher (key, version, batch, pin, value)
             VALUES (%s, %s, %s, %s, %s);
         """, (
             voucher_key,
@@ -192,7 +192,7 @@ def get(key):
         })
 
     if "voucher:view_code" not in user["roles"]:
-        voucher["code"] = "#"
+        voucher["pin"] = "#"
 
     db_close(con, cur)
 
@@ -389,7 +389,7 @@ def use():
             "error": "this field is required"
         })
 
-    cur.execute('SELECT * FROM voucher WHERE code = %s;',
+    cur.execute('SELECT * FROM voucher WHERE pin = %s;',
                 (request.json["pin"].lower(),))
     voucher = cur.fetchone()
     if not voucher or len(request.json["pin"]) != 10:

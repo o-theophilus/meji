@@ -8,6 +8,7 @@
 
 	export let page_name;
 
+	// #TODO: get from backend
 	let actions = {
 		all: ['all'],
 		admin: ['all', 'manage_photo'],

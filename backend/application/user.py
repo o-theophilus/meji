@@ -266,7 +266,7 @@ def send_email_otp():
     key_2 = uuid4().hex
 
     cur.execute("""
-            INSERT INTO otp (key, user_key, code, email)
+            INSERT INTO otp (key, user_key, pin, email)
             VALUES (%s, %s, %s, %s), (%s, %s, %s, %s);
         """, (
         key_1,
@@ -356,7 +356,7 @@ def email():
                 log.action = 'requested'
             WHERE
                 otp.user = %s
-                AND otp.code = %s
+                AND otp.pin = %s
                 AND otp.email = %s;
         """, (
             user['key'],
@@ -383,7 +383,7 @@ def email():
                 log.action = 'requested'
             WHERE
                 otp.user = %s
-                AND otp.code = %s
+                AND otp.pin = %s
                 AND otp.email = %s;
         """, (
             user['key'],
@@ -466,7 +466,7 @@ def send_password_otp():
     key = uuid4().hex
 
     cur.execute("""
-            INSERT INTO otp (key, user_key, code, email)
+            INSERT INTO otp (key, user_key, pin, email)
             VALUES (%s, %s, %s, %s);
         """, (
         key,
@@ -551,7 +551,7 @@ def password():
                 log.action = 'requested'
             WHERE
                 otp.user = %s
-                AND otp.code = %s
+                AND otp.pin = %s
                 AND otp.email = %s;
         """, (
             user['key'],

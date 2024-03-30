@@ -71,11 +71,11 @@
 	<br />
 	<br />
 
-	<div class="code">
+	<div class="pin">
 		₦{voucher.value.toLocaleString()}
 		<br />
 
-		{voucher.code}{#if voucher.code == '#'}#########{/if}
+		{voucher.pin}{#if voucher.pin == '#'}#########{/if}
 	</div>
 
 	<br />
@@ -143,7 +143,7 @@
 		flex-wrap: wrap;
 	}
 
-	.code {
+	.pin {
 		font-size: large;
 		font-weight: 700;
 		text-transform: uppercase;

@@ -118,7 +118,6 @@ feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
 );"""
 
 
-# TODO: change placement space
 advert_table = """CREATE TABLE IF NOT EXISTS advert (
     key CHAR(32) PRIMARY KEY,
 
@@ -133,7 +132,6 @@ advert_table = """CREATE TABLE IF NOT EXISTS advert (
 
 
 # "status": inactive, active, used, deleted, expired
-# TODO: change code to pin
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
@@ -160,11 +158,12 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 );"""
 
 
+# TODO: change code to pin
 otp_table = """CREATE TABLE IF NOT EXISTS otp (
     key CHAR(32) PRIMARY KEY,
 
     user_key CHAR(32) NOT NULL,
-    code VARCHAR(10) NOT NULL,
+    pin VARCHAR(10) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
 
     FOREIGN KEY (user_key) REFERENCES "user"(key)
@@ -187,28 +186,36 @@ def db_close(con, cur):
 def create_table():
     con, cur = db_open()
 
-    cur.execute(f"""
-        DROP TABLE IF EXISTS "user" CASCADE;
-        DROP TABLE IF EXISTS item CASCADE;
-        DROP TABLE IF EXISTS save;
-        DROP TABLE IF EXISTS "order" CASCADE;
-        DROP TABLE IF EXISTS order_item;
-        DROP TABLE IF EXISTS feedback;
-        DROP TABLE IF EXISTS advert;
-        DROP TABLE IF EXISTS voucher;
-        DROP TABLE IF EXISTS log;
-        DROP TABLE IF EXISTS otp;
-        {user_table};
-        {item_table};
-        {save_table};
-        {order_table};
-        {order_item_table};
-        {feedback_table};
-        {advert_table};
-        {voucher_table};
-        {log_table};
-        {otp_table};
-    """)
+    # cur.execute(f"""
+    #     DROP TABLE IF EXISTS "user" CASCADE;
+    #     DROP TABLE IF EXISTS item CASCADE;
+    #     DROP TABLE IF EXISTS save;
+    #     DROP TABLE IF EXISTS "order" CASCADE;
+    #     DROP TABLE IF EXISTS order_item;
+    #     DROP TABLE IF EXISTS feedback;
+    #     DROP TABLE IF EXISTS advert;
+    #     DROP TABLE IF EXISTS voucher;
+    #     DROP TABLE IF EXISTS log;
+    #     DROP TABLE IF EXISTS otp;
+    #     {user_table};
+    #     {item_table};
+    #     {save_table};
+    #     {order_table};
+    #     {order_item_table};
+    #     {feedback_table};
+    #     {advert_table};
+    #     {voucher_table};
+    #     {log_table};
+    #     {otp_table};
+    # """)
+
+    # cur.execute("""
+    #     ALTER TABLE otp RENAME COLUMN code TO pin;
+    # """)
+
+    # cur.execute("""
+    #     ALTER TABLE otp DROP COLUMN date;
+    # """)
 
     db_close(con, cur)
 
