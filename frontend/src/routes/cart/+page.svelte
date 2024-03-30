@@ -42,7 +42,7 @@
 			if (items.length == 0) {
 				cart = null;
 			}
-		} else if ($portal.type == 'items_done') {
+		} else if ($portal.type == 'items_quantity') {
 			cart = $portal.data.cart;
 			items = $portal.data.items;
 		} else if ($portal.type == 'receiver') {
@@ -53,8 +53,8 @@
 			cart.state = $portal.data.state;
 			cart.local_area = $portal.data.local_area;
 			cart.postal_code = $portal.data.postal_code;
-		} else {
-			cart = $portal.data;
+		} else if ($portal.type == 'pay_account') {
+			cart.pay_account = $portal.data.pay_account;
 		}
 
 		$portal = '';

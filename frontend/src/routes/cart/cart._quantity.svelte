@@ -46,7 +46,7 @@
 			$user.cart = resp.user.cart;
 
 			$portal = {
-				type: 'items_done',
+				type: 'items_quantity',
 				data: {
 					cart: resp.cart,
 					items: resp.items

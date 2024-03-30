@@ -35,7 +35,7 @@ roles = {
     "voucher": [
         ['view', 1],
         ['add', 3],
-        ['view_code', 3],
+        ['view_code', 3],  # change to view_pin
         ['status', 3]
     ],
     "log": [

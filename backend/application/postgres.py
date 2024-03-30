@@ -118,6 +118,7 @@ feedback_table = """CREATE TABLE IF NOT EXISTS feedback (
 );"""
 
 
+# TODO: change placement space
 advert_table = """CREATE TABLE IF NOT EXISTS advert (
     key CHAR(32) PRIMARY KEY,
 
@@ -132,13 +133,14 @@ advert_table = """CREATE TABLE IF NOT EXISTS advert (
 
 
 # "status": inactive, active, used, deleted, expired
+# TODO: change code to pin
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
     batch CHAR(32),
     status VARCHAR(20) DEFAULT 'inactive' NOT NULL,
 
-    code VARCHAR(10) NOT NULL,
+    pin VARCHAR(10) NOT NULL,
     value FLOAT DEFAULT 0,
     validity TIMESTAMP
 );"""

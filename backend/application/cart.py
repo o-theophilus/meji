@@ -516,7 +516,7 @@ def account():
 
     cur.execute("""
         SELECT * FROM "order"
-        WHERE user_key = %s AND status = "cart";
+        WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
 
@@ -537,7 +537,7 @@ def account():
     elif request.json["amount"] > user["account_balance"]:
         error = "amount larger than available balance"
     elif request.json["amount"] > cart["cost_items"] + cart["cost_delivery"]:
-        error = "amount larger than total cost "
+        error = "amount larger than total cost"
     if error:
         return jsonify({
             "status": 400,
@@ -564,8 +564,8 @@ def account():
     cur.execute("""
         UPDATE "order"
         SET pay_account = %s
-        WHERE key = %s;
-        RETURNING *
+        WHERE key = %s
+        RETURNING *;
     """, (
         request.json["amount"],
         cart["key"]

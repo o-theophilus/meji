@@ -383,25 +383,23 @@ def use():
             "error": "invalid token"
         })
 
-    if "code" not in request.json or not request.json["code"]:
+    if "pin" not in request.json or not request.json["pin"]:
         return jsonify({
             "status": 400,
             "error": "this field is required"
         })
 
     cur.execute('SELECT * FROM voucher WHERE code = %s;',
-                (request.json["code"].lower(),))
+                (request.json["pin"].lower(),))
     voucher = cur.fetchone()
-    if not voucher or len(request.json["code"]) != 10:
+    if not voucher or len(request.json["pin"]) != 10:
         return jsonify({
             "status": 400,
-            "error": "invalid code"
+            "error": "invalid pin"
         })
 
     if (
         voucher["status"] != "active"
-        # or datetime.strptime(
-        #     f"{voucher['validity']}", '%Y-%m-%d').date() < date.today()
         or voucher['validity'].date() < date.today()
     ):
         error = f"voucher {voucher['status']}"

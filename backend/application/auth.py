@@ -358,6 +358,9 @@ def login():
                     x["key"]
                 ))
 
+        cur.execute("DELETE FROM save WHERE user_key = %s;",
+                    (out_user["key"],))
+
         out_items = []
         in_items = []
 
@@ -408,16 +411,27 @@ def login():
                     x["key"]
                 ))
 
-        cur.execute("DELETE FROM save WHERE user_key = %s;",
-                    (out_user["key"],))
+        cur.execute("""
+            UPDATE "order"
+            SET cost_items = (
+                SELECT SUM(order_item.quantity * item.price)
+                FROM order_item
+                LEFT JOIN item ON order_item.item_key = item.key
+                WHERE order_item.order_key = %s
+            )
+            WHERE key = %s;
+        """, (
+            in_cart["key"],
+            in_cart["key"]
+        ))
 
         # TODO: REMOVE:
         # DELETE 'FROM order_item WHERE order_key = %s' IF CASCADE WORKS
         if out_cart:
             cur.execute("""
+                DELETE FROM "order"
+                WHERE "order".key = %s AND "order".status = 'cart';
                 DELETE FROM order_item WHERE order_key = %s;
-                DELETE FROM "order" WHERE "order".key = %s
-                    AND "order".status = 'cart';
             """, (
                 out_cart["key"], out_cart["key"]
             ))

@@ -6,16 +6,16 @@
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
-	let code;
+	let pin;
 	let error = {};
 
 	const validate = async () => {
 		error = {};
 
-		if (!code) {
-			error = 'This field is required';
-		} else if (code.length != 10) {
-			error = 'invalid code';
+		if (!pin) {
+			error.pin = 'This field is required';
+		} else if (pin.length != 10) {
+			error.pin = 'invalid pin';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -29,7 +29,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ code })
+			body: JSON.stringify({ pin })
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -56,7 +56,14 @@
 		Add to your balance.
 	</svelte:fragment>
 
-	<IG name="voucher" {error} bind:value={code} type="text" placeholder="Your code here" />
+	<IG
+		label="voucher pin"
+		name="pin"
+		{error}
+		bind:value={pin}
+		type="text"
+		placeholder="Your pin here"
+	/>
 
 	{#if error.error}
 		<p class="error">

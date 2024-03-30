@@ -15,8 +15,8 @@
 
 		if (!Number(amount) && amount != 0) {
 			error.amount = 'invalid amount';
-		} else if (amount > $user.acc_balance) {
-			error.amount = `amount larger than available balance (₦${$user.acc_balance.toLocaleString()})`;
+		} else if (amount > $user.account_balance) {
+			error.amount = `amount larger than available balance (₦${$user.account_balance.toLocaleString()})`;
 		} else if (amount > pay) {
 			error.amount = `amount larger than total cost (₦${pay.toLocaleString()})`;
 		} else if (amount < 0) {
@@ -41,7 +41,7 @@
 
 		if (resp.status == 200) {
 			$portal = {
-				type: 'cart',
+				type: 'pay_account',
 				data: resp.cart
 			};
 			$module = '';
@@ -61,7 +61,7 @@
 		Enter amount to deduct from your account
 	</svelte:fragment>
 
-	Acc. Bal: ₦{$user.acc_balance.toLocaleString()}
+	Acc. Bal: ₦{$user.account_balance.toLocaleString()}
 
 	<br />
 
@@ -75,7 +75,7 @@
 		placeholder="Amount here"
 	/>
 
-	Remaining: ₦{($user.acc_balance - amount).toLocaleString()}
+	Remaining: ₦{($user.account_balance - amount).toLocaleString()}
 
 	<br />
 	<br />
