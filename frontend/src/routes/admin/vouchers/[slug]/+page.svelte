@@ -10,23 +10,25 @@
 	import Activate from './_activate.svelte';
 	import Back from '$lib/button.back.svelte';
 
-	let error = {};
 	export let data;
 	let { voucher } = data;
+	let error = {};
+
 	$: if ($portal && $portal.type == 'voucher') {
 		voucher = $portal.data;
 		$portal = '';
 	}
 
-	const submit = async (method, url) => {
+	const submit = async (status) => {
 		error = {};
-		$loading = `${method == 'delete' ? 'deleting' : 'deactivating'} . . .`;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/${url}/${voucher.key}`, {
-			method: method,
+		$loading = `${status == 'delete' ? 'deleting' : 'deactivating'} . . .`;
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/status/${voucher.key}`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
-			}
+			},
+			body: JSON.stringify({ status })
 		});
 
 		resp = await resp.json();
@@ -59,7 +61,7 @@
 
 <Card>
 	<span class="date">
-		{voucher.date.split('T').join(' ')}
+		{voucher.date}
 	</span>
 
 	<br />
@@ -104,7 +106,7 @@
 				</Button>
 				<Button
 					on:click={() => {
-						submit('delete', 'voucher');
+						submit('delete');
 					}}
 				>
 					delete
@@ -112,7 +114,7 @@
 			{:else if voucher.status == 'active'}
 				<Button
 					on:click={() => {
-						submit('put', 'voucher_');
+						submit('deactivate');
 					}}
 				>
 					deactivate

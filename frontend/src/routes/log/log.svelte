@@ -54,7 +54,7 @@
 		{log.entity_type}
 	{/if}
 
-	{#if !['auth', 'user', 'otp'].includes(log.entity_type)}
+	{#if !['auth', 'user', 'cart', 'otp'].includes(log.entity_type)}
 		<a data-sveltekit-preload-data="off" {href}>
 			{log.entity_name}
 		</a>
@@ -70,9 +70,9 @@
 
 	{#if log.misc}
 		<br />
-		{#each Object.entries(log.misc) as [key, value], i}
-			{#if i != 0},{/if}
+		{#each Object.entries(log.misc) as [key, value]}
 			{key}: {value}
+			<br />
 		{/each}
 	{/if}
 </section>

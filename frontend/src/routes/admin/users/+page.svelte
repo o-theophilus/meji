@@ -19,7 +19,7 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 
-	let status = ['all', 'confirmed', 'signedup', 'anonymous'];
+	let status = ['all', 'anonymous', 'signedup', 'confirmed'];
 	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
 
 	let search = '';

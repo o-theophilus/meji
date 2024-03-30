@@ -4,7 +4,7 @@ import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/admin_users`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/admin/user`)
 	let page_name = "admin_users"
 	if (url.search) {
 		let temp = get(state)

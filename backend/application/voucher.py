@@ -9,17 +9,6 @@ import json
 bp = Blueprint("voucher", __name__)
 
 
-def voucher_schema(voucher):
-    return {
-        "key": voucher["key"],
-        "code": voucher["code"],
-        "date": voucher["date_c"],
-        "value": voucher["value"],
-        "validity": voucher["validity"],
-        "status": voucher["status"],
-    }
-
-
 @bp.post("/voucher")
 def create():
     con, cur = db_open()
@@ -118,38 +107,44 @@ def get_many():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
+    sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["page_size"]
                     ) if "page_size" in request.args else 24
-    sort_order = "DESC" if True else "ASC"
-    sort_by = "date"
+
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'high_value': 'voucher.value',
+        'low_value': 'voucher.value'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'high_value': 'DESC',
+        'low_value': 'ASC'
+    }
 
     cur.execute("""
-        SELECT voucher.*, COUNT(*) OVER() AS total_items
+        SELECT
+            voucher.*,
+            log.date AS date,
+            COUNT(*) OVER() AS total_items
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
             AND log.action = 'created'
             AND log.entity_type = 'voucher'
-        WHERE voucher.status = %s AND voucher.key ILIKE %s
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN 'high_value' THEN voucher.value
-                WHEN 'low_value' THEN voucher.value
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "high_value" THEN ASC
-                ELSE DESC
-            END
+        WHERE
+            (%s = '' OR voucher.status = %s)
+            AND (%s = '' OR voucher.key ILIKE %s)
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
-        status,
-        f'%{search}%',
-        sort_order,
-        sort_by,
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
+        status, status,
+        search, f'%{search}%',
         page_size,
         (page_no - 1) * page_size
     ))
@@ -159,7 +154,7 @@ def get_many():
 
     return {
         "status": 200,
-        "vouchers": [voucher_schema(x) for x in vouchers],
+        "vouchers": vouchers,
         "total_page": ceil(vouchers[0][
             "total_items"] / page_size) if vouchers else 0
     }
@@ -181,7 +176,14 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
+    cur.execute("""
+        SELECT voucher.*, log.date AS date
+        FROM voucher
+        LEFT JOIN log ON voucher.key = log.entity_key
+            AND log.action = 'created'
+            AND log.entity_type = 'voucher'
+        WHERE voucher.key = %s;
+    """, (key,))
     voucher = cur.fetchone()
     if not voucher:
         return jsonify({
@@ -196,11 +198,11 @@ def get(key):
 
     return jsonify({
         "status": 200,
-        "voucher": voucher_schema(voucher),
+        "voucher": voucher,
     })
 
 
-@ bp.put("/voucher/<key>")
+@ bp.put("/voucher/activate/<key>")
 def activate(key):
     con, cur = db_open()
 
@@ -252,14 +254,23 @@ def activate(key):
         })
 
     cur.execute("""
-            UPDATE voucher
-            SET status = %s, validity = %s
-            WHERE key = %s;
-        """, (
-        "active",
+        UPDATE voucher
+        SET status = 'active', validity = %s
+        WHERE key = %s;
+    """, (
         validity,
         voucher["key"]
     ))
+
+    cur.execute("""
+        SELECT voucher.*, log.date AS date
+        FROM voucher
+        LEFT JOIN log ON voucher.key = log.entity_key
+            AND log.action = 'created'
+            AND log.entity_type = 'voucher'
+        WHERE voucher.key = %s;
+    """, (voucher["key"],))
+    voucher = cur.fetchone()
 
     cur.execute("""
         INSERT INTO log (
@@ -279,12 +290,12 @@ def activate(key):
 
     return jsonify({
         "status": 200,
-        "voucher": voucher_schema(voucher)
+        "voucher": voucher
     })
 
 
-@ bp.put("/voucher/deactivate/<key>")
-def deactivate(key):
+@ bp.put("/voucher/status/<key>")
+def status(key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -302,21 +313,43 @@ def deactivate(key):
 
     cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
     voucher = cur.fetchone()
-    if not voucher or voucher["status"] != "active":
+
+    if (
+        not voucher
+        or "status" not in request.json
+        or request.json["status"] not in ["deactivate", "delete"]
+        or (
+            request.json["status"] == "deactivate"
+            and voucher["status"] != "active"
+        )
+        or (
+            request.json["status"] == "delete"
+            and voucher["status"] != "inactive"
+        )
+    ):
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     cur.execute("""
-            UPDATE voucher
-            SET status = %s, validity = %s
-            WHERE key = %s;
-        """, (
-        "inactive",
-        None,
+        UPDATE voucher
+        SET status = %s, validity = NULL
+        WHERE key = %s;
+    """, (
+        "deleted" if request.json["status"] == "delete" else "inactive",
         voucher["key"]
     ))
+
+    cur.execute("""
+        SELECT voucher.*, log.date AS date
+        FROM voucher
+        LEFT JOIN log ON voucher.key = log.entity_key
+            AND log.action = 'created'
+            AND log.entity_type = 'voucher'
+        WHERE voucher.key = %s;
+    """, (voucher["key"],))
+    voucher = cur.fetchone()
 
     cur.execute("""
         INSERT INTO log (
@@ -335,63 +368,7 @@ def deactivate(key):
 
     return jsonify({
         "status": 200,
-        "voucher": voucher_schema(voucher)
-    })
-
-
-@ bp.delete("/voucher/<key>")
-def delete(key):
-    con, cur = db_open()
-
-    user = token_to_user(cur)
-    if not user:
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    if "voucher:status" not in user["roles"]:
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
-    voucher = cur.fetchone()
-    if not voucher or voucher["status"] != "inactive":
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute("""
-            UPDATE voucher
-            SET status = %s, validity = %s
-            WHERE key = %s;
-        """, (
-        "deleted",
-        None,
-        voucher["key"]
-    ))
-
-    cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type
-    ) VALUES (%s, %s, %s, %s, %s, %s);
-""", (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deleted",
-        voucher["key"],
-        "voucher"
-    ))
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "voucher": voucher_schema(voucher)
+        "voucher": voucher
     })
 
 
@@ -423,8 +400,9 @@ def use():
 
     if (
         voucher["status"] != "active"
-        or datetime.strptime(
-            voucher["validity"], '%Y-%m-%d').date() < date.today()
+        # or datetime.strptime(
+        #     f"{voucher['validity']}", '%Y-%m-%d').date() < date.today()
+        or voucher['validity'].date() < date.today()
     ):
         error = f"voucher {voucher['status']}"
 
@@ -451,9 +429,9 @@ def use():
 
     cur.execute("""
     INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -462,30 +440,27 @@ def use():
         "voucher",
         json.dumps({
             "value": voucher["value"],
-            "balance": user["acc_balance"],
-            "new_balance": user["acc_balance"] + voucher["value"]
+            "balance": user["account_balance"],
+            "new_balance": user["account_balance"] + voucher["value"]
         })
     ))
 
     cur.execute("""
-            UPDATE "user"
-            SET acc_balance = %s
-            WHERE key = %s
-            RETURNING *;
-        """, (
-        user["acc_balance"] + voucher["value"],
-        voucher["key"]
-    ))
-    user = cur.fetchone()
+        UPDATE voucher
+        SET status = 'used'
+        WHERE key = %s;
+    """, (voucher["key"],))
 
     cur.execute("""
-            UPDATE voucher
-            SET status = %s
-            WHERE key = %s;
-        """, (
-        "used",
-        voucher["key"]
+        UPDATE "user"
+        SET account_balance = "user".account_balance + %s
+        WHERE key = %s
+        RETURNING *;
+    """, (
+        voucher["value"],
+        user["key"]
     ))
+    user = cur.fetchone()
 
     db_close(con, cur)
 

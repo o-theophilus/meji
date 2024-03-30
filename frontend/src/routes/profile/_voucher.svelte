@@ -23,7 +23,7 @@
 
 	const submit = async () => {
 		$loading = 'adding . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/use_voucher`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/use`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

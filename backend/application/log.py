@@ -41,23 +41,15 @@ def get():
         SELECT
             log.*,
             "user".name AS user_name,
-            COALESCE(usr.name, item.name, "order".key, voucher.key,
-                advert.key) AS entity_name,
+            COALESCE(usr.name, item.name, log.entity_key
+            ) AS entity_name,
             COUNT(*) OVER() AS total_items
         FROM log
         LEFT JOIN "user" ON log.user_key = "user".key
         LEFT JOIN "user" usr ON log.entity_type = 'admin'
             AND log.entity_key = usr.key
-        LEFT JOIN item ON log.entity_type = 'item'
-            AND log.entity_key = item.key
-        LEFT JOIN "order" ON (log.entity_type = 'order'
-            OR log.entity_type = 'cart') AND log.entity_key = "order".key
-        LEFT JOIN voucher ON log.entity_type = 'voucher'
-            AND log.entity_key = voucher.key
-        LEFT JOIN advert ON log.entity_type = 'advert'
-            AND log.entity_key = advert.key
-        LEFT JOIN otp ON log.entity_type = 'otp'
-            AND log.entity_key = otp.key
+        LEFT JOIN item ON log.entity_key = item.key
+            AND (log.entity_type = 'item' OR log.entity_type = 'advert')
         WHERE
             (%s = 'all' OR CONCAT_WS(
                 ', ', log.user_key, "user".name, "user".email
@@ -65,7 +57,7 @@ def get():
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
             AND (%s = 'all' OR CONCAT_WS(
-                ', ', log.entity_key, "user".name, "user".email, item.name
+                ', ', log.entity_key, usr.name, usr.email, item.name
             ) ILIKE %s)
         ORDER BY log.date DESC
         LIMIT %s OFFSET %s;

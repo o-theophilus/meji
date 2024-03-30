@@ -378,10 +378,10 @@ def add_photos(key):
     item = cur.fetchone()
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -408,7 +408,7 @@ def order_photo(key):
 
     con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -439,9 +439,9 @@ def order_photo(key):
 
     cur.execute("""
     INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -489,7 +489,7 @@ def delete_photo(key):
 
     con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -553,10 +553,10 @@ def delete_photo(key):
     item = cur.fetchone()
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],

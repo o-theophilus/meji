@@ -26,8 +26,8 @@
 	const submit = async () => {
 		error = {};
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_role/${$module.key}`, {
-			method: 'post',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/role/${$module.key}`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token

@@ -22,6 +22,7 @@
 
 	export let data;
 	$: user = data.user;
+	let { roles } = data;
 
 	let edit_mode = false;
 	let page_name = 'profile';
@@ -274,7 +275,7 @@
 </Card>
 
 {#if user && user.key != $me.key && user.status == 'confirmed' && $me.roles.includes('user:set_role')}
-	<Role {user} />
+	<Role {user} {roles} />
 {/if}
 
 <style>

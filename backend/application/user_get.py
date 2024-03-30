@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from .tools import token_to_user, user_schema
 from math import ceil
 from .postgres import db_close, db_open
+from .admin import roles
 
 
 bp = Blueprint("user_get", __name__)
@@ -54,7 +55,8 @@ def get():
 
     return jsonify({
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user),
+        "roles": roles
     })
 
 
@@ -77,46 +79,49 @@ def get_many():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
-    sort_by = request.args["sort"] if "sort" in request.args else "latest"
+    sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
 
-    sort_order = "DESC" if sort_by in ["latest", "name (z-a)"] else "ASC"
-    if sort_by in ["latest", "oldest"]:
-        sort_by = "date"
-    elif sort_by in ["name (a-z)", "name (z-a)"]:
-        sort_by = "name"
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'name (a-z)': '"user".name',
+        'name (z-a)': '"user".name'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
+    }
 
     cur.execute("""
-        SELECT user.*, log.date AS date, COUNT(*) OVER() AS total_items
+        SELECT
+            "user".*,
+            log.date AS date,
+            COUNT(*) OVER() AS total_items
         FROM "user"
-        LEFT JOIN log ON user.key = log.user_key
+        LEFT JOIN log ON "user".key = log.user_key
             AND log.action = 'created'
             AND log.entity_type = 'auth'
         WHERE
-            status = %s
-            AND CONCAT_WS(', ', user.key, user.name, user.email) ILIKE %s
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN user.name
-                WHEN "name (z-a)" THEN user.name
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "name (a-z)" THEN ASC
-                ELSE DESC
-            END
+            (
+                %s = '' OR "user".status = %s
+            ) AND (
+                %s = ''
+                OR CONCAT_WS(', ', "user".key, "user".name, "user".email
+                ) ILIKE %s
+            )
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
-        status,
-        f"%{search}%",
-        sort_by,
-        sort_order,
-        page_size,
-        (page_no - 1) * page_size
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
+        status, status,
+        search, f"%{search}%",
+        page_size, (page_no - 1) * page_size
     ))
     users = cur.fetchall()
 

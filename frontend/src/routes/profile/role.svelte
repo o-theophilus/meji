@@ -10,68 +10,20 @@
 	import Role_Ok from './role._ok.svelte';
 
 	export let user;
+	export let roles;
 	let user_roles = [...user.roles];
 	let open = true;
 
-	let roles = {
-		admin: {
-			level_1: [],
-			level_2: ['manage_photo'],
-			level_3: []
-		},
-		user: {
-			level_1: ['view'],
-			level_2: ['view_balance'],
-			level_3: ['set_role']
-		},
-		item: {
-			level_1: [],
-			level_2: [
-				'add',
-				'edit_photo',
-				'advert',
-				'edit_status',
-				'edit_name',
-				'edit_tag',
-				'edit_price',
-				'edit_info',
-				'edit_variation'
-			],
-			level_3: []
-		},
-		voucher: {
-			level_1: ['view'],
-			level_2: [],
-			level_3: ['add', 'view_code', 'status']
-		},
-		log: {
-			level_1: ['view'],
-			level_2: [],
-			level_3: []
-		},
-		order: {
-			level_1: ['view'],
-			level_2: ['edit_eta', 'status', 'cancel'],
-			level_3: []
-		}
-	};
-
-	const select_group = (_in = '', _group = '') => {
+	const select_group = (_in) => {
 		let group = [];
-		for (const [_cate, _levels] of Object.entries(roles)) {
-			for (const [_level, _roles] of Object.entries(_levels)) {
-				if (_group == 'level' && _level == _in) {
-					for (const _role of _roles) {
-						group.push(`${_cate}:${_role}`);
-					}
-				} else if (_group == 'cate' && _cate == _in) {
-					for (const _role of _roles) {
-						group.push(`${_cate}:${_role}`);
-					}
-				} else if (!_group && !_in) {
-					for (const _role of _roles) {
-						group.push(`${_cate}:${_role}`);
-					}
+		for (const [name, r0les] of Object.entries(roles)) {
+			for (const x of r0les) {
+				if (_in == name) {
+					group.push(`${name}:${x[0]}`);
+				} else if (_in == x[1]) {
+					group.push(`${name}:${x[0]}`);
+				} else if (!_in) {
+					group.push(`${name}:${x[0]}`);
 				}
 			}
 		}
@@ -131,41 +83,44 @@
 				</Button>
 			</span>
 
-			{#each ['level_1', 'level_2', 'level_3'] as level}
+			{#each [1, 2, 3] as x}
 				<span>
 					<Button
 						class="link small"
 						on:click={() => {
-							select_group(level, 'level');
+							select_group(x);
 						}}
 					>
-						{level.split('_').join(' ')}
+						Level {x}
 					</Button>
 				</span>
 			{/each}
 
-			{#each Object.entries(roles) as [cate, levels]}
+			{#each Object.entries(roles) as [name, r0les]}
 				<span>
 					<Button
 						class="link small"
 						on:click={() => {
-							select_group(cate, 'cate');
+							select_group(name);
 						}}
 					>
-						{cate}
+						{name}
 					</Button>
 				</span>
-				{#each Object.entries(levels) as [level, roles]}
+
+				{#each [1, 2, 3] as x}
 					<span>
-						{#each roles as role}
-							<Check
-								active={user_roles.includes(`${cate}:${role}`)}
-								on:click={() => {
-									select(`${cate}:${role}`);
-								}}
-							>
-								{role.split('_').join(' ')}
-							</Check>
+						{#each r0les as role}
+							{#if role[1] == x}
+								<Check
+									active={user_roles.includes(`${name}:${role[0]}`)}
+									on:click={() => {
+										select(`${name}:${role[0]}`);
+									}}
+								>
+									{role[0].split('_').join(' ')}
+								</Check>
+							{/if}
 						{/each}
 					</span>
 				{/each}
@@ -182,8 +137,10 @@
 					key: user.key,
 					roles: user_roles
 				};
-			}}>Ok</Button
+			}}
 		>
+			Ok
+		</Button>
 	{/if}
 </Card>
 

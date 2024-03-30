@@ -12,14 +12,51 @@ import json
 bp = Blueprint("admin", __name__)
 
 
+roles = {
+    "admin": [
+        ['manage_photo', 2]
+    ],
+    "user": [
+        ['view', 1],
+        ['view_balance', 2],
+        ['set_role', 3]
+    ],
+    "item": [
+        ['add', 2],
+        ['edit_photo', 2],
+        ['advert', 2],
+        ['edit_status', 2],
+        ['edit_name', 2],
+        ['edit_tag', 2],
+        ['edit_price', 2],
+        ['edit_info', 2],
+        ['edit_variation', 2]
+    ],
+    "voucher": [
+        ['view', 1],
+        ['add', 3],
+        ['view_code', 3],
+        ['status', 3]
+    ],
+    "log": [
+        ['view', 1]
+    ],
+    "order": [
+        ['view', 1],
+        ['edit_eta', 2],
+        ['status', 2],
+        ['cancel', 2]
+    ]
+}
+
+
 @bp.get("/admin/init")
-def admin():
+def get():
     con, cur = db_open()
     email = os.environ["MAIL_USERNAME"]
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
-    user = cur.fetchone()
-    if not user:
+    if not cur.fetchone():
         cur.execute("""
                 INSERT INTO "user" ( key, version, status, name, email,
                     password, roles)
@@ -29,32 +66,10 @@ def admin():
             uuid4().hex,
             "confirmed",
             "Meji Admin",
-            email, generate_password_hash(
+            email,
+            generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [
-                "admin:manage_photo",
-                "user:view",
-                "user:view_balance",
-                "user:set_role",
-                "item:add",
-                "item:edit_photo",
-                "item:advert",
-                "item:edit_status",
-                "item:edit_name",
-                "item:edit_tag",
-                "item:edit_price",
-                "item:edit_info",
-                "item:edit_variation",
-                "voucher:view",
-                "voucher:add",
-                "voucher:view_code",
-                "voucher:status",
-                "log:view",
-                "order:view",
-                "order:edit_eta",
-                "order:status",
-                "order:cancel"
-            ]
+            [f"{x}:{y[0]}" for x in roles for y in roles[x]]
         ))
 
     db_close(con, cur)
@@ -65,7 +80,7 @@ def admin():
 
 
 @bp.get("/admin/user")
-def admin_users():
+def get_many():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -75,10 +90,9 @@ def admin_users():
             "error": "invalid token"
         })
 
+    sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    sort_order = "DESC" if True else "ASC"
-    sort_by = "date"
 
     search = "all:all:all"
     if "search" in request.args:
@@ -96,43 +110,45 @@ def admin_users():
     if "user:view" not in user["roles"]:
         user_key = user["key"]
 
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'name (a-z)': '"user".name',
+        'name (z-a)': '"user".name'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
+    }
+
     cur.execute("""
-        SELECT user.*, COUNT(*) OVER() AS total_items
+        SELECT
+            "user".*,
+            COUNT(*) OVER() AS total_items
         FROM "user"
-        LEFT JOIN log ON user.key = log.user_key
+        LEFT JOIN log ON "user".key = log.user_key
             AND log.action = 'created'
             AND log.entity_type = 'auth'
         WHERE
-            (length(user.roles) > 0)
+            array_length("user".roles, 1) IS NOT NULL
             AND (%s = 'all'
-                OR CONCAT_WS(', ', user.key, user.name, user.email) ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(user.roles, ',') ILIKE %s)
-        ORDER BY
-            CASE %s
-                WHEN 'latest' THEN log.date
-                WHEN 'oldest' THEN log.date
-                WHEN "name (a-z)" THEN user.name
-                WHEN "name (z-a)" THEN user.name
-                ELSE log.date
-            END,
-            CASE %s
-                WHEN 'oldest' THEN ASC
-                WHEN "name (a-z)" THEN ASC
-                ELSE DESC
-            END
+                OR CONCAT_WS(', ', "user".key, "user".name, "user".email)
+                ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".roles, ',') ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".roles, ',') ILIKE %s)
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """, (
+    """.format(
+        order_by[sort], order_dir[sort]
+    ), (
         user_key, f"%{user_key}%",
         role_type, f"%{role_type}:%",
         role_action, f"%{role_type}:{role_action}%",
-        sort_order,
-        sort_by,
-        page_size,
-        (page_no - 1) * page_size
+        page_size, (page_no - 1) * page_size
     ))
-    users = cur.fetchall()
-
     users = cur.fetchall()
 
     db_close(con, cur)
@@ -145,7 +161,7 @@ def admin_users():
 
 
 @bp.put("/admin/role/<key>")
-def user_role(key):
+def role(key):
     con, cur = db_open()
 
     me = token_to_user(cur)

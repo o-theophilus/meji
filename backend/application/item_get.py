@@ -211,7 +211,6 @@ def shop(
         page_size, (page_no - 1) * page_size
     ))
     items = cur.fetchall()
-    print(items[0])
 
     db_close(con, cur)
 

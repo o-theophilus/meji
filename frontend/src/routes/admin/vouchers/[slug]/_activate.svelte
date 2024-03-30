@@ -24,7 +24,7 @@
 	let voucher = { ...$module.voucher };
 	let error = {};
 
-	const validate = async () => {
+	const validate = () => {
 		error = {};
 
 		if (!form.validity) {
@@ -38,7 +38,7 @@
 
 	const submit = async () => {
 		$loading = 'activating . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/${voucher.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/activate/${voucher.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -54,6 +54,7 @@
 				type: 'voucher',
 				data: resp.voucher
 			};
+			console.log(resp.voucher);
 			$module = '';
 			$toast = {
 				status: 200,

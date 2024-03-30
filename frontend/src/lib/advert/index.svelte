@@ -27,11 +27,25 @@
 		<section>
 			<div class="ads" bind:offsetWidth={width}>
 				<div class="scroller" style:left="-{left}px">
+					<!-- <a href="/{adverts[adverts.length - 1].slug}">
+						<img
+							src={adverts[adverts.length - 1][`photo_${use_size}`]}
+							alt={adverts[adverts.length - 1].name}
+							style:width="{width}px"
+						/>
+					</a> -->
 					{#each adverts as x}
 						<a href="/{x.slug}">
 							<img src={x[`photo_${use_size}`]} alt={x.name} style:width="{width}px" />
 						</a>
 					{/each}
+					<!-- <a href="/{adverts[0].slug}">
+						<img
+							src={adverts[0][`photo_${use_size}`]}
+							alt={adverts[0].name}
+							style:width="{width}px"
+						/>
+					</a> -->
 				</div>
 			</div>
 
@@ -75,7 +89,7 @@
 		position: relative;
 
 		transition-property: left;
-		transition-duration: 0s;
+		transition-duration: 0ms;
 		transition-timing-function: ease-in-out;
 	}
 

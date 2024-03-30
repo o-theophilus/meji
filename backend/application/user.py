@@ -464,9 +464,9 @@ def send_password_otp():
 
     cur.execute("""
     INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -552,10 +552,10 @@ def password():
         })
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type
-    ) VALUES (%s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -625,10 +625,10 @@ def delete():
     anon_user = cur.fetchone()
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type
-    ) VALUES (%s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],

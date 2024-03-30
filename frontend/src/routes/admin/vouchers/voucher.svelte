@@ -1,10 +1,11 @@
 <script>
 	export let voucher;
+	console.log(voucher);
 </script>
 
 <a href="/admin/vouchers/{voucher.key}">
 	<span class="date">
-		{voucher.date.split('T').join(' ')}
+		{voucher.date}
 	</span>
 	<br />
 	<div class="name">

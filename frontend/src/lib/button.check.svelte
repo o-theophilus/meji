@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/button.svelte';
 	export let active = false;
-	export let disabled;
+	export let disabled = false;
 </script>
 
 <Button class="small" on:click {disabled}>

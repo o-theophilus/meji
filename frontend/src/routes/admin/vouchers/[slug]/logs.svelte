@@ -15,7 +15,7 @@
 
 	onMount(async () => {
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/logs?search=all:voucher:all:${voucher_key}&size=100`,
+			`${import.meta.env.VITE_BACKEND}/log?search=all:voucher:all:${voucher_key}&page_size=10`,
 			{
 				method: 'get',
 				headers: {
