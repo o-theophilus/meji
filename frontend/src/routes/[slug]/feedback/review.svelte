@@ -22,7 +22,7 @@
 				</span>
 				<br />
 				<span class="date">
-					{feedback.date.split("T").join(" ")}
+					{feedback.date.split('T').join(' ')}
 				</span>
 			</div>
 			<Rating rating={feedback.rating} />
@@ -55,7 +55,7 @@
 		padding: var(--sp2) 0;
 		border-bottom: 1px solid var(--ac4);
 	}
-	
+
 	img {
 		--size: 40px;
 		width: var(--size);
@@ -75,10 +75,10 @@
 		gap: var(--sp2);
 	}
 	.name {
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--ac1);
 	}
-	
+
 	.date {
 		font-size: smaller;
 		color: var(--ac3);

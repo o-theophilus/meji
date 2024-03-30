@@ -36,8 +36,6 @@
 
 		TODO:
 		<br />
-		[ - ] Change font to mullins
-		<br />
 		[ - ] shop tag should be a module, not dropdown
 		<br />
 		<br />

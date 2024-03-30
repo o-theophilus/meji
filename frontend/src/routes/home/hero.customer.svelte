@@ -10,6 +10,7 @@
 	.customers {
 		display: flex;
 		flex-direction: column;
+		gap: var(--sp0);
 
 		background-color: var(--secondary);
 		padding: var(--sp1);
@@ -17,7 +18,7 @@
 		color: var(--ac6_);
 
 		border-radius: var(--sp0);
-		font-size: small;
+		font-size: smaller;
 	}
 
 	.customer_img {

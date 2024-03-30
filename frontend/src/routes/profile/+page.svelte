@@ -289,11 +289,11 @@
 	}
 
 	.name {
-		font-weight: 600;
+		font-weight: 900;
 		color: var(--ac1);
 	}
 	.bold {
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	.horizontal {

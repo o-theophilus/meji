@@ -28,7 +28,7 @@
 
 	.name {
 		color: var(--ac1);
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	.date {

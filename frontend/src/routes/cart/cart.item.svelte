@@ -61,7 +61,7 @@
 		display: flex;
 		gap: var(--sp3);
 		align-items: center;
-		
+
 		padding-bottom: var(--sp2);
 		border-bottom: 2px solid var(--ac5);
 	}
@@ -94,7 +94,7 @@
 	a {
 		text-decoration: none;
 		color: var(--ac1);
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	.variation {

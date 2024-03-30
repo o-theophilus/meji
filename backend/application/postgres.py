@@ -158,11 +158,8 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 );"""
 
 
-# TODO:
-# Move date to log_table
 otp_table = """CREATE TABLE IF NOT EXISTS otp (
     key CHAR(32) PRIMARY KEY,
-    date TIMESTAMP NOT NULL,
 
     user_key CHAR(32) NOT NULL,
     code VARCHAR(10) NOT NULL,

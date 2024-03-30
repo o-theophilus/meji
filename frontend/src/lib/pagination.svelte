@@ -158,7 +158,7 @@
 		color: var(--ac2);
 		border: none;
 		cursor: pointer;
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	button:hover {

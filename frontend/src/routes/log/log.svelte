@@ -105,7 +105,7 @@
 	}
 
 	.bold {
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	.date {
@@ -116,7 +116,7 @@
 	a {
 		color: var(--cl1);
 		text-decoration: none;
-		font-weight: 500;
+		font-weight: 700;
 	}
 	button {
 		color: var(--cl1);

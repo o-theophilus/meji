@@ -74,7 +74,7 @@
 		padding: var(--sp3);
 		padding-top: calc(var(--sp3) * 2);
 
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--ac2);
 	}
 

@@ -35,7 +35,7 @@
 		fill: currentColor;
 		text-decoration: none;
 		text-align: center;
-		font-weight: 500;
+		font-weight: 700;
 		cursor: pointer;
 	}
 

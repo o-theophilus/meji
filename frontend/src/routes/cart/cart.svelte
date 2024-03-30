@@ -82,7 +82,7 @@
 	}
 
 	.amount {
-		font-weight: 500;
+		font-weight: 700;
 		font-size: large;
 	}
 </style>

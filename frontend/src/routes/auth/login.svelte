@@ -60,12 +60,12 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
-		$loading = false;
 
 		if (resp.status == 200) {
 			$token = resp.token;
 			document.location = return_url;
 		} else if (resp.error == 'not confirmed') {
+			$loading = false;
 			$module = {
 				module: Info,
 				status: 200,
@@ -82,6 +82,7 @@
 				]
 			};
 		} else {
+			$loading = false;
 			error = resp;
 		}
 	};

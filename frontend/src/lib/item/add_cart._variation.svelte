@@ -35,7 +35,7 @@
 			$user.cart.push(key);
 			$user = $user;
 		}
-		
+
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
 			headers: {
@@ -50,7 +50,7 @@
 			})
 		});
 		resp = await resp.json();
-		
+
 		$loading = false;
 		$module = '';
 		$toast = {
@@ -140,7 +140,7 @@
 	}
 
 	.bold {
-		font-weight: 500;
+		font-weight: 700;
 		text-transform: capitalize;
 	}
 

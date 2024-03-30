@@ -21,7 +21,7 @@
 		color: var(--ac6_);
 
 		border-radius: calc(var(--height) / 2);
-		font-size: 1.2rem;
+		font-size: larger;
 		line-height: 14px;
 	}
 

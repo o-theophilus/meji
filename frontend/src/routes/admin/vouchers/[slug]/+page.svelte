@@ -145,7 +145,7 @@
 
 	.code {
 		font-size: large;
-		font-weight: 500;
+		font-weight: 700;
 		text-transform: uppercase;
 
 		color: var(--ac1);

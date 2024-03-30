@@ -30,7 +30,7 @@
 		gap: var(--sp2);
 	}
 	.price {
-		font-weight: 500;
+		font-weight: 700;
 		font-size: large;
 		color: var(--ac1);
 	}

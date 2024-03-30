@@ -88,7 +88,6 @@
 		background-color: var(--ac5);
 	}
 
-
 	input[type='number']::-webkit-outer-spin-button,
 	input[type='number']::-webkit-inner-spin-button {
 		-webkit-appearance: none;
@@ -111,7 +110,7 @@
 		color: var(--ac2);
 		border: none;
 		cursor: pointer;
-		font-weight: 500;
+		font-weight: 700;
 	}
 
 	button:hover {

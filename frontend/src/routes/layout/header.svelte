@@ -9,7 +9,7 @@
 	<div class="block">
 		<a href="/">
 			<SVG type="logo" size="28" />
-			<h1>Meji</h1>
+			Meji
 		</a>
 		<div class="right">
 			<Theme />
@@ -43,13 +43,14 @@
 
 		display: flex;
 		align-items: center;
-		gap: var(--sp2);
+		gap: var(--sp1);
 
 		height: calc(var(--headerHeight) - var(--sp2));
 
 		color: var(--ac1);
 		fill: var(--cl1);
 		text-decoration: none;
+		font-weight: 900;
 	}
 
 	.right {

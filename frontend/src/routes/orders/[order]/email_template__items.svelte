@@ -27,7 +27,7 @@ border-radius: 8px;
 			style="
 text-decoration: none;
 color: #1d9bf0;
-font-weight: 500;
+font-weight: 700;
 "
 			href="{$page.url.origin}/{x.slug}"
 			target="_blank"

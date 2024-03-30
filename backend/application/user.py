@@ -266,17 +266,15 @@ def send_email_otp():
     key_2 = uuid4().hex
 
     cur.execute("""
-            INSERT INTO otp (key, date, user_key, code, email)
-            VALUES (%s, %s, %s, %s, %s), (%s, %s, %s, %s, %s);
+            INSERT INTO otp (key, user_key, code, email)
+            VALUES (%s, %s, %s, %s), (%s, %s, %s, %s);
         """, (
         key_1,
-        datetime.now(),
         user["key"],
         otp_1,
         user['email'],
 
         key_2,
-        datetime.now(),
         user["key"],
         otp_2,
         request.json["email"]
@@ -350,8 +348,16 @@ def email():
         error["otp_1"] = "this field is required"
     else:
         cur.execute("""
-            SELECT * FROM otp
-            WHERE user = %s, code = %s, email = %s;
+            SELECT otp.*, log.date
+            FROM otp
+            LEFT JOIN log ON
+                otp.key = log.entity_kty,
+                log.entity_type = 'otp'
+                log.action = 'requested'
+            WHERE
+                otp.user = %s
+                AND otp.code = %s
+                AND otp.email = %s;
         """, (
             user['key'],
             request.json["otp_1"],
@@ -369,8 +375,16 @@ def email():
         error["otp_2"] = "this field is required"
     else:
         cur.execute("""
-            SELECT * FROM otp
-            WHERE user = %s, code = %s, email = %s;
+            SELECT otp.*, log.date
+            FROM otp
+            LEFT JOIN log ON
+                otp.key = log.entity_kty,
+                log.entity_type = 'otp'
+                log.action = 'requested'
+            WHERE
+                otp.user = %s
+                AND otp.code = %s
+                AND otp.email = %s;
         """, (
             user['key'],
             request.json["otp_2"],
@@ -452,11 +466,10 @@ def send_password_otp():
     key = uuid4().hex
 
     cur.execute("""
-            INSERT INTO otp (key, date, user_key, code, email)
-            VALUES (%s, %s, %s, %s, %s);
+            INSERT INTO otp (key, user_key, code, email)
+            VALUES (%s, %s, %s, %s);
         """, (
         key,
-        datetime.now(),
         user["key"],
         otp,
         user["email"]
@@ -530,8 +543,16 @@ def password():
         error["otp"] = "this field is required"
     else:
         cur.execute("""
-            SELECT * FROM otp
-            WHERE user = %s, code = %s, email = %s;
+            SELECT otp.*, log.date
+            FROM otp
+            LEFT JOIN log ON
+                otp.key = log.entity_kty,
+                log.entity_type = 'otp'
+                log.action = 'requested'
+            WHERE
+                otp.user = %s
+                AND otp.code = %s
+                AND otp.email = %s;
         """, (
             user['key'],
             request.json["otp"],

@@ -146,7 +146,7 @@
 
 <style>
 	.title {
-		font-weight: 600;
+		font-weight: 900;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

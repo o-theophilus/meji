@@ -14,12 +14,12 @@
 			}
 		});
 		resp = await resp.json();
-		// $loading = false;
-		// TODO: load until homepage
 
 		if (resp.status == 200) {
 			$token = resp.token;
 			document.location = '/';
+		} else {
+			$loading = false;
 		}
 	};
 </script>

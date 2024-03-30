@@ -131,7 +131,7 @@
 	a {
 		color: var(--cl1);
 		text-decoration: none;
-		font-weight: 500;
+		font-weight: 700;
 	}
 	a:hover {
 		color: var(--cl2);

@@ -62,13 +62,17 @@
 		</div>
 
 		<br />
-		<Button class="link small" href="/log?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}">goto log &gt;</Button>
+		<Button
+			class="link small"
+			href="/log?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}"
+			>goto log &gt;</Button
+		>
 	{/if}
 </Card>
 
 <style>
 	.title {
-		font-weight: 600;
+		font-weight: 900;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

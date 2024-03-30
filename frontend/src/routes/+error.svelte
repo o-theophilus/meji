@@ -34,6 +34,6 @@
 <style>
 	.bold {
 		color: var(--ac1);
-		font-weight: 600;
+		font-weight: 900;
 	}
 </style>

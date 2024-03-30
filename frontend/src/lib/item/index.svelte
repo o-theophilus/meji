@@ -109,7 +109,7 @@
 		gap: 0 var(--sp1);
 	}
 	.price {
-		font-weight: 500;
+		font-weight: 700;
 		font-size: large;
 	}
 
