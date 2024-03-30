@@ -1,4 +1,4 @@
-# Meji
+# Meji.ng
 
 
 eCommerce Website
