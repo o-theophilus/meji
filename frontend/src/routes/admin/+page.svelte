@@ -36,27 +36,27 @@
 
 		TODO:
 		<br />
-		[ - ] integrate AI assistant
+		[ - ] Change font to mullins
 		<br />
-		[ - ] move db to postgress
+		[ - ] shop tag should be a module, not dropdown
 		<br />
-		[ - ] write test
+		<br />
+		[ - ] move view/get logs to frontend
 		<br />
 		[ - ] more logs
 		<br />
-		[ - ] update brand guide
+		[ - ] fix cron
 		<br />
 		[ - ] does going back restore token
 		<br />
 		[ - ] use version for financial ops
 		<br />
-		[ - ] Change font to mullins
 		<br />
-		[ - ] move view/get logs to frontend
+		[ - ] update brand guide
 		<br />
-		[ - ] pressing tab-key on login and signup form should skip the show password button
+		[ - ] integrate AI assistant
 		<br />
-		[ - ] shop tag should be a module, not dropdown
+		[ - ] write test
 		<br />
 		[ - ] address api: https://www.geoapify.com/tutorials
 	</div>
