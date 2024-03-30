@@ -11,13 +11,6 @@ Authorization: {{Authorization}}
 
 ###
 
-# create_table
-post {{host}}/create_table HTTP/1.1
-content-type: application/json
-Authorization: {{Authorization}}
-
-###
-
 
 
 

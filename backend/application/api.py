@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import re
 import os
 from .postgres import db_close, db_open
+from .postgres import (
+    user_table, item_table, save_table, order_table, order_item_table,
+    feedback_table, advert_table, voucher_table, log_table, otp_table)
 from uuid import uuid4
 import json
 
@@ -141,7 +144,49 @@ def cron():
     })
 
 
-# @bp.get("/fix")
+def create_table():
+    con, cur = db_open()
+
+    cur.execute(f"""
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS save;
+        DROP TABLE IF EXISTS "order" CASCADE;
+        DROP TABLE IF EXISTS order_item;
+        DROP TABLE IF EXISTS feedback;
+        DROP TABLE IF EXISTS advert;
+        DROP TABLE IF EXISTS voucher;
+        DROP TABLE IF EXISTS log;
+        DROP TABLE IF EXISTS otp;
+        {user_table};
+        {item_table};
+        {save_table};
+        {order_table};
+        {order_item_table};
+        {feedback_table};
+        {advert_table};
+        {voucher_table};
+        {log_table};
+        {otp_table};
+    """)
+
+    # cur.execute("""
+    #     ALTER TABLE otp RENAME COLUMN code TO pin;
+    # """)
+
+    # cur.execute("""
+    #     ALTER TABLE otp DROP COLUMN date;
+    # """)
+
+    db_close(con, cur)
+
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+    })
+
+
+@bp.get("/fix")
 def deta_to_postgres():
     con, cur = db_open()
 
@@ -158,7 +203,6 @@ def deta_to_postgres():
             cur.execute("""
                 INSERT INTO item (
                     key,
-                    version,
                     status,
 
                     name,
@@ -172,16 +216,15 @@ def deta_to_postgres():
 
                     available_quantity
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, (
                 x["key"],
-                x["v"],
                 x["status"],
 
                 x["name"],
                 x["slug"],
                 x["price"],
-                x["old_price"],
+                x["old_price"] if x["old_price"] else 0,
                 x["info"],
                 x["photos"],
                 x["tags"],
@@ -197,7 +240,7 @@ def deta_to_postgres():
             """, (
                 uuid4().hex,
                 x["date_c"],
-                "46a28cf075b048a581615c8cb508d0c3",
+                "0c0671906951411e8d450004aff4d3c2",
                 "created",
                 x["key"],
                 "item"

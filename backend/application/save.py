@@ -67,9 +67,9 @@ def get():
         WHERE save.user_key = %s
 
         GROUP BY
-            item.key, item.version, item.status, item.name, item.slug,
+            item.key, item.status, item.name, item.slug,
             item.price, item.old_price, item.information, item.photos,
-            item.tags, item.adverts, item.variation, item.available_quantity,
+            item.tags, item.variation, item.available_quantity,
             item.discount, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;

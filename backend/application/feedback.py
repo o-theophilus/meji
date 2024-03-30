@@ -62,15 +62,14 @@ def add_feedback(item_key):
         })
 
     cur.execute("""
-        INSERT INTO feedback (key, version, user_key, item_key, rating, review)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO feedback (key, user_key, item_key, rating, review)
+        VALUES (%s, %s, %s, %s, %s)
         ON CONFLICT (user_key, item_key)
         DO UPDATE SET
             rating = EXCLUDED.rating,
             review = EXCLUDED.review
         RETURNING *;
     """, (
-        uuid4().hex,
         uuid4().hex,
         user["key"],
         item["key"],

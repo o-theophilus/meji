@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 import os
 import psycopg2
 import psycopg2.extras
@@ -13,7 +13,7 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
     version CHAR(32) NOT NULL,
     status VARCHAR(20) DEFAULT 'anonymous' NOT NULL,
 
-    name VARCHAR(100) DEFAULT NOT NULL,
+    name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(100),
     password VARCHAR(200) NOT NULL,
@@ -180,46 +180,3 @@ def db_close(con, cur):
     con.commit()
     cur.close()
     con.close()
-
-
-@bp.post("/create_table")
-def create_table():
-    con, cur = db_open()
-
-    # cur.execute(f"""
-    #     DROP TABLE IF EXISTS "user" CASCADE;
-    #     DROP TABLE IF EXISTS item CASCADE;
-    #     DROP TABLE IF EXISTS save;
-    #     DROP TABLE IF EXISTS "order" CASCADE;
-    #     DROP TABLE IF EXISTS order_item;
-    #     DROP TABLE IF EXISTS feedback;
-    #     DROP TABLE IF EXISTS advert;
-    #     DROP TABLE IF EXISTS voucher;
-    #     DROP TABLE IF EXISTS log;
-    #     DROP TABLE IF EXISTS otp;
-    #     {user_table};
-    #     {item_table};
-    #     {save_table};
-    #     {order_table};
-    #     {order_item_table};
-    #     {feedback_table};
-    #     {advert_table};
-    #     {voucher_table};
-    #     {log_table};
-    #     {otp_table};
-    # """)
-
-    # cur.execute("""
-    #     ALTER TABLE otp RENAME COLUMN code TO pin;
-    # """)
-
-    # cur.execute("""
-    #     ALTER TABLE otp DROP COLUMN date;
-    # """)
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-    })

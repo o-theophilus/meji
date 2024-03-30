@@ -411,19 +411,20 @@ def login():
                     x["key"]
                 ))
 
-        cur.execute("""
-            UPDATE "order"
-            SET cost_items = (
-                SELECT SUM(order_item.quantity * item.price)
-                FROM order_item
-                LEFT JOIN item ON order_item.item_key = item.key
-                WHERE order_item.order_key = %s
-            )
-            WHERE key = %s;
-        """, (
-            in_cart["key"],
-            in_cart["key"]
-        ))
+        if in_cart:
+            cur.execute("""
+                UPDATE "order"
+                SET cost_items = (
+                    SELECT SUM(order_item.quantity * item.price)
+                    FROM order_item
+                    LEFT JOIN item ON order_item.item_key = item.key
+                    WHERE order_item.order_key = %s
+                )
+                WHERE key = %s;
+            """, (
+                in_cart["key"],
+                in_cart["key"]
+            ))
 
         # TODO: REMOVE:
         # DELETE 'FROM order_item WHERE order_key = %s' IF CASCADE WORKS
