@@ -185,31 +185,27 @@ def db_close(con, cur):
 def create_table():
     con, cur = db_open()
 
-    # cur.execute(f"""
-    #     DROP TABLE IF EXISTS "user" CASCADE;
-    #     DROP TABLE IF EXISTS item CASCADE;
-    #     DROP TABLE IF EXISTS save;
-    #     DROP TABLE IF EXISTS "order" CASCADE;
-    #     DROP TABLE IF EXISTS order_item;
-    #     DROP TABLE IF EXISTS feedback;
-    #     DROP TABLE IF EXISTS advert;
-    #     DROP TABLE IF EXISTS voucher;
-    #     DROP TABLE IF EXISTS log;
-    #     DROP TABLE IF EXISTS otp;
-    #     {user_table};
-    #     {item_table};
-    #     {save_table};
-    #     {order_table};
-    #     {order_item_table};
-    #     {feedback_table};
-    #     {advert_table};
-    #     {voucher_table};
-    #     {log_table};
-    #     {otp_table};
-    # """)
     cur.execute(f"""
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS save;
         DROP TABLE IF EXISTS "order" CASCADE;
+        DROP TABLE IF EXISTS order_item;
+        DROP TABLE IF EXISTS feedback;
+        DROP TABLE IF EXISTS advert;
+        DROP TABLE IF EXISTS voucher;
+        DROP TABLE IF EXISTS log;
+        DROP TABLE IF EXISTS otp;
+        {user_table};
+        {item_table};
+        {save_table};
         {order_table};
+        {order_item_table};
+        {feedback_table};
+        {advert_table};
+        {voucher_table};
+        {log_table};
+        {otp_table};
     """)
 
     db_close(con, cur)
