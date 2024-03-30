@@ -52,6 +52,8 @@
 		<br />
 		[ - ] Change font to mullins
 		<br />
+		[ - ] move view/get logs to frontend
+		<br />
 		[ - ] pressing tab-key on login and signup form should skip the show password button
 		<br />
 		[ - ] shop tag should be a module, not dropdown

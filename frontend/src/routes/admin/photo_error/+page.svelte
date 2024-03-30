@@ -29,7 +29,7 @@
 		error = {};
 
 		$loading = 'deleting . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo_error`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/photo/error`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -194,7 +194,7 @@
 		<br />
 		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each adverts as x}
-				<a href="/{x.key}?edit=true&advert=true">{x.name}</a>
+				<a href="/admin/adverts/{x.key}">{x.name}</a>
 
 				<br />
 			{:else}

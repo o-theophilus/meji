@@ -6,10 +6,12 @@ from uuid import uuid4
 import os
 from werkzeug.datastructures import FileStorage
 from .tools import token_to_user
-from .database import database
+from .postgres import db_close, db_open
 
 
 bp = Blueprint("storage", __name__)
+
+sizes = ["300x300", "300x600", "600x300", "900x300"]
 
 
 def drive():
@@ -62,11 +64,11 @@ def get_photo(key, thumbnail=False):
     return send_file(photo, mimetype="image/jpg")
 
 
-@bp.get("/photo_error")
+@bp.get("/photo/error")
 def photo_error():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -79,60 +81,95 @@ def photo_error():
             "error": "unauthorized access"
         })
 
-    stored_photos = []
+    cur.execute("""
+        SELECT photo
+        FROM "user";
+    """)
+    users_photo = cur.fetchall()
+    users_photo = [x["photo"] for x in users_photo if x["photo"]]
+
+    cur.execute("""
+        SELECT photos
+        FROM item;
+    """)
+    temp = cur.fetchall()
+    items_photos = []
+    for x in temp:
+        if x["photos"] != []:
+            items_photos += x["photos"]
+
+    cur.execute("""
+        SELECT *
+        FROM advert;
+    """)
+    temp = cur.fetchall()
+    adverts_photos = []
+    for x in temp:
+        for y in sizes:
+            if x[f"photo_{y}"]:
+                adverts_photos.append(x[f"photo_{y}"])
+
+    all_used_photos = users_photo + items_photos + adverts_photos
     paths = drive().list()["names"]
-    for x in paths:
-        stored_photos.append(x.split('/')[1])
+    all_stored_photos = [x.split('/')[1] for x in paths]
 
-    users = []
-    items = []
-    adverts = []
-    used_photos = []
-    for x in db:
+    cur.execute("""
+        SELECT "user".key, "user".name
+        FROM "user"
+        WHERE
+            photo IS NOT NULL
+            AND photo != ANY(%s);
+    """, (all_stored_photos,))
+    _users = cur.fetchall()
 
-        if x["type"] == "user" and x["photo"]:
-            used_photos.append(x["photo"])
-            if x["photo"] not in stored_photos:
-                users.append({
-                    "key": x["key"],
-                    "name": x["name"],
-                })
+    cur.execute("""
+        SELECT item.key, item.name
+        FROM item
+        WHERE NOT ARRAY[%s] @> photos;
+    """, (all_stored_photos,))
+    _items = cur.fetchall()
 
-        elif x["type"] == "item" and x["photos"] != []:
-            used_photos += x["photos"]
-            if not all(y in stored_photos for y in x["photos"]):
-                items.append({
-                    "key": x["key"],
-                    "name": x["name"],
-                })
+    cur.execute("""
+        SELECT advert.key, item.name
+        FROM advert
+        LEFT JOIN item ON advert.key = item.key
+        WHERE
+            (
+                photo_300x300 IS NOT NULL
+                AND NOT photo_300x300 = ANY(%s)
+            ) OR (
+                photo_300x600 IS NOT NULL
+                AND NOT photo_300x600 = ANY(%s)
+            ) OR (
+                photo_600x300 IS NOT NULL
+                AND NOT photo_600x300 = ANY(%s)
+            ) OR (
+                photo_900x300 IS NOT NULL
+                AND NOT photo_900x300 = ANY(%s)
+            );
+    """, (
+        all_stored_photos, all_stored_photos,
+        all_stored_photos, all_stored_photos
+    ))
+    _adverts = cur.fetchall()
 
-        elif x["type"] == "advert":
-            x["photos"] = [y for y in x["photos"].values() if y is not None]
-            if x["photos"] != []:
-                used_photos += x["photos"]
-                if not all(y in stored_photos for y in x["photos"]):
-                    adverts.append({
-                        "key": x["item"],
-                        "name": x["key"],
-                    })
-
-    unused = [f"{request.host_url}photos/{x}"
-              for x in stored_photos if x not in used_photos]
+    db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "unused": unused,
-        "users": users,
-        "items": items,
-        "adverts": adverts,
+        "unused": [f"{request.host_url}photo/{x}"
+                   for x in all_stored_photos if x not in all_used_photos],
+        "users": _users,
+        "items": _items,
+        "adverts": _adverts
     })
 
 
-@bp.delete("/photo_error")
+@bp.delete("/photo/error")
 def delete_photo():
-    db = database()
+    con, cur = db_open()
 
-    user = token_to_user()
+    user = token_to_user(cur)
     if not user:
         return jsonify({
             "status": 400,
@@ -157,6 +194,8 @@ def delete_photo():
     for x in request.json["photos"]:
         pass
         storage(x.split("/")[-1], delete=True)
+
+    db_close(con, cur)
 
     return jsonify({
         "status": 200

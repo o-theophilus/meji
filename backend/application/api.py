@@ -119,90 +119,25 @@ def cron():
     rem = rem[:10]
     database(rem, True)
 
-    # query_run("""
-#     INSERT INTO log (
-#         key, date, user_key, action, entity_key, entity_type, status, misc
-#     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-# """(
-    #     "meji",
-    #     "ran_cron",
-    #     None,
-    #     "auth",
-    #     misc={
-    #         "expired_voucher": ", ".join([x["key"] for x in expired]),
-    #         "users_logged_out": ", ".join([x["email"] for x in logged_out]),
-    #         "anonymous_deleted": ", ".join([x["key"] for x in rem])
-    #     }
-    # ))
+    query("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, status, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+    """(
+        "meji",
+        "ran_cron",
+        None,
+        "auth",
+        misc={
+            "expired_voucher": ", ".join([x["key"] for x in expired]),
+            "users_logged_out": ", ".join([x["email"] for x in logged_out]),
+            "anonymous_deleted": ", ".join([x["key"] for x in rem])
+        }
+    ))
 
     return jsonify({
         "status": 200,
         "message": "successful"
-    })
-
-
-def clean_copy_db():
-    source = Deta(os.environ["DETA_KEY"]).Base("log")
-    target = Deta(os.environ["DETA_KEY"]).Base("log_test")
-
-    def delete_target():
-        res = target.fetch()
-        entities = res.items
-        while res.last:
-            res = target.fetch(last=res.last)
-            entities += res.items
-
-        for x in entities:
-            target.delete(x["key"])
-
-    def copy_source():
-        res = source.fetch()
-        entities = res.items
-        while res.last:
-            res = source.fetch(last=res.last)
-            entities += res.items
-
-        while len(entities) > 0:
-            target.put_many(entities[:25])
-            entities = entities[25:]
-
-    delete_target()
-    copy_source()
-
-    return jsonify({
-        "status": 200,
-        "message": "successful",
-    })
-
-
-def migration():
-    data_base = Deta(os.environ["DETA_KEY"]).Base("log")
-
-    res = data_base.fetch()
-    entities = res.items
-    while res.last:
-        res = data_base.fetch(last=res.last)
-        entities += res.items
-
-    changed = []
-    for x in entities:
-        if (
-            x["user"] == "Meji"
-            and x["action"] == "ran cron"
-        ):
-            x["user"] = "meji"
-            x["action"] = "ran_cron"
-            changed.append(x)
-
-    print(len(changed))
-
-    while len(changed) > 0:
-        data_base.put_many(changed[:25])
-        changed = changed[25:]
-
-    return jsonify({
-        "status": 200,
-        "changed": len(changed)
     })
 
 
