@@ -4,6 +4,7 @@
 	import { user, module, set_state } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Button from '$lib/button.svelte';
@@ -54,6 +55,7 @@
 </script>
 
 <Meta title="Shop" description="Shop" />
+<Log action={'goto'} />
 
 <Center>
 	<br />

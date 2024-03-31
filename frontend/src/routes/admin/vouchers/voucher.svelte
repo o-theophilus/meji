@@ -1,6 +1,5 @@
 <script>
 	export let voucher;
-	console.log(voucher);
 </script>
 
 <a href="/admin/vouchers/{voucher.key}">

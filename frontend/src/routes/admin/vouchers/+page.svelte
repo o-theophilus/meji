@@ -44,7 +44,7 @@
 	});
 </script>
 
-<Meta title="Vouchers" description="Vouchers" />
+<Meta title="All Vouchers" description="Vouchers" />
 
 <Center>
 	<br />

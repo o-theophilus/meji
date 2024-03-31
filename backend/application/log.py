@@ -2,8 +2,67 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user
 from math import ceil
 from .postgres import db_close, db_open
+from uuid import uuid4
+from datetime import datetime
+import json
 
 bp = Blueprint("log", __name__)
+
+
+@bp.post("/log")
+def log(
+    user_key=None,
+    action=None,
+    entity_key=None,
+    entity_type=None,
+    status=200,
+    misc={}
+):
+    con, cur = db_open()
+
+    if "action" in request.json and request.json["action"]:
+        action = request.json["action"]
+    if "entity_type" in request.json and request.json["entity_type"]:
+        entity_type = request.json["entity_type"]
+    if "entity_key" in request.json and request.json["entity_key"]:
+        entity_key = request.json["entity_key"]
+    if "status" in request.json and request.json["status"]:
+        status = request.json["status"]
+    if "misc" in request.json and request.json["misc"]:
+        misc = request.json["misc"]
+
+    if not user_key:
+        user = token_to_user(cur)
+        if not user:
+            return jsonify({
+                "status": 400,
+                "error": "invalid user"
+            })
+        user_key = user["key"]
+
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, status, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+    """, (
+        uuid4().hex,
+        datetime.now(),
+        user_key,
+        action,
+        entity_key,
+        entity_type,
+        status,
+        json.dumps(misc)
+    ))
+
+    db_close(con, cur)
+    print("###########################################################")
+    print(entity_type)
+    print("###########################################################")
+
+    return jsonify({
+        "status": 200
+    })
 
 
 @bp.get("/log")

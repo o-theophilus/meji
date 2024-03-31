@@ -53,7 +53,7 @@
 	};
 </script>
 
-<Meta title="Admin Dashboard" description="Admin Dashboard" />
+<Meta title="Manage Photos" description="Here you will find missing or excess images" />
 
 <Center>
 	<br />

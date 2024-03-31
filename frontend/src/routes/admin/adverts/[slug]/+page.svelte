@@ -33,7 +33,7 @@
 	};
 </script>
 
-<Meta title={item.name} description={item.name} image={item.photos[0]} />
+<Meta title="{item.name} Adverts" description="Manage images" />
 
 <Center>
 	<br />

@@ -6,7 +6,7 @@
 	import Center from '$lib/center.svelte';
 </script>
 
-<Meta title="Admin Dashboard" description="Admin Dashboard" />
+<Meta title="Admin Dashboard" description="This is an area for users with elevated permission." />
 
 <Center>
 	<br />
@@ -34,31 +34,23 @@
 			<br />
 		{/if}
 
-		TODO:
+		<br /> TODO:
 		<br />
-		[ - ] shop tag should be a module, not dropdown
+		<br /> [ - ] shop tag should be a module, not dropdown
+		<br /> [ - ] fix page meta data
+		<br /> [ - ] add sort and search to page with many entities
 		<br />
+		<br /> [ - ] move view/get logs to frontend
+		<br /> [ - ] more logs
+		<br /> [ - ] fix cron
+		<br /> [ - ] does going back restore token
+		<br /> [ - ] ADD "You may also like" user item group
+		<br /> [ - ] use version for financial ops
 		<br />
-		[ - ] move view/get logs to frontend
-		<br />
-		[ - ] more logs
-		<br />
-		[ - ] fix cron
-		<br />
-		[ - ] does going back restore token
-		<br />
-		[ - ] ADD "You may also like" user item group
-		<br />
-		[ - ] use version for financial ops
-		<br />
-		<br />
-		[ - ] update brand guide
-		<br />
-		[ - ] integrate AI assistant
-		<br />
-		[ - ] write test
-		<br />
-		[ - ] address api: https://www.geoapify.com/tutorials
+		<br /> [ - ] update brand guide
+		<br /> [ - ] integrate AI assistant
+		<br /> [ - ] write test
+		<br /> [ - ] address api: www.geoapify.com/tutorials
 	</div>
 </Card>
 

@@ -4,10 +4,139 @@ from math import ceil
 from .advert import get_all_advert
 import re
 from .postgres import db_close, db_open
-from datetime import datetime
-from uuid import uuid4
+
 
 bp = Blueprint("item_get", __name__)
+
+
+def recently_viewed(cur, user_key, item_key):
+
+    cur.execute("""
+        SELECT *
+        FROM (
+            SELECT
+                DISTINCT ON (item.key) item.*,
+                log.date AS date,
+                CASE
+                    WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                    ELSE ARRAY_AGG(feedback.rating)
+                END AS ratings
+            FROM item
+            LEFT JOIN log ON
+                item.key = log.entity_key
+                AND item.status = 'live'
+            LEFT JOIN feedback ON item.key = feedback.item_key
+            WHERE
+                log.user_key = %s
+                AND log.action = 'viewed'
+                AND log.entity_type = 'item'
+                AND log.entity_key != %s
+            GROUP BY item.key, log.date
+            ORDER BY item.key DESC
+        ) as x
+        ORDER BY x.date DESC
+        LIMIT 8 OFFSET 0
+        ;
+    """, (user_key, item_key))
+    items = cur.fetchall()
+
+    return [item_schema(x) for x in items]
+
+
+def similar_items(cur, item_key):
+
+    cur.execute("""
+        SELECT *
+        FROM item
+        WHERE key = %s OR slug = %s
+    """, (item_key, item_key))
+    item = cur.fetchone()
+
+    if not item:
+        return jsonify({
+            "status": 200,
+            "items": []
+        })
+
+    item_keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
+
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
+            (
+                SELECT COUNT(*)
+                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
+                WHERE tag_or_name = ANY(%s)
+            ) AS likeness
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.status = 'live' AND item.key != %s
+        GROUP BY item.key
+        ORDER BY likeness DESC
+        LIMIT 8 OFFSET 0;
+    """, (item_keywords, item["key"]))
+    items = cur.fetchall()
+
+    return [item_schema(x) for x in items]
+
+
+def customer_view(cur, user_key, item_key):
+
+    cur.execute("""
+        SELECT
+            item.*,
+            log.user_key AS user_key,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN log ON item.key = log.entity_key
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE
+            log.entity_type = 'item'
+            AND log.action = 'viewed'
+            AND log.user_key != %s
+            AND item.status = 'live'
+        GROUP BY item.key, log.user_key, log.date
+        ORDER BY log.date ASC;
+    """, (user_key,))
+    views = cur.fetchall()
+
+    picked_user = []
+    picked_items = []
+    pick_next_item = []
+    items = []
+    all_picked_item_keys = []
+
+    for x in views:
+        if x["user_key"] not in picked_user:
+            if x["key"] == item_key:
+                pick_next_item.append(x["user_key"])
+
+            elif x["user_key"] in pick_next_item:
+                pick_next_item.remove(x["user_key"])
+                picked_user.append(x["user_key"])
+                all_picked_item_keys.append(x["key"])
+
+                if x["key"] not in picked_items:
+                    items.append(x)
+                    picked_items.append(x["key"])
+
+    item_count = []
+    for x in items:
+        item_count.append({
+            "item":  x,
+            "count":  all_picked_item_keys.count(x["key"])
+        })
+
+    item_count = sorted(item_count, key=lambda d: d["count"], reverse=True)
+
+    return [item_schema(x["item"]) for x in item_count]
 
 
 @bp.get("/tag")
@@ -81,24 +210,18 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type
-        ) VALUES (%s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "viewed",
-        item["key"],
-        "item"
-    ))
+    _recently_viewed = recently_viewed(cur, user["key"], item["key"])
+    _similar_items = similar_items(cur, item["key"])
+    _customer_view = customer_view(cur, user["key"], item["key"])
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "item": item_schema(item)
+        "item": item_schema(item),
+        "recently_viewed": _recently_viewed,
+        "similar_items": _similar_items,
+        "customer_view": _customer_view
     })
 
 
@@ -229,155 +352,4 @@ def home():
         "new_arrivals": shop(sort="latest", page_size=8).json["items"],
         "offers": shop(sort="discount", page_size=8).json["items"],
         "adverts": get_all_advert("live", "home_1").json["adverts"]
-    })
-
-
-@bp.get("/recently_viewed/<user_key>/<item_key>")
-def recently_viewed(user_key, item_key):
-    con, cur = db_open()
-
-    cur.execute("""
-        SELECT *
-        FROM (
-            SELECT
-                DISTINCT ON (item.key) item.*,
-                log.date AS date,
-                CASE
-                    WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                    ELSE ARRAY_AGG(feedback.rating)
-                END AS ratings
-            FROM item
-            LEFT JOIN log ON
-                item.key = log.entity_key
-                AND item.status = 'live'
-            LEFT JOIN feedback ON item.key = feedback.item_key
-            WHERE
-                log.user_key = %s
-                AND log.action = 'viewed'
-                AND log.entity_type = 'item'
-                AND log.entity_key != %s
-            GROUP BY item.key, log.date
-            ORDER BY item.key DESC
-        ) as x
-        ORDER BY x.date DESC
-        LIMIT 8 OFFSET 0
-        ;
-    """, (user_key, item_key))
-    items = cur.fetchall()
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "items": [item_schema(x) for x in items]
-    })
-
-
-@bp.get("/similar_items/<item_key>")
-def similar_items(item_key):
-    con, cur = db_open()
-
-    cur.execute("""
-        SELECT *
-        FROM item
-        WHERE key = %s OR slug = %s
-    """, (item_key, item_key))
-    item = cur.fetchone()
-
-    if not item:
-        return jsonify({
-            "status": 200,
-            "items": []
-        })
-
-    item_keywords = list(set(
-        item["tags"] + re.split(r'\s+', item["name"].lower())))
-
-    cur.execute("""
-        SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
-            (
-                SELECT COUNT(*)
-                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
-                WHERE tag_or_name = ANY(%s)
-            ) AS likeness
-        FROM item
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.status = 'live' AND item.key != %s
-        GROUP BY item.key
-        ORDER BY likeness DESC
-        LIMIT 8 OFFSET 0;
-    """, (item_keywords, item["key"]))
-    items = cur.fetchall()
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "items": [item_schema(x) for x in items]
-    })
-
-
-@bp.get("/customer_view/<user_key>/<item_key>")
-def customer_view(user_key, item_key):
-    con, cur = db_open()
-
-    cur.execute("""
-        SELECT
-            item.*,
-            log.user_key AS user_key,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
-        FROM item
-        LEFT JOIN log ON item.key = log.entity_key
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE
-            log.entity_type = 'item'
-            AND log.action = 'viewed'
-            AND log.user_key != %s
-            AND item.status = 'live'
-        GROUP BY item.key, log.user_key, log.date
-        ORDER BY log.date ASC;
-    """, (user_key,))
-    views = cur.fetchall()
-
-    picked_user = []
-    picked_items = []
-    pick_next_item = []
-    items = []
-    all_picked_item_keys = []
-
-    for x in views:
-        if x["user_key"] not in picked_user:
-            if x["key"] == item_key:
-                pick_next_item.append(x["user_key"])
-
-            elif x["user_key"] in pick_next_item:
-                pick_next_item.remove(x["user_key"])
-                picked_user.append(x["user_key"])
-                all_picked_item_keys.append(x["key"])
-
-                if x["key"] not in picked_items:
-                    items.append(x)
-                    picked_items.append(x["key"])
-
-    item_count = []
-    for x in items:
-        item_count.append({
-            "item":  x,
-            "count":  all_picked_item_keys.count(x["key"])
-        })
-
-    item_count = sorted(item_count, key=lambda d: d["count"], reverse=True)
-
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "items": [item_schema(x["item"]) for x in item_count]
     })

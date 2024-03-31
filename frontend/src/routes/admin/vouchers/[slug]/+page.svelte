@@ -47,7 +47,7 @@
 	};
 </script>
 
-<Meta title="Voucher" description="Voucher" />
+<Meta title="Manage Voucher" />
 
 <Center>
 	<br />

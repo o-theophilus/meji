@@ -128,7 +128,9 @@ def get_many():
 
     cur.execute("""
         SELECT
-            voucher.*,
+            voucher.key,
+            voucher.status,
+            voucher.value,
             log.date AS date,
             COUNT(*) OVER() AS total_items
         FROM voucher
@@ -191,7 +193,7 @@ def get(key):
             "error": "invalid request"
         })
 
-    if "voucher:view_code" not in user["permissions"]:
+    if "voucher:view_pin" not in user["permissions"]:
         voucher["pin"] = "#"
 
     db_close(con, cur)
@@ -272,6 +274,9 @@ def activate(key):
     """, (voucher["key"],))
     voucher = cur.fetchone()
 
+    if "voucher:view_pin" not in user["permissions"]:
+        voucher["pin"] = "#"
+
     cur.execute("""
         INSERT INTO log (
             key, date, user_key, action, entity_key, entity_type, misc
@@ -350,6 +355,9 @@ def status(key):
         WHERE voucher.key = %s;
     """, (voucher["key"],))
     voucher = cur.fetchone()
+
+    if "voucher:view_pin" not in user["permissions"]:
+        voucher["pin"] = "#"
 
     cur.execute("""
         INSERT INTO log (

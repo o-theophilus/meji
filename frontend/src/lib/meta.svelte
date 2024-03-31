@@ -8,6 +8,8 @@
 	let imageAlt = image;
 	let type = 'website';
 	let twitterCard = 'summary_large_image';
+
+	description = description ? description : title;
 </script>
 
 <svelte:head>

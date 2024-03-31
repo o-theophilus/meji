@@ -16,7 +16,7 @@
 	let { sizes } = data;
 </script>
 
-<Meta title="Adverts" description="Advert" />
+<Meta title="Item Adverts" description="Here are the items with adverts" />
 
 <Center>
 	<br />

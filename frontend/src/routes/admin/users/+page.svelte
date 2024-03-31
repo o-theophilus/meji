@@ -39,7 +39,7 @@
 	});
 </script>
 
-<Meta title="Users" description="Users" />
+<Meta title="All Users" />
 
 <Center>
 	<br />

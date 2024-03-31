@@ -54,7 +54,7 @@
 				type: 'voucher',
 				data: resp.voucher
 			};
-			console.log(resp.voucher);
+
 			$module = '';
 			$toast = {
 				status: 200,

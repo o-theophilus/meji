@@ -21,7 +21,7 @@
 	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
 </script>
 
-<Meta title="Users" description="Users" />
+<Meta title="Users" description="Users with elevated permission." />
 
 <Center>
 	<br />

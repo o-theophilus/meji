@@ -286,7 +286,7 @@
 		<span class="bold">
 			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
 		</span>
-		<Rating rating={item.rating} />
+		<Rating ratings={item.ratings} />
 	</div>
 
 	<ButtonFold

@@ -7,7 +7,7 @@
 	let sum = 0;
 
 	for (const x of ratings) {
-		sum += x[1];
+		sum += x;
 	}
 
 	sum /= ratings.length;

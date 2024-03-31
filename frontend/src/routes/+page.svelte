@@ -50,7 +50,7 @@
 	});
 </script>
 
-<Meta title="Home" description="Home" />
+<Meta title="Home" description="Meji is your No. 1 trusted online shopping destination in Nigeria." />
 
 <Hero />
 <Advert {adverts} />

@@ -1,20 +1,23 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { user, loading, portal, module } from '$lib/store.js';
+	import { user, loading, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button.svelte';
+	import Group from '$lib/group.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
-
-	import Group from '$lib/group.svelte';
+	import Log from '$lib/log.svelte';
 
 	export let data;
+	$: recently_viewed = data.recently_viewed;
+	$: similar_items = data.similar_items;
+	$: customer_view = data.customer_view;
 	$: item = data.item;
 
 	$: if ($portal) {
@@ -49,7 +52,8 @@
 	});
 </script>
 
-<Meta title={item?.name} description={item.info} image={item.thumbnail} />
+<Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
+<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
 
 <Center>
 	<br />
@@ -86,22 +90,15 @@
 	</section>
 </Card>
 
-{#key item.key}
-	<Group let:open let:set_open name="Recently Viewed" url="/recently_viewed/{$user.key}/{item.key}">
-		<ButtonFold {open} on:click={set_open} />
-	</Group>
-	<Group let:open let:set_open name="Similar Items" url="/similar_items/{item.key}">
-		<ButtonFold {open} on:click={set_open} />
-	</Group>
-	<Group
-		let:open
-		let:set_open
-		name="Customers who viewed this also viewed"
-		url="/customer_view/{$user.key}/{item.key}"
-	>
-		<ButtonFold {open} on:click={set_open} />
-	</Group>
-{/key}
+<Group let:open let:set_open name="Recently Viewed" items={recently_viewed}>
+	<ButtonFold {open} on:click={set_open} />
+</Group>
+<Group let:open let:set_open name="Similar Items" items={similar_items}>
+	<ButtonFold {open} on:click={set_open} />
+</Group>
+<Group let:open let:set_open name="Customers who viewed this also viewed" items={customer_view}>
+	<ButtonFold {open} on:click={set_open} />
+</Group>
 
 <style>
 	.block {
