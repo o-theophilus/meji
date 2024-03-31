@@ -157,13 +157,13 @@ def signup():
 
     cur.execute("""
         UPDATE "user"
-        SET name = %s, email = %s, password = %s, status = %s
+        SET name = %s, email = %s, password = %s, status = 'signed_up'
         WHERE key = %s
-        RETURNING *;""", (
+        RETURNING *;
+    """, (
         request.json["name"],
         request.json["email"],
         generate_password_hash(request.json["password"], method="scrypt"),
-        "signed_up",
         user["key"]
     ))
     user = cur.fetchone()
@@ -426,16 +426,11 @@ def login():
                 in_cart["key"]
             ))
 
-        # TODO: REMOVE:
-        # DELETE 'FROM order_item WHERE order_key = %s' IF CASCADE WORKS
         if out_cart:
             cur.execute("""
                 DELETE FROM "order"
                 WHERE "order".key = %s AND "order".status = 'cart';
-                DELETE FROM order_item WHERE order_key = %s;
-            """, (
-                out_cart["key"], out_cart["key"]
-            ))
+            """, (out_cart["key"],))
 
     cur.execute("""
         UPDATE "user" SET login = %s

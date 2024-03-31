@@ -214,6 +214,15 @@ def get():
 
     items = []
     if cart:
+        if cart["pay_account"] > user["account_balance"]:
+            cur.execute("""
+                UPDATE "order"
+                SET pay_account = 0
+                WHERE key = %s
+                RETURNING *;
+            """, (cart["key"],))
+            cart = cur.fetchone()
+
         cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
         cur.execute("""
@@ -578,8 +587,3 @@ def account():
         "status": 200,
         "cart": cart
     })
-
-
-# TODO: reset order.pay_account when:
-# getting order and order.pay_account > user.account_balance
-# when order.pay_account > order.cost_items
