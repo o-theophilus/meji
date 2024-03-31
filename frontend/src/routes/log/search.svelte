@@ -79,7 +79,7 @@
 </script>
 
 <section>
-	{#if $me.roles.includes('log:view')}
+	{#if $me.permissions.includes('log:view')}
 		<div class="line">
 			<Search
 				placeholder="Search for User"

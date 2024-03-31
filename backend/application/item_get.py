@@ -73,8 +73,8 @@ def get(key):
 
     if (
         item["status"] != "live"
-        and "item:add" not in user["roles"]
-        and "item:edit_status" not in user["roles"]
+        and "item:add" not in user["permissions"]
+        and "item:edit_status" not in user["permissions"]
     ):
         return jsonify({
             "status": 400,
@@ -116,8 +116,8 @@ def shop(
 
     if (
         "status" in request.args and user and (
-            "item:edit_status" in user["roles"]
-            or "item:add" in user["roles"]
+            "item:edit_status" in user["permissions"]
+            or "item:add" in user["permissions"]
         )
     ):
         status = request.args["status"]
@@ -228,7 +228,7 @@ def home():
         "tags": all_tags().json["tags"],
         "new_arrivals": shop(sort="latest", page_size=8).json["items"],
         "offers": shop(sort="discount", page_size=8).json["items"],
-        "adverts": get_all_advert("home_1", True).json["adverts"]
+        "adverts": get_all_advert("live", "home_1").json["adverts"]
     })
 
 
@@ -381,5 +381,3 @@ def customer_view(user_key, item_key):
         "status": 200,
         "items": [item_schema(x["item"]) for x in item_count]
     })
-
-    # TODO: "You may also like",

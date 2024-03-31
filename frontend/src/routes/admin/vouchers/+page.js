@@ -15,7 +15,7 @@ export const load = async ({ fetch, url, parent }) => {
 	}
 
 	let a = await parent();
-	if (!a.locals.user.roles.includes("voucher:view")) {
+	if (!a.locals.user.permissions.includes("voucher:view")) {
 		throw error(400, "unauthorized access")
 	}
 

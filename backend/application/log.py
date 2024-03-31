@@ -34,7 +34,7 @@ def get():
 
     user_id, entity_type, user_action, entity_id = search
 
-    if "log:view" not in user["roles"]:
+    if "log:view" not in user["permissions"]:
         user_id = user["key"]
 
     cur.execute("""

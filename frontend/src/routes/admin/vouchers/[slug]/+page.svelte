@@ -86,7 +86,7 @@
 		Validity: {voucher.validity}
 	{/if}
 
-	{#if $user.roles.includes('voucher:status')}
+	{#if $user.permissions.includes('voucher:status')}
 		{#if ['active', 'inactive'].includes(voucher.status)}
 			<br />
 			<br />
@@ -129,7 +129,7 @@
 	{/if}
 </Card>
 
-{#if $user.roles.includes('log:view')}
+{#if $user.permissions.includes('log:view')}
 	{#key `${voucher.key}_${voucher.status}`}
 		<Logs voucher_key={voucher.key} />
 	{/key}

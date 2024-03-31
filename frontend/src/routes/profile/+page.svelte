@@ -18,11 +18,11 @@
 	import SVG from '$lib/svg.svelte';
 	import Search from '$lib/search.svelte';
 	import Center from '$lib/center.svelte';
-	import Role from './role.svelte';
+	import Permission from './permission.svelte';
 
 	export let data;
 	$: user = data.user;
-	let { roles } = data;
+	let { permissions } = data;
 
 	let edit_mode = false;
 	let page_name = 'profile';
@@ -70,7 +70,7 @@
 </Center>
 
 <Card>
-	{#if $me.roles.includes('user:view')}
+	{#if $me.permissions.includes('user:view')}
 		<div class="line">
 			<Search
 				placeholder="Search for User by  Email or Key"
@@ -235,13 +235,13 @@
 					<br />
 
 					<div class="horizontal">
-						{#if user.roles.length != 0}
+						{#if user.permissions.length != 0}
 							<Button href="/admin">Admin</Button>
 						{/if}
 
 						<Button href="/orders">Orders</Button>
 
-						{#if $me.roles.includes('log:view')}
+						{#if $me.permissions.includes('log:view')}
 							<Button href="/log">Logs</Button>
 						{/if}
 					</div>
@@ -261,7 +261,7 @@
 					</div>
 				{/if}
 
-				{#if user.key != $me.key && $me.roles.includes('log:view')}
+				{#if user.key != $me.key && $me.permissions.includes('log:view')}
 					<br />
 					<Button
 						class="link small"
@@ -274,8 +274,8 @@
 	{/if}
 </Card>
 
-{#if user && user.key != $me.key && user.status == 'confirmed' && $me.roles.includes('user:set_role')}
-	<Role {user} {roles} />
+{#if user && user.key != $me.key && user.status == 'confirmed' && $me.permissions.includes('user:set_permissions')}
+	<Permission {user} {permissions} />
 {/if}
 
 <style>

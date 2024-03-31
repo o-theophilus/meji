@@ -21,7 +21,7 @@ def add():
             "error": "invalid token"
         })
 
-    if "item:add" not in user["roles"]:
+    if "item:add" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -96,7 +96,7 @@ def edit(key):
     error = {}
 
     if "status" in request.json:
-        if "item:edit_status" not in user["roles"]:
+        if "item:edit_status" not in user["permissions"]:
             error["status"] = "unauthorized access"
         elif (
             not request.json["status"]
@@ -118,7 +118,7 @@ def edit(key):
             ))
 
     if "name" in request.json:
-        if "item:edit_name" not in user["roles"]:
+        if "item:edit_name" not in user["permissions"]:
             error["name"] = "unauthorized access"
         elif not request.json["name"]:
             error["name"] = "this field is required"
@@ -142,7 +142,7 @@ def edit(key):
             ))
 
     if "tags" in request.json:
-        if "item:edit_tag" not in user["roles"]:
+        if "item:edit_tag" not in user["permissions"]:
             error["tag"] = "unauthorized access"
         elif type(request.json["tags"]) is not list:
             error["tags"] = "this field is required"
@@ -160,7 +160,7 @@ def edit(key):
         if not request.json["price"]:
             request.json["price"] = 0
 
-        if "item:edit_price" not in user["roles"]:
+        if "item:edit_price" not in user["permissions"]:
             error["price"] = "unauthorized access"
         elif request.json["price"]:
             if (
@@ -200,7 +200,7 @@ def edit(key):
         if not request.json["old_price"]:
             request.json["old_price"] = 0
 
-        if "item:edit_price" not in user["roles"]:
+        if "item:edit_price" not in user["permissions"]:
             error["price"] = "unauthorized access"
 
         elif item["price"]:
@@ -225,7 +225,7 @@ def edit(key):
                 ))
 
     if "info" in request.json:
-        if "item:edit_info" not in user["roles"]:
+        if "item:edit_info" not in user["permissions"]:
             error["info"] = "unauthorized access"
         else:
             cur.execute("""
@@ -238,7 +238,7 @@ def edit(key):
             ))
 
     if "variation" in request.json:
-        if "item:edit_variation" not in user["roles"]:
+        if "item:edit_variation" not in user["permissions"]:
             error["variation"] = "unauthorized access"
         elif type(request.json["variation"]) is not dict:
             error["variation"] = "this field is required"
@@ -312,7 +312,7 @@ def add_photos(key):
             "error": "invalid token"
         })
 
-    if "item:edit_photo" not in user["roles"]:
+    if "item:edit_photo" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -415,7 +415,7 @@ def order_photo(key):
             "error": "invalid token"
         })
 
-    if "item:edit_photo" not in user["roles"]:
+    if "item:edit_photo" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -496,7 +496,7 @@ def delete_photo(key):
             "error": "invalid token"
         })
 
-    if "item:edit_photo" not in user["roles"]:
+    if "item:edit_photo" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

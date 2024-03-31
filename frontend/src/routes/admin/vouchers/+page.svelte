@@ -58,7 +58,7 @@
 
 <Card>
 	<Status {page_name} array={status} default_value="all">
-		{#if $user.roles.includes('voucher:add')}
+		{#if $user.permissions.includes('voucher:add')}
 			<Button
 				class="primary"
 				on:click={() => {

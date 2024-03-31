@@ -27,7 +27,7 @@
 	let edit_mode = false;
 	$loading = false;
 
-	let roles = [
+	let permissions = [
 		'item:edit_photo',
 		'item:advert',
 		'item:edit_status',
@@ -37,7 +37,7 @@
 		'item:edit_info',
 		'item:edit_variation'
 	];
-	let is_admin = $user.roles.some((x) => roles.includes(x));
+	let is_admin = $user.permissions.some((x) => permissions.includes(x));
 
 	onMount(() => {
 		if ($page.url.searchParams.has('edit') && is_admin) {
@@ -72,11 +72,11 @@
 <Card>
 	<section class="block">
 		<div class="photo">
-			<Photo {item} edit_mode={edit_mode && $user.roles.includes('item:edit_photo')} />
+			<Photo {item} edit_mode={edit_mode && $user.permissions.includes('item:edit_photo')} />
 		</div>
 
 		<div>
-			{#if edit_mode && $user.roles.includes('item:advert')}
+			{#if edit_mode && $user.permissions.includes('item:advert')}
 				<Button class="link" href="/admin/adverts/{item.key}">Advert &gt;</Button>
 				<br />
 				<br />

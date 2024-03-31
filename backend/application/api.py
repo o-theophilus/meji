@@ -144,6 +144,7 @@ def cron():
     })
 
 
+# @bp.get("/fix")
 def create_table():
     con, cur = db_open()
 
@@ -171,7 +172,7 @@ def create_table():
     """)
 
     # cur.execute("""
-    #     ALTER TABLE otp RENAME COLUMN code TO pin;
+    #     ALTER TABLE "user" RENAME COLUMN xx TO yy;
     # """)
 
     # cur.execute("""
@@ -186,7 +187,6 @@ def create_table():
     })
 
 
-@bp.get("/fix")
 def deta_to_postgres():
     con, cur = db_open()
 

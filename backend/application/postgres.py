@@ -26,7 +26,7 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
 
     photo VARCHAR(36),
     account_balance FLOAT DEFAULT 0,
-    roles TEXT[] DEFAULT ARRAY[]::TEXT[],
+    permissions TEXT[] DEFAULT ARRAY[]::TEXT[],
     login BOOLEAN DEFAULT FALSE,
 
     setting_theme VARCHAR(20) DEFAULT 'light',
@@ -158,7 +158,6 @@ log_table = """CREATE TABLE IF NOT EXISTS log (
 );"""
 
 
-# TODO: change code to pin
 otp_table = """CREATE TABLE IF NOT EXISTS otp (
     key CHAR(32) PRIMARY KEY,
 

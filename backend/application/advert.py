@@ -45,7 +45,7 @@ def add_photo(item_key):
             "error": "invalid token"
         })
 
-    if "item:advert" not in user["roles"]:
+    if "item:advert" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -152,7 +152,7 @@ def get(item_key):
             "error": "invalid token"
         })
 
-    if "item:advert" not in user["roles"]:
+    if "item:advert" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -199,32 +199,38 @@ def get(item_key):
     })
 
 
-# TODO: if item.status not live
 @bp.get("/advert")
-def get_all_advert(space="", is_ready=False):
+def get_all_advert(status="", space=""):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    space = request.args["status"] if "status" in request.args else space
+    status = request.args["status"] if "status" in request.args else status
+    space = request.args["space"] if "space" in request.args else space
 
     ready = ""
-    if is_ready:
+    if status == "live":
         for x in sizes:
             ready = f"{ready} AND photo_{x} IS NOT NULL"
 
     cur.execute("""
         SELECT
             advert.*,
-            item.name AS name,
-            item.slug AS slug,
+            item.name,
+            item.slug,
+            item.status,
             COALESCE(item.photos[1], NULL) AS photo,
             COUNT(*) OVER() AS total_items
         FROM advert
         LEFT JOIN item ON advert.key = item.key
-        WHERE %s = '' OR %s = ANY(spaces) {}
+        WHERE (
+                %s = '' OR item.status = %s
+            ) AND (
+                %s = '' OR %s = ANY(spaces)
+            ) {}
         LIMIT %s OFFSET %s;
     """.format(ready), (
+        status, status,
         space, space,
         page_size,
         (page_no - 1) * page_size
@@ -257,7 +263,7 @@ def delete_photo(item_key):
             "error": "invalid token"
         })
 
-    if "item:advert" not in user["roles"]:
+    if "item:advert" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -346,7 +352,7 @@ def delete(item_key):
             "error": "invalid token"
         })
 
-    if "item:advert" not in user["roles"]:
+    if "item:advert" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -412,7 +418,7 @@ def ad_spaces(item_key):
             "error": "invalid token"
         })
 
-    if "item:advert" not in user["roles"]:
+    if "item:advert" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

@@ -15,6 +15,7 @@
 	export let data;
 	$: users = data.users;
 	$: total_page = data.total_page;
+	let { permissions } = data;
 	let { page_name } = data;
 
 	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
@@ -36,7 +37,7 @@
 </Center>
 
 <Card>
-	<Search {page_name} />
+	<Search {page_name} {permissions} />
 
 	<br />
 	{#each users as x}

@@ -3,7 +3,7 @@ import { loading } from "$lib/store.js"
 
 export const load = async ({ fetch, parent, params }) => {
 	let a = await parent();
-	if (!a.locals.user.roles.includes("voucher:view")) {
+	if (!a.locals.user.permissions.includes("voucher:view")) {
 		throw error(400, "unauthorized access")
 	}
 

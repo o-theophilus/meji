@@ -38,7 +38,7 @@
 		<span class="bold"> Deleted User </span>
 	{/if}
 
-	{#if log.user_key && $user.roles.includes('log:view')}
+	{#if log.user_key && $user.permissions.includes('log:view')}
 		<button
 			on:click={() => {
 				emit('search', { user: log.user_key });

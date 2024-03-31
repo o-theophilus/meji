@@ -232,7 +232,7 @@ def get_many():
         status,
         search, f"%{search}%",
         user["key"],
-        "admin" in request.args and "order:view" not in user["roles"],
+        "admin" in request.args and "order:view" not in user["permissions"],
         page_size, (page_no - 1) * page_size
     ))
     orders = cur.fetchall()
@@ -285,7 +285,7 @@ def get(key):
         or items == []
         or (
             order["user_key"] != user["key"]
-            and "order:view" not in user["roles"]
+            and "order:view" not in user["permissions"]
         )
     ):
         return jsonify({
@@ -335,7 +335,7 @@ def date(key):
             "error": "invalid token"
         })
 
-    if "order:edit_eta" not in user["roles"]:
+    if "order:edit_eta" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -415,7 +415,7 @@ def status(key):
             "error": "invalid token"
         })
 
-    if "order:status" not in user["roles"]:
+    if "order:status" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -524,7 +524,7 @@ def cancel(key):
     order_user = cur.fetchone()
 
     if (
-        "order:cancel" not in user["roles"]
+        "order:cancel" not in user["permissions"]
         and user["key"] != order_user["key"]
     ):
         return jsonify({

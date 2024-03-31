@@ -12,14 +12,14 @@ import json
 bp = Blueprint("admin", __name__)
 
 
-roles = {
+permissions = {
     "admin": [
         ['manage_photo', 2]
     ],
     "user": [
         ['view', 1],
         ['view_balance', 2],
-        ['set_role', 3]
+        ['set_permission', 3]
     ],
     "item": [
         ['add', 2],
@@ -35,7 +35,7 @@ roles = {
     "voucher": [
         ['view', 1],
         ['add', 3],
-        ['view_code', 3],  # change to view_pin
+        ['view_pin', 3],
         ['status', 3]
     ],
     "log": [
@@ -59,7 +59,7 @@ def get():
     if not cur.fetchone():
         cur.execute("""
                 INSERT INTO "user" ( key, version, status, name, email,
-                    password, roles)
+                    password, permissions)
                 VALUES (%s, %s, %s, %s, %s, %s, %s);
             """, (
             uuid4().hex,
@@ -69,7 +69,7 @@ def get():
             email,
             generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [f"{x}:{y[0]}" for x in roles for y in roles[x]]
+            [f"{x}:{y[0]}" for x in permissions for y in permissions[x]]
         ))
 
     db_close(con, cur)
@@ -105,10 +105,10 @@ def get_many():
             "error": "invalid search"
         })
 
-    user_key, role_type, role_action = search
+    _user, _type, _action = search
 
-    if "user:view" not in user["roles"]:
-        user_key = user["key"]
+    if "user:view" not in user["permissions"]:
+        _user = user["key"]
 
     order_by = {
         'latest': 'log.date',
@@ -133,35 +133,47 @@ def get_many():
             AND log.action = 'created'
             AND log.entity_type = 'auth'
         WHERE
-            array_length("user".roles, 1) IS NOT NULL
+            array_length("user".permissions, 1) IS NOT NULL
             AND (%s = 'all'
                 OR CONCAT_WS(', ', "user".key, "user".name, "user".email)
                 ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING("user".roles, ',') ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING("user".roles, ',') ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".permissions, ',')
+                ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".permissions, ',')
+                ILIKE %s)
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
         order_by[sort], order_dir[sort]
     ), (
-        user_key, f"%{user_key}%",
-        role_type, f"%{role_type}:%",
-        role_action, f"%{role_type}:{role_action}%",
+        _user, f"%{_user}%",
+        _type, f"%{_type}:%",
+        _action, f"%{_type}:{_action}%",
         page_size, (page_no - 1) * page_size
     ))
     users = cur.fetchall()
 
     db_close(con, cur)
 
+    permits = {
+        "all": ['all']
+    }
+    for x in permissions:
+        if x not in permits:
+            permits[x] = ["all"]
+            for y in permissions[x]:
+                permits[x].append(y[0])
+
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
+        "permissions": permits,
         "total_page": ceil(users[0]["total_items"] / page_size) if users else 0
     })
 
 
-@bp.put("/admin/role/<key>")
-def role(key):
+@bp.put("/admin/permission/<key>")
+def permission(key):
     con, cur = db_open()
 
     me = token_to_user(cur)
@@ -169,7 +181,7 @@ def role(key):
     user = cur.fetchone()
 
     error = None
-    if not me or "user:set_role" not in me["roles"]:
+    if not me or "user:set_permission" not in me["permissions"]:
         error = "unauthorized access"
     elif "password" not in request.json:
         error = "this field is required"
@@ -178,8 +190,8 @@ def role(key):
     elif (
         not user
         or me["key"] == user["key"]
-        or "roles" not in request.json
-        or type(request.json["roles"]) is not list
+        or "permissions" not in request.json
+        or type(request.json["permissions"]) is not list
         or user["email"] == os.environ["MAIL_USERNAME"]
         or user["status"] != "confirmed"
     ):
@@ -193,10 +205,10 @@ def role(key):
 
     cur.execute("""
         UPDATE "user"
-        SET roles = %s
+        SET permissions = %s
         WHERE key = %s;
     """, (
-        request.json["roles"],
+        request.json["permissions"],
         user["key"]
     ))
 
@@ -208,12 +220,12 @@ def role(key):
         uuid4().hex,
         datetime.now(),
         me["key"],
-        "changed_role",
+        "changed_permission",
         user["key"],
         "admin",
         json.dumps({
-            "from": user["roles"],
-            "to": request.json["roles"]
+            "from": user["permissions"],
+            "to": request.json["permissions"]
         })
     ))
 

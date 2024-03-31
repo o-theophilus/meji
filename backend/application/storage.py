@@ -75,7 +75,7 @@ def photo_error():
             "error": "invalid token"
         })
 
-    if "admin:manage_photo" not in user["roles"]:
+    if "admin:manage_photo" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -176,7 +176,7 @@ def delete_photo():
             "error": "invalid token"
         })
 
-    if "admin:manage_photo" not in user["roles"]:
+    if "admin:manage_photo" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

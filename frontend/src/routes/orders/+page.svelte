@@ -26,10 +26,12 @@
 	<div class="ctitle">
 		<div class="ctitle">
 			<Back />
-			{$page.url.searchParams.has('admin') && $user.roles.includes('order:view') ? 'All' : 'My'} Orders
+			{$page.url.searchParams.has('admin') && $user.permissions.includes('order:view')
+				? 'All'
+				: 'My'} Orders
 		</div>
 
-		{#if $user.roles.includes('order:view')}
+		{#if $user.permissions.includes('order:view')}
 			<Button
 				class={$page.url.searchParams.has('admin') ? 'primary' : 'outline'}
 				on:click={() => {

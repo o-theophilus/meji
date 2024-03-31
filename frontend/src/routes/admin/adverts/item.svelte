@@ -12,24 +12,32 @@
 
 <a href="/admin/adverts/{advert.key}">
 	<img src={advert.photo || '/image/item.png'} alt={advert.name} />
-	<div class="details">
-		<div class="name">
-			{advert.name}
-		</div>
-		{#if advert.spaces.length > 0}
-			Spaces:
-			{#each advert.spaces as x, i}
-				{#if i > 0} , {/if}
-				{x}
-			{/each}
-		{/if}
-		{#if missing}
-			<br />
-			<span class="error">
-				missing:
-				{missing}
+	<div class="right">
+		<div class="first_line">
+			<span class="name">
+				{advert.name}
 			</span>
-		{/if}
+			<span class="status">
+				{advert.status}
+			</span>
+		</div>
+		<div class="other_line">
+			{#if advert.spaces.length > 0}
+				Spaces:
+				{#each advert.spaces as x, i}
+					{#if i > 0} , {/if}
+					{x}
+				{/each}
+			{/if}
+
+			{#if missing}
+				<br />
+				<span class="error">
+					missing:
+					{missing}
+				</span>
+			{/if}
+		</div>
 	</div>
 </a>
 
@@ -49,16 +57,28 @@
 		--size: 40px;
 		width: var(--size);
 		height: var(--size);
+		flex-shrink: 0;
 
 		border-radius: 50%;
 	}
 
-	.details {
+	.right {
 		width: 100%;
+	}
+
+	.first_line {
+		display: flex;
+		gap: var(--sp1);
+		justify-content: space-between;
 	}
 
 	.name {
 		font-weight: 700;
 		color: var(--ac1);
+	}
+
+	.other_line,
+	.status {
+		font-size: small;
 	}
 </style>

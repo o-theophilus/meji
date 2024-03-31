@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from .tools import token_to_user, user_schema
 from math import ceil
 from .postgres import db_close, db_open
-from .admin import roles
+from .admin import permissions
 
 
 bp = Blueprint("user_get", __name__)
@@ -22,7 +22,7 @@ def get():
     user = None
     if "search" in request.args:
 
-        if "user:view" not in me["roles"]:
+        if "user:view" not in me["permissions"]:
             return jsonify({
                 "status": 400,
                 "error": "unauthorized access"
@@ -39,7 +39,7 @@ def get():
             ))
             user = cur.fetchone()
 
-            if user and "user:view_balance" not in me["roles"]:
+            if user and "user:view_balance" not in me["permissions"]:
                 user["acc_balance"] = "#"
 
         if not user:
@@ -56,7 +56,7 @@ def get():
     return jsonify({
         "status": 200,
         "user": user_schema(user),
-        "roles": roles
+        "permissions": permissions
     })
 
 
@@ -71,7 +71,7 @@ def get_many():
             "error": "invalid token"
         })
 
-    if "user:view" not in user["roles"]:
+    if "user:view" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

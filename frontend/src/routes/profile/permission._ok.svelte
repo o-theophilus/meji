@@ -8,7 +8,7 @@
 	import IG from '$lib/input_group.svelte';
 
 	let form = {
-		roles: $module.roles
+		permissions: $module.permissions
 	};
 	let error = {};
 	let show_password = false;
@@ -26,7 +26,7 @@
 	const submit = async () => {
 		error = {};
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/role/${$module.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/permission/${$module.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -41,7 +41,7 @@
 			$module = '';
 			$toast = {
 				status: 200,
-				message: 'Role saved'
+				message: 'Permissions saved'
 			};
 		} else {
 			error = resp;
@@ -51,7 +51,7 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Accept Roles</b>
+		<b>Accept Permissions</b>
 	</svelte:fragment>
 
 	<IG

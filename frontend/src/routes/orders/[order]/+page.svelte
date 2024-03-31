@@ -66,7 +66,7 @@
 			<br />
 
 			<Eta {order}>
-				{#if order.status == 'created' && $user.roles.includes('order:edit_eta')}
+				{#if order.status == 'created' && $user.permissions.includes('order:edit_eta')}
 					<Button
 						class="link"
 						on:click={() => {
@@ -89,7 +89,7 @@
 		<br />
 		<br />
 		<div class="line">
-			{#if $user.roles.includes('order:status')}
+			{#if $user.permissions.includes('order:status')}
 				<Button
 					on:click={() => {
 						$module = {
@@ -103,7 +103,7 @@
 				</Button>
 			{/if}
 
-			{#if order.user == $user.key || $user.roles.includes('order:cancel')}
+			{#if order.user == $user.key || $user.permissions.includes('order:cancel')}
 				<Button
 					class="hover_red"
 					on:click={() => {

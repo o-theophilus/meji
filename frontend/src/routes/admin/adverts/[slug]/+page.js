@@ -3,7 +3,7 @@ import { error } from '@sveltejs/kit';
 export const load = async ({ fetch, params, parent }) => {
 
 	let a = await parent();
-	if (!a.locals.user.roles.includes("item:advert")) {
+	if (!a.locals.user.permissions.includes("item:advert")) {
 		throw error(400, "unauthorized access")
 	}
 

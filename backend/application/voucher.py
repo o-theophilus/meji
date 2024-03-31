@@ -19,7 +19,7 @@ def create():
             "status": 400,
             "error": "invalid token"
         })
-    if "voucher:add" not in user["roles"]:
+    if "voucher:add" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -99,7 +99,7 @@ def get_many():
             "error": "invalid token"
         })
 
-    if "voucher:view" not in user["roles"]:
+    if "voucher:view" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -170,7 +170,7 @@ def get(key):
             "status": 400,
             "error": "invalid token"
         })
-    if "voucher:view" not in user["roles"]:
+    if "voucher:view" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -191,7 +191,7 @@ def get(key):
             "error": "invalid request"
         })
 
-    if "voucher:view_code" not in user["roles"]:
+    if "voucher:view_code" not in user["permissions"]:
         voucher["pin"] = "#"
 
     db_close(con, cur)
@@ -213,7 +213,7 @@ def activate(key):
             "error": "invalid token"
         })
 
-    if "voucher:status" not in user["roles"]:
+    if "voucher:status" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -305,7 +305,7 @@ def status(key):
             "error": "invalid token"
         })
 
-    if "voucher:status" not in user["roles"]:
+    if "voucher:status" not in user["permissions"]:
         return jsonify({
             "status": 400,
             "error": "unauthorized access"

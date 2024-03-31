@@ -80,7 +80,7 @@
 			>
 		</span>
 
-		{#if $user.roles.includes('item:edit_status')}
+		{#if $user.permissions.includes('item:edit_status')}
 			<Button
 				class="round"
 				on:click={() => {
@@ -105,7 +105,7 @@
 	<div class="horizontal">
 		<Save {item} />
 
-		{#if edit_mode && $user.roles.includes('item:edit_name')}
+		{#if edit_mode && $user.permissions.includes('item:edit_name')}
 			<Button
 				class="round"
 				on:click={() => {
@@ -140,7 +140,7 @@
 		{/each}
 	</span>
 
-	{#if edit_mode && $user.roles.includes('item:edit_tag')}
+	{#if edit_mode && $user.permissions.includes('item:edit_tag')}
 		<Button
 			class="round"
 			on:click={() => {
@@ -173,7 +173,7 @@
 				<SVG type="info" size="8" />
 			</Button>
 		{/if}
-		{#if edit_mode && $user.roles.includes('item:edit_price')}
+		{#if edit_mode && $user.permissions.includes('item:edit_price')}
 			<Button
 				class="round"
 				on:click={() => {
@@ -206,7 +206,7 @@
 				open_info = !open_info;
 			}}
 		/>
-		{#if edit_mode && $user.roles.includes('item:edit_info')}
+		{#if edit_mode && $user.permissions.includes('item:edit_info')}
 			<Button
 				class="round"
 				on:click={() => {
@@ -244,7 +244,7 @@
 					open_variation = !open_variation;
 				}}
 			/>
-			{#if edit_mode && $user.roles.includes('item:edit_variation')}
+			{#if edit_mode && $user.permissions.includes('item:edit_variation')}
 				<Button
 					class="round"
 					on:click={() => {

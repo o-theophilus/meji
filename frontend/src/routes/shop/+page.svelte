@@ -67,9 +67,9 @@
 </Center>
 
 <Card>
-	{#if $user.roles.includes('item:add') || $user.roles.includes('item:edit_status')}
+	{#if $user.permissions.includes('item:add') || $user.permissions.includes('item:edit_status')}
 		<Status {page_name} array={status} default_value="live">
-			{#if $user.roles.includes('item:add')}
+			{#if $user.permissions.includes('item:add')}
 				<Button
 					class="primary"
 					on:click={() => {

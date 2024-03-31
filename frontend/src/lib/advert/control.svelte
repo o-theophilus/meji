@@ -23,12 +23,8 @@
 {#if count > 1}
 	<div class="control">
 		{#each Array(count) as _, i}
-			<div
-				class="btn"
+			<button
 				class:active={index == i}
-				on:keypress
-				role="button"
-				tabindex="0"
 				on:click={() => {
 					reset_timer();
 					index = i;
@@ -42,31 +38,32 @@
 <style>
 	.control {
 		padding: 24px;
-		
+
 		display: flex;
 		gap: var(--sp1);
-		
+
 		width: fit-content;
 	}
 
-	.btn {
+	button {
 		--size: 20px;
 
 		width: var(--size);
 		height: var(--size);
 
+		border: none;
 		border-radius: var(--size);
 		background-color: var(--cl1);
 		transition: var(--trans1);
-		
+
 		cursor: pointer;
 	}
-	
-	.btn:hover {
+
+	button:hover {
 		background-color: var(--cl2);
 	}
 
-	.btn.active {
+	button.active {
 		width: calc(var(--size) * 2.5);
 	}
 </style>

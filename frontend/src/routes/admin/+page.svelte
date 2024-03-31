@@ -15,21 +15,21 @@
 
 <Card>
 	<div class="block">
-		{#if $user.roles.includes('user:view')}
+		{#if $user.permissions.includes('user:view')}
 			<Button class="wide" href="/admin/users">Users</Button>
 			<br />
 			<Button class="wide" href="/admin/admin_users">Admin Users</Button>
 			<br />
 		{/if}
-		{#if $user.roles.includes('voucher:view')}
+		{#if $user.permissions.includes('voucher:view')}
 			<Button class="wide" href="/admin/vouchers">Vouchers</Button>
 			<br />
 		{/if}
-		{#if $user.roles.includes('item:advert')}
+		{#if $user.permissions.includes('item:advert')}
 			<Button class="wide" href="/admin/adverts">Adverts</Button>
 			<br />
 		{/if}
-		{#if $user.roles.includes('admin:manage_photo')}
+		{#if $user.permissions.includes('admin:manage_photo')}
 			<Button class="wide" href="/admin/photo_error">Photo Error</Button>
 			<br />
 		{/if}
@@ -46,6 +46,8 @@
 		[ - ] fix cron
 		<br />
 		[ - ] does going back restore token
+		<br />
+		[ - ] ADD "You may also like" user item group
 		<br />
 		[ - ] use version for financial ops
 		<br />

@@ -7,16 +7,16 @@
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 	import Check from '$lib/button.check.svelte';
-	import Role_Ok from './role._ok.svelte';
+	import Permission_Ok from './permission._ok.svelte';
 
 	export let user;
-	export let roles;
-	let user_roles = [...user.roles];
+	export let permissions;
+	let permits = [...user.permissions];
 	let open = true;
 
 	const select_group = (_in) => {
 		let group = [];
-		for (const [name, r0les] of Object.entries(roles)) {
+		for (const [name, r0les] of Object.entries(permissions)) {
 			for (const x of r0les) {
 				if (_in == name) {
 					group.push(`${name}:${x[0]}`);
@@ -30,7 +30,7 @@
 
 		let add_all = false;
 		for (const x of group) {
-			if (!user_roles.includes(x)) {
+			if (!permits.includes(x)) {
 				add_all = true;
 				break;
 			}
@@ -38,29 +38,29 @@
 
 		if (add_all) {
 			for (const x of group) {
-				if (!user_roles.includes(x)) {
-					user_roles.push(x);
+				if (!permits.includes(x)) {
+					permits.push(x);
 				}
 			}
-			user_roles = user_roles;
+			permits = permits;
 		} else {
-			user_roles = user_roles.filter((x) => !group.includes(x));
+			permits = permits.filter((x) => !group.includes(x));
 		}
 	};
 
-	const select = (role) => {
-		if (!user_roles.includes(role)) {
-			user_roles.push(role);
-			user_roles = user_roles;
+	const select = (_in) => {
+		if (!permits.includes(_in)) {
+			permits.push(_in);
+			permits = permits;
 		} else {
-			user_roles = user_roles.filter((x) => x != role);
+			permits = permits.filter((x) => x != _in);
 		}
 	};
 </script>
 
 <Card>
 	<div class="title">
-		Roles
+		Permissions
 		<ButtonFold
 			{open}
 			on:click={() => {
@@ -96,29 +96,29 @@
 				</span>
 			{/each}
 
-			{#each Object.entries(roles) as [name, r0les]}
+			{#each Object.entries(permissions) as [_type, _actions]}
 				<span>
 					<Button
 						class="link small"
 						on:click={() => {
-							select_group(name);
+							select_group(_type);
 						}}
 					>
-						{name}
+						{_type}
 					</Button>
 				</span>
 
 				{#each [1, 2, 3] as x}
 					<span>
-						{#each r0les as role}
-							{#if role[1] == x}
+						{#each _actions as action}
+							{#if action[1] == x}
 								<Check
-									active={user_roles.includes(`${name}:${role[0]}`)}
+									active={permits.includes(`${_type}:${action[0]}`)}
 									on:click={() => {
-										select(`${name}:${role[0]}`);
+										select(`${_type}:${action[0]}`);
 									}}
 								>
-									{role[0].split('_').join(' ')}
+									{action[0].split('_').join(' ')}
 								</Check>
 							{/if}
 						{/each}
@@ -133,9 +133,9 @@
 			class="primary"
 			on:click={() => {
 				$module = {
-					module: Role_Ok,
+					module: Permission_Ok,
 					key: user.key,
-					roles: user_roles
+					permissions: permits
 				};
 			}}
 		>

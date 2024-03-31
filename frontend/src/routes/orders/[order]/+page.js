@@ -4,7 +4,7 @@ import { loading } from "$lib/store.js"
 export const load = async ({ fetch, params, parent }) => {
 
 	let a = await parent();
-	if (!a.locals.user.roles.includes("order:view")) {
+	if (!a.locals.user.permissions.includes("order:view")) {
 		throw error(400, "unauthorized access")
 	}
 
