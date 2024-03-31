@@ -13,6 +13,7 @@
 	let emit = createEventDispatcher();
 
 	export let cart;
+	export let prev;
 
 	$: complete_address =
 		cart.name &&
@@ -47,7 +48,8 @@
 			on:click={() => {
 				$module = {
 					module: Form,
-					cart
+					cart,
+					prev
 				};
 			}}
 		>

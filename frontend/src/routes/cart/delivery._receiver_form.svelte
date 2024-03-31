@@ -13,7 +13,7 @@
 	import IG from '$lib/input_group.svelte';
 
 	let { cart } = $module;
-	
+
 	let form = {
 		name: cart.name,
 		phone: cart.phone,
@@ -51,7 +51,7 @@
 		if (!form.postal_code) {
 			error.local_area = 'This field is required';
 		}
-		
+
 		Object.keys(error).length === 0 && submit();
 	};
 
@@ -93,12 +93,10 @@
 		}
 	}
 
-	// TODO: load only when first opened
-	// let loading_complete = false;
-	let previous_receivers = [];
+	let { prev } = $module;
 	onMount(async () => {
-		if (previous_receivers.length == 0) {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+		if (!prev.loaded) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/prev`, {
 				method: 'get',
 				headers: {
 					'Content-Type': 'application/json',
@@ -106,14 +104,17 @@
 				}
 			});
 			resp = await resp.json();
-			// loading_complete = true;
 
 			if (resp.status == 200) {
-				previous_receivers = resp.previous_receivers;
-				// $portal = {
-				// 	type: 'previous_receivers',
-				// 	data: resp.previous_receivers
-				// };
+				prev = {
+					loaded: true,
+					receivers: resp.prev
+				};
+
+				$portal = {
+					type: 'prev',
+					data: prev
+				};
 			}
 		}
 	});
@@ -126,9 +127,15 @@
 		<b>Receiver's Information</b>
 	</svelte:fragment>
 
-	{#if previous_receivers.length > 0}
+	{#if !prev.loaded}
+		Loading suggestions . . .
+		<br />
+		<br />
+		<hr />
+		<br />
+	{:else if prev.receivers.length > 0}
 		<div class="title">
-			Address suggestion{previous_receivers.length > 1 ? 's' : ''}
+			Address suggestion{prev.receivers.length > 1 ? 's' : ''}
 			<ButtonFold
 				{open}
 				on:click={() => {
@@ -138,7 +145,7 @@
 		</div>
 		{#if open}
 			<div class="fold" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-				{#each previous_receivers as x}
+				{#each prev.receivers as x}
 					<Button
 						on:click={() => {
 							form = {
@@ -159,7 +166,6 @@
 				{/each}
 			</div>
 		{/if}
-
 		<br />
 		<hr />
 		<br />

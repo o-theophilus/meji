@@ -154,7 +154,7 @@ def add_to_cart():
     })
 
 
-@bp.get("/cart/receiver")
+@bp.get("/cart/prev")
 def previous_receivers():
     con, cur = db_open()
 
@@ -185,13 +185,13 @@ def previous_receivers():
         ORDER BY log.date DESC
         LIMIT 5;
     """, (user["key"],))
-    pr = cur.fetchall()
+    prev = cur.fetchall()
 
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
-        "previous_receivers": pr
+        "prev": prev
     })
 
 

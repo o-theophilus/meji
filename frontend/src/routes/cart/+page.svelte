@@ -13,6 +13,11 @@
 	let { cart } = data;
 	let { items } = data;
 
+	let prev = {
+		loaded: false,
+		receivers: []
+	};
+
 	$: if ($portal) {
 		if ($portal.type == 'item') {
 			let temp_items = [];
@@ -45,6 +50,8 @@
 		} else if ($portal.type == 'items_quantity') {
 			cart = $portal.data.cart;
 			items = $portal.data.items;
+		} else if ($portal.type == 'prev') {
+			prev = $portal.data;
 		} else if ($portal.type == 'receiver') {
 			cart.name = $portal.data.name;
 			cart.phone = $portal.data.phone;
@@ -83,6 +90,7 @@
 {:else if state == 1}
 	<Delivery
 		{cart}
+		{prev}
 		on:next={() => {
 			state = 2;
 		}}
