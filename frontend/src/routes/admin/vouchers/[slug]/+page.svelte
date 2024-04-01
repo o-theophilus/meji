@@ -4,6 +4,7 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Button from '$lib/button.svelte';
 	import Center from '$lib/center.svelte';
 	import Logs from './logs.svelte';
@@ -48,6 +49,7 @@
 </script>
 
 <Meta title="Manage Voucher" />
+<Log action={'viewed'} entity_key={voucher.key} entity_type={'voucher'} />
 
 <Center>
 	<br />

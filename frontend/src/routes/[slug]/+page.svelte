@@ -5,6 +5,7 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Button from '$lib/button.svelte';
 	import Group from '$lib/group.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -12,7 +13,6 @@
 	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
-	import Log from '$lib/log.svelte';
 
 	export let data;
 	$: recently_viewed = data.recently_viewed;
@@ -53,7 +53,9 @@
 </script>
 
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
-<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
+{#key item.key}
+	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
+{/key}
 
 <Center>
 	<br />

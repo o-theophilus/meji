@@ -5,6 +5,7 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Status from '$lib/status.svelte';
 	import Button from '$lib/button.svelte';
@@ -45,6 +46,9 @@
 </script>
 
 <Meta title="All Vouchers" description="Vouchers" />
+{#key `${$page.url.pathname}${$page.url.search}`}
+	<Log entity_type="page" />
+{/key}
 
 <Center>
 	<br />

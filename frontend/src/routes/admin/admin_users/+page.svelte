@@ -1,8 +1,4 @@
 <script>
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { set_state } from '$lib/store.js';
-
 	import Card from '$lib/card.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Meta from '$lib/meta.svelte';

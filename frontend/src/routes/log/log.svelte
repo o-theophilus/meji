@@ -34,7 +34,7 @@
 	<br />
 
 	<!-- TODO: FOR DELETED USERS -->
-	<a data-sveltekit-preload-data="off" href="/profile?search={log.user_key}">
+	<a href="/profile?search={log.user_key}">
 		{log.user_name}
 	</a>
 
@@ -55,7 +55,7 @@
 	{/if}
 
 	{#if href}
-		<a data-sveltekit-preload-data="off" {href}>
+		<a {href}>
 			{log.entity_name}
 		</a>
 

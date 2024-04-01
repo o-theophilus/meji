@@ -2,6 +2,7 @@
 	import Card from '$lib/card.svelte';
 	import Marked from '$lib/marked.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Center from '$lib/center.svelte';
 
 	let md = `
@@ -216,6 +217,7 @@ Contact Us: [Contact](/#contact)
 </script>
 
 <Meta title="Terms and Conditions" description="Terms and Conditions" />
+<Log entity_type={'page'} />
 
 <Center>
 	<br />

@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Status from '$lib/status.svelte';
@@ -20,6 +21,9 @@
 </script>
 
 <Meta title="Order" description="Order" />
+{#key `${$page.url.pathname}${$page.url.search}`}
+	<Log entity_type="page" />
+{/key}
 
 <Center>
 	<br />

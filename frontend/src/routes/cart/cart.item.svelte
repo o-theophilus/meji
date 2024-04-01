@@ -18,7 +18,7 @@
 	</a>
 	<div class="details">
 		<div>
-			<a href="/{item.slug}" data-sveltekit-preload-data="off">
+			<a href="/{item.slug}">
 				{item.name}
 			</a>
 

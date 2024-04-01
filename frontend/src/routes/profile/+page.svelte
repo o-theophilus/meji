@@ -5,6 +5,7 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 
 	import Button from '$lib/button.svelte';
 	import Logout from '../auth/logout.svelte';
@@ -50,6 +51,8 @@
 </script>
 
 <Meta title={user?.name || data.error} description={user?.name || data.error} />
+<!-- TODO: how best to log this -->
+<!-- <Log entity_type={'page'} /> -->
 
 <Center>
 	<br />

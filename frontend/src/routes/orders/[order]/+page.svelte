@@ -7,6 +7,7 @@
 	import Center from '$lib/center.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Back from '$lib/button.back.svelte';
+	import Log from '$lib/log.svelte';
 
 	import Items from './items.svelte';
 	import Eta from './eta.svelte';
@@ -27,6 +28,7 @@
 </script>
 
 <Meta title="Order" description="Order" />
+<Log action={'viewed'} entity_key={order.key} entity_type={'order'} />
 
 <Center>
 	<br />

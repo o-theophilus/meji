@@ -4,6 +4,7 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -20,6 +21,7 @@
 </script>
 
 <Meta title="Saved" description="Saved" />
+<Log action="viewed" entity_type="save" />
 
 <Center>
 	<br />

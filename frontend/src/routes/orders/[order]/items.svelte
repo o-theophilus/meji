@@ -16,7 +16,7 @@
 		<div>
 			{i + 1}
 		</div>
-		<a class="left" href="/{item.slug}" data-sveltekit-preload-data="off">
+		<a class="left" href="/{item.slug}">
 			<span class="bold">
 				{item.name}
 			</span>

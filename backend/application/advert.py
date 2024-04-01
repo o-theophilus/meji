@@ -173,20 +173,6 @@ def get(item_key):
     """, (item["key"],))
     advert = cur.fetchone()
 
-    if advert:
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "viewed",
-            advert["key"],
-            "advert"
-        ))
-
     db_close(con, cur)
 
     return jsonify({

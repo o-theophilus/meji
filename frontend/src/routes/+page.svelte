@@ -4,6 +4,7 @@
 	import { module } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Advert from '$lib/advert/index.svelte';
 	import Button from '$lib/button.svelte';
 
@@ -51,6 +52,7 @@
 </script>
 
 <Meta title="Home" description="Meji is your No. 1 trusted online shopping destination in Nigeria." />
+<Log entity_type={'page'} />
 
 <Hero />
 <Advert {adverts} />

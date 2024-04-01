@@ -1,12 +1,16 @@
 <script>
-	import { state, user } from '$lib/store.js';
+	import { user } from '$lib/store.js';
+
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Button from '$lib/button.svelte';
 	import Center from '$lib/center.svelte';
 </script>
 
 <Meta title="Admin Dashboard" description="This is an area for users with elevated permission." />
+<!-- TODO: should i log this -->
+<!-- <Log entity_type={'page'} /> -->
 
 <Center>
 	<br />
@@ -36,16 +40,14 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] fix page meta data / add to all pages
+		<br /> [ - ] better page meta descriptions
 		<br /> [ - ] add sort and search to page with many entities
-		<br /> [ - ] move view/get logs to frontend
-		<br /> [ - ] more logs
 		<br /> [ - ] fix cron
+		<br /> [ - ] use version for financial ops
 		<br />
 		<br /> [ - ] move old_price to logs
 		<br /> [ - ] does going back restore token
 		<br /> [ - ] ADD "You may also like" user item group
-		<br /> [ - ] use version for financial ops
 		<br />
 		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] update brand guide

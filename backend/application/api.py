@@ -179,9 +179,9 @@ def create_table():
     #     ALTER TABLE otp DROP COLUMN date;
     # """)
 
-    # cur.execute("""
-    #     DELETE FROM log WHERE entity_type = 'location';
-    # """)
+    cur.execute("""
+        DELETE FROM log WHERE action = '/save';
+    """)
 
     # cur.execute("""
     #     UPDATE log

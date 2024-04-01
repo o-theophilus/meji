@@ -243,19 +243,6 @@ def get():
         for x in items:
             x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "viewed",
-            cart["key"],
-            "cart"
-        ))
-
     db_close(con, cur)
 
     return jsonify({

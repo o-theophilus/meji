@@ -2,6 +2,7 @@
 	import { user, portal } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
+	import Log from '$lib/log.svelte';
 	import Center from '$lib/center.svelte';
 	import Card from '$lib/card.svelte';
 
@@ -71,6 +72,9 @@
 </script>
 
 <Meta title="Cart" description="Cart" />
+{#if cart}
+	<Log action="viewed" entity_key={cart.key} entity_type="cart" />
+{/if}
 
 <Center>
 	<br />
