@@ -10,7 +10,6 @@ bp = Blueprint("item_get", __name__)
 
 
 def recently_viewed(cur, user_key, item_key):
-
     cur.execute("""
         SELECT *
         FROM (
@@ -44,7 +43,6 @@ def recently_viewed(cur, user_key, item_key):
 
 
 def similar_items(cur, item_key):
-
     cur.execute("""
         SELECT *
         FROM item
@@ -85,7 +83,6 @@ def similar_items(cur, item_key):
 
 
 def customer_view(cur, user_key, item_key):
-
     cur.execute("""
         SELECT
             item.*,

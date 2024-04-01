@@ -8,15 +8,12 @@
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 
-	let page_name = $module.page_name;
+	let tags = [...$module.tags];
 	let selected = [];
 	let _selected = [];
 	let multiply = false;
 	let _multiply = false;
 	let search = '';
-
-	let tags = [];
-	let open_tags = false;
 
 	let selected_string = '';
 	let _selected_string = '';
@@ -39,19 +36,12 @@
 			selected = x.split(',');
 			_selected = x.split(',');
 		}
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
-		resp = await resp.json();
-		if (resp.status == 200) {
-			tags = resp.tags;
-		}
 	});
 </script>
 
 <Form>
 	<svelte:fragment slot="title">
 		<b class="title">All Tags</b>
-		All Tags
 	</svelte:fragment>
 
 	<div class="input">
@@ -87,9 +77,9 @@
 		<label class:disabled={selected.length < 2}>
 			<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />
 			{#if multiply}
-				x
+				all (x)
 			{:else}
-				+
+				any (+)
 			{/if}
 		</label>
 
@@ -99,10 +89,9 @@
 				class="hover_red"
 				on:click={() => {
 					if (_selected_string) {
-						set_state(page_name, 'tag', '');
+						set_state($module.page_name, 'tag', '');
 					}
 
-					open_tags = false;
 					selected = [];
 					_selected = [];
 					multiply = false;
@@ -110,21 +99,20 @@
 					$module = '';
 				}}
 			>
-				<SVG type="close" size="8" />
+				Clear
 			</Button>
 
 			<Button
 				disabled={_selected_string == selected_string}
 				on:click={() => {
-					set_state(page_name, 'tag', selected_string);
+					set_state($module.page_name, 'tag', selected_string);
 
-					open_tags = false;
 					_selected = selected;
 					_multiply = multiply;
 					$module = '';
 				}}
 			>
-				<SVG type="check" size="8" />
+				Ok
 			</Button>
 		</div>
 	</div>
@@ -145,8 +133,16 @@
 	}
 
 	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp0);
+
 		max-height: 200px;
 		overflow-y: auto;
+
+		border-radius: var(--sp1);
+		padding: var(--sp1);
+		border: 2px solid var(--ac4);
 	}
 
 	input {
@@ -159,10 +155,15 @@
 	label {
 		display: flex;
 		gap: var(--sp0);
-		margin-top: var(--sp0);
 		cursor: pointer;
 
 		font-size: small;
+	}
+
+	.tags label {
+		background-color: var(--ac5);
+		padding: var(--sp0);
+		border-radius: var(--sp0);
 	}
 
 	label:hover {

@@ -45,13 +45,37 @@
 			set_state(page_name, 'search', search);
 		}
 	};
+
+	let tags;
 	onMount(async () => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
 			_search = params.get('search');
 		}
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
+		resp = await resp.json();
+		if (resp.status == 200) {
+			tags = resp.tags;
+		}
 	});
+
+	let filter = '';
+	$: {
+		filter = 'Showing result for ';
+		if ($page.url.searchParams.has('search') && $page.url.searchParams.has('tag')) {
+			filter = `${filter} ${$page.url.searchParams.get(
+				'search'
+			)} with tags ${$page.url.searchParams.get('tag')}`;
+		} else if ($page.url.searchParams.has('search')) {
+			filter = `${filter} search ${$page.url.searchParams.get('search')}`;
+		} else if ($page.url.searchParams.has('tag')) {
+			filter = `${filter} tags ${$page.url.searchParams.get('tag')}`;
+		} else {
+			filter = '';
+		}
+	}
 </script>
 
 <Meta title="Shop" description="Shop" />
@@ -90,9 +114,11 @@
 
 	<div class="line">
 		<Button
+			disabled={!tags}
 			on:click={() => {
 				$module = {
 					module: Tag,
+					tags,
 					page_name
 				};
 			}}
@@ -112,6 +138,11 @@
 		/>
 		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
 	</div>
+
+	{#if filter}
+		<br />
+		{filter}
+	{/if}
 </Card>
 
 {#if items.length > 0}
