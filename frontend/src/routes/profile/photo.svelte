@@ -24,8 +24,8 @@
 		formData.append('file', file);
 
 		$loading = "uploading . . .";
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
-			method: 'post',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/photo`, {
+			method: 'put',
 			headers: {
 				Authorization: $token
 			},

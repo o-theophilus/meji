@@ -42,7 +42,7 @@
 	<div class="grid">
 		<span> ID: </span>
 		<span class="value">
-			{order.key}
+			{order.key.substring(0, 8)}
 		</span>
 		<span> Status: </span>
 		<span class="value upper">

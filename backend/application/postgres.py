@@ -144,6 +144,8 @@ voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
 );"""
 
 
+# entity_key TEXT,
+# entity_type VARCHAR(100) NOT NULL,
 log_table = """CREATE TABLE IF NOT EXISTS log (
     key CHAR(32) PRIMARY KEY,
     date TIMESTAMP NOT NULL,

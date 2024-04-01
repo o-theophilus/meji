@@ -172,9 +172,8 @@
 					{/if}
 
 					<span class="bold"> Address: </span>
-					{#if user.address_line && user.address_local_area && user.address_state && user.address_country && user.address_postal_code}
-						{user.address_line}, {user.address_local_area}, {user.address_state}, {user.address
-							.country}.
+					{#if user.line && user.local_area && user.state && user.country && user.postal_code}
+						{user.line}, {user.local_area}, {user.state}, {user.country}.
 					{:else}
 						No Address
 					{/if}
@@ -196,9 +195,9 @@
 						<div />
 					{/if}
 
-					{#if user.address_line && user.address_local_area && user.address_state && user.address_country && user.address_postal_code}
+					{#if user.line && user.local_area && user.state && user.country && user.postal_code}
 						<span class="bold"> Postal Code: </span>
-						{user.address_postal_code}
+						{user.postal_code}
 					{/if}
 				</div>
 

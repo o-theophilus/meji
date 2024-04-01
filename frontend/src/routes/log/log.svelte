@@ -6,7 +6,7 @@
 	export let log;
 
 	let href = '';
-	if (['item', 'cart'].includes(log.entity_type)) {
+	if (log.entity_type == 'item') {
 		href = `/${log.entity_key}`;
 	} else if (log.entity_type == 'order') {
 		href = `/orders/${log.entity_key}`;
@@ -14,6 +14,10 @@
 		href = `/admin/vouchers/${log.entity_key}`;
 	} else if (log.entity_type == 'advert') {
 		href = `/admin/adverts/${log.entity_key}`;
+	} else if (log.entity_type == 'page') {
+		href = log.entity_key;
+	} else if (log.entity_type == 'admin' && log.entity_key) {
+		href = `/profile?search=${log.entity_key}`;
 	}
 </script>
 
@@ -30,13 +34,9 @@
 	<br />
 
 	<!-- TODO: FOR DELETED USERS -->
-	{#if log.user_name}
-		<a data-sveltekit-preload-data="off" href="/profile?search={log.user_key}">
-			{log.user_name}
-		</a>
-	{:else}
-		<span class="bold"> Deleted User </span>
-	{/if}
+	<a data-sveltekit-preload-data="off" href="/profile?search={log.user_key}">
+		{log.user_name}
+	</a>
 
 	{#if log.user_key && $user.permissions.includes('log:view')}
 		<button
@@ -48,13 +48,13 @@
 		</button>
 	{/if}
 
-	{log.action}
+	{#if log.entity_type == 'page'} viewed {:else} {log.action} {/if}
 
-	{#if !['auth', 'user'].includes(log.entity_type)}
+	{#if !['auth', 'user', 'admin'].includes(log.entity_type)}
 		{log.entity_type}
 	{/if}
 
-	{#if !['auth', 'user', 'cart', 'otp'].includes(log.entity_type)}
+	{#if href}
 		<a data-sveltekit-preload-data="off" {href}>
 			{log.entity_name}
 		</a>
@@ -104,9 +104,9 @@
 		background-color: var(--cl4);
 	}
 
-	.bold {
+	/* .bold {
 		font-weight: 700;
-	}
+	} */
 
 	.date {
 		font-size: smaller;

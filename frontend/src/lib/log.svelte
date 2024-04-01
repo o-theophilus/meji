@@ -9,9 +9,9 @@
 	export let status = 200;
 	export let misc = {};
 
-	$: if (action == 'goto') {
+	$: if (entity_type == 'page') {
+		action = $page.url.pathname;
 		entity_key = `${$page.url.pathname}${$page.url.search}`;
-		entity_type = 'location';
 	}
 
 	let prev;

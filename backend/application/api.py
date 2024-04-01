@@ -179,9 +179,26 @@ def create_table():
     #     ALTER TABLE otp DROP COLUMN date;
     # """)
 
-    cur.execute("""
-        DELETE FROM log WHERE entity_type = 'viewed';
-    """)
+    # cur.execute("""
+    #     DELETE FROM log WHERE entity_type = 'location';
+    # """)
+
+    # cur.execute("""
+    #     UPDATE log
+    #     SET entity_type = 'admin'
+    #     WHERE action = 'changed_permission';
+    # """)
+
+    # cur.execute("""
+    #     ALTER TABLE log
+    #     ALTER COLUMN entity_key TYPE TEXT;
+
+    #     ALTER TABLE log
+    #     ALTER COLUMN entity_type TYPE VARCHAR(100);
+
+    #     ALTER TABLE log
+    #     ALTER COLUMN entity_type SET NOT NULL;
+    # """)
 
     db_close(con, cur)
 

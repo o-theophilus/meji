@@ -303,10 +303,10 @@ def get(key):
         x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type
-    ) VALUES (%s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type
+        ) VALUES (%s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -365,10 +365,10 @@ def date(key):
         })
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -426,7 +426,7 @@ def status(key):
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
 
-    if order and order["user"] == user["key"]:
+    if order and order["user_key"] == user["key"]:
         order_user = user
     else:
         cur.execute("""SELECT * FROM "user" WHERE key = %s;""",
@@ -461,10 +461,10 @@ def status(key):
         })
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],
@@ -555,10 +555,10 @@ def cancel(key):
         })
 
     cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type, misc
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-""", (
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
         uuid4().hex,
         datetime.now(),
         user["key"],

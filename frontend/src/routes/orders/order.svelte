@@ -7,11 +7,11 @@
 
 <a href="/orders/{order.key}">
 	<div class="name">
-		{#if order.user == $user.key && $page.url.searchParams.has('order:view')}
+		{#if order.user_key == $user.key && $page.url.searchParams.has('admin')}
 			*
 		{/if}
 
-		{order.key}
+		{order.key.substring(0, 8)}
 	</div>
 
 	{#each order.items as y, i}

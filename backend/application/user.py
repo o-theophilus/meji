@@ -142,7 +142,7 @@ def edit_user(key):
         else:
             cur.execute("""
                 UPDATE "user"
-                SET address_line = %s
+                SET line = %s
                 WHERE key = %s;
             """, (
                 request.json["line"],
@@ -153,7 +153,7 @@ def edit_user(key):
         else:
             cur.execute("""
                 UPDATE "user"
-                SET address_state = %s
+                SET state = %s
                 WHERE key = %s;
             """, (
                 request.json["state"],
@@ -164,7 +164,7 @@ def edit_user(key):
         else:
             cur.execute("""
                 UPDATE "user"
-                SET address_country = %s
+                SET country = %s
                 WHERE key = %s;
             """, (
                 request.json["country"],
@@ -175,7 +175,7 @@ def edit_user(key):
         else:
             cur.execute("""
                 UPDATE "user"
-                SET address_local_area = %s
+                SET local_area = %s
                 WHERE key = %s;
             """, (
                 request.json["local_area"],
@@ -186,7 +186,7 @@ def edit_user(key):
         else:
             cur.execute("""
                 UPDATE "user"
-                SET address_postal_code = %s
+                SET postal_code = %s
                 WHERE key = %s;
             """, (
                 request.json["postal_code"],
@@ -200,6 +200,11 @@ def edit_user(key):
         })
 
     cur.execute("""
+        SELECT * FROM "user" WHERE key = %s;
+    """, (user["key"],))
+    user = cur.fetchone()
+
+    cur.execute("""
         INSERT INTO log (
             key, date, user_key, action, entity_key, entity_type, misc
         ) VALUES (%s, %s, %s, %s, %s, %s, %s);
@@ -210,7 +215,7 @@ def edit_user(key):
         "edited",
         None,
         "user",
-        request.json
+        json.dumps(request.json)
     ))
 
     db_close(con, cur)

@@ -1,15 +1,14 @@
 <script>
 	import { page } from '$app/stores';
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 
 	import { onMount } from 'svelte';
-	import { set_state } from '$lib/store.js';
+	import { set_state, module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Form from '$lib/form.svelte';
 
-	export let page_name;
+	let page_name = $module.page_name;
 	let selected = [];
 	let _selected = [];
 	let multiply = false;
@@ -49,137 +48,89 @@
 	});
 </script>
 
-<svelte:window
-	on:click={() => {
-		open_tags = false;
-	}}
-/>
+<Form>
+	<svelte:fragment slot="title">
+		<b class="title">All Tags</b>
+		All Tags
+	</svelte:fragment>
 
-<div class="tag_position" on:click|stopPropagation role="presentation">
-	<Button
-		on:click={() => {
-			open_tags = !open_tags;
-		}}
-	>
-		Tags&nbsp;{#if _selected.length > 0}
-			({_selected.length}{#if _multiply}*{/if})
+	<div class="input">
+		<Input bind:value={search} type="text" placeholder="Search" />
+		{#if search}
+			<div class="clear">
+				<Button
+					class="round"
+					on:click={() => {
+						search = '';
+					}}
+				>
+					<SVG type="close" size="8" />
+				</Button>
+			</div>
 		{/if}
+	</div>
 
-		<span class="angle">
-			<SVG type="angle" size="8" />
-		</span>
-	</Button>
+	<br />
 
-	{#if open_tags}
-		<div
-			class="container"
-			on:click|stopPropagation
-			role="presentation"
-			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
-		>
-			All Tags
+	<div class="tags">
+		{#each tags as x}
+			<label class:hide={!x.includes(search.toLowerCase())}>
+				<input bind:group={selected} type="checkbox" value={x} />
+				{x}
+			</label>
+		{/each}
+	</div>
 
-			<br />
-			<br />
+	<br />
 
-			<div class="input">
-				<Input bind:value={search} type="text" placeholder="Search" />
-				{#if search}
-					<div class="clear">
-						<Button
-							class="round"
-							on:click={() => {
-								search = '';
-							}}
-						>
-							<SVG type="close" size="8" />
-						</Button>
-					</div>
-				{/if}
-			</div>
+	<div class="line">
+		<label class:disabled={selected.length < 2}>
+			<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />
+			{#if multiply}
+				x
+			{:else}
+				+
+			{/if}
+		</label>
 
-			<br />
+		<div class="line buttons">
+			<Button
+				disabled={!_selected_string && !selected_string}
+				class="hover_red"
+				on:click={() => {
+					if (_selected_string) {
+						set_state(page_name, 'tag', '');
+					}
 
-			<div class="tags">
-				{#each tags as x}
-					<label class:hide={!x.includes(search)}>
-						<input bind:group={selected} type="checkbox" value={x} />
-						{x}
-					</label>
-				{/each}
-			</div>
+					open_tags = false;
+					selected = [];
+					_selected = [];
+					multiply = false;
+					_multiply = false;
+					$module = '';
+				}}
+			>
+				<SVG type="close" size="8" />
+			</Button>
 
-			<br />
+			<Button
+				disabled={_selected_string == selected_string}
+				on:click={() => {
+					set_state(page_name, 'tag', selected_string);
 
-			<div class="line">
-				<label class:disabled={selected.length < 2}>
-					<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />
-					{#if multiply}
-						x
-					{:else}
-						+
-					{/if}
-				</label>
-
-				<div class="line buttons">
-					<Button
-						disabled={!_selected_string && !selected_string}
-						class="hover_red"
-						on:click={() => {
-							if (_selected_string) {
-								set_state(page_name, 'tag', '');
-							}
-
-							open_tags = false;
-							selected = [];
-							_selected = [];
-							multiply = false;
-							_multiply = false;
-						}}
-					>
-						<SVG type="close" size="8" />
-					</Button>
-
-					<Button
-						disabled={_selected_string == selected_string}
-						on:click={() => {
-							set_state(page_name, 'tag', selected_string);
-
-							open_tags = false;
-							_selected = selected;
-							_multiply = multiply;
-						}}
-					>
-						<SVG type="check" size="8" />
-					</Button>
-				</div>
-			</div>
+					open_tags = false;
+					_selected = selected;
+					_multiply = multiply;
+					$module = '';
+				}}
+			>
+				<SVG type="check" size="8" />
+			</Button>
 		</div>
-	{/if}
-</div>
+	</div>
+</Form>
 
 <style>
-	.tag_position {
-		position: relative;
-	}
-
-	.angle {
-		transform: rotate(-90deg);
-	}
-
-	.container {
-		position: absolute;
-		z-index: 1;
-		top: 40px;
-		left: 0;
-
-		padding: var(--sp3);
-		border-radius: var(--sp0);
-		background-color: var(--ac6);
-
-		outline: 2px solid var(--ac4);
-	}
-
 	.input {
 		position: relative;
 	}

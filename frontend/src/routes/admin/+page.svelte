@@ -40,6 +40,7 @@
 		<br /> [ - ] fix page meta data / add to all pages
 		<br /> [ - ] add sort and search to page with many entities
 		<br /> [ - ] move view/get logs to frontend
+		<br /> [ - ] move old_price to logs
 		<br />
 		<br /> [ - ] more logs
 		<br /> [ - ] fix cron

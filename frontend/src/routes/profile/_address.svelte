@@ -9,25 +9,25 @@
 
 	let error = {};
 
-	let address = { ...$module.user.address };
-	address.country = address.country ? address.country : 'Nigeria';
-	address.state = address.state ? address.state : 'Lagos';
+	let user = { ...$module.user };
+	user.country = user.country ? user.country : 'Nigeria';
+	user.state = user.state ? user.state : 'Lagos';
 
 	const validate = async () => {
 		error = {};
-		if (!address.line) {
+		if (!user.line) {
 			error.line = 'This field is required';
 		}
-		if (!address.country) {
+		if (!user.country) {
 			error.country = 'This field is required';
 		}
-		if (!address.state) {
+		if (!user.state) {
 			error.state = 'This field is required';
 		}
-		if (!address.local_area) {
+		if (!user.local_area) {
 			error.local_area = 'This field is required';
 		}
-		if (!address.postal_code) {
+		if (!user.postal_code) {
 			error.postal_code = 'This field is required';
 		}
 
@@ -36,13 +36,13 @@
 
 	const submit = async () => {
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${user.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(address)
+			body: JSON.stringify(user)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -65,7 +65,7 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == address.country) {
+			if (countries[i].name == user.country) {
 				states = countries[i].states;
 				break;
 			}
@@ -82,17 +82,17 @@
 		name="line"
 		label="Address"
 		{error}
-		bind:value={address.line}
+		bind:value={user.line}
 		type="text"
 		placeholder="Your address here"
 	/>
 
 	<IG name="country" {error} let:id>
 		<select
-			bind:value={address.country}
+			bind:value={user.country}
 			{id}
 			on:input={() => {
-				address.state = '';
+				user.state = '';
 			}}
 		>
 			<option value="" selected default hidden> Select country </option>
@@ -105,7 +105,7 @@
 	</IG>
 
 	<IG name="state" {error} let:id>
-		<select bind:value={address.state} {id}>
+		<select bind:value={user.state} {id}>
 			<option value="" selected default hidden> Select state </option>
 			{#each states as state}
 				<option value={state.name}> {state.name} </option>
@@ -118,7 +118,7 @@
 		label="Local Government Area"
 		{error}
 		type="text"
-		bind:value={address.local_area}
+		bind:value={user.local_area}
 		placeholder="Your local government area here"
 	/>
 
@@ -127,7 +127,7 @@
 		label="Postal Code"
 		{error}
 		type="text"
-		bind:value={address.postal_code}
+		bind:value={user.postal_code}
 		placeholder="Your postal code here"
 	/>
 

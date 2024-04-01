@@ -31,7 +31,7 @@
 		error = {};
 
 		$loading = 'loading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order_status/${order.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/status/${order.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

@@ -55,7 +55,7 @@
 </script>
 
 <Meta title="Shop" description="Shop" />
-<Log action={'goto'} />
+<Log entity_type={'page'} />
 
 <Center>
 	<br />
@@ -89,7 +89,17 @@
 	{/if}
 
 	<div class="line">
-		<Tag {page_name} />
+		<Button
+			on:click={() => {
+				$module = {
+					module: Tag,
+					page_name
+				};
+			}}
+		>
+			Tags
+		</Button>
+
 		<Search
 			bind:search
 			on:ok={() => {
