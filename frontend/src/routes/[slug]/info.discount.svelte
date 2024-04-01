@@ -30,6 +30,10 @@
 		gap: var(--sp1) var(--sp2);
 		grid-template-columns: 1fr auto;
 
+		background-color: var(--cl7);
+		padding: var(--sp2);
+		border-radius: var(--sp1);
+
 		font-size: small;
 	}
 	.hr {

@@ -36,20 +36,19 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] shop tag should be a module, not dropdown
 		<br /> [ - ] fix page meta data / add to all pages
 		<br /> [ - ] add sort and search to page with many entities
 		<br /> [ - ] move view/get logs to frontend
-		<br /> [ - ] move old_price to logs
-		<br />
 		<br /> [ - ] more logs
 		<br /> [ - ] fix cron
+		<br />
+		<br /> [ - ] move old_price to logs
 		<br /> [ - ] does going back restore token
 		<br /> [ - ] ADD "You may also like" user item group
 		<br /> [ - ] use version for financial ops
 		<br />
-		<br /> [ - ] update brand guide
 		<br /> [ - ] integrate AI assistant
+		<br /> [ - ] update brand guide
 		<br /> [ - ] write test
 		<br /> [ - ] address api: www.geoapify.com/tutorials
 	</div>

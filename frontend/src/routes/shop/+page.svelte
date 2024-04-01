@@ -63,18 +63,26 @@
 
 	let filter = '';
 	$: {
-		filter = 'Showing result for ';
-		if ($page.url.searchParams.has('search') && $page.url.searchParams.has('tag')) {
-			filter = `${filter} ${$page.url.searchParams.get(
-				'search'
-			)} with tags ${$page.url.searchParams.get('tag')}`;
-		} else if ($page.url.searchParams.has('search')) {
-			filter = `${filter} search ${$page.url.searchParams.get('search')}`;
-		} else if ($page.url.searchParams.has('tag')) {
-			filter = `${filter} tags ${$page.url.searchParams.get('tag')}`;
-		} else {
-			filter = '';
+		let _s = '';
+		let _t = '';
+		let multiply = false;
+		if ($page.url.searchParams.has('search')) {
+			_s = $page.url.searchParams.get('search');
+			_s = ` for [${_s}]`;
 		}
+		if ($page.url.searchParams.has('tag')) {
+			_t = $page.url.searchParams.get('tag');
+			multiply = _t.substring(_t.length - 2, _t.length) == ':x';
+			if (multiply) {
+				_t = _t.substring(0, _t.length - 2);
+			}
+			_t = _t.split(',');
+			_t = ` with ${_t.length > 1 ? (multiply ? 'all' : 'any') : ''} tag${
+				_t.length > 1 && multiply ? 's' : ''
+			} [${_t.join(', ')}]`;
+		}
+
+		filter = `${_s || _t ? 'Showing result' : ''}${_s}${_t}`;
 	}
 </script>
 
@@ -138,12 +146,27 @@
 		/>
 		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
 	</div>
-
-	{#if filter}
-		<br />
-		{filter}
-	{/if}
 </Card>
+
+{#if filter}
+	<Center>
+		<div class="filter">
+			<span>
+				{filter}
+			</span>
+
+			<Button
+				class="round"
+				on:click={() => {
+					set_state(page_name, 'search', '');
+					set_state(page_name, 'tag', '');
+				}}
+			>
+				<SVG type="close" size="8" />
+			</Button>
+		</div>
+	</Center>
+{/if}
 
 {#if items.length > 0}
 	<br />
@@ -164,5 +187,20 @@
 	.line {
 		display: flex;
 		gap: var(--sp1);
+	}
+
+	.filter {
+		display: flex;
+		gap: var(--sp2);
+		justify-content: space-between;
+		align-items: center;
+
+		margin-top: var(--sp2);
+		padding: var(--sp2);
+		border-radius: var(--sp1);
+
+		background-color: var(--cl7);
+		color: var(--ac1);
+		font-size: small;
 	}
 </style>

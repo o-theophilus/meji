@@ -7,6 +7,7 @@
 	import Button from '$lib/button.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
+	import Meta from '$lib/meta.svelte';
 
 	import Review from './review.svelte';
 	import Rating from './rating.svelte';
@@ -41,6 +42,8 @@
 		}
 	});
 </script>
+
+<Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
 
 <Center>
 	<br />
