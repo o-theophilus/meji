@@ -37,10 +37,10 @@
 		<br /> TODO:
 		<br />
 		<br /> [ - ] shop tag should be a module, not dropdown
-		<br /> [ - ] fix page meta data
+		<br /> [ - ] fix page meta data / add to all pages
 		<br /> [ - ] add sort and search to page with many entities
-		<br />
 		<br /> [ - ] move view/get logs to frontend
+		<br />
 		<br /> [ - ] more logs
 		<br /> [ - ] fix cron
 		<br /> [ - ] does going back restore token

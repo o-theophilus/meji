@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 import re
 import os
 from .postgres import db_close, db_open
-from .postgres import (
-    user_table, item_table, save_table, order_table, order_item_table,
-    feedback_table, advert_table, voucher_table, log_table, otp_table)
+# from .postgres import (
+#     user_table, item_table, save_table, order_table, order_item_table,
+#     feedback_table, advert_table, voucher_table, log_table, otp_table)
 from uuid import uuid4
 import json
 
@@ -148,28 +148,28 @@ def cron():
 def create_table():
     con, cur = db_open()
 
-    cur.execute(f"""
-        DROP TABLE IF EXISTS "user" CASCADE;
-        DROP TABLE IF EXISTS item CASCADE;
-        DROP TABLE IF EXISTS save;
-        DROP TABLE IF EXISTS "order" CASCADE;
-        DROP TABLE IF EXISTS order_item;
-        DROP TABLE IF EXISTS feedback;
-        DROP TABLE IF EXISTS advert;
-        DROP TABLE IF EXISTS voucher;
-        DROP TABLE IF EXISTS log;
-        DROP TABLE IF EXISTS otp;
-        {user_table};
-        {item_table};
-        {save_table};
-        {order_table};
-        {order_item_table};
-        {feedback_table};
-        {advert_table};
-        {voucher_table};
-        {log_table};
-        {otp_table};
-    """)
+    # cur.execute(f"""
+    #     DROP TABLE IF EXISTS "user" CASCADE;
+    #     DROP TABLE IF EXISTS item CASCADE;
+    #     DROP TABLE IF EXISTS save;
+    #     DROP TABLE IF EXISTS "order" CASCADE;
+    #     DROP TABLE IF EXISTS order_item;
+    #     DROP TABLE IF EXISTS feedback;
+    #     DROP TABLE IF EXISTS advert;
+    #     DROP TABLE IF EXISTS voucher;
+    #     DROP TABLE IF EXISTS log;
+    #     DROP TABLE IF EXISTS otp;
+    #     {user_table};
+    #     {item_table};
+    #     {save_table};
+    #     {order_table};
+    #     {order_item_table};
+    #     {feedback_table};
+    #     {advert_table};
+    #     {voucher_table};
+    #     {log_table};
+    #     {otp_table};
+    # """)
 
     # cur.execute("""
     #     ALTER TABLE "user" RENAME COLUMN xx TO yy;
@@ -178,6 +178,10 @@ def create_table():
     # cur.execute("""
     #     ALTER TABLE otp DROP COLUMN date;
     # """)
+
+    cur.execute("""
+        DELETE FROM log WHERE entity_type = 'viewed';
+    """)
 
     db_close(con, cur)
 

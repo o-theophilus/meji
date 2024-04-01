@@ -274,7 +274,7 @@
 	{/if}
 </Card>
 
-{#if user && user.key != $me.key && user.status == 'confirmed' && $me.permissions.includes('user:set_permissions')}
+{#if user && user.key != $me.key && user.status == 'confirmed' && $me.permissions.includes('user:set_permission')}
 	<Permission {user} {permissions} />
 {/if}
 
