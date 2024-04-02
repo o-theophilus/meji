@@ -59,7 +59,7 @@
 
 	let loading_complete = false;
 	const load_tags = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`, {
 			method: 'get',
 			headers: {
 				'Content-Type': 'application/json',

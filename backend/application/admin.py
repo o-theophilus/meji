@@ -293,7 +293,7 @@ def photo_error():
         FROM "user"
         WHERE
             photo IS NOT NULL
-            AND photo != ANY(%s);
+            AND NOT photo = ANY(%s);
     """, (all_stored_photos,))
     _users = cur.fetchall()
 

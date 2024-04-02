@@ -99,7 +99,7 @@
 	{:else}
 		<div class="block">
 			<div class="photo">
-				<Photo {edit_mode} />
+				<Photo {user} {edit_mode} />
 			</div>
 
 			<div>

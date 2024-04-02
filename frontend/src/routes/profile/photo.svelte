@@ -1,9 +1,10 @@
 <script>
-	import { loading,  user, toast } from '$lib/store.js';
+	import { loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 
 	export let edit_mode = false;
+	export let user;
 	let error = {};
 	let input;
 	let dragover = false;
@@ -23,7 +24,7 @@
 		let formData = new FormData();
 		formData.append('file', file);
 
-		$loading = "uploading . . .";
+		$loading = 'uploading . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/photo`, {
 			method: 'put',
 			headers: {
@@ -35,7 +36,7 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$user = resp.user;
+			user = resp.user;
 			$toast = {
 				status: 200,
 				message: 'Photo added'
@@ -50,8 +51,8 @@
 	const remove = async () => {
 		error = {};
 
-		$loading = "removing . . .";
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user_photo`, {
+		$loading = 'removing . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/photo`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -62,7 +63,7 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$user.photo = '';
+			user.photo = '';
 			$toast = {
 				status: 200,
 				message: 'Photo removed'
@@ -74,8 +75,8 @@
 </script>
 
 <img
-	src={$user.photo || '/image/user.png'}
-	alt={$user.name}
+	src={user.photo || '/image/user.png'}
+	alt={user.name}
 	onerror="this.src='/image/user.png'"
 	class:dragover
 	class:edit_mode
@@ -123,7 +124,7 @@
 	{/if}
 
 	<br />
-	{#if !$user.photo}
+	{#if !user.photo}
 		<Button
 			class="primary"
 			on:click={() => {

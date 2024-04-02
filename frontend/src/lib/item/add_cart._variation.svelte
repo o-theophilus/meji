@@ -50,16 +50,17 @@
 			})
 		});
 		resp = await resp.json();
-
 		$loading = false;
-		$module = '';
-		$toast = {
-			status: 200,
-			message: `${item.name} added to cart`
-		};
-
+		
 		if (resp.status == 200) {
 			$user.cart = resp.user.cart;
+
+			$module = '';
+			$toast = {
+				status: 200,
+				message: `${item.name} added to cart`
+			};
+			
 		} else {
 			$toast = {
 				status: 400,

@@ -1,5 +1,5 @@
 <script>
-	import { module, user, toast, portal } from '$lib/store.js';
+	import { module, user, toast, portal, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -11,6 +11,8 @@
 	let error = {};
 
 	const submit = async (quantity) => {
+		$loading = true;
+
 		let key = `${item.key}_${JSON.stringify(item.variation)}`;
 		if (quantity == 0 && $user.cart.includes(key)) {
 			$user.cart = $user.cart.filter((i) => i != key);
@@ -20,12 +22,6 @@
 		$portal = {
 			type: 'item',
 			data: item
-		};
-
-		$module = '';
-		$toast = {
-			status: 200,
-			message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 		};
 
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
@@ -41,16 +37,22 @@
 			})
 		});
 		resp = await resp.json();
+		$loading = false;
 
 		if (resp.status == 200) {
 			$user.cart = resp.user.cart;
-
 			$portal = {
 				type: 'items_quantity',
 				data: {
 					cart: resp.cart,
 					items: resp.items
 				}
+			};
+
+			$module = '';
+			$toast = {
+				status: 200,
+				message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 			};
 		} else {
 			$toast = {
