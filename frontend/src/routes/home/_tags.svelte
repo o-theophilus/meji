@@ -4,6 +4,7 @@
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
+	import Tag from '$lib/button.tag.svelte';
 	import SVG from '$lib/svg_tags.svelte';
 
 	let { tags } = $module;
@@ -14,27 +15,32 @@
 		<b>Tags</b>
 	</svelte:fragment>
 
-	<div class="tags">
+	<div class="tags_space">
 		{#each tags as tag}
-			<Button
-				class="small"
+			<Tag
 				on:click={() => {
-					$loading = "loading . . .";
+					$loading = 'loading . . .';
 					$module = '';
 					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 				}}
 			>
-				<SVG type={tag} size="20" />
 				{tag}
-			</Button>
+			</Tag>
 		{/each}
 	</div>
 </Form>
 
 <style>
-	.tags {
+	.tags_space {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
+
+		max-height: 200px;
+		overflow-y: auto;
+
+		border-radius: var(--sp1);
+		padding: var(--sp1);
+		border: 2px solid var(--ac4);
 	}
 </style>

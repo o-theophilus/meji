@@ -171,7 +171,6 @@
 />
 
 <br />
-<br />
 
 {#if item.photos.length > 1}
 	<div class="row">

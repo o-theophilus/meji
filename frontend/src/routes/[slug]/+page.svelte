@@ -10,25 +10,34 @@
 	import Group from '$lib/group.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
-	import Info from './info.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
 
+	import Status from './status.svelte';
+	import Name from './name.svelte';
+	import Tag from './tag.svelte';
+	import Price from './price.svelte';
+	import Info from './info.svelte';
+	import Variation from './variation.svelte';
+	import Feedback from './feedback.svelte';
+	import Floater from './floater.svelte';
+
 	export let data;
+	$: item = data.item;
+	$: feedbacks = data.feedbacks;
+	$: give_feedback = data.give_feedback;
 	$: recently_viewed = data.recently_viewed;
 	$: similar_items = data.similar_items;
 	$: customer_view = data.customer_view;
-	$: item = data.item;
 
-	$: if ($portal) {
-		if ($portal.type == 'item') {
-			item = $portal.data;
+	onMount(() => {
+		if ($page.url.searchParams.has('edit') && is_admin) {
+			$page.url.searchParams.delete('edit');
+			edit_mode = true;
+
+			window.history.replaceState(history.state, '', $page.url.href);
 		}
-		$portal = '';
-	}
-
-	let edit_mode = false;
-	$loading = false;
+	});
 
 	let permissions = [
 		'item:edit_photo',
@@ -41,15 +50,21 @@
 		'item:edit_variation'
 	];
 	let is_admin = $user.permissions.some((x) => permissions.includes(x));
+	let edit_mode = false;
+	$loading = false;
 
-	onMount(() => {
-		if ($page.url.searchParams.has('edit') && is_admin) {
-			$page.url.searchParams.delete('edit');
-			edit_mode = true;
-
-			window.history.replaceState(history.state, '', $page.url.href);
+	let all_tags = {
+		loaded: false,
+		data: []
+	};
+	$: if ($portal) {
+		if ($portal.type == 'item') {
+			item = $portal.data;
+		} else if ($portal.type == 'tag') {
+			all_tags = $portal.data;
 		}
-	});
+		$portal = '';
+	}
 </script>
 
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
@@ -87,7 +102,21 @@
 				<br />
 				<br />
 			{/if}
+
+			<Status {item} {edit_mode} />
+			<Name {item} {edit_mode} />
+			{#key item.key}
+				<Tag {item} {edit_mode} {all_tags} />
+			{/key}
+			<br />
+			<Price {item} {edit_mode} />
+			<br />
 			<Info {item} {edit_mode} />
+			<br />
+			<Variation {item} {edit_mode} />
+			<br />
+			<Feedback {item} {feedbacks} {give_feedback} />
+			<Floater {item} />
 		</div>
 	</section>
 </Card>

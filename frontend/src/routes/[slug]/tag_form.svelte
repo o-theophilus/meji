@@ -4,11 +4,12 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
+	import Tag from '$lib/button.tag.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
-	let all_tags = [...$module.all_tags];
+	let all_tags = { ...$module.all_tags };
 	let tags = item.tags.join(', ');
 	let all_tags_btn = [];
 	let error = {};
@@ -54,35 +55,41 @@
 		tags = tags.filter((v, i, l) => l.indexOf(v) === i);
 		tags = tags.join(', ');
 
-		all_tags_btn = all_tags.filter((i) => !tags.split(', ').includes(i));
+		all_tags_btn = all_tags.data.filter((i) => !tags.split(', ').includes(i));
 	};
 
-	let loading_complete = false;
-	const load_tags = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`, {
-			method: 'get',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			}
-		});
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			all_tags = resp.tags;
-			$portal = {
-				type: 'tag',
-				data: resp.tags
-			};
-		} else {
-			error = resp;
-		}
-	};
 	onMount(async () => {
-		if (all_tags.length == 0) {
-			await load_tags();
+		if (tags == '') {
+			tags = item.name.split(' ').join(', ');
 		}
-		loading_complete = true;
+
+		if (!all_tags.loaded) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`, {
+				method: 'get',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: $token
+				}
+			});
+			resp = await resp.json();
+
+			if (resp.status == 200) {
+				let temp = {
+					loaded: true,
+					data: resp.tags
+				};
+
+				$portal = {
+					type: 'tag',
+					data: temp
+				};
+
+				all_tags = temp;
+			} else {
+				error = resp;
+			}
+		}
+
 		clean_value();
 	});
 </script>
@@ -103,19 +110,18 @@
 		placeholder="Tags here"
 	/>
 
-	<div class="tags">
-		{#if !loading_complete}
+	<div class="tags_space">
+		{#if !all_tags.loaded}
 			<span class="f2"> loading all tags . . . </span>
 		{/if}
 		{#each all_tags_btn as tag}
-			<Button
-				class="small"
+			<Tag
 				on:click={() => {
 					clean_value(tag);
 				}}
 			>
 				{tag}
-			</Button>
+			</Tag>
 		{/each}
 	</div>
 	<br />
@@ -129,9 +135,16 @@
 </Form>
 
 <style>
-	.tags {
+	.tags_space {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
+
+		max-height: 200px;
+		overflow-y: auto;
+
+		border-radius: var(--sp1);
+		padding: var(--sp1);
+		border: 2px solid var(--ac4);
 	}
 </style>

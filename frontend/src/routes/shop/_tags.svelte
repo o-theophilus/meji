@@ -7,6 +7,7 @@
 	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
+	import Tag from '$lib/button.tag.svelte';
 
 	let tags = [...$module.tags];
 	let selected = [];
@@ -37,6 +38,15 @@
 			_selected = x.split(',');
 		}
 	});
+
+	const toggle = (x) => {
+		if (selected.includes(x)) {
+			selected = selected.filter((i) => i != x);
+		} else {
+			selected.push(x);
+			selected = selected;
+		}
+	};
 </script>
 
 <Form>
@@ -62,12 +72,15 @@
 
 	<br />
 
-	<div class="tags">
+	<div class="tags_space">
 		{#each tags as x}
-			<label class:hide={!x.includes(search.toLowerCase())}>
-				<input bind:group={selected} type="checkbox" value={x} />
-				{x}
-			</label>
+			<Tag
+				hide={!x.includes(search.toLowerCase())}
+				active={selected.includes(x)}
+				on:click={() => {
+					toggle(x);
+				}}>{x}</Tag
+			>
 		{/each}
 	</div>
 
@@ -132,10 +145,10 @@
 		height: 100%;
 	}
 
-	.tags {
+	.tags_space {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--sp0);
+		gap: var(--sp1);
 
 		max-height: 200px;
 		overflow-y: auto;
@@ -160,12 +173,6 @@
 		font-size: small;
 	}
 
-	.tags label {
-		background-color: var(--ac5);
-		padding: var(--sp0);
-		border-radius: var(--sp0);
-	}
-
 	label:hover {
 		color: var(--cl1);
 	}
@@ -173,10 +180,6 @@
 	label.disabled {
 		cursor: default;
 		color: var(--ac4);
-	}
-
-	.hide {
-		display: none;
 	}
 
 	.line {

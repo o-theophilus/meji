@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
-	import Check from '$lib/button.check.svelte';
+	import Tag from '$lib/button.tag.svelte';
 
 	export let advert;
 	export let spaces;
@@ -57,15 +57,15 @@
 
 	<div class="spaces">
 		{#each spaces as x}
-			<Check
+			<Tag
 				active={s_spaces.includes(x)}
 				on:click={() => {
 					select(x);
 				}}
-				{disabled}
+				hide={disabled}
 			>
 				{x}
-			</Check>
+			</Tag>
 		{/each}
 	</div>
 

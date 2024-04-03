@@ -4,26 +4,31 @@
 	import { user, module } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Marked from '$lib/marked.svelte';
-	import Form from './info_form.svelte';
+	import Info from './price.info.svelte';
+	import Discount from './price.discount.svelte';
+	import Form from './price_form.svelte';
 
 	export let item = {};
 	export let edit_mode = false;
-	let open = true && item.information;
+	let open_discount = false;
 </script>
 
-<div class="horizontal bold">
-	Details
+<div class="horizontal">
+	<Info {item} />
+
 	<div class="horizontal">
-		<ButtonFold
-			{open}
-			on:click={() => {
-				open = !open;
-			}}
-		/>
-		{#if edit_mode && $user.permissions.includes('item:edit_info')}
+		{#if item.old_price}
+			<Button
+				class="round"
+				on:click={() => {
+					open_discount = !open_discount;
+				}}
+			>
+				<SVG type="info" size="8" />
+			</Button>
+		{/if}
+		{#if edit_mode && $user.permissions.includes('item:edit_price')}
 			<Button
 				class="round"
 				on:click={() => {
@@ -32,20 +37,16 @@
 						item
 					};
 				}}
-				tooltip="Edit Details"
+				tooltip="Edit Price"
 			>
 				<SVG type="edit" size="10" />
 			</Button>
 		{/if}
 	</div>
 </div>
-{#if open}
+{#if item.old_price && open_discount}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		{#if item.information}
-			<Marked md={item.information} />
-		{:else}
-			No information
-		{/if}
+		<Discount {item} />
 	</div>
 {/if}
 
@@ -56,11 +57,5 @@
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
-	}
-
-	.bold {
-		color: var(--ac1);
-		text-transform: capitalize;
-		font-weight: 700;
 	}
 </style>

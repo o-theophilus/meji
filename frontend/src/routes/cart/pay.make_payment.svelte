@@ -134,6 +134,6 @@
 		font-weight: 700;
 	}
 	a:hover {
-		color: var(--cl2);
+		color: var(--cl1_b);
 	}
 </style>

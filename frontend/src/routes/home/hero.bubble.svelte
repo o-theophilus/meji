@@ -14,7 +14,7 @@
 		justify-content: center;
 		align-items: center;
 
-		background-color: var(--secondary);
+		background-color: var(--cl4);
 		width: 100px;
 		height: var(--height);
 
@@ -31,7 +31,7 @@
 		left: 20px;
 
 		content: '';
-		border: 10px solid var(--secondary);
+		border: 10px solid var(--cl4);
 
 		border-bottom-color: transparent;
 		border-right-color: transparent;

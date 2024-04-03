@@ -98,7 +98,7 @@
 		background-color: var(--cl5);
 	}
 	.caution {
-		background-color: var(--cl3);
+		background-color: var(--cl6);
 	}
 	.error {
 		background-color: var(--cl4);
@@ -127,6 +127,6 @@
 
 	button:hover,
 	a:hover {
-		color: var(--cl2);
+		color: var(--cl1_b);
 	}
 </style>

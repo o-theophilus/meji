@@ -4,14 +4,15 @@
 	import { module } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
+	import Tag from '$lib/button.tag.svelte';
 	import Card from '$lib/card.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
-	import Check from '$lib/button.check.svelte';
 	import Permission_Ok from './permission._ok.svelte';
 
 	export let user;
 	export let permissions;
 	let permits = [...user.permissions];
+	let init = [...user.permissions];
 	let open = true;
 
 	const select_group = (_in) => {
@@ -49,13 +50,20 @@
 	};
 
 	const select = (_in) => {
-		if (!permits.includes(_in)) {
+		if (permits.includes(_in)) {
+			permits = permits.filter((x) => x != _in);
+		} else {
 			permits.push(_in);
 			permits = permits;
-		} else {
-			permits = permits.filter((x) => x != _in);
 		}
 	};
+
+	let disabled = true;
+	$: {
+		let t1 = permits.sort((a, b) => a - b).join(',');
+		let t2 = init.sort((a, b) => a - b).join(',');
+		disabled = t1 == t2;
+	}
 </script>
 
 <Card>
@@ -112,14 +120,23 @@
 					<span>
 						{#each _actions as action}
 							{#if action[1] == x}
-								<Check
+								<!-- <Check
 									active={permits.includes(`${_type}:${action[0]}`)}
 									on:click={() => {
 										select(`${_type}:${action[0]}`);
 									}}
 								>
 									{action[0].split('_').join(' ')}
-								</Check>
+								</Check> -->
+
+								<Tag
+									active={permits.includes(`${_type}:${action[0]}`)}
+									on:click={() => {
+										select(`${_type}:${action[0]}`);
+									}}
+								>
+									{action[0].split('_').join(' ')}
+								</Tag>
 							{/if}
 						{/each}
 					</span>
@@ -131,6 +148,7 @@
 
 		<Button
 			class="primary"
+			{disabled}
 			on:click={() => {
 				$module = {
 					module: Permission_Ok,

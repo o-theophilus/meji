@@ -9,6 +9,7 @@ import json
 bp = Blueprint("log", __name__)
 
 
+# TODO: use this log function everywhere
 @bp.post("/log")
 def log(
     user_key=None,

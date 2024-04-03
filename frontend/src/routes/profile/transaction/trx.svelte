@@ -71,7 +71,7 @@
 		background-color: var(--cl5);
 	}
 	.caution {
-		background-color: var(--cl3);
+		background-color: var(--cl6);
 	}
 	.error {
 		background-color: var(--cl4);

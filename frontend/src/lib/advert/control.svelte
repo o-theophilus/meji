@@ -60,7 +60,7 @@
 	}
 
 	button:hover {
-		background-color: var(--cl2);
+		background-color: var(--cl1_b);
 	}
 
 	button.active {

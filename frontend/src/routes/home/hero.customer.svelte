@@ -12,7 +12,7 @@
 		flex-direction: column;
 		gap: var(--sp0);
 
-		background-color: var(--secondary);
+		background-color: var(--cl4);
 		padding: var(--sp1);
 
 		color: var(--ac6_);

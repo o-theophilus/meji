@@ -9,6 +9,7 @@ from datetime import datetime
 import json
 from .advert import sizes
 from .storage import drive, storage
+from .log import log
 
 
 bp = Blueprint("admin", __name__)
@@ -340,7 +341,6 @@ def photo_error():
     })
 
 
-# TODO: log this here
 @bp.delete("/photo/error")
 def delete_photo():
     con, cur = db_open()
@@ -370,6 +370,12 @@ def delete_photo():
     for x in request.json["photos"]:
         pass
         storage(x.split("/")[-1], delete=True)
+
+    log(
+        user_key=user["key"],
+        action="signed_up",
+        entity_type="auth"
+    )
 
     db_close(con, cur)
 

@@ -193,7 +193,7 @@ def get_feedbacks(user_key, item_key):
         "status": 200,
         "item": item_schema(item),
         "feedbacks": feedbacks,
-        "give_feedback": has_purchased and not has_feedback,
+        "give_feedback": True if has_purchased and not has_feedback else False,
         "total_page": ceil(feedbacks[0][
             "total_items"] / page_size) if feedbacks else 0
     })

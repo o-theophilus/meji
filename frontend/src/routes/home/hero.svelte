@@ -53,13 +53,10 @@
 
 <style>
 	section {
-		--primary: var(--ac6);
-		--secondary: var(--cl3);
-
 		position: relative;
 		overflow: hidden;
 
-		background: linear-gradient(var(--primary) 50%, transparent 50%);
+		background: linear-gradient(var(--ac6) 50%, transparent 50%);
 		box-shadow: inset 0 7px 9px -7px rgba(0, 0, 0, 0.5);
 	}
 
@@ -76,7 +73,7 @@
 		bottom: 0;
 
 		width: 100%;
-		fill: var(--primary);
+		fill: var(--ac6);
 	}
 
 	.block {

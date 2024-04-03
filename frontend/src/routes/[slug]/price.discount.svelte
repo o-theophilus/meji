@@ -30,7 +30,7 @@
 		gap: var(--sp1) var(--sp2);
 		grid-template-columns: 1fr auto;
 
-		background-color: var(--cl7);
+		background-color: var(--cl1_t);
 		padding: var(--sp2);
 		border-radius: var(--sp1);
 

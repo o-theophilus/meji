@@ -15,12 +15,12 @@
 	transition-timing-function: ease-in-out;
 	
 	--cl1: #1d9bf0;
-	--cl2: #146ca8;
-	--cl3: #f05950;
+	--cl1_t: color-mix(in srgb, var(--cl1), transparent 90%);
+	--cl1_b: color-mix(in srgb, var(--cl1), black 30%);
+	
 	--cl4: #ff0000;
 	--cl5: #04AA6D;
 	--cl6: goldenrod;
-	--cl7: #1d9cf01a;
 	--overlay: rgba(0, 0, 0, 0.8);
 
 	--ac1_: hsl(0, 0%, 0%);

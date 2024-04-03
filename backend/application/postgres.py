@@ -144,15 +144,13 @@ voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
 );"""
 
 
-# entity_key TEXT,
-# entity_type VARCHAR(100) NOT NULL,
 log_table = """CREATE TABLE IF NOT EXISTS log (
     key CHAR(32) PRIMARY KEY,
     date TIMESTAMP NOT NULL,
     user_key CHAR(32) NOT NULL,
     action VARCHAR(20) NOT NULL,
-    entity_key CHAR(32),
-    entity_type VARCHAR(20) NOT NULL,
+    entity_key TEXT,
+    entity_type VARCHAR(100) NOT NULL,
     status INT DEFAULT 200,
     misc JSONB DEFAULT '{}'::JSONB,
 

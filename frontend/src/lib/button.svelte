@@ -40,16 +40,16 @@
 	}
 
 	:hover {
-		background-color: var(--cl2);
+		background-color: var(--cl1_b);
 		color: var(--ac6_);
 	}
 	.primary {
 		background-color: var(--cl1);
 		color: var(--ac6_);
-		box-shadow: 0 -4px 0 var(--cl2) inset;
+		box-shadow: 0 -4px 0 var(--cl1_b) inset;
 	}
 	.primary:hover {
-		background-color: var(--cl2);
+		background-color: var(--cl1_b);
 	}
 
 	.large {
@@ -74,7 +74,7 @@
 		text-align: left;
 	}
 	.link:hover {
-		color: var(--cl2);
+		color: var(--cl1_b);
 	}
 	.hover_red:hover {
 		background-color: var(--cl4);

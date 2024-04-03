@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from math import ceil
 from .advert import get_all_advert
+from .feedback import get_feedbacks
 import re
 from .postgres import db_close, db_open
 
@@ -213,9 +214,13 @@ def get(key):
 
     db_close(con, cur)
 
+    fb = get_feedbacks(user["key"], item["key"]).json
+
     return jsonify({
         "status": 200,
         "item": item_schema(item),
+        "feedbacks": fb["feedbacks"],
+        "give_feedback": fb["give_feedback"],
         "recently_viewed": _recently_viewed,
         "similar_items": _similar_items,
         "customer_view": _customer_view

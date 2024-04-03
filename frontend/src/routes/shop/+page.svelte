@@ -14,7 +14,7 @@
 
 	import Status from '$lib/status.svelte';
 	import Search from '$lib/search.svelte';
-	import Tag from './_tag.svelte';
+	import Tag from './_tags.svelte';
 
 	import View from './view.svelte';
 	import Sort from '$lib/sort.svelte';
@@ -199,7 +199,7 @@
 		padding: var(--sp2);
 		border-radius: var(--sp1);
 
-		background-color: var(--cl7);
+		background-color: var(--cl1_t);
 		color: var(--ac1);
 		font-size: small;
 	}
