@@ -437,6 +437,13 @@ def login():
         WHERE key = %s RETURNING *;""", (
         True, in_user["key"]
     ))
+    cur.execute("""
+        UPDATE "user"
+        SET status = 'deleted', login = %s
+        WHERE key = %s AND status = 'anonymous'
+        RETURNING *;""", (
+        False, out_user["key"]
+    ))
 
     cur.execute("""
         INSERT INTO log (
@@ -453,7 +460,6 @@ def login():
             "name": out_user["name"]
         }) if in_user["key"] != out_user["key"] else None
     ))
-
     if in_user["key"] != out_user["key"]:
         cur.execute("""
             INSERT INTO log (

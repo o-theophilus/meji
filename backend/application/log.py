@@ -103,7 +103,8 @@ def get():
             COUNT(*) OVER() AS total_items
         FROM log
         LEFT JOIN "user" ON log.user_key = "user".key
-        LEFT JOIN "user" usr ON log.entity_type = 'admin'
+        LEFT JOIN "user" usr ON
+            log.entity_type = 'user' OR log.entity_type = 'admin'
             AND log.entity_key = usr.key
         LEFT JOIN item ON log.entity_key = item.key
             AND (log.entity_type = 'item' OR log.entity_type = 'advert')
@@ -127,19 +128,18 @@ def get():
     ))
     logs = cur.fetchall()
 
+    sq = search_query(cur)
     db_close(con, cur)
 
     return jsonify({
         "status": 200,
         "logs": logs,
+        "search_query": sq,
         "total_page": ceil(logs[0]["total_items"] / page_size) if logs else 0
     })
 
 
-@bp.get("/log/action")
-def search_query():
-    con, cur = db_open()
-
+def search_query(cur):
     cur.execute("""
         SELECT DISTINCT ON (entity_type, action) entity_type, action
         FROM log;
@@ -152,9 +152,4 @@ def search_query():
         else:
             actions[x["entity_type"]] = ["all", x["action"]]
 
-    db_close(con, cur)
-
-    return jsonify({
-        "status": 200,
-        "actions": actions
-    })
+    return actions

@@ -12,29 +12,33 @@ bp = Blueprint("item_get", __name__)
 
 def recently_viewed(cur, user_key, item_key):
     cur.execute("""
-        SELECT *
+        SELECT
+            item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
         FROM (
             SELECT
                 DISTINCT ON (item.key) item.*,
-                log.date AS date,
-                CASE
-                    WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                    ELSE ARRAY_AGG(feedback.rating)
-                END AS ratings
+                log.date AS date
             FROM item
-            LEFT JOIN log ON
-                item.key = log.entity_key
-                AND item.status = 'live'
-            LEFT JOIN feedback ON item.key = feedback.item_key
+            LEFT JOIN log ON item.key = log.entity_key
             WHERE
-                log.user_key = %s
+                item.status = 'live'
+                AND log.user_key = %s
                 AND log.action = 'viewed'
                 AND log.entity_type = 'item'
                 AND log.entity_key != %s
             GROUP BY item.key, log.date
-            ORDER BY item.key DESC
-        ) as x
-        ORDER BY x.date DESC
+            ORDER BY item.key, log.date DESC
+        ) as item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        GROUP BY
+            item.date, item.key, item.status, item.name, item.slug, item.price,
+            item.old_price, item.information, item.photos, item.tags,
+            item.variation, item.available_quantity
+        ORDER BY item.date DESC
         LIMIT 8 OFFSET 0
         ;
     """, (user_key, item_key))

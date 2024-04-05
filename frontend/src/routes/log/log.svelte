@@ -16,7 +16,7 @@
 		href = `/admin/adverts/${log.entity_key}`;
 	} else if (log.entity_type == 'page') {
 		href = log.entity_key;
-	} else if (log.entity_type == 'admin' && log.entity_key) {
+	} else if (['user', 'admin'].includes(log.entity_type) && log.entity_key) {
 		href = `/profile?search=${log.entity_key}`;
 	}
 </script>
@@ -33,7 +33,6 @@
 	</span>
 	<br />
 
-	<!-- TODO: FOR DELETED USERS -->
 	<a href="/profile?search={log.user_key}">
 		{log.user_name}
 	</a>
@@ -50,11 +49,12 @@
 
 	{#if log.entity_type == 'page'} viewed {:else} {log.action} {/if}
 
-	{#if !['auth', 'user', 'admin'].includes(log.entity_type)}
+	<!-- {#if !['auth', 'user', 'admin'].includes(log.entity_type)}
 		{log.entity_type}
-	{/if}
+	{/if} -->
 
 	{#if href}
+		{log.entity_type}
 		<a {href}>
 			{log.entity_name}
 		</a>

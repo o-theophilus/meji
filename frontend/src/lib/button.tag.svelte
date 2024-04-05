@@ -1,7 +1,7 @@
 <script>
 	export let hide = false;
 	export let active = false;
-	export let no_grow;
+	export let no_grow = false;
 </script>
 
 <button on:click class:hide class:active class:grow={!no_grow}>

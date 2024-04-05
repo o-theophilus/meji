@@ -113,7 +113,7 @@ def get_many():
     if "user:view" not in user["permissions"]:
         _user = user["key"]
 
-    order_by = {
+    order = {
         'latest': 'log.date',
         'oldest': 'log.date',
         'name (a-z)': '"user".name',
@@ -147,7 +147,7 @@ def get_many():
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order[sort], order_dir[sort]
     ), (
         _user, f"%{_user}%",
         _type, f"%{_type}:%",
@@ -373,8 +373,11 @@ def delete_photo():
 
     log(
         user_key=user["key"],
-        action="signed_up",
-        entity_type="auth"
+        action="deleted",
+        entity_type="photo",
+        misc={
+            "photo(s)": request.json["photos"]
+        }
     )
 
     db_close(con, cur)

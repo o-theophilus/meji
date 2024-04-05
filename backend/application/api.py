@@ -145,7 +145,7 @@ def cron():
 
 
 # @bp.get("/fix")
-def create_table():
+def fix():
     con, cur = db_open()
 
     # cur.execute(f"""
@@ -180,7 +180,7 @@ def create_table():
     # """)
 
     cur.execute("""
-        DELETE FROM log WHERE action = '/save';
+        DELETE FROM log WHERE entity_type='user' AND action = 'viewed';
     """)
 
     # cur.execute("""

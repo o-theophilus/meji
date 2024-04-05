@@ -51,8 +51,15 @@
 </script>
 
 <Meta title={user?.name || data.error} description={user?.name || data.error} />
-<!-- TODO: how best to log this -->
-<!-- <Log entity_type={'page'} /> -->
+{#if user}
+	{#key user.key}
+		<Log action={'viewed'} entity_key={user.key} entity_type={'user'} />
+	{/key}
+{:else if data.error}
+	{#key `${$page.url.pathname}${$page.url.search}`}
+		<Log action={'viewed'} entity_key={$page.url.searchParams.get('search')} entity_type={'user'} status={data.status} />
+	{/key}
+{/if}
 
 <Center>
 	<br />

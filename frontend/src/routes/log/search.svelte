@@ -9,7 +9,7 @@
 
 	export let page_name;
 
-	let actions = {
+	export let search_query = {
 		all: ['all']
 	};
 
@@ -20,14 +20,7 @@
 
 	let snap = `${in_user}:${in_type}:${in_action}:${in_entity}`;
 
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/log/action`);
-		resp = await resp.json();
-
-		if (resp.status == 200) {
-			actions = resp.actions;
-		}
-
+	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			let temp = params.get('search');
@@ -106,14 +99,14 @@
 				in_action = 'all';
 			}}
 		>
-			{#each Object.entries(actions) as [type, action]}
+			{#each Object.entries(search_query) as [type, action]}
 				<option value={type}>
 					{type}
 				</option>
 			{/each}
 		</select>
 		<select bind:value={in_action}>
-			{#each actions[in_type] as x}
+			{#each search_query[in_type] as x}
 				<option value={x}>
 					{x}
 				</option>

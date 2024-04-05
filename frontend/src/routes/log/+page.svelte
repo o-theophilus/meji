@@ -11,7 +11,8 @@
 	$: logs = data.logs;
 	$: total_page = data.total_page;
 	let { page_name } = data;
-	
+	let { search_query } = data;
+
 	let search;
 </script>
 
@@ -28,7 +29,7 @@
 </Center>
 
 <Card>
-	<Search bind:this={search} {page_name} />
+	<Search bind:this={search} {page_name} {search_query} />
 
 	<br />
 

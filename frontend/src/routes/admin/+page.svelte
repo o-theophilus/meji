@@ -3,14 +3,11 @@
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
-	import Log from '$lib/log.svelte';
 	import Button from '$lib/button.svelte';
 	import Center from '$lib/center.svelte';
 </script>
 
 <Meta title="Admin Dashboard" description="This is an area for users with elevated permission." />
-<!-- TODO: should i log this -->
-<!-- <Log entity_type={'page'} /> -->
 
 <Center>
 	<br />
@@ -40,17 +37,17 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] better page meta descriptions
 		<br /> [ - ] add sort and search to page with many entities
 		<br /> [ - ] fix cron
 		<br /> [ - ] use version for financial ops
-		<br />
-		<br /> [ - ] move old_price to logs
 		<br /> [ - ] does going back restore token
 		<br /> [ - ] ADD "You may also like" user item group
 		<br />
-		<br /> [ - ] integrate AI assistant
+		<br /> [ - ] better page meta descriptions
+		<br /> [ - ] move old_price to logs
+		<br />
 		<br /> [ - ] update brand guide
+		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] write test
 		<br /> [ - ] address api: www.geoapify.com/tutorials
 	</div>

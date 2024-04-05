@@ -631,10 +631,9 @@ def delete():
 
     cur.execute("""
         UPDATE "user"
-        SET status = %s, login = %s, permissions = %s
+        SET status = 'deleted', login = %s, permissions = %s
         WHERE key = %s;
     """, (
-        "deleted",
         False,
         [],
         user["key"]
