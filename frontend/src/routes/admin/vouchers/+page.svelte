@@ -15,11 +15,13 @@
 	import Voucher from './voucher.svelte';
 	import Center from '$lib/center.svelte';
 	import Search from '$lib/search.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	export let data;
 	$: vouchers = data.vouchers;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+	let { order_by } = data;
 
 	$: if ($portal && $portal.type == 'voucher') {
 		vouchers = $portal.data;
@@ -56,6 +58,9 @@
 		<div class="ctitle">
 			<Back />
 			Voucher{vouchers.length > 1 ? 's' : ''}
+		</div>
+		<div class="line">
+			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
 	</div>
 </Center>

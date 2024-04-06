@@ -6,9 +6,10 @@ export const load = async ({ fetch, url, params, parent }) => {
 	let a = await parent();
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${a.locals.user.key}/${params.slug}`)
+	let page_name = "feedback"
 	if (url.search) {
 		let temp = get(state)
-		temp.feedback = url.search
+		temp[page_name] = url.search
 		state.set(temp)
 
 		backend.search = url.search
@@ -26,6 +27,7 @@ export const load = async ({ fetch, url, params, parent }) => {
 	loading.set(false)
 
 	if (resp.status == 200) {
+		resp.page_name = page_name
 		return resp
 	}
 }

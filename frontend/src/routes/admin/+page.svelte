@@ -37,11 +37,11 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] add sort and search to page with many entities
-		<br /> [ - ] fix cron
 		<br /> [ - ] use version for financial ops
 		<br /> [ - ] does going back restore token
 		<br /> [ - ] ADD "You may also like" user item group
+		<br /> [ - ] fix cron
+		<br /> [ - ] add search to saves
 		<br />
 		<br /> [ - ] better page meta descriptions
 		<br /> [ - ] move old_price to logs

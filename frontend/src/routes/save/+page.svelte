@@ -9,11 +9,13 @@
 	import Item from '$lib/item/index.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+	let { order_by } = data;
 
 	$: {
 		items = items.filter((x) => $user.saves.includes(x.key));
@@ -25,8 +27,15 @@
 
 <Center>
 	<br />
-	<div class="ctitle">Saved Items</div>
+	<div class="ctitle">
+		Saved Item{items.length > 1 ? 's' : ''}
+		<div class="line">
+			<OrderBy {page_name} {order_by} default_value="latest" />
+		</div>
+	</div>
 </Center>
+
+
 
 {#if items.length > 0}
 	<br />

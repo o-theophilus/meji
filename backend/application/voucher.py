@@ -107,7 +107,7 @@ def get_many():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
-    sort = request.args["sort"] if "sort" in request.args else "latest"
+    order = request.args["order"] if "order" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["page_size"]
                     ) if "page_size" in request.args else 24
@@ -135,15 +135,15 @@ def get_many():
             COUNT(*) OVER() AS total_items
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
-            AND log.action = 'created'
-            AND log.entity_type = 'voucher'
         WHERE
             (%s = '' OR voucher.status = %s)
             AND (%s = '' OR voucher.key ILIKE %s)
+            AND log.action = 'created'
+            AND log.entity_type = 'voucher'
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         status, status,
         search, f'%{search}%',
@@ -157,6 +157,7 @@ def get_many():
     return {
         "status": 200,
         "vouchers": vouchers,
+        "order_by": list(order_by.keys()),
         "total_page": ceil(vouchers[0][
             "total_items"] / page_size) if vouchers else 0
     }
@@ -182,9 +183,10 @@ def get(key):
         SELECT voucher.*, log.date AS date
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
+        WHERE
+            voucher.key = %s
             AND log.action = 'created'
-            AND log.entity_type = 'voucher'
-        WHERE voucher.key = %s;
+            AND log.entity_type = 'voucher';
     """, (key,))
     voucher = cur.fetchone()
     if not voucher:
@@ -268,9 +270,10 @@ def activate(key):
         SELECT voucher.*, log.date AS date
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
+        WHERE
+            voucher.key = %s;
             AND log.action = 'created'
             AND log.entity_type = 'voucher'
-        WHERE voucher.key = %s;
     """, (voucher["key"],))
     voucher = cur.fetchone()
 
@@ -350,9 +353,10 @@ def status(key):
         SELECT voucher.*, log.date AS date
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
+        WHERE
+            voucher.key = %s;
             AND log.action = 'created'
             AND log.entity_type = 'voucher'
-        WHERE voucher.key = %s;
     """, (voucher["key"],))
     voucher = cur.fetchone()
 

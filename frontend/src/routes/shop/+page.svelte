@@ -17,13 +17,14 @@
 	import Tag from './_tags.svelte';
 
 	import View from './view.svelte';
-	import Sort from '$lib/sort.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 	import Pagination from '$lib/pagination.svelte';
 
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+	let { order_by } = data;
 
 	let status = ['live', 'draft', 'delete'];
 	let sorts = [
@@ -95,7 +96,7 @@
 		Shop
 		<div class="line">
 			<View />
-			<Sort {page_name} array={sorts} default_value="latest" />
+			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
 	</div>
 </Center>

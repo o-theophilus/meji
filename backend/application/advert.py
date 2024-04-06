@@ -72,6 +72,19 @@ def add_photo(item_key):
         """, (item["key"],))
         advert = cur.fetchone()
 
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "created",
+            advert["key"],
+            "advert"
+        ))
+
     error = ""
     log_misc = ""
     new_pick = []
@@ -191,13 +204,27 @@ def get_all_advert(status="", space=""):
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    status = request.args["status"] if "status" in request.args else status
     space = request.args["space"] if "space" in request.args else space
+    order = request.args["order"] if "order" in request.args else "latest"
 
     ready = ""
     if status == "live":
         for x in sizes:
             ready = f"{ready} AND photo_{x} IS NOT NULL"
+
+    order_by = {
+        'latest': 'log.date',
+        'oldest': 'log.date',
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
+    }
 
     cur.execute("""
         SELECT
@@ -209,13 +236,17 @@ def get_all_advert(status="", space=""):
             COUNT(*) OVER() AS total_items
         FROM advert
         LEFT JOIN item ON advert.key = item.key
+        LEFT JOIN log ON advert.key = log.entity_key
         WHERE (
                 %s = '' OR item.status = %s
             ) AND (
                 %s = '' OR %s = ANY(spaces)
             ) {}
+            AND log.action = 'created'
+            AND log.entity_type = 'advert'
+        ORDER BY {} {}
         LIMIT %s OFFSET %s;
-    """.format(ready), (
+    """.format(ready, order_by[order], order_dir[order]), (
         status, status,
         space, space,
         page_size,
@@ -233,6 +264,7 @@ def get_all_advert(status="", space=""):
         "adverts": [advert_schema(x) for x in adverts],
         "spaces": spaces,
         "sizes": sizes,
+        "order_by": list(order_by.keys()),
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
     })
@@ -291,18 +323,35 @@ def delete_photo(item_key):
 
     cur.execute(f"""
         UPDATE advert SET photo_{dim} = NULL
-        WHERE key = %s;
-
-        DELETE FROM advert
-        WHERE
-            photo_300X300 IS NULL
-            AND photo_300X600 IS NULL
-            AND photo_600X300 IS NULL
-            AND photo_900X300 IS NULL;
+        WHERE key = %s
+        RETURNING *;
     """, (item["key"],))
-
-    cur.execute("SELECT * FROM advert WHERE key = %s;", (item["key"],))
     advert = cur.fetchone()
+
+    has_photo = False
+    for x in sizes:
+        if advert[f"photo_{x}"]:
+            has_photo = True
+            break
+
+    if not has_photo:
+        cur.execute("""
+            DELETE FROM advert
+            WHERE WHERE key = %s;
+        """, (advert["key"],))
+
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
+            uuid4().hex,
+            datetime.now(),
+            user["key"],
+            "deleted",
+            advert["key"],
+            "advert"
+        ))
 
     cur.execute("""
         INSERT INTO log (
@@ -313,7 +362,7 @@ def delete_photo(item_key):
         datetime.now(),
         user["key"],
         "deleted_photo",
-        item["key"],
+        advert["key"],
         "advert",
         json.dumps({"photo": f"{photo} ({dim})"})
     ))
@@ -322,7 +371,7 @@ def delete_photo(item_key):
 
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert) if advert else null_advert(
+        "advert": advert_schema(advert) if has_photo else null_advert(
             item["key"])
     })
 
@@ -383,6 +432,19 @@ def delete(item_key):
         advert["key"],
         "advert",
         json.dumps({"photo": log_misc})
+    ))
+
+    cur.execute("""
+        INSERT INTO log (
+            key, date, user_key, action, entity_key, entity_type, misc
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
+    """, (
+        uuid4().hex,
+        datetime.now(),
+        user["key"],
+        "deleted",
+        advert["key"],
+        "advert"
     ))
 
     db_close(con, cur)

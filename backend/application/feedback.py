@@ -48,11 +48,11 @@ def add_feedback(item_key):
     cur.execute("""
         SELECT order_item.*
         FROM order_item
-        LEFT JOIN `order` ON order_item.order_key = `order`.key
+        LEFT JOIN "order" ON order_item.order_key = "order".key
         WHERE
             order_item.item_key = %s
-            AND `order`.user_key = %s
-            AND `order`.status = "delivered";
+            AND "order".user_key = %s
+            AND "order".status = "delivered";
     """, (item["key"], user["key"]))
 
     if not cur.fetchone():
@@ -104,9 +104,9 @@ def add_feedback(item_key):
 def get_feedbacks(user_key, item_key):
     con, cur = db_open()
 
-    sort = request.args["sort"] if "sort" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
+    order = request.args["order"] if "order" in request.args else "latest"
 
     cur.execute("""
         SELECT item.*,
@@ -131,14 +131,18 @@ def get_feedbacks(user_key, item_key):
         'latest': 'log.date',
         'oldest': 'log.date',
         'high_rating': 'feedback.rating',
-        'low_rating': 'feedback.rating'
+        'low_rating': 'feedback.rating',
+        'name (a-z)': '"user".name',
+        'name (z-a)': '"user".name'
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
         'high_rating': 'DESC',
-        'low_rating': 'ASC'
+        'low_rating': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
     }
 
     cur.execute("""
@@ -153,14 +157,15 @@ def get_feedbacks(user_key, item_key):
             COUNT(*) OVER() AS total_items
         FROM feedback
         LEFT JOIN log ON feedback.key = log.entity_key
+        LEFT JOIN "user" ON feedback.user_key = "user".key
+        WHERE
+            feedback.item_key = %s
             AND log.action = 'added_feedback'
             AND log.entity_type = 'feedback'
-        LEFT JOIN "user" ON feedback.user_key = "user".key
-        WHERE feedback.item_key = %s
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         item["key"],
         page_size,
@@ -194,6 +199,7 @@ def get_feedbacks(user_key, item_key):
         "item": item_schema(item),
         "feedbacks": feedbacks,
         "give_feedback": True if has_purchased and not has_feedback else False,
+        "order_by": list(order_by.keys()),
         "total_page": ceil(feedbacks[0][
             "total_items"] / page_size) if feedbacks else 0
     })

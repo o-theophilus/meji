@@ -6,15 +6,14 @@
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
 	import Search from './search.svelte';
-	import Sort from '$lib/sort.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	export let data;
 	$: users = data.users;
 	$: total_page = data.total_page;
 	let { permissions } = data;
 	let { page_name } = data;
-
-	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
+	let { order_by } = data;
 </script>
 
 <Meta title="Users" description="Users with elevated permission." />
@@ -27,7 +26,7 @@
 			User{users.length > 1 ? 's' : ''}
 		</div>
 		<div class="line">
-			<Sort {page_name} array={sorts} default_value="latest" />
+			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
 	</div>
 </Center>

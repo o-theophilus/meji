@@ -5,9 +5,11 @@
 
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import Back from '$lib/button.back.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	import Review from './review.svelte';
 	import Rating from './rating.svelte';
@@ -18,6 +20,8 @@
 	$: feedbacks = data.feedbacks;
 	$: give_feedback = data.give_feedback;
 	$: total_page = data.total_page;
+	let { order_by } = data;
+	let { page_name } = data;
 
 	$: if ($portal && $portal.type == 'feedback') {
 		feedbacks = $portal.data.feedbacks;
@@ -47,7 +51,15 @@
 
 <Center>
 	<br />
-	<b>Feedback{feedbacks.length > 1 ? 's' : ''}</b>
+	<div class="ctitle">
+		<div class="ctitle">
+			<Back />
+			Feedback{feedbacks.length > 1 ? 's' : ''}
+		</div>
+		<div class="line">
+			<OrderBy {page_name} {order_by} default_value="latest" />
+		</div>
+	</div>
 </Center>
 
 <Card>

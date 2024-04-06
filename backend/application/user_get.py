@@ -79,7 +79,7 @@ def get_many():
 
     status = request.args["status"] if "status" in request.args else ""
     search = request.args["search"] if "search" in request.args else ""
-    sort = request.args["sort"] if "sort" in request.args else "latest"
+    order = request.args["order"] if "order" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
 
@@ -104,8 +104,6 @@ def get_many():
             COUNT(*) OVER() AS total_items
         FROM "user"
         LEFT JOIN log ON "user".key = log.user_key
-            AND log.action = 'created'
-            AND log.entity_type = 'auth'
         WHERE
             (
                 %s = '' OR "user".status = %s
@@ -114,10 +112,12 @@ def get_many():
                 OR CONCAT_WS(', ', "user".key, "user".name, "user".email
                 ) ILIKE %s
             )
+            AND log.action = 'created'
+            AND log.entity_type = 'auth'
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         status, status,
         search, f"%{search}%",
@@ -130,6 +130,7 @@ def get_many():
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
+        "order_by": list(order_by.keys()),
         "total_page": ceil(users[0]["total_items"] / page_size) if users else 0
     })
 

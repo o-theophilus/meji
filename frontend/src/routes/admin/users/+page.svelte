@@ -12,15 +12,17 @@
 	import Status from '$lib/status.svelte';
 	import Center from '$lib/center.svelte';
 	import Search from '$lib/search.svelte';
-	import Sort from '$lib/sort.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	export let data;
 	$: users = data.users;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+	let { order_by } = data;
+	$: console.log(users[0]);
+
 
 	let status = ['all', 'anonymous', 'signedup', 'confirmed'];
-	let sorts = ['latest', 'oldest', 'name (a-z)', 'name (z-a)'];
 
 	let search = '';
 	let _search = '';
@@ -49,7 +51,7 @@
 			User{users.length > 1 ? 's' : ''}
 		</div>
 		<div class="line">
-			<Sort {page_name} array={sorts} default_value="latest" />
+			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
 	</div>
 </Center>

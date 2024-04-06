@@ -29,7 +29,6 @@ export const load = async ({ fetch, url, parent }) => {
 	resp = await resp.json();
 	loading.set(false)
 
-
 	if (resp.status == 200) {
 		resp.page_name = page_name
 		return resp

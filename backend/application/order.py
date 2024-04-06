@@ -182,7 +182,7 @@ def get_many():
     search = request.args["search"] if "search" in request.args else None
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
-    sort = request.args["sort"] if "sort" in request.args else "latest"
+    order = request.args["order"] if "order" in request.args else "latest"
 
     order_by = {
         'latest': 'log.date',
@@ -218,16 +218,16 @@ def get_many():
             COUNT(*) OVER() AS total_items
         FROM "order"
         LEFT JOIN log ON "order".key = log.user_key
-            AND log.action = 'created'
-            AND log.entity_type = 'order'
         WHERE "order".status = %s
             AND "order".status != 'cart'
             AND (%s IS NULL OR "order".key ILIKE %s)
             AND ("order".user_key = %s OR %s)
+            AND log.action = 'created'
+            AND log.entity_type = 'order'
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         status,
         search, f"%{search}%",
@@ -242,6 +242,7 @@ def get_many():
     return jsonify({
         "status": 200,
         "orders": orders,
+        "order_by": list(order_by.keys()),
         "total_page": ceil(
             orders[0]["total_items"] / page_size) if orders else 0
     })

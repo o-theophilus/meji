@@ -14,9 +14,9 @@ def get():
 
     user = token_to_user(cur)
 
-    page_no = 1
-    page_size = 24
-    sort = "latest"
+    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
+    page_size = int(request.args["size"]) if "size" in request.args else 24
+    order = request.args["order"] if "order" in request.args else "latest"
 
     order_by = {
         'latest': 'log.date',
@@ -61,10 +61,11 @@ def get():
         ) AS item
         LEFT JOIN save ON item.key = save.item_key
         LEFT JOIN log ON item.key = log.entity_key
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE
+            save.user_key = %s
             AND log.action = 'created'
             AND log.entity_type = 'item'
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE save.user_key = %s
 
         GROUP BY
             item.key, item.status, item.name, item.slug,
@@ -74,7 +75,7 @@ def get():
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         user["key"],
         page_size, (page_no - 1) * page_size
@@ -87,6 +88,7 @@ def get():
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
+        "order_by": list(order_by.keys()),
         "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 

@@ -60,12 +60,13 @@ def get():
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     if not cur.fetchone():
+        key = uuid4().hex
         cur.execute("""
                 INSERT INTO "user" ( key, version, status, name, email,
                     password, permissions)
                 VALUES (%s, %s, %s, %s, %s, %s, %s);
             """, (
-            uuid4().hex,
+            key,
             uuid4().hex,
             "confirmed",
             "Meji Admin",
@@ -73,6 +74,19 @@ def get():
             generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
             [f"{x}:{y[0]}" for x in permissions for y in permissions[x]]
+        ))
+
+        cur.execute("""
+            INSERT INTO log (
+                key, date, user_key, action, entity_key, entity_type
+            ) VALUES (%s, %s, %s, %s, %s, %s);
+        """, (
+            uuid4().hex,
+            datetime.now(),
+            key,
+            "created",
+            None,
+            "auth"
         ))
 
     db_close(con, cur)
@@ -93,7 +107,7 @@ def get_many():
             "error": "invalid token"
         })
 
-    sort = request.args["sort"] if "sort" in request.args else "latest"
+    order = request.args["order"] if "order" in request.args else "latest"
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
 
@@ -113,7 +127,7 @@ def get_many():
     if "user:view" not in user["permissions"]:
         _user = user["key"]
 
-    order = {
+    order_by = {
         'latest': 'log.date',
         'oldest': 'log.date',
         'name (a-z)': '"user".name',
@@ -133,8 +147,6 @@ def get_many():
             COUNT(*) OVER() AS total_items
         FROM "user"
         LEFT JOIN log ON "user".key = log.user_key
-            AND log.action = 'created'
-            AND log.entity_type = 'auth'
         WHERE
             array_length("user".permissions, 1) IS NOT NULL
             AND (%s = 'all'
@@ -144,10 +156,12 @@ def get_many():
                 ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING("user".permissions, ',')
                 ILIKE %s)
+            AND log.action = 'created'
+            AND log.entity_type = 'auth'
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
-        order[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         _user, f"%{_user}%",
         _type, f"%{_type}:%",
@@ -171,6 +185,7 @@ def get_many():
         "status": 200,
         "users": [user_schema(x) for x in users],
         "permissions": permits,
+        "order_by": list(order_by.keys()),
         "total_page": ceil(users[0]["total_items"] / page_size) if users else 0
     })
 

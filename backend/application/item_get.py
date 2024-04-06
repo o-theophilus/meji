@@ -236,7 +236,7 @@ def shop(
     status="live",
     search="",
     tag="",
-    sort="latest",
+    order="latest",
     page_no=1,
     page_size=24
 ):
@@ -254,8 +254,8 @@ def shop(
         search = request.args["search"]
     if "tag" in request.args:
         tag = request.args["tag"]
-    if "sort" in request.args:
-        sort = request.args["sort"]
+    if "order" in request.args:
+        order = request.args["order"]
     if "page_no" in request.args:
         page_no = int(request.args["page_no"])
     if "page_size" in request.args:
@@ -319,11 +319,11 @@ def shop(
         ) AS item
         LEFT JOIN feedback ON item.key = feedback.item_key
         LEFT JOIN log ON item.key = log.entity_key
-            AND log.action = 'created'
-            AND log.entity_type = 'item'
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {}
+            AND log.action = 'created'
+            AND log.entity_type = 'item'
         GROUP BY
             item.key, item.status, item.name, item.slug,
             item.price, item.old_price, item.information, item.photos,
@@ -333,7 +333,7 @@ def shop(
         LIMIT %s OFFSET %s;
     """.format(
         query,
-        order_by[sort], order_dir[sort]
+        order_by[order], order_dir[order]
     ), (
         status,
         search, f"%{search}%",
@@ -346,6 +346,7 @@ def shop(
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
+        "order_by": list(order_by.keys()),
         "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 
@@ -355,7 +356,7 @@ def home():
     return jsonify({
         "status": 200,
         "tags": all_tags().json["tags"],
-        "new_arrivals": shop(sort="latest", page_size=8).json["items"],
-        "offers": shop(sort="discount", page_size=8).json["items"],
+        "new_arrivals": shop(order="latest", page_size=8).json["items"],
+        "offers": shop(order="discount", page_size=8).json["items"],
         "adverts": get_all_advert("live", "home_1").json["adverts"]
     })

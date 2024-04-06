@@ -355,14 +355,13 @@ def email():
         cur.execute("""
             SELECT otp.*, log.date
             FROM otp
-            LEFT JOIN log ON
-                otp.key = log.entity_kty,
-                log.entity_type = 'otp'
-                log.action = 'requested'
+            LEFT JOIN log ON otp.key = log.entity_kty
             WHERE
                 otp.user = %s
                 AND otp.pin = %s
                 AND otp.email = %s;
+                AND log.entity_type = 'otp'
+                AND log.action = 'requested'
         """, (
             user['key'],
             request.json["otp_1"],
@@ -382,14 +381,13 @@ def email():
         cur.execute("""
             SELECT otp.*, log.date
             FROM otp
-            LEFT JOIN log ON
-                otp.key = log.entity_kty,
-                log.entity_type = 'otp'
-                log.action = 'requested'
+            LEFT JOIN log ON otp.key = log.entity_kty
             WHERE
                 otp.user = %s
                 AND otp.pin = %s
                 AND otp.email = %s;
+                AND log.entity_type = 'otp'
+                AND log.action = 'requested'
         """, (
             user['key'],
             request.json["otp_2"],
@@ -551,13 +549,13 @@ def password():
             SELECT otp.*, log.date
             FROM otp
             LEFT JOIN log ON
-                otp.key = log.entity_kty,
-                log.entity_type = 'otp'
-                log.action = 'requested'
+                otp.key = log.entity_kty
             WHERE
                 otp.user = %s
                 AND otp.pin = %s
                 AND otp.email = %s;
+                AND log.entity_type = 'otp'
+                AND log.action = 'requested'
         """, (
             user['key'],
             request.json["otp"],

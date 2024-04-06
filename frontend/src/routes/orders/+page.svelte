@@ -11,11 +11,13 @@
 	import Center from '$lib/center.svelte';
 	import Order from './order.svelte';
 	import Back from '$lib/button.back.svelte';
+	import OrderBy from '$lib/order_by.svelte';
 
 	export let data;
 	$: orders = data.orders;
 	$: total_page = data.total_page;
 	let { page_name } = data;
+	let { order_by } = data;
 
 	let status = ['created', 'processing', 'enroute', 'delivered', 'canceled'];
 </script>
@@ -33,6 +35,10 @@
 			{$page.url.searchParams.has('admin') && $user.permissions.includes('order:view')
 				? 'All'
 				: 'My'} Orders
+		</div>
+
+		<div class="line">
+			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
 
 		{#if $user.permissions.includes('order:view')}
