@@ -40,7 +40,9 @@ def token_to_user(cur):
         return None
 
     cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
-    return cur.fetchone()
+    user = cur.fetchone()
+    # print(user)
+    return user
 
 
 def send_mail(to, subject, body):

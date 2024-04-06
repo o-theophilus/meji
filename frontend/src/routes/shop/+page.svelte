@@ -1,6 +1,8 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 	import { user, module, set_state } from '$lib/store.js';
 
 	import Meta from '$lib/meta.svelte';
@@ -25,42 +27,25 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 	let { order_by } = data;
+	let { tags } = data;
 
 	let status = ['live', 'draft', 'delete'];
-	let sorts = [
-		'latest',
-		'oldest',
-		'name (a-z)',
-		'name (z-a)',
-		'cheap',
-		'expensive',
-		'discount',
-		'rating'
-	];
 
 	let search = '';
 	let _search = '';
-	const submit = () => {
-		if (_search != search) {
-			_search = `${search}`;
-			set_state(page_name, 'search', search);
-		}
-	};
-
-	let tags;
-	onMount(async () => {
+	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
 			_search = params.get('search');
 		}
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
-		resp = await resp.json();
-		if (resp.status == 200) {
-			tags = resp.tags;
-		}
 	});
+	const submit = () => {
+		if (_search != search) {
+			_search = search;
+			set_state(page_name, 'search', search);
+		}
+	};
 
 	let filter = '';
 	$: {
@@ -123,7 +108,6 @@
 
 	<div class="line">
 		<Button
-			disabled={!tags}
 			on:click={() => {
 				$module = {
 					module: Tag,
@@ -174,7 +158,9 @@
 	<Center>
 		<div class="item_area" class:list={$user.setting_item_view == 'list'}>
 			{#each items as item (item.key)}
-				<Item {item} list={$user.setting_item_view == 'list'} />
+				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+					<Item {item} list={$user.setting_item_view == 'list'} />
+				</div>
 			{/each}
 		</div>
 	</Center>

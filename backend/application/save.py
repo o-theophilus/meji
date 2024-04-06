@@ -14,6 +14,7 @@ def get():
 
     user = token_to_user(cur)
 
+    search = request.args["search"] if "search" in request.args else ""
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
     order = request.args["order"] if "order" in request.args else "latest"
@@ -64,6 +65,7 @@ def get():
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
             save.user_key = %s
+            AND (%s = '' OR item.name ILIKE %s)
             AND log.action = 'created'
             AND log.entity_type = 'item'
 
@@ -78,6 +80,7 @@ def get():
         order_by[order], order_dir[order]
     ), (
         user["key"],
+        search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
 

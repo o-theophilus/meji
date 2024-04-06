@@ -37,15 +37,18 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] use version for financial ops
-		<br /> [ - ] does going back restore token
-		<br /> [ - ] ADD "You may also like" user item group
-		<br /> [ - ] fix cron
-		<br /> [ - ] add search to saves
-		<br />
-		<br /> [ - ] better page meta descriptions
 		<br /> [ - ] move old_price to logs
 		<br />
+		<br /> [ - ] animate all many items, just like saves
+		<br /> [ - ] better page meta descriptions
+		<br /> [ - ] use the log template
+		<br /> [ - ] do "db_close(con, cur)" at every "return jsonify" backend
+		<br />
+		<br /> [ - ] use svelte runes
+		<br />
+		<br /> [ - ] fix cron
+		<br /> [ - ] use version for financial ops
+		<br /> [ - ] does going back restore token
 		<br /> [ - ] update brand guide
 		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] write test

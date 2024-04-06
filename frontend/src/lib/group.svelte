@@ -2,7 +2,6 @@
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { onMount } from 'svelte';
-	import { user } from '$lib/store.js';
 
 	import Center from '$lib/center.svelte';
 	import Item from '$lib/item/index.svelte';
@@ -22,7 +21,7 @@
 		}
 	});
 
-	let open = true;
+	export let open = true;
 	const set_open = () => {
 		open = !open;
 	};

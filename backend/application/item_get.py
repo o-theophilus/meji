@@ -141,6 +141,58 @@ def customer_view(cur, user_key, item_key):
     return [item_schema(x["item"]) for x in item_count]
 
 
+def recommended(cur, user_key, item_key=None):
+    cur.execute("""
+        SELECT item.key, item.name, item.tags
+        FROM item
+        LEFT JOIN save ON item.key = save.item_key
+        WHERE save.user_key = %s;
+    """, (user_key,))
+    save_items = cur.fetchall()
+
+    cur.execute("""
+        SELECT item.key, item.name, item.tags
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        LEFT JOIN "order" ON order_item.order_key = "order".key
+        WHERE "order".user_key = %s;
+    """, (user_key,))
+    order_items = cur.fetchall()
+
+    item_keys = [item_key]
+    keywords = []
+    for x in list(save_items) + list(order_items):
+        keywords += re.split(r'\s+', x["name"].lower()) + x["tags"]
+        item_keys.append(x["key"])
+
+    cur.execute("""
+        SELECT item.*,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
+            (
+                SELECT COUNT(*)
+                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
+                WHERE tag_or_name = ANY(%s)
+            ) AS likeness
+        FROM item
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE
+            item.status = 'live'
+            AND NOT item.key = ANY(%s)
+        GROUP BY item.key
+        ORDER BY likeness DESC
+        LIMIT 8 OFFSET 0;
+    """, (
+        keywords,
+        [x for x in item_keys if x]
+    ))
+    items = cur.fetchall()
+
+    return [item_schema(x) for x in items]
+
+
 @bp.get("/tag")
 def all_tags():
     con, cur = db_open()
@@ -215,6 +267,7 @@ def get(key):
     _recently_viewed = recently_viewed(cur, user["key"], item["key"])
     _similar_items = similar_items(cur, item["key"])
     _customer_view = customer_view(cur, user["key"], item["key"])
+    _recommended = recommended(cur, user["key"], item["key"])
 
     db_close(con, cur)
 
@@ -225,9 +278,25 @@ def get(key):
         "item": item_schema(item),
         "feedbacks": fb["feedbacks"],
         "give_feedback": fb["give_feedback"],
-        "recently_viewed": _recently_viewed,
-        "similar_items": _similar_items,
-        "customer_view": _customer_view
+        "groups": [
+            {
+                "name": "Recently Viewed",
+                "items": _recently_viewed,
+                "open": True
+            }, {
+                "name": "Similar Items",
+                "items": _similar_items,
+                "open": False
+            }, {
+                "name": "Customers who viewed this also viewed",
+                "items": _customer_view,
+                "open": False
+            }, {
+                "name": "You may also like",
+                "items": _recommended,
+                "open": False
+            }
+        ]
     })
 
 
@@ -347,6 +416,7 @@ def shop(
         "status": 200,
         "items": [item_schema(x) for x in items],
         "order_by": list(order_by.keys()),
+        "tags": all_tags().json["tags"],
         "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 

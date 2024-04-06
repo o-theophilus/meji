@@ -26,9 +26,7 @@
 	$: item = data.item;
 	$: feedbacks = data.feedbacks;
 	$: give_feedback = data.give_feedback;
-	$: recently_viewed = data.recently_viewed;
-	$: similar_items = data.similar_items;
-	$: customer_view = data.customer_view;
+	$: groups = data.groups;
 
 	onMount(() => {
 		if ($page.url.searchParams.has('edit') && is_admin) {
@@ -121,15 +119,11 @@
 	</section>
 </Card>
 
-<Group let:open let:set_open name="Recently Viewed" items={recently_viewed}>
-	<ButtonFold {open} on:click={set_open} />
-</Group>
-<Group let:open let:set_open name="Similar Items" items={similar_items}>
-	<ButtonFold {open} on:click={set_open} />
-</Group>
-<Group let:open let:set_open name="Customers who viewed this also viewed" items={customer_view}>
-	<ButtonFold {open} on:click={set_open} />
-</Group>
+{#each groups as x}
+	<Group open={x.open} let:open let:set_open name={x.name} items={x.items}>
+		<ButtonFold {open} on:click={set_open} />
+	</Group>
+{/each}
 
 <style>
 	.block {

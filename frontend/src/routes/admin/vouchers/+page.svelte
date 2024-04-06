@@ -1,6 +1,8 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 	import { module, set_state, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
@@ -98,8 +100,10 @@
 	</div>
 	<br />
 
-	{#each vouchers as x}
-		<Voucher voucher={x} />
+	{#each vouchers as x (x.key)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<Voucher voucher={x} />
+		</div>
 	{:else}
 		no item here
 	{/each}
