@@ -187,6 +187,7 @@
 		placeholder="Delivery address here"
 	/>
 
+	<!-- TODO: check this disables -->
 	<IG name="country" {error} let:id>
 		<select
 			bind:value={form.country}

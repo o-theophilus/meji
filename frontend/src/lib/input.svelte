@@ -42,7 +42,7 @@
 	}
 
 	:disabled{
-		opacity: 0.2;
+		opacity: 0.4;
 	}
 
 	input:hover:not(:disabled),

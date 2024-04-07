@@ -39,45 +39,24 @@
 		cursor: pointer;
 	}
 
-	:hover {
-		background-color: var(--cl1_b);
-		color: var(--ac6_);
-	}
 	.primary {
 		background-color: var(--cl1);
 		color: var(--ac6_);
 		box-shadow: 0 -4px 0 var(--cl1_b) inset;
-	}
-	.primary:hover {
-		background-color: var(--cl1_b);
 	}
 
 	.large {
 		padding: var(--sp2) var(--sp4);
 		font-size: large;
 	}
-
 	.small {
 		padding: var(--sp0);
 		gap: var(--sp0);
 		font-size: small;
 		min-width: 28px;
 	}
-
-	.link {
-		display: inline-flex;
-		gap: var(--sp0);
-		padding: 0;
-		color: var(--cl1);
-		background: none;
-
-		text-align: left;
-	}
-	.link:hover {
-		color: var(--cl1_b);
-	}
-	.hover_red:hover {
-		background-color: var(--cl4);
+	.wide {
+		width: 100%;
 	}
 
 	.round {
@@ -99,17 +78,34 @@
 		--size: 40px;
 	}
 
-	.wide {
-		width: 100%;
+	:hover:not(:disabled) {
+		background-color: var(--cl1_b);
+		color: var(--ac6_);
+	}
+	.hover_red:hover:not(:disabled) {
+		background-color: var(--cl4);
 	}
 
-	.hover_red:disabled,
-	button:disabled,
-	.primary:disabled {
+	:disabled {
 		background-color: var(--ac5);
-		color: var(--ac4);
-		cursor: unset;
+		color: var(--ac2);
 		box-shadow: unset;
+
+		cursor: unset;
+		opacity: 0.4;
+	}
+
+	.link {
+		display: inline-flex;
+		gap: var(--sp0);
+		padding: 0;
+		color: var(--cl1);
+		background: none;
+
+		text-align: left;
+	}
+	.link:hover {
+		color: var(--cl1_b);
 	}
 
 	.outline {

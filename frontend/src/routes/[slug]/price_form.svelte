@@ -113,4 +113,9 @@
 		flex-direction: column;
 		gap: var(--sp2);
 	}
+
+	label,
+	input {
+		cursor: pointer;
+	}
 </style>

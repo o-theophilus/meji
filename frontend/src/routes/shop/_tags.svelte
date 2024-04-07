@@ -86,6 +86,7 @@
 
 	<br />
 
+	<!-- TODO: check this disables -->
 	<div class="line">
 		<label class:disabled={selected.length < 2}>
 			<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />

@@ -55,6 +55,7 @@
 
 	<br />
 
+	<!-- TODO: check this disables -->
 	<div class="spaces">
 		{#each spaces as x}
 			<Tag
