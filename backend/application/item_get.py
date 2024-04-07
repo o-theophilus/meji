@@ -14,6 +14,7 @@ def recently_viewed(cur, user_key, item_key):
     cur.execute("""
         SELECT
             item.*,
+            item_sub.old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -33,11 +34,23 @@ def recently_viewed(cur, user_key, item_key):
             GROUP BY item.key, log.date
             ORDER BY item.key, log.date DESC
         ) as item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         GROUP BY
             item.date, item.key, item.status, item.name, item.slug, item.price,
             item.old_price, item.information, item.photos, item.tags,
-            item.variation, item.available_quantity
+            item.variation, item.available_quantity, item_sub.old_price
         ORDER BY item.date DESC
         LIMIT 8 OFFSET 0
         ;
@@ -65,7 +78,9 @@ def similar_items(cur, item_key):
         item["tags"] + re.split(r'\s+', item["name"].lower())))
 
     cur.execute("""
-        SELECT item.*,
+        SELECT
+            item.*,
+            item_sub.old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -76,9 +91,21 @@ def similar_items(cur, item_key):
                 WHERE tag_or_name = ANY(%s)
             ) AS likeness
         FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.status = 'live' AND item.key != %s
-        GROUP BY item.key
+        GROUP BY item.key, item_sub.old_price
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
     """, (item_keywords, item["key"]))
@@ -91,12 +118,25 @@ def customer_view(cur, user_key, item_key):
     cur.execute("""
         SELECT
             item.*,
+            item_sub.old_price,
             log.user_key AS user_key,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
         FROM item
+         LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN log ON item.key = log.entity_key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
@@ -104,7 +144,7 @@ def customer_view(cur, user_key, item_key):
             AND log.action = 'viewed'
             AND log.user_key != %s
             AND item.status = 'live'
-        GROUP BY item.key, log.user_key, log.date
+        GROUP BY item.key, log.user_key, log.date, item_sub.old_price
         ORDER BY log.date ASC;
     """, (user_key,))
     views = cur.fetchall()
@@ -166,7 +206,9 @@ def recommended(cur, user_key, item_key=None):
         item_keys.append(x["key"])
 
     cur.execute("""
-        SELECT item.*,
+        SELECT
+            item.*,
+            item_sub.old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -177,11 +219,23 @@ def recommended(cur, user_key, item_key=None):
                 WHERE tag_or_name = ANY(%s)
             ) AS likeness
         FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
             item.status = 'live'
             AND NOT item.key = ANY(%s)
-        GROUP BY item.key
+        GROUP BY item.key, item_sub.old_price
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
     """, (
@@ -236,15 +290,29 @@ def get(key):
         })
 
     cur.execute("""
-        SELECT item.*,
+        SELECT
+            item.*,
+            item_sub.old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
         FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.slug = %s or item.key = %s
-        GROUP BY item.key;
+        GROUP BY item.key, item_sub.old_price;
     """, (key, key))
     item = cur.fetchone()
 
@@ -369,6 +437,8 @@ def shop(
     cur.execute("""
         SELECT
             item.*,
+            item_sub.old_price,
+            COALESCE(item_sub.discount, 0) AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN 0
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
@@ -378,14 +448,21 @@ def shop(
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings,
             COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *,
-                CASE
-                    WHEN old_price = 0 THEN 0
-                    ELSE (100 * (old_price - price)) / old_price
-                END AS discount
-            FROM item
-        ) AS item
+        FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price,
+                (100 * ((log.misc->>'price')::float - item.price))
+                    / (log.misc->>'price')::float AS discount
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         LEFT JOIN log ON item.key = log.entity_key
         WHERE
@@ -397,7 +474,7 @@ def shop(
             item.key, item.status, item.name, item.slug,
             item.price, item.old_price, item.information, item.photos,
             item.tags, item.variation, item.available_quantity,
-            item.discount, log.date
+            item_sub.discount, item_sub.old_price, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(

@@ -43,6 +43,8 @@ def get():
     cur.execute("""
         SELECT
             item.*,
+            item_sub.old_price,
+            COALESCE(item_sub.discount, 0) AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN NULL
                 ELSE SUM(feedback.rating) / COUNT(feedback.*)
@@ -52,14 +54,21 @@ def get():
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings,
             COUNT(*) OVER() AS total_items
-        FROM (
-            SELECT *,
-                CASE
-                    WHEN old_price = 0 THEN 0
-                    ELSE (100 * (old_price - price)) / old_price
-                END AS discount
-            FROM item
-        ) AS item
+        FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price,
+                (100 * ((log.misc->>'price')::float - item.price))
+                    / (log.misc->>'price')::float AS discount
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN save ON item.key = save.item_key
         LEFT JOIN log ON item.key = log.entity_key
         LEFT JOIN feedback ON item.key = feedback.item_key
@@ -73,7 +82,7 @@ def get():
             item.key, item.status, item.name, item.slug,
             item.price, item.old_price, item.information, item.photos,
             item.tags, item.variation, item.available_quantity,
-            item.discount, log.date
+            item_sub.discount, item_sub.old_price, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
