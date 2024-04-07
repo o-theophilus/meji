@@ -4,6 +4,7 @@ import re
 from uuid import uuid4
 from .storage import storage
 from .postgres import db_close, db_open
+from .item_get import get_item
 from datetime import datetime
 import json
 
@@ -85,7 +86,8 @@ def edit(key):
             "error": "invalid token"
         })
 
-    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    cur.execute('SELECT * FROM item WHERE slug = %s or key = %s;',
+                (key, key))
     item = cur.fetchone()
     if not item:
         return jsonify({
@@ -189,40 +191,30 @@ def edit(key):
                 item["key"]
             ))
 
-    if item["old_price"] > 0 and item["price"] >= item["old_price"]:
-        cur.execute("""
-            UPDATE item
-            SET old_price = 0
-            WHERE key = %s;
-        """, (item["key"],))
-
-    if "old_price" in request.json:
-        if not request.json["old_price"]:
-            request.json["old_price"] = 0
-
+    if "show_discount" in request.json:
         if "item:edit_price" not in user["permissions"]:
             error["price"] = "unauthorized access"
-
-        elif item["price"]:
-            if (
-                type(request.json["old_price"]) not in [int, float]
-                or request.json["old_price"] < 0
-            ):
-                error["old_price"] = "please enter a valid price"
-            elif (
-                request.json["old_price"] > 0
-                and request.json["old_price"] <= item["price"]
-            ):
-                error["old_price"] = 'old price should be greater than price'
+        else:
+            show_discount = "true"
+            if request.json["show_discount"] == "false":
+                show_discount = "false"
             else:
-                cur.execute("""
-                        UPDATE item
-                        SET old_price = %s
-                        WHERE key = %s;
-                    """, (
-                    request.json["old_price"],
-                    item["key"]
-                ))
+                try:
+                    show_discount = datetime.strptime(
+                        f"{request.json['show_discount']}",
+                        "%Y-%m-%dT%H:%M"
+                    )
+                except Exception:
+                    pass
+
+            cur.execute("""
+                UPDATE item
+                SET show_discount = %s
+                WHERE key = %s;
+            """, (
+                show_discount,
+                item["key"]
+            ))
 
     if "info" in request.json:
         if "item:edit_info" not in user["permissions"]:
@@ -266,18 +258,7 @@ def edit(key):
             **error
         })
 
-    cur.execute("""
-        SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
-        FROM item
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.key = %s
-        GROUP BY item.key;
-    """, (key,))
-    item = cur.fetchone()
+    item = get_item(cur, key)
 
     cur.execute("""
         INSERT INTO log (

@@ -7,6 +7,10 @@
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
+	if (!['true', 'false'].includes(item.show_discount)) {
+		item.discount_date = item.show_discount;
+		item.show_discount = 'date';
+	}
 	let error = {};
 
 	const validate = async () => {
@@ -16,11 +20,11 @@
 			error.price = 'please enter a valid price';
 		}
 
-		if (item.old_price) {
-			if (!Number.isFinite(item.old_price) || item.old_price < 0) {
-				error.old_price = 'please enter a valid price';
-			} else if (item.old_price <= item.price) {
-				error.old_price = 'old price should be greater than price';
+		if (item.show_discount) {
+			if (!['true', 'false', 'date'].includes(item.show_discount)) {
+				error.show_discount = 'This field is required';
+			} else if (item.show_discount == 'date' && !item.discount_date) {
+				error.discount_date = 'This field is required';
 			}
 		}
 
@@ -37,12 +41,11 @@
 			},
 			body: JSON.stringify({
 				price: item.price,
-				old_price: item.old_price
+				show_discount: item.show_discount != 'date' ? item.show_discount : item.discount_date
 			})
 		});
 		resp = await resp.json();
 		$loading = false;
-
 		if (resp.status == 200) {
 			$portal = {
 				type: 'item',
@@ -66,12 +69,32 @@
 
 	<IG name="price" {error} bind:value={item.price} type="number" placeholder="Price here" />
 
+	<div class="space">
+		Show Discount
+		{#if error.show_discount}
+			<p class="error">
+				{error.show_discount}
+			</p>
+		{/if}
+		<label>
+			<input type="radio" bind:group={item.show_discount} value="true" /> Always
+		</label>
+		<label>
+			<input type="radio" bind:group={item.show_discount} value="false" /> Never
+		</label>
+		<label>
+			<input type="radio" bind:group={item.show_discount} value="date" /> Till Date
+		</label>
+	</div>
+
 	<IG
-		name="old price"
+		name="discount_date"
+		label=" "
 		{error}
-		bind:value={item.old_price}
-		type="number"
-		placeholder="Old price here"
+		bind:value={item.discount_date}
+		type="datetime"
+		placeholder="date here"
+		disabled={item.show_discount != 'date'}
 	/>
 
 	{#if error.error}
@@ -83,3 +106,11 @@
 
 	<Button class="primary" on:click={validate}>Save</Button>
 </Form>
+
+<style>
+	.space {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp2);
+	}
+</style>

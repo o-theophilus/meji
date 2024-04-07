@@ -43,7 +43,12 @@ def get():
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             COALESCE(item_sub.discount, 0) AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN NULL
@@ -60,7 +65,8 @@ def get():
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
                 (log.misc->>'price')::float AS old_price,
                 (100 * ((log.misc->>'price')::float - item.price))
-                    / (log.misc->>'price')::float AS discount
+                    / (log.misc->>'price')::float AS discount,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -80,9 +86,9 @@ def get():
 
         GROUP BY
             item.key, item.status, item.name, item.slug,
-            item.price, item.old_price, item.information, item.photos,
+            item.price, item.show_discount, item.information, item.photos,
             item.tags, item.variation, item.available_quantity,
-            item_sub.discount, item_sub.old_price, log.date
+            item_sub.discount, item_sub.old_price, item_sub.date, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(

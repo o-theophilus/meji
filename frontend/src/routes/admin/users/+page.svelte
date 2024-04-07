@@ -19,8 +19,6 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 	let { order_by } = data;
-	$: console.log(users[0]);
-
 
 	let status = ['all', 'anonymous', 'signedup', 'confirmed'];
 

@@ -4,26 +4,27 @@
 	export let type = '';
 	export let placeholder = '';
 	export let min = '';
+	export let disabled;
 </script>
 
 {#if type == 'text'}
-	<input bind:value {id} type="text" {placeholder} />
+	<input bind:value {id} type="text" {placeholder} {disabled} />
 {:else if type == 'email'}
-	<input bind:value {id} type="email" {placeholder} />
+	<input bind:value {id} type="email" {placeholder} {disabled} />
 {:else if type == 'password'}
-	<input bind:value {id} type="password" {placeholder} />
+	<input bind:value {id} type="password" {placeholder} {disabled} />
 {:else if type == 'number'}
-	<input bind:value {id} type="number" {placeholder} />
+	<input bind:value {id} type="number" {placeholder} {disabled} />
 {:else if type == 'tel'}
-	<input bind:value {id} type="tel" {placeholder} />
+	<input bind:value {id} type="tel" {placeholder} {disabled} />
 {:else if type == 'date'}
-	<input bind:value {id} type="date" {placeholder} {min} />
+	<input bind:value {id} type="date" {placeholder} {min} {disabled} />
 {:else if type == 'time'}
-	<input bind:value {id} type="time" {placeholder} {min} />
+	<input bind:value {id} type="time" {placeholder} {min} {disabled} />
 {:else if type == 'datetime'}
-	<input bind:value {id} type="datetime-local" {placeholder} {min} />
+	<input bind:value {id} type="datetime-local" {placeholder} {min} {disabled} />
 {:else if type == 'textarea'}
-	<textarea bind:value {id} {placeholder} on:blur />
+	<textarea bind:value {id} {placeholder} on:blur {disabled} />
 {/if}
 
 <style>
@@ -40,8 +41,12 @@
 		color: var(--ac1);
 	}
 
-	input:hover,
-	textarea:hover {
+	:disabled{
+		opacity: 0.2;
+	}
+
+	input:hover:not(:disabled),
+	textarea:hover:not(:disabled) {
 		outline-color: var(--ac3);
 	}
 
@@ -62,6 +67,6 @@
 		margin: 0;
 	}
 	::-webkit-calendar-picker-indicator {
-    filter: invert(0.5);
-}
+		filter: invert(0.5);
+	}
 </style>

@@ -172,32 +172,24 @@ def fix():
     # """)
 
     # cur.execute("""
-    #     ALTER TABLE "user" RENAME COLUMN xx TO yy;
+    #     ALTER TABLE item
+    #     RENAME COLUMN old_price
+    #     TO discount_time;
+
+    #     ALTER TABLE item
+    #     ALTER COLUMN discount_time
+    #     TYPE VARCHAR(32);
+
+    #     ALTER TABLE item
+    #     ALTER COLUMN discount_time
+    #     SET DEFAULT 'TRUE';
+
+    #     UPDATE item
+    #     SET discount_time = 'TRUE';
     # """)
 
     # cur.execute("""
-    #     ALTER TABLE otp DROP COLUMN date;
-    # """)
-
-    cur.execute("""
-        DELETE FROM log WHERE entity_type='user' AND action = 'viewed';
-    """)
-
-    # cur.execute("""
-    #     UPDATE log
-    #     SET entity_type = 'admin'
-    #     WHERE action = 'changed_permission';
-    # """)
-
-    # cur.execute("""
-    #     ALTER TABLE log
-    #     ALTER COLUMN entity_key TYPE TEXT;
-
-    #     ALTER TABLE log
-    #     ALTER COLUMN entity_type TYPE VARCHAR(100);
-
-    #     ALTER TABLE log
-    #     ALTER COLUMN entity_type SET NOT NULL;
+    #     DELETE FROM log WHERE entity_type='user' AND action = 'viewed';
     # """)
 
     db_close(con, cur)
@@ -229,7 +221,6 @@ def deta_to_postgres():
                     name,
                     slug,
                     price,
-                    old_price,
                     information,
                     photos,
                     tags,
@@ -237,7 +228,7 @@ def deta_to_postgres():
 
                     available_quantity
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, (
                 x["key"],
                 x["status"],
@@ -245,7 +236,6 @@ def deta_to_postgres():
                 x["name"],
                 x["slug"],
                 x["price"],
-                x["old_price"] if x["old_price"] else 0,
                 x["info"],
                 x["photos"],
                 x["tags"],

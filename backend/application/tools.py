@@ -41,7 +41,6 @@ def token_to_user(cur):
 
     cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
     user = cur.fetchone()
-    # print(user)
     return user
 
 

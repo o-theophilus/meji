@@ -14,7 +14,12 @@ def recently_viewed(cur, user_key, item_key):
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -37,7 +42,8 @@ def recently_viewed(cur, user_key, item_key):
         LEFT JOIN (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price
+                (log.misc->>'price')::float AS old_price,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -49,8 +55,9 @@ def recently_viewed(cur, user_key, item_key):
         LEFT JOIN feedback ON item.key = feedback.item_key
         GROUP BY
             item.date, item.key, item.status, item.name, item.slug, item.price,
-            item.old_price, item.information, item.photos, item.tags,
-            item.variation, item.available_quantity, item_sub.old_price
+            item.show_discount, item.information, item.photos, item.tags,
+            item.variation, item.available_quantity, item_sub.old_price,
+            item_sub.date
         ORDER BY item.date DESC
         LIMIT 8 OFFSET 0
         ;
@@ -80,7 +87,12 @@ def similar_items(cur, item_key):
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -94,7 +106,8 @@ def similar_items(cur, item_key):
         LEFT JOIN (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price
+                (log.misc->>'price')::float AS old_price,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -105,7 +118,7 @@ def similar_items(cur, item_key):
         ) AS item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.status = 'live' AND item.key != %s
-        GROUP BY item.key, item_sub.old_price
+        GROUP BY item.key, item_sub.old_price, item_sub.date
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
     """, (item_keywords, item["key"]))
@@ -118,7 +131,12 @@ def customer_view(cur, user_key, item_key):
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             log.user_key AS user_key,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
@@ -128,7 +146,8 @@ def customer_view(cur, user_key, item_key):
          LEFT JOIN (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price
+                (log.misc->>'price')::float AS old_price,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -144,7 +163,8 @@ def customer_view(cur, user_key, item_key):
             AND log.action = 'viewed'
             AND log.user_key != %s
             AND item.status = 'live'
-        GROUP BY item.key, log.user_key, log.date, item_sub.old_price
+        GROUP BY
+            item.key, log.user_key, log.date, item_sub.old_price, item_sub.date
         ORDER BY log.date ASC;
     """, (user_key,))
     views = cur.fetchall()
@@ -208,7 +228,12 @@ def recommended(cur, user_key, item_key=None):
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
@@ -222,7 +247,8 @@ def recommended(cur, user_key, item_key=None):
         LEFT JOIN (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price
+                (log.misc->>'price')::float AS old_price,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -235,7 +261,7 @@ def recommended(cur, user_key, item_key=None):
         WHERE
             item.status = 'live'
             AND NOT item.key = ANY(%s)
-        GROUP BY item.key, item_sub.old_price
+        GROUP BY item.key, item_sub.old_price, item_sub.date
         ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
     """, (
@@ -278,6 +304,41 @@ def all_tags():
     })
 
 
+def get_item(cur, key):
+    cur.execute("""
+        SELECT
+            item.*,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings
+        FROM item
+        LEFT JOIN (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price,
+                log.date
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        ) AS item_sub ON item.key = item_sub.key
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        WHERE item.slug = %s or item.key = %s
+        GROUP BY item.key, item_sub.old_price, item_sub.date;
+    """, (key, key))
+    return cur.fetchone()
+
+
 @bp.get("/item/<key>")
 def get(key):
     con, cur = db_open()
@@ -289,33 +350,7 @@ def get(key):
             "error": "invalid token"
         })
 
-    cur.execute("""
-        SELECT
-            item.*,
-            item_sub.old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
-        FROM item
-        LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.slug = %s or item.key = %s
-        GROUP BY item.key, item_sub.old_price;
-    """, (key, key))
-    item = cur.fetchone()
-
+    item = get_item(cur, key)
     if not item:
         return jsonify({
             "status": 400,
@@ -437,7 +472,12 @@ def shop(
     cur.execute("""
         SELECT
             item.*,
-            item_sub.old_price,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
             COALESCE(item_sub.discount, 0) AS discount,
             CASE
                 WHEN COUNT(feedback.*) = 0 THEN 0
@@ -454,7 +494,8 @@ def shop(
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
                 (log.misc->>'price')::float AS old_price,
                 (100 * ((log.misc->>'price')::float - item.price))
-                    / (log.misc->>'price')::float AS discount
+                    / (log.misc->>'price')::float AS discount,
+                log.date
             FROM log
             LEFT JOIN item ON item.key = log.entity_key
             WHERE
@@ -472,9 +513,9 @@ def shop(
             AND log.entity_type = 'item'
         GROUP BY
             item.key, item.status, item.name, item.slug,
-            item.price, item.old_price, item.information, item.photos,
+            item.price, item.show_discount, item.information, item.photos,
             item.tags, item.variation, item.available_quantity,
-            item_sub.discount, item_sub.old_price, log.date
+            item_sub.discount, item_sub.old_price, item_sub.date, log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(

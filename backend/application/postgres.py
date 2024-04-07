@@ -41,7 +41,7 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     price FLOAT DEFAULT 0 NOT NULL,
-    old_price FLOAT DEFAULT 0 NOT NULL,
+    show_discount VARCHAR(32) DEFAULT 'true',
     information TEXT,
     photos TEXT[] DEFAULT ARRAY[]::TEXT[],
     tags TEXT[] DEFAULT ARRAY[]::TEXT[],
