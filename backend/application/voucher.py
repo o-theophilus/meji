@@ -4,7 +4,7 @@ from uuid import uuid4
 from math import ceil
 from datetime import datetime, date
 from .postgres import db_close, db_open
-import json
+from .log import log
 
 bp = Blueprint("voucher", __name__)
 
@@ -66,19 +66,14 @@ def create():
             request.json["value"]
         ))
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type, misc
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "created",
-            voucher_key,
-            "voucher",
-            json.dumps({"batch": batch})
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="created",
+            entity_key=voucher_key,
+            entity_type="voucher",
+            misc={"batch": batch}
+        )
 
     db_close(con, cur)
 
@@ -280,19 +275,14 @@ def activate(key):
     if "voucher:view_pin" not in user["permissions"]:
         voucher["pin"] = "#"
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "activated",
-        voucher["key"],
-        "voucher",
-        json.dumps({"validity": validity})
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="activated",
+        entity_key=voucher["key"],
+        entity_type="voucher",
+        misc={"validity": validity}
+    )
 
     db_close(con, cur)
 
@@ -363,18 +353,13 @@ def status(key):
     if "voucher:view_pin" not in user["permissions"]:
         voucher["pin"] = "#"
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type
-        ) VALUES (%s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deactivated",
-        voucher["key"],
-        "voucher"
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="deactivated",
+        entity_key=voucher["key"],
+        entity_type="voucher"
+    )
 
     db_close(con, cur)
 
@@ -416,44 +401,33 @@ def use():
     ):
         error = f"voucher {voucher['status']}"
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key,
-                entity_type, status, misc
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "used",
-            voucher["key"],
-            "voucher",
-            400,
-            json.dumps({"error": error})
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="used",
+            entity_key=voucher["key"],
+            entity_type="voucher",
+            status=400,
+            misc={"error": error}
+        )
 
         return jsonify({
             "status": 400,
             "error": error
         })
 
-    cur.execute("""
-    INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "used",
-        voucher["key"],
-        "voucher",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="used",
+        entity_key=voucher["key"],
+        entity_type="voucher",
+        misc={
             "value": voucher["value"],
             "balance": user["account_balance"],
             "new_balance": user["account_balance"] + voucher["value"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE voucher

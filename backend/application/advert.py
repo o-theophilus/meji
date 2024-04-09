@@ -4,9 +4,7 @@ from .storage import storage
 from PIL import Image
 from math import ceil
 from .postgres import db_close, db_open
-from datetime import datetime
-from uuid import uuid4
-import json
+from .log import log
 
 bp = Blueprint("advert", __name__)
 
@@ -72,18 +70,13 @@ def add_photo(item_key):
         """, (item["key"],))
         advert = cur.fetchone()
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "created",
-            advert["key"],
-            "advert"
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="created",
+            entity_key=advert["key"],
+            entity_type="advert"
+        )
 
     error = ""
     log_misc = ""
@@ -124,19 +117,14 @@ def add_photo(item_key):
             "error": error if not error else "no file"
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "added_photo",
-        advert["key"],
-        "advert",
-        json.dumps({"photo": log_misc})
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="added_photo",
+        entity_key=advert["key"],
+        entity_type="advert",
+        misc={"photo": log_misc}
+    )
 
     cur.execute("""
         SELECT *
@@ -340,32 +328,22 @@ def delete_photo(item_key):
             WHERE WHERE key = %s;
         """, (advert["key"],))
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "deleted",
-            advert["key"],
-            "advert"
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="deleted",
+            entity_key=advert["key"],
+            entity_type="advert"
+        )
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deleted_photo",
-        advert["key"],
-        "advert",
-        json.dumps({"photo": f"{photo} ({dim})"})
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="deleted_photo",
+        entity_key=advert["key"],
+        entity_type="advert",
+        misc={"photo": f"{photo} ({dim})"}
+    )
 
     db_close(con, cur)
 
@@ -420,32 +398,21 @@ def delete(item_key):
         DELETE FROM advert WHERE key = %s;
     """, (advert["key"],))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deleted_photo",
-        advert["key"],
-        "advert",
-        json.dumps({"photo": log_misc})
-    ))
-
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deleted",
-        advert["key"],
-        "advert"
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="deleted_photo",
+        entity_key=advert["key"],
+        entity_type="advert",
+        misc={"photo": log_misc}
+    )
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="deleted",
+        entity_key=advert["key"],
+        entity_type="advert"
+    )
 
     db_close(con, cur)
 
@@ -504,22 +471,17 @@ def ad_spaces(item_key):
             "error": "invalid request"
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_spaces",
-        advert["key"],
-        "advert",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_spaces",
+        entity_key=advert["key"],
+        entity_type="advert",
+        misc={
             "from": advert["spaces"],
             "to": request.json["spaces"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE advert

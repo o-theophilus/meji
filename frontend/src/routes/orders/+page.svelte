@@ -6,6 +6,7 @@
 	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
+	import Toggle from '$lib/button.toggle.svelte';
 	import Status from '$lib/status.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
@@ -20,6 +21,8 @@
 	let { order_by } = data;
 
 	let status = ['created', 'processing', 'enroute', 'delivered', 'canceled'];
+
+	$: active = $page.url.searchParams.has('admin');
 </script>
 
 <Meta title="Order" description="Order" />
@@ -32,29 +35,27 @@
 	<div class="ctitle">
 		<div class="ctitle">
 			<Back />
-			{$page.url.searchParams.has('admin') && $user.permissions.includes('order:view')
-				? 'All'
-				: 'My'} Orders
+			{active && $user.permissions.includes('order:view') ? 'All' : 'My'} Orders
+			{#if $user.permissions.includes('order:view')}
+				<Toggle
+					state_1="Mine"
+					state_2="All"
+					{active}
+					on:click={() => {
+						if (active) {
+							set_state(page_name, 'admin', '');
+						} else {
+							set_state(page_name, 'admin', 'true');
+						}
+					}}
+				/>
+			{/if}
 		</div>
 
+		<!-- TODO: what is line in all OrderBy for? -->
 		<div class="line">
 			<OrderBy {page_name} {order_by} default_value="latest" />
 		</div>
-
-		{#if $user.permissions.includes('order:view')}
-			<Button
-				class={$page.url.searchParams.has('admin') ? 'primary' : 'outline'}
-				on:click={() => {
-					if ($page.url.searchParams.has('admin')) {
-						set_state(page_name, 'admin', '');
-					} else {
-						set_state(page_name, 'admin', 'true');
-					}
-				}}
-			>
-				{$page.url.searchParams.has('admin') ? 'All' : 'My'} Orders
-			</Button>
-		{/if}
 	</div>
 </Center>
 
@@ -73,4 +74,9 @@
 </Card>
 
 <style>
+	/* .line {
+		display: flex;
+		gap: var(--sp1);
+		align-items: center;
+	} */
 </style>

@@ -5,8 +5,6 @@ from .postgres import db_close, db_open
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
-from datetime import datetime
-import json
 from .advert import sizes
 from .storage import drive, storage
 from .log import log
@@ -76,18 +74,12 @@ def get():
             [f"{x}:{y[0]}" for x in permissions for y in permissions[x]]
         ))
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            key,
-            "created",
-            None,
-            "auth"
-        ))
+        log(
+            cur=cur,
+            user_key=key,
+            action="created",
+            entity_type="auth"
+        )
 
     db_close(con, cur)
 
@@ -230,22 +222,17 @@ def permission(key):
         user["key"]
     ))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        me["key"],
-        "changed_permission",
-        user["key"],
-        "admin",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=me["key"],
+        action="changed_permission",
+        entity_key=user["key"],
+        entity_type="admin",
+        misc={
             "from": user["permissions"],
             "to": request.json["permissions"]
-        })
-    ))
+        }
+    )
 
     db_close(con, cur)
 
@@ -387,6 +374,7 @@ def delete_photo():
         storage(x.split("/")[-1], delete=True)
 
     log(
+        cur=cur,
         user_key=user["key"],
         action="deleted",
         entity_type="photo",

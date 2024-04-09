@@ -4,6 +4,7 @@ from math import ceil
 from uuid import uuid4
 from .postgres import db_close, db_open
 from datetime import datetime
+from .log import log
 
 bp = Blueprint("save", __name__)
 
@@ -146,14 +147,17 @@ def save():
         WHERE user_key = %s AND item_key = %s;
     """, (
         user["key"],
-        request.json["key"]
+        item["key"]
     ))
     saved_item = cur.fetchone()
 
+    action = None
     if saved_item and not request.json["save"]:
+        action = "unsaved"
         cur.execute("DELETE FROM save WHERE key = %s;", (saved_item["key"],))
 
     elif not saved_item and request.json["save"]:
+        action = "saved"
         cur.execute("""
             INSERT INTO save (key, date, user_key, item_key)
             VALUES (%s, %s, %s, %s);
@@ -163,6 +167,15 @@ def save():
             user["key"],
             item["key"]
         ))
+
+    if action:
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action=action,
+            entity_key=item["key"],
+            entity_type="item"
+        )
 
     cur.execute("""
         SELECT

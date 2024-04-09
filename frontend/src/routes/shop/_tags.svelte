@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { set_state, module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
+	import Toggle from '$lib/button.toggle.svelte';
 	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
@@ -86,16 +87,16 @@
 
 	<br />
 
-	<!-- TODO: check this disables -->
 	<div class="line">
-		<label class:disabled={selected.length < 2}>
-			<input bind:checked={multiply} type="checkbox" disabled={selected.length < 2} />
-			{#if multiply}
-				all (x)
-			{:else}
-				any (+)
-			{/if}
-		</label>
+		<Toggle
+			state_1="any"
+			state_2="all"
+			active={multiply}
+			disabled={selected.length < 2}
+			on:click={() => {
+				multiply = !multiply;
+			}}
+		/>
 
 		<div class="line buttons">
 			<Button
@@ -159,39 +160,13 @@
 		border: 2px solid var(--ac4);
 	}
 
-	input {
-		cursor: pointer;
-	}
-	input:disabled {
-		cursor: default;
-	}
-
-	label {
-		display: flex;
-		gap: var(--sp0);
-		cursor: pointer;
-
-		font-size: small;
-	}
-
-	label:hover {
-		color: var(--cl1);
-	}
-
-	label.disabled {
-		cursor: default;
-		color: var(--ac4);
-	}
-
 	.line {
 		display: flex;
 		gap: var(--sp3);
 		justify-content: space-between;
 		align-items: center;
 	}
-	.line label {
-		text-transform: unset;
-	}
+
 	.buttons {
 		gap: var(--sp0);
 	}

@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_tool, token_to_user, send_mail, user_schema
 from werkzeug.security import generate_password_hash, check_password_hash
-# from .user_cart import cart_template, transaction
 import re
 from uuid import uuid4
-from datetime import datetime
 from .postgres import db_close, db_open
 import json
+from .log import log
 
 
 bp = Blueprint("auth", __name__)
@@ -36,18 +35,12 @@ def init():
         )
         user = cur.fetchone()
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "created",
-            None,
-            "auth"
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="created",
+            entity_type="auth",
+        )
 
         token = token_tool().dumps(user["key"])
 
@@ -168,18 +161,12 @@ def signup():
     ))
     user = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type
-        ) VALUES (%s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "signed_up",
-        None,
-        "auth"
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="signed_up",
+        entity_type="auth",
+    )
 
     send_mail(
         user["email"],
@@ -226,45 +213,30 @@ def confirm_email(token):
 
     if user["status"] != "confirmed":
         cur.execute("""
-            UPDATE "user" SET status = %s
-            WHERE key = %s RETURNING *;""", (
-            "confirmed",
-            user["key"]
-        ))
+            UPDATE "user" SET status = 'confirmed'
+            WHERE key = %s RETURNING *;
+        """, (user["key"],))
         user = cur.fetchone()
         output['user'] = user_schema(user)
 
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type
-            ) VALUES (%s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "confirmed_email",
-            None,
-            "auth"
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="confirmed_email",
+            entity_type="auth",
+        )
 
     else:
         output['error'] = "email has already been confirmed"
 
-        cur.execute("""
-            INSERT INTO log (
-                    key, date, user_key, action, entity_key,
-                    entity_type, status, misc
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            "confirmed_email",
-            None,
-            "auth",
-            201,
-            json.dumps({"error": "already confirmed"})
-        ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="confirmed_email",
+            entity_type="auth",
+            status=201,
+            misc={"error": "already confirmed"}
+        )
 
     db_close(con, cur)
 
@@ -445,38 +417,26 @@ def login():
         False, out_user["key"]
     ))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex, datetime.now(),
-        in_user["key"],
-        "logged_in",
-        None,
-        "auth",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=in_user["key"],
+        action="logged_in",
+        entity_type="auth",
+        misc={
             "from": out_user["key"],
             "name": out_user["name"]
-        }) if in_user["key"] != out_user["key"] else None
-    ))
-    if in_user["key"] != out_user["key"]:
-        cur.execute("""
-            INSERT INTO log (
-                key, date, user_key, action, entity_key, entity_type, misc
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            out_user["key"],
-            "logged_out",
-            None,
-            "auth",
-            json.dumps({
-                "to": in_user["key"],
-                "name": in_user["name"]
-            })
-        ))
+        }
+    )
+    log(
+        cur=cur,
+        user_key=out_user["key"],
+        action="logged_out",
+        entity_type="auth",
+        misc={
+            "from": in_user["key"],
+            "name": in_user["name"]
+        }
+    )
 
     db_close(con, cur)
 
@@ -515,39 +475,26 @@ def logout():
     ))
     anon_user = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "logged_out",
-        None,
-        "auth",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="logged_out",
+        entity_type="auth",
+        misc={
             "to": anon_user["key"],
             "name": anon_user["name"]
-        })
-    ))
-
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        anon_user["key"],
-        "created",
-        None,
-        "auth",
-        json.dumps({
+        }
+    )
+    log(
+        cur=cur,
+        user_key=anon_user["key"],
+        action="created",
+        entity_type="auth",
+        misc={
             "from": user["key"],
             "name": user["name"]
-        })
-    ))
+        }
+    )
 
     db_close(con, cur)
 
@@ -601,19 +548,12 @@ def forgot_password():
             name=user["name"]
         ))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, status
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "forgot_password",
-        None,
-        "auth",
-        201
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="forgot_password",
+        entity_type="auth",
+    )
 
     db_close(con, cur)
 
@@ -683,18 +623,12 @@ def change_password(token):
         user["key"]
     ))
 
-    cur.execute("""
-    INSERT INTO log (
-        key, date, user_key, action, entity_key, entity_type
-    ) VALUES (%s, %s, %s, %s, %s, %s);
-""", (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_password",
-        None,
-        "auth"
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_password",
+        entity_type="auth",
+    )
 
     return jsonify({
         "status": 200,

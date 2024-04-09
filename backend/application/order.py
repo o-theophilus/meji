@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, send_mail, now, user_schema
-from uuid import uuid4
 import requests
 import os
 from .postgres import db_close, db_open
 from datetime import datetime
 from math import ceil
-import json
+from .log import log
 
 bp = Blueprint("order", __name__)
 
@@ -125,23 +124,18 @@ def cart_to_order():
     ))
     order = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "created",
-        order["key"],
-        "order",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="created",
+        entity_key=order["key"],
+        entity_type="order",
+        misc={
             "debit": order["pay_account"],
             "account_balance": user["account_balance"] + order["pay_account"],
             "new_balance": user["account_balance"]
-        })
-    ))
+        }
+    )
 
     send_mail(
         os.environ["MAIL_USERNAME"],
@@ -352,22 +346,17 @@ def date(key):
             **error
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_date",
-        order["key"],
-        "order",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_date",
+        entity_key=order["key"],
+        entity_type="order",
+        misc={
             "from": str(order["delivery_date"]).replace(" ", "T"),
             "to": f"{request.json['date']}T{request.json['time']}"
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE "order"
@@ -448,23 +437,18 @@ def status(key):
             "note": "this field is required"
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_status",
-        order["key"],
-        "order",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_status",
+        entity_key=order["key"],
+        entity_type="order",
+        misc={
             "from": order['status'],
             "to": request.json['status'],
             "note": request.json["note"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE "order"
@@ -542,23 +526,18 @@ def cancel(key):
             "note": "this field is required"
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "canceled",
-        order["key"],
-        "order",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="canceled",
+        entity_key=order["key"],
+        entity_type="order",
+        misc={
             "from": order['status'],
             "to": "canceled",
             "note": request.json["note"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE "order"

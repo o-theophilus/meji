@@ -3,8 +3,7 @@ from .tools import token_to_user, item_schema
 from uuid import uuid4
 from math import ceil
 from .postgres import db_close, db_open
-from datetime import datetime
-import json
+from .log import log
 
 bp = Blueprint("feedback", __name__)
 
@@ -78,22 +77,17 @@ def add_feedback(item_key):
     ))
     feedback = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "added_feedback",
-        feedback["key"],
-        "feedback",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="added_feedback",
+        entity_key=feedback["key"],
+        entity_type="feedback",
+        misc={
             "rating":  request.json["rating"],
             "review": request.json["review"]
-        })
-    ))
+        }
+    )
 
     db_close(con, cur)
 

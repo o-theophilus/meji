@@ -7,10 +7,10 @@
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 	import Button from '$lib/button.svelte';
+	import Toggle from '$lib/button.toggle.svelte';
 	import Group from '$lib/group.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
 	import Photo from './photo.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
 
 	import Status from './status.svelte';
@@ -75,15 +75,13 @@
 	<div class="ctitle">
 		Item Details
 		{#if $user && is_admin}
-			<Button
-				class="outline"
+			<Toggle
+				active={edit_mode}
+				state_2="edit"
 				on:click={() => {
 					edit_mode = !edit_mode;
 				}}
-			>
-				<SVG type="edit" size="10" />
-				Edit: {edit_mode ? 'On' : 'Off'}
-			</Button>
+			/>
 		{/if}
 	</div>
 </Center>

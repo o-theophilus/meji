@@ -6,7 +6,7 @@ from .storage import storage
 from .postgres import db_close, db_open
 from .item_get import get_item
 from datetime import datetime
-import json
+from .log import log
 
 bp = Blueprint("item", __name__)
 
@@ -54,18 +54,13 @@ def add():
     item = cur.fetchone()
     item["ratings"] = []
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type
-        ) VALUES (%s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "created",
-        item["key"],
-        "item"
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="created",
+        entity_key=item["key"],
+        entity_type="item"
+    )
 
     db_close(con, cur)
 
@@ -260,19 +255,14 @@ def edit(key):
 
     item = get_item(cur, key)
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "edited",
-        item["key"],
-        "item",
-        json.dumps(request.json)
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="edited",
+        entity_key=item["key"],
+        entity_type="item",
+        misc=request.json
+    )
 
     db_close(con, cur)
 
@@ -358,22 +348,17 @@ def add_photos(key):
     """, (key,))
     item = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "added_photo",
-        item["key"],
-        "item",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="added_photo",
+        entity_key=item["key"],
+        entity_type="item",
+        misc={
             "added": ", ".join(file_names),
             "error": error
-        })
-    ))
+        }
+    )
 
     db_close(con, cur)
 
@@ -418,22 +403,17 @@ def order_photo(key):
 
     in_photos = [p.split("/")[-1] for p in request.json["photos"]]
 
-    cur.execute("""
-    INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "arranged_photo",
-        item["key"],
-        "item",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="arranged_photo",
+        entity_key=item["key"],
+        entity_type="item",
+        misc={
             "from": item["photos"],
             "to": in_photos
-        })
-    ))
+        }
+    )
 
     cur.execute("""
             UPDATE item
@@ -533,19 +513,14 @@ def delete_photo(key):
     """, (key,))
     item = cur.fetchone()
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "deleted_photo",
-        item["key"],
-        "item",
-        json.dumps({"photo": file_name})
-    ))
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="deleted_photo",
+        entity_key=item["key"],
+        entity_type="item",
+        misc={"photo": file_name}
+    )
 
     db_close(con, cur)
 

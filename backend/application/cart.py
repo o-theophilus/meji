@@ -2,8 +2,8 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, now, user_schema
 from uuid import uuid4
 from .postgres import db_close, db_open
-from datetime import datetime
 import json
+from .log import log
 
 bp = Blueprint("cart", __name__)
 
@@ -117,23 +117,18 @@ def add_to_cart():
         cart["key"]
     ))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "added_to",
-        cart["key"],
-        "cart",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="added_to",
+        entity_key=cart["key"],
+        entity_type="cart",
+        misc={
             "key": request.json["key"],
             **request.json["variation"],
             "quantity": request.json["quantity"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         SELECT item_key, variation
@@ -313,19 +308,14 @@ def quantity():
         item["key"]
     ))
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_quantity" if request.json[
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_quantity" if request.json[
             "quantity"] > 0 else "removed_from",
-        cart["key"],
-        "cart",
-        json.dumps({
+        entity_key=cart["key"],
+        entity_type="cart",
+        misc={
             "key": request.json["key"],
             **request.json["variation"],
             "from_quantity": item["quantity"],
@@ -333,8 +323,8 @@ def quantity():
         } if request.json["quantity"] > 0 else {
             "key": request.json["key"],
             **request.json["variation"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         SELECT
@@ -434,18 +424,13 @@ def receiver():
             **error
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "edited_receiver",
-        cart["key"],
-        "cart",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="edited_receiver",
+        entity_key=cart["key"],
+        entity_type="cart",
+        misc={
             "from": f"""
                 {cart["name"]} |
                 {cart["phone"]} |
@@ -464,8 +449,8 @@ def receiver():
                 {request.json["local_area"]} |
                 {request.json["postal_code"]}
             """
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE "order"
@@ -540,22 +525,17 @@ def account():
             "amount": error
         })
 
-    cur.execute("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-    """, (
-        uuid4().hex,
-        datetime.now(),
-        user["key"],
-        "changed_amount",
-        cart["key"],
-        "cart",
-        json.dumps({
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_amount",
+        entity_key=cart["key"],
+        entity_type="cart",
+        misc={
             "from": cart["pay_account"],
             "to": request.json["amount"]
-        })
-    ))
+        }
+    )
 
     cur.execute("""
         UPDATE "order"

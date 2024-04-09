@@ -4,7 +4,7 @@
 	export let type = '';
 	export let placeholder = '';
 	export let min = '';
-	export let disabled;
+	export let disabled = false;
 </script>
 
 {#if type == 'text'}
@@ -41,7 +41,7 @@
 		color: var(--ac1);
 	}
 
-	:disabled{
+	:disabled {
 		opacity: 0.4;
 	}
 

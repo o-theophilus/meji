@@ -11,6 +11,7 @@ bp = Blueprint("log", __name__)
 
 @bp.post("/log")
 def log(
+    cur=None,
     user_key=None,
     action=None,
     entity_key=None,
@@ -18,7 +19,10 @@ def log(
     status=200,
     misc={}
 ):
-    con, cur = db_open()
+    close_conn = False
+    if not cur:
+        con, cur = db_open()
+        close_conn = True
 
     if "action" in request.json and request.json["action"]:
         action = request.json["action"]
@@ -55,7 +59,8 @@ def log(
         json.dumps(misc)
     ))
 
-    db_close(con, cur)
+    if close_conn:
+        db_close(con, cur)
 
     return jsonify({
         "status": 200
@@ -102,9 +107,8 @@ def get():
             COUNT(*) OVER() AS total_items
         FROM log
         LEFT JOIN "user" ON log.user_key = "user".key
-        LEFT JOIN "user" usr ON
-            log.entity_type = 'user' OR log.entity_type = 'admin'
-            AND log.entity_key = usr.key
+        LEFT JOIN "user" usr ON log.entity_key = usr.key
+            AND (log.entity_type = 'user' OR log.entity_type = 'admin')
         LEFT JOIN item ON log.entity_key = item.key
             AND (log.entity_type = 'item' OR log.entity_type = 'advert')
         WHERE

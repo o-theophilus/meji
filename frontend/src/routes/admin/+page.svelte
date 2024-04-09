@@ -39,7 +39,6 @@
 		<br />
 		<br /> [ - ] animate all many items, just like saves
 		<br /> [ - ] better page meta descriptions
-		<br /> [ - ] use the log template
 		<br /> [ - ] do "db_close(con, cur)" at every "return jsonify" backend
 		<br />
 		<br /> [ - ] use svelte runes

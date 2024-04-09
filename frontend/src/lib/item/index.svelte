@@ -54,6 +54,8 @@
 		display: flex;
 		flex-direction: column;
 
+		height: 100%;
+
 		background-color: var(--ac6);
 		border-radius: var(--sp1);
 		outline: 2px solid transparent;
