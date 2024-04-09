@@ -2,14 +2,16 @@ import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
+	
 	let page_name = "save"
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/save`)
+	let temp = get(state)
 	if (url.search) {
-		let temp = get(state)
-		temp.save = url.search
+		temp[page_name] = url.search
 		state.set(temp)
-
-		backend.search = url.search
+	}
+	if (temp[page_name]) {
+		backend.search = temp[page_name]
 	}
 
 	let a = await parent();

@@ -535,6 +535,7 @@ def shop(
         "items": [item_schema(x) for x in items],
         "order_by": list(order_by.keys()),
         "tags": all_tags().json["tags"],
+        "item_status": ['live', 'draft', 'delete'],
         "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
     })
 

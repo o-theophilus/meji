@@ -80,6 +80,12 @@ def get():
             action="created",
             entity_type="auth"
         )
+        log(
+            cur=cur,
+            user_key=key,
+            action="confirmed",
+            entity_type="auth"
+        )
 
     db_close(con, cur)
 

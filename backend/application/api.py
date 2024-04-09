@@ -144,7 +144,7 @@ def cron():
     })
 
 
-# @bp.get("/fix")
+@bp.get("/fix")
 def fix():
     con, cur = db_open()
 

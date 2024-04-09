@@ -28,8 +28,7 @@
 	let { page_name } = data;
 	let { order_by } = data;
 	let { tags } = data;
-
-	let status = ['live', 'draft', 'delete'];
+	let { item_status } = data;
 
 	let search = '';
 	let _search = '';
@@ -88,7 +87,7 @@
 
 <Card>
 	{#if $user.permissions.includes('item:add') || $user.permissions.includes('item:edit_status')}
-		<Status {page_name} array={status} default_value="live">
+		<Status {page_name} array={item_status} default_value="live">
 			{#if $user.permissions.includes('item:add')}
 				<Button
 					class="primary"

@@ -5,7 +5,7 @@
 
 	let page_no, page_no_temp, width;
 	export let total_page = 1;
-	export let page_name = '';
+	export let page_name;
 
 	const normalize = (value) => {
 		if (value < 1) {

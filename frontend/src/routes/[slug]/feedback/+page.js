@@ -5,14 +5,15 @@ export const load = async ({ fetch, url, params, parent }) => {
 
 	let a = await parent();
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${a.locals.user.key}/${params.slug}`)
 	let page_name = "feedback"
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${a.locals.user.key}/${params.slug}`)
+	let temp = get(state)
 	if (url.search) {
-		let temp = get(state)
 		temp[page_name] = url.search
 		state.set(temp)
-
-		backend.search = url.search
+	}
+	if (temp[page_name]) {
+		backend.search = temp[page_name]
 	}
 
 	let resp = await fetch(backend.href, {

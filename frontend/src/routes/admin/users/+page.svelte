@@ -1,4 +1,6 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
@@ -19,8 +21,7 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 	let { order_by } = data;
-
-	let status = ['all', 'anonymous', 'signedup', 'confirmed'];
+	let { user_status } = data;
 
 	let search = '';
 	let _search = '';
@@ -55,7 +56,7 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={status} default_value="all" />
+	<Status {page_name} array={user_status} default_value="all" />
 	<br />
 
 	<div class="line">
@@ -72,8 +73,10 @@
 		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
 	</div>
 	<br />
-	{#each users as x}
-		<User user={x} />
+	{#each users as x (x.key)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<User user={x} />
+		</div>
 	{:else}
 		no item here
 	{/each}

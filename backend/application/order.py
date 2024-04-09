@@ -192,16 +192,13 @@ def get_many():
         'high_cost': 'DESC'
     }
 
+# TODO: add variation and quantity to frontend
     cur.execute("""
         SELECT
             "order".*,
             ARRAY(
                 SELECT JSON_BUILD_OBJECT(
-                    'key', item.key,
-                    'slug', item.slug,
                     'name', item.name,
-                    'price', item.price,
-                    'photo', COALESCE(item.photos[1], NULL),
                     'variation', order_item.variation,
                     'quantity', order_item.quantity
                 )
@@ -211,8 +208,9 @@ def get_many():
             ) AS items,
             COUNT(*) OVER() AS total_items
         FROM "order"
-        LEFT JOIN log ON "order".key = log.user_key
-        WHERE "order".status = %s
+        LEFT JOIN log ON "order".key = log.entity_key
+        WHERE
+            "order".status = %s
             AND "order".status != 'cart'
             AND (%s IS NULL OR "order".key ILIKE %s)
             AND ("order".user_key = %s OR %s)
@@ -237,6 +235,8 @@ def get_many():
         "status": 200,
         "orders": orders,
         "order_by": list(order_by.keys()),
+        "order_status": ['created', 'processing', 'enroute', 'delivered',
+                         'canceled'],
         "total_page": ceil(
             orders[0]["total_items"] / page_size) if orders else 0
     })

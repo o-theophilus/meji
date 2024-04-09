@@ -4,15 +4,15 @@ import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/users`)
 	let page_name = "users"
-
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/users`)
+	let temp = get(state)
 	if (url.search) {
-		let temp = get(state)
 		temp[page_name] = url.search
 		state.set(temp)
-
-		backend.search = url.search
+	}
+	if (temp[page_name]) {
+		backend.search = temp[page_name]
 	}
 
 	let a = await parent();
@@ -29,7 +29,6 @@ export const load = async ({ fetch, url, parent }) => {
 	});
 	resp = await resp.json();
 	loading.set(false)
-
 
 	if (resp.status == 200) {
 		resp.page_name = page_name

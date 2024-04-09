@@ -7,7 +7,6 @@ import psycopg2.extras
 bp = Blueprint("postgres", __name__)
 
 
-# "status": anonymous, signed_up, confirmed
 user_table = """CREATE TABLE IF NOT EXISTS "user" (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
@@ -63,7 +62,6 @@ save_table = """CREATE TABLE IF NOT EXISTS save (
 );"""
 
 
-# "cart", 'created', 'processing', 'enroute', 'delivered'
 order_table = """CREATE TABLE IF NOT EXISTS "order" (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
@@ -131,6 +129,7 @@ advert_table = """CREATE TABLE IF NOT EXISTS advert (
 );"""
 
 
+# TODO: move to many return
 # "status": inactive, active, used, deleted, expired
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     key CHAR(32) PRIMARY KEY,

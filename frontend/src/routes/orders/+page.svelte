@@ -1,11 +1,12 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 	import { user, set_state } from '$lib/store.js';
 	import { page } from '$app/stores';
 
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
 	import Toggle from '$lib/button.toggle.svelte';
 	import Status from '$lib/status.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -19,8 +20,7 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 	let { order_by } = data;
-
-	let status = ['created', 'processing', 'enroute', 'delivered', 'canceled'];
+	let { order_status } = data;
 
 	$: active = $page.url.searchParams.has('admin');
 </script>
@@ -35,7 +35,7 @@
 	<div class="ctitle">
 		<div class="ctitle">
 			<Back />
-			{active && $user.permissions.includes('order:view') ? 'All' : 'My'} Orders
+			Orders
 			{#if $user.permissions.includes('order:view')}
 				<Toggle
 					state_1="Mine"
@@ -60,12 +60,14 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={status} default_value="created" />
+	<Status {page_name} array={order_status} default_value="created" />
 
 	<br />
 
-	{#each orders as x}
-		<Order order={x} />
+	{#each orders as x (x.key)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<Order order={x} />
+		</div>
 	{:else}
 		no item here
 	{/each}

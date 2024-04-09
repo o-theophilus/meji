@@ -1,4 +1,7 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
+
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -34,12 +37,14 @@
 	<br />
 
 	{#each logs as log (log.key)}
-		<Log
-			{log}
-			on:search={(e) => {
-				search.set_value(e.detail);
-			}}
-		/>
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<Log
+				{log}
+				on:search={(e) => {
+					search.set_value(e.detail);
+				}}
+			/>
+		</div>
 	{:else}
 		no item here
 	{/each}
