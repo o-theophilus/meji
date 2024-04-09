@@ -3,35 +3,39 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
-	let page_no, page_no_temp, width;
+	let _page_no, page_no, width;
 	export let total_page = 1;
 	export let page_name;
 
-	const normalize = (value) => {
-		if (value < 1) {
-			value = 1;
-		} else if (value > total_page) {
-			value = total_page;
+	const normalize = (x) => {
+		if (x < 1) {
+			x = 1;
+		} else if (x > total_page) {
+			x = total_page;
 		}
-		return value;
+		return x;
 	};
-
-	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has('page_no')) {
-			page_no = page_no_temp = normalize(params.get('page_no'));
-		}
-	});
 
 	const submit = (value) => {
 		value = normalize(value);
-		page_no = page_no_temp = value;
+		_page_no = page_no = value;
 		set_state(page_name, 'page_no', value != 1 ? value : '');
 	};
 
+	let set_page_no = () => {
+		if ($page.url.searchParams.has('page_no')) {
+			_page_no = page_no = normalize($page.url.searchParams.get('page_no'));
+		} else {
+			_page_no = page_no = 1;
+		}
+	};
+	onMount(() => {
+		set_page_no();
+	});
+
 	$: {
-		total_page;
-		page_no = page_no_temp = 1;
+		$page.url;
+		set_page_no();
 	}
 </script>
 
@@ -40,10 +44,10 @@
 	<br />
 
 	<section>
-		{#if page_no > 1}
+		{#if _page_no > 1}
 			<button
 				on:click={() => {
-					submit(page_no - 1);
+					submit(_page_no - 1);
 				}}
 			>
 				&lt;
@@ -55,10 +59,10 @@
 				style:width="calc({width}px + 4px)"
 				type="text"
 				oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-				bind:value={page_no_temp}
+				bind:value={page_no}
 				on:keypress={(e) => {
 					if (e.key == 'Enter') {
-						submit(page_no_temp);
+						submit(page_no);
 					}
 				}}
 			/>
@@ -69,8 +73,8 @@
 
 		<div class="width_helper" bind:clientWidth={width}>
 			<span>
-				{#if page_no_temp}
-					{page_no_temp}
+				{#if page_no}
+					{page_no}
 				{:else}
 					0
 				{/if}
@@ -78,20 +82,20 @@
 			/ {total_page}
 		</div>
 
-		{#if page_no_temp != page_no}
+		{#if page_no != _page_no}
 			<button
 				on:click={() => {
-					submit(page_no_temp);
+					submit(page_no);
 				}}
 			>
 				&gt;&gt;
 			</button>
 		{/if}
 
-		{#if page_no < total_page}
+		{#if _page_no < total_page}
 			<button
 				on:click={() => {
-					submit(parseInt(page_no) + 1);
+					submit(parseInt(_page_no) + 1);
 				}}
 			>
 				&gt;

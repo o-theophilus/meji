@@ -7,14 +7,14 @@
 
 	export let page_name;
 	export let array;
+	export let param = 'status';
 	export let default_value = '';
-	let key = 'status';
 	let value = default_value;
 
 	onMount(() => {
 		let params = $page.url.searchParams;
-		if (params.has(key)) {
-			value = params.get(key);
+		if (params.has(param)) {
+			value = params.get(param);
 		}
 	});
 </script>
@@ -23,11 +23,12 @@
 	<div class="buttons">
 		{#each array as x}
 			<Button
-				class="{value == x ? 'primary' : ''}"
+				class={value == x ? 'primary' : ''}
 				on:click={() => {
 					value = x;
+
 					let v = x == default_value ? '' : x;
-					set_state(page_name, key, v);
+					set_state(page_name, param, v);
 				}}
 			>
 				{x}

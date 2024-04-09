@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { set_state } from '$lib/store.js';
+	import { set_state, state } from '$lib/store.js';
 
 	import Search from '$lib/search.svelte';
 	import Button from '$lib/button.svelte';

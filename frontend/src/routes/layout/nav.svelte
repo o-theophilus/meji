@@ -1,6 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import { user, module, state } from '$lib/store.js';
+	import { user, module } from '$lib/store.js';
 
 	import SVG from '$lib/svg.svelte';
 	import Login from '../auth/login.svelte';
@@ -22,7 +22,7 @@
 		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
-	<a href="/shop{$state.shop || ''}" class:active={segment == '/shop'}>
+	<a href="/shop" class:active={segment == '/shop'}>
 		<div class="label">
 			{#if segment == '/shop'}
 				<SVG type="shop_active" size="15" />
@@ -34,7 +34,7 @@
 		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
-	<a href="/save{$state.save || ''}" class:active={segment == '/save'}>
+	<a href="/save" class:active={segment == '/save'}>
 		<div class="label">
 			{#if segment == '/save'}
 				<SVG type="like_active" size="15" />

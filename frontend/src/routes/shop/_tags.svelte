@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
-	import { set_state, module } from '$lib/store.js';
+	import { set_state, state, module } from '$lib/store.js';
 	import Button from '$lib/button.svelte';
 	import Toggle from '$lib/button.toggle.svelte';
 	import Input from '$lib/input.svelte';
@@ -27,6 +27,13 @@
 	}
 
 	onMount(async () => {
+		if ($state[$module.page_name]) {
+			for (const x of new URLSearchParams($state[$module.page_name])) {
+				$page.url.searchParams.set(x[0], x[1]);
+			}
+			window.history.replaceState(history.state, '', $page.url.href);
+		}
+
 		let params = $page.url.searchParams;
 		if (params.has('tag')) {
 			let x = params.get('tag');

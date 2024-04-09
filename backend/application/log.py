@@ -24,16 +24,19 @@ def log(
         con, cur = db_open()
         close_conn = True
 
-    if "action" in request.json and request.json["action"]:
-        action = request.json["action"]
-    if "entity_type" in request.json and request.json["entity_type"]:
-        entity_type = request.json["entity_type"]
-    if "entity_key" in request.json and request.json["entity_key"]:
-        entity_key = request.json["entity_key"]
-    if "status" in request.json and request.json["status"]:
-        status = request.json["status"]
-    if "misc" in request.json and request.json["misc"]:
-        misc = request.json["misc"]
+    try:
+        if "action" in request.json and request.json["action"]:
+            action = request.json["action"]
+        if "entity_type" in request.json and request.json["entity_type"]:
+            entity_type = request.json["entity_type"]
+        if "entity_key" in request.json and request.json["entity_key"]:
+            entity_key = request.json["entity_key"]
+        if "status" in request.json and request.json["status"]:
+            status = request.json["status"]
+        if "misc" in request.json and request.json["misc"]:
+            misc = request.json["misc"]
+    except Exception:
+        pass
 
     if not user_key:
         user = token_to_user(cur)

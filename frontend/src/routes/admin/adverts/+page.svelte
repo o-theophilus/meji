@@ -1,4 +1,7 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
+
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
@@ -8,6 +11,7 @@
 	import Back from '$lib/button.back.svelte';
 	import Status from '$lib/status.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;
 	$: adverts = data.adverts;
@@ -18,6 +22,7 @@
 	let { order_by } = data;
 </script>
 
+<UpdateUrl />
 <Meta title="Item Adverts" description="Here are the items with adverts" />
 
 <Center>
@@ -35,11 +40,13 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={['all', ...spaces]} default_value="all" />
+	<Status {page_name} array={['all', ...spaces]} default_value="all" param="space" />
 	<br />
 
-	{#each adverts as advert}
-		<Item {advert} {sizes} />
+	{#each adverts as advert, i (`${advert.key}_${i}`)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<Item {advert} {sizes} />
+		</div>
 	{:else}
 		no item here
 	{/each}

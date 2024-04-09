@@ -15,6 +15,7 @@
 	import Search from '$lib/search.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -51,6 +52,7 @@
 	}
 </script>
 
+<UpdateUrl />
 <Meta title="Saved" description="Saved" />
 <Log action="viewed" entity_type="save" />
 

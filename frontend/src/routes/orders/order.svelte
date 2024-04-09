@@ -1,13 +1,13 @@
 <script>
-	import { page } from '$app/stores';
 	import { user } from '$lib/store.js';
 
 	export let order;
+	export let is_admin;
 </script>
 
 <a href="/orders/{order.key}">
 	<div class="name">
-		{#if order.user_key == $user.key && $page.url.searchParams.has('admin')}
+		{#if order.user_key == $user.key && is_admin}
 			*
 		{/if}
 

@@ -1,7 +1,7 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { loading, user, toast } from '$lib/store.js';
+	import { loading, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Center from '$lib/center.svelte';

@@ -37,7 +37,6 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] animate all many items, just like saves
 		<br /> [ - ] better page meta descriptions
 		<br /> [ - ] do "db_close(con, cur)" at every "return jsonify" backend
 		<br />

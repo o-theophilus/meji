@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from math import ceil
-from .advert import get_all_advert
+from .advert import get_many
 from .feedback import get_feedbacks
 import re
 from .postgres import db_close, db_open
@@ -201,6 +201,7 @@ def customer_view(cur, user_key, item_key):
     return [item_schema(x["item"]) for x in item_count]
 
 
+# TODO: fix error
 def recommended(cur, user_key, item_key=None):
     cur.execute("""
         SELECT item.key, item.name, item.tags
@@ -547,5 +548,5 @@ def home():
         "tags": all_tags().json["tags"],
         "new_arrivals": shop(order="latest", page_size=8).json["items"],
         "offers": shop(order="discount", page_size=8).json["items"],
-        "adverts": get_all_advert("live", "home_1").json["adverts"]
+        "adverts": get_many("live", "home_1").json["adverts"]
     })

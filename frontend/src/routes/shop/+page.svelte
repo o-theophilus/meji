@@ -13,11 +13,10 @@
 	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
 	import Center from '$lib/center.svelte';
-
+	import UpdateUrl from '$lib/update_url.svelte';
 	import Status from '$lib/status.svelte';
 	import Search from '$lib/search.svelte';
 	import Tag from './_tags.svelte';
-
 	import View from './view.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -32,12 +31,16 @@
 
 	let search = '';
 	let _search = '';
+	let filter = '';
+
 	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
 			_search = params.get('search');
 		}
+
+		set_filter();
 	});
 	const submit = () => {
 		if (_search != search) {
@@ -46,8 +49,7 @@
 		}
 	};
 
-	let filter = '';
-	$: {
+	let set_filter = () => {
 		let _s = '';
 		let _t = '';
 		let multiply = false;
@@ -68,9 +70,12 @@
 		}
 
 		filter = `${_s || _t ? 'Showing result' : ''}${_s}${_t}`;
-	}
+	};
+
+	$: set_filter();
 </script>
 
+<UpdateUrl />
 <Meta title="Shop" description="Shop" />
 <Log entity_type={'page'} />
 
@@ -183,7 +188,7 @@
 
 		margin-top: var(--sp2);
 		padding: var(--sp2);
-		border-radius: var(--sp1);
+		border-radius: var(--sp0);
 
 		background-color: var(--cl1_t);
 		color: var(--ac1);

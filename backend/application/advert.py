@@ -187,7 +187,7 @@ def get(item_key):
 
 
 @bp.get("/advert")
-def get_all_advert(status="", space=""):
+def get_many(status="", space=""):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
@@ -214,8 +214,11 @@ def get_all_advert(status="", space=""):
         'name (z-a)': 'DESC'
     }
 
+    print(space)
+
     cur.execute("""
         SELECT
+            DISTINCT ON (advert.key)
             advert.*,
             item.name,
             item.slug,
@@ -232,7 +235,7 @@ def get_all_advert(status="", space=""):
             ) {}
             AND log.action = 'created'
             AND log.entity_type = 'advert'
-        ORDER BY {} {}
+        ORDER BY advert.key, {} {}
         LIMIT %s OFFSET %s;
     """.format(ready, order_by[order], order_dir[order]), (
         status, status,

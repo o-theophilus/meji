@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
+	import UpdateUrl from '$lib/update_url.svelte';
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Back from '$lib/button.back.svelte';
@@ -31,7 +32,7 @@
 			set_state(page_name, 'search', search);
 		}
 	};
-	onMount(async () => {
+	onMount(() => {
 		let params = $page.url.searchParams;
 		if (params.has('search')) {
 			search = params.get('search');
@@ -40,6 +41,7 @@
 	});
 </script>
 
+<UpdateUrl />
 <Meta title="All Users" />
 
 <Center>
@@ -56,7 +58,7 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={user_status} default_value="all" />
+	<Status {page_name} array={['all', ...user_status]} default_value="all" />
 	<br />
 
 	<div class="line">

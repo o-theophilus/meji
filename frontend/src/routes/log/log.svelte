@@ -49,12 +49,13 @@
 
 	{#if log.entity_type == 'page'} viewed {:else} {log.action} {/if}
 
-	<!-- {#if !['auth', 'user', 'admin'].includes(log.entity_type)}
-		{log.entity_type}
-	{/if} -->
+	{#if log.entity_type == 'user' && log.action == 'viewed' && !log.entity_key}
+		profile
+	{/if}
 
 	{#if href}
 		{log.entity_type}
+
 		<a {href}>
 			{log.entity_name}
 		</a>

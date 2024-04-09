@@ -1,4 +1,6 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { module, portal, user } from '$lib/store.js';
@@ -6,10 +8,11 @@
 	import Card from '$lib/card.svelte';
 	import Button from '$lib/button.svelte';
 	import Back from '$lib/button.back.svelte';
-	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
-	import Meta from '$lib/meta.svelte';
+	import Pagination from '$lib/pagination.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import Meta from '$lib/meta.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	import Review from './review.svelte';
 	import Rating from './rating.svelte';
@@ -47,6 +50,7 @@
 	});
 </script>
 
+<UpdateUrl />
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
 
 <Center>
@@ -78,7 +82,9 @@
 			<br />
 			<br />
 			{#each feedbacks as feedback (feedback.key)}
-				<Review editable {feedback} {item} />
+				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+					<Review editable {feedback} {item} />
+				</div>
 			{:else}
 				{item.name} has no feedback yet.
 				<br />

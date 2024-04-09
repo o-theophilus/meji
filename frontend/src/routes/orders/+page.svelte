@@ -14,6 +14,8 @@
 	import Order from './order.svelte';
 	import Back from '$lib/button.back.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
+	import { onMount } from 'svelte';
 
 	export let data;
 	$: orders = data.orders;
@@ -22,9 +24,13 @@
 	let { order_by } = data;
 	let { order_status } = data;
 
-	$: active = $page.url.searchParams.has('admin');
+	let is_admin = false;
+	onMount(() => {
+		is_admin = $page.url.searchParams.has('admin');
+	});
 </script>
 
+<UpdateUrl />
 <Meta title="Order" description="Order" />
 {#key `${$page.url.pathname}${$page.url.search}`}
 	<Log entity_type="page" />
@@ -40,12 +46,14 @@
 				<Toggle
 					state_1="Mine"
 					state_2="All"
-					{active}
+					active={is_admin}
 					on:click={() => {
-						if (active) {
+						if (is_admin) {
 							set_state(page_name, 'admin', '');
+							is_admin = false;
 						} else {
 							set_state(page_name, 'admin', 'true');
+							is_admin = true;
 						}
 					}}
 				/>
@@ -66,7 +74,7 @@
 
 	{#each orders as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Order order={x} />
+			<Order order={x} {is_admin} />
 		</div>
 	{:else}
 		no item here

@@ -18,6 +18,7 @@
 	import Center from '$lib/center.svelte';
 	import Search from '$lib/search.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;
 	$: vouchers = data.vouchers;
@@ -49,6 +50,7 @@
 	});
 </script>
 
+<UpdateUrl />
 <Meta title="All Vouchers" description="Vouchers" />
 {#key `${$page.url.pathname}${$page.url.search}`}
 	<Log entity_type="page" />

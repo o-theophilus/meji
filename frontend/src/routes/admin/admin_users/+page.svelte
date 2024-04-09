@@ -1,4 +1,7 @@
 <script>
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
+
 	import Card from '$lib/card.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -7,6 +10,7 @@
 	import Center from '$lib/center.svelte';
 	import Search from './search.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;
 	$: users = data.users;
@@ -16,6 +20,7 @@
 	let { order_by } = data;
 </script>
 
+<UpdateUrl />
 <Meta title="Users" description="Users with elevated permission." />
 
 <Center>
@@ -35,8 +40,10 @@
 	<Search {page_name} {permissions} />
 
 	<br />
-	{#each users as x}
-		<User user={x} />
+	{#each users as x (x.key)}
+		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<User user={x} />
+		</div>
 	{:else}
 		no item here
 	{/each}

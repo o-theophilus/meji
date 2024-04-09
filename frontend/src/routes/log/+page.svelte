@@ -9,6 +9,7 @@
 	import Search from './search.svelte';
 	import Log from './log.svelte';
 	import Back from '$lib/button.back.svelte';
+	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;
 	$: logs = data.logs;
@@ -19,6 +20,7 @@
 	let search;
 </script>
 
+<UpdateUrl />
 <Meta title="Logs" description="Logs" />
 
 <Center>
