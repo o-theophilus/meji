@@ -65,7 +65,6 @@ def init():
     cart = [f"{x['key']}_{json.dumps(x['variation'])}" for x in cart]
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user, saves["saves"], cart),
@@ -79,6 +78,7 @@ def signup():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -89,6 +89,7 @@ def signup():
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -133,6 +134,7 @@ def signup():
         match"""
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -180,7 +182,6 @@ def signup():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -193,6 +194,7 @@ def confirm_email(token):
     try:
         token = token_tool().loads(token, max_age=max_age)
     except Exception:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -201,6 +203,7 @@ def confirm_email(token):
     cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
     user = cur.fetchone()
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -239,7 +242,6 @@ def confirm_email(token):
         )
 
     db_close(con, cur)
-
     return jsonify(output)
 
 
@@ -249,6 +251,7 @@ def login():
 
     out_user = token_to_user(cur)
     if not out_user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -259,6 +262,7 @@ def login():
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -271,6 +275,7 @@ def login():
         error["password"] = "this field is required"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -290,6 +295,7 @@ def login():
         or not check_password_hash(
             in_user["password"], request.json["password"])
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "your email or password is incorrect"
@@ -306,6 +312,7 @@ def login():
                 )
             ))
 
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "not confirmed"
@@ -439,7 +446,6 @@ def login():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "token": token_tool().dumps(in_user["key"])
@@ -452,6 +458,7 @@ def logout():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -497,7 +504,6 @@ def logout():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(anon_user),
@@ -513,6 +519,7 @@ def forgot_password():
        "email_template" not in request.json
         or not request.json["email_template"]
        ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -524,6 +531,7 @@ def forgot_password():
     elif not re.match(r"\S+@\S+\.\S+", request.json["email"]):
         error = "please enter a valid email"
     if error:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": error
@@ -533,6 +541,7 @@ def forgot_password():
                 (request.json["email"],))
     user = cur.fetchone()
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "there is no user registered with this email"
@@ -556,7 +565,6 @@ def forgot_password():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -569,6 +577,7 @@ def change_password(token):
     try:
         token = token_tool().loads(token, max_age=max_age)
     except Exception:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -577,6 +586,7 @@ def change_password(token):
     cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
     user = cur.fetchone()
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -610,6 +620,7 @@ def change_password(token):
          match"""
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -630,6 +641,7 @@ def change_password(token):
         entity_type="auth",
     )
 
+    db_close(con, cur)
     return jsonify({
         "status": 200,
         "user": user_schema(user)

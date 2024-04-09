@@ -38,12 +38,14 @@ def add_photo(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:advert" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -55,6 +57,7 @@ def add_photo(item_key):
     item = cur.fetchone()
 
     if not item or 'files' not in request.files:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -112,6 +115,7 @@ def add_photo(item_key):
             """.format(dim), (filename, item["key"]))
 
     if not log_misc:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": error if not error else "no file"
@@ -134,7 +138,6 @@ def add_photo(item_key):
     advert = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert),
@@ -148,12 +151,14 @@ def get(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:advert" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -164,6 +169,7 @@ def get(item_key):
     """, (item_key, item_key))
     item = cur.fetchone()
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -175,7 +181,6 @@ def get(item_key):
     advert = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert) if advert else null_advert(
@@ -214,8 +219,6 @@ def get_many(status="", space=""):
         'name (z-a)': 'DESC'
     }
 
-    print(space)
-
     cur.execute("""
         SELECT
             DISTINCT ON (advert.key)
@@ -249,7 +252,6 @@ def get_many(status="", space=""):
         x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
@@ -267,12 +269,14 @@ def delete_photo(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:advert" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -294,6 +298,7 @@ def delete_photo(item_key):
         or "size" not in request.json
         or not request.json["size"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -305,6 +310,7 @@ def delete_photo(item_key):
     if (
         dim not in sizes or not photo
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -349,7 +355,6 @@ def delete_photo(item_key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert) if has_photo else null_advert(
@@ -363,12 +368,14 @@ def delete(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:advert" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -385,6 +392,7 @@ def delete(item_key):
     advert = cur.fetchone()
 
     if not item or not advert:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -418,7 +426,6 @@ def delete(item_key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "advert": null_advert(item["key"])
@@ -431,12 +438,14 @@ def ad_spaces(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:advert" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -463,12 +472,14 @@ def ad_spaces(item_key):
         or type(request.json["spaces"]) is not list
         or not all(y in spaces for y in request.json["spaces"])
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     if [x for x in sizes if advert[f"photo_{x}"]] == []:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -495,7 +506,6 @@ def ad_spaces(item_key):
     advert = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "advert": advert_schema(advert)

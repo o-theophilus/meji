@@ -17,18 +17,21 @@ def add():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:add" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
     if "name" not in request.json or not request.json["name"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "this field is required"
@@ -63,7 +66,6 @@ def add():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item)
@@ -76,6 +78,7 @@ def edit(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -85,6 +88,7 @@ def edit(key):
                 (key, key))
     item = cur.fetchone()
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -248,6 +252,7 @@ def edit(key):
             ))
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -265,7 +270,6 @@ def edit(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item)
@@ -278,12 +282,14 @@ def add_photos(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:edit_photo" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -292,6 +298,7 @@ def add_photos(key):
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if 'files' not in request.files or not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -316,6 +323,7 @@ def add_photos(key):
     if files == []:
         if not error:
             error = "no file"
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": error
@@ -361,7 +369,6 @@ def add_photos(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item),
@@ -376,12 +383,14 @@ def order_photo(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:edit_photo" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -396,6 +405,7 @@ def order_photo(key):
         or set(item["photos"]) != set(
             [p.split("/")[-1] for p in request.json["photos"]])
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -438,7 +448,6 @@ def order_photo(key):
     item = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item)
@@ -452,12 +461,14 @@ def delete_photo(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "item:edit_photo" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -471,6 +482,7 @@ def delete_photo(key):
         or not request.json["active_photo"]
         or request.json["active_photo"].split("/")[-1] not in item["photos"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -523,7 +535,6 @@ def delete_photo(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item)

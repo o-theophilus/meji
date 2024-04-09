@@ -129,8 +129,6 @@ advert_table = """CREATE TABLE IF NOT EXISTS advert (
 );"""
 
 
-# TODO: move to many return
-# "status": inactive, active, used, deleted, expired
 voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,

@@ -15,11 +15,13 @@ def create():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
     if "voucher:add" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -44,6 +46,7 @@ def create():
         error["quantity"] = "please enter a valid quantity"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -76,7 +79,6 @@ def create():
         )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         **get_many()
@@ -89,12 +91,14 @@ def get_many():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "voucher:view" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -153,6 +157,7 @@ def get_many():
         "status": 200,
         "vouchers": vouchers,
         "order_by": list(order_by.keys()),
+        "voucher_status": ['inactive', 'active', 'used', 'expired'],
         "total_page": ceil(vouchers[0][
             "total_items"] / page_size) if vouchers else 0
     }
@@ -164,11 +169,13 @@ def get(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
     if "voucher:view" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -185,6 +192,7 @@ def get(key):
     """, (key,))
     voucher = cur.fetchone()
     if not voucher:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -194,7 +202,6 @@ def get(key):
         voucher["pin"] = "#"
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "voucher": voucher,
@@ -207,18 +214,21 @@ def activate(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "voucher:status" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
     if "validity" not in request.json or not request.json["validity"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "this field is required"
@@ -233,12 +243,14 @@ def activate(key):
         or not validity[5:7].isdigit()
         or not validity[8:].isdigit()
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid date format"
         })
 
     if datetime.strptime(validity, '%Y-%m-%d').date() < date.today():
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": 'cannot be back dated'
@@ -247,6 +259,7 @@ def activate(key):
     cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
     voucher = cur.fetchone()
     if not voucher or voucher["status"] != "inactive":
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -285,7 +298,6 @@ def activate(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "voucher": voucher
@@ -298,12 +310,14 @@ def status(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "voucher:status" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -325,6 +339,7 @@ def status(key):
             and voucher["status"] != "inactive"
         )
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -362,7 +377,6 @@ def status(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "voucher": voucher
@@ -375,12 +389,14 @@ def use():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "pin" not in request.json or not request.json["pin"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "this field is required"
@@ -390,6 +406,7 @@ def use():
                 (request.json["pin"].lower(),))
     voucher = cur.fetchone()
     if not voucher or len(request.json["pin"]) != 10:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid pin"
@@ -410,7 +427,7 @@ def use():
             status=400,
             misc={"error": error}
         )
-
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": error
@@ -447,7 +464,6 @@ def use():
     user = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user)

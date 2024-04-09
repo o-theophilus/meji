@@ -38,7 +38,6 @@
 		<br /> TODO:
 		<br />
 		<br /> [ - ] better page meta descriptions
-		<br /> [ - ] do "db_close(con, cur)" at every "return jsonify" backend
 		<br />
 		<br /> [ - ] use svelte runes
 		<br /> [ - ] how changing status and price of items affect save, advert and cart

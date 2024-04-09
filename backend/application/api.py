@@ -193,7 +193,6 @@ def fix():
     # """)
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "message": "successful",
@@ -258,7 +257,6 @@ def deta_to_postgres():
             ))
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "message": "successful",

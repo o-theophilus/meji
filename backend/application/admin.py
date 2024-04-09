@@ -88,7 +88,6 @@ def get():
         )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -100,6 +99,7 @@ def get_many():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -115,6 +115,7 @@ def get_many():
 
     search = search.split(":")
     if len(search) != 3:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid search"
@@ -168,8 +169,6 @@ def get_many():
     ))
     users = cur.fetchall()
 
-    db_close(con, cur)
-
     permits = {
         "all": ['all']
     }
@@ -179,6 +178,7 @@ def get_many():
             for y in permissions[x]:
                 permits[x].append(y[0])
 
+    db_close(con, cur)
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
@@ -214,6 +214,7 @@ def permission(key):
         error = "invalid request"
 
     if error:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": error
@@ -241,7 +242,6 @@ def permission(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user)
@@ -254,12 +254,14 @@ def photo_error():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "admin:manage_photo" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -338,7 +340,6 @@ def photo_error():
     _adverts = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "unused": [f"{request.host_url}photo/{x}"
@@ -355,12 +356,14 @@ def delete_photo():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "admin:manage_photo" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -370,6 +373,7 @@ def delete_photo():
         "photos" not in request.json
         or type(request.json["photos"]) is not list
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -390,7 +394,6 @@ def delete_photo():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })

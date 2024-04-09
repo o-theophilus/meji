@@ -76,10 +76,7 @@ def similar_items(cur, item_key):
     item = cur.fetchone()
 
     if not item:
-        return jsonify({
-            "status": 200,
-            "items": []
-        })
+        return []
 
     item_keywords = list(set(
         item["tags"] + re.split(r'\s+', item["name"].lower())))
@@ -295,10 +292,10 @@ def all_tags():
                 "count":  tags.count(x)
             })
 
+    # TODO: pass cur
     tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "tags": [x["tag"] for x in tags_count]
@@ -346,6 +343,7 @@ def get(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -353,6 +351,7 @@ def get(key):
 
     item = get_item(cur, key)
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -363,6 +362,7 @@ def get(key):
         and "item:add" not in user["permissions"]
         and "item:edit_status" not in user["permissions"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -373,10 +373,9 @@ def get(key):
     _customer_view = customer_view(cur, user["key"], item["key"])
     _recommended = recommended(cur, user["key"], item["key"])
 
-    db_close(con, cur)
-
     fb = get_feedbacks(user["key"], item["key"]).json
 
+    db_close(con, cur)
     return jsonify({
         "status": 200,
         "item": item_schema(item),
@@ -530,7 +529,6 @@ def shop(
     items = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
@@ -543,6 +541,7 @@ def shop(
 
 @bp.get("/home")
 def home():
+    # TODO: pass cur
     return jsonify({
         "status": 200,
         "tags": all_tags().json["tags"],

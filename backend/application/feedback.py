@@ -14,6 +14,7 @@ def add_feedback(item_key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -25,6 +26,7 @@ def add_feedback(item_key):
     item = cur.fetchone()
 
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -39,6 +41,7 @@ def add_feedback(item_key):
         error["review"] = "This field is required"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -55,6 +58,7 @@ def add_feedback(item_key):
     """, (item["key"], user["key"]))
 
     if not cur.fetchone():
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -90,7 +94,6 @@ def add_feedback(item_key):
     )
 
     db_close(con, cur)
-
     return get_feedbacks(user["key"], item["key"])
 
 
@@ -116,6 +119,7 @@ def get_feedbacks(user_key, item_key):
     item = cur.fetchone()
 
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -187,7 +191,6 @@ def get_feedbacks(user_key, item_key):
         has_purchased = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "item": item_schema(item),

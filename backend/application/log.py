@@ -41,6 +41,8 @@ def log(
     if not user_key:
         user = token_to_user(cur)
         if not user:
+            if close_conn:
+                db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "invalid user"
@@ -64,7 +66,6 @@ def log(
 
     if close_conn:
         db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -76,6 +77,7 @@ def get():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -91,6 +93,7 @@ def get():
 
     search = search.split(":")
     if len(search) != 4:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid search"
@@ -135,8 +138,8 @@ def get():
     logs = cur.fetchall()
 
     sq = search_query(cur)
-    db_close(con, cur)
 
+    db_close(con, cur)
     return jsonify({
         "status": 200,
         "logs": logs,

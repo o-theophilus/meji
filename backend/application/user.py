@@ -19,6 +19,7 @@ def setting():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -73,7 +74,6 @@ def setting():
         )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -85,6 +85,7 @@ def edit_user(key):
 
     user = token_to_user(cur)
     if not user or user["key"] != key:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -182,6 +183,7 @@ def edit_user(key):
             ))
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -201,7 +203,6 @@ def edit_user(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user)
@@ -214,6 +215,7 @@ def send_email_otp():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -225,12 +227,14 @@ def send_email_otp():
         or "email_template" not in request.json
         or not request.json["email_template"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     if user["email"] == request.json["email"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "email": "please use a different email form your current email"
@@ -240,6 +244,7 @@ def send_email_otp():
                 (request.json["email"],))
     exist = cur.fetchone()
     if exist:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "email": "email is already in use"
@@ -300,7 +305,6 @@ def send_email_otp():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -379,6 +383,7 @@ def email():
             error["otp_2"] = "invalid OTP"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -408,7 +413,6 @@ def email():
     cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user)
@@ -421,6 +425,7 @@ def send_password_otp():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -430,6 +435,7 @@ def send_password_otp():
         "email_template" not in request.json
         or not request.json["email_template"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -468,7 +474,6 @@ def send_password_otp():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -537,6 +542,7 @@ def password():
             error["otp"] = "invalid OTP"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -560,7 +566,6 @@ def password():
     cur.execute("DELETE FROM otp WHERE user_key = %s;", (user["key"],))
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })
@@ -572,18 +577,21 @@ def delete():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if not request.json["password"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "this field is required"
         })
 
     if not check_password_hash(user["password"], request.json["password"]):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "incorrect password"
@@ -619,7 +627,6 @@ def delete():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(anon_user),
@@ -633,12 +640,14 @@ def add_photo():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if 'file' not in request.files:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -647,6 +656,7 @@ def add_photo():
     file = request.files["file"]
     media, format = file.content_type.split("/")
     if media != "image" or format in ['svg+xml', 'x-icon']:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid file"
@@ -675,7 +685,6 @@ def add_photo():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user)
@@ -688,6 +697,7 @@ def delete_photo():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -713,7 +723,6 @@ def delete_photo():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200
     })

@@ -103,7 +103,6 @@ def get():
     items = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
@@ -118,6 +117,7 @@ def save():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -128,6 +128,7 @@ def save():
         or not request.json["key"]
         or "save" not in request.json
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -136,6 +137,7 @@ def save():
     cur.execute("SELECT * FROM item WHERE key = %s;", (request.json["key"],))
     item = cur.fetchone()
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -189,7 +191,6 @@ def save():
     saves = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user, saves=saves["saves"]),

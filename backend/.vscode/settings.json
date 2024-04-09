@@ -20,6 +20,7 @@
     "omni",
     "otps",
     "PAYSTACK",
+    "unnest",
     "werkzeug"
   ]
 }

@@ -14,6 +14,7 @@ def get():
 
     me = token_to_user(cur)
     if not me:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -23,6 +24,7 @@ def get():
     if "search" in request.args:
 
         if "user:view" not in me["permissions"]:
+            db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "unauthorized access"
@@ -43,6 +45,7 @@ def get():
                 user["acc_balance"] = "#"
 
         if not user:
+            db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "user not found"
@@ -52,7 +55,6 @@ def get():
         user = me
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(user),
@@ -66,12 +68,14 @@ def get_many():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "user:view" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -126,7 +130,6 @@ def get_many():
     users = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
@@ -154,6 +157,7 @@ def get_transactions():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -187,7 +191,6 @@ def get_transactions():
     trans = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "transactions": [trx_schema(x) for x in trans],

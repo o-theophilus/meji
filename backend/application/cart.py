@@ -14,6 +14,7 @@ def add_to_cart():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -27,6 +28,7 @@ def add_to_cart():
         or type(request.json["quantity"]) is not int
         or request.json["quantity"] < 0
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -39,6 +41,7 @@ def add_to_cart():
     """, (request.json["key"],))
     item = cur.fetchone()
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -138,7 +141,6 @@ def add_to_cart():
     cart_items = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(
@@ -155,6 +157,7 @@ def previous_receivers():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -183,7 +186,6 @@ def previous_receivers():
     prev = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "prev": prev
@@ -196,6 +198,7 @@ def get():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -239,7 +242,6 @@ def get():
             x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "cart": cart,
@@ -253,6 +255,7 @@ def quantity():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -273,6 +276,7 @@ def quantity():
         or request.json["quantity"] < 0
         or not cart
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -291,6 +295,7 @@ def quantity():
     ))
     item = cur.fetchone()
     if not item:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -366,7 +371,6 @@ def quantity():
         cart = None
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "user": user_schema(
@@ -385,6 +389,7 @@ def receiver():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -397,6 +402,7 @@ def receiver():
     cart = cur.fetchone()
 
     if not cart:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -419,6 +425,7 @@ def receiver():
         error["postal_code"] = "this field is required"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -477,7 +484,6 @@ def receiver():
     cart = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "cart": cart
@@ -490,6 +496,7 @@ def account():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -502,6 +509,7 @@ def account():
     cart = cur.fetchone()
 
     if not cart:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -520,6 +528,7 @@ def account():
     elif request.json["amount"] > cart["cost_items"] + cart["cost_delivery"]:
         error = "amount larger than total cost"
     if error:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "amount": error
@@ -549,7 +558,6 @@ def account():
     cart = cur.fetchone()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "cart": cart

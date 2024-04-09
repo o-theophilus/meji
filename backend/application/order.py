@@ -16,6 +16,7 @@ def cart_to_order():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -36,6 +37,7 @@ def cart_to_order():
         or not request.json["email_template_user"]
         or "reference" not in request.json
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -50,6 +52,7 @@ def cart_to_order():
         or not order["local_area"]
         or not order["postal_code"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid delivery address"
@@ -60,6 +63,7 @@ def cart_to_order():
 
     if to_pay > 0:
         if not request.json['reference']:
+            db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "invalid request"
@@ -68,6 +72,7 @@ def cart_to_order():
         cur.execute("""SELECT * FROM "order" WHERE pay_reference = %s;""",
                     (request.json['reference'],))
         if cur.fetchone():
+            db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "invalid request"
@@ -95,6 +100,7 @@ def cart_to_order():
             or "currency" not in resp["data"]
             or resp["data"]["currency"] != "NGN"
         ):
+            db_close(con, cur)
             return jsonify({
                 "status": 400,
                 "error": "invalid transaction"
@@ -153,7 +159,6 @@ def cart_to_order():
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "order": order,
@@ -167,6 +172,7 @@ def get_many():
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -230,7 +236,6 @@ def get_many():
     orders = cur.fetchall()
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "orders": orders,
@@ -248,6 +253,7 @@ def get(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -283,6 +289,7 @@ def get(key):
             and "order:view" not in user["permissions"]
         )
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -298,7 +305,6 @@ def get(key):
         x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "order": order,
@@ -312,12 +318,14 @@ def date(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "order:edit_eta" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -327,6 +335,7 @@ def date(key):
     order = cur.fetchone()
 
     if not order:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -341,6 +350,7 @@ def date(key):
         error["time"] = "this field is required"
 
     if error != {}:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             **error
@@ -374,7 +384,6 @@ def date(key):
     order["delivery_date"] = str(order["delivery_date"]).replace(" ", "T")
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "order": order
@@ -387,12 +396,14 @@ def status(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
         })
 
     if "order:status" not in user["permissions"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -418,6 +429,7 @@ def status(key):
         or "email_template" not in request.json
         or order["status"] in ["delivered", "canceled"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -426,12 +438,14 @@ def status(key):
     i = status.index(order["status"])
     j = status.index(request.json["status"])
     if i + 1 != j and i - 1 != j:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
     if "note" not in request.json or not request.json["note"]:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "note": "this field is required"
@@ -471,7 +485,6 @@ def status(key):
         )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "order": order
@@ -484,6 +497,7 @@ def cancel(key):
 
     user = token_to_user(cur)
     if not user:
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid token"
@@ -499,6 +513,7 @@ def cancel(key):
         "order:cancel" not in user["permissions"]
         and user["key"] != order_user["key"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -508,6 +523,7 @@ def cancel(key):
         not order or not order_user
         or order["status"] in ["delivered", "canceled"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
@@ -521,6 +537,7 @@ def cancel(key):
         or "email_template_user" not in request.json
         or not request.json["email_template_user"]
     ):
+        db_close(con, cur)
         return jsonify({
             "status": 400,
             "note": "this field is required"
@@ -561,7 +578,6 @@ def cancel(key):
     )
 
     db_close(con, cur)
-
     return jsonify({
         "status": 200,
         "order": order

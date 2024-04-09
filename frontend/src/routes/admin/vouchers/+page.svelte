@@ -25,13 +25,12 @@
 	$: total_page = data.total_page;
 	let { page_name } = data;
 	let { order_by } = data;
+	let { voucher_status } = data;
 
 	$: if ($portal && $portal.type == 'voucher') {
 		vouchers = $portal.data;
 		$portal = '';
 	}
-
-	let status = ['all', 'inactive', 'active', 'used', 'expired'];
 
 	let search = '';
 	let _search = '';
@@ -70,7 +69,7 @@
 </Center>
 
 <Card>
-	<Status {page_name} array={status} default_value="all">
+	<Status {page_name} array={['all', ...voucher_status]} default_value="all">
 		{#if $user.permissions.includes('voucher:add')}
 			<Button
 				class="primary"
