@@ -7,16 +7,20 @@
 
 	export let page_name;
 	export let array;
-	export let param = 'status';
 	export let default_value = '';
 	let value = default_value;
 
-	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has(param)) {
-			value = params.get(param);
+	let set = (url) => {
+		value = default_value;
+		if (url.searchParams.has('status')) {
+			value = url.searchParams.get('status');
 		}
+	};
+
+	onMount(() => {
+		set($page.url);
 	});
+	$: set($page.url);
 </script>
 
 <div class="status">
@@ -25,10 +29,10 @@
 			<Button
 				class={value == x ? 'primary' : ''}
 				on:click={() => {
-					value = x;
-
-					let v = x == default_value ? '' : x;
-					set_state(page_name, param, v);
+					if (x != value) {
+						value = x;
+						set_state(page_name, 'status', value == default_value ? '' : value);
+					}
 				}}
 			>
 				{x}

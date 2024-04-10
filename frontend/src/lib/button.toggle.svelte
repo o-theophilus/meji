@@ -27,6 +27,7 @@
 		border: none;
 		height: var(--size);
 		border-radius: calc(var(--size) / 2);
+		overflow: hidden;
 
 		font-size: x-small;
 		cursor: pointer;

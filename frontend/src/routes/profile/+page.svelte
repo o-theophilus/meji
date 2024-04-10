@@ -1,7 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { user as me, module, portal, set_state } from '$lib/store.js';
+	import { user as me, module, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -33,22 +32,6 @@
 		user = $portal.data;
 		$portal = '';
 	}
-
-	let search = '';
-	let _search = '';
-	const submit = () => {
-		if (_search != search) {
-			_search = `${search}`;
-			set_state(page_name, 'search', search);
-		}
-	};
-	onMount(async () => {
-		let params = $page.url.searchParams;
-		if (params.has('search')) {
-			search = params.get('search');
-			_search = params.get('search');
-		}
-	});
 </script>
 
 <Meta title={user?.name || data.error} description={user?.name || data.error} />
@@ -89,21 +72,7 @@
 
 <Card>
 	{#if $me.permissions.includes('user:view')}
-		<div class="line">
-			<Search
-				placeholder="Search for User by  Email or Key"
-				bind:search
-				on:ok={() => {
-					submit();
-				}}
-				on:clear={() => {
-					search = '';
-					submit();
-				}}
-			/>
-			<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
-		</div>
-
+		<Search {page_name} placeholder="Search for User by  Email or Key" />
 		<br />
 	{/if}
 
@@ -328,11 +297,6 @@
 		display: grid;
 		gap: 0 var(--sp2);
 		grid-template-columns: max-content auto min-content;
-	}
-
-	.line {
-		display: flex;
-		gap: var(--sp1);
 	}
 
 	@media screen and (min-width: 800px) {

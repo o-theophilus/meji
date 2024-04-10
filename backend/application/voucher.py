@@ -104,13 +104,6 @@ def get_many():
             "error": "unauthorized access"
         })
 
-    status = request.args["status"] if "status" in request.args else ""
-    search = request.args["search"] if "search" in request.args else ""
-    order = request.args["order"] if "order" in request.args else "latest"
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["page_size"]
-                    ) if "page_size" in request.args else 24
-
     order_by = {
         'latest': 'log.date',
         'oldest': 'log.date',
@@ -124,6 +117,23 @@ def get_many():
         'high_value': 'DESC',
         'low_value': 'ASC'
     }
+
+    order = list(order_by.keys())[0]
+    status = ""
+    search = ""
+    page_no = 1
+    page_size = 24
+
+    if "status" in request.args:
+        status = request.args["status"]
+    if "search" in request.args:
+        search = request.args["search"].strip()
+    if "order" in request.args:
+        order = request.args["order"]
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "page_size" in request.args:
+        page_size = int(request.args["page_size"])
 
     cur.execute("""
         SELECT

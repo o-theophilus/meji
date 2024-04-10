@@ -121,10 +121,10 @@
 					$module = '';
 				}}
 			>
-				Clear
-			</Button>
-
-			<Button
+			Clear
+		</Button>
+		
+		<Button
 				disabled={_selected_string == selected_string}
 				on:click={() => {
 					set_state($module.page_name, 'tag', selected_string);

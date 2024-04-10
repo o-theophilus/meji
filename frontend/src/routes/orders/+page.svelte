@@ -3,6 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { user, set_state } from '$lib/store.js';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
@@ -15,7 +16,7 @@
 	import Back from '$lib/button.back.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
-	import { onMount } from 'svelte';
+	import Search from '$lib/search.svelte';
 
 	export let data;
 	$: orders = data.orders;
@@ -25,6 +26,7 @@
 	let { order_status } = data;
 
 	let is_admin = false;
+
 	onMount(() => {
 		is_admin = $page.url.searchParams.has('admin');
 	});
@@ -62,14 +64,15 @@
 
 		<!-- TODO: what is line in all OrderBy for? -->
 		<div class="line">
-			<OrderBy {page_name} {order_by} default_value="latest" />
+			<OrderBy {page_name} {order_by} />
 		</div>
 	</div>
 </Center>
 
 <Card>
-	<Status {page_name} array={order_status} default_value="created" />
-
+	<Status {page_name} array={[...order_status, 'all']} default_value="created" />
+	<br />
+	<Search {page_name} />
 	<br />
 
 	{#each orders as x (x.key)}
@@ -84,9 +87,8 @@
 </Card>
 
 <style>
-	/* .line {
+	.line {
 		display: flex;
 		gap: var(--sp1);
-		align-items: center;
-	} */
+	}
 </style>

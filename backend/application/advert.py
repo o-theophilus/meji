@@ -192,18 +192,8 @@ def get(item_key):
 
 
 @bp.get("/advert")
-def get_many(status="", space=""):
+def get_many(item_status="", status=""):
     con, cur = db_open()
-
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["size"]) if "size" in request.args else 24
-    space = request.args["space"] if "space" in request.args else space
-    order = request.args["order"] if "order" in request.args else "latest"
-
-    ready = ""
-    if status == "live":
-        for x in sizes:
-            ready = f"{ready} AND photo_{x} IS NOT NULL"
 
     order_by = {
         'latest': 'log.date',
@@ -219,6 +209,27 @@ def get_many(status="", space=""):
         'name (z-a)': 'DESC'
     }
 
+    order = list(order_by.keys())[0]
+    page_no = 1
+    page_size = 24
+    search = ""
+
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "size" in request.args:
+        page_size = int(request.args["size"])
+    if "status" in request.args:
+        status = request.args["status"]
+    if "search" in request.args:
+        search = request.args["search"]
+    if "order" in request.args:
+        order = request.args["order"]
+
+    ready = ""
+    if item_status == "live":
+        for x in sizes:
+            ready = f"{ready} AND photo_{x} IS NOT NULL"
+
     cur.execute("""
         SELECT
             DISTINCT ON (advert.key)
@@ -231,18 +242,19 @@ def get_many(status="", space=""):
         FROM advert
         LEFT JOIN item ON advert.key = item.key
         LEFT JOIN log ON advert.key = log.entity_key
-        WHERE (
-                %s = '' OR item.status = %s
-            ) AND (
-                %s = '' OR %s = ANY(spaces)
-            ) {}
+        WHERE
+            (%s = '' OR item.status = %s)
+            AND (%s = '' OR %s = ANY(spaces))
+            AND (%s = '' OR item.name ILIKE %s)
             AND log.action = 'created'
             AND log.entity_type = 'advert'
+            {}
         ORDER BY advert.key, {} {}
         LIMIT %s OFFSET %s;
     """.format(ready, order_by[order], order_dir[order]), (
+        item_status, item_status,
         status, status,
-        space, space,
+        search, f"%{search}%",
         page_size,
         (page_no - 1) * page_size
     ))

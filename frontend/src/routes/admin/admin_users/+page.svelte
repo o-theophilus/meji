@@ -31,7 +31,7 @@
 			User{users.length > 1 ? 's' : ''}
 		</div>
 		<div class="line">
-			<OrderBy {page_name} {order_by} default_value="latest" />
+			<OrderBy {page_name} {order_by} />
 		</div>
 	</div>
 </Center>

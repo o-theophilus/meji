@@ -178,12 +178,6 @@ def get_many():
             "error": "invalid token"
         })
 
-    status = request.args["status"] if "status" in request.args else "created"
-    search = request.args["search"] if "search" in request.args else None
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["size"]) if "size" in request.args else 24
-    order = request.args["order"] if "order" in request.args else "latest"
-
     order_by = {
         'latest': 'log.date',
         'oldest': 'log.date',
@@ -197,6 +191,24 @@ def get_many():
         'low_cost': 'ASC',
         'high_cost': 'DESC'
     }
+
+    order = list(order_by.keys())[0]
+    status = "created"
+    search = ""
+    page_no = 1
+    page_size = 24
+
+    if "status" in request.args:
+        status = request.args["status"]
+    if "search" in request.args:
+        search = request.args["search"].strip()
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "size" in request.args:
+        page_size = int(request.args["size"])
+    if "order" in request.args:
+        order = request.args["order"]
+
 
 # TODO: add variation and quantity to frontend
     cur.execute("""
@@ -216,7 +228,7 @@ def get_many():
         FROM "order"
         LEFT JOIN log ON "order".key = log.entity_key
         WHERE
-            "order".status = %s
+            (%s = 'all' OR "order".status = %s)
             AND "order".status != 'cart'
             AND (%s IS NULL OR "order".key ILIKE %s)
             AND ("order".user_key = %s OR %s)
@@ -227,7 +239,7 @@ def get_many():
     """.format(
         order_by[order], order_dir[order]
     ), (
-        status,
+        status, status,
         search, f"%{search}%",
         user["key"],
         "admin" in request.args and "order:view" not in user["permissions"],

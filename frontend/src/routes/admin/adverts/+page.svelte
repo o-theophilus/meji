@@ -12,6 +12,7 @@
 	import Status from '$lib/status.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
+	import Search from '$lib/search.svelte';
 
 	export let data;
 	$: adverts = data.adverts;
@@ -34,13 +35,15 @@
 		</div>
 
 		<div class="line">
-			<OrderBy {page_name} {order_by} default_value="latest" />
+			<OrderBy {page_name} {order_by} />
 		</div>
 	</div>
 </Center>
 
 <Card>
-	<Status {page_name} array={['all', ...spaces]} default_value="all" param="space" />
+	<Status {page_name} array={['all', ...spaces]} default_value="all" />
+	<br />
+	<Search {page_name} />
 	<br />
 
 	{#each adverts as advert, i (`${advert.key}_${i}`)}
@@ -55,4 +58,8 @@
 </Card>
 
 <style>
+	.line {
+		display: flex;
+		gap: var(--sp1);
+	}
 </style>

@@ -1,13 +1,9 @@
 <script>
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { set_state } from '$lib/store.js';
 
 	import UpdateUrl from '$lib/update_url.svelte';
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Meta from '$lib/meta.svelte';
 	import User from './user.svelte';
@@ -23,22 +19,6 @@
 	let { page_name } = data;
 	let { order_by } = data;
 	let { user_status } = data;
-
-	let search = '';
-	let _search = '';
-	const submit = () => {
-		if (_search != search) {
-			_search = `${search}`;
-			set_state(page_name, 'search', search);
-		}
-	};
-	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has('search')) {
-			search = params.get('search');
-			_search = params.get('search');
-		}
-	});
 </script>
 
 <UpdateUrl />
@@ -52,7 +32,7 @@
 			User{users.length > 1 ? 's' : ''}
 		</div>
 		<div class="line">
-			<OrderBy {page_name} {order_by} default_value="latest" />
+			<OrderBy {page_name} {order_by} />
 		</div>
 	</div>
 </Center>
@@ -60,21 +40,9 @@
 <Card>
 	<Status {page_name} array={['all', ...user_status]} default_value="all" />
 	<br />
-
-	<div class="line">
-		<Search
-			bind:search
-			on:ok={() => {
-				submit();
-			}}
-			on:clear={() => {
-				search = '';
-				submit();
-			}}
-		/>
-		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
-	</div>
+	<Search {page_name} />
 	<br />
+
 	{#each users as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<User user={x} />

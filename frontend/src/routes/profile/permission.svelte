@@ -13,7 +13,7 @@
 	export let permissions;
 	let permits = [...user.permissions];
 	let init = [...user.permissions];
-	let open = true;
+	let open = false;
 
 	const select_group = (_in) => {
 		let group = [];
@@ -120,15 +120,6 @@
 					<span>
 						{#each _actions as action}
 							{#if action[1] == x}
-								<!-- <Check
-									active={permits.includes(`${_type}:${action[0]}`)}
-									on:click={() => {
-										select(`${_type}:${action[0]}`);
-									}}
-								>
-									{action[0].split('_').join(' ')}
-								</Check> -->
-
 								<Tag
 									active={permits.includes(`${_type}:${action[0]}`)}
 									on:click={() => {

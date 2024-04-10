@@ -1,90 +1,71 @@
 <script>
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { user as me, set_state } from '$lib/store.js';
+	import { user, set_state } from '$lib/store.js';
 
 	import Search from '$lib/search.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	export let page_name;
+	export let search_query;
 
-	export let search_query = {
-		all: ['all']
+	let user_key = '';
+	let entity_type = 'all';
+	let action = 'all';
+	let entity_key = '';
+	let search = `${user_key}:${entity_type}:${action}:${entity_key}`;
+
+	export const set_value = ({ u = '', e = '' }) => {
+		user_key = u || user_key;
+		entity_key = e || entity_key;
 	};
 
-	let in_user = '';
-	let in_type = 'all';
-	let in_action = 'all';
-	let in_entity = '';
-
-	let snap = `${in_user}:${in_type}:${in_action}:${in_entity}`;
-
 	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has('search')) {
-			let temp = params.get('search');
+		if ($page.url.searchParams.has('search')) {
+			let temp = $page.url.searchParams.get('search');
 			temp = temp.split(':');
 			if (temp.length == 4) {
-				in_user = temp[0] != 'all' ? temp[0] : '';
-				in_type = temp[1];
-				in_action = temp[2];
-				in_entity = temp[3] != 'all' ? temp[3] : '';
-
-				snap = `${in_user}:${in_type}:${in_action}:${in_entity}`;
+				user_key = temp[0];
+				entity_type = temp[1];
+				action = temp[2];
+				entity_key = temp[3];
+				search = `${user_key}:${entity_type}:${action}:${entity_key}`;
 			}
 		}
 	});
 
-	const set_search = (user = '', type = 'all', action = 'all', entity = '') => {
-		if (user == 'all') {
-			user = '';
-			in_user = '';
-		}
-		if (entity == 'all') {
-			entity = '';
-			in_entity = '';
+	const submit = (clear = false) => {
+		if (clear) {
+			user_key = '';
+			entity_type = 'all';
+			action = 'all';
+			entity_key = '';
 		}
 
-		let search = `${user || 'all'}:${type || 'all'}:${action || 'all'}:${entity || 'all'}`;
-		if (search == 'all:all:all:all') {
-			search = '';
-		}
-
-		set_state(page_name, 'search', search);
-		snap = `${user}:${type}:${action}:${entity}`;
-	};
-
-	export const set_value = ({ user = '', type = 'all', action = 'all', entity = '' }) => {
-		if (user) {
-			in_user = user;
-		}
-		if (type != 'all') {
-			in_type = type;
-		}
-		if (action != 'all') {
-			in_action = action;
-		}
-		if (entity) {
-			in_entity = entity;
+		let check = `${search}`;
+		search = `${user_key}:${entity_type || 'all'}:${action || 'all'}:${entity_key}`;
+		if (search != check) {
+			set_state(page_name, 'search', search != ':all:all:' ? search : '');
 		}
 	};
 </script>
 
 <section>
-	{#if $me.permissions.includes('log:view')}
+	{#if $user.permissions.includes('log:view')}
 		<div class="line">
 			<Search
+				non_default
 				placeholder="Search for User"
-				bind:search={in_user}
+				bind:search={user_key}
 				on:clear={() => {
-					in_user = '';
+					user_key = '';
 				}}
 			/>
 			<Button
 				class=""
 				on:click={() => {
-					set_value({ user: $me.key });
+					set_value({ u: $user.key });
 				}}
 			>
 				Me
@@ -94,19 +75,19 @@
 
 	<div class="line">
 		<select
-			bind:value={in_type}
+			bind:value={entity_type}
 			on:input={() => {
-				in_action = 'all';
+				action = 'all';
 			}}
 		>
-			{#each Object.entries(search_query) as [type, action]}
+			{#each Object.entries(search_query) as [type, _]}
 				<option value={type}>
 					{type}
 				</option>
 			{/each}
 		</select>
-		<select bind:value={in_action}>
-			{#each search_query[in_type] as x}
+		<select bind:value={action}>
+			{#each search_query[entity_type] as x}
 				<option value={x}>
 					{x}
 				</option>
@@ -115,38 +96,27 @@
 	</div>
 	<div class="line">
 		<Search
-			placeholder="Search for {in_type}"
-			bind:search={in_entity}
+			non_default
+			placeholder="Search for {entity_type}"
+			bind:search={entity_key}
 			on:clear={() => {
-				in_entity = '';
+				entity_key = '';
 			}}
 		/>
 		<Button
 			class="round"
-			disabled={`${in_user}:${in_type}:${in_action}:${in_entity}` == snap}
+			disabled={`${user_key}:${entity_type}:${action}:${entity_key}` == search}
 			on:click={() => {
-				set_search(in_user, in_type, in_action, in_entity);
+				submit();
 			}}
 		>
 			<SVG type="search" size="12" />
 		</Button>
 		<Button
 			class="round hover_red"
-			disabled={`${in_user}:${in_type}:${in_action}:${in_entity}` == ':all:all:'}
+			disabled={`${user_key}:${entity_type}:${action}:${entity_key}` == ':all:all:'}
 			on:click={() => {
-				let reload = false;
-				if (snap != ':all:all:') {
-					reload = true;
-				}
-
-				in_user = '';
-				in_type = 'all';
-				in_action = 'all';
-				in_entity = '';
-
-				if (reload) {
-					set_search();
-				}
+				submit(true);
 			}}
 		>
 			<SVG type="close" size="8" />

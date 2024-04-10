@@ -83,6 +83,12 @@ def get():
         log(
             cur=cur,
             user_key=key,
+            action="signed_up",
+            entity_type="auth"
+        )
+        log(
+            cur=cur,
+            user_key=key,
             action="confirmed",
             entity_type="auth"
         )
@@ -105,26 +111,12 @@ def get_many():
             "error": "invalid token"
         })
 
-    order = request.args["order"] if "order" in request.args else "latest"
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["size"]) if "size" in request.args else 24
-
-    search = "all:all:all"
-    if "search" in request.args:
-        search = request.args["search"]
-
-    search = search.split(":")
-    if len(search) != 3:
+    if "user:set_permission" not in user["permissions"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "invalid search"
+            "error": "unauthorized access"
         })
-
-    _user, _type, _action = search
-
-    if "user:view" not in user["permissions"]:
-        _user = user["key"]
 
     order_by = {
         'latest': 'log.date',
@@ -140,6 +132,29 @@ def get_many():
         'name (z-a)': 'DESC'
     }
 
+    order = list(order_by.keys())[0]
+    page_no = 1
+    page_size = 24
+    search = ":all:all"
+
+    if "order" in request.args:
+        order = request.args["order"]
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "size" in request.args:
+        page_size = int(request.args["size"])
+    if "search" in request.args:
+        search = request.args["search"]
+    search = search.split(":")
+    if len(search) != 3:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid search"
+        })
+    user_key, _type, _action = search
+    user_key = user_key.strip()
+
     cur.execute("""
         SELECT
             "user".*,
@@ -148,7 +163,7 @@ def get_many():
         LEFT JOIN log ON "user".key = log.user_key
         WHERE
             array_length("user".permissions, 1) IS NOT NULL
-            AND (%s = 'all'
+            AND (%s = ''
                 OR CONCAT_WS(', ', "user".key, "user".name, "user".email)
                 ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING("user".permissions, ',')
@@ -162,7 +177,7 @@ def get_many():
     """.format(
         order_by[order], order_dir[order]
     ), (
-        _user, f"%{_user}%",
+        user_key, f"%{user_key}%",
         _type, f"%{_type}:%",
         _action, f"%{_type}:{_action}%",
         page_size, (page_no - 1) * page_size

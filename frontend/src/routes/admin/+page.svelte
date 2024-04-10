@@ -16,10 +16,12 @@
 
 <Card>
 	<div class="block">
+		{#if $user.permissions.includes('user:set_permission')}
+			<Button class="wide" href="/admin/admin_users">Admin Users</Button>
+			<br />
+		{/if}
 		{#if $user.permissions.includes('user:view')}
 			<Button class="wide" href="/admin/users">Users</Button>
-			<br />
-			<Button class="wide" href="/admin/admin_users">Admin Users</Button>
 			<br />
 		{/if}
 		{#if $user.permissions.includes('voucher:view')}

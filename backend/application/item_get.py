@@ -404,16 +404,14 @@ def get(key):
 
 
 @bp.get("/shop")
-def shop(
-    status="live",
-    search="",
-    tag="",
-    order="latest",
-    page_no=1,
-    page_size=24
-):
+def shop(order="latest", page_size=24):
     con, cur = db_open()
     user = token_to_user(cur)
+
+    status = "live"
+    search = ""
+    tag = ""
+    page_no = 1
 
     if (
         "status" in request.args and user and (
@@ -423,16 +421,15 @@ def shop(
     ):
         status = request.args["status"]
     if "search" in request.args:
-        search = request.args["search"]
-    if "tag" in request.args:
-        tag = request.args["tag"]
+        search = request.args["search"].strip()
     if "order" in request.args:
         order = request.args["order"]
     if "page_no" in request.args:
         page_no = int(request.args["page_no"])
     if "page_size" in request.args:
         page_size = int(request.args["page_size"])
-
+    if "tag" in request.args:
+        tag = request.args["tag"]
     multiply = False
     if tag[-2:] == ":x":
         multiply = True

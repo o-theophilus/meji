@@ -40,7 +40,7 @@
 	{#if log.user_key && $user.permissions.includes('log:view')}
 		<button
 			on:click={() => {
-				emit('search', { user: log.user_key });
+				emit('search', { u: log.user_key });
 			}}
 		>
 			&#9679;
@@ -62,7 +62,7 @@
 
 		<button
 			on:click={() => {
-				emit('search', { entity: log.entity_key });
+				emit('search', { e: log.entity_key });
 			}}
 		>
 			&#9679;

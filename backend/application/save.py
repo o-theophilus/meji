@@ -15,11 +15,6 @@ def get():
 
     user = token_to_user(cur)
 
-    search = request.args["search"] if "search" in request.args else ""
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(request.args["size"]) if "size" in request.args else 24
-    order = request.args["order"] if "order" in request.args else "latest"
-
     order_by = {
         'latest': 'log.date',
         'oldest': 'log.date',
@@ -41,6 +36,22 @@ def get():
         'discount': 'DESC',
         'rating': 'DESC'
     }
+
+    order = list(order_by.keys())[0]
+    page_no = 1
+    page_size = 24
+    search = ""
+
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "size" in request.args:
+        page_size = int(request.args["size"])
+    if "order" in request.args:
+        order = request.args["order"]
+    if "search" in request.args:
+        search = request.args["search"].strip()
+
+    # TODO: handle save when item not "live"
     cur.execute("""
         SELECT
             item.*,
@@ -82,7 +93,7 @@ def get():
         WHERE
             save.user_key = %s
             AND (%s = '' OR item.name ILIKE %s)
-            AND log.action = 'created'
+            AND log.action = 'saved'
             AND log.entity_type = 'item'
 
         GROUP BY

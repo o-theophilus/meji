@@ -4,27 +4,28 @@
 	import { set_state } from '$lib/store.js';
 
 	export let page_name;
-	export let order_by;
-	export let default_value = '';
+	export let order_by = [];
+	export let default_value = order_by[0] || '';
+	let value = default_value;
 
-	const sort_items = (x) => {
-		default_value = x;
-		set_state(page_name, 'order', x == 'latest' ? '' : x);
+	let set = (url) => {
+		value = default_value;
+		if (url.searchParams.has('order')) {
+			value = url.searchParams.get('order');
+		}
 	};
 
 	onMount(() => {
-		let params = $page.url.searchParams;
-		if (params.has('order')) {
-			default_value = params.get('order');
-		}
+		set($page.url);
 	});
+	$: set($page.url);
 </script>
 
 <select
+	bind:value
 	on:change={(e) => {
-		sort_items(e.target.value);
+		set_state(page_name, 'order', e.target.value == default_value ? '' : e.target.value);
 	}}
-	value={default_value}
 >
 	{#each order_by as x}
 		<option value={x}>

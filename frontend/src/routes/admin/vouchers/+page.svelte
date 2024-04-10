@@ -1,9 +1,8 @@
 <script>
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { module, set_state, portal, user } from '$lib/store.js';
+	import { module, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -31,22 +30,6 @@
 		vouchers = $portal.data;
 		$portal = '';
 	}
-
-	let search = '';
-	let _search = '';
-	const submit = () => {
-		if (_search != search) {
-			_search = `${search}`;
-			set_state(page_name, 'search', search);
-		}
-	};
-	onMount(async () => {
-		let params = $page.url.searchParams;
-		if (params.has('search')) {
-			search = params.get('search');
-			_search = params.get('search');
-		}
-	});
 </script>
 
 <UpdateUrl />
@@ -63,7 +46,7 @@
 			Voucher{vouchers.length > 1 ? 's' : ''}
 		</div>
 		<div class="line">
-			<OrderBy {page_name} {order_by} default_value="latest" />
+			<OrderBy {page_name} {order_by} />
 		</div>
 	</div>
 </Center>
@@ -84,21 +67,8 @@
 			</Button>
 		{/if}
 	</Status>
-
 	<br />
-	<div class="line">
-		<Search
-			bind:search
-			on:ok={() => {
-				submit();
-			}}
-			on:clear={() => {
-				search = '';
-				submit();
-			}}
-		/>
-		<Button class="primary" on:click={submit} disabled={search == _search}>Search</Button>
-	</div>
+	<Search {page_name} />
 	<br />
 
 	{#each vouchers as x (x.key)}

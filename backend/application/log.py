@@ -32,9 +32,7 @@ def log(
         if "entity_key" in request.json and request.json["entity_key"]:
             entity_key = request.json["entity_key"]
         if "status" in request.json and request.json["status"]:
-            status = request.json["status"]
-        if "misc" in request.json and request.json["misc"]:
-            misc = request.json["misc"]
+            status = int(request.json["status"])
     except Exception:
         pass
 
@@ -83,14 +81,16 @@ def get():
             "error": "invalid token"
         })
 
-    page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
-    page_size = int(
-        request.args["page_size"]) if "page_size" in request.args else 24
+    page_no = 1
+    page_size = 24
+    search = ":all:all:"
 
-    search = "all:all:all:all"
+    if "page_no" in request.args:
+        page_no = int(request.args["page_no"])
+    if "page_size" in request.args:
+        page_size = int(request.args["page_size"])
     if "search" in request.args:
         search = request.args["search"]
-
     search = search.split(":")
     if len(search) != 4:
         db_close(con, cur)
@@ -98,11 +98,12 @@ def get():
             "status": 400,
             "error": "invalid search"
         })
-
-    user_id, entity_type, user_action, entity_id = search
+    user_key, entity_type, user_action, entity_key = search
+    user_key = user_key.strip()
+    entity_key = entity_key.strip()
 
     if "log:view" not in user["permissions"]:
-        user_id = user["key"]
+        user_key = user["key"]
 
     cur.execute("""
         SELECT
@@ -118,21 +119,21 @@ def get():
         LEFT JOIN item ON log.entity_key = item.key
             AND (log.entity_type = 'item' OR log.entity_type = 'advert')
         WHERE
-            (%s = 'all' OR CONCAT_WS(
+            (%s = '' OR CONCAT_WS(
                 ', ', log.user_key, "user".name, "user".email
             ) ILIKE %s)
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
-            AND (%s = 'all' OR CONCAT_WS(
+            AND (%s = '' OR CONCAT_WS(
                 ', ', log.entity_key, usr.name, usr.email, item.name
             ) ILIKE %s)
         ORDER BY log.date DESC
         LIMIT %s OFFSET %s;
     """, (
-        user_id, f"%{user_id}%",
+        user_key, f"%{user_key}%",
         entity_type, entity_type,
         user_action, user_action,
-        entity_id, f"%{entity_id}%",
+        entity_key, f"%{entity_key}%",
         page_size, (page_no - 1) * page_size
     ))
     logs = cur.fetchall()
