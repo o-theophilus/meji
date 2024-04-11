@@ -10,6 +10,10 @@ from .log import log
 bp = Blueprint("order", __name__)
 
 
+order_status = ['created', 'processing', 'enroute', 'delivered',
+                'canceled']
+
+
 @bp.post("/order")
 def cart_to_order():
     con, cur = db_open()
@@ -209,8 +213,6 @@ def get_many():
     if "order" in request.args:
         order = request.args["order"]
 
-
-# TODO: add variation and quantity to frontend
     cur.execute("""
         SELECT
             "order".*,
@@ -252,8 +254,7 @@ def get_many():
         "status": 200,
         "orders": orders,
         "order_by": list(order_by.keys()),
-        "order_status": ['created', 'processing', 'enroute', 'delivered',
-                         'canceled'],
+        "order_status": order_status,
         "total_page": ceil(
             orders[0]["total_items"] / page_size) if orders else 0
     })
@@ -320,7 +321,8 @@ def get(key):
     return jsonify({
         "status": 200,
         "order": order,
-        "items": items
+        "items": items,
+        "order_status": order_status
     })
 
 

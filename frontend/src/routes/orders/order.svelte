@@ -1,6 +1,8 @@
 <script>
 	import { user } from '$lib/store.js';
 
+	import Value from '$lib/item/variation_value.svelte';
+
 	export let order;
 	export let is_admin;
 </script>
@@ -14,10 +16,13 @@
 		{order.key.substring(0, 8)}
 	</div>
 
-	{#each order.items as y, i}
-		{#if i != 0},{/if}
-		{y.name}
-	{/each}
+	<span class="variation">
+		{#each order.items as y, i}
+			[
+			<span class="name">{y.name}</span>{#each Object.entries(y.variation) as [key, value]}, {key}:
+				<Value {value} />{/each}, quantity: <Value value={`${y.quantity}`} />]
+		{/each}
+	</span>
 </a>
 
 <style>

@@ -292,7 +292,6 @@ def all_tags():
                 "count":  tags.count(x)
             })
 
-    # TODO: pass cur
     tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
 
     db_close(con, cur)

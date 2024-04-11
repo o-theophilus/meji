@@ -33,9 +33,7 @@
 	<br />
 	<div class="ctitle">
 		Saved Item{items.length > 1 ? 's' : ''}
-		<div class="line">
-			<OrderBy {page_name} {order_by} />
-		</div>
+		<OrderBy {page_name} {order_by} />
 	</div>
 </Center>
 
@@ -63,8 +61,4 @@
 <Pagination {page_name} {total_page} />
 
 <style>
-	.line {
-		display: flex;
-		gap: var(--sp1);
-	}
 </style>

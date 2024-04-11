@@ -19,6 +19,7 @@
 	export let data;
 	let { order } = data;
 	let { items } = data;
+	let { order_status } = data;
 	let date_time = order.delivery_date.split('T');
 
 	$: if ($portal && $portal.type == 'order') {
@@ -97,7 +98,8 @@
 						$module = {
 							module: Status,
 							order,
-							items
+							items,
+							order_status
 						};
 					}}
 				>

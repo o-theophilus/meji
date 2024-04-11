@@ -583,11 +583,18 @@ def delete():
             "error": "invalid token"
         })
 
-    if not request.json["password"]:
+    error = {}
+
+    if "note" not in request.json or not request.json["note"]:
+        error["note"] = "this field is required"
+    if "password" not in request.json or not request.json["password"]:
+        error["password"] = "this field is required"
+
+    if error != {}:
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "this field is required"
+            **error
         })
 
     if not check_password_hash(user["password"], request.json["password"]):
@@ -618,12 +625,12 @@ def delete():
     ))
     anon_user = cur.fetchone()
 
-# TODO: add delete note
     log(
         cur=cur,
         user_key=user["key"],
         action="deleted_account",
-        entity_type="user"
+        entity_type="user",
+        misc={"note": request.json["note"]}
     )
 
     db_close(con, cur)
@@ -662,8 +669,12 @@ def add_photo():
             "error": "invalid file"
         })
 
+    old_photo = None
     if user["photo"]:
+        old_photo = user["photo"]
         storage(user["photo"], delete=True)
+
+    file_name = storage(file)
 
     cur.execute("""
         UPDATE "user"
@@ -671,17 +682,20 @@ def add_photo():
         WHERE key = %s
         RETURNING *;
     """, (
-        storage(file),
+        file_name,
         user["key"]
     ))
     user = cur.fetchone()
 
-# TODO: LOG FILENAME
     log(
         cur=cur,
         user_key=user["key"],
         action="updated_photo",
-        entity_type="user"
+        entity_type="user",
+        misc={
+            "from": old_photo,
+            "to": file_name
+        }
     )
 
     db_close(con, cur)
@@ -703,24 +717,22 @@ def delete_photo():
             "error": "invalid token"
         })
 
-    storage(user["photo"].split("/")[-1], delete=True)
+    if user["photo"]:
+        storage(user["photo"].split("/")[-1], delete=True)
 
-    cur.execute("""
-        UPDATE "user"
-        SET photo = %s
-        WHERE key = %s;
-    """, (
-        None,
-        user["key"]
-    ))
+        cur.execute("""
+            UPDATE "user"
+            SET photo = NULL
+            WHERE key = %s;
+        """, (user["key"],))
 
-# TODO: LOG FILENAME
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted_photo",
-        entity_type="user"
-    )
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="deleted_photo",
+            entity_type="user",
+            misc={"photo": user["photo"]}
+        )
 
     db_close(con, cur)
     return jsonify({

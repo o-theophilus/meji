@@ -7,14 +7,18 @@
 	import IG from '$lib/input_group.svelte';
 	import ShowPassword from '$lib/button.show_password.svelte';
 
-	let password;
+	let form = {};
 	let error = {};
 	let show_password = false;
 
 	const validate = () => {
 		error = {};
 
-		if (!password) {
+		if (!form.note) {
+			error.note = 'This field is required';
+		}
+
+		if (!form.password) {
 			error.password = 'This field is required';
 		}
 
@@ -29,7 +33,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ password })
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -50,9 +54,18 @@
 	</svelte:fragment>
 
 	<IG
+		name="note"
+		label="Please give reason"
+		{error}
+		type="textarea"
+		bind:value={form.note}
+		placeholder="Reason"
+	/>
+
+	<IG
 		name="password"
 		{error}
-		bind:value={password}
+		bind:value={form.password}
 		type={show_password ? 'text' : 'password'}
 		placeholder="Password here"
 	>

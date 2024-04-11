@@ -3,9 +3,9 @@
 
 	import { onMount } from 'svelte';
 	import { set_state, state, module } from '$lib/store.js';
-	import Button from '$lib/button.svelte';
 	import Toggle from '$lib/button.toggle.svelte';
 	import Input from '$lib/input.svelte';
+	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 	import Tag from '$lib/button.tag.svelte';
@@ -15,7 +15,7 @@
 	let _selected = [];
 	let multiply = false;
 	let _multiply = false;
-	let search = '';
+	let filter = '';
 
 	let selected_string = '';
 	let _selected_string = '';
@@ -59,17 +59,17 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b class="title">All Tags</b>
+		<b>All Tags</b>
 	</svelte:fragment>
 
 	<div class="input">
-		<Input bind:value={search} type="text" placeholder="Search" />
-		{#if search}
+		<Input bind:value={filter} type="text" placeholder="Filter" />
+		{#if filter}
 			<div class="clear">
 				<Button
 					class="round"
 					on:click={() => {
-						search = '';
+						filter = '';
 					}}
 				>
 					<SVG type="close" size="8" />
@@ -83,12 +83,14 @@
 	<div class="tags_space">
 		{#each tags as x}
 			<Tag
-				hide={!x.includes(search.toLowerCase())}
+				hide={!x.includes(filter.toLowerCase())}
 				active={selected.includes(x)}
 				on:click={() => {
 					toggle(x);
-				}}>{x}</Tag
+				}}
 			>
+				{x}
+			</Tag>
 		{/each}
 	</div>
 
@@ -121,10 +123,10 @@
 					$module = '';
 				}}
 			>
-			Clear
-		</Button>
-		
-		<Button
+				Clear
+			</Button>
+
+			<Button
 				disabled={_selected_string == selected_string}
 				on:click={() => {
 					set_state($module.page_name, 'tag', selected_string);

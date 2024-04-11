@@ -50,6 +50,7 @@
 		</div>
 
 		<input
+			class:non_default
 			class:show_close={search != ''}
 			type="text"
 			{placeholder}
@@ -76,20 +77,19 @@
 	</div>
 
 	{#if !non_default}
-		<Button
-			class="primary"
+		<button
 			on:click={() => {
 				submit('ok');
 			}}
-			disabled={search == _search}>Search</Button
-		>
+			disabled={search == _search}
+			>Search
+		</button>
 	{/if}
 </div>
 
 <style>
 	.line {
 		display: flex;
-		gap: var(--sp1);
 		width: 100%;
 	}
 
@@ -106,21 +106,23 @@
 	input {
 		width: 100%;
 		padding: var(--sp1);
-		border-radius: var(--sp0);
 		padding-left: var(--sp5);
 		border: none;
 
+		border-radius: var(--sp0) 0 0 var(--sp0);
 		outline: 2px solid var(--ac4);
+		/* outline-offset: -2px; */
 		background-color: var(--ac5);
 		color: var(--ac1);
 	}
-
 	input:hover {
 		outline-color: var(--ac3);
 	}
-
 	input:focus {
 		outline-color: var(--ac1);
+	}
+	.non_default {
+		border-radius: var(--sp0);
 	}
 
 	.show_close {
@@ -134,12 +136,31 @@
 		align-items: center;
 		height: 100%;
 	}
-
 	.clear {
 		right: var(--sp1);
 	}
-
 	.svg {
 		left: var(--sp2);
+	}
+
+	button {
+		padding: calc(var(--sp1) + 2px) var(--sp2);
+		border: none;
+		border-radius: 0 var(--sp0) var(--sp0) 0;
+		font-weight: 700;
+		cursor: pointer;
+		background-color: var(--cl1);
+		color: var(--ac6_);
+	}
+
+	button:hover:not(:disabled) {
+		background-color: var(--cl1_b);
+	}
+
+	button:disabled {
+		background-color: var(--ac5);
+		color: var(--ac2);
+		cursor: unset;
+		opacity: 0.4;
 	}
 </style>

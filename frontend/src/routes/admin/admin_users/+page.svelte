@@ -30,9 +30,7 @@
 			<Back />
 			User{users.length > 1 ? 's' : ''}
 		</div>
-		<div class="line">
-			<OrderBy {page_name} {order_by} />
-		</div>
+		<OrderBy {page_name} {order_by} />
 	</div>
 </Center>
 
@@ -52,8 +50,4 @@
 </Card>
 
 <style>
-	.line {
-		display: flex;
-		gap: var(--sp1);
-	}
 </style>

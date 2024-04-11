@@ -62,10 +62,7 @@
 			{/if}
 		</div>
 
-		<!-- TODO: what is line in all OrderBy for? -->
-		<div class="line">
-			<OrderBy {page_name} {order_by} />
-		</div>
+		<OrderBy {page_name} {order_by} />
 	</div>
 </Center>
 
@@ -87,8 +84,4 @@
 </Card>
 
 <style>
-	.line {
-		display: flex;
-		gap: var(--sp1);
-	}
 </style>

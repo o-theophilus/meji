@@ -39,19 +39,19 @@
 
 		<br /> TODO:
 		<br />
+		<br /> [ - ] fix cron
+		<br /> [ - ] make order and voucher date time uniform
 		<br /> [ - ] better page meta descriptions
 		<br />
-		<br /> [ - ] use svelte runes
 		<br /> [ - ] how changing status and price of items affect save, advert and cart
-		<br /> [ - ] make order and voucher date time uniform
-		<br />
-		<br /> [ - ] fix cron
 		<br /> [ - ] use version for financial ops
 		<br /> [ - ] does going back restore token
-		<br /> [ - ] update brand guide
+		<br />
+		<br /> [ - ] use svelte runes
 		<br /> [ - ] integrate AI assistant
-		<br /> [ - ] write test
 		<br /> [ - ] address api: www.geoapify.com/tutorials
+		<br /> [ - ] update brand guide
+		<br /> [ - ] write test
 	</div>
 </Card>
 

@@ -134,7 +134,7 @@
 	</IG>
 
 	{#each Object.keys(variation) as key (key)}
-		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+		<div class="opt" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<IG
 				name={key}
 				{error}
@@ -176,6 +176,12 @@
 	.line {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 		gap: var(--sp1);
+	}
+
+	.opt {
+		border-top: 2px solid var(--ac5);
+		padding-top: var(--sp1);
 	}
 </style>

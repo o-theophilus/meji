@@ -9,6 +9,7 @@
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import Quantity from '../../lib/item/quantity.svelte';
 
 	let emit = createEventDispatcher();
 
@@ -18,7 +19,7 @@
 </script>
 
 <Card>
-	<div class="ctitle">Item{items.length ? 's' : ''}</div>
+	<div class="ctitle">Item{items.length != 1 || items[0].quantity != 1 ? 's' : ''}</div>
 
 	<br />
 	<br />
@@ -34,7 +35,9 @@
 	<br />
 
 	<div class="total_amount">
-		<div class="total">Item{items.length ? 's' : ''} Total Price</div>
+		<div class="total">
+			Item{#if items.length != 1 || items[0].quantity != 1}s Total{/if} Price
+		</div>
 		<div class="amount">
 			₦{cart.cost_items.toLocaleString()}
 		</div>

@@ -13,8 +13,8 @@
 	let note = 'I approve this';
 	let order = { ...$module.order };
 	let items = [...$module.items];
-	let status = ['created', 'processing', 'enroute', 'delivered'];
-	let index = status.indexOf(order.status);
+	let order_status = [...$module.order_status];
+	let index = order_status.indexOf(order.status);
 	let error = {};
 
 	const validate = async (status) => {
@@ -83,7 +83,7 @@ to: **${status}**
 		<b>Change Order Status</b>
 	</svelte:fragment>
 
-	{#each status as s}
+	{#each order_status as s}
 		<div class="state" class:active={order.status == s}>
 			<div class="h">
 				<div>
@@ -110,7 +110,7 @@ to: **${status}**
 		{#if index > 0}
 			<Button
 				on:click={() => {
-					validate(status[index - 1]);
+					validate(order_status[index - 1]);
 				}}
 			>
 				&lt; Back
@@ -120,11 +120,11 @@ to: **${status}**
 		<Button
 			class="primary"
 			on:click={() => {
-				validate(status[index + 1]);
+				validate(order_status[index + 1]);
 			}}
 		>
 			<span class="cap">
-				{status[index + 1]} &gt;
+				{order_status[index + 1]} &gt;
 			</span>
 		</Button>
 	</div>

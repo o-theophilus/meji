@@ -67,7 +67,7 @@
 
 <Card>
 	<div class="title">
-		Unused Photos ({unused.length})
+		Unused Photo{unused.length > 1 ? 's' : ''} ({unused.length})
 		<ButtonFold
 			open={open_unused}
 			on:click={() => {
@@ -100,16 +100,16 @@
 			{/each}
 		</div>
 
-		<br />
 		{#if error.error}
+			<br />
 			<span class="error">
 				{error.error}
 			</span>
 			<br />
-			<br />
 		{/if}
 
 		{#if unused.length > 0}
+			<br />
 			<div class="line">
 				<Button
 					on:click={() => {
@@ -131,7 +131,7 @@
 
 <Card>
 	<div class="title">
-		Users ({users.length})
+		User{users.length > 1 ? 's' : ''} ({users.length})
 		<ButtonFold
 			open={open_users}
 			on:click={() => {
@@ -156,7 +156,7 @@
 
 <Card>
 	<div class="title">
-		Items ({items.length})
+		Item{items.length > 1 ? 's' : ''} ({items.length})
 		<ButtonFold
 			open={open_items}
 			on:click={() => {
@@ -181,7 +181,7 @@
 
 <Card>
 	<div class="title">
-		Adverts ({adverts.length})
+		Advert{adverts.length > 1 ? 's' : ''} ({adverts.length})
 		<ButtonFold
 			open={open_adverts}
 			on:click={() => {
@@ -214,11 +214,10 @@
 
 	.line {
 		display: flex;
-		gap: var(--sp0);
+		gap: var(--sp1);
 	}
 
 	.unused {
-		line-height: 0;
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);

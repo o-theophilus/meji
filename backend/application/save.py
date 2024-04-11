@@ -51,7 +51,6 @@ def get():
     if "search" in request.args:
         search = request.args["search"].strip()
 
-    # TODO: handle save when item not "live"
     cur.execute("""
         SELECT
             item.*,

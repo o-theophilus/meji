@@ -35,4 +35,7 @@
 </select>
 
 <style>
+	select{
+		width: min-content;
+	}
 </style>

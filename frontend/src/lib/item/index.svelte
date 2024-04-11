@@ -74,8 +74,8 @@
 		color: var(--ac1);
 	}
 
-	.img {
-		font-size: 0;
+	a.img {
+		line-height: 0;
 	}
 
 	img {

@@ -55,10 +55,7 @@
 				message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 			};
 		} else {
-			$toast = {
-				status: 400,
-				message: resp.error
-			};
+			error = resp;
 		}
 	};
 </script>
@@ -68,13 +65,17 @@
 		<b>Change Quantity</b>
 	</svelte:fragment>
 
-	<div class="property">
-		<span class="bold"> Price </span>
-		₦{item.price.toLocaleString()} per item
-
+	<span class="bold">Price</span> : ₦{item.price.toLocaleString()}
+	{#if item.quantity > 1}
+		per item
 		<br />
-		<br />
+		<span class="bold"> Total </span> : ₦{(item.price * item.quantity).toLocaleString()}
+	{/if}
 
+	<br />
+	<br />
+
+	<div class="quantity">
 		<span class="bold"> quantity </span>
 		<Quantity
 			quantity={item.quantity}
@@ -83,38 +84,32 @@
 				item.quantity = e.detail.quantity;
 			}}
 		/>
-
-		<br />
-
-		{#if item.quantity > 1}
-			<span class="bold"> Total </span>
-			₦{(item.price * item.quantity).toLocaleString()}
-		{/if}
-
-		{#if error.quantity}
-			<p class="error">
-				{error.quantity}
-			</p>
-		{/if}
 	</div>
 
-	<!-- {#if error.error}
+	{#if error.quantity}
+		<br />
+		<p class="error">
+			{error.quantity}
+		</p>
+	{/if}
+
+	{#if error.error}
+		<br />
 		<p class="error">
 			{error.error}
 		</p>
-	{/if} -->
+	{/if}
 
 	<br />
 
 	<div class="line">
-		{#if item.quantity > 0}
-			<Button
-				class="primary"
-				on:click={() => {
-					submit(item.quantity);
-				}}>Ok</Button
-			>
-		{/if}
+		<Button
+			disabled={item.quantity == 0}
+			class="primary"
+			on:click={() => {
+				submit(item.quantity);
+			}}>Ok</Button
+		>
 
 		<Button
 			class="hover_red"
@@ -126,11 +121,10 @@
 </Form>
 
 <style>
-	.property {
+	.quantity {
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp1);
-
 		color: var(--ac1);
 	}
 

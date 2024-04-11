@@ -102,6 +102,7 @@
 		flex-direction: column;
 		gap: var(--sp1);
 	}
+
 	.line {
 		display: flex;
 		gap: var(--sp1);
