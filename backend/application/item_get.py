@@ -537,7 +537,7 @@ def shop(order="latest", page_size=24):
 
 @bp.get("/home")
 def home():
-    # TODO: pass cur
+    # TODO: pass cur into functions
     return jsonify({
         "status": 200,
         "tags": all_tags().json["tags"],
