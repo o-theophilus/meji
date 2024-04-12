@@ -4,16 +4,17 @@
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Quantity from './quantity.svelte';
+	import Number from '$lib/number.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 	import SVG from '$lib/svg.svelte';
+	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
 	let { variation } = item;
 
-	let error = {};
 	let vars_ = {};
 	let quantity = 1;
+	let error = {};
 
 	const validate = () => {
 		error = {};
@@ -51,7 +52,7 @@
 		});
 		resp = await resp.json();
 		$loading = false;
-		
+
 		if (resp.status == 200) {
 			$user.cart = resp.user.cart;
 
@@ -60,7 +61,6 @@
 				status: 200,
 				message: `${item.name} added to cart`
 			};
-			
 		} else {
 			$toast = {
 				status: 400,
@@ -76,12 +76,9 @@
 	</svelte:fragment>
 
 	{#each Object.entries(variation) as [key, values]}
-		<div class="property">
-			<span class="bold">{key}</span>
-
+		<IG name={key} {error}>
 			<div class="value_row">
-				{#each values as value, i}
-					<!-- {#if i != 0}, &nbsp; {/if} -->
+				{#each values as value}
 					<Value
 						button
 						active={vars_[key] == value}
@@ -92,31 +89,12 @@
 					/>
 				{/each}
 			</div>
-
-			{#if error[key]}
-				<p class="error">
-					{error[key]}
-				</p>
-			{/if}
-		</div>
-		<br />
+		</IG>
 	{/each}
 
-	<div class="property">
-		<span class="bold"> quantity </span>
-		<Quantity
-			quantity={1}
-			on:done={(e) => {
-				quantity = e.detail.quantity || 1;
-			}}
-		/>
-
-		{#if error.quantity}
-			<p class="error">
-				{error.quantity}
-			</p>
-		{/if}
-	</div>
+	<IG name="quantity" {error} let:id>
+		<Number bind:value={quantity} {id} />
+	</IG>
 
 	<br />
 
@@ -132,19 +110,6 @@
 </Form>
 
 <style>
-	.property {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp1);
-
-		color: var(--ac1);
-	}
-
-	.bold {
-		font-weight: 700;
-		text-transform: capitalize;
-	}
-
 	.value_row {
 		display: flex;
 		flex-wrap: wrap;

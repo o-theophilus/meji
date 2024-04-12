@@ -1,6 +1,6 @@
 <script>
-	import { portal, loading, module, toast, user } from '$lib/store.js';
-	import { token } from '$lib/cookie.js';
+	import { portal, module, user } from '$lib/store.js';
+	import Datetime from '$lib/datetime.svelte';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -9,43 +9,29 @@
 	import Center from '$lib/center.svelte';
 	import Logs from './logs.svelte';
 	import Activate from './_activate.svelte';
+	import Status from './_status.svelte';
 	import Back from '$lib/button.back.svelte';
 
 	export let data;
 	let { voucher } = data;
+
+	let { logs } = data;
 	let error = {};
 
-	$: if ($portal && $portal.type == 'voucher') {
-		voucher = $portal.data;
+	$: if ($portal) {
+		if ($portal.voucher) {
+			voucher = $portal.voucher;
+		}
+		if ($portal.logs) {
+			logs = $portal.logs;
+		}
 		$portal = '';
 	}
 
-	const submit = async (status) => {
-		error = {};
-		$loading = `${status == 'delete' ? 'deleting' : 'deactivating'} . . .`;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/voucher/status/${voucher.key}`, {
-			method: 'put',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: $token
-			},
-			body: JSON.stringify({ status })
-		});
-
-		resp = await resp.json();
-		$loading = false;
-
-		if (resp.status == 200) {
-			voucher = resp.voucher;
-			$module = '';
-			$toast = {
-				status: 200,
-				message: 'Voucher status changed'
-			};
-		} else {
-			error = resp;
-		}
-	};
+	$: if (voucher.validity) {
+		voucher.validity = new Date(voucher.validity);
+		voucher.validity.setDate(voucher.validity.getDate() - 1);
+	}
 </script>
 
 <Meta title="Manage Voucher" />
@@ -62,12 +48,8 @@
 </Center>
 
 <Card>
-	<span class="date">
-		{voucher.date}
-	</span>
-
+	<Datetime datetime={voucher.date} style="1" />
 	<br />
-
 	{voucher.key}
 
 	<br />
@@ -82,44 +64,54 @@
 
 	<br />
 
-	Status: {voucher.status}
+	Status: <span class="status"> {voucher.status}</span>
 	{#if voucher.validity}
 		<br />
-		Validity: {voucher.validity}
+		Validity:
+		<Datetime datetime={voucher.validity} no_time />
 	{/if}
 
 	{#if $user.permissions.includes('voucher:status')}
-		{#if ['active', 'inactive'].includes(voucher.status)}
+		{#if ['created', 'activated', 'deactivated'].includes(voucher.status)}
 			<br />
 			<br />
 		{/if}
 
 		<div class="horizontal">
-			{#if voucher.status == 'inactive'}
+			{#if ['created', 'deactivated'].includes(voucher.status)}
 				<Button
 					on:click={() => {
 						$module = {
 							module: Activate,
-							voucher
+							key: voucher.key
 						};
 					}}
 				>
 					Activate
 				</Button>
+
 				<Button
 					on:click={() => {
-						submit('delete');
+						$module = {
+							module: Status,
+							key: voucher.key,
+							status: 'deleted'
+						};
 					}}
 				>
 					delete
 				</Button>
-			{:else if voucher.status == 'active'}
+			{:else if voucher.status == 'activated'}
 				<Button
 					on:click={() => {
-						submit('deactivate');
+						$module = {
+							module: Status,
+							key: voucher.key,
+							status: 'deactivated'
+						};
 					}}
 				>
-					deactivate
+					Deactivate
 				</Button>
 			{/if}
 		</div>
@@ -132,9 +124,7 @@
 </Card>
 
 {#if $user.permissions.includes('log:view')}
-	{#key `${voucher.key}_${voucher.status}`}
-		<Logs voucher_key={voucher.key} />
-	{/key}
+	<Logs {logs} voucher_key={voucher['key']} />
 {/if}
 
 <style>
@@ -153,8 +143,7 @@
 		color: var(--ac1);
 	}
 
-	.date {
-		font-size: smaller;
-		color: var(--ac3);
+	.status {
+		text-transform: capitalize;
 	}
 </style>

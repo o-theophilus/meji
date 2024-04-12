@@ -70,7 +70,7 @@ def log(
 
 
 @bp.get("/log")
-def get():
+def get_many():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -163,3 +163,18 @@ def search_query(cur):
             actions[x["entity_type"]] = ["all", x["action"]]
 
     return actions
+
+
+def get_voucher_log(cur, voucher_key):
+    cur.execute("""
+        SELECT
+            log.*,
+            "user".name AS user_name,
+            log.entity_key AS entity_name
+        FROM log
+        LEFT JOIN "user" ON log.user_key = "user".key
+        WHERE log.entity_key = %s
+        ORDER BY log.date DESC
+        LIMIT 10;
+    """, (voucher_key,))
+    return cur.fetchall()

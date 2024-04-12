@@ -4,7 +4,8 @@
 
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
-	import Quantity from '$lib/item/quantity.svelte';
+	import Number from '$lib/number.svelte';
+	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
 
@@ -65,33 +66,21 @@
 		<b>Change Quantity</b>
 	</svelte:fragment>
 
-	<span class="bold">Price</span> : ₦{item.price.toLocaleString()}
-	{#if item.quantity > 1}
-		per item
+	{#if item.quantity > 0}
+		<span class="bold">Price</span> : ₦{item.price.toLocaleString()}
+		{#if item.quantity > 1}
+			per item
+			<br />
+			<span class="bold"> Total </span> : ₦{(item.price * item.quantity).toLocaleString()}
+		{/if}
+
 		<br />
-		<span class="bold"> Total </span> : ₦{(item.price * item.quantity).toLocaleString()}
+		<br />
 	{/if}
 
-	<br />
-	<br />
-
-	<div class="quantity">
-		<span class="bold"> quantity </span>
-		<Quantity
-			quantity={item.quantity}
-			min={0}
-			on:done={(e) => {
-				item.quantity = e.detail.quantity;
-			}}
-		/>
-	</div>
-
-	{#if error.quantity}
-		<br />
-		<p class="error">
-			{error.quantity}
-		</p>
-	{/if}
+	<IG name="quantity" {error} let:id>
+		<Number bind:value={item.quantity} {id} min={0} />
+	</IG>
 
 	{#if error.error}
 		<br />
@@ -121,13 +110,6 @@
 </Form>
 
 <style>
-	.quantity {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp1);
-		color: var(--ac1);
-	}
-
 	.bold {
 		font-weight: 700;
 		text-transform: capitalize;

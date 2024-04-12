@@ -2,6 +2,8 @@
 	import { user } from '$lib/store.js';
 	import { createEventDispatcher } from 'svelte';
 
+	import Datetime from '$lib/datetime.svelte';
+
 	let emit = createEventDispatcher();
 	export let log;
 
@@ -28,9 +30,8 @@
 		class:caution={![200, 400].includes(log.status)}
 		class:error={log.status == 400}
 	/>
-	<span class="date">
-		{log.date.split('T').join(' ')}
-	</span>
+
+	<Datetime datetime={log.date} style="1" />
 	<br />
 
 	<a href="/profile?search={log.user_key}">
@@ -72,7 +73,12 @@
 	{#if log.misc}
 		<br />
 		{#each Object.entries(log.misc) as [key, value]}
-			{key}: {value}
+			{key}:
+			{#if log.entity_type == 'voucher' && key == 'validity'}
+				<Datetime datetime={value} no_time />
+			{:else}
+				{value}
+			{/if}
 			<br />
 		{/each}
 	{/if}
@@ -103,15 +109,6 @@
 	}
 	.error {
 		background-color: var(--cl4);
-	}
-
-	/* .bold {
-		font-weight: 700;
-	} */
-
-	.date {
-		font-size: smaller;
-		color: var(--ac3);
 	}
 
 	a {

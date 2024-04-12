@@ -40,7 +40,6 @@
 		<br /> TODO:
 		<br />
 		<br /> [ - ] fix cron
-		<br /> [ - ] make order and voucher date time uniform
 		<br /> [ - ] better page meta descriptions
 		<br />
 		<br /> [ - ] how changing status and price of items affect save, advert and cart

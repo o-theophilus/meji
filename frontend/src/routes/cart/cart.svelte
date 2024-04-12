@@ -9,7 +9,6 @@
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import Quantity from '../../lib/item/quantity.svelte';
 
 	let emit = createEventDispatcher();
 

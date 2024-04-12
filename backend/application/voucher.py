@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request
 from .tools import token_to_user, user_schema
 from uuid import uuid4
 from math import ceil
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from .postgres import db_close, db_open
-from .log import log
+from .log import log, get_voucher_log
 
 bp = Blueprint("voucher", __name__)
 
@@ -167,7 +167,8 @@ def get_many():
         "status": 200,
         "vouchers": vouchers,
         "order_by": list(order_by.keys()),
-        "voucher_status": ['inactive', 'active', 'used', 'expired'],
+        "voucher_status": ["created", 'activated', "deactivated",
+                           'used', 'deleted', 'expired'],
         "total_page": ceil(vouchers[0][
             "total_items"] / page_size) if vouchers else 0
     }
@@ -211,10 +212,15 @@ def get(key):
     if "voucher:view_pin" not in user["permissions"]:
         voucher["pin"] = "#"
 
+    logs = []
+    if "log:view" in user["permissions"]:
+        logs = get_voucher_log(cur, voucher["key"])
+
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "voucher": voucher,
+        "logs": logs
     })
 
 
@@ -244,31 +250,22 @@ def activate(key):
             "error": "this field is required"
         })
 
-    validity = request.json["validity"]
-
     if (
-        len(validity) != 10
-        or validity[4] != validity[7] != '-'
-        or not validity[:4].isdigit()
-        or not validity[5:7].isdigit()
-        or not validity[8:].isdigit()
+        type(request.json["validity"]) is not int
+        or request.json["validity"] < 1
     ):
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "invalid date format"
+            "error": "please enter a valid number"
         })
 
-    if datetime.strptime(validity, '%Y-%m-%d').date() < date.today():
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": 'cannot be back dated'
-        })
+    validity = datetime.now() + timedelta(days=request.json["validity"])
+    validity = validity.replace(hour=23, minute=59, second=59, microsecond=999)
 
     cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
     voucher = cur.fetchone()
-    if not voucher or voucher["status"] != "inactive":
+    if not voucher or voucher["status"] not in ["created", "deactivated"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -277,7 +274,7 @@ def activate(key):
 
     cur.execute("""
         UPDATE voucher
-        SET status = 'active', validity = %s
+        SET status = 'activated', validity = %s
         WHERE key = %s;
     """, (
         validity,
@@ -289,9 +286,9 @@ def activate(key):
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
         WHERE
-            voucher.key = %s;
+            voucher.key = %s
             AND log.action = 'created'
-            AND log.entity_type = 'voucher'
+            AND log.entity_type = 'voucher';
     """, (voucher["key"],))
     voucher = cur.fetchone()
 
@@ -304,13 +301,18 @@ def activate(key):
         action="activated",
         entity_key=voucher["key"],
         entity_type="voucher",
-        misc={"validity": validity}
+        misc={"validity": f"{validity}"}
     )
+
+    logs = []
+    if "log:view" in user["permissions"]:
+        logs = get_voucher_log(cur, voucher["key"])
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "voucher": voucher
+        "voucher": voucher,
+        "logs": logs
     })
 
 
@@ -333,20 +335,27 @@ def status(key):
             "error": "unauthorized access"
         })
 
+    if "note" not in request.json or not request.json["note"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "this field is required"
+        })
+
     cur.execute('SELECT * FROM voucher WHERE key = %s;', (key,))
     voucher = cur.fetchone()
 
     if (
         not voucher
         or "status" not in request.json
-        or request.json["status"] not in ["deactivate", "delete"]
+        or request.json["status"] not in ["deactivated", "deleted"]
         or (
-            request.json["status"] == "deactivate"
-            and voucher["status"] != "active"
+            request.json["status"] == "deactivated"
+            and voucher["status"] != "activated"
         )
         or (
-            request.json["status"] == "delete"
-            and voucher["status"] != "inactive"
+            request.json["status"] == "deleted"
+            and voucher["status"] not in ["created", "deactivated"]
         )
     ):
         db_close(con, cur)
@@ -360,7 +369,7 @@ def status(key):
         SET status = %s, validity = NULL
         WHERE key = %s;
     """, (
-        "deleted" if request.json["status"] == "delete" else "inactive",
+        request.json["status"],
         voucher["key"]
     ))
 
@@ -369,9 +378,9 @@ def status(key):
         FROM voucher
         LEFT JOIN log ON voucher.key = log.entity_key
         WHERE
-            voucher.key = %s;
+            voucher.key = %s
             AND log.action = 'created'
-            AND log.entity_type = 'voucher'
+            AND log.entity_type = 'voucher';
     """, (voucher["key"],))
     voucher = cur.fetchone()
 
@@ -381,15 +390,21 @@ def status(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="deactivated",
+        action=request.json["status"],
         entity_key=voucher["key"],
-        entity_type="voucher"
+        entity_type="voucher",
+        misc={"note": request.json["note"]}
     )
+
+    logs = []
+    if "log:view" in user["permissions"]:
+        logs = get_voucher_log(cur, voucher["key"])
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "voucher": voucher
+        "voucher": voucher,
+        "logs": logs
     })
 
 

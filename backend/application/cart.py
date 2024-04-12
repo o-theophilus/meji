@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, now, user_schema
+from .tools import token_to_user, user_schema
 from uuid import uuid4
 from .postgres import db_close, db_open
 import json
@@ -220,8 +220,6 @@ def get():
                 RETURNING *;
             """, (cart["key"],))
             cart = cur.fetchone()
-
-        cart["delivery_date"] = f"{now(4).split('T')[0]}T10:00"
 
         cur.execute("""
             SELECT

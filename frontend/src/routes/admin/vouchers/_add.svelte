@@ -5,7 +5,7 @@
 	import Form from '$lib/form.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
-	import Quantity from '$lib/item/quantity.svelte';
+	import Quantity from '$lib/number.svelte';
 
 	let form = {
 		quantity: 1
@@ -15,7 +15,7 @@
 	const validate = async () => {
 		error = {};
 
-		if (form.value && (!Number.isFinite(form.value) || form.value <= 0)) {
+		if (!form.value || !Number.isFinite(form.value) || form.value <= 0) {
 			error.value = 'please enter a valid value';
 		}
 
@@ -54,20 +54,13 @@
 <Form>
 	<svelte:fragment slot="title">
 		<b>Add Voucher</b>
-		Add a new Voucher
 	</svelte:fragment>
 
 	<IG name="value" {error} bind:value={form.value} type="number" placeholder="Value here" />
-
 	<IG name="quantity" {error} let:id>
-		<Quantity
-			quantity={1}
-			{id}
-			on:done={(e) => {
-				form.quantity = e.detail.quantity || 1;
-			}}
-		/>
+		<Quantity bind:value={form.quantity} {id} />
 	</IG>
+
 	{#if error.error}
 		<p class="error">
 			{error.error}

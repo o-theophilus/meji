@@ -20,7 +20,6 @@
 	let { order } = data;
 	let { items } = data;
 	let { order_status } = data;
-	let date_time = order.delivery_date.split('T');
 
 	$: if ($portal && $portal.type == 'order') {
 		order = $portal.data;
@@ -75,9 +74,7 @@
 						on:click={() => {
 							$module = {
 								module: Form,
-								key: order.key,
-								date: date_time[0],
-								time: date_time[1]
+								order
 							};
 						}}
 					>

@@ -2,40 +2,39 @@
 	import { days, months, ordinal_suffix_of } from '$lib/store.js';
 
 	export let order;
-	let date_time, dt, period_of_day;
 
-	$: {
-		date_time = order.delivery_date.split('T');
-		dt = new Date(date_time[0]);
-
-		let hour = parseInt(date_time[1].split(':')[0]);
-		if (hour < 12) {
-			period_of_day = 'Morning';
-		} else if (hour < 16) {
-			period_of_day = 'Afternoon';
-		} else {
-			period_of_day = 'Evening';
-		}
+	$: if (order.delivery_date) {
+		order.delivery_date = new Date(order.delivery_date);
+	} else {
+		let temp = new Date();
+		temp.setDate(temp.getDate() + 4);
+		temp.setHours(10, 0, 0, 0);
+		order.delivery_date = temp;
 	}
 </script>
 
 <div class="bold">
 	Estimated time of delivery:
-
 	<slot />
 </div>
 
 <p>
 	To be delivered on or before
 	<span class="bold">
-		{days[dt.getDay()]},
-		{ordinal_suffix_of(dt.getDate())} of
-		{months[dt.getMonth()]}
-		{dt.getFullYear()}
+		{days[order.delivery_date.getDay()]},
+		{ordinal_suffix_of(order.delivery_date.getDate())} of
+		{months[order.delivery_date.getMonth()]}
+		{order.delivery_date.getFullYear()}
 	</span>
 	. Time:
 	<span class="bold">
-		{period_of_day}
+		{#if order.delivery_date.getHours() < 12}
+			Morning
+		{:else if order.delivery_date.getHours() < 16}
+			Afternoon
+		{:else}
+			Evening
+		{/if}
 	</span>.
 </p>
 

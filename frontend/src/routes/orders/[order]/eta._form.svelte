@@ -7,41 +7,38 @@
 	import IG from '$lib/input_group.svelte';
 
 	let today = new Date();
-	today.setHours(0, 0, 0, 0);
-	today.setDate(today.getDate() + 1);
+	today.setHours(10, 0, 0, 0);
+	var year = today.getFullYear();
+	var month = (today.getMonth() + 1).toString().padStart(2, '0');
+	var day = today.getDate().toString().padStart(2, '0');
+	let min = `${year}-${month}-${day}T00:00:00`;
 
-	let min = today.toISOString().split('T')[0];
-
-	let form = {
-		key: $module.key,
-		date: $module.date,
-		time: $module.time
-	};
+	var year = $module.order.delivery_date.getFullYear();
+	var month = ($module.order.delivery_date.getMonth() + 1).toString().padStart(2, '0');
+	var day = $module.order.delivery_date.getDate().toString().padStart(2, '0');
+	var hours = $module.order.delivery_date.getHours().toString().padStart(2, '0');
+	var minutes = $module.order.delivery_date.getMinutes().toString().padStart(2, '0');
+	var seconds = $module.order.delivery_date.getSeconds().toString().padStart(2, '0');
+	let delivery_date = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 	let error = {};
 
 	const validate = async () => {
 		error = {};
-
-		if (!form.date) {
+		if (!delivery_date) {
 			error.date = 'This field is required';
 		}
-
-		if (!form.time) {
-			error.time = 'This field is required';
-		}
-
 		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
 		$loading = 'loading . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/eta/${form.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/eta/${$module.order.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(form)
+			body: JSON.stringify({ delivery_date })
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -67,8 +64,14 @@
 		<b>Set Delivery date and time</b>
 	</svelte:fragment>
 
-	<IG name="date" {error} bind:value={form.date} type="date" {min} placeholder="date here" />
-	<IG name="time" {error} bind:value={form.time} type="time" {min} placeholder="time here" />
+	<IG
+		name="date"
+		{error}
+		bind:value={delivery_date}
+		type="datetime"
+		{min}
+		placeholder="date here"
+	/>
 
 	{#if error.error}
 		<p class="error">

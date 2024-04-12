@@ -144,7 +144,7 @@ def cron():
     })
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def fix():
     con, cur = db_open()
 
@@ -188,9 +188,14 @@ def fix():
     #     SET discount_time = 'TRUE';
     # """)
 
-    # cur.execute("""
-    #     DELETE FROM log WHERE entity_type='user' AND action = 'viewed';
-    # """)
+    cur.execute("""
+        ALTER TABLE voucher
+        ALTER COLUMN status SET DEFAULT 'created';
+
+        DELETE FROM voucher;
+
+        DELETE FROM log WHERE entity_type='voucher';
+    """)
 
     db_close(con, cur)
     return jsonify({

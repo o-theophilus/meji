@@ -3,7 +3,6 @@ from .tools import token_to_user, send_mail, now, user_schema
 import requests
 import os
 from .postgres import db_close, db_open
-from datetime import datetime
 from math import ceil
 from .log import log
 
@@ -308,12 +307,6 @@ def get(key):
             "error": "invalid request"
         })
 
-    order["delivery_date"] = (
-        str(order["delivery_date"]).replace(" ", "T")
-        if order["delivery_date"] else
-        f"{now(4).split('T')[0]}T10:00"
-    )
-
     for x in items:
         x["photo"] = f"{request.host_url}photo/{x['photo']}"
 
@@ -355,19 +348,14 @@ def date(key):
             "error": "invalid request"
         })
 
-    error = {}
-
-    if "date" not in request.json or not request.json["date"]:
-        error["date"] = "this field is required"
-
-    if "time" not in request.json or not request.json["time"]:
-        error["time"] = "this field is required"
-
-    if error != {}:
+    if (
+        "delivery_date" not in request.json
+        or not request.json["delivery_date"]
+    ):
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            **error
+            "error": "this field is required"
         })
 
     log(
@@ -377,8 +365,8 @@ def date(key):
         entity_key=order["key"],
         entity_type="order",
         misc={
-            "from": str(order["delivery_date"]).replace(" ", "T"),
-            "to": f"{request.json['date']}T{request.json['time']}"
+            "from": f"{order['delivery_date']}",
+            "to": request.json['delivery_date']
         }
     )
 
@@ -388,14 +376,11 @@ def date(key):
         WHERE key = %s
         RETURNING *;
     """, (
-        datetime.strptime(
-            f"{request.json['date']}T{request.json['time']}",
-            "%Y-%m-%dT%H:%M"
-        ),
-        key
+        request.json['delivery_date'],
+        order["key"]
     ))
     order = cur.fetchone()
-    order["delivery_date"] = str(order["delivery_date"]).replace(" ", "T")
+    print(order)
 
     db_close(con, cur)
     return jsonify({
@@ -423,8 +408,6 @@ def status(key):
             "error": "unauthorized access"
         })
 
-    status = ['created', 'processing', 'enroute', 'delivered']
-
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
 
@@ -439,7 +422,7 @@ def status(key):
         not order or not order_user
         or "status" not in request.json
         or not request.json["status"]
-        or request.json["status"] not in status
+        or request.json["status"] not in order_status[:-1]
         or "email_template" not in request.json
         or order["status"] in ["delivered", "canceled"]
     ):
@@ -449,8 +432,8 @@ def status(key):
             "error": "invalid request"
         })
 
-    i = status.index(order["status"])
-    j = status.index(request.json["status"])
+    i = order_status.index(order["status"])
+    j = order_status.index(request.json["status"])
     if i + 1 != j and i - 1 != j:
         db_close(con, cur)
         return jsonify({
@@ -464,6 +447,39 @@ def status(key):
             "status": 400,
             "note": "this field is required"
         })
+
+    if (
+        (
+            not order["delivery_date"]
+            and order["status"] == "created"
+        ) or (
+            order["status"] == "processing"
+            and request.json['status'] == "created"
+        )
+    ):
+        new_date = None if order[
+            "delivery_date"] else f"{now(4).split('T')[0]}T10:00"
+
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="changed_date",
+            entity_key=order["key"],
+            entity_type="order",
+            misc={
+                "from": order["delivery_date"],
+                "to": new_date
+            }
+        )
+
+        cur.execute("""
+            UPDATE "order"
+            SET delivery_date = %s
+            WHERE key = %s;
+        """, (
+            new_date,
+            order["key"]
+        ))
 
     log(
         cur=cur,
@@ -485,7 +501,7 @@ def status(key):
         RETURNING *;
     """, (
         request.json["status"],
-        key
+        order["key"]
     ))
     order = cur.fetchone()
 

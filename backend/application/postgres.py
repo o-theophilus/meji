@@ -133,7 +133,7 @@ voucher_table = """CREATE TABLE IF NOT EXISTS voucher (
     key CHAR(32) PRIMARY KEY,
     version CHAR(32) NOT NULL,
     batch CHAR(32),
-    status VARCHAR(20) DEFAULT 'inactive' NOT NULL,
+    status VARCHAR(20) DEFAULT 'created' NOT NULL,
 
     pin VARCHAR(10) NOT NULL,
     value FLOAT DEFAULT 0,
