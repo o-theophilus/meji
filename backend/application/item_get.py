@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from math import ceil
-from .advert import get_many
-from .feedback import get_feedbacks
+from .advert import get_many as get_many_advert
+from .feedback import get_many as get_many_feedback
 import re
 from .postgres import db_close, db_open
 
@@ -10,8 +10,69 @@ from .postgres import db_close, db_open
 bp = Blueprint("item_get", __name__)
 
 
+@bp.get("/tag")
+def all_tags():
+    con, cur = db_open()
+
+    cur.execute("SELECT tags FROM item WHERE status = 'live';")
+    temp = cur.fetchall()
+
+    tags = []
+    for x in temp:
+        tags += x["tags"]
+
+    tags_count = []
+    unique_tags = []
+    for x in tags:
+        if x not in unique_tags:
+            unique_tags.append(x)
+            tags_count.append({
+                "tag":  x,
+                "count":  tags.count(x)
+            })
+
+    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "tags": [x["tag"] for x in tags_count]
+    })
+
+
 def recently_viewed(cur, user_key, item_key):
     cur.execute("""
+        WITH
+            item_sub AS (
+                SELECT
+                    DISTINCT ON (log.entity_key) log.entity_key AS key,
+                    (log.misc->>'price')::float AS old_price,
+                    log.date
+                FROM log
+                LEFT JOIN item ON item.key = log.entity_key
+                WHERE
+                    log.action = 'edited'
+                    AND log.entity_type = 'item'
+                    AND (log.misc->>'price')::float > item.price
+                ORDER BY log.entity_key, log.date DESC
+            ),
+
+            item AS (
+                SELECT
+                    DISTINCT ON (item.key) item.*,
+                    log.date AS date
+                FROM item
+                LEFT JOIN log ON item.key = log.entity_key
+                WHERE
+                    item.status = 'live'
+                    AND log.user_key = %s
+                    AND log.action = 'viewed'
+                    AND log.entity_type = 'item'
+                    AND log.entity_key != %s
+                GROUP BY item.key, log.date
+                ORDER BY item.key, log.date DESC
+            )
+
         SELECT
             item.*,
             CASE
@@ -24,34 +85,8 @@ def recently_viewed(cur, user_key, item_key):
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
-        FROM (
-            SELECT
-                DISTINCT ON (item.key) item.*,
-                log.date AS date
-            FROM item
-            LEFT JOIN log ON item.key = log.entity_key
-            WHERE
-                item.status = 'live'
-                AND log.user_key = %s
-                AND log.action = 'viewed'
-                AND log.entity_type = 'item'
-                AND log.entity_key != %s
-            GROUP BY item.key, log.date
-            ORDER BY item.key, log.date DESC
-        ) as item
-        LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price,
-                log.date
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
+        FROM item
+        LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         GROUP BY
             item.date, item.key, item.status, item.name, item.slug, item.price,
@@ -63,44 +98,12 @@ def recently_viewed(cur, user_key, item_key):
         ;
     """, (user_key, item_key))
     items = cur.fetchall()
-
     return [item_schema(x) for x in items]
 
 
-def similar_items(cur, item_key):
+def customer_view(cur, user_key, item_key):
     cur.execute("""
-        SELECT *
-        FROM item
-        WHERE key = %s OR slug = %s
-    """, (item_key, item_key))
-    item = cur.fetchone()
-
-    if not item:
-        return []
-
-    item_keywords = list(set(
-        item["tags"] + re.split(r'\s+', item["name"].lower())))
-
-    cur.execute("""
-        SELECT
-            item.*,
-            CASE
-                WHEN item.show_discount = 'true' THEN item_sub.old_price
-                WHEN item.show_discount = 'false' THEN NULL
-                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
-                ELSE item_sub.old_price
-            END AS old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
-            (
-                SELECT COUNT(*)
-                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
-                WHERE tag_or_name = ANY(%s)
-            ) AS likeness
-        FROM item
-        LEFT JOIN (
+        WITH item_sub AS (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
                 (log.misc->>'price')::float AS old_price,
@@ -112,20 +115,8 @@ def similar_items(cur, item_key):
                 AND log.entity_type = 'item'
                 AND (log.misc->>'price')::float > item.price
             ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.status = 'live' AND item.key != %s
-        GROUP BY item.key, item_sub.old_price, item_sub.date
-        ORDER BY likeness DESC
-        LIMIT 8 OFFSET 0;
-    """, (item_keywords, item["key"]))
-    items = cur.fetchall()
+        )
 
-    return [item_schema(x) for x in items]
-
-
-def customer_view(cur, user_key, item_key):
-    cur.execute("""
         SELECT
             item.*,
             CASE
@@ -140,19 +131,7 @@ def customer_view(cur, user_key, item_key):
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
         FROM item
-         LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price,
-                log.date
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
+        LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN log ON item.key = log.entity_key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
@@ -194,11 +173,80 @@ def customer_view(cur, user_key, item_key):
         })
 
     item_count = sorted(item_count, key=lambda d: d["count"], reverse=True)
-
     return [item_schema(x["item"]) for x in item_count]
 
 
-# TODO: fix error
+def similar_items(cur, item_key):
+    cur.execute("""
+        SELECT *
+        FROM item
+        WHERE key = %s OR slug = %s
+    """, (item_key, item_key))
+    item = cur.fetchone()
+
+    if not item:
+        return []
+
+    keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
+
+    cur.execute("""
+        WITH
+            likeness AS (
+                SELECT
+                    item.key,
+                    (
+                        SELECT COUNT(*)
+                        FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tn
+                        WHERE tn = ANY(%s)
+                    ) AS likeness
+                FROM item
+            ),
+
+            item_sub AS (
+                SELECT
+                    DISTINCT ON (log.entity_key) log.entity_key AS key,
+                    (log.misc->>'price')::float AS old_price,
+                    log.date
+                FROM log
+                LEFT JOIN item ON item.key = log.entity_key
+                WHERE
+                    log.action = 'edited'
+                    AND log.entity_type = 'item'
+                    AND (log.misc->>'price')::float > item.price
+                ORDER BY log.entity_key, log.date DESC
+            )
+
+        SELECT
+            item.*,
+            CASE
+                WHEN item.show_discount = 'true' THEN item_sub.old_price
+                WHEN item.show_discount = 'false' THEN NULL
+                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
+                ELSE item_sub.old_price
+            END AS old_price,
+            CASE
+                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
+                ELSE ARRAY_AGG(feedback.rating)
+            END AS ratings,
+            likeness.likeness
+        FROM item
+        LEFT JOIN item_sub ON item.key = item_sub.key
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        LEFT JOIN likeness ON item.key = likeness.key
+        WHERE
+            item.status = 'live'
+            AND item.key != %s
+            AND likeness.likeness > 0
+        GROUP BY item.key, item_sub.old_price, item_sub.date,
+            likeness.likeness
+        ORDER BY likeness DESC
+        LIMIT 8 OFFSET 0;
+    """, (keywords, item["key"]))
+    items = cur.fetchall()
+    return [item_schema(x) for x in items]
+
+
 def recommended(cur, user_key, item_key=None):
     cur.execute("""
         SELECT item.key, item.name, item.tags
@@ -224,6 +272,32 @@ def recommended(cur, user_key, item_key=None):
         item_keys.append(x["key"])
 
     cur.execute("""
+        WITH
+            likeness AS (
+                SELECT
+                    item.key,
+                    (
+                        SELECT COUNT(*)
+                        FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tn
+                        WHERE tn = ANY(%s)
+                    ) AS likeness
+                FROM item
+            ),
+
+            item_sub AS (
+                SELECT
+                    DISTINCT ON (log.entity_key) log.entity_key AS key,
+                    (log.misc->>'price')::float AS old_price,
+                    log.date
+                FROM log
+                LEFT JOIN item ON item.key = log.entity_key
+                WHERE
+                    log.action = 'edited'
+                    AND log.entity_type = 'item'
+                    AND (log.misc->>'price')::float > item.price
+                ORDER BY log.entity_key, log.date DESC
+            )
+
         SELECT
             item.*,
             CASE
@@ -236,13 +310,30 @@ def recommended(cur, user_key, item_key=None):
                 WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings,
-            (
-                SELECT COUNT(*)
-                FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tag_or_name
-                WHERE tag_or_name = ANY(%s)
-            ) AS likeness
+            likeness.likeness
         FROM item
-        LEFT JOIN (
+        LEFT JOIN item_sub ON item.key = item_sub.key
+        LEFT JOIN feedback ON item.key = feedback.item_key
+        LEFT JOIN likeness ON item.key = likeness.key
+        WHERE
+            item.status = 'live'
+            AND NOT item.key = ANY(%s)
+            AND likeness.likeness > 0
+        GROUP BY item.key, item_sub.old_price, item_sub.date,
+            likeness.likeness
+        ORDER BY likeness.likeness DESC
+        LIMIT 8 OFFSET 0;
+    """, (
+        keywords,
+        [x for x in item_keys if x]
+    ))
+    items = cur.fetchall()
+    return [item_schema(x) for x in items]
+
+
+def get_item(cur, key):
+    cur.execute("""
+        WITH item_sub AS (
             SELECT
                 DISTINCT ON (log.entity_key) log.entity_key AS key,
                 (log.misc->>'price')::float AS old_price,
@@ -254,55 +345,8 @@ def recommended(cur, user_key, item_key=None):
                 AND log.entity_type = 'item'
                 AND (log.misc->>'price')::float > item.price
             ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE
-            item.status = 'live'
-            AND NOT item.key = ANY(%s)
-        GROUP BY item.key, item_sub.old_price, item_sub.date
-        ORDER BY likeness DESC
-        LIMIT 8 OFFSET 0;
-    """, (
-        keywords,
-        [x for x in item_keys if x]
-    ))
-    items = cur.fetchall()
+        )
 
-    return [item_schema(x) for x in items]
-
-
-@bp.get("/tag")
-def all_tags():
-    con, cur = db_open()
-
-    cur.execute("SELECT tags FROM item WHERE status = 'live';")
-    temp = cur.fetchall()
-
-    tags = []
-    for x in temp:
-        tags += x["tags"]
-
-    tags_count = []
-    unique_tags = []
-    for x in tags:
-        if x not in unique_tags:
-            unique_tags.append(x)
-            tags_count.append({
-                "tag":  x,
-                "count":  tags.count(x)
-            })
-
-    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "tags": [x["tag"] for x in tags_count]
-    })
-
-
-def get_item(cur, key):
-    cur.execute("""
         SELECT
             item.*,
             CASE
@@ -316,19 +360,7 @@ def get_item(cur, key):
                 ELSE ARRAY_AGG(feedback.rating)
             END AS ratings
         FROM item
-        LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price,
-                log.date
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
+        LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.slug = %s or item.key = %s
         GROUP BY item.key, item_sub.old_price, item_sub.date;
@@ -371,15 +403,14 @@ def get(key):
     _similar_items = similar_items(cur, item["key"])
     _customer_view = customer_view(cur, user["key"], item["key"])
     _recommended = recommended(cur, user["key"], item["key"])
-
-    fb = get_feedbacks(user["key"], item["key"]).json
+    _feedbacks = get_many_feedback(user["key"], item["key"]).json
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "item": item_schema(item),
-        "feedbacks": fb["feedbacks"],
-        "give_feedback": fb["give_feedback"],
+        "feedbacks": _feedbacks["feedbacks"],
+        "give_feedback": _feedbacks["give_feedback"],
         "groups": [
             {
                 "name": "Recently Viewed",
@@ -466,6 +497,22 @@ def shop(order="latest", page_size=24):
         """
 
     cur.execute("""
+        WITH item_sub AS (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price,
+                (100 * ((log.misc->>'price')::float - item.price))
+                    / (log.misc->>'price')::float AS discount,
+                log.date
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        )
+
         SELECT
             item.*,
             CASE
@@ -485,21 +532,7 @@ def shop(order="latest", page_size=24):
             END AS ratings,
             COUNT(*) OVER() AS total_items
         FROM item
-        LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price,
-                (100 * ((log.misc->>'price')::float - item.price))
-                    / (log.misc->>'price')::float AS discount,
-                log.date
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
+        LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
         LEFT JOIN log ON item.key = log.entity_key
         WHERE
@@ -537,11 +570,10 @@ def shop(order="latest", page_size=24):
 
 @bp.get("/home")
 def home():
-    # TODO: pass cur into functions
     return jsonify({
         "status": 200,
         "tags": all_tags().json["tags"],
         "new_arrivals": shop(order="latest", page_size=8).json["items"],
         "offers": shop(order="discount", page_size=8).json["items"],
-        "adverts": get_many("live", "home_1").json["adverts"]
+        "adverts": get_many_advert("live", "home_1").json["adverts"]
     })

@@ -52,6 +52,22 @@ def get():
         search = request.args["search"].strip()
 
     cur.execute("""
+        WITH item_sub AS (
+            SELECT
+                DISTINCT ON (log.entity_key) log.entity_key AS key,
+                (log.misc->>'price')::float AS old_price,
+                (100 * ((log.misc->>'price')::float - item.price))
+                    / (log.misc->>'price')::float AS discount,
+                log.date
+            FROM log
+            LEFT JOIN item ON item.key = log.entity_key
+            WHERE
+                log.action = 'edited'
+                AND log.entity_type = 'item'
+                AND (log.misc->>'price')::float > item.price
+            ORDER BY log.entity_key, log.date DESC
+        )
+
         SELECT
             item.*,
             CASE
@@ -71,21 +87,7 @@ def get():
             END AS ratings,
             COUNT(*) OVER() AS total_items
         FROM item
-        LEFT JOIN (
-            SELECT
-                DISTINCT ON (log.entity_key) log.entity_key AS key,
-                (log.misc->>'price')::float AS old_price,
-                (100 * ((log.misc->>'price')::float - item.price))
-                    / (log.misc->>'price')::float AS discount,
-                log.date
-            FROM log
-            LEFT JOIN item ON item.key = log.entity_key
-            WHERE
-                log.action = 'edited'
-                AND log.entity_type = 'item'
-                AND (log.misc->>'price')::float > item.price
-            ORDER BY log.entity_key, log.date DESC
-        ) AS item_sub ON item.key = item_sub.key
+        LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN save ON item.key = save.item_key
         LEFT JOIN log ON item.key = log.entity_key
         LEFT JOIN feedback ON item.key = feedback.item_key

@@ -107,7 +107,6 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			// item = resp.item;
 			init_order = [...resp.item.photos];
 			active_photo = active_photo || item.photos[0];
 			$portal = {

@@ -7,7 +7,7 @@
 	export let list = false;
 </script>
 
-<section class="item" class:list>
+<section class="item" class:list data-sveltekit-preload-data="off">
 	<a class="img" href="/{item.slug}">
 		<img
 			src={item.photos.length > 0 ? `${item.photos[0]}/200` : '/image/item.png'}

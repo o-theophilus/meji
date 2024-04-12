@@ -9,7 +9,7 @@ bp = Blueprint("feedback", __name__)
 
 
 @bp.post("/feedback/<key>")
-def add_feedback(item_key):
+def create(item_key):
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -94,11 +94,11 @@ def add_feedback(item_key):
     )
 
     db_close(con, cur)
-    return get_feedbacks(user["key"], item["key"])
+    return get_many(user["key"], item["key"])
 
 
 @bp.get("/feedback/<user_key>/<item_key>")
-def get_feedbacks(user_key, item_key):
+def get_many(user_key, item_key):
     con, cur = db_open()
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
