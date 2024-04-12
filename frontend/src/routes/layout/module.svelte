@@ -11,17 +11,13 @@
 	<section>
 		<div class="block" transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<div class="content">
-				<div class="close">
-					<Button
-						class="round hover_red"
-						on:keypress
-						on:click={() => {
-							$module = '';
-						}}
-					>
-						<SVG type="close" size="8" />
-					</Button>
-				</div>
+				<button
+					on:click={() => {
+						$module = '';
+					}}
+				>
+					<SVG type="close" size="8" />
+				</button>
 
 				<svelte:component this={$module.module} />
 			</div>
@@ -45,7 +41,6 @@
 
 	.block {
 		margin: auto;
-
 		width: 100%;
 	}
 
@@ -59,9 +54,27 @@
 		box-shadow: var(--shad1);
 	}
 
-	.close {
+	button {
 		position: absolute;
-		top: 2px;
-		right: 2px;
+		top: 0;
+		right: 0;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-shrink: 0;
+
+		--size: 28px;
+		width: var(--size);
+		height: var(--size);
+		border-radius: var(--sp0);
+		border: none;
+
+		background-color: var(--cl1_b);
+		fill: var(--ac6_);
+		cursor: pointer;
+	}
+	button:hover {
+		background-color: var(--cl4);
 	}
 </style>
