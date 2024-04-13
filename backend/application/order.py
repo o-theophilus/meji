@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, send_mail, now, user_schema
+from .tools import token_to_user, send_mail, user_schema
 import requests
 import os
 from .postgres import db_close, db_open
 from math import ceil
 from .log import log
+from datetime import datetime, timedelta
 
 bp = Blueprint("order", __name__)
 
@@ -348,6 +349,7 @@ def date(key):
             "error": "invalid request"
         })
 
+# TODO: make sure delivery_date is datetime
     if (
         "delivery_date" not in request.json
         or not request.json["delivery_date"]
@@ -380,7 +382,6 @@ def date(key):
         order["key"]
     ))
     order = cur.fetchone()
-    print(order)
 
     db_close(con, cur)
     return jsonify({
@@ -457,8 +458,11 @@ def status(key):
             and request.json['status'] == "created"
         )
     ):
-        new_date = None if order[
-            "delivery_date"] else f"{now(4).split('T')[0]}T10:00"
+        new_date = None
+        if not order["delivery_date"]:
+            new_date = datetime.now() + timedelta(days=4)
+            new_date = new_date.replace(
+                hour=10, minute=0, second=0, microsecond=0)
 
         log(
             cur=cur,

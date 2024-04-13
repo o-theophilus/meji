@@ -176,101 +176,7 @@ def customer_view(cur, user_key, item_key):
     return [item_schema(x["item"]) for x in item_count]
 
 
-def similar_items(cur, item_key):
-    cur.execute("""
-        SELECT *
-        FROM item
-        WHERE key = %s OR slug = %s
-    """, (item_key, item_key))
-    item = cur.fetchone()
-
-    if not item:
-        return []
-
-    keywords = list(set(
-        item["tags"] + re.split(r'\s+', item["name"].lower())))
-
-    cur.execute("""
-        WITH
-            likeness AS (
-                SELECT
-                    item.key,
-                    (
-                        SELECT COUNT(*)
-                        FROM unnest(tags || STRING_TO_ARRAY(name, ' ')) AS tn
-                        WHERE tn = ANY(%s)
-                    ) AS likeness
-                FROM item
-            ),
-
-            item_sub AS (
-                SELECT
-                    DISTINCT ON (log.entity_key) log.entity_key AS key,
-                    (log.misc->>'price')::float AS old_price,
-                    log.date
-                FROM log
-                LEFT JOIN item ON item.key = log.entity_key
-                WHERE
-                    log.action = 'edited'
-                    AND log.entity_type = 'item'
-                    AND (log.misc->>'price')::float > item.price
-                ORDER BY log.entity_key, log.date DESC
-            )
-
-        SELECT
-            item.*,
-            CASE
-                WHEN item.show_discount = 'true' THEN item_sub.old_price
-                WHEN item.show_discount = 'false' THEN NULL
-                WHEN item_sub.date > item.show_discount::timestamp THEN NULL
-                ELSE item_sub.old_price
-            END AS old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
-            likeness.likeness
-        FROM item
-        LEFT JOIN item_sub ON item.key = item_sub.key
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        LEFT JOIN likeness ON item.key = likeness.key
-        WHERE
-            item.status = 'live'
-            AND item.key != %s
-            AND likeness.likeness > 0
-        GROUP BY item.key, item_sub.old_price, item_sub.date,
-            likeness.likeness
-        ORDER BY likeness DESC
-        LIMIT 8 OFFSET 0;
-    """, (keywords, item["key"]))
-    items = cur.fetchall()
-    return [item_schema(x) for x in items]
-
-
-def recommended(cur, user_key, item_key=None):
-    cur.execute("""
-        SELECT item.key, item.name, item.tags
-        FROM item
-        LEFT JOIN save ON item.key = save.item_key
-        WHERE save.user_key = %s;
-    """, (user_key,))
-    save_items = cur.fetchall()
-
-    cur.execute("""
-        SELECT item.key, item.name, item.tags
-        FROM item
-        LEFT JOIN order_item ON item.key = order_item.item_key
-        LEFT JOIN "order" ON order_item.order_key = "order".key
-        WHERE "order".user_key = %s;
-    """, (user_key,))
-    order_items = cur.fetchall()
-
-    item_keys = [item_key]
-    keywords = []
-    for x in list(save_items) + list(order_items):
-        keywords += re.split(r'\s+', x["name"].lower()) + x["tags"]
-        item_keys.append(x["key"])
-
+def likeness(cur, item_keys, keywords):
     cur.execute("""
         WITH
             likeness AS (
@@ -321,14 +227,55 @@ def recommended(cur, user_key, item_key=None):
             AND likeness.likeness > 0
         GROUP BY item.key, item_sub.old_price, item_sub.date,
             likeness.likeness
-        ORDER BY likeness.likeness DESC
+        ORDER BY likeness DESC
         LIMIT 8 OFFSET 0;
-    """, (
-        keywords,
-        [x for x in item_keys if x]
-    ))
+    """, (keywords, [x for x in item_keys if x]))
     items = cur.fetchall()
     return [item_schema(x) for x in items]
+
+
+def similar_items(cur, item_key):
+    cur.execute("""
+        SELECT *
+        FROM item
+        WHERE key = %s OR slug = %s
+    """, (item_key, item_key))
+    item = cur.fetchone()
+
+    if not item:
+        return []
+
+    keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
+
+    return likeness(cur, [item_key], keywords)
+
+
+def recommended(cur, user_key, item_key=None):
+    cur.execute("""
+        SELECT item.key, item.name, item.tags
+        FROM item
+        LEFT JOIN save ON item.key = save.item_key
+        WHERE save.user_key = %s;
+    """, (user_key,))
+    save_items = cur.fetchall()
+
+    cur.execute("""
+        SELECT item.key, item.name, item.tags
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        LEFT JOIN "order" ON order_item.order_key = "order".key
+        WHERE "order".user_key = %s;
+    """, (user_key,))
+    order_items = cur.fetchall()
+
+    item_keys = [item_key]
+    keywords = []
+    for x in list(save_items) + list(order_items):
+        keywords += re.split(r'\s+', x["name"].lower()) + x["tags"]
+        item_keys.append(x["key"])
+
+    return likeness(cur, item_keys, keywords)
 
 
 def get_item(cur, key):

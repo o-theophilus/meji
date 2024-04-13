@@ -1,6 +1,5 @@
 from flask import request, current_app
 from itsdangerous import URLSafeTimedSerializer
-from datetime import datetime, timedelta
 import smtplib
 from email.utils import formataddr
 from email.mime.multipart import MIMEMultipart
@@ -8,22 +7,17 @@ from email.mime.text import MIMEText
 import os
 
 
+reserved_words = [
+    "meji", "home", "shop", "save", "cart", "profile", "orders", "terms",
+    "admin", "omni", "user", "users", "store", "stores", "item", "items",
+    "all"]
+
+
 def token_tool():
     return URLSafeTimedSerializer(
         current_app.config["SECRET_KEY"],
         current_app.config["SECURITY_PASSWORD_SALT"]
     )
-
-
-def now(day=0):
-    return (datetime.now() + timedelta(days=1) * day).replace(
-        microsecond=0).isoformat()
-
-
-reserved_words = [
-    "meji", "home", "shop", "save", "cart", "profile", "orders", "terms",
-    "admin", "omni", "user", "users", "store", "stores", "item", "items",
-    "all"]
 
 
 def token_to_user(cur):

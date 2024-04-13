@@ -164,23 +164,24 @@ def previous_receivers():
         })
 
     cur.execute("""
-        SELECT DISTINCT
-            "order".name,
-            "order".phone,
-            "order".line,
-            "order".country,
-            "order".state,
-            "order".local_area,
-            "order".postal_code,
+        SELECT
+            DISTINCT ON (
+                o.name, o.phone, o.line, o.country,
+                o.state, o.local_area, o.postal_code
+            )
+            o.name, o.phone, o.line, o.country,
+            o.state, o.local_area, o.postal_code,
             log.date
-        FROM "order"
-        LEFT JOIN log ON "order".key = log.entity_key
+        FROM "order" o
+        LEFT JOIN log ON o.key = log.entity_key
         WHERE
-            "order".user_key = %s
-            AND "order".status = 'delivered'
+            o.user_key = %s
+            AND o.status = 'delivered'
             AND log.entity_type = 'order'
-            AND log.action = 'delivered'
-        ORDER BY log.date DESC
+            AND log.action = 'changed_status'
+            AND (log.misc->>'to') = 'delivered'
+        ORDER BY o.name, o.phone, o.line, o.country,
+                o.state, o.local_area, o.postal_code, log.date DESC
         LIMIT 5;
     """, (user["key"],))
     prev = cur.fetchall()
