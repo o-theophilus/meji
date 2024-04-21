@@ -1,5 +1,6 @@
 <script>
 	import { days, months, ordinal_suffix_of } from '$lib/store.js';
+	import Datetime from '$lib/datetime.svelte';
 
 	export let order;
 
@@ -27,4 +28,16 @@ Date:
 {dt.getFullYear()}
 <br />
 Time:
-{date_time[1]}{period_of_day == 'Morning' ? 'am' : 'pm'}, {period_of_day}.
+{date_time[1]}{period_of_day == 'Morning' ? 'am' : 'pm'}, {period_of_day}. 
+
+
+
+
+
+Date:
+<Datetime datetime={order.delivery_date} type="day" />,
+<Datetime datetime={order.delivery_date} type="date" style="a" />. 
+Time:
+
+<Datetime datetime={order.delivery_date} type="time" />,
+<Datetime datetime={order.delivery_date} type="time" style="a" />.

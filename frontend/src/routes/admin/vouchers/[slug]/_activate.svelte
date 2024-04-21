@@ -64,7 +64,7 @@
 
 	Voucher will be valid till:
 	<br />
-	<Datetime datetime={date} no_time />
+	<Datetime datetime={date} type="date" />
 	<br />
 	<br />
 

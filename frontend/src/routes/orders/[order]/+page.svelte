@@ -8,18 +8,26 @@
 	import SVG from '$lib/svg.svelte';
 	import Back from '$lib/button.back.svelte';
 	import Log from '$lib/log.svelte';
+	import Datetime from '$lib/datetime.svelte';
 
 	import Items from './items.svelte';
-	import Eta from './eta.svelte';
 	import Receiver from '../../cart/delivery.receiver.svelte';
 	import Status from './_status.svelte';
 	import Cancel from './_status_cancel.svelte';
-	import Form from './eta._form.svelte';
+	import Eta from './_eta.svelte';
 
 	export let data;
-	let { order } = data;
 	let { items } = data;
 	let { order_status } = data;
+	let { order } = data;
+	$: if (order.delivery_date) {
+		order.delivery_date = new Date(order.delivery_date);
+	} else {
+		let temp = new Date();
+		temp.setDate(temp.getDate() + 4);
+		temp.setHours(10, 0, 0, 0);
+		order.delivery_date = temp;
+	}
 
 	$: if ($portal && $portal.type == 'order') {
 		order = $portal.data;
@@ -67,21 +75,27 @@
 
 			<br />
 
-			<Eta {order}>
-				{#if order.status == 'created' && $user.permissions.includes('order:edit_eta')}
-					<Button
-						class="link"
-						on:click={() => {
-							$module = {
-								module: Form,
-								order
-							};
-						}}
-					>
-						Edit
-					</Button>
-				{/if}
-			</Eta>
+			<span class="bold"> Estimated time of delivery: </span>
+			<Button
+				class="link"
+				on:click={() => {
+					$module = {
+						module: Eta,
+						order
+					};
+				}}
+			>
+				Edit
+			</Button>
+			<br />
+			To be delivered on or before
+			<span class="bold">
+				<Datetime datetime={order.delivery_date} type="day" />,
+				<Datetime datetime={order.delivery_date} type="date" style="a" />
+			</span>. Time:
+			<span class="bold">
+				<Datetime datetime={order.delivery_date} type="time" style="a" />
+			</span>.
 		</div>
 	</div>
 
@@ -163,5 +177,10 @@
 	.line {
 		display: flex;
 		gap: var(--sp1);
+	}
+
+	.bold {
+		font-weight: 700;
+		color: var(--ac1);
 	}
 </style>

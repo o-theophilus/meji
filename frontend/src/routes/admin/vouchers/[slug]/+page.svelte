@@ -48,7 +48,10 @@
 </Center>
 
 <Card>
-	<Datetime datetime={voucher.date} style="1" />
+	<span class="date">
+		<Datetime datetime={voucher.date} type="date" />
+		<Datetime datetime={voucher.date} type="time" />
+	</span>
 	<br />
 	{voucher.key}
 
@@ -68,7 +71,7 @@
 	{#if voucher.validity}
 		<br />
 		Validity:
-		<Datetime datetime={voucher.validity} no_time />
+		<Datetime datetime={voucher.validity} type="date" />
 	{/if}
 
 	{#if $user.permissions.includes('voucher:status')}
@@ -133,6 +136,11 @@
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
 	}
 
 	.pin {

@@ -349,7 +349,18 @@ def date(key):
             "error": "invalid request"
         })
 
-# TODO: make sure delivery_date is datetime
+    try:
+        datetime.strptime(
+            f"{request.json['delivery_date']}",
+            "%Y-%m-%dT%H:%M"
+        )
+    except Exception:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
     if (
         "delivery_date" not in request.json
         or not request.json["delivery_date"]

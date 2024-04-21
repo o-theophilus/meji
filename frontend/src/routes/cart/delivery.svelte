@@ -5,7 +5,7 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	import Eta from '../orders/[order]/eta.svelte';
+	import Datetime from '$lib/datetime.svelte';
 	import Receiver from './delivery.receiver.svelte';
 	import Form from './delivery._receiver_form.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -59,8 +59,18 @@
 
 	<br />
 
-	<Eta order={cart} />
+	<span class="bold"> Estimated time of delivery: </span>
+	<br />
+	To be delivered on or before
+	<span class="bold">
+		<Datetime datetime={cart.delivery_date} type="day" />,
+		<Datetime datetime={cart.delivery_date} type="date" style="a" />
+	</span>. Time:
+	<span class="bold">
+		<Datetime datetime={cart.delivery_date} type="time" style="a" />
+	</span>.
 
+	<br />
 	<br />
 
 	<span class="bold">Delivery fee:</span>

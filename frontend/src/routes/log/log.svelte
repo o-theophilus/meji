@@ -31,7 +31,10 @@
 		class:error={log.status == 400}
 	/>
 
-	<Datetime datetime={log.date} style="1" />
+	<span class="date">
+		<Datetime datetime={log.date} type="date" />
+		<Datetime datetime={log.date} type="time" />
+	</span>
 	<br />
 
 	<a href="/profile?search={log.user_key}">
@@ -75,7 +78,7 @@
 		{#each Object.entries(log.misc) as [key, value]}
 			{key}:
 			{#if log.entity_type == 'voucher' && key == 'validity'}
-				<Datetime datetime={value} no_time />
+				<Datetime datetime={value} type="date" />
 			{:else}
 				{value}
 			{/if}
@@ -109,6 +112,11 @@
 	}
 	.error {
 		background-color: var(--cl4);
+	}
+
+	.date {
+		font-size: smaller;
+		color: var(--ac3);
 	}
 
 	a {
