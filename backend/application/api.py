@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, request
 from deta import Deta
 from .tools import send_mail
-from .database import database, query
-from datetime import datetime, timedelta
 import re
 import os
 from .postgres import db_close, db_open
@@ -11,6 +9,7 @@ from .postgres import db_close, db_open
 #     feedback_table, advert_table, voucher_table, log_table, otp_table)
 from uuid import uuid4
 import json
+from .log import log
 
 
 bp = Blueprint("test", __name__)
@@ -45,7 +44,7 @@ def contact():
         os.environ["MAIL_USERNAME"],
         "Contact Form",
         f"""
-from: {request.json["name"]} <{request.json["name"]}>
+from: {request.json["name"]} <{request.json["email"]}>
 {phone}
 
 {request.json["message"]}
@@ -59,85 +58,49 @@ from: {request.json["name"]} <{request.json["name"]}>
 
 @bp.get("/cron")
 def cron():
-    db = database()
-    log_db = database(db_name="log")
-    log_db = sorted(log_db, key=lambda d: d["date"], reverse=True)
+    con, cur = db_open()
 
-    picked = []
-    users_last_active = []
-    for x in log_db:
-        if x["user"] not in picked:
-            picked.append(x["user"])
-            users_last_active.append({
-                "key": x["user"],
-                "date":  datetime.strptime(
-                    x["date"], '%Y-%m-%dT%H:%M:%S'
-                )
-            })
+    cur.execute('SELECT * FROM "user" WHERE email = %s;',
+                (os.environ["MAIL_USERNAME"],))
+    admin = cur.fetchone()
 
-    seven_days_ago = datetime.now() - timedelta(days=7)
-    thirty_days_ago = datetime.now() - timedelta(days=30)
+    cur.execute("""
+        SELECT *
+        FROM voucher
+        WHERE
+            voucher.status = 'activated'
+            AND voucher.validity < CURRENT_TIMESTAMP;
+    """)
+    expired = cur.fetchall()
 
-    expired = []
-    logged_out = []
-    rem = []
+    for x in expired:
+        cur.execute("""
+            UPDATE voucher
+            SET status = 'expired', validity = NULL
+            WHERE key = %s;
+        """, (x["key"],))
 
-    for x in db:
-        if (
-            x["type"] == "voucher"
-            and x["status"] == "active"
-            and datetime.strptime(
-                x["validity"], '%Y-%m-%d'
-            ) < datetime.now()
-        ):
-            x["status"] = "expired"
-            expired.append(x)
+        log(
+            cur=cur,
+            user_key=admin["key"],
+            action="expired",
+            entity_key=x["key"],
+            entity_type="voucher",
+            misc={"validity": f"{x['validity']}"}
+        )
 
-        elif x["type"] == "user":
-
-            last_active = None
-            for y in users_last_active:
-                if x["key"] == y["key"]:
-                    last_active = y["date"]
-                    break
-
-            if not last_active:
-                rem.append(x)
-
-            elif x["login"] and last_active < seven_days_ago:
-                x["login"] = False
-                logged_out.append(x)
-
-            elif x["status"] == "anonymous":
-                cart = query({"type": "cart", "user": x["key"]}, db=db)
-                save = query({"type": "save", "user": x["key"]}, db=db)
-
-                if not cart and not save and last_active < seven_days_ago:
-                    rem.append(x)
-
-                elif last_active < thirty_days_ago:
-                    rem.append(x)
-
-    database(expired+logged_out)
-    rem = rem[:10]
-    database(rem, True)
-
-    query("""
-        INSERT INTO log (
-            key, date, user_key, action, entity_key, entity_type, status, misc
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-    """(
-        "meji",
-        "ran_cron",
-        None,
-        "auth",
+    log(
+        cur=cur,
+        user_key=admin["key"],
+        action="ran_cron",
+        entity_key=None,
+        entity_type="admin",
         misc={
-            "expired_voucher": ", ".join([x["key"] for x in expired]),
-            "users_logged_out": ", ".join([x["email"] for x in logged_out]),
-            "anonymous_deleted": ", ".join([x["key"] for x in rem])
+            "expired vouchers": [x["key"] for x in expired]
         }
-    ))
+    )
 
+    db_close(con, cur)
     return jsonify({
         "status": 200,
         "message": "successful"

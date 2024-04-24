@@ -4,6 +4,7 @@
 	import Rating from '$lib/item/rating.svelte';
 	import Add from './_add.svelte';
 
+	import Datetime from '$lib/datetime.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
@@ -22,7 +23,8 @@
 				</span>
 				<br />
 				<span class="date">
-					{feedback.date.split('T').join(' ')}
+					<Datetime datetime={feedback.date} type="date" />
+					<Datetime datetime={feedback.date} type="time" />
 				</span>
 			</div>
 			<Rating rating={feedback.rating} />

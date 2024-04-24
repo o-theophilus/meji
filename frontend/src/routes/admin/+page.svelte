@@ -39,7 +39,6 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] fix cron
 		<br /> [ - ] better page meta descriptions
 		<br />
 		<br /> [ - ] how changing status and price of items affect save, advert and cart

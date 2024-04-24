@@ -8,9 +8,9 @@ import os
 
 
 reserved_words = [
-    "meji", "home", "shop", "save", "cart", "profile", "orders", "terms",
-    "admin", "omni", "user", "users", "store", "stores", "item", "items",
-    "all"]
+    "meji", "app", "home", "shop", "save", "cart", "profile", "orders",
+    "terms", "admin", "omni", "user", "users", "store", "stores", "item",
+    "items", "all"]
 
 
 def token_tool():

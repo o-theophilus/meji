@@ -67,7 +67,7 @@ def get():
             key,
             uuid4().hex,
             "confirmed",
-            "Meji Admin",
+            "App Admin",
             email,
             generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
