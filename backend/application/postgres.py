@@ -52,7 +52,6 @@ item_table = """CREATE TABLE IF NOT EXISTS item (
 
 save_table = """CREATE TABLE IF NOT EXISTS save (
     key CHAR(32) PRIMARY KEY,
-    date TIMESTAMP NOT NULL,
 
     user_key CHAR(32) NOT NULL,
     item_key CHAR(32) NOT NULL,

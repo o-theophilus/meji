@@ -150,16 +150,12 @@ def cart_to_order():
     send_mail(
         os.environ["MAIL_USERNAME"],
         "New Order",
-        request.json["email_template_admin"].format(
-            order_key=order["key"]
-        )
+        request.json["email_template_admin"]
     )
     send_mail(
         user["email"],
         "Processing Order",
-        request.json["email_template_user"].format(
-            order_key=order["key"]
-        )
+        request.json["email_template_user"]
     )
 
     db_close(con, cur)

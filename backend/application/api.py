@@ -149,16 +149,15 @@ def fix():
 
     #     UPDATE item
     #     SET discount_time = 'TRUE';
+
+    #     ALTER TABLE save
+    #     DROP COLUMN date;
     # """)
 
-    cur.execute("""
-        ALTER TABLE voucher
-        ALTER COLUMN status SET DEFAULT 'created';
-
-        DELETE FROM voucher;
-
-        DELETE FROM log WHERE entity_type='voucher';
-    """)
+    # cur.execute("""
+    #     ALTER TABLE save
+    #     DROP COLUMN date;
+    # """)
 
     db_close(con, cur)
     return jsonify({

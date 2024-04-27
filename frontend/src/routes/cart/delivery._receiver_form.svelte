@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { portal, module, loading, toast } from '$lib/store.js';
+	import { portal, module, loading, toast, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import countries from '$lib/countries.js';
@@ -75,9 +75,14 @@
 			};
 			$module = '';
 			$toast = {
-				status: '200',
+				status: 200,
 				message: "Receiver's information updated"
 			};
+
+			let i = $state.findIndex((x) => x.name == 'cart');
+			if (i != -1) {
+				$state[i].loaded = false;
+			}
 		} else {
 			error = resp;
 		}

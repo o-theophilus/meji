@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { loading } from "$lib/store.js"
+// import { loading } from "$lib/store.js"
 
 export const load = async ({ fetch, params, parent }) => {
 
@@ -16,7 +16,7 @@ export const load = async ({ fetch, params, parent }) => {
 		}
 	});
 	resp = await resp.json();
-	loading.set(false)
+	// loading.set(false)
 
 	if (resp.status == 200) {
 		return resp

@@ -54,7 +54,7 @@
 			};
 			$module = '';
 			$toast = {
-				status: '200',
+				status: 200,
 				message: `Address changed`
 			};
 		} else {

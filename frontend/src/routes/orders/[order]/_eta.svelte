@@ -50,7 +50,7 @@
 			};
 			$module = '';
 			$toast = {
-				status: '200',
+				status: 200,
 				message: 'Arrival time updated'
 			};
 		} else {

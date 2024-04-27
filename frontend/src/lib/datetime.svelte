@@ -44,7 +44,6 @@
 			{:else}
 				pm
 			{/if}
-			{datetime.getHours()}
 		{/if}
 	{/if}
 {/if}

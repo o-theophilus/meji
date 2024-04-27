@@ -3,7 +3,6 @@ from .tools import token_to_user, user_schema, item_schema
 from math import ceil
 from uuid import uuid4
 from .postgres import db_close, db_open
-from datetime import datetime
 from .log import log
 
 bp = Blueprint("save", __name__)
@@ -16,8 +15,8 @@ def get():
     user = token_to_user(cur)
 
     order_by = {
-        'latest': 'log.date',
-        'oldest': 'log.date',
+        'latest': 'save_log.date',
+        'oldest': 'save_log.date',
         'name (a-z)': 'item.name',
         'name (z-a)': 'item.name',
         'cheap': 'item.price',
@@ -66,6 +65,19 @@ def get():
                 AND log.entity_type = 'item'
                 AND (log.misc->>'price')::float > item.price
             ORDER BY log.entity_key, log.date DESC
+        ),
+
+        save_log AS (
+            SELECT
+                DISTINCT ON (save.item_key) save.*,
+                log.date, log.action
+            FROM save
+            LEFT JOIN log ON save.item_key = log.entity_key
+            WHERE
+                save.user_key = %s
+                AND (log.action = 'saved' OR log.action = 'unsaved')
+                AND log.entity_type = 'item'
+            ORDER BY save.item_key, log.date DESC
         )
 
         SELECT
@@ -88,20 +100,17 @@ def get():
             COUNT(*) OVER() AS total_items
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key
-        LEFT JOIN save ON item.key = save.item_key
-        LEFT JOIN log ON item.key = log.entity_key
+        LEFT JOIN save_log ON item.key = save_log.item_key
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE
-            save.user_key = %s
+            save_log.action = 'saved'
             AND (%s = '' OR item.name ILIKE %s)
-            AND log.action = 'saved'
-            AND log.entity_type = 'item'
-
         GROUP BY
             item.key, item.status, item.name, item.slug,
             item.price, item.show_discount, item.information, item.photos,
             item.tags, item.variation, item.available_quantity,
-            item_sub.discount, item_sub.old_price, item_sub.date, log.date
+            item_sub.discount, item_sub.old_price, item_sub.date,
+            save_log.date
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
     """.format(
@@ -111,7 +120,6 @@ def get():
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
-
     items = cur.fetchall()
 
     db_close(con, cur)
@@ -165,45 +173,40 @@ def save():
     ))
     saved_item = cur.fetchone()
 
-    action = None
     if saved_item and not request.json["save"]:
-        action = "unsaved"
         cur.execute("DELETE FROM save WHERE key = %s;", (saved_item["key"],))
 
-    elif not saved_item and request.json["save"]:
-        action = "saved"
-        cur.execute("""
-            INSERT INTO save (key, date, user_key, item_key)
-            VALUES (%s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            datetime.now(),
-            user["key"],
-            item["key"]
-        ))
-
-    if action:
         log(
             cur=cur,
             user_key=user["key"],
-            action=action,
+            action="unsaved",
             entity_key=item["key"],
             entity_type="item"
         )
 
-    cur.execute("""
-        SELECT
-            CASE
-                WHEN COUNT(save.*) = 0 THEN ARRAY[]::character[]
-                ELSE ARRAY_AGG(save.item_key)
-            END AS saves
-        FROM save
-        WHERE save.user_key = %s;
-    """, (user["key"],))
-    saves = cur.fetchone()
+    elif not saved_item and request.json["save"]:
+        cur.execute("""
+            INSERT INTO save (key, user_key, item_key)
+            VALUES (%s, %s, %s);
+        """, (
+            uuid4().hex,
+            user["key"],
+            item["key"]
+        ))
+
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="saved",
+            entity_key=item["key"],
+            entity_type="item"
+        )
+
+    cur.execute("SELECT * FROM save WHERE save.user_key = %s;", (user["key"],))
+    saves = cur.fetchall()
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "user": user_schema(user, saves=saves["saves"]),
+        "user": user_schema(user, saves=[x["item_key"] for x in saves]),
     })

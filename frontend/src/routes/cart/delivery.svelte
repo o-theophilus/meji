@@ -62,13 +62,9 @@
 	<span class="bold"> Estimated time of delivery: </span>
 	<br />
 	To be delivered on or before
-	<span class="bold">
-		<Datetime datetime={cart.delivery_date} type="day" />,
-		<Datetime datetime={cart.delivery_date} type="date" style="a" />
-	</span>. Time:
-	<span class="bold">
-		<Datetime datetime={cart.delivery_date} type="time" style="a" />
-	</span>.
+	<Datetime datetime={cart.delivery_date} type="day" />,
+	<Datetime datetime={cart.delivery_date} type="date" style="a" />. Time:
+	<Datetime datetime={cart.delivery_date} type="time" />.
 
 	<br />
 	<br />

@@ -1,5 +1,5 @@
 <script>
-	import { module, user, toast, loading } from '$lib/store.js';
+	import { module, user, toast, loading, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -61,6 +61,11 @@
 				status: 200,
 				message: `${item.name} added to cart`
 			};
+
+			let i = $state.findIndex((x) => x.name == 'cart');
+			if (i != -1) {
+				$state[i].loaded = false;
+			}
 		} else {
 			$toast = {
 				status: 400,

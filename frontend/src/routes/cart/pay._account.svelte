@@ -1,5 +1,5 @@
 <script>
-	import { user, module, portal, toast, loading } from '$lib/store.js';
+	import { user, module, portal, toast, loading, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 	import Button from '$lib/button.svelte';
 	import Form from '$lib/form.svelte';
@@ -46,9 +46,14 @@
 			};
 			$module = '';
 			$toast = {
-				status: '200',
+				status: 200,
 				message: 'Amount changed'
 			};
+
+			let i = $state.findIndex((x) => x.name == 'cart');
+			if (i != -1) {
+				$state[i].loaded = false;
+			}
 		} else {
 			error = resp;
 		}

@@ -2,7 +2,7 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	import { user, toast, loading } from '$lib/store.js';
+	import { user, toast, loading, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	export let item;
@@ -37,6 +37,11 @@
 
 		if (resp.status == 200) {
 			$user.saves = resp.user.saves;
+
+			let i = $state.findIndex((x) => x.name == 'save');
+			if (i != -1) {
+				$state[i].loaded = false;
+			}
 		} else {
 			$toast = {
 				status: 400,
