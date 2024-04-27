@@ -13,13 +13,16 @@
 	export let data;
 	let { items } = data;
 	let { cart } = data;
-	$: if (cart.delivery_date) {
-		cart.delivery_date = new Date(cart.delivery_date);
-	} else {
-		let temp = new Date();
-		temp.setDate(temp.getDate() + 4);
-		temp.setHours(10, 0, 0, 0);
-		cart.delivery_date = temp;
+
+	$: if (cart) {
+		if (cart.delivery_date) {
+			cart.delivery_date = new Date(cart.delivery_date);
+		} else {
+			let temp = new Date();
+			temp.setDate(temp.getDate() + 4);
+			temp.setHours(10, 0, 0, 0);
+			cart.delivery_date = temp;
+		}
 	}
 
 	let prev = {
