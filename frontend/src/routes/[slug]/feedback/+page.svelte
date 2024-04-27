@@ -24,7 +24,6 @@
 	$: give_feedback = data.give_feedback;
 	$: total_page = data.total_page;
 	let { order_by } = data;
-	let { page_name } = data;
 
 	$: if ($portal && $portal.type == 'feedback') {
 		feedbacks = $portal.data.feedbacks;
@@ -60,7 +59,7 @@
 			<Back />
 			Feedback{feedbacks.length > 1 ? 's' : ''}
 		</div>
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
@@ -101,7 +100,7 @@
 		</div>
 	</section>
 
-	<Pagination page_name="feedback" {total_page} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

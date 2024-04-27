@@ -7,8 +7,6 @@
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
 
-	export let page_name;
-
 	let text = '';
 	let set = (url) => {
 		let _s = '';
@@ -49,8 +47,8 @@
 			<Button
 				class="round"
 				on:click={() => {
-					set_state(page_name, 'search', '');
-					set_state(page_name, 'tag', '');
+					set_state('search', '');
+					set_state('tag', '');
 				}}
 			>
 				<SVG type="close" size="8" />

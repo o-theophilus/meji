@@ -14,9 +14,10 @@ export const user = writable();
 export const portal = writable();
 
 export const state = writable([])
-export const set_state = (page_name, key, value) => {
+export const set_state = (key, value) => {
 	let _page = get(page);
 	_page.url.searchParams.set(key, value);
+
 
 	if (value == '') {
 		_page.url.searchParams.delete(key);
@@ -29,9 +30,9 @@ export const set_state = (page_name, key, value) => {
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	let mem = get(state)
-	let i = mem.findIndex(x => x.name == page_name)
+	let i = mem.findIndex(x => x.name == _page.data.page_name)
 	mem[i].loaded = false
-	mem[i].search = _page.url.search,
+	mem[i].search = _page.url.search
 	state.set(mem)
 
 	loading.set("loading . . .")

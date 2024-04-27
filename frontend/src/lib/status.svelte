@@ -5,7 +5,6 @@
 
 	import Button from '$lib/button.svelte';
 
-	export let page_name;
 	export let array;
 	export let default_value = '';
 	let value = default_value;
@@ -31,7 +30,7 @@
 				on:click={() => {
 					if (x != value) {
 						value = x;
-						set_state(page_name, 'status', value == default_value ? '' : value);
+						set_state('status', value == default_value ? '' : value);
 					}
 				}}
 			>

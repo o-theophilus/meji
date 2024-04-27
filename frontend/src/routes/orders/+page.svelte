@@ -21,7 +21,6 @@
 	export let data;
 	$: orders = data.orders;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { order_by } = data;
 	let { order_status } = data;
 
@@ -51,10 +50,10 @@
 					active={is_admin}
 					on:click={() => {
 						if (is_admin) {
-							set_state(page_name, 'admin', '');
+							set_state('admin', '');
 							is_admin = false;
 						} else {
-							set_state(page_name, 'admin', 'true');
+							set_state('admin', 'true');
 							is_admin = true;
 						}
 					}}
@@ -62,14 +61,14 @@
 			{/if}
 		</div>
 
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
 <Card>
-	<Status {page_name} array={[...order_status, 'all']} default_value="created" />
+	<Status array={[...order_status, 'all']} default_value="created" />
 	<br />
-	<Search {page_name} />
+	<Search />
 	<br />
 
 	{#each orders as x (x.key)}
@@ -80,7 +79,7 @@
 		no item here
 	{/each}
 
-	<Pagination {total_page} {page_name} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

@@ -3,10 +3,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
-	console.log($page.data.page_name);
-
 	onMount(() => {
-		// TODO: components should get the page name directly
 		let i = $state.findIndex((x) => x.name == $page.data.page_name);
 
 		if (i != -1) {

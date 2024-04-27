@@ -23,7 +23,6 @@
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { order_by } = data;
 	let { tags } = data;
 	let { item_status } = data;
@@ -39,14 +38,14 @@
 		Shop
 		<div class="line">
 			<View />
-			<OrderBy {page_name} {order_by} />
+			<OrderBy {order_by} />
 		</div>
 	</div>
 </Center>
 
 <Card>
 	{#if $user.permissions.includes('item:add') || $user.permissions.includes('item:edit_status')}
-		<Status {page_name} array={item_status} default_value="live">
+		<Status array={item_status} default_value="live">
 			{#if $user.permissions.includes('item:add')}
 				<Button
 					class="primary"
@@ -69,19 +68,18 @@
 			on:click={() => {
 				$module = {
 					module: Tag,
-					tags,
-					page_name
+					tags
 				};
 			}}
 		>
 			Tags
 		</Button>
 
-		<Search {page_name} />
+		<Search />
 	</div>
 </Card>
 
-<FilterNote {page_name} />
+<FilterNote />
 
 {#if items.length > 0}
 	<br />
@@ -98,7 +96,7 @@
 	<Card>no item here</Card>
 {/if}
 
-<Pagination {page_name} {total_page} />
+<Pagination {total_page} />
 
 <style>
 	.line {

@@ -5,7 +5,6 @@
 
 	let _value, value, width;
 	export let total_page = 1;
-	export let page_name;
 
 	const normalize = (x) => {
 		if (x < 1) {
@@ -19,7 +18,7 @@
 	const submit = (x) => {
 		x = normalize(x);
 		_value = value = x;
-		set_state(page_name, 'page_no', x != 1 ? x : '');
+		set_state('page_no', x != 1 ? x : '');
 	};
 
 	let set = (url) => {

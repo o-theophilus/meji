@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
-export const load = async ({ fetch, url, parent }) => {
+export const load = async ({ fetch, url, parent, depends }) => {
 	let a = await parent();
 	if (!a.locals.user.permissions.includes("item:advert")) {
 		throw error(400, "unauthorized access")
@@ -22,6 +22,7 @@ export const load = async ({ fetch, url, parent }) => {
 		state.set(mem)
 		i = mem.findIndex(x => x.name == page_name);
 	} else if (mem[i].loaded) {
+		depends(mem[i].search)
 		return mem[i].resp
 	}
 

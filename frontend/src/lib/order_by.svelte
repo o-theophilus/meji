@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
-	export let page_name;
 	export let order_by = [];
 	export let default_value = order_by[0] || '';
 	let value = default_value;
@@ -24,7 +23,7 @@
 <select
 	bind:value
 	on:change={(e) => {
-		set_state(page_name, 'order', e.target.value == default_value ? '' : e.target.value);
+		set_state('order', e.target.value == default_value ? '' : e.target.value);
 	}}
 >
 	{#each order_by as x}
@@ -35,7 +34,7 @@
 </select>
 
 <style>
-	select{
+	select {
 		width: min-content;
 	}
 </style>

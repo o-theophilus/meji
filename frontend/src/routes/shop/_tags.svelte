@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
-	import { set_state, state, module } from '$lib/store.js';
+	import { set_state, module } from '$lib/store.js';
 	import Toggle from '$lib/button.toggle.svelte';
 	import Input from '$lib/input.svelte';
 	import Button from '$lib/button.svelte';
@@ -27,13 +27,6 @@
 	}
 
 	onMount(async () => {
-		if ($state[$module.page_name]) {
-			for (const x of new URLSearchParams($state[$module.page_name])) {
-				$page.url.searchParams.set(x[0], x[1]);
-			}
-			window.history.replaceState(history.state, '', $page.url.href);
-		}
-
 		let params = $page.url.searchParams;
 		if (params.has('tag')) {
 			let x = params.get('tag');
@@ -113,7 +106,7 @@
 				class="hover_red"
 				on:click={() => {
 					if (_selected_string) {
-						set_state($module.page_name, 'tag', '');
+						set_state('tag', '');
 					}
 
 					selected = [];
@@ -129,7 +122,7 @@
 			<Button
 				disabled={_selected_string == selected_string}
 				on:click={() => {
-					set_state($module.page_name, 'tag', selected_string);
+					set_state('tag', selected_string);
 
 					_selected = selected;
 					_multiply = multiply;

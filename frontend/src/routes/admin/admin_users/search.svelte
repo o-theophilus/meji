@@ -7,7 +7,6 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	export let page_name;
 	export let permissions;
 
 	let user_key = '';
@@ -38,7 +37,7 @@
 		let check = `${search}`;
 		search = `${user_key}:${type || 'all'}:${action || 'all'}`;
 		if (search != check) {
-			set_state(page_name, 'search', search != ':all:all' ? search : '');
+			set_state('search', search != ':all:all' ? search : '');
 		}
 	};
 </script>

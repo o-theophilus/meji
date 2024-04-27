@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
-export const load = async ({ fetch, url, parent }) => {
+export const load = async ({ fetch, url, parent, depends }) => {
 
 	let page_name = "shop"
 	let mem = get(state)
@@ -17,6 +17,7 @@ export const load = async ({ fetch, url, parent }) => {
 		state.set(mem)
 		i = mem.findIndex(x => x.name == page_name);
 	} else if (mem[i].loaded) {
+		depends(mem[i].search)
 		return mem[i].resp
 	}
 	

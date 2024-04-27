@@ -17,7 +17,6 @@
 	export let data;
 	$: items = data.items;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { order_by } = data;
 
 	$: {
@@ -33,15 +32,15 @@
 	<br />
 	<div class="ctitle">
 		Saved Item{items.length > 1 ? 's' : ''}
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
 <Card>
-	<Search {page_name} />
+	<Search />
 </Card>
 
-<FilterNote {page_name} />
+<FilterNote />
 
 {#if items.length > 0}
 	<br />
@@ -58,7 +57,7 @@
 	<Card>no item here</Card>
 {/if}
 
-<Pagination {page_name} {total_page} />
+<Pagination {total_page} />
 
 <style>
 </style>

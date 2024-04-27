@@ -17,7 +17,6 @@
 	export let data;
 	$: adverts = data.adverts;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { spaces } = data;
 	let { sizes } = data;
 	let { order_by } = data;
@@ -34,14 +33,14 @@
 			Advert{adverts.length > 1 ? 's' : ''}
 		</div>
 
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
 <Card>
-	<Status {page_name} array={['all', ...spaces]} default_value="all" />
+	<Status array={['all', ...spaces]} default_value="all" />
 	<br />
-	<Search {page_name} />
+	<Search />
 	<br />
 
 	{#each adverts as advert, i (`${advert.key}_${i}`)}
@@ -52,7 +51,7 @@
 		no item here
 	{/each}
 
-	<Pagination {page_name} {total_page} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

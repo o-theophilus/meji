@@ -7,7 +7,6 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	export let page_name;
 	export let search_query;
 
 	let user_key = '';
@@ -46,7 +45,7 @@
 		let check = `${search}`;
 		search = `${user_key}:${entity_type || 'all'}:${action || 'all'}:${entity_key}`;
 		if (search != check) {
-			set_state(page_name, 'search', search != ':all:all:' ? search : '');
+			set_state('search', search != ':all:all:' ? search : '');
 		}
 	};
 </script>

@@ -14,7 +14,6 @@
 	export let data;
 	$: logs = data.logs;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { search_query } = data;
 
 	let search;
@@ -34,7 +33,7 @@
 </Center>
 
 <Card>
-	<Search bind:this={search} {page_name} {search_query} />
+	<Search bind:this={search} {search_query} />
 
 	<br />
 
@@ -51,7 +50,7 @@
 		no item here
 	{/each}
 
-	<Pagination {page_name} {total_page} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

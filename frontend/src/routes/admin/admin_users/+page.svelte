@@ -16,7 +16,6 @@
 	$: users = data.users;
 	$: total_page = data.total_page;
 	let { permissions } = data;
-	let { page_name } = data;
 	let { order_by } = data;
 </script>
 
@@ -30,12 +29,12 @@
 			<Back />
 			User{users.length > 1 ? 's' : ''}
 		</div>
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
 <Card>
-	<Search {page_name} {permissions} />
+	<Search {permissions} />
 
 	<br />
 	{#each users as x (x.key)}
@@ -46,7 +45,7 @@
 		no item here
 	{/each}
 
-	<Pagination {page_name} {total_page} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

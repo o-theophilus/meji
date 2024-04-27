@@ -16,7 +16,6 @@
 	export let data;
 	$: users = data.users;
 	$: total_page = data.total_page;
-	let { page_name } = data;
 	let { order_by } = data;
 	let { user_status } = data;
 </script>
@@ -32,14 +31,14 @@
 			User{users.length > 1 ? 's' : ''}
 		</div>
 
-		<OrderBy {page_name} {order_by} />
+		<OrderBy {order_by} />
 	</div>
 </Center>
 
 <Card>
-	<Status {page_name} array={['all', ...user_status]} default_value="all" />
+	<Status array={['all', ...user_status]} default_value="all" />
 	<br />
-	<Search {page_name} />
+	<Search />
 	<br />
 
 	{#each users as x (x.key)}
@@ -50,7 +49,7 @@
 		no item here
 	{/each}
 
-	<Pagination {page_name} {total_page} />
+	<Pagination {total_page} />
 </Card>
 
 <style>

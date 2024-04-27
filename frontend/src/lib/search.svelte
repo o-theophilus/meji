@@ -8,7 +8,6 @@
 
 	let emit = createEventDispatcher();
 
-	export let page_name = '';
 	export let non_default = false;
 	export let placeholder = 'Search';
 	export let search = '';
@@ -36,7 +35,7 @@
 
 		if (!non_default) {
 			if (_search != search) {
-				set_state(page_name, 'search', search);
+				set_state('search', search);
 			}
 			set($page.url);
 		}

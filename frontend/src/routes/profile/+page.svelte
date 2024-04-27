@@ -24,7 +24,6 @@
 	export let data;
 	$: user = data.user;
 	let { permissions } = data;
-	let { page_name } = data;
 
 	let edit_mode = false;
 
@@ -72,7 +71,7 @@
 
 <Card>
 	{#if $me.permissions.includes('user:view')}
-		<Search {page_name} placeholder="Search for User by  Email or Key" />
+		<Search placeholder="Search for User by  Email or Key" />
 		<br />
 	{/if}
 
