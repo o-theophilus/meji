@@ -3,23 +3,30 @@ import { get } from 'svelte/store';
 import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, url, parent }) => {
-	
-	let page_name = "orders"
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/order`)
-	let temp = get(state)
-	if (url.search) {
-		temp[page_name] = url.search
-		state.set(temp)
-	}
-	if (temp[page_name]) {
-		backend.search = temp[page_name]
-	}
-
 	let a = await parent();
 	if (!a.locals.user.permissions.includes("order:view")) {
 		throw error(400, "unauthorized access")
 	}
 
+	let page_name = "orders"
+	let mem = get(state)
+	let i = mem.findIndex(x => x.name == page_name);
+	
+	if (i == -1) {
+		mem.push({
+			name: page_name,
+			search: url.search,
+			resp: [],
+			loaded: false
+		})
+		state.set(mem)
+		i = mem.findIndex(x => x.name == page_name);
+	} else if (mem[i].loaded) {
+		return mem[i].resp
+	}
+	
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/order`)
+	backend.search = mem[i].search
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -30,9 +37,13 @@ export const load = async ({ fetch, url, parent }) => {
 	resp = await resp.json();
 	loading.set(false)
 
-
 	if (resp.status == 200) {
 		resp.page_name = page_name
+
+		mem[i].resp = resp
+		mem[i].loaded = true
+		state.set(mem)
+
 		return resp
 	}
 }

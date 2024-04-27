@@ -13,7 +13,7 @@ export const loading = writable(false);
 export const user = writable();
 export const portal = writable();
 
-export const state = writable({})
+export const state = writable([])
 export const set_state = (page_name, key, value) => {
 	let _page = get(page);
 	_page.url.searchParams.set(key, value);
@@ -28,11 +28,13 @@ export const set_state = (page_name, key, value) => {
 	window.history.replaceState(history.state, '', _page.url.href);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
-	let temp = get(state)
-	temp[page_name] = _page.url.search
-	state.set(temp)
-	loading.set("loading . . .")
+	let mem = get(state)
+	let i = mem.findIndex(x => x.name == page_name)
+	mem[i].loaded = false
+	mem[i].search = _page.url.search,
+	state.set(mem)
 
+	loading.set("loading . . .")
 	invalidate(() => true);
 };
 

@@ -24,9 +24,9 @@
 	export let data;
 	$: user = data.user;
 	let { permissions } = data;
+	let { page_name } = data;
 
 	let edit_mode = false;
-	let page_name = 'profile';
 
 	$: if ($portal && $portal.type == 'user') {
 		user = $portal.data;

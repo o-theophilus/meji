@@ -1,18 +1,35 @@
 import { redirect } from '@sveltejs/kit';
-import { loading } from "$lib/store.js"
+import { get } from 'svelte/store';
+import { state, loading } from "$lib/store.js"
 
 export const load = async ({ parent, fetch, url }) => {
-
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/user`)
-	if (url.search) {
-		backend.search = url.search
-	}
-	
 	let a = await parent();
 	if (!a.locals.user.login) {
 		throw redirect(307, `/?module=login&return_url=${url.pathname}`);
 	}
-	
+
+	let page_name = "profile"
+	let mem = get(state)
+	let i = mem.findIndex(x => x.name == page_name);
+
+	if (i == -1) {
+		mem.push({
+			name: page_name
+		})
+		state.set(mem)
+	}
+
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/user`)
+	if (url.search) {
+		backend.search = url.search
+	} else {
+		loading.set(false)
+		return {
+			page_name,
+			user: a.locals.user
+		}
+	}
+
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -22,5 +39,6 @@ export const load = async ({ parent, fetch, url }) => {
 	});
 	resp = await resp.json();
 	loading.set(false)
+	resp.page_name = page_name
 	return resp
 }
