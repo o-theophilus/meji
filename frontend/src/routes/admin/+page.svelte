@@ -39,6 +39,7 @@
 
 		<br /> TODO:
 		<br />
+		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] better page meta descriptions
 		<br />
 		<br /> [ - ] how changing status and price of items affect save, advert and cart
@@ -46,7 +47,6 @@
 		<br /> [ - ] does going back restore token
 		<br />
 		<br /> [ - ] use svelte runes
-		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] address api: www.geoapify.com/tutorials
 		<br /> [ - ] update brand guide
 		<br /> [ - ] write test
