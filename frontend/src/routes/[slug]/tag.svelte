@@ -40,11 +40,12 @@
 					on:click={() => {
 						let i = $state.findIndex((x) => x.name == 'shop');
 						if (i != -1) {
+							$state[i].search = `?${new URLSearchParams({ tag }).toString()}`;
 							$state[i].loaded = false;
 						}
 
 						$loading = 'loading . . .';
-						goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
+						goto('/shop');
 					}}
 				>
 					{tag}
