@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { user, loading, portal } from '$lib/store.js';
+	import { invalidate } from '$app/navigation';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -21,12 +22,18 @@
 	import Variation from './variation.svelte';
 	import Feedback from './feedback.svelte';
 	import Floater from './floater.svelte';
+	import Spinner from '$lib/loading_spinner.svelte';
 
 	export let data;
+	$: status = data.status;
 	$: item = data.item;
 	$: feedbacks = data.feedbacks;
 	$: give_feedback = data.give_feedback;
 	$: groups = data.groups;
+
+	$: if (status == 202) {
+		invalidate(() => true);
+	}
 
 	onMount(() => {
 		if ($page.url.searchParams.has('edit') && is_admin) {
@@ -63,6 +70,8 @@
 		}
 		$portal = '';
 	}
+
+	let width;
 </script>
 
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
@@ -111,7 +120,7 @@
 			<br />
 			<Variation {item} {edit_mode} />
 			<br />
-			<Feedback {item} {feedbacks} {give_feedback} />
+			<Feedback {item} {feedbacks} {give_feedback} {status} />
 			<Floater {item} />
 		</div>
 	</section>
@@ -121,7 +130,19 @@
 	<Group open={x.open} let:open let:set_open name={x.name} items={x.items}>
 		<ButtonFold {open} on:click={set_open} />
 	</Group>
+{:else}
+	<Card>
+		<div class="skeleton_frame">
+			{#each Array(10).slice(0, width < 700 ? 2 : width < 1000 ? 3 : 4) as _}
+				<div class="item">
+					<Spinner active size="20" />
+				</div>
+			{/each}
+		</div>
+	</Card>
 {/each}
+
+<svelte:window bind:innerWidth={width} />
 
 <style>
 	.block {
@@ -144,6 +165,50 @@
 			top: var(--sp2);
 
 			align-self: flex-start;
+		}
+	}
+
+	.skeleton_frame {
+		display: grid;
+		gap: var(--sp2);
+		grid-template-columns: repeat(2, 1fr);
+
+		color: var(--ac1);
+	}
+
+	@media screen and (min-width: 700px) {
+		.skeleton_frame {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	@media screen and (min-width: 1000px) {
+		.skeleton_frame {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	.skeleton_frame .item {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		aspect-ratio: 1/1;
+
+		width: 100%;
+		border-radius: var(--sp1);
+
+		animation: blink 2s infinite linear;
+	}
+
+	@keyframes blink {
+		0% {
+			background-color: var(--ac5);
+		}
+		50% {
+			background-color: var(--ac6);
+		}
+		100% {
+			background-color: var(--ac5);
 		}
 	}
 </style>

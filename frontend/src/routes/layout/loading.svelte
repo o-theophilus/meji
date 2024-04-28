@@ -1,8 +1,9 @@
 <script>
 	import { scale } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-
 	import { loading } from '$lib/store.js';
+
+	import Spinner from '$lib/loading_spinner.svelte';
 </script>
 
 {#if $loading}
@@ -12,7 +13,7 @@
 			class:string={typeof $loading == 'string'}
 			transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}
 		>
-			<div class="circle" />
+			<Spinner active />
 			{#if typeof $loading == 'string'}
 				{$loading}
 			{/if}
@@ -52,27 +53,5 @@
 	}
 	.string {
 		width: 200px;
-	}
-
-	.circle {
-		--size: 50px;
-
-		width: var(--size);
-		height: var(--size);
-
-		background-image: url('/image/loading.png');
-		background-size: contain;
-		background-repeat: no-repeat;
-
-		animation: rotation 1s infinite linear;
-	}
-
-	@keyframes rotation {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(359deg);
-		}
 	}
 </style>

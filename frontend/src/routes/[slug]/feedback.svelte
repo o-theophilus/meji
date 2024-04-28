@@ -8,10 +8,12 @@
 	import SVG from '$lib/svg.svelte';
 	import Rating from '$lib/item/rating.svelte';
 	import Review from './feedback/review.svelte';
+	import Spinner from '$lib/loading_spinner.svelte';
 
 	export let item = {};
 	export let feedbacks = [];
 	export let give_feedback = false;
+	export let status = 200;
 	let open = feedbacks && feedbacks.length > 0;
 </script>
 
@@ -20,6 +22,7 @@
 		<span class="bold">
 			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
 		</span>
+		<Spinner active={status == 202} size="16" />
 		<Rating ratings={item.ratings} />
 	</div>
 

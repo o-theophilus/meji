@@ -3,12 +3,20 @@
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
 
+	import { nav_portal } from '$lib/store.js';
+
 	export let item;
 	export let list = false;
 </script>
 
 <section class="item" class:list data-sveltekit-preload-data="off">
-	<a class="img" href="/{item.slug}">
+	<a
+		class="img"
+		href="/{item.slug}"
+		on:click={() => {
+			$nav_portal = item;
+		}}
+	>
 		<img
 			src={item.photos.length > 0 ? `${item.photos[0]}/200` : '/image/item.png'}
 			alt={item.name}
@@ -17,7 +25,12 @@
 	</a>
 
 	<div class="details_control">
-		<a href="/{item.slug}">
+		<a
+			href="/{item.slug}"
+			on:click={() => {
+				$nav_portal = item;
+			}}
+		>
 			<div class="details">
 				<div class="name">
 					{item.name}
