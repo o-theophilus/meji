@@ -3,7 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	import { goto } from '$app/navigation';
-	import { user, module, loading, portal } from '$lib/store.js';
+	import { user, module, loading, portal, state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -38,6 +38,11 @@
 				<Tag
 					no_grow
 					on:click={() => {
+						let i = $state.findIndex((x) => x.name == 'shop');
+						if (i != -1) {
+							$state[i].loaded = false;
+						}
+
 						$loading = 'loading . . .';
 						goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
 					}}
