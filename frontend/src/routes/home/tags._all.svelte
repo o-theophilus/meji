@@ -1,6 +1,7 @@
 <script>
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { module, loading } from '$lib/store.js';
+	import { module, loading, state } from '$lib/store.js';
 
 	import Form from '$lib/form.svelte';
 	import Tag from '$lib/button.tag.svelte';
@@ -8,8 +9,15 @@
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
-	let { tags } = $module;
+	let tags = [];
 	let filter = '';
+
+	onMount(async () => {
+		let i = $state.findIndex((x) => x.name == 'tags');
+		if (i != -1) {
+			tags = $state[i].data;
+		}
+	});
 </script>
 
 <Form>
@@ -40,9 +48,15 @@
 			<Tag
 				hide={!tag.includes(filter.toLowerCase())}
 				on:click={() => {
+					let i = $state.findIndex((x) => x.name == 'shop');
+					if (i != -1) {
+						$state[i].search = `?${new URLSearchParams({ tag }).toString()}`;
+						$state[i].loaded = false;
+					}
+
 					$loading = 'loading . . .';
 					$module = '';
-					goto(`/shop?${new URLSearchParams({ tag }).toString()}`);
+					goto('/shop');
 				}}
 			>
 				{tag}

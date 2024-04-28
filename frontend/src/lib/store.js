@@ -30,11 +30,11 @@ export const set_state = (key, value) => {
 	window.history.replaceState(history.state, '', _page.url.href);
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
-	let mem = get(state)
-	let i = mem.findIndex(x => x.name == _page.data.page_name)
-	mem[i].loaded = false
-	mem[i].search = _page.url.search
-	state.set(mem)
+	let _state = get(state)
+	let i = _state.findIndex(x => x.name == _page.data.page_name)
+	_state[i].loaded = false
+	_state[i].search = _page.url.search
+	state.set(_state)
 
 	loading.set("loading . . .")
 	invalidate(() => true);

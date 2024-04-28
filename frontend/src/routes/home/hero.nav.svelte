@@ -1,11 +1,21 @@
 <script>
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { module, state } from '$lib/store.js';
 
 	const go = (name) => {
 		document.querySelector(`#${name}`).scrollIntoView({
 			behavior: 'smooth'
 		});
 	};
+
+	let tags = false;
+	onMount(async () => {
+		let i = $state.findIndex((x) => x.name == 'tags');
+		if (i != -1) {
+			tags = $state[i].data.length > 0;
+		}
+	});
 </script>
 
 <section>
@@ -17,7 +27,7 @@
 		Home
 	</button>
 
-	{#if $page.data.tags.length > 0}
+	{#if tags}
 		<button
 			on:click={() => {
 				go('tag');
@@ -27,7 +37,7 @@
 		</button>
 	{/if}
 
-	{#if $page.data.new_arrivals.length > 0}
+	{#if $page.data.new_arrivals?.length > 0}
 		<button
 			on:click={() => {
 				go('new_arrivals');
@@ -37,7 +47,7 @@
 		</button>
 	{/if}
 
-	{#if $page.data.offers.length > 0}
+	{#if $page.data.offers?.length > 0}
 		<button
 			on:click={() => {
 				go('offers');

@@ -1,7 +1,7 @@
+import time
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from math import ceil
-from .advert import get_many as get_many_advert
 from .feedback import get_many as get_many_feedback
 import re
 from .postgres import db_close, db_open
@@ -382,6 +382,7 @@ def get(key):
 
 @bp.get("/shop")
 def shop(order="latest", page_size=24):
+    ss = time.time()
     con, cur = db_open()
     user = token_to_user(cur)
 
@@ -505,22 +506,11 @@ def shop(order="latest", page_size=24):
     items = cur.fetchall()
 
     db_close(con, cur)
+    print("shop: ", time.time() - ss)
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
         "order_by": list(order_by.keys()),
-        "tags": all_tags().json["tags"],
         "item_status": ['live', 'draft', 'delete'],
         "total_page": ceil(items[0]["total_items"] / page_size) if items else 0
-    })
-
-
-@bp.get("/home")
-def home():
-    return jsonify({
-        "status": 200,
-        "tags": all_tags().json["tags"],
-        "new_arrivals": shop(order="latest", page_size=8).json["items"],
-        "offers": shop(order="discount", page_size=8).json["items"],
-        "adverts": get_many_advert("live", "home_1").json["adverts"]
     })

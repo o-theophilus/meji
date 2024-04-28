@@ -24,7 +24,6 @@
 	$: items = data.items;
 	$: total_page = data.total_page;
 	let { order_by } = data;
-	let { tags } = data;
 	let { item_status } = data;
 </script>
 
@@ -67,8 +66,7 @@
 		<Button
 			on:click={() => {
 				$module = {
-					module: Tag,
-					tags
+					module: Tag
 				};
 			}}
 		>

@@ -20,9 +20,9 @@
 	import Confirm from './auth/confirm.svelte';
 
 	export let data;
+	let { adverts } = data;
 	let { offers } = data;
 	let { new_arrivals } = data;
-	let { adverts } = data;
 
 	onMount(() => {
 		if ($page.url.searchParams.has('module')) {
@@ -51,7 +51,10 @@
 	});
 </script>
 
-<Meta title="Home" description="Meji is your No. 1 trusted online shopping destination in Nigeria." />
+<Meta
+	title="Home"
+	description="Meji is your No. 1 trusted online shopping destination in Nigeria."
+/>
 <Log entity_type={'page'} />
 
 <Hero />

@@ -14,7 +14,6 @@
 
 	export let item = {};
 	export let edit_mode = false;
-	export let all_tags;
 	let open = true;
 
 	onMount(() => {
@@ -70,8 +69,7 @@
 			on:click={() => {
 				$module = {
 					module: Form,
-					item,
-					all_tags
+					item
 				};
 			}}
 			tooltip="Edit tag"

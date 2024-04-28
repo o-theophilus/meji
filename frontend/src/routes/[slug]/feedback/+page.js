@@ -4,26 +4,26 @@ import { state, loading } from "$lib/store.js"
 export const load = async ({ fetch, url, params, parent, depends }) => {
 
 	let page_name = "feedback"
-	let mem = get(state)
-	let i = mem.findIndex(x => x.name == page_name);
+	let _state = get(state)
+	let i = _state.findIndex(x => x.name == page_name);
 
 	if (i == -1) {
-		mem.push({
+		_state.push({
 			name: page_name,
 			search: url.search,
-			resp: [],
+			data: [],
 			loaded: false
 		})
-		state.set(mem)
-		i = mem.findIndex(x => x.name == page_name);
-	} else if (mem[i].loaded) {
-		depends(mem[i].search)
-		return mem[i].resp
+		state.set(_state)
+		i = _state.findIndex(x => x.name == page_name);
+	} else if (_state[i].loaded) {
+		depends(_state[i].search)
+		return _state[i].data
 	}
 
 	let a = await parent();
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${a.locals.user.key}/${params.slug}`)
-	backend.search = mem[i].search
+	backend.search = _state[i].search
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {
@@ -37,9 +37,9 @@ export const load = async ({ fetch, url, params, parent, depends }) => {
 	if (resp.status == 200) {
 		resp.page_name = page_name
 
-		mem[i].resp = resp
-		mem[i].loaded = true
-		state.set(mem)
+		_state[i].data = resp
+		_state[i].loaded = true
+		state.set(_state)
 
 		return resp
 	}

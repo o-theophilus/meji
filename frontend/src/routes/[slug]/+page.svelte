@@ -58,15 +58,9 @@
 	let edit_mode = false;
 	$loading = false;
 
-	let all_tags = {
-		loaded: false,
-		data: []
-	};
 	$: if ($portal) {
 		if ($portal.type == 'item') {
 			item = $portal.data;
-		} else if ($portal.type == 'tag') {
-			all_tags = $portal.data;
 		}
 		$portal = '';
 	}
@@ -111,7 +105,7 @@
 			<Status {item} {edit_mode} />
 			<Name {item} {edit_mode} />
 			{#key item.key}
-				<Tag {item} {edit_mode} {all_tags} />
+				<Tag {item} {edit_mode} />
 			{/key}
 			<br />
 			<Price {item} {edit_mode} />

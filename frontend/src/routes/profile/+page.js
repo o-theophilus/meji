@@ -9,14 +9,14 @@ export const load = async ({ parent, fetch, url }) => {
 	}
 
 	let page_name = "profile"
-	let mem = get(state)
-	let i = mem.findIndex(x => x.name == page_name);
+	let _state = get(state)
+	let i = _state.findIndex(x => x.name == page_name);
 
 	if (i == -1) {
-		mem.push({
+		_state.push({
 			name: page_name
 		})
-		state.set(mem)
+		state.set(_state)
 	}
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/user`)

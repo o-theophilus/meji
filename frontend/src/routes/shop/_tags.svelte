@@ -2,15 +2,16 @@
 	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
-	import { set_state, module } from '$lib/store.js';
+	import { set_state, module, state } from '$lib/store.js';
 	import Toggle from '$lib/button.toggle.svelte';
 	import Input from '$lib/input.svelte';
 	import Button from '$lib/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 	import Tag from '$lib/button.tag.svelte';
+	import Spinner from '$lib/loading_spinner.svelte';
 
-	let tags = [...$module.tags];
+	let tags = [];
 	let selected = [];
 	let _selected = [];
 	let multiply = false;
@@ -26,7 +27,27 @@
 		_selected_string = `${_selected_string}${_selected.length > 1 && _multiply ? ':x' : ''}`;
 	}
 
+	let loading_tags = true;
 	onMount(async () => {
+		let pn = 'tags';
+		let i = $state.findIndex((x) => x.name == pn);
+		if (i == -1) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
+			resp = await resp.json();
+
+			if (resp.status == 200) {
+				tags = resp.tags;
+				loading_tags = false;
+				$state.push({
+					name: pn,
+					data: resp.tags
+				});
+			}
+		} else {
+			tags = $state[i].data;
+			loading_tags = false;
+		}
+
 		let params = $page.url.searchParams;
 		if (params.has('tag')) {
 			let x = params.get('tag');
@@ -74,6 +95,11 @@
 	<br />
 
 	<div class="tags_space">
+		{#if loading_tags}
+			<div class="spinner">
+				<Spinner active />
+			</div>
+		{/if}
 		{#each tags as x}
 			<Tag
 				hide={!x.includes(filter.toLowerCase())}
@@ -160,6 +186,13 @@
 		border-radius: var(--sp1);
 		padding: var(--sp1);
 		border: 2px solid var(--ac4);
+	}
+	.spinner {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100px;
+		width: 100%;
 	}
 
 	.line {

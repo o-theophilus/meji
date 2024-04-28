@@ -53,6 +53,8 @@
 
 		display: flex;
 		justify-content: center;
+
+		overflow: hidden;
 	}
 
 	.control {

@@ -1,15 +1,16 @@
 <script>
 	import { onMount } from 'svelte';
-	import { module, portal, loading, toast } from '$lib/store.js';
+	import { module, portal, loading, toast, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
 	import Tag from '$lib/button.tag.svelte';
 	import Button from '$lib/button.svelte';
 	import IG from '$lib/input_group.svelte';
+	import Spinner from '$lib/loading_spinner.svelte';
 
 	let item = { ...$module.item };
-	let all_tags = { ...$module.all_tags };
+	let all_tags = [];
 	let tags = item.tags.join(', ');
 	let all_tags_btn = [];
 	let error = {};
@@ -55,39 +56,32 @@
 		tags = tags.filter((v, i, l) => l.indexOf(v) === i);
 		tags = tags.join(', ');
 
-		all_tags_btn = all_tags.data.filter((i) => !tags.split(', ').includes(i));
+		all_tags_btn = all_tags.filter((i) => !tags.split(', ').includes(i));
 	};
 
+	let loading_tags = true;
 	onMount(async () => {
 		if (tags == '') {
 			tags = item.name.split(' ').join(', ');
 		}
 
-		if (!all_tags.loaded) {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`, {
-				method: 'get',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: $token
-				}
-			});
+		let pn = 'tags';
+		let i = $state.findIndex((x) => x.name == pn);
+		if (i == -1) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
 			resp = await resp.json();
 
 			if (resp.status == 200) {
-				let temp = {
-					loaded: true,
+				all_tags = resp.tags;
+				loading_tags = false;
+				$state.push({
+					name: pn,
 					data: resp.tags
-				};
-
-				$portal = {
-					type: 'tag',
-					data: temp
-				};
-
-				all_tags = temp;
-			} else {
-				error = resp;
+				});
 			}
+		} else {
+			all_tags = $state[i].data;
+			loading_tags = false;
 		}
 
 		clean_value();
@@ -111,8 +105,10 @@
 	/>
 
 	<div class="tags_space">
-		{#if !all_tags.loaded}
-			<span class="f2"> loading all tags . . . </span>
+		{#if loading_tags}
+			<div class="spinner">
+				<Spinner active />
+			</div>
 		{/if}
 		{#each all_tags_btn as tag}
 			<Tag
@@ -146,5 +142,13 @@
 		border-radius: var(--sp1);
 		padding: var(--sp1);
 		border: 2px solid var(--ac4);
+	}
+
+	.spinner {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100px;
+		width: 100%;
 	}
 </style>
