@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, item_schema
+from .tools import token_to_user
 from uuid import uuid4
 from math import ceil
 from .postgres import db_close, db_open
@@ -8,7 +8,7 @@ from .log import log
 bp = Blueprint("feedback", __name__)
 
 
-@bp.post("/feedback/<key>")
+@bp.post("/feedback/<item_key>")
 def create(item_key):
     con, cur = db_open()
 
@@ -94,44 +94,16 @@ def create(item_key):
     )
 
     db_close(con, cur)
-    return get_many(item["key"])
+    return get_many(item["key"], user["key"])
 
 
-@bp.get("/feedback/<item_key>")
-def get_many(item_key):
+@bp.get("/feedback/<item_key>/<user_key>")
+def get_many(item_key, user_key):
     con, cur = db_open()
-
-    user = token_to_user(cur)
-    if not user:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
     order = request.args["order"] if "order" in request.args else "latest"
-
-    cur.execute("""
-        SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
-        FROM item
-        LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.slug = %s or item.key = %s
-        GROUP BY item.key;
-    """, (item_key, item_key))
-    item = cur.fetchone()
-
-    if not item:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
 
     order_by = {
         'latest': 'log.date',
@@ -173,7 +145,7 @@ def get_many(item_key):
     """.format(
         order_by[order], order_dir[order]
     ), (
-        item["key"],
+        item_key,
         page_size,
         (page_no - 1) * page_size
     ))
@@ -181,7 +153,7 @@ def get_many(item_key):
 
     has_feedback = False
     for x in feedbacks:
-        if x["user_key"] == user["key"]:
+        if x["user_key"] == user_key:
             has_feedback = True
             break
 
@@ -195,13 +167,12 @@ def get_many(item_key):
                 order_item.item_key = %s
                 AND "order".user_key = %s
                 AND "order".status = 'delivered';
-        """, (item["key"], user["key"]))
+        """, (item_key, user_key))
         has_purchased = cur.fetchone()
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(item),
         "feedbacks": feedbacks,
         "give_feedback": True if has_purchased and not has_feedback else False,
         "order_by": list(order_by.keys()),

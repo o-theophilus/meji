@@ -9,36 +9,6 @@ from .postgres import db_close, db_open
 bp = Blueprint("item_get", __name__)
 
 
-@bp.get("/tag")
-def all_tags():
-    con, cur = db_open()
-
-    cur.execute("SELECT tags FROM item WHERE status = 'live';")
-    temp = cur.fetchall()
-
-    tags = []
-    for x in temp:
-        tags += x["tags"]
-
-    tags_count = []
-    unique_tags = []
-    for x in tags:
-        if x not in unique_tags:
-            unique_tags.append(x)
-            tags_count.append({
-                "tag":  x,
-                "count":  tags.count(x)
-            })
-
-    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "tags": [x["tag"] for x in tags_count]
-    })
-
-
 def recently_viewed(cur, user_key, item_key):
     cur.execute("""
         WITH
@@ -277,7 +247,82 @@ def recommended(cur, user_key, item_key=None):
     return likeness(cur, item_keys, keywords)
 
 
-def get_item(cur, key):
+@bp.get("/item/group/<item_key>/<user_key>")
+def get_group(item_key, user_key):
+    con, cur = db_open()
+
+    a = time.time()
+    print("start group")
+    _recently_viewed = recently_viewed(cur, user_key, item_key)
+    _similar_items = similar_items(cur, item_key)
+    _customer_view = customer_view(cur, user_key, item_key)
+    _recommended = recommended(cur, user_key, item_key)
+    print("end group: ", time.time()-a)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "groups": [
+            {
+                "name": "Recently Viewed",
+                "items": _recently_viewed,
+                "open": True
+            }, {
+                "name": "Similar Items",
+                "items": _similar_items,
+                "open": False
+            }, {
+                "name": "Customers who viewed this also viewed",
+                "items": _customer_view,
+                "open": False
+            }, {
+                "name": "You may also like",
+                "items": _recommended,
+                "open": False
+            }
+        ]
+    })
+
+
+@bp.get("/tag")
+def all_tags():
+    con, cur = db_open()
+
+    cur.execute("SELECT tags FROM item WHERE status = 'live';")
+    temp = cur.fetchall()
+
+    tags = []
+    for x in temp:
+        tags += x["tags"]
+
+    tags_count = []
+    unique_tags = []
+    for x in tags:
+        if x not in unique_tags:
+            unique_tags.append(x)
+            tags_count.append({
+                "tag":  x,
+                "count":  tags.count(x)
+            })
+
+    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "tags": [x["tag"] for x in tags_count]
+    })
+
+
+@bp.get("/item/<key>")
+def get_item(key, cur=None):
+    ss = time.time()
+    print("start get item")
+
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
+
     cur.execute("""
         WITH item_sub AS (
             SELECT
@@ -311,77 +356,49 @@ def get_item(cur, key):
         WHERE item.slug = %s or item.key = %s
         GROUP BY item.key, item_sub.old_price, item_sub.date;
     """, (key, key))
-    return cur.fetchone()
+    item = cur.fetchone()
 
-
-@bp.get("/item/<key>")
-def get(key):
-    con, cur = db_open()
-
-    user = token_to_user(cur)
-    if not user:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
-
-    item = get_item(cur, key)
     if not item:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    if (
-        item["status"] != "live"
-        and "item:add" not in user["permissions"]
-        and "item:edit_status" not in user["permissions"]
-    ):
+    if close_conn and item["status"] != "live":
+        user = token_to_user(cur)
+        if not user:
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                "error": "invalid token"
+            })
+
+        if set([
+            "item:add",
+            "item:edit_status"
+        ]).isdisjoint(user["permissions"]):
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                "error": "unauthorized access"
+            })
+
+    print("end get item: ", time.time()-ss)
+
+    if close_conn:
         db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    a = time.time()
-    print("start")
-    _recently_viewed = recently_viewed(cur, user["key"], item["key"])
-    _similar_items = similar_items(cur, item["key"])
-    _customer_view = customer_view(cur, user["key"], item["key"])
-    _recommended = recommended(cur, user["key"], item["key"])
-    print(time.time()-a)
-
-    db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(item),
-        "groups": [
-            {
-                "name": "Recently Viewed",
-                "items": _recently_viewed,
-                "open": True
-            }, {
-                "name": "Similar Items",
-                "items": _similar_items,
-                "open": False
-            }, {
-                "name": "Customers who viewed this also viewed",
-                "items": _customer_view,
-                "open": False
-            }, {
-                "name": "You may also like",
-                "items": _recommended,
-                "open": False
-            }
-        ]
+        "item": item_schema(item)
     })
 
 
 @bp.get("/shop")
 def shop(order="latest", page_size=24):
     ss = time.time()
+    print("start shop")
     con, cur = db_open()
     user = token_to_user(cur)
 
@@ -505,7 +522,7 @@ def shop(order="latest", page_size=24):
     items = cur.fetchall()
 
     db_close(con, cur)
-    print("shop: ", time.time() - ss)
+    print("end shop: ", time.time() - ss)
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],

@@ -19,10 +19,9 @@ def log(
     status=200,
     misc={}
 ):
-    close_conn = False
+    close_conn = not cur
     if not cur:
         con, cur = db_open()
-        close_conn = True
 
     try:
         if "action" in request.json and request.json["action"]:

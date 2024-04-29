@@ -258,7 +258,7 @@ def edit(key):
             **error
         })
 
-    item = get_item(cur, key)
+    item = get_item(key, cur).json["item"]
 
     log(
         cur=cur,

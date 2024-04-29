@@ -23,40 +23,27 @@
 	import Feedback from './feedback.svelte';
 	import Floater from './floater.svelte';
 	import Spinner from '$lib/loading_spinner.svelte';
+	import Refresh from './refresh.svelte';
 
 	export let data;
 	$: status = data.status;
 	$: item = data.item;
 	$: groups = data.groups;
 
-	const get_group = () => {
-		if (status == 202) {
-			invalidate(() => true);
-		}
-	};
-
-	onMount(() => {
-		if ($page.url.searchParams.has('edit') && is_admin) {
-			$page.url.searchParams.delete('edit');
-			edit_mode = true;
-
-			window.history.replaceState(history.state, '', $page.url.href);
-		}
-	});
-
-	let permissions = [
-		'item:edit_photo',
-		'item:advert',
-		'item:edit_status',
-		'item:edit_name',
-		'item:edit_tag',
-		'item:edit_price',
-		'item:edit_info',
-		'item:edit_variation'
-	];
-	let is_admin = $user.permissions.some((x) => permissions.includes(x));
 	let edit_mode = false;
-	$loading = false;
+	let width;
+	let is_admin = $user.permissions.some((x) =>
+		[
+			'item:edit_photo',
+			'item:advert',
+			'item:edit_status',
+			'item:edit_name',
+			'item:edit_tag',
+			'item:edit_price',
+			'item:edit_info',
+			'item:edit_variation'
+		].includes(x)
+	);
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
@@ -65,12 +52,29 @@
 		$portal = '';
 	}
 
-	let width;
+	onMount(() => {
+		if ($page.url.searchParams.has('edit') && is_admin) {
+			$page.url.searchParams.delete('edit');
+			edit_mode = true;
+
+			window.history.replaceState(history.state, '', $page.url.href);
+		}
+		$loading = false;
+	});
+
+	let get_feedback;
+	const refresh = async () => {
+		await get_feedback();
+		if (status == 202) {
+			invalidate(() => true);
+		}
+	};
 </script>
 
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
 {#key item.key}
 	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
+	<Refresh on:refresh={refresh} />
 {/key}
 
 <Center>
@@ -112,9 +116,10 @@
 			<br />
 			<Variation {item} {edit_mode} />
 			<br />
-			{#key item.key}
-				<Feedback {item} on:done={get_group} />
-			{/key}
+			<!-- {#key item.key} -->
+			<!-- <Feedback {item} on:done={get_group} /> -->
+			<!-- {/key} -->
+			<Feedback {item} bind:get_feedback />
 			<Floater {item} />
 		</div>
 	</section>

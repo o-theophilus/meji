@@ -16,17 +16,28 @@ export const load = async ({ fetch, params, parent, depends }) => {
 	}
 
 	let a = await parent();
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${params.slug}`, {
-		method: 'get',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: a.locals.token
-		}
-	});
-
-	resp = await resp.json();
-
-	if (resp.status == 200) {
+	const item = async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${params.slug}`, {
+			method: 'get',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: a.locals.token
+			}
+		});
+		resp = await resp.json();
 		return resp
+	}
+	const group = async (item_key) => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/group/${item_key}/${a.locals.user.key}`);
+		resp = await resp.json();
+		return resp
+	}
+
+	let _item = await item()
+	let _group = await group(_item.item.key)
+
+	return {
+		item: _item.item,
+		groups: _group.groups
 	}
 }
