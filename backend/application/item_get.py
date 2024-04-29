@@ -2,7 +2,6 @@ import time
 from flask import Blueprint, jsonify, request
 from .tools import token_to_user, item_schema
 from math import ceil
-from .feedback import get_many as get_many_feedback
 import re
 from .postgres import db_close, db_open
 
@@ -346,18 +345,18 @@ def get(key):
             "error": "unauthorized access"
         })
 
+    a = time.time()
+    print("start")
     _recently_viewed = recently_viewed(cur, user["key"], item["key"])
     _similar_items = similar_items(cur, item["key"])
     _customer_view = customer_view(cur, user["key"], item["key"])
     _recommended = recommended(cur, user["key"], item["key"])
-    _feedbacks = get_many_feedback(user["key"], item["key"]).json
+    print(time.time()-a)
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "item": item_schema(item),
-        "feedbacks": _feedbacks["feedbacks"],
-        "give_feedback": _feedbacks["give_feedback"],
         "groups": [
             {
                 "name": "Recently Viewed",

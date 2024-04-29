@@ -1,12 +1,12 @@
 import { get } from 'svelte/store';
-import { state } from "$lib/store.js"
+import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, parent }) => {
 
 	let page_name = "cart"
 	let _state = get(state)
 	let i = _state.findIndex(x => x.name == page_name);
-	
+
 	if (i == -1) {
 		_state.push({
 			name: page_name,
@@ -19,7 +19,7 @@ export const load = async ({ fetch, parent }) => {
 		return _state[i].data
 	}
 
-	let  a = await parent();
+	let a = await parent();
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 		method: 'get',
 		headers: {
@@ -28,6 +28,7 @@ export const load = async ({ fetch, parent }) => {
 		}
 	});
 	resp = await resp.json();
+	loading.set(false)
 
 	if (resp.status == 200) {
 		_state[i].data = resp
@@ -35,5 +36,5 @@ export const load = async ({ fetch, parent }) => {
 		state.set(_state)
 
 		return resp
-    }
+	}
 }

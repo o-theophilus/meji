@@ -94,12 +94,20 @@ def create(item_key):
     )
 
     db_close(con, cur)
-    return get_many(user["key"], item["key"])
+    return get_many(item["key"])
 
 
-@bp.get("/feedback/<user_key>/<item_key>")
-def get_many(user_key, item_key):
+@bp.get("/feedback/<item_key>")
+def get_many(item_key):
     con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
 
     page_no = int(request.args["page_no"]) if "page_no" in request.args else 1
     page_size = int(request.args["size"]) if "size" in request.args else 24
@@ -171,11 +179,11 @@ def get_many(user_key, item_key):
     ))
     feedbacks = cur.fetchall()
 
-    cur.execute("""
-        SELECT * FROM feedback
-        WHERE item_key = %s AND user_key = %s;
-    """, (item["key"], user_key))
-    has_feedback = cur.fetchone()
+    has_feedback = False
+    for x in feedbacks:
+        if x["user_key"] == user["key"]:
+            has_feedback = True
+            break
 
     has_purchased = True
     if not has_feedback:
@@ -187,7 +195,7 @@ def get_many(user_key, item_key):
                 order_item.item_key = %s
                 AND "order".user_key = %s
                 AND "order".status = 'delivered';
-        """, (item["key"], user_key))
+        """, (item["key"], user["key"]))
         has_purchased = cur.fetchone()
 
     db_close(con, cur)

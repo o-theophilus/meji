@@ -70,10 +70,10 @@
 		if (i == -1) {
 			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
 			resp = await resp.json();
+			loading_tags = false;
 
 			if (resp.status == 200) {
 				all_tags = resp.tags;
-				loading_tags = false;
 				$state.push({
 					name: pn,
 					data: resp.tags

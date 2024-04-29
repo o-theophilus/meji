@@ -191,6 +191,7 @@ def get(item_key):
     })
 
 
+# TODO: make default item_status = "live"
 @bp.get("/advert")
 def get_many(item_status="", status=""):
     con, cur = db_open()

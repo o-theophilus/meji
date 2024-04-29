@@ -1,7 +1,9 @@
 <script>
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { user } from '$lib/store.js';
+	import { token } from '$lib/cookie.js';
 
 	import Button from '$lib/button.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -11,10 +13,31 @@
 	import Spinner from '$lib/loading_spinner.svelte';
 
 	export let item = {};
-	export let feedbacks = [];
-	export let give_feedback = false;
-	export let status = 200;
-	let open = feedbacks && feedbacks.length > 0;
+	let feedbacks = [];
+	let give_feedback = false;
+	let open = false;
+
+	let emit = createEventDispatcher();
+
+	let loading_feedbacks = true;
+	onMount(async () => {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${item.key}`, {
+			method: 'get',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+		loading_feedbacks = false;
+		emit('done');
+
+		if (resp.status == 200) {
+			feedbacks = resp.feedbacks;
+			give_feedback = resp.give_feedback;
+			open = feedbacks.length > 0;
+		}
+	});
 </script>
 
 <div class="horizontal">
@@ -22,7 +45,7 @@
 		<span class="bold">
 			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
 		</span>
-		<Spinner active={status == 202} size="16" />
+		<Spinner active={loading_feedbacks} size="16" />
 		<Rating ratings={item.ratings} />
 	</div>
 

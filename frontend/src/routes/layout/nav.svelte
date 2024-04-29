@@ -1,16 +1,30 @@
 <script>
 	import { page } from '$app/stores';
-	import { user, module } from '$lib/store.js';
+	import { user, module, loading, state } from '$lib/store.js';
 
 	import SVG from '$lib/svg.svelte';
 	import Login from '../auth/login.svelte';
 
-	$: segment = $page.url.pathname || undefined;
+	$: segment = $page.url.pathname;
 	let width;
+
+	const click = (page_name) => {
+		let i = $state.findIndex((x) => x.name == page_name);
+		if (i == -1 || $state[i].loaded == false) {
+			$loading = true;
+		}
+	};
 </script>
 
 <nav>
-	<a href="/" class:active={segment == '/'} bind:clientWidth={width}>
+	<a
+		href="/"
+		class:active={segment == '/'}
+		bind:clientWidth={width}
+		on:click={() => {
+			click('home');
+		}}
+	>
 		<div class="label">
 			{#if segment == '/'}
 				<SVG type="home_active" size="15" />
@@ -22,7 +36,13 @@
 		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
-	<a href="/shop" class:active={segment == '/shop'}>
+	<a
+		href="/shop"
+		class:active={segment == '/shop'}
+		on:click={() => {
+			click('shop');
+		}}
+	>
 		<div class="label">
 			{#if segment == '/shop'}
 				<SVG type="shop_active" size="15" />
@@ -34,7 +54,13 @@
 		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
-	<a href="/save" class:active={segment == '/save'}>
+	<a
+		href="/save"
+		class:active={segment == '/save'}
+		on:click={() => {
+			click('save');
+		}}
+	>
 		<div class="label">
 			{#if segment == '/save'}
 				<SVG type="like_active" size="15" />
@@ -53,7 +79,13 @@
 		<div class="hover" style:--height="{width}px" />
 		<div class="indicator" />
 	</a>
-	<a href="/cart" class:active={segment == '/cart'}>
+	<a
+		href="/cart"
+		class:active={segment == '/cart'}
+		on:click={() => {
+			click('cart');
+		}}
+	>
 		<div class="label">
 			{#if segment == '/cart'}
 				<SVG type="cart_active" size="15" />

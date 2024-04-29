@@ -27,13 +27,13 @@
 	export let data;
 	$: status = data.status;
 	$: item = data.item;
-	$: feedbacks = data.feedbacks;
-	$: give_feedback = data.give_feedback;
 	$: groups = data.groups;
 
-	$: if (status == 202) {
-		invalidate(() => true);
-	}
+	const get_group = () => {
+		if (status == 202) {
+			invalidate(() => true);
+		}
+	};
 
 	onMount(() => {
 		if ($page.url.searchParams.has('edit') && is_admin) {
@@ -104,9 +104,7 @@
 
 			<Status {item} {edit_mode} />
 			<Name {item} {edit_mode} />
-			{#key item.key}
-				<Tag {item} {edit_mode} />
-			{/key}
+			<Tag {item} {edit_mode} />
 			<br />
 			<Price {item} {edit_mode} />
 			<br />
@@ -114,7 +112,9 @@
 			<br />
 			<Variation {item} {edit_mode} />
 			<br />
-			<Feedback {item} {feedbacks} {give_feedback} {status} />
+			{#key item.key}
+				<Feedback {item} on:done={get_group} />
+			{/key}
 			<Floater {item} />
 		</div>
 	</section>

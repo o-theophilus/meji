@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { module, state } from '$lib/store.js';
+	import { state } from '$lib/store.js';
 
 	const go = (name) => {
 		document.querySelector(`#${name}`).scrollIntoView({

@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { state } from "$lib/store.js"
+import { state, loading } from "$lib/store.js"
 
 export const load = async ({ fetch, parent }) => {
 
@@ -80,5 +80,6 @@ export const load = async ({ fetch, parent }) => {
 	_state[i].data = data
 	_state[i].loaded = true
 
+	loading.set(false)
 	return data
 }
