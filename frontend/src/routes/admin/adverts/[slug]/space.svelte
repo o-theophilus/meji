@@ -55,7 +55,6 @@
 
 	<br />
 
-	<!-- TODO: check this disables -->
 	<div class="spaces">
 		{#each spaces as x}
 			<Tag
@@ -63,7 +62,7 @@
 				on:click={() => {
 					select(x);
 				}}
-				hide={disabled}
+				{disabled}
 			>
 				{x}
 			</Tag>

@@ -1,10 +1,11 @@
 <script>
+	export let disabled = false;
 	export let hide = false;
 	export let active = false;
 	export let no_grow = false;
 </script>
 
-<button on:click class:hide class:active class:grow={!no_grow}>
+<button on:click class:hide class:active class:grow={!no_grow} {disabled}>
 	<slot />
 </button>
 
@@ -28,15 +29,22 @@
 		flex-grow: 1;
 	}
 
-	button:hover {
+	button:hover:not(:disabled) {
 		background-color: var(--cl1_b);
 		color: var(--ac6_);
 	}
 	.hide {
 		display: none;
 	}
-	.active {
+	.active:not(:disabled) {
 		background-color: var(--cl1);
 		color: var(--ac6_);
+	}
+
+	button:disabled{
+		background-color: var(--ac5);
+		color: var(--ac2);
+		cursor: unset;
+		opacity: 0.4;
 	}
 </style>

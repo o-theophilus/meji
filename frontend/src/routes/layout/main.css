@@ -88,12 +88,9 @@ select {
 	color: var(--ac1);
 }
 
-select:hover {
+select:focus:not(:disabled) ,
+select:hover:not(:disabled) {
 	outline-color: var(--ac3);
-}
-select:focus {
-	outline-color: var(--ac1);
-
 }
 
 option {

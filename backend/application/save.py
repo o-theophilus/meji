@@ -89,14 +89,8 @@ def get():
                 ELSE item_sub.old_price
             END AS old_price,
             COALESCE(item_sub.discount, 0) AS discount,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN NULL
-                ELSE SUM(feedback.rating) / COUNT(feedback.*)
-            END AS rating,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
+            COALESCE(AVG(feedback.rating), 0) AS rating,
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings,
             COUNT(*) OVER() AS total_items
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key

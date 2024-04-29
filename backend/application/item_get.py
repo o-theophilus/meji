@@ -50,10 +50,7 @@ def recently_viewed(cur, user_key, item_key):
                 WHEN item_sub.date > item.show_discount::timestamp THEN NULL
                 ELSE item_sub.old_price
             END AS old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
@@ -95,10 +92,7 @@ def customer_view(cur, user_key, item_key):
                 ELSE item_sub.old_price
             END AS old_price,
             log.user_key AS user_key,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN log ON item.key = log.entity_key
@@ -181,10 +175,7 @@ def likeness(cur, item_keys, keywords):
                 WHEN item_sub.date > item.show_discount::timestamp THEN NULL
                 ELSE item_sub.old_price
             END AS old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings,
             likeness.likeness
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key
@@ -316,7 +307,7 @@ def all_tags():
 
 @bp.get("/item/<key>")
 def get_item(key, cur=None):
-    ss = time.time()
+    aa = time.time()
     print("start get item")
 
     close_conn = not cur
@@ -346,17 +337,17 @@ def get_item(key, cur=None):
                 WHEN item_sub.date > item.show_discount::timestamp THEN NULL
                 ELSE item_sub.old_price
             END AS old_price,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key
         LEFT JOIN feedback ON item.key = feedback.item_key
-        WHERE item.slug = %s or item.key = %s
+        WHERE item.slug = %s OR item.key = %s
         GROUP BY item.key, item_sub.old_price, item_sub.date;
     """, (key, key))
     item = cur.fetchone()
+
+    bb = time.time()
+    print("get item 1: ", bb-aa)
 
     if not item:
         if close_conn:
@@ -385,7 +376,7 @@ def get_item(key, cur=None):
                 "error": "unauthorized access"
             })
 
-    print("end get item: ", time.time()-ss)
+    print("end get item: ", time.time()-bb)
 
     if close_conn:
         db_close(con, cur)
@@ -486,14 +477,8 @@ def shop(order="latest", page_size=24):
                 ELSE item_sub.old_price
             END AS old_price,
             COALESCE(item_sub.discount, 0) AS discount,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN 0
-                ELSE SUM(feedback.rating) / COUNT(feedback.*)
-            END AS rating,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings,
+            COALESCE(AVG(feedback.rating), 0) AS rating,
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings,
             COUNT(*) OVER() AS total_items
         FROM item
         LEFT JOIN item_sub ON item.key = item_sub.key

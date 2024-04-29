@@ -345,10 +345,7 @@ def add_photos(key):
 
     cur.execute("""
         SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.key = %s
@@ -436,10 +433,7 @@ def order_photo(key):
 
     cur.execute("""
         SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.key = %s
@@ -514,10 +508,7 @@ def delete_photo(key):
 
     cur.execute("""
         SELECT item.*,
-            CASE
-                WHEN COUNT(feedback.*) = 0 THEN ARRAY[]::integer[]
-                ELSE ARRAY_AGG(feedback.rating)
-            END AS ratings
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
         FROM item
         LEFT JOIN feedback ON item.key = feedback.item_key
         WHERE item.key = %s
