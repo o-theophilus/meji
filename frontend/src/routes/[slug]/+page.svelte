@@ -116,9 +116,6 @@
 			<br />
 			<Variation {item} {edit_mode} />
 			<br />
-			<!-- {#key item.key} -->
-			<!-- <Feedback {item} on:done={get_group} /> -->
-			<!-- {/key} -->
 			<Feedback {item} bind:get_feedback />
 			<Floater {item} />
 		</div>
@@ -126,7 +123,7 @@
 </Card>
 
 {#each groups as x}
-	<Group open={x.open} let:open let:set_open name={x.name} items={x.items}>
+	<Group open={x.open} let:open let:set_open name={x.name} items={x.items} style={x.style}>
 		<ButtonFold {open} on:click={set_open} />
 	</Group>
 {:else}

@@ -255,20 +255,24 @@ def get_group(item_key, user_key):
         "status": 200,
         "groups": [
             {
-                "name": "Recently Viewed",
-                "items": _recently_viewed,
-                "open": True
-            }, {
                 "name": "Similar Items",
                 "items": _similar_items,
-                "open": False
+                "style": "grid",
+                "open": True
+            }, {
+                "name": "Recently Viewed",
+                "items": _recently_viewed,
+                "style": "line",
+                "open": True
             }, {
                 "name": "Customers who viewed this also viewed",
                 "items": _customer_view,
+                "style": "line",
                 "open": False
             }, {
                 "name": "You may also like",
                 "items": _recommended,
+                "style": "line",
                 "open": False
             }
         ]

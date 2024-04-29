@@ -1,14 +1,14 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 	import { onMount } from 'svelte';
 
 	import Center from '$lib/center.svelte';
 	import Item from '$lib/item/index.svelte';
+	import ItemPack from '$lib/item_pack.svelte';
 
 	export let name = 'Group Name';
 	export let url = '';
 	export let items = [];
+	export let style = 'grid';
 
 	onMount(async () => {
 		if (url) {
@@ -44,18 +44,11 @@
 			</div>
 			<br />
 
-			{#if open}
-				<div
-					class="item_area"
-					transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
-				>
-					{#each items.slice(0, width < 1000 ? 6 : 8) as x (x.key)}
-						<Item item={x} />
-					{/each}
-				</div>
-
-				<br />
-			{/if}
+			<ItemPack let:style {style} {open}>
+				{#each items.slice(0, width < 1000 ? 6 : 8) as x (x.key)}
+					<Item item={x} {style} />
+				{/each}
+			</ItemPack>
 		</section>
 	</Center>
 {/if}
@@ -63,8 +56,5 @@
 <style>
 	.card {
 		border-bottom: 2px solid var(--ac4);
-	}
-
-	@media screen and (min-width: 700px) {
 	}
 </style>

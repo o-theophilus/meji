@@ -19,6 +19,7 @@
 	import OrderBy from '$lib/order_by.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import FilterNote from './filter_note.svelte';
+	import ItemPack from '$lib/item_pack.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -82,13 +83,13 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<div class="item_area" class:list={$user.setting_item_view == 'list'}>
+		<ItemPack let:style style="grid">
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<Item {item} list={$user.setting_item_view == 'list'} />
+					<Item {item} {style} />
 				</div>
 			{/each}
-		</div>
+		</ItemPack>
 	</Center>
 {:else}
 	<Card>no item here</Card>

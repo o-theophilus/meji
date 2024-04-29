@@ -13,6 +13,7 @@
 	import Search from '$lib/search.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
 	import FilterNote from '../shop/filter_note.svelte';
+	import ItemPack from '$lib/item_pack.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -45,13 +46,13 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<div class="item_area">
+		<ItemPack let:style style="grid">
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<Item {item} />
+					<Item {item} {style} />
 				</div>
 			{/each}
-		</div>
+		</ItemPack>
 	</Center>
 {:else}
 	<Card>no item here</Card>

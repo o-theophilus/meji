@@ -8,6 +8,7 @@
 
 	import Tag from './tags.btn.svelte';
 	import All from './tags._all.svelte';
+	import ItemPack from '$lib/item_pack.svelte';
 
 	let width;
 	let tags = [];
@@ -28,10 +29,12 @@
 		<section class="card">
 			<div class="ctitle">Tags</div>
 
-			<div class="item_area">
-				{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
-					<Tag {tag} />
-				{/each}
+			<div class="tag_area">
+				<ItemPack let:style style="grid">
+					{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
+						<Tag {tag} />
+					{/each}
+				</ItemPack>
 			</div>
 
 			<Button
@@ -66,7 +69,7 @@
 		padding: var(--sp3);
 		padding-bottom: 0;
 	}
-	.item_area {
+	.tag_area {
 		padding: var(--sp3);
 	}
 
@@ -75,7 +78,7 @@
 			padding: var(--sp5);
 			padding-bottom: 0;
 		}
-		.item_area {
+		.tag_area {
 			padding: var(--sp5);
 		}
 	}

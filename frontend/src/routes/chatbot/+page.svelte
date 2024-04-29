@@ -12,7 +12,7 @@
 </Center>
 
 <Card>
-	<div class="item_area">Hello</div>
+	<div class="">Hello</div>
 </Card>
 
 <style>

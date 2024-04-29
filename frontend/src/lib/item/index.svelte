@@ -6,10 +6,10 @@
 	import { nav_portal } from '$lib/store.js';
 
 	export let item;
-	export let list = false;
+	export let style = 'grid';
 </script>
 
-<section class="item" class:list data-sveltekit-preload-data="off">
+<section class="item {style}" data-sveltekit-preload-data="off">
 	<a
 		class="img"
 		href="/{item.slug}"
@@ -92,23 +92,16 @@
 	}
 
 	img {
-		width: 100%;
 		aspect-ratio: 1/1;
 		background-image: url('/image/item.png');
 		background-size: cover;
 	}
-
 	.details_control {
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 
 		width: 100%;
-		height: 100%;
-	}
-
-	.details {
-		padding: var(--sp1) var(--sp2);
 	}
 
 	.control {
@@ -145,23 +138,55 @@
 		background: var(--cl4);
 	}
 
+	/* ------------------------------------ */
+
+	.grid img {
+		width: 100%;
+	}
+
+	.grid .details_control {
+		height: 100%;
+	}
+	.grid .details {
+		padding: var(--sp1) var(--sp2);
+	}
+
+	/* ------------------------------------ */
+
 	.list {
 		flex-direction: unset;
 	}
-
 	.list img {
-		width: unset;
 		height: 120px;
 	}
 
 	.list .details {
 		padding: var(--sp2);
 	}
-	.list .details_control {
+
+	/* ------------------------------------ */
+
+	.line {
+		width: 120px;
+		flex-shrink: 0;
 		height: unset;
 	}
 
-	.list .name {
-		white-space: unset;
+	.line img {
+		width: 100%;
+		aspect-ratio: 4/3;
+		object-fit: cover;
+	}
+
+	.line .details {
+		padding: var(--sp1);
+		font-size: small;
+	}
+
+	.line .control {
+		display: none;
+	}
+	.line .price {
+		font-size: unset;
 	}
 </style>
