@@ -14,6 +14,7 @@
 	import UpdateUrl from '$lib/update_url.svelte';
 	import FilterNote from '../shop/filter_note.svelte';
 	import ItemPack from '$lib/item_pack.svelte';
+	import View from '../shop/view.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -33,7 +34,10 @@
 	<br />
 	<div class="ctitle">
 		Saved Item{items.length > 1 ? 's' : ''}
-		<OrderBy {order_by} />
+		<div class="line">
+			<View />
+			<OrderBy {order_by} />
+		</div>
 	</div>
 </Center>
 
@@ -46,7 +50,7 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<ItemPack let:style style="grid">
+		<ItemPack let:style style={$user.setting_item_view}>
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<Item {item} {style} />
@@ -61,4 +65,8 @@
 <Pagination {total_page} />
 
 <style>
+	.line {
+		display: flex;
+		gap: var(--sp1);
+	}
 </style>

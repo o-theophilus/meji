@@ -83,7 +83,7 @@
 {#if items.length > 0}
 	<br />
 	<Center>
-		<ItemPack let:style style="grid">
+		<ItemPack let:style style={$user.setting_item_view}>
 			{#each items as item (item.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<Item {item} {style} />
