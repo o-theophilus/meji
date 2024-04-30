@@ -20,6 +20,12 @@
 	let { items } = data;
 	let { order_status } = data;
 	let { order } = data;
+
+	$: if ($portal && $portal.type == 'order') {
+		order = $portal.data;
+		$portal = '';
+	}
+
 	$: if (order.delivery_date) {
 		order.delivery_date = new Date(order.delivery_date);
 	} else {
@@ -27,11 +33,6 @@
 		temp.setDate(temp.getDate() + 4);
 		temp.setHours(10, 0, 0, 0);
 		order.delivery_date = temp;
-	}
-
-	$: if ($portal && $portal.type == 'order') {
-		order = $portal.data;
-		$portal = '';
 	}
 </script>
 
@@ -76,17 +77,19 @@
 			<br />
 
 			<span class="bold"> Estimated time of delivery: </span>
-			<Button
-				class="link"
-				on:click={() => {
-					$module = {
-						module: Eta,
-						order
-					};
-				}}
-			>
-				Edit
-			</Button>
+			{#if order.status == 'created'}
+				<Button
+					class="link"
+					on:click={() => {
+						$module = {
+							module: Eta,
+							order
+						};
+					}}
+				>
+					Edit
+				</Button>
+			{/if}
 			<br />
 			To be delivered on or before
 			<span class="bold">
@@ -114,7 +117,7 @@
 						};
 					}}
 				>
-					Change Order Status
+					Change Status
 				</Button>
 			{/if}
 

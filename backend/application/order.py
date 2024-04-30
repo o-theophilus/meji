@@ -338,7 +338,7 @@ def date(key):
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
 
-    if not order:
+    if not order or order["status"] != "created":
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -457,19 +457,12 @@ def status(key):
         })
 
     if (
-        (
-            not order["delivery_date"]
-            and order["status"] == "created"
-        ) or (
-            order["status"] == "processing"
-            and request.json['status'] == "created"
-        )
+        order["status"] == "created"
+        and not order["delivery_date"]
     ):
-        new_date = None
-        if not order["delivery_date"]:
-            new_date = datetime.now() + timedelta(days=4)
-            new_date = new_date.replace(
-                hour=10, minute=0, second=0, microsecond=0)
+        new_date = datetime.now() + timedelta(days=4)
+        new_date = new_date.replace(
+            hour=10, minute=0, second=0, microsecond=0)
 
         log(
             cur=cur,
@@ -479,7 +472,28 @@ def status(key):
             entity_type="order",
             misc={
                 "from": order["delivery_date"],
-                "to": new_date
+                "to": f'{new_date}'
+            }
+        )
+        cur.execute("""
+            UPDATE "order"
+            SET delivery_date = %s
+            WHERE key = %s;
+        """, (
+            new_date,
+            order["key"]
+        ))
+
+    if order["status"] == "processing" and request.json['status'] == "created":
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="changed_date",
+            entity_key=order["key"],
+            entity_type="order",
+            misc={
+                "from": f"{order['delivery_date']}",
+                "to": None
             }
         )
 
@@ -488,7 +502,7 @@ def status(key):
             SET delivery_date = %s
             WHERE key = %s;
         """, (
-            new_date,
+            None,
             order["key"]
         ))
 
