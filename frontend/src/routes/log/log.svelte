@@ -53,8 +53,14 @@
 
 	{#if log.entity_type == 'page'} viewed {:else} {log.action} {/if}
 
-	{#if log.entity_type == 'user' && log.action == 'viewed' && !log.entity_key}
-		profile
+	{#if log.action == 'viewed'}
+		{#if log.entity_type == 'save'}
+			save
+		{:else if log.entity_type == 'cart'}
+			cart
+		{:else if log.entity_type == 'user' && !log.entity_key}
+			profile
+		{/if}
 	{/if}
 
 	{#if href}

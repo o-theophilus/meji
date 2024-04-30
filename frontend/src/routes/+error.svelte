@@ -15,6 +15,7 @@
 	<div class="ctitle">Error</div>
 </Center>
 
+<!-- TODO: log this -->
 <Card>
 	<div class="bold">{$page.status}</div>
 	{@html $page.error.message}

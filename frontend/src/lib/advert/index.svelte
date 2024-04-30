@@ -1,35 +1,69 @@
 <script>
+	import { state } from '$lib/store.js';
+
 	import Center from '$lib/center.svelte';
+	import { onMount } from 'svelte';
 	import Control from './control.svelte';
 
-	export let adverts = [];
+	export let space;
 	export let size = '';
+	export let placeholder;
+	let adverts = [];
 	let sizes = ['300x300', '300x600', '600x300', '900x300'];
-	let use_size = sizes[0];
+	$: if (!sizes.includes(size)) {
+		size = '';
+	}
 	let index = 0;
 	let width = 0;
-
-	$: if (sizes.includes(size)) {
-		use_size = size;
-	} else if (width < 600) {
-		use_size = '300x300';
-	} else if (width > 900) {
-		use_size = '900x300';
-	} else {
-		use_size = '600x300';
-	}
-
 	$: left = index * width;
+
+	onMount(async () => {
+		let i = $state.findIndex((x) => x.name == space);
+		if (i == -1) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert_display?status=${space}`);
+			resp = await resp.json();
+			if (resp.status == 200) {
+				adverts = resp.adverts;
+				$state.push({
+					name: space,
+					data: resp.adverts,
+					loaded: true
+				});
+			}
+		} else if ($state[i].loaded) {
+			adverts = $state[i].data;
+		}
+	});
 </script>
 
-{#if adverts.length > 0}
+{#if adverts.length == 0 && placeholder}
+	<Center>
+		<section>
+			<div class="ads" bind:offsetWidth={width}>
+				{#if size == ''}
+					<img class="i300" src="/image/ads_300x300.png" alt="loading" style:width="{width}px" />
+					<img class="i600" src="/image/ads_600x300.png" alt="loading" style:width="{width}px" />
+					<img class="i900" src="/image/ads_900x300.png" alt="loading" style:width="{width}px" />
+				{:else}
+					<img src="/image/ads_{size}.png" alt="loading" style:width="{width}px" />
+				{/if}
+			</div>
+		</section>
+	</Center>
+{:else}
 	<Center>
 		<section>
 			<div class="ads" bind:offsetWidth={width}>
 				<div class="scroller" style:left="-{left}px">
 					{#each adverts as x}
 						<a href="/{x.slug}">
-							<img src={x[`photo_${use_size}`]} alt={x.name} style:width="{width}px" />
+							{#if size == ''}
+								<img class="i300" src={x[`photo_300x300`]} alt={x.name} style:width="{width}px" />
+								<img class="i600" src={x[`photo_600x300`]} alt={x.name} style:width="{width}px" />
+								<img class="i900" src={x[`photo_900x300`]} alt={x.name} style:width="{width}px" />
+							{:else}
+								<img src={x[`photo_${size}`]} alt={x.name} style:width="{width}px" />
+							{/if}
 						</a>
 					{/each}
 				</div>
@@ -83,5 +117,34 @@
 
 	a {
 		line-height: 0;
+	}
+
+	.i600 {
+		display: none;
+	}
+	.i900 {
+		display: none;
+	}
+	@media screen and (min-width: 600px) {
+		.i300 {
+			display: none;
+		}
+		.i600 {
+			display: unset;
+		}
+		.i900 {
+			display: none;
+		}
+	}
+	@media screen and (min-width: 900px) {
+		.i300 {
+			display: none;
+		}
+		.i600 {
+			display: none;
+		}
+		.i900 {
+			display: unset;
+		}
 	}
 </style>

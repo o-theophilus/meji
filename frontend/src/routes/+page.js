@@ -37,11 +37,6 @@ export const load = async ({ fetch, parent }) => {
 		state.set(_state)
 	}
 
-	const advert = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert?status=home_1`)
-		resp = await resp.json();
-		return resp
-	}
 	let a = await parent();
 	const new_arrivals = async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/shop?order=latest&page_size=8`, {
@@ -67,12 +62,10 @@ export const load = async ({ fetch, parent }) => {
 	}
 
 
-	let _advert = await advert()
 	let _new_arrivals = await new_arrivals()
 	let _offers = await offers()
 
 	let data = {
-		adverts: _advert.adverts,
 		new_arrivals: _new_arrivals.items,
 		offers: _offers.items
 	}

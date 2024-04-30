@@ -192,8 +192,8 @@ def get(item_key):
 
 
 @bp.get("/advert")
-@bp.get("/advert/<item_status>")
-def get_many(item_status=None):
+@bp.get("/advert_display")
+def get_many():
     con, cur = db_open()
 
     order_by = {
@@ -228,7 +228,8 @@ def get_many(item_status=None):
         order = request.args["order"]
 
     ready = ""
-    if not item_status:
+    item_status = ""
+    if request.path == "/advert_display":
         item_status = "live"
         for x in sizes:
             ready = f"{ready} AND photo_{x} IS NOT NULL"
@@ -246,7 +247,7 @@ def get_many(item_status=None):
         LEFT JOIN item ON advert.key = item.key
         LEFT JOIN log ON advert.key = log.entity_key
         WHERE
-            (%s = 'all' OR item.status = %s)
+            (%s = '' OR item.status = %s)
             AND (%s = '' OR %s = ANY(spaces))
             AND (%s = '' OR item.name ILIKE %s)
             AND log.action = 'created'

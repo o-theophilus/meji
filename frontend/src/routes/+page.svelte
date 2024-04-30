@@ -20,7 +20,6 @@
 	import Confirm from './auth/confirm.svelte';
 
 	export let data;
-	let { adverts } = data;
 	let { offers } = data;
 	let { new_arrivals } = data;
 
@@ -58,7 +57,7 @@
 <Log entity_type={'page'} />
 
 <Hero />
-<Advert {adverts} />
+<Advert space="home_1" placeholder />
 <Tags />
 <Group name="New Arrivals" items={new_arrivals}>
 	<Button class="link small" href="/shop?sort=latest">more &gt;</Button>

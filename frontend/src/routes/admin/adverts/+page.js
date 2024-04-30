@@ -26,7 +26,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 		return _state[i].data
 	}
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/advert/all`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/advert`)
 	backend.search = _state[i].search
 	let resp = await fetch(backend.href, {
 		method: 'get',
