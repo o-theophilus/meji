@@ -1,7 +1,7 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { user } from '$lib/store.js';
+	import { user, state } from '$lib/store.js';
 
 	import Button from '$lib/button.svelte';
 	import ButtonFold from '$lib/button.fold.svelte';
@@ -19,14 +19,29 @@
 
 	export const get_feedback = async () => {
 		loading_feedbacks = true;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/feedback/${item.key}/${$user.key}`);
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/feedback/${item.key}/${$user.key}?size=5`
+		);
 		resp = await resp.json();
 		loading_feedbacks = false;
 
 		if (resp.status == 200) {
 			feedbacks = resp.feedbacks;
 			give_feedback = resp.give_feedback;
-			open = feedbacks.length > 0;
+			// open = feedbacks.length > 0;
+		}
+	};
+
+	const click = () => {
+		let sn = 'item';
+		let i = $state.findIndex((x) => x.name == sn);
+		if (i == -1) {
+			$state.push({
+				name: sn,
+				data: item
+			});
+		} else {
+			$state[i].data = item;
 		}
 	};
 </script>
@@ -40,12 +55,14 @@
 		<Rating ratings={item.ratings} />
 	</div>
 
-	<ButtonFold
-		{open}
-		on:click={() => {
-			open = !open;
-		}}
-	/>
+	{#if !loading_feedbacks}
+		<ButtonFold
+			{open}
+			on:click={() => {
+				open = !open;
+			}}
+		/>
+	{/if}
 </div>
 
 {#if open}
@@ -56,12 +73,16 @@
 			<span>
 				There is no feedback yet.
 				<br />
-				Only
-				{#if !$user.login}
-					logged in
-				{/if}
+				{#if give_feedback}
+					Be the first to add a review.
+				{:else}
+					Only
+					{#if !$user.login}
+						logged in
+					{/if}
 
-				customers who have purchased this item can add a review.
+					customers who have purchased this item can add a review.
+				{/if}
 			</span>
 			<br />
 		{/each}
@@ -70,13 +91,18 @@
 			<br />
 		{/if}
 		{#if give_feedback}
-			<Button class="link" href="/{item.slug}/feedback?add=true">Add Review</Button>
+			<Button
+				class="link"
+				href="/{item.slug}/feedback?add=true"
+				on:click={click}
+				on:mouseenter={click}>Add Review</Button
+			>
 		{/if}
 		{#if give_feedback && feedbacks.length > 0}
 			&nbsp; &nbsp;
 		{/if}
 		{#if feedbacks.length > 0}
-			<Button href="/{item.slug}/feedback" class="link">
+			<Button href="/{item.slug}/feedback" class="link" on:click={click} on:mouseenter={click}>
 				View all
 				<SVG type="arrow_right" size="16" />
 			</Button>

@@ -9,11 +9,18 @@
 
 <button
 	on:click={() => {
-		let i = $state.findIndex((x) => x.name == 'shop');
+		let pn = 'shop';
+		let i = $state.findIndex((x) => x.name == pn);
 		if (i != -1) {
-			$state[i].search = `?${new URLSearchParams({ tag }).toString()}`;
-			$state[i].loaded = false;
+			$state.splice(i, 1);
 		}
+
+		$state.push({
+			name: pn,
+			search: `?${new URLSearchParams({ tag }).toString()}`,
+			data: [],
+			loaded: false
+		});
 
 		$loading = 'loading . . .';
 		goto('/shop');

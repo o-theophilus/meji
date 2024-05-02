@@ -14,12 +14,15 @@
 </script>
 
 <section>
-	<img src={feedback.user.photo ? feedback.user.photo : '/image/user.png'} alt={feedback.name} />
+	<img
+		src={feedback.user_photo ? `${feedback.user_photo}/100` : '/image/user.png'}
+		alt={feedback.name}
+	/>
 	<div class="right">
 		<div class="up">
 			<div>
 				<span class="name">
-					{feedback.user.name}
+					{feedback.user_name}
 				</span>
 				<br />
 				<span class="date">
@@ -31,7 +34,7 @@
 		</div>
 		<br />
 		{feedback.review}
-		{#if $user.key == feedback.user.key && editable}
+		{#if $user.key == feedback.user_key && editable}
 			<Button
 				class="link"
 				on:click={() => {

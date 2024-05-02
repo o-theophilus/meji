@@ -10,7 +10,7 @@ export const load = async ({ fetch, url, parent }) => {
 	if (i == -1) {
 		_state.push({
 			name: page_name,
-			search: url.search,
+			search: url.search
 		})
 		state.set(_state)
 		i = _state.findIndex(x => x.name == page_name);

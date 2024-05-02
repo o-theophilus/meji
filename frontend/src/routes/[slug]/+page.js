@@ -1,22 +1,15 @@
 import { get } from 'svelte/store';
-import { nav_portal } from "$lib/store.js"
+import { state } from "$lib/store.js"
 
-export const load = async ({ fetch, params, parent, depends }) => {
-	let temp = get(nav_portal)
-	if (temp) {
-		nav_portal.set(null)
-		depends("")
-		return {
-			status: 202,
-			item: temp,
-			feedbacks: [],
-			give_feedback: false,
-			groups: []
-		}
-	}
-
+export const load = async ({ fetch, params, parent }) => {
 	let a = await parent();
 	const item = async () => {
+		let _state = get(state)
+		let j = _state.findIndex(x => x.name == "item");
+		if (j != -1 && _state[j].data.slug == params.slug) {
+			return { item: _state[j].data }
+		}
+
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${params.slug}`, {
 			method: 'get',
 			headers: {
@@ -37,7 +30,7 @@ export const load = async ({ fetch, params, parent, depends }) => {
 	let _group = await group(_item.item.key)
 
 	return {
-		item: _item.item,
-		groups: _group.groups
+		..._item,
+		..._group
 	}
 }

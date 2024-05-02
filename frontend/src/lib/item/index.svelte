@@ -3,20 +3,27 @@
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
 
-	import { nav_portal } from '$lib/store.js';
+	import { state } from '$lib/store.js';
 
 	export let item;
 	export let style = 'grid';
+
+	const click = () => {
+		let sn = 'item';
+		let i = $state.findIndex((x) => x.name == sn);
+		if (i == -1) {
+			$state.push({
+				name: sn,
+				data: item
+			});
+		} else {
+			$state[i].data = item;
+		}
+	};
 </script>
 
 <section class="item {style}" data-sveltekit-preload-data="off">
-	<a
-		class="img"
-		href="/{item.slug}"
-		on:click={() => {
-			$nav_portal = item;
-		}}
-	>
+	<a class="img" href="/{item.slug}" on:click={click} on:mouseenter={click}>
 		<img
 			src={item.photos.length > 0 ? `${item.photos[0]}/200` : '/image/item.png'}
 			alt={item.name}
@@ -25,12 +32,7 @@
 	</a>
 
 	<div class="details_control">
-		<a
-			href="/{item.slug}"
-			on:click={() => {
-				$nav_portal = item;
-			}}
-		>
+		<a href="/{item.slug}" on:click={click} on:mouseenter={click}>
 			<div class="details">
 				<div class="name">
 					{item.name}

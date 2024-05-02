@@ -15,7 +15,7 @@
 	transition-timing-function: ease-in-out;
 	
 	--cl1: #1d9bf0;
-	--cl1: #0037af;
+	/* --cl1: #0037af; */
 	--cl1_t: color-mix(in srgb, var(--cl1), transparent 90%);
 	--cl1_b: color-mix(in srgb, var(--cl1), black 30%);
 	--cl4: #ff0000;

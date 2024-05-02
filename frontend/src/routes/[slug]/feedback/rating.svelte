@@ -2,21 +2,21 @@
 	import SVG from '$lib/svg.svelte';
 	import Bar from './rating.bar.svelte';
 
-	export let rating;
-
+	export let feedbacks = [];
 	let sum = 0;
-	let count = 0;
+	let _ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+	let ratings = { ..._ratings };
 
 	$: {
 		sum = 0;
-		count = 0;
+		ratings = { ..._ratings };
 
-		for (const x of Object.entries(rating)) {
-			sum += x[0] * x[1];
-			count += x[1];
+		for (const x of feedbacks) {
+			sum += x.rating;
+			ratings[x.rating]++;
 		}
 
-		sum = sum / count;
+		sum = sum / feedbacks.length;
 		sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
 	}
 </script>
@@ -26,16 +26,16 @@
 		<span class="gold"> <span class="sum">{sum}</span>/5 </span>
 		<SVG type="star" size="30" />
 		<span>
-			{count} rating{#if count > 1}s{/if}
+			{feedbacks.length} rating{#if feedbacks.length > 1}s{/if}
 		</span>
 	</div>
 
 	<div class="right">
-		{#each Object.entries(rating).reverse() as [name, value]}
+		{#each Object.entries(ratings).reverse() as [name, value]}
 			{name}
 			<SVG type="star" size="12" />
 			<span> ({value})</span>
-			{@const width = (value * 100) / count}
+			{@const width = (value * 100) / feedbacks.length}
 			<Bar {width} />
 		{/each}
 	</div>

@@ -53,14 +53,14 @@
 
 		border: none;
 		border-radius: var(--size);
-		background-color: var(--cl1);
+		background-color: var(--ac6);
 		transition: var(--trans1);
 
 		cursor: pointer;
 	}
 
 	button:hover {
-		background-color: var(--cl1_b);
+		background-color: var(--cl1);
 	}
 
 	button.active {

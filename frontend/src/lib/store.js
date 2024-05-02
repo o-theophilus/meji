@@ -12,7 +12,6 @@ export const toast = writable();
 export const loading = writable(false);
 export const user = writable();
 export const portal = writable();
-export const nav_portal = writable();
 
 export const state = writable([])
 export const set_state = (key, value) => {

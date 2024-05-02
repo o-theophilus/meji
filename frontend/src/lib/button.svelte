@@ -8,7 +8,7 @@
 </script>
 
 {#if href}
-	<a class={clas} {href} {target} title={tooltip}>
+	<a class={clas} {href} {target} title={tooltip} on:mouseenter>
 		<slot />
 	</a>
 {:else}

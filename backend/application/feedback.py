@@ -22,7 +22,7 @@ def create(item_key):
 
     cur.execute("""
         SELECT * FROM item WHERE slug = %s OR key = %s;
-    """, (item_key,))
+    """, (item_key, item_key))
     item = cur.fetchone()
 
     if not item:
@@ -54,7 +54,7 @@ def create(item_key):
         WHERE
             order_item.item_key = %s
             AND "order".user_key = %s
-            AND "order".status = "delivered";
+            AND "order".status = 'delivered';
     """, (item["key"], user["key"]))
 
     if not cur.fetchone():
@@ -65,12 +65,18 @@ def create(item_key):
         })
 
     cur.execute("""
+        SELECT * FROM feedback WHERE user_key = %s AND item_key = %s;
+    """, (user["key"], item["key"]))
+    feedback = cur.fetchone()
+
+    # if feedback:
+    #     cur.execute("""
+    #         DELETE FROM feedback WHERE WHERE user_key = %s AND item_key = %s;
+    #     """, (user["key"], item["key"]))
+
+    cur.execute("""
         INSERT INTO feedback (key, user_key, item_key, rating, review)
         VALUES (%s, %s, %s, %s, %s)
-        ON CONFLICT (user_key, item_key)
-        DO UPDATE SET
-            rating = EXCLUDED.rating,
-            review = EXCLUDED.review
         RETURNING *;
     """, (
         uuid4().hex,
@@ -153,9 +159,11 @@ def get_many(item_key, user_key):
 
     has_feedback = False
     for x in feedbacks:
-        if x["user_key"] == user_key:
+        if x["user_photo"]:
+            x["user_photo"] = f"{request.host_url}photo/{x['user_photo']}"
+
+        if not has_feedback and x["user_key"] == user_key:
             has_feedback = True
-            break
 
     has_purchased = True
     if not has_feedback:

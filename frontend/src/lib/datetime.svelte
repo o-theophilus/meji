@@ -36,14 +36,10 @@
 			{/if}
 		{:else}
 			{#if datetime.getHours() % 12}
-				{(datetime.getHours() % 12).toString().padStart(2, '0')}
-			{:else}
-				12{/if}:{datetime.getMinutes().toString().padStart(2, '0')}
-			{#if datetime.getHours() < 12}
-				am
-			{:else}
-				pm
-			{/if}
+				{(datetime.getHours() % 12).toString().padStart(2, '0')}{:else}12{/if}:{datetime
+				.getMinutes()
+				.toString()
+				.padStart(2, '0')}{#if datetime.getHours() < 12}am{:else}pm {/if}
 		{/if}
 	{/if}
 {/if}

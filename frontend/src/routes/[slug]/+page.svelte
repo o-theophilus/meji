@@ -2,7 +2,6 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { user, loading, portal } from '$lib/store.js';
-	import { invalidate } from '$app/navigation';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
@@ -26,7 +25,6 @@
 	import Refresh from './refresh.svelte';
 
 	export let data;
-	$: status = data.status;
 	$: item = data.item;
 	$: groups = data.groups;
 
@@ -65,9 +63,6 @@
 	let get_feedback;
 	const refresh = async () => {
 		await get_feedback();
-		if (status == 202) {
-			invalidate(() => true);
-		}
 	};
 </script>
 
@@ -116,7 +111,9 @@
 			<br />
 			<Variation {item} {edit_mode} />
 			<br />
-			<Feedback {item} bind:get_feedback />
+			{#key item.key}
+				<Feedback {item} bind:get_feedback />
+			{/key}
 			<Floater {item} />
 		</div>
 	</section>
@@ -131,7 +128,7 @@
 		<div class="skeleton_frame">
 			{#each Array(10).slice(0, width < 700 ? 2 : width < 1000 ? 3 : 4) as _}
 				<div class="item">
-					<Spinner active size="20" />
+					<!-- <Spinner active size="20" /> -->
 				</div>
 			{/each}
 		</div>

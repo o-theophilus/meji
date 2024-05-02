@@ -1,5 +1,5 @@
 <script>
-	import { portal, module, loading, toast } from '$lib/store.js';
+	import { portal, module, loading, toast, state } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -52,6 +52,11 @@
 				status: 200,
 				message: 'Feedback Added'
 			};
+
+			let i = $state.findIndex((x) => x.name == 'item');
+			if (i != -1) {
+				$state.splice(i, 1);
+			}
 		} else {
 			error = resp;
 		}

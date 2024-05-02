@@ -10,37 +10,43 @@ export const load = async ({ fetch, url, params, parent, depends }) => {
 	if (i == -1) {
 		_state.push({
 			name: page_name,
-			search: url.search,
-			data: [],
-			loaded: false
+			search: url.search
 		})
 		state.set(_state)
 		i = _state.findIndex(x => x.name == page_name);
-	} else if (_state[i].loaded) {
-		depends(_state[i].search)
-		return _state[i].data
 	}
 
 	let a = await parent();
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${a.locals.user.key}/${params.slug}`)
-	backend.search = _state[i].search
-	let resp = await fetch(backend.href, {
-		method: 'get',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: a.locals.token
+	const item = async () => {
+		let j = _state.findIndex(x => x.name == "item");
+		if (j != -1 && _state[j].data.slug == params.slug) {
+			return { item: _state[j].data }
 		}
-	});
-	resp = await resp.json();
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${params.slug}`, {
+			method: 'get',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: a.locals.token
+			}
+		});
+		resp = await resp.json();
+		return resp
+	}
+	const feedbacks = async (item_key) => {
+		let backend = new URL(`${import.meta.env.VITE_BACKEND}/feedback/${item_key}/${a.locals.user.key}`)
+		backend.search = _state[i].search
+		let resp = await fetch(backend.href);
+		resp = await resp.json();
+		return resp
+	}
+	let _item = await item()
+	let _feedbacks = await feedbacks(_item.item.key)
 	loading.set(false)
 
-	if (resp.status == 200) {
-		resp.page_name = page_name
-
-		_state[i].data = resp
-		_state[i].loaded = true
-		state.set(_state)
-
-		return resp
+	return {
+		page_name: page_name,
+		..._item,
+		..._feedbacks
 	}
 }

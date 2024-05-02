@@ -2,6 +2,7 @@
 	import SVG from '$lib/svg.svelte';
 
 	export let ratings = [];
+	export let rating = 0;
 	export let href = '';
 
 	let sum = 0;
@@ -10,8 +11,12 @@
 		sum += x;
 	}
 
-	sum /= ratings.length;
-	sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
+	if (sum > 0) {
+		sum /= ratings.length;
+		sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
+	} else {
+		sum = rating;
+	}
 </script>
 
 {#if sum > 0}

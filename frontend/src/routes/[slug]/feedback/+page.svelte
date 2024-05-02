@@ -70,7 +70,7 @@
 				<b>Rating</b>
 				<br />
 				<br />
-				<Rating rating={item.rating} />
+				<Rating {feedbacks} />
 			</div>
 		{/if}
 

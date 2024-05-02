@@ -11,14 +11,14 @@
 		height: 20px;
 		width: 100%;
 
-		border: 2px solid var(--ac4);
+		background-color: var(--ac5);
 		border-radius: var(--sp0);
 
 		overflow: hidden;
 	}
 	.fill {
 		height: 100%;
-		background: var(--cl6);
+		background-color: var(--cl6);
 		width: 0;
 	}
 </style>
