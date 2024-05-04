@@ -2,8 +2,8 @@
 	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
-	import Tag from '$lib/button.tag.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Tag from '$lib/button/tag.svelte';
 
 	export let advert;
 	export let spaces;
@@ -78,7 +78,8 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={submit} {disabled}>Save Space</Button>
+	<!-- TODDO: primary if different -->
+	<Button  on:click={submit} {disabled}>Save Space</Button>
 </div>
 
 <style>

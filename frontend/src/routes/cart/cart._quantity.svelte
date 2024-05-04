@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Number from '$lib/number.svelte';
 	import IG from '$lib/input_group.svelte';
 
@@ -99,14 +99,14 @@
 	<div class="line">
 		<Button
 			disabled={item.quantity == 0}
-			class="primary"
+			primary
 			on:click={() => {
 				submit(item.quantity);
 			}}>Ok</Button
 		>
 
 		<Button
-			class="hover_red"
+			extra="hover_red"
 			on:click={() => {
 				submit(0);
 			}}>Remove</Button

@@ -4,14 +4,14 @@
 
 	import Login from '../auth/login.svelte';
 	import Signup from '../auth/signup.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 </script>
 
 {#if !$user?.login}
 	<section>
 		<div class="login">
 			<Button
-				class="primary"
+				primary
 				on:click={() => {
 					$module = {
 						module: Login

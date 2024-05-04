@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let pin;
@@ -72,5 +72,5 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Add</Button>
+	<Button primary on:click={validate}>Add</Button>
 </Form>

@@ -3,11 +3,22 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
+	let form = { information: item.information };
 	let error = {};
+
+	const validate = () => {
+		error = {};
+
+		if (form.information == item.information) {
+			error.information = 'no change';
+		}
+
+		Object.keys(error).length === 0 && submit();
+	};
 
 	const submit = async () => {
 		$loading = 'saving . . .';
@@ -17,7 +28,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ info: item.info })
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -30,7 +41,7 @@
 			$module = '';
 			$toast = {
 				status: 200,
-				message: 'Information changed'
+				message: 'Details changed'
 			};
 		} else {
 			error = resp;
@@ -40,15 +51,22 @@
 
 <Form>
 	<svelte:fragment slot="title">
-		<b>Edit Information</b>
+		<b>Edit Details</b>
 	</svelte:fragment>
 
-	<IG name="info" {error} type="textarea" bind:value={item.info} placeholder="Information here" />
+	<IG
+		label="details"
+		name="information"
+		{error}
+		type="textarea"
+		bind:value={form.information}
+		placeholder="Details here"
+	/>
 	{#if error.error}
 		<p class="error">
 			{error.error}
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={submit}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>

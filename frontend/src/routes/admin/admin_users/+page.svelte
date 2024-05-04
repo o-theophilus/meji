@@ -3,7 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	import Card from '$lib/card.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Meta from '$lib/meta.svelte';
 	import User from '../users/user.svelte';
 	import Pagination from '$lib/pagination.svelte';

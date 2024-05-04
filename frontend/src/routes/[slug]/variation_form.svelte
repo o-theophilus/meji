@@ -6,7 +6,8 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Input from '$lib/input.svelte';
 	import SVG from '$lib/svg.svelte';
@@ -129,7 +130,7 @@
 	<IG name="variation" {error} let:id>
 		<form class="line" on:submit|preventDefault>
 			<Input bind:value={input} type="text" {id} placeholder="variation here" />
-			<Button class={input ? 'primary' : ''} on:click={add_key}>Add</Button>
+			<Button primary={input} on:click={add_key}>Add</Button>
 		</form>
 	</IG>
 
@@ -150,14 +151,14 @@
 						<label for={key}>
 							{key}
 						</label>
-						<Button
-							class="round hover_red"
+						<BRound
+							extra="hover_red"
 							on:click={() => {
 								delete_key(key);
 							}}
 						>
 							<SVG type="close" size="8" />
-						</Button>
+						</BRound>
 					</div>
 				</svelte:fragment>
 			</IG>
@@ -169,7 +170,11 @@
 			{error.error}
 		</p>
 	{/if}
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button
+		primary
+		on:click={validate}
+		disabled={JSON.stringify(variation) == JSON.stringify(item.variation)}>Save</Button
+	>
 </Form>
 
 <style>

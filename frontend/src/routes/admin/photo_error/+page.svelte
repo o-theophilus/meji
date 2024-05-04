@@ -7,9 +7,9 @@
 	import Center from '$lib/center.svelte';
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
-	import Button from '$lib/button.svelte';
-	import Back from '$lib/button.back.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Back from '$lib/button/back.svelte';
 
 	export let data;
 	let { unused } = data;
@@ -123,7 +123,7 @@
 				>
 					Select
 				</Button>
-				<Button class="hover_red" on:click={remove} disabled={photos.length == 0}>Delete</Button>
+				<Button extra="hover_red" on:click={remove} disabled={photos.length == 0}>Delete</Button>
 			</div>
 		{/if}
 	{/if}

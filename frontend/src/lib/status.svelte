@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import Tag from '$lib/button/tag.svelte';
 
 	export let array;
 	export let default_value = '';
@@ -25,8 +25,9 @@
 <div class="status">
 	<div class="buttons">
 		{#each array as x}
-			<Button
-				class={value == x ? 'primary' : ''}
+			<Tag
+				active={value == x}
+				no_grow
 				on:click={() => {
 					if (x != value) {
 						value = x;
@@ -35,7 +36,7 @@
 				}}
 			>
 				{x}
-			</Button>
+			</Tag>
 		{/each}
 	</div>
 

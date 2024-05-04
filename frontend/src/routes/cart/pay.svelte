@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	import MakePayment from './pay.make_payment.svelte';
@@ -20,14 +20,13 @@
 <Card>
 	<div class="ctitle">
 		<div class="ctitle">
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					emit('back');
 				}}
 			>
 				<SVG type="angle" size="10" />
-			</Button>Payment
+			</BRound>Payment
 		</div>
 	</div>
 
@@ -60,7 +59,7 @@
 			</div>
 		{/if}
 
-		<Button
+		<BRound
 			class="link"
 			on:click={() => {
 				$module = {
@@ -69,11 +68,11 @@
 			}}
 		>
 			Add Voucher
-		</Button>
+		</BRound>
 
 		{#if $user.account_balance > 0}
 			<div class="value">
-				<Button
+				<BRound
 					class="link"
 					on:click={() => {
 						$module = {
@@ -83,7 +82,7 @@
 					}}
 				>
 					Edit
-				</Button>
+				</BRound>
 			</div>
 		{:else}
 			<span />

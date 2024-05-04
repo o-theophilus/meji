@@ -3,10 +3,10 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Input from '$lib/input.svelte';
-	import Email from './email_email_template.svelte';
+	import EmailTemplate from './email_template.svelte';
 
 	let form = {};
 	let error = {};
@@ -77,7 +77,7 @@
 
 	const submit = async () => {
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/email`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/email`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -120,9 +120,11 @@
 			<Input type="email" bind:value={form.email} {id} placeholder="your new email here" />
 			<div>
 				<Button
-					class={/\S+@\S+\.\S+/.test(form.email) && form.email != user.email ? 'primary' : ''}
-					on:click={validate_request_otp}>Request OTPs</Button
+					primary={/\S+@\S+\.\S+/.test(form.email) && form.email != user.email}
+					on:click={validate_request_otp}
 				>
+					Request OTPs
+				</Button>
 			</div>
 		</form>
 	</IG>
@@ -159,11 +161,11 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">
-	<Email name={user.name} />
+	<EmailTemplate name={user.name} />
 </div>
 
 <style>

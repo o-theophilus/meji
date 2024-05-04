@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
@@ -13,8 +13,8 @@
 	<b> Share </b>
 
 	<div class="block">
-		<Button
-			class="round"
+		<BRound
+			size="large"
 			href="https://www.facebook.com/sharer.php?u={$page.url.href}"
 			target="_blank"
 			tooltip="Facebook"
@@ -23,10 +23,10 @@
 			}}
 		>
 			<SVG type="facebook" />
-		</Button>
+		</BRound>
 
-		<Button
-			class="round"
+		<BRound
+			size="large"
 			href="http://twitter.com/share?text={text}&url={$page.url.href}&hashtags=meji,shopping"
 			target="_blank"
 			tooltip="Twitter"
@@ -35,10 +35,10 @@
 			}}
 		>
 			<SVG type="twitter" />
-		</Button>
+		</BRound>
 
-		<Button
-			class="round"
+		<BRound
+			size="large"
 			href="whatsapp://send?text={text}%20{$page.url.href}"
 			tooltip="Whatsapp"
 			on:click={() => {
@@ -46,10 +46,10 @@
 			}}
 		>
 			<SVG type="whatsapp" />
-		</Button>
+		</BRound>
 
-		<Button
-			class="round"
+		<BRound
+			size="large"
 			href="https://telegram.me/share/url?url={$page.url.href}&text={text}"
 			target="_blank"
 			tooltip="Telegram"
@@ -58,7 +58,7 @@
 			}}
 		>
 			<SVG type="telegram" />
-		</Button>
+		</BRound>
 
 		<!-- <div class="icon">
 		<div class="svg"><SVG type="instagram" /></div>
@@ -80,6 +80,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: var(--sp2);
+		gap: var(--sp1);
 	}
 </style>

@@ -1,7 +1,7 @@
 <script>
 	import { module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Variation from './add_cart._variation.svelte';
 
@@ -12,7 +12,7 @@
 
 {#if _type == 1}
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			$module = {
 				module: Variation,

@@ -2,7 +2,7 @@
 	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	export let item = {};
 	export let edit_mode = false;
@@ -193,7 +193,7 @@
 	<br />
 	<div class="row">
 		<Button
-			class="primary"
+			primary
 			on:click={() => {
 				input.click();
 			}}
@@ -203,7 +203,7 @@
 		</Button>
 
 		<Button
-			class="hover_red"
+			extra="hover_red"
 			on:click={() => {
 				reorder_delete('delete');
 			}}

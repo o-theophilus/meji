@@ -8,12 +8,12 @@
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
-	import Toggle from '$lib/button.toggle.svelte';
+	import Toggle from '$lib/toggle.svelte';
 	import Status from '$lib/status.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Center from '$lib/center.svelte';
 	import Order from './order.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
 	import Search from '$lib/search.svelte';

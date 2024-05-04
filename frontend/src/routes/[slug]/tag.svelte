@@ -5,11 +5,11 @@
 	import { goto } from '$app/navigation';
 	import { user, module, loading, portal, state } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import BRound from '$lib/button/round.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from './tag_form.svelte';
-	import Tag from '$lib/button.tag.svelte';
+	import Tag from '$lib/button/tag.svelte';
 	import { onMount } from 'svelte';
 
 	export let item = {};
@@ -71,8 +71,7 @@
 		}}
 	/> -->
 	{#if edit_mode && $user.permissions.includes('item:edit_tag')}
-		<Button
-			class="round"
+		<BRound
 			on:click={() => {
 				$module = {
 					module: Form,
@@ -82,7 +81,7 @@
 			tooltip="Edit tag"
 		>
 			<SVG type="edit" size="10" />
-		</Button>
+		</BRound>
 	{/if}
 </div>
 

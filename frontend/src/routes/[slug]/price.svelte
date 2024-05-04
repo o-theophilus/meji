@@ -3,7 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Info from './price.info.svelte';
 	import Discount from './price.discount.svelte';
@@ -19,18 +19,16 @@
 
 	<div class="horizontal">
 		{#if item.old_price}
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					open_discount = !open_discount;
 				}}
 			>
 				<SVG type="info" size="8" />
-			</Button>
+			</BRound>
 		{/if}
 		{#if edit_mode && $user.permissions.includes('item:edit_price')}
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					$module = {
 						module: Form,
@@ -40,7 +38,7 @@
 				tooltip="Edit Price"
 			>
 				<SVG type="edit" size="10" />
-			</Button>
+			</BRound>
 		{/if}
 	</div>
 </div>

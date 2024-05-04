@@ -7,8 +7,8 @@
 
 	import countries from '$lib/countries.js';
 
-	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import Button from '$lib/button/button.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
@@ -241,7 +241,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Ok</Button>
+	<Button primary on:click={validate}>Ok</Button>
 </Form>
 
 <style>

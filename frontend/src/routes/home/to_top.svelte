@@ -2,7 +2,7 @@
 	import { scale } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	const go = (name) => {
@@ -19,14 +19,13 @@
 {#if y > 500}
 	<section>
 		<div transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					go('top');
 				}}
 			>
 				<SVG type="angle" size="12" />
-			</Button>
+			</BRound>
 		</div>
 	</section>
 {/if}

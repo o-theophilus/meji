@@ -2,7 +2,7 @@
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Trx from './trx.svelte';
 
 	export let data;

@@ -47,7 +47,7 @@ def storage(
         file_io = BytesIO()
         photo.save(file_io, format="JPEG")
 
-        name = f"{uuid4().hex}.jpg"
+        name = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
         drive().put(f"{folder}/{name}", file_io.getvalue())
 
         return name

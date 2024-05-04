@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
@@ -104,7 +104,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <style>

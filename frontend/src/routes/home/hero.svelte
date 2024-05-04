@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Wave from './hero.wave.svelte';
 	import Nav from './hero.nav.svelte';
@@ -22,7 +22,7 @@
 			Whoever said money can't buy happiness basically didn't know where to go shopping.
 			<div class="btn">
 				<br />
-				<Button class="primary large" href="/shop">
+				<Button primary size="large" href="/shop">
 					Shop Now
 					<SVG type="arrow_right" size="16" />
 				</Button>
@@ -42,7 +42,7 @@
 			<img src="/image/hero_image.png" alt="hero" />
 			<div class="btn">
 				<br />
-				<Button class="primary large" href="/shop">
+				<Button primary size="large" href="/shop">
 					Shop Now
 					<SVG type="arrow_right" size="16" />
 				</Button>

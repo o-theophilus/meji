@@ -3,8 +3,8 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import Button from '$lib/button/button.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let form = {
@@ -73,7 +73,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Ok</Button>
+	<Button primary on:click={validate}>Ok</Button>
 </Form>
 
 <style>

@@ -4,8 +4,8 @@
 
 	import Form from '$lib/form.svelte';
 	import Password from './password_checker.svelte';
-	import Button from '$lib/button.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import Button from '$lib/button/button.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 	import Login from './login.svelte';
@@ -136,7 +136,7 @@ Please try repeacting the action again.`,
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Reset</Button>
+	<Button primary on:click={validate}>Reset</Button>
 </Form>
 
 <style>

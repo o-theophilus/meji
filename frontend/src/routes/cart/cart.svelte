@@ -5,7 +5,7 @@
 
 	import Card from '$lib/card.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -45,7 +45,7 @@
 	<br />
 
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			if ($user.login) {
 				emit('next');

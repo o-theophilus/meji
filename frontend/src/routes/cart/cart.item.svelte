@@ -3,7 +3,7 @@
 
 	import Quantity from './cart._quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	export let item;
 </script>
@@ -39,7 +39,7 @@
 				x &nbsp;
 
 				<Button
-					class="small"
+					size="small"
 					on:click={() => {
 						$module = {
 							module: Quantity,

@@ -1,24 +1,24 @@
 <script>
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 </script>
 
 <div class="block">
-	<Button class="round large" href="https://wa.me/2348067397793/?text=Hello%20Theophilus" target="_blank">
+	<BRound size="large" href="https://wa.me/2348067397793/?text=Hello%20Theophilus" target="_blank">
 		<SVG type="whatsapp" />
-	</Button>
+	</BRound>
 
-	<Button class="round large" href="https://twitter.com/o__theophilus" target="_blank">
+	<BRound size="large" href="https://twitter.com/o__theophilus" target="_blank">
 		<SVG type="twitter" />
-	</Button>
+	</BRound>
 
-	<Button class="round large" href="https://m.facebook.com/o.theophilus" target="_blank">
+	<BRound size="large" href="https://m.facebook.com/o.theophilus" target="_blank">
 		<SVG type="facebook" />
-	</Button>
+	</BRound>
 
-	<!-- <Button class="round large" href="https://www.instagram.com/o_theophilus_/" target="_blank" rel="noopener noreferrer">
+	<!-- <BRound size="large" href="https://www.instagram.com/o_theophilus_/" target="_blank" rel="noopener noreferrer">
 		<SVG type="instagram" />
-	</Button> -->
+	</BRound> -->
 </div>
 
 <style>

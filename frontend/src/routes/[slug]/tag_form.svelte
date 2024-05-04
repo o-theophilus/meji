@@ -4,16 +4,26 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Tag from '$lib/button.tag.svelte';
-	import Button from '$lib/button.svelte';
+	import Tag from '$lib/button/tag.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Spinner from '$lib/loading_spinner.svelte';
 
 	let item = { ...$module.item };
-	let all_tags = [];
 	let tags = item.tags.join(', ');
-	let all_tags_btn = [];
+	let all_tags = [];
+	let unused_tags = [];
 	let error = {};
+
+	const validate = () => {
+		error = {};
+
+		if (tags.split(', ').filter(Boolean).sort().join(', ') == item.tags.slice().sort().join(', ')) {
+			error.tags = 'no change';
+		}
+
+		Object.keys(error).length === 0 && submit();
+	};
 
 	const submit = async () => {
 		error = {};
@@ -56,7 +66,7 @@
 		tags = tags.filter((v, i, l) => l.indexOf(v) === i);
 		tags = tags.join(', ');
 
-		all_tags_btn = all_tags.filter((i) => !tags.split(', ').includes(i));
+		unused_tags = all_tags.filter((i) => !tags.split(', ').includes(i));
 	};
 
 	let loading_tags = true;
@@ -110,7 +120,7 @@
 				<Spinner active />
 			</div>
 		{/if}
-		{#each all_tags_btn as tag}
+		{#each unused_tags as tag}
 			<Tag
 				on:click={() => {
 					clean_value(tag);
@@ -127,7 +137,7 @@
 		</p>
 		<br />
 	{/if}
-	<Button class="primary" on:click={submit}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <style>

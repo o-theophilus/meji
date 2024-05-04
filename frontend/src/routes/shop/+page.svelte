@@ -7,7 +7,7 @@
 	import Log from '$lib/log.svelte';
 	import Card from '$lib/card.svelte';
 	import Item from '$lib/item/index.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
 	import Center from '$lib/center.svelte';
@@ -48,7 +48,7 @@
 		<Status array={item_status} default_value="live">
 			{#if $user.permissions.includes('item:add')}
 				<Button
-					class="primary"
+					primary
 					on:click={() => {
 						$module = {
 							module: Add

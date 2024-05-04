@@ -7,8 +7,9 @@
 	import Forgot from './forgot.svelte';
 	import Signup from './signup.svelte';
 	import Info from '$lib/info.svelte';
-	import Button from '$lib/button.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Email from './confirm_email_template.svelte';
 
@@ -116,7 +117,7 @@
 	{/if}
 
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			validate();
 		}}
@@ -126,8 +127,7 @@
 
 	<br />
 	Don't have an account?
-	<Button
-		class="link"
+	<Link
 		on:click={() => {
 			$module = {
 				module: Signup,
@@ -136,11 +136,10 @@
 		}}
 	>
 		Signup
-	</Button>
+	</Link>
 	<br />
 	Forgot password?
-	<Button
-		class="link"
+	<Link
 		on:click={() => {
 			$module = {
 				module: Forgot,
@@ -149,7 +148,7 @@
 		}}
 	>
 		Recover
-	</Button>
+	</Link>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

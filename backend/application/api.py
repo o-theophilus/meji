@@ -155,8 +155,16 @@ def fix():
     # """)
 
     # cur.execute("""
-    #     ALTER TABLE save
-    #     DROP COLUMN date;
+    #     ALTER TABLE "user"
+    #     ALTER COLUMN photo
+    #     TYPE VARCHAR(50);
+        
+    #     ALTER TABLE advert
+    #     ALTER COLUMN photo_300x300 TYPE VARCHAR(50),
+    #     ALTER COLUMN photo_300x600 TYPE VARCHAR(50),
+    #     ALTER COLUMN photo_600x300 TYPE VARCHAR(50),
+    #     ALTER COLUMN photo_900x300 TYPE VARCHAR(50);
+        
     # """)
 
     db_close(con, cur)

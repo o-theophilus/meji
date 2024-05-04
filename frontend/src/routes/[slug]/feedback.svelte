@@ -3,8 +3,8 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { user, state } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import Link from '$lib/button/link.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Rating from '$lib/item/rating.svelte';
 	import Review from './feedback/review.svelte';
@@ -28,7 +28,6 @@
 		if (resp.status == 200) {
 			feedbacks = resp.feedbacks;
 			give_feedback = resp.give_feedback;
-			// open = feedbacks.length > 0;
 		}
 	};
 
@@ -67,6 +66,29 @@
 
 {#if open}
 	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+		<div class="horizontal">
+			<div class="horizontal">
+				{#if feedbacks.length > 0}
+					<Link href="/{item.slug}/feedback" on:click={click} on:mouseenter={click} icon>
+						view more
+					</Link>
+				{/if}
+
+				{#if give_feedback && feedbacks.length > 0}
+					|
+				{/if}
+
+				{#if give_feedback}
+					<Link href="/{item.slug}/feedback?add=true" on:click={click} on:mouseenter={click} icon>
+						add review
+					</Link>
+				{/if}
+			</div>
+		</div>
+		{#if give_feedback || feedbacks.length > 0}
+			<br />
+		{/if}
+
 		{#each feedbacks as feedback}
 			<Review {feedback} {item} />
 		{:else}
@@ -86,29 +108,7 @@
 			</span>
 			<br />
 		{/each}
-
-		{#if give_feedback || feedbacks.length > 0}
-			<br />
-		{/if}
-		{#if give_feedback}
-			<Button
-				class="link"
-				href="/{item.slug}/feedback?add=true"
-				on:click={click}
-				on:mouseenter={click}>Add Review</Button
-			>
-		{/if}
-		{#if give_feedback && feedbacks.length > 0}
-			&nbsp; &nbsp;
-		{/if}
-		{#if feedbacks.length > 0}
-			<Button href="/{item.slug}/feedback" class="link" on:click={click} on:mouseenter={click}>
-				View all
-				<SVG type="arrow_right" size="16" />
-			</Button>
-		{/if}
 	</div>
-	<br />
 {/if}
 
 <style>

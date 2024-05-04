@@ -1,21 +1,22 @@
 <script>
 	import { page } from '$app/stores';
-	import { user as me, module, portal } from '$lib/store.js';
+	import { user as me, portal } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 
-	import Button from '$lib/button.svelte';
-	import Toggle from '$lib/button.toggle.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
+	import Toggle from '$lib/toggle.svelte';
 	import Logout from '../auth/logout.svelte';
 
 	import Photo from './photo.svelte';
-	import Edit_Name from './_name.svelte';
-	import Edit_Email from './_email.svelte';
-	import Edit_Phone from './_phone.svelte';
-	import Edit_Address from './_address.svelte';
-	import Add_Voucher from './_voucher.svelte';
+	import Name from './name.svelte';
+	import Email from './email.svelte';
+	import Phone from './phone.svelte';
+	import Address from './address.svelte';
+	import Account from './account.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Search from '$lib/search.svelte';
 	import Center from '$lib/center.svelte';
@@ -27,8 +28,12 @@
 
 	let edit_mode = false;
 
-	$: if ($portal && $portal.type == 'user') {
-		user = $portal.data;
+	$: if ($portal) {
+		if ($portal.type == 'user') {
+			user = $portal.data;
+		} else if ($portal.type == 'photo' && user.key == $me.key) {
+			$me.photo = $portal.data;
+		}
 		$portal = '';
 	}
 </script>
@@ -82,153 +87,37 @@
 	{:else}
 		<div class="block">
 			<div class="photo">
-				<!-- TODO: keep photo size before loading -->
 				<Photo {user} {edit_mode} />
 			</div>
 
 			<div>
-				<div class="horizontal space">
-					<span class="name">
-						{user.name}
-					</span>
-					{#if edit_mode}
-						<Button
-							class="round"
-							tooltip="Edit Name"
-							on:click={() => {
-								$module = {
-									module: Edit_Name,
-									user: user
-								};
-							}}
-						>
-							<SVG type="edit" size="10" />
-						</Button>
-					{/if}
-				</div>
-
+				<Name {user} {edit_mode} />
 				<br />
-
 				<div class="details">
 					{#if user.key != $me.key}
 						<span class="bold"> Status: </span>
 						{user.status}
 						<div />
 					{/if}
-
-					<span class="bold"> Phone: </span>
-					{#if user.phone}
-						{user.phone}
-					{:else}
-						No Phone
-					{/if}
-					{#if edit_mode}
-						<Button
-							class="round"
-							tooltip="Edit Phone Number"
-							on:click={() => {
-								$module = {
-									module: Edit_Phone,
-									user: user
-								};
-							}}
-						>
-							<SVG type="edit" size="10" />
-						</Button>
-					{:else}
-						<div />
-					{/if}
-
-					<span class="bold"> Email: </span>
-					{user.email}
-					{#if edit_mode}
-						<Button
-							class="round"
-							tooltip="Edit Email"
-							on:click={() => {
-								$module = {
-									module: Edit_Email,
-									user: user
-								};
-							}}
-						>
-							<SVG type="edit" size="10" />
-						</Button>
-					{:else}
-						<div />
-					{/if}
-
-					<span class="bold"> Address: </span>
-					{#if user.line && user.local_area && user.state && user.country && user.postal_code}
-						{user.line}, {user.local_area}, {user.state}, {user.country}.
-					{:else}
-						No Address
-					{/if}
-
-					{#if edit_mode}
-						<Button
-							class="round"
-							tooltip="Edit Address"
-							on:click={() => {
-								$module = {
-									module: Edit_Address,
-									user: user
-								};
-							}}
-						>
-							<SVG type="edit" size="10" />
-						</Button>
-					{:else}
-						<div />
-					{/if}
-
-					{#if user.line && user.local_area && user.state && user.country && user.postal_code}
-						<span class="bold"> Postal Code: </span>
-						{user.postal_code}
-					{/if}
+					<Phone {user} {edit_mode} />
+					<Email {user} {edit_mode} />
+					<Address {user} {edit_mode} />
 				</div>
-
 				<br />
-
-				<div class="horizontal">
-					<p>
-						<span class="bold"> Account: </span>
-						<br />
-						Balance:
-
-						{#if user.account_balance != '#'}
-							₦{user.account_balance.toLocaleString()}
-						{:else}
-							{user.account_balance}##
-						{/if}
-					</p>
-
-					{#if user.key == $me.key}
-						<Button
-							on:click={() => {
-								$module = {
-									module: Add_Voucher
-								};
-							}}
-						>
-							Add Voucher
-						</Button>
-						<Button href="/profile/transaction">Transaction</Button>
-					{/if}
-				</div>
+				<Account {user} />
 
 				{#if user.key == $me.key}
+					<br />
+					<hr />
 					<br />
 
 					<div class="horizontal">
 						{#if user.permissions.length != 0}
-							<Button href="/admin">Admin</Button>
+							<Link href="/admin">Admin</Link> |
 						{/if}
-
-						<Button href="/orders">Orders</Button>
-
+						<Link href="/orders">Orders</Link>
 						{#if $me.permissions.includes('log:view')}
-							<Button href="/log">Logs</Button>
+							| <Link href="/log">Logs</Link>
 						{/if}
 					</div>
 
@@ -245,15 +134,14 @@
 						{/if}
 						<Logout />
 					</div>
-				{/if}
-
-				{#if user.key != $me.key && $me.permissions.includes('log:view')}
+				{:else if $me.permissions.includes('log:view')}
 					<br />
-					<Button
-						class="link small"
-						href="/log?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}"
-						>view log &gt;</Button
-					>
+					<hr />
+					<br />
+
+					<Link href="/log?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}">
+						view logs
+					</Link>
 				{/if}
 			</div>
 		</div>
@@ -274,10 +162,6 @@
 		width: 100%;
 	}
 
-	.name {
-		font-weight: 900;
-		color: var(--ac1);
-	}
 	.bold {
 		font-weight: 700;
 	}
@@ -287,9 +171,6 @@
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
-	}
-	.space {
-		justify-content: space-between;
 	}
 
 	.details {

@@ -2,9 +2,8 @@
 	import { onMount } from 'svelte';
 	import { module, state } from '$lib/store.js';
 
-	import Center from '$lib/center.svelte';
-	import SVG from '$lib/svg.svelte';
-	import Button from '$lib/button.svelte';
+	import Center from '$lib/card.svelte';
+	import Link from '$lib/button/link.svelte';
 
 	import Tag from './tags.btn.svelte';
 	import All from './tags._all.svelte';
@@ -26,64 +25,28 @@
 {#if tags.length > 0}
 	<div id="tag" />
 	<Center>
-		<section class="card">
-			<div class="ctitle">Tags</div>
+		<div class="ctitle">Tags</div>
 
-			<div class="tag_area">
-				<ItemPack let:style style="grid">
-					{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
-						<Tag {tag} />
-					{/each}
-				</ItemPack>
-			</div>
+		<Link
+			on:click={() => {
+				$module = {
+					module: All
+				};
+			}}
+			icon
+		>
+			view more
+		</Link>
 
-			<Button
-				class="wide"
-				on:click={() => {
-					$module = {
-						module: All
-					};
-				}}
-			>
-				view all
+		<br />
 
-				<span class="rotate">
-					<SVG type="angle" size="10" />
-				</span>
-			</Button>
-		</section>
+		<ItemPack style="grid">
+			{#each tags.slice(0, width < 1000 ? 6 : 8) as tag}
+				<Tag {tag} />
+			{/each}
+		</ItemPack>
 	</Center>
 {/if}
 
 <style>
-	.card {
-		width: 100%;
-		margin-top: var(--sp2);
-		border-radius: var(--sp0);
-
-		color: var(--ac2);
-		background-color: var(--ac6);
-		box-shadow: var(--shad1);
-	}
-	.ctitle {
-		padding: var(--sp3);
-		padding-bottom: 0;
-	}
-	.tag_area {
-		padding: var(--sp3);
-	}
-
-	@media screen and (min-width: 700px) {
-		.ctitle {
-			padding: var(--sp5);
-			padding-bottom: 0;
-		}
-		.tag_area {
-			padding: var(--sp5);
-		}
-	}
-
-	.rotate {
-		transform: rotate(180deg);
-	}
 </style>

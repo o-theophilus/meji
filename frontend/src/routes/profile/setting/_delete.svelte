@@ -2,10 +2,10 @@
 	import { loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 
 	let form = {};
 	let error = {};

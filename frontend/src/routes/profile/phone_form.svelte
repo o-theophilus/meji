@@ -2,17 +2,19 @@
 	import { portal, module, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Form from '$lib/form.svelte';
 
 	let error = {};
-	let { phone } = $module.user;
+	let form = { phone: $module.user.phone };
 
 	const validate = async () => {
 		error = {};
-		if (!phone) {
+		if (!form.phone) {
 			error.phone = 'this field is required';
+		} else if (form.phone == $module.user.phone) {
+			error.phone = 'no change';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -26,7 +28,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ phone })
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -51,8 +53,8 @@
 	<svelte:fragment slot="title">
 		<b>Edit Phone Number</b>
 	</svelte:fragment>
-	
-	<IG name="phone" {error} bind:value={phone} type="tel" placeholder="Your phone here" />
+
+	<IG name="phone" {error} bind:value={form.phone} type="tel" placeholder="Your phone here" />
 
 	{#if error.error}
 		<p class="error">
@@ -61,7 +63,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <style>

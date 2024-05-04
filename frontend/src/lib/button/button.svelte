@@ -1,18 +1,37 @@
 <script>
 	export let href = '';
-	export let tooltip = '';
 	export let target = '';
 	export let disabled = false;
-	let clas = '';
-	export { clas as class };
+
+	export let primary = false;
+	export let size = ''; // small, large, wide
+	export let extra = ''; // outline, hover_red,
 </script>
 
 {#if href}
-	<a class={clas} {href} {target} title={tooltip} on:mouseenter>
+	<a
+		class:primary
+		class:small={size == 'small'}
+		class:large={size == 'large'}
+		class:wide={size == 'wide'}
+		class:outline={extra == 'outline'}
+		class:hover_red={extra == 'hover_red'}
+		{href}
+		{target}
+	>
 		<slot />
 	</a>
 {:else}
-	<button class={clas} on:click title={tooltip} {disabled}>
+	<button
+		class:primary
+		class:small={size == 'small'}
+		class:large={size == 'large'}
+		class:wide={size == 'wide'}
+		class:outline={extra == 'outline'}
+		class:hover_red={extra == 'hover_red'}
+		on:click
+		{disabled}
+	>
 		<slot />
 	</button>
 {/if}
@@ -39,12 +58,6 @@
 		cursor: pointer;
 	}
 
-	.primary {
-		background-color: var(--cl1);
-		color: var(--ac6_);
-		box-shadow: 0 -4px 0 var(--cl1_b) inset;
-	}
-
 	.large {
 		padding: var(--sp2) var(--sp4);
 		font-size: large;
@@ -59,31 +72,10 @@
 		width: 100%;
 	}
 
-	.round {
-		--size: 28px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-
-		width: var(--size);
-		height: var(--size);
-
-		padding: 0;
-
-		border-radius: var(--size);
-	}
-
-	.round.large {
-		--size: 40px;
-	}
-
-	:hover:not(:disabled):not(.link) {
-		background-color: var(--cl1_b);
+	.primary {
+		background-color: var(--cl1);
 		color: var(--ac6_);
-	}
-	.hover_red:hover:not(:disabled) {
-		background-color: var(--cl4);
+		box-shadow: 0 -4px 0 var(--cl1_b) inset;
 	}
 
 	:disabled {
@@ -95,23 +87,16 @@
 		opacity: 0.4;
 	}
 
-	.link {
-		display: inline-flex;
-		gap: var(--sp0);
-		padding: 0;
-		color: var(--cl1);
-		background: none;
-
-		text-align: left;
-	}
-	.link:hover {
-		color: var(--cl1_b);
+	:not(:disabled):hover {
+		background-color: var(--cl1_b);
+		color: var(--ac6_);
 	}
 
-	.outline {
+	:not(:disabled):not(.primary).hover_red:hover {
+		background-color: var(--cl4);
+	}
+
+	:not(:disabled):not(.primary).outline {
 		outline: 2px solid var(--ac4);
-	}
-	.outline:hover {
-		outline-color: var(--ac5);
 	}
 </style>

@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Number from '$lib/number.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 	import SVG from '$lib/svg.svelte';
@@ -104,7 +104,7 @@
 	<br />
 
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			validate();
 		}}

@@ -3,7 +3,7 @@
 	import { user, module, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Info from '$lib/info.svelte';
 	import Email_Admin from './pay.email_template_admin.svelte';
 	import Email_User from './pay.email_template_user.svelte';
@@ -97,7 +97,7 @@
 </svelte:head>
 
 <div class="horizontal">
-	<Button class="primary" on:click={make_payment}>Make Payment</Button>
+	<Button primary on:click={make_payment}>Make Payment</Button>
 </div>
 <br />
 {#if error.error}

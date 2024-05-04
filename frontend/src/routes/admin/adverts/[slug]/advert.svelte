@@ -2,7 +2,7 @@
 	import { loading, portal, toast } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	export let advert;
 	export let item;
@@ -218,7 +218,7 @@
 <br />
 <div class="row">
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			input.click();
 		}}
@@ -227,13 +227,13 @@
 		Add
 	</Button>
 
-	<Button class="hover_red" on:click={remove_photo} disabled={!advert[`photo_${active_size}`]}
+	<Button extra="hover_red" on:click={remove_photo} disabled={!advert[`photo_${active_size}`]}
 		>Remove</Button
 	>
 </div>
 <br />
 <div class="row">
-	<Button class="hover_red" on:click={delete_advert} disabled={photo_length(advert) == 0}>
+	<Button extra="hover_red" on:click={delete_advert} disabled={photo_length(advert) == 0}>
 		Delete Advert
 	</Button>
 </div>

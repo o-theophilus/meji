@@ -6,8 +6,8 @@
 	import IG from '$lib/input_group.svelte';
 	import Input from '$lib/input.svelte';
 	import Password from '../../auth/password_checker.svelte';
-	import Button from '$lib/button.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import Button from '$lib/button/button.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 
 	import Email from './password_email_template.svelte';
 	import Info from '$lib/info.svelte';
@@ -136,7 +136,7 @@
 		<div class="line">
 			<Input bind:value={form.otp} type="text" placeholder="OTP here" />
 			<form on:submit|preventDefault>
-				<Button class="primary" on:click={request_otp}>Request OTPs</Button>
+				<Button primary on:click={request_otp}>Request OTPs</Button>
 			</form>
 		</div>
 	</IG>
@@ -155,7 +155,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Reset</Button>
+	<Button primary on:click={validate}>Reset</Button>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

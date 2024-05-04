@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	let emit = createEventDispatcher();
@@ -63,14 +63,13 @@
 
 		<div class="float clear">
 			{#if search}
-				<Button
-					class="round"
+				<BRound
 					on:click={() => {
 						submit('clear');
 					}}
 				>
 					<SVG type="close" size="8" />
-				</Button>
+				</BRound>
 			{/if}
 		</div>
 	</div>

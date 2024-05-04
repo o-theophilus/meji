@@ -2,7 +2,7 @@
 	import { token } from '$lib/cookie.js';
 	import { loading } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	const submit = async () => {
 		$loading = true;
@@ -25,7 +25,7 @@
 </script>
 
 <Button
-	class="hover_red"
+	extra="hover_red"
 	on:click={() => {
 		submit();
 	}}

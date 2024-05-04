@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 </script>
 

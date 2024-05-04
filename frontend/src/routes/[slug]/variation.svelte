@@ -3,8 +3,8 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import BRound from '$lib/button/round.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 	import Form from './variation_form.svelte';
@@ -25,8 +25,7 @@
 				}}
 			/>
 			{#if edit_mode && $user.permissions.includes('item:edit_variation')}
-				<Button
-					class="round"
+				<BRound
 					on:click={() => {
 						$module = {
 							module: Form,
@@ -36,7 +35,7 @@
 					tooltip="Edit Variation"
 				>
 					<SVG type="edit" size="10" />
-				</Button>
+				</BRound>
 			{/if}
 		</div>
 	</div>

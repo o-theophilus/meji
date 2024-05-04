@@ -3,32 +3,43 @@
 	import { token } from '$lib/cookie.js';
 	import countries from '$lib/countries.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let error = {};
-
-	let user = { ...$module.user };
-	user.country = user.country ? user.country : 'Nigeria';
-	user.state = user.state ? user.state : 'Lagos';
+	let form = {
+		line: $module.user.line,
+		country: $module.user.country,
+		state: $module.user.state,
+		local_area: $module.user.local_area,
+		postal_code: $module.user.postal_code
+	};
+	form.country = form.country ? form.country : 'Nigeria';
+	form.state = form.state ? form.state : 'Lagos';
 
 	const validate = async () => {
 		error = {};
-		if (!user.line) {
+		if (!form.line) {
 			error.line = 'This field is required';
 		}
-		if (!user.country) {
+		if (!form.country) {
 			error.country = 'This field is required';
 		}
-		if (!user.state) {
+		if (!form.state) {
 			error.state = 'This field is required';
 		}
-		if (!user.local_area) {
+		if (!form.local_area) {
 			error.local_area = 'This field is required';
 		}
-		if (!user.postal_code) {
+		if (!form.postal_code) {
 			error.postal_code = 'This field is required';
+		}
+		if (
+			`${form.line} ${form.country} ${form.state} ${form.local_area} ${form.postal_code}` ==
+			`${$module.user.line} ${$module.user.country} ${$module.user.state} ${$module.user.local_area} ${$module.user.postal_code}`
+		) {
+			error.error = 'no change';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -36,13 +47,13 @@
 
 	const submit = async () => {
 		$loading = 'saving . . .';
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${user.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/${$module.user.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify(user)
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -65,7 +76,7 @@
 	let states = [];
 	$: {
 		for (let i in countries) {
-			if (countries[i].name == user.country) {
+			if (countries[i].name == form.country) {
 				states = countries[i].states;
 				break;
 			}
@@ -82,17 +93,17 @@
 		name="line"
 		label="Address"
 		{error}
-		bind:value={user.line}
+		bind:value={form.line}
 		type="text"
 		placeholder="Your address here"
 	/>
 
 	<IG name="country" {error} let:id>
 		<select
-			bind:value={user.country}
+			bind:value={form.country}
 			{id}
 			on:input={() => {
-				user.state = '';
+				form.state = '';
 			}}
 		>
 			<option value="" selected default hidden> Select country </option>
@@ -105,7 +116,7 @@
 	</IG>
 
 	<IG name="state" {error} let:id>
-		<select bind:value={user.state} {id}>
+		<select bind:value={form.state} {id}>
 			<option value="" selected default hidden> Select state </option>
 			{#each states as state}
 				<option value={state.name}> {state.name} </option>
@@ -118,7 +129,7 @@
 		label="Local Government Area"
 		{error}
 		type="text"
-		bind:value={user.local_area}
+		bind:value={form.local_area}
 		placeholder="Your local government area here"
 	/>
 
@@ -127,7 +138,7 @@
 		label="Postal Code"
 		{error}
 		type="text"
-		bind:value={user.postal_code}
+		bind:value={form.postal_code}
 		placeholder="Your postal code here"
 	/>
 
@@ -138,7 +149,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <style>

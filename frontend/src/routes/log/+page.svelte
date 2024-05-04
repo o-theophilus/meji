@@ -8,7 +8,7 @@
 	import Pagination from '$lib/pagination.svelte';
 	import Search from './search.svelte';
 	import Log from './log.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
 
 	export let data;

@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	let item = { ...$module.item };
 	let error = {};
@@ -24,7 +24,7 @@
 	};
 
 	const submit = async (status) => {
-		$loading = "updating . . .";
+		$loading = 'updating . . .';
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
 			method: 'put',
 			headers: {

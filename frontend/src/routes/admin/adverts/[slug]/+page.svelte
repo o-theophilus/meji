@@ -4,8 +4,8 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
-	import Button from '$lib/button.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Link from '$lib/button/link.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Advert from './advert.svelte';
 	import Space from './space.svelte';
 
@@ -37,13 +37,14 @@
 
 <Center>
 	<br />
-	<div class="ctitle">
-		<div class="ctitle">
-			<Back />
-			<Button class="link" href="/{item.slug}">
+	<div class="h">
+		<Back />
+
+		<div>
+			<div class="ctitle">Advert</div>
+			<Link href="/{item.slug}" icon>
 				{item.name}
-			</Button>
-			- Adverts
+			</Link>
 		</div>
 	</div>
 </Center>
@@ -69,11 +70,16 @@
 	.block > div {
 		width: 100%;
 	}
-
+	
 	@media screen and (min-width: 800px) {
 		.block {
 			flex-direction: unset;
 			position: relative;
 		}
+	}
+	.h {
+		display: flex;
+		gap: var(--sp2);
+		align-items: center;
 	}
 </style>

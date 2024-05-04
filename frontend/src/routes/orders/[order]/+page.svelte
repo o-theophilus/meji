@@ -3,10 +3,11 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
 	import Center from '$lib/center.svelte';
 	import SVG from '$lib/svg.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Log from '$lib/log.svelte';
 	import Datetime from '$lib/datetime.svelte';
 
@@ -78,8 +79,7 @@
 
 			<span class="bold"> Estimated time of delivery: </span>
 			{#if order.status == 'created'}
-				<Button
-					class="link"
+				<Link
 					on:click={() => {
 						$module = {
 							module: Eta,
@@ -88,7 +88,7 @@
 					}}
 				>
 					Edit
-				</Button>
+				</Link>
 			{/if}
 			<br />
 			To be delivered on or before
@@ -123,7 +123,7 @@
 
 			{#if order.user == $user.key || $user.permissions.includes('order:cancel')}
 				<Button
-					class="hover_red"
+					extra="hover_red"
 					on:click={() => {
 						$module = {
 							module: Cancel,

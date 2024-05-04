@@ -96,6 +96,8 @@ def edit_user(key):
     if "name" in request.json:
         if not request.json["name"]:
             error['name'] = "this field is required"
+        elif  request.json["name"] == user["name"]:
+            error['name'] = "no change"
         else:
             cur.execute("""
                 UPDATE "user"
@@ -109,6 +111,8 @@ def edit_user(key):
     if "phone" in request.json:
         if not request.json["phone"]:
             error['phone'] = "this field is required"
+        elif  request.json["phone"] == user["phone"]:
+            error['phone'] = "no change"
         else:
             cur.execute("""
                 UPDATE "user"
@@ -119,68 +123,81 @@ def edit_user(key):
                 user["key"]
             ))
 
-    if (
+    elif (
         "line" in request.json
         or "state" in request.json
         or "country" in request.json
         or "local_area" in request.json
         or "postal_code" in request.json
     ):
-        if not request.json["line"]:
-            error["line"] = "this field is required"
+        ra=request.json["line"]
+        rs=request.json["state"]
+        rc=request.json["country"]
+        rl=request.json["local_area"]
+        rp=request.json["postal_code"]
+        ua=user["line"]
+        us=user["state"]
+        uc=user["country"]
+        ul=user["local_area"]
+        up=user["postal_code"]
+        if(f"{ra} {rs} {rc} {rl} {rp}" == f"{ua} {us} {uc} {ul} {up}"):
+            error["error"] = "no change"
         else:
-            cur.execute("""
-                UPDATE "user"
-                SET line = %s
-                WHERE key = %s;
-            """, (
-                request.json["line"],
-                user["key"]
-            ))
-        if not request.json["state"]:
-            error["state"] = "this field is required"
-        else:
-            cur.execute("""
-                UPDATE "user"
-                SET state = %s
-                WHERE key = %s;
-            """, (
-                request.json["state"],
-                user["key"]
-            ))
-        if not request.json["country"]:
-            error["country"] = "this field is required"
-        else:
-            cur.execute("""
-                UPDATE "user"
-                SET country = %s
-                WHERE key = %s;
-            """, (
-                request.json["country"],
-                user["key"]
-            ))
-        if not request.json["local_area"]:
-            error["local_area"] = "this field is required"
-        else:
-            cur.execute("""
-                UPDATE "user"
-                SET local_area = %s
-                WHERE key = %s;
-            """, (
-                request.json["local_area"],
-                user["key"]
-            ))
-        if not request.json["postal_code"]:
-            error["postal_code"] = "this field is required"
-        else:
-            cur.execute("""
-                UPDATE "user"
-                SET postal_code = %s
-                WHERE key = %s;
-            """, (
-                request.json["postal_code"],
-                user["key"]
-            ))
+            if not request.json["line"]:
+                error["line"] = "this field is required"
+            else:
+                cur.execute("""
+                    UPDATE "user"
+                    SET line = %s
+                    WHERE key = %s;
+                """, (
+                    request.json["line"],
+                    user["key"]
+                ))
+            if not request.json["state"]:
+                error["state"] = "this field is required"
+            else:
+                cur.execute("""
+                    UPDATE "user"
+                    SET state = %s
+                    WHERE key = %s;
+                """, (
+                    request.json["state"],
+                    user["key"]
+                ))
+            if not request.json["country"]:
+                error["country"] = "this field is required"
+            else:
+                cur.execute("""
+                    UPDATE "user"
+                    SET country = %s
+                    WHERE key = %s;
+                """, (
+                    request.json["country"],
+                    user["key"]
+                ))
+            if not request.json["local_area"]:
+                error["local_area"] = "this field is required"
+            else:
+                cur.execute("""
+                    UPDATE "user"
+                    SET local_area = %s
+                    WHERE key = %s;
+                """, (
+                    request.json["local_area"],
+                    user["key"]
+                ))
+            if not request.json["postal_code"]:
+                error["postal_code"] = "this field is required"
+            else:
+                cur.execute("""
+                    UPDATE "user"
+                    SET postal_code = %s
+                    WHERE key = %s;
+                """, (
+                    request.json["postal_code"],
+                    user["key"]
+                ))
 
     if error != {}:
         db_close(con, cur)

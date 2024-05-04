@@ -2,7 +2,7 @@
 	import { module } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	import Datetime from '$lib/datetime.svelte';
@@ -28,14 +28,13 @@
 <Card>
 	<div class="ctitle">
 		<div class="ctitle">
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					emit('back');
 				}}
 			>
 				<SVG type="angle" size="10" />
-			</Button>Delivery
+			</BRound>Delivery
 		</div>
 	</div>
 
@@ -43,7 +42,7 @@
 	<br />
 
 	<Receiver order={cart}>
-		<Button
+		<BRound
 			class="link"
 			on:click={() => {
 				$module = {
@@ -54,7 +53,7 @@
 			}}
 		>
 			Edit
-		</Button>
+		</BRound>
 	</Receiver>
 
 	<br />
@@ -75,15 +74,15 @@
 	<br />
 	<br />
 
-	<Button
-		class="primary"
+	<BRound
+		primary
 		disabled={!complete_address}
 		on:click={() => {
 			emit('next');
 		}}
 	>
 		Place Order
-	</Button>
+	</BRound>
 </Card>
 
 <style>

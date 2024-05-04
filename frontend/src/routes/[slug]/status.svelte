@@ -1,7 +1,7 @@
 <script>
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from './status_form.svelte';
 
@@ -25,8 +25,7 @@
 		</span>
 
 		{#if $user.permissions.includes('item:edit_status')}
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					$module = {
 						module: Form,
@@ -36,11 +35,9 @@
 				tooltip="Edit Status"
 			>
 				<SVG type="edit" size="10" />
-			</Button>
+			</BRound>
 		{/if}
 	</div>
-
-	<br />
 {/if}
 
 <style>

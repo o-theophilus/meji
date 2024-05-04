@@ -6,7 +6,7 @@
 
 	import SVG from '$lib/svg.svelte';
 	import Marked from '$lib/marked.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 
 	let timer_1, timer_2;
 	const close = () => {
@@ -46,9 +46,9 @@
 
 			<Marked md={$toast?.message || 'no message'} />
 
-			<Button class="round hover_red" on:click={close}>
+			<BRound extra="hover_red" on:click={close}>
 				<SVG type="close" size="8" />
-			</Button>
+			</BRound>
 		</div>
 
 		<div class="progress" class:zero />

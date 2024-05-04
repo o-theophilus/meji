@@ -3,17 +3,20 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let item = { ...$module.item };
+	let form = { name: item.name };
 	let error = {};
 
 	const validate = async () => {
 		error = {};
 
-		if (!item.name) {
+		if (!form.name) {
 			error.name = 'this field is required';
+		} else if (form.name == item.name) {
+			error.name = 'no change';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -27,7 +30,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ name: item.name })
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -57,7 +60,7 @@
 		<b>Edit Name</b>
 	</svelte:fragment>
 
-	<IG name="name" {error} bind:value={item.name} type="text" placeholder="Name here" />
+	<IG name="name" {error} bind:value={form.name} type="text" placeholder="Name here" />
 
 	{#if error.error}
 		<p class="error">
@@ -65,6 +68,6 @@
 		</p>
 		<br />
 	{/if}
-	
-	<Button class="primary" on:click={validate}>Save</Button>
+
+	<Button primary on:click={validate}>Save</Button>
 </Form>

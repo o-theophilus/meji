@@ -3,10 +3,11 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
-	import Tag from '$lib/button.tag.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
+	import Tag from '$lib/button/tag.svelte';
 	import Card from '$lib/card.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import Permission_Ok from './permission._ok.svelte';
 
 	export let user;
@@ -81,39 +82,36 @@
 		<br />
 		<section transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<span>
-				<Button
-					class="link small"
+				<Link
 					on:click={() => {
 						select_group();
 					}}
 				>
 					category
-				</Button>
+				</Link>
 			</span>
 
 			{#each [1, 2, 3] as x}
 				<span>
-					<Button
-						class="link small"
+					<Link
 						on:click={() => {
 							select_group(x);
 						}}
 					>
 						Level {x}
-					</Button>
+					</Link>
 				</span>
 			{/each}
 
 			{#each Object.entries(permissions) as [_type, _actions]}
 				<span>
-					<Button
-						class="link small"
+					<Link
 						on:click={() => {
 							select_group(_type);
 						}}
 					>
 						{_type}
-					</Button>
+					</Link>
 				</span>
 
 				{#each [1, 2, 3] as x}
@@ -138,7 +136,7 @@
 		<br />
 
 		<Button
-			class="primary"
+			primary
 			{disabled}
 			on:click={() => {
 				$module = {

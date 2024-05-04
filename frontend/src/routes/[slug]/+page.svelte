@@ -6,10 +6,10 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
-	import Button from '$lib/button.svelte';
-	import Toggle from '$lib/button.toggle.svelte';
+	import Link from '$lib/button/link.svelte';
+	import Toggle from '$lib/toggle.svelte';
 	import Group from '$lib/group.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
 	import Photo from './photo.svelte';
 	import Center from '$lib/center.svelte';
 
@@ -21,7 +21,6 @@
 	import Variation from './variation.svelte';
 	import Feedback from './feedback.svelte';
 	import Floater from './floater.svelte';
-	import Spinner from '$lib/loading_spinner.svelte';
 	import Refresh from './refresh.svelte';
 
 	export let data;
@@ -96,9 +95,7 @@
 
 		<div>
 			{#if edit_mode && $user.permissions.includes('item:advert')}
-				<Button class="link" href="/admin/adverts/{item.key}">Advert &gt;</Button>
-				<br />
-				<br />
+				<Link href="/admin/adverts/{item.key}" icon>Advert</Link>
 			{/if}
 
 			<Status {item} {edit_mode} />
@@ -127,9 +124,7 @@
 	<Card>
 		<div class="skeleton_frame">
 			{#each Array(10).slice(0, width < 700 ? 2 : width < 1000 ? 3 : 4) as _}
-				<div class="item">
-					<!-- <Spinner active size="20" /> -->
-				</div>
+				<div class="item" />
 			{/each}
 		</div>
 	</Card>

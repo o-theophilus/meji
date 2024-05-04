@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
 
@@ -44,15 +44,15 @@
 				{text}
 			</span>
 
-			<Button
-				class="round"
+			<BRound
+				extra="hover_red"
 				on:click={() => {
 					set_state('search', '');
 					set_state('tag', '');
 				}}
 			>
 				<SVG type="close" size="8" />
-			</Button>
+			</BRound>
 		</div>
 	</Center>
 {/if}

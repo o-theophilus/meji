@@ -1,5 +1,6 @@
 <script>
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	import { user, toast, loading, state } from '$lib/store.js';
@@ -52,11 +53,11 @@
 </script>
 
 {#if _type == 1}
-	<Button class="round large" on:click={submit}>
+	<BRound size="large" on:click={submit}>
 		<div class:save={$user.saves.includes(item.key)}>
 			<SVG type="like_active" size="12" />
 		</div>
-	</Button>
+	</BRound>
 {:else}
 	<button title="save" class:save={$user.saves.includes(item.key)} on:click={submit}>
 		<SVG type="like_active" />

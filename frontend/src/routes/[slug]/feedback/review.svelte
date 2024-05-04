@@ -5,7 +5,7 @@
 	import Add from './_add.svelte';
 
 	import Datetime from '$lib/datetime.svelte';
-	import Button from '$lib/button.svelte';
+	import Link from '$lib/button/link.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	export let feedback;
@@ -35,8 +35,7 @@
 		<br />
 		{feedback.review}
 		{#if $user.key == feedback.user_key && editable}
-			<Button
-				class="link"
+			<Link
 				on:click={() => {
 					$module = {
 						module: Add,
@@ -44,11 +43,10 @@
 						feedback
 					};
 				}}
-				tooltip="Edit Feedback"
 			>
 				<SVG type="edit" size="10" />
 				Edit
-			</Button>
+			</Link>
 		{/if}
 	</div>
 </section>
@@ -58,6 +56,8 @@
 		display: flex;
 		gap: var(--sp2);
 		padding: var(--sp2) 0;
+	}
+	section:not(:last-child) {
 		border-bottom: 1px solid var(--ac4);
 	}
 

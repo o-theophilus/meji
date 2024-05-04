@@ -1,7 +1,7 @@
 <script>
 	import { user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	const save_view = async () => {
@@ -17,7 +17,7 @@
 	};
 </script>
 
-<Button class="outline" on:click={save_view}>
+<Button extra="outline" on:click={save_view}>
 	<SVG type={$user.setting_item_view == 'grid' ? 'shop_active' : 'list'} />
 	view
 </Button>

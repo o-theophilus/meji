@@ -2,17 +2,19 @@
 	import { portal, module, toast, loading } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Form from '$lib/form.svelte';
 	import IG from '$lib/input_group.svelte';
 
 	let error = {};
-	let { name } = $module.user;
+	let form = { name: $module.user.name };
 
 	const validate = async () => {
 		error = {};
-		if (!name) {
+		if (!form.name) {
 			error.name = 'This field is required';
+		} else if (form.name == $module.user.name) {
+			error.name = 'no change';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -26,7 +28,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ name })
+			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -52,7 +54,7 @@
 		<b>Edit Name</b>
 	</svelte:fragment>
 
-	<IG name="name" {error} bind:value={name} type="text" placeholder="Your fullname here" />
+	<IG name="name" {error} bind:value={form.name} type="text" placeholder="Your fullname here" />
 
 	{#if error.error}
 		<p class="error">
@@ -61,7 +63,7 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Save</Button>
+	<Button primary on:click={validate}>Save</Button>
 </Form>
 
 <style>

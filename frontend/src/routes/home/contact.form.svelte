@@ -1,7 +1,7 @@
 <script>
 	import { module, loading } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Info from '$lib/info.svelte';
 
@@ -80,5 +80,5 @@
 		<br />
 	{/if}
 
-	<Button class="primary" on:click={validate}>Send</Button>
+	<Button primary on:click={validate}>Send</Button>
 </form>

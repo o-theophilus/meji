@@ -6,7 +6,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 	import Advert from '$lib/advert/index.svelte';
-	import Button from '$lib/button.svelte';
+	import Link from '$lib/button/link.svelte';
 
 	import Tags from './home/tags.svelte';
 	import Group from '$lib/group.svelte';
@@ -59,12 +59,15 @@
 <Hero />
 <Advert space="home_1" placeholder />
 <Tags />
+
 <Group name="New Arrivals" items={new_arrivals}>
-	<Button class="link small" href="/shop?sort=latest">more &gt;</Button>
+	<Link href="/shop?sort=latest" icon>view more</Link>
 </Group>
+
 <Group name="Offers" items={offers}>
-	<Button class="link small" href="/shop?sort=discount">more &gt;</Button>
+	<Link href="/shop?sort=discount" icon>view more</Link>
 </Group>
+
 <About />
 <Contact />
 <Top />

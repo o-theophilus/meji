@@ -8,7 +8,7 @@
 
 	import Item from './item.svelte';
 	import Pagination from '$lib/pagination.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Status from '$lib/status.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';

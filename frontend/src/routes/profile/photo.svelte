@@ -1,7 +1,7 @@
 <script>
-	import { loading, toast } from '$lib/store.js';
+	import { loading, toast, portal } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 
 	export let edit_mode = false;
 	export let user;
@@ -37,6 +37,10 @@
 
 		if (resp.status == 200) {
 			user = resp.user;
+			$portal = {
+				type: 'photo',
+				data: resp.user.photo
+			};
 			$toast = {
 				status: 200,
 				message: 'Photo added'
@@ -63,7 +67,11 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			user.photo = '';
+			user.photo = null;
+			$portal = {
+				type: 'photo',
+				data: null
+			};
 			$toast = {
 				status: 200,
 				message: 'Photo removed'
@@ -72,6 +80,15 @@
 			error = resp;
 		}
 	};
+
+	let dim = [1 / 1];
+	$: {
+		dim = [1 / 1];
+		let match = user.photo?.match(/_(\d+)x(\d+)\./);
+		if (match) {
+			dim = [parseInt(match[1]), parseInt(match[2])];
+		}
+	}
 </script>
 
 <img
@@ -80,6 +97,7 @@
 	onerror="this.src='/image/user.png'"
 	class:dragover
 	class:edit_mode
+	style:--ar={dim[0] / dim[1]}
 	on:click={() => {
 		if (edit_mode) {
 			input.click();
@@ -116,17 +134,16 @@
 
 {#if edit_mode}
 	{#if error.error}
-		<br />
 		<span class="error">
 			{@html error.error}
 		</span>
 		<br />
+		<br />
 	{/if}
 
-	<br />
 	{#if !user.photo}
 		<Button
-			class="primary"
+			primary
 			on:click={() => {
 				input.click();
 			}}
@@ -139,24 +156,29 @@
 				remove('delete');
 			}}
 		>
-			Remove
+			Remove Photo
 		</Button>
 	{/if}
-	<br />
 {/if}
 
 <style>
 	img {
 		width: 100%;
 		padding: 0;
-		border: 2px solid transparent;
 		border-radius: var(--sp1);
 
 		overflow: hidden;
+		object-fit: cover;
+		outline: 2px solid transparent;
+
+		background-image: url('/image/user.png');
+		background-size: cover;
+		background-position: center;
+		aspect-ratio: var(--ar);
 	}
 	img.edit_mode:hover,
 	.dragover.edit_mode {
-		border-color: var(--cl1);
+		outline-color: var(--cl1);
 		cursor: pointer;
 	}
 

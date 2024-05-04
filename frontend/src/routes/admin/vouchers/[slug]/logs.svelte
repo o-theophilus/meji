@@ -4,8 +4,8 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	import Card from '$lib/card.svelte';
-	import ButtonFold from '$lib/button.fold.svelte';
-	import Button from '$lib/button.svelte';
+	import ButtonFold from '$lib/button/fold.svelte';
+	import Link from '$lib/button/link.svelte';
 	import Log from '../../../log/log.svelte';
 
 	export let logs;
@@ -37,12 +37,12 @@
 		</div>
 
 		<br />
-		<Button
-			class="link small"
+		<Link
 			href="/log?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}"
+			icon
 		>
-			goto log &gt;
-		</Button>
+			view more
+		</Link>
 	{/if}
 </Card>
 

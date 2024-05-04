@@ -30,7 +30,7 @@
 			{sum}
 			<SVG type="star" />
 			{#if ratings.length > 0}
-				{ratings.length} rating{#if ratings.length > 1}s{/if}
+				( {ratings.length} rating{#if ratings.length > 1}s{/if} )
 			{/if}
 		</div>
 	{/if}

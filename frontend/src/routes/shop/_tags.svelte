@@ -3,12 +3,13 @@
 
 	import { onMount } from 'svelte';
 	import { set_state, module, state } from '$lib/store.js';
-	import Toggle from '$lib/button.toggle.svelte';
+	import Toggle from '$lib/toggle.svelte';
 	import Input from '$lib/input.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
+	import Button from '$lib/button/button.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
-	import Tag from '$lib/button.tag.svelte';
+	import Tag from '$lib/button/tag.svelte';
 	import Spinner from '$lib/loading_spinner.svelte';
 
 	let tags = [];
@@ -80,14 +81,13 @@
 		<Input bind:value={filter} type="text" placeholder="Filter" />
 		{#if filter}
 			<div class="clear">
-				<Button
-					class="round"
+				<BRound
 					on:click={() => {
 						filter = '';
 					}}
 				>
 					<SVG type="close" size="8" />
-				</Button>
+				</BRound>
 			</div>
 		{/if}
 	</div>
@@ -101,15 +101,16 @@
 			</div>
 		{/if}
 		{#each tags as x}
-			<Tag
-				hide={!x.includes(filter.toLowerCase())}
-				active={selected.includes(x)}
-				on:click={() => {
-					toggle(x);
-				}}
-			>
-				{x}
-			</Tag>
+			{#if x.includes(filter.toLowerCase())}
+				<Tag
+					active={selected.includes(x)}
+					on:click={() => {
+						toggle(x);
+					}}
+				>
+					{x}
+				</Tag>
+			{/if}
 		{/each}
 	</div>
 
@@ -129,7 +130,7 @@
 		<div class="line buttons">
 			<Button
 				disabled={!_selected_string && !selected_string}
-				class="hover_red"
+				extra="hover_red"
 				on:click={() => {
 					if (_selected_string) {
 						set_state('tag', '');

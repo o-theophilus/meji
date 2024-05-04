@@ -5,8 +5,9 @@
 
 	import Form from '$lib/form.svelte';
 	import Password from './password_checker.svelte';
-	import Button from '$lib/button.svelte';
-	import ShowPassword from '$lib/button.show_password.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
+	import ShowPassword from '$lib/button/show_password.svelte';
 	import Login from './login.svelte';
 	import Info from '$lib/info.svelte';
 	import IG from '$lib/input_group.svelte';
@@ -141,7 +142,7 @@
 	{/if}
 
 	<Button
-		class="primary"
+		primary
 		on:click={() => {
 			validate();
 		}}
@@ -151,8 +152,7 @@
 
 	<br />
 	Already have an account?
-	<Button
-		class="link"
+	<Link
 		on:click={() => {
 			$module = {
 				module: Login,
@@ -161,7 +161,7 @@
 		}}
 	>
 		Login
-	</Button>
+	</Link>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

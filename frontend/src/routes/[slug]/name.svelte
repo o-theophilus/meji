@@ -1,7 +1,7 @@
 <script>
 	import { user, module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Save from '$lib/item/save.svelte';
 	import Form from './name_form.svelte';
@@ -17,8 +17,7 @@
 		<Save {item} />
 
 		{#if edit_mode && $user.permissions.includes('item:edit_name')}
-			<Button
-				class="round"
+			<BRound
 				on:click={() => {
 					$module = {
 						module: Form,
@@ -28,7 +27,7 @@
 				tooltip="Edit Name"
 			>
 				<SVG type="edit" size="10" />
-			</Button>
+			</BRound>
 		{/if}
 	</div>
 </div>

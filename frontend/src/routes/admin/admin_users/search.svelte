@@ -4,7 +4,7 @@
 	import { set_state } from '$lib/store.js';
 
 	import Search from '$lib/search.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	export let permissions;
@@ -74,24 +74,23 @@
 				user_key = '';
 			}}
 		/>
-		<Button
-			class="round"
+		<BRound
 			disabled={`${user_key}:${type}:${action}` == search}
 			on:click={() => {
 				submit();
 			}}
 		>
 			<SVG type="search" size="12" />
-		</Button>
-		<Button
-			class="round hover_red"
+		</BRound>
+		<BRound
+			extra="hover_red"
 			disabled={`${user_key}:${type}:${action}` == ':all:all'}
 			on:click={() => {
 				submit(true);
 			}}
 		>
 			<SVG type="close" size="8" />
-		</Button>
+		</BRound>
 	</div>
 </section>
 

@@ -104,6 +104,8 @@ def edit(key):
             or request.json["status"] not in ['live', 'draft', 'delete']
         ):
             error["status"] = "invalid request"
+        elif  request.json["status"]== item["status"]:
+            error["status"] = "no change"
         elif request.json["status"] == "live" and len(item["photos"]) == 0:
             error["status"] = "add photo"
         elif request.json["status"] == "live" and not item["price"]:
@@ -123,13 +125,14 @@ def edit(key):
             error["name"] = "unauthorized access"
         elif not request.json["name"]:
             error["name"] = "this field is required"
+        elif request.json["name"] == item["name"]:
+            error["name"] = "no change"
         else:
             slug = re.sub('-+', '-', re.sub(
                 '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
-            cur.execute('SELECT * FROM item WHERE slug = %s;', (slug,))
+            cur.execute('SELECT * FROM item WHERE key != %s AND slug = %s;', (item["key"], slug))
             slug_in_use = cur.fetchone()
-            if ((slug_in_use and slug_in_use['key'] != item["key"])
-                    or slug in reserved_words):
+            if (slug_in_use or slug in reserved_words):
                 slug = f"{slug}-{str(uuid4().hex)[:10]}"
 
             cur.execute("""
@@ -147,6 +150,8 @@ def edit(key):
             error["tag"] = "unauthorized access"
         elif type(request.json["tags"]) is not list:
             error["tags"] = "this field is required"
+        elif set(request.json["tags"]) == set(item["tags"]):
+            error["tags"] = "no change"
         else:
             cur.execute("""
                     UPDATE item
@@ -215,24 +220,22 @@ def edit(key):
                 item["key"]
             ))
 
-    if "info" in request.json:
+    if "information" in request.json:
         if "item:edit_info" not in user["permissions"]:
-            error["info"] = "unauthorized access"
+            error["information"] = "unauthorized access"
+        elif request.json["information"] == item["information"]:
+            error["information"] = "no change"
         else:
-            cur.execute("""
-                    UPDATE item
-                    SET information = %s
-                    WHERE key = %s;
-                """, (
-                request.json["information"],
-                item["key"]
-            ))
+            cur.execute("UPDATE item SET information = %s WHERE key = %s;", (
+                request.json["information"], item["key"]))
 
     if "variation" in request.json:
         if "item:edit_variation" not in user["permissions"]:
             error["variation"] = "unauthorized access"
         elif type(request.json["variation"]) is not dict:
             error["variation"] = "this field is required"
+        elif request.json["variation"] == item["variation"]:
+            error["variation"] = "no change"
         else:
             variation = request.json["variation"]
             for key in variation:
@@ -272,7 +275,7 @@ def edit(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(item)
+        "item": item
     })
 
 

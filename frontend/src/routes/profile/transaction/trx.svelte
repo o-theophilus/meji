@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/button.svelte';
+	import Link from '$lib/button/link.svelte';
 
 	export let trx;
 
@@ -35,9 +35,9 @@
 
 	{trx.entity_type}
 
-	<Button class="link" {href}>
+	<Link {href}>
 		{trx.entity}
-	</Button>
+	</Link>
 
 	{#if trx.misc}
 		{#each Object.entries(trx.misc) as [key, value]}

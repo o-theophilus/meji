@@ -5,12 +5,12 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Center from '$lib/center.svelte';
 	import Logs from './logs.svelte';
 	import Activate from './_activate.svelte';
 	import Status from './_status.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Back from '$lib/button/back.svelte';
 
 	export let data;
 	let { voucher } = data;

@@ -3,7 +3,7 @@
 
 	import SVG from '$lib/svg.svelte';
 	import Marked from '$lib/marked.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 </script>
 
 <div
@@ -44,7 +44,7 @@
 		color: var(--ac6_);
 		fill: var(--ac6_);
 	}
-	
+
 	.body {
 		background-color: var(--ac6);
 		color: var(--ac2);

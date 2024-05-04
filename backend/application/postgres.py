@@ -23,7 +23,7 @@ user_table = """CREATE TABLE IF NOT EXISTS "user" (
     local_area VARCHAR(100),
     postal_code VARCHAR(100),
 
-    photo VARCHAR(36),
+    photo VARCHAR(50),
     account_balance FLOAT DEFAULT 0,
     permissions TEXT[] DEFAULT ARRAY[]::TEXT[],
     login BOOLEAN DEFAULT FALSE,
@@ -119,10 +119,10 @@ advert_table = """CREATE TABLE IF NOT EXISTS advert (
     key CHAR(32) PRIMARY KEY,
 
     spaces TEXT[] DEFAULT ARRAY[]::TEXT[],
-    photo_300x300 VARCHAR(36),
-    photo_300x600 VARCHAR(36),
-    photo_600x300 VARCHAR(36),
-    photo_900x300 VARCHAR(36),
+    photo_300x300 VARCHAR(50),
+    photo_300x600 VARCHAR(50),
+    photo_600x300 VARCHAR(50),
+    photo_900x300 VARCHAR(50),
 
     FOREIGN KEY (key) REFERENCES item(key) ON DELETE CASCADE
 );"""

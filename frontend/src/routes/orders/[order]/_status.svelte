@@ -3,7 +3,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import IG from '$lib/input_group.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Info from '$lib/info.svelte';
@@ -118,7 +118,7 @@ to: **${status}**
 		{/if}
 
 		<Button
-			class="primary"
+			primary
 			on:click={() => {
 				validate(order_status[index + 1]);
 			}}

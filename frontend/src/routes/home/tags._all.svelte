@@ -1,12 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { module, loading, state } from '$lib/store.js';
+	import { loading, state, module } from '$lib/store.js';
 
 	import Form from '$lib/form.svelte';
-	import Tag from '$lib/button.tag.svelte';
+	import Tag from '$lib/button/tag.svelte';
 	import Input from '$lib/input.svelte';
-	import Button from '$lib/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
 	let tags = [];
@@ -29,14 +29,13 @@
 		<Input bind:value={filter} type="text" placeholder="Filter" />
 		{#if filter}
 			<div class="clear">
-				<Button
-					class="round"
+				<BRound
 					on:click={() => {
 						filter = '';
 					}}
 				>
 					<SVG type="close" size="8" />
-				</Button>
+				</BRound>
 			</div>
 		{/if}
 	</div>
@@ -45,28 +44,31 @@
 
 	<div class="tags_space">
 		{#each tags as tag}
-			<Tag
-				hide={!tag.includes(filter.toLowerCase())}
-				on:click={() => {
-					let pn = 'shop';
-					let i = $state.findIndex((x) => x.name == pn);
-					if (i != -1) {
-						$state.splice(i, 1);
-					}
+			{#if tag.includes(filter.toLowerCase())}
+				<Tag
+					on:click={() => {
+						let pn = 'shop';
+						let i = $state.findIndex((x) => x.name == pn);
+						if (i != -1) {
+							$state.splice(i, 1);
+						}
 
-					$state.push({
-						name: pn,
-						search: `?${new URLSearchParams({ tag }).toString()}`,
-						data: [],
-						loaded: false
-					});
+						$state.push({
+							name: pn,
+							search: `?${new URLSearchParams({ tag }).toString()}`,
+							data: [],
+							loaded: false
+						});
 
-					$loading = 'loading . . .';
-					goto('/shop');
-				}}
-			>
-				{tag}
-			</Tag>
+						$loading = 'loading . . .';
+						$module = null;
+
+						goto('/shop');
+					}}
+				>
+					{tag}
+				</Tag>
+			{/if}
 		{/each}
 	</div>
 </Form>

@@ -6,8 +6,8 @@
 	import { module, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Back from '$lib/button/back.svelte';
 	import Center from '$lib/center.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import OrderBy from '$lib/order_by.svelte';

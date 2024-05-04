@@ -9,8 +9,8 @@
 	import Log from '$lib/log.svelte';
 	import Pagination from '$lib/pagination.svelte';
 	import Status from '$lib/status.svelte';
-	import Button from '$lib/button.svelte';
-	import Back from '$lib/button.back.svelte';
+	import Button from '$lib/button/button.svelte';
+	import Back from '$lib/button/back.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Add from './_add.svelte';
 	import Voucher from './voucher.svelte';
@@ -52,7 +52,7 @@
 	<Status array={['all', ...voucher_status]} default_value="all">
 		{#if $user.permissions.includes('voucher:add')}
 			<Button
-				class="primary"
+				primary
 				on:click={() => {
 					$module = {
 						module: Add

@@ -1,21 +1,22 @@
 <script>
 	import Card from '$lib/card.svelte';
 	import Center from '$lib/center.svelte';
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
 	import Meta from '$lib/meta.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Log from '$lib/log.svelte';
 
 	import { page } from '$app/stores';
 </script>
 
 <Meta title="Error" description={$page.error.message} />
+<Log entity_type={'page'} status="400" />
 
 <Center>
 	<br />
 	<div class="ctitle">Error</div>
 </Center>
 
-<!-- TODO: log this -->
 <Card>
 	<div class="bold">{$page.status}</div>
 	{@html $page.error.message}

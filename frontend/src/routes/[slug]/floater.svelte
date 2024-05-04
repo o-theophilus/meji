@@ -2,7 +2,8 @@
 	import { page } from '$app/stores';
 	import { module } from '$lib/store.js';
 
-	import Button from '$lib/button.svelte';
+	import Button from '$lib/button/button.svelte';
+	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Add_Cart from '$lib/item/add_cart.svelte';
 	import Share from './floater_share.svelte';
@@ -23,8 +24,7 @@
 				Chat
 			</Button>
 		</div>
-		<Button
-			class="round"
+		<BRound
 			on:click={() => {
 				$module = {
 					module: Share,
@@ -33,7 +33,7 @@
 			}}
 		>
 			<SVG type="share" />
-		</Button>
+		</BRound>
 	</div>
 </div>
 
