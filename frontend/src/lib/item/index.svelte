@@ -191,4 +191,7 @@
 	.line .price {
 		font-size: unset;
 	}
+	.line .old_price {
+		display: none;
+	}
 </style>

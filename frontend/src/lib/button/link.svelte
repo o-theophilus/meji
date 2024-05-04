@@ -33,7 +33,7 @@
 <style>
 	button,
 	a {
-		display: flex;
+		display: inline-flex;
 		gap: var(--sp1);
 
 		color: var(--cl1);

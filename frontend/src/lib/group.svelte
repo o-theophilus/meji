@@ -40,8 +40,8 @@
 			<br />
 			<div class="ctitle">
 				{name}
+				<slot {open} {set_open} />
 			</div>
-			<slot {open} {set_open} />
 			<br />
 
 			<ItemPack let:style {style} {open}>

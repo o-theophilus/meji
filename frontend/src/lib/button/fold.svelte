@@ -5,11 +5,11 @@
 	export let open;
 </script>
 
-<div class="fold" class:open>
-	<BRound on:click>
+<BRound on:click>
+	<div class="fold" class:open>
 		<SVG type="angle" size="8" />
-	</BRound>
-</div>
+	</div>
+</BRound>
 
 <style>
 	.fold {
