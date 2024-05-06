@@ -46,7 +46,6 @@
 
 	<Receiver order={cart}>
 		<Link
-			class="link"
 			on:click={() => {
 				$module = {
 					module: Form,

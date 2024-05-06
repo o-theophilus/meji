@@ -155,7 +155,7 @@ def trx_schema(x):
         "date": x["date"],
         "direction": ("credit" if x["entity_type"] == "voucher"
                       else "debit"),
-        "entity": x["entity"],
+        "entity_key": x["entity_key"],
         "entity_type": x["entity_type"],
         "status": x["status"],
         "misc": x["misc"]
@@ -178,17 +178,15 @@ def get_transactions():
     page_size = int(request.args["size"]) if "size" in request.args else 24
 
     cur.execute("""
-        SELECT *, COUNT(*) OVER() AS total_items
-        FROM "user"
-        LEFT JOIN log ON "user".key = log.user_key
+        SELECT log.*, COUNT(*) OVER() AS total_items
+        FROM log
+        LEFT JOIN "user" ON "user".key = log.user_key
         WHERE
             user_key = %s AND (
                 (
-                    log.entity_type = 'voucher'
-                    AND log.action = 'used'
+                    log.entity_type = 'voucher' AND log.action = 'used'
                 ) OR (
-                    log.entity_type = 'order'
-                    AND log.action = 'created'
+                    log.entity_type = 'order' AND log.action = 'created'
                     AND (log.misc->>'pay_account')::numeric > 0
                 )
             )

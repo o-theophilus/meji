@@ -438,10 +438,10 @@ def use():
         })
 
     if (
-        voucher["status"] != "active"
+        voucher["status"] != "activated"
         or voucher['validity'].date() < date.today()
     ):
-        error = f"voucher {voucher['status']}"
+        error = f"voucher is not active"
 
         log(
             cur=cur,

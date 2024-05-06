@@ -68,7 +68,7 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$user = resp.user;
+			$user.cart = resp.user.cart;
 			goto(`/orders/${resp.order.key}`);
 
 			$module = {

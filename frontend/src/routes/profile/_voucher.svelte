@@ -1,5 +1,5 @@
 <script>
-	import { module, portal, loading, toast } from '$lib/store.js';
+	import { module, portal, loading, toast, user } from '$lib/store.js';
 	import { token } from '$lib/cookie.js';
 
 	import Form from '$lib/form.svelte';
@@ -35,10 +35,8 @@
 		$loading = false;
 
 		if (resp.status == 200) {
-			$portal = {
-				type: 'user',
-				data: resp.user
-			};
+			$user = resp.user;
+
 			$module = '';
 			$toast = {
 				status: 200,

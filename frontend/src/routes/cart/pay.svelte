@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	import Card from '$lib/card.svelte';
-	import Button from '$lib/button/button.svelte';
+	import Link from '$lib/button/link.svelte';
 	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Title from '$lib/title.svelte';
@@ -61,8 +61,7 @@
 			</div>
 		{/if}
 
-		<Button
-			class="link"
+		<Link
 			on:click={() => {
 				$module = {
 					module: Voucher
@@ -70,12 +69,11 @@
 			}}
 		>
 			Add Voucher
-		</Button>
+		</Link>
 
 		{#if $user.account_balance > 0}
 			<div class="value">
-				<Button
-					class="link"
+				<Link
 					on:click={() => {
 						$module = {
 							module: Account,
@@ -84,7 +82,7 @@
 					}}
 				>
 					Edit
-				</Button>
+				</Link>
 			</div>
 		{:else}
 			<span />

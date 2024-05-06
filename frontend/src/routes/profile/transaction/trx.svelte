@@ -7,7 +7,7 @@
 	if (trx.entity_type == 'order') {
 		href = `/orders/${trx.entity}`;
 	} else if (trx.entity_type == 'voucher') {
-		href = `/admin/vouchers/${trx.entity}`;
+		href = `/admin/vouchers/${trx.entity_key}`;
 	}
 </script>
 
@@ -36,7 +36,7 @@
 	{trx.entity_type}
 
 	<Link {href}>
-		{trx.entity}
+		{trx.entity_key}
 	</Link>
 
 	{#if trx.misc}
@@ -48,13 +48,10 @@
 </section>
 
 <style>
-	section:not(:last-child) {
+	section:not(:first-of-type) {
 		margin-top: var(--sp2);
 		padding-top: var(--sp2);
 		border-top: 2px solid var(--ac5);
-	}
-	section:not(:first-child) {
-		padding-top: var(--sp2);
 	}
 
 	.status {
