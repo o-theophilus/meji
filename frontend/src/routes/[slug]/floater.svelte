@@ -12,8 +12,8 @@
 </script>
 
 <div class="floater">
-	<div class="horizontal">
-		<div class="horizontal">
+	<div class="row">
+		<div class="row">
 			<Add_Cart {item} />
 			<Button
 				href="https://api.whatsapp.com/send?phone=+2348067397793&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{$page
@@ -38,7 +38,7 @@
 </div>
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
 		justify-content: space-between;
 		gap: var(--sp1);
@@ -51,7 +51,6 @@
 		bottom: var(--headerHeight);
 
 		padding: var(--sp2) 0;
-		margin-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
 
 		background-color: var(--ac6);
@@ -59,7 +58,7 @@
 
 	@media screen and (min-width: 800px) {
 		.floater {
-			bottom: var(--sp1);
+			bottom: 0;
 		}
 	}
 </style>

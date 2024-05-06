@@ -3,6 +3,8 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
+	import Center from '$lib/center.svelte';
+
 	let _value, value, width;
 	export let total_page = 1;
 
@@ -35,68 +37,67 @@
 </script>
 
 {#if total_page > 1}
-	<br />
-	<br />
+	<Center>
+		<section>
+			{#if _value > 1}
+				<button
+					on:click={() => {
+						submit(_value - 1);
+					}}
+				>
+					&lt;
+				</button>
+			{/if}
 
-	<section>
-		{#if _value > 1}
-			<button
-				on:click={() => {
-					submit(_value - 1);
-				}}
-			>
-				&lt;
-			</button>
-		{/if}
+			<div class="input">
+				<input
+					style:width="calc({width}px + 4px)"
+					type="text"
+					oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+					bind:value
+					on:keypress={(e) => {
+						if (e.key == 'Enter') {
+							submit(value);
+						}
+					}}
+				/>
+				<div class="total">
+					/ {total_page}
+				</div>
+			</div>
 
-		<div class="input">
-			<input
-				style:width="calc({width}px + 4px)"
-				type="text"
-				oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-				bind:value
-				on:keypress={(e) => {
-					if (e.key == 'Enter') {
-						submit(value);
-					}
-				}}
-			/>
-			<div class="total">
+			<div class="width_helper" bind:clientWidth={width}>
+				<span>
+					{#if value}
+						{value}
+					{:else}
+						0
+					{/if}
+				</span>
 				/ {total_page}
 			</div>
-		</div>
 
-		<div class="width_helper" bind:clientWidth={width}>
-			<span>
-				{#if value}
-					{value}
-				{:else}
-					0
-				{/if}
-			</span>
-			/ {total_page}
-		</div>
+			{#if value != _value}
+				<button
+					on:click={() => {
+						submit(value);
+					}}
+				>
+					&gt;&gt;
+				</button>
+			{/if}
 
-		{#if value != _value}
-			<button
-				on:click={() => {
-					submit(value);
-				}}
-			>
-				&gt;&gt;
-			</button>
-		{/if}
-
-		{#if _value < total_page}
-			<button
-				on:click={() => {
-					submit(parseInt(_value) + 1);
-				}}
-			>
-				&gt;
-			</button>
-		{/if}
-	</section>
+			{#if _value < total_page}
+				<button
+					on:click={() => {
+						submit(parseInt(_value) + 1);
+					}}
+				>
+					&gt;
+				</button>
+			{/if}
+		</section>
+	</Center>
 {/if}
 
 <style>

@@ -135,6 +135,7 @@
 	src={active_photo || '/image/item.png'}
 	alt={item.title}
 	onerror="this.src='/image/item.png'"
+	class="main"
 	class:dragover
 	class:edit_mode
 	on:click={() => {
@@ -169,8 +170,6 @@
 	}}
 />
 
-<br />
-
 {#if item.photos.length > 1}
 	<div class="row">
 		{#each item.photos as photo}
@@ -182,6 +181,7 @@
 					error = {};
 					active_photo = photo;
 				}}
+				class="thumbnail"
 				class:active={active_photo == photo}
 				role="presentation"
 			/>
@@ -190,7 +190,6 @@
 {/if}
 
 {#if edit_mode}
-	<br />
 	<div class="row">
 		<Button
 			primary
@@ -248,16 +247,22 @@
 
 <style>
 	img {
-		border: 2px solid transparent;
+		outline: 2px solid transparent;
 		border-radius: var(--sp1);
 		width: 100%;
 		transition: var(--trans1);
 	}
 
-	.row img:hover,
+	.thumbnail {
+		--size: 50px;
+		width: var(--size);
+		height: var(--size);
+	}
+
+	.thumbnail:hover,
 	.edit_mode:hover,
 	.edit_mode.dragover {
-		border-color: var(--cl1);
+		outline-color: var(--cl1);
 		cursor: pointer;
 	}
 
@@ -266,16 +271,11 @@
 		justify-content: center;
 		gap: var(--sp1);
 		flex-wrap: wrap;
-	}
-
-	.row img {
-		--size: 50px;
-		width: var(--size);
-		height: var(--size);
+		margin-top: var(--sp2);
 	}
 
 	.active {
-		border-color: var(--cl1);
+		outline-color: var(--cl1);
 		transform: scale(1.1);
 	}
 </style>

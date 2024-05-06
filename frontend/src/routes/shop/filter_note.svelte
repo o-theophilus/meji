@@ -64,7 +64,6 @@
 		justify-content: space-between;
 		align-items: center;
 
-		margin-top: var(--sp2);
 		padding: var(--sp2);
 		border-radius: var(--sp0);
 

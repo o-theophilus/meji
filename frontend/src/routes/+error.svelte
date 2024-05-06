@@ -5,6 +5,7 @@
 	import Meta from '$lib/meta.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Log from '$lib/log.svelte';
+	import Title from '$lib/title.svelte';
 
 	import { page } from '$app/stores';
 </script>
@@ -13,8 +14,7 @@
 <Log entity_type={'page'} status="400" />
 
 <Center>
-	<br />
-	<div class="ctitle">Error</div>
+	<Title>Error</Title>
 </Center>
 
 <Card>

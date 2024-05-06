@@ -3,19 +3,20 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	export let style = 'grid';
-	export let open = true;
 </script>
 
-{#if open}
-	<div class={style} transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		<slot {style} />
-	</div>
-{/if}
+<div class={style} transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+	<slot {style} />
+</div>
 
 <style>
-	.grid {
+	div {
 		display: grid;
 		gap: var(--sp2);
+		margin: var(--sp2) 0;
+	}
+
+	.grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 
@@ -29,11 +30,6 @@
 		.grid {
 			grid-template-columns: repeat(4, 1fr);
 		}
-	}
-
-	.list {
-		display: grid;
-		gap: var(--sp2);
 	}
 
 	.line {

@@ -96,7 +96,7 @@
 	<script src="https://js.paystack.co/v2/inline.js"></script>
 </svelte:head>
 
-<div class="horizontal">
+<div class="row">
 	<Button primary on:click={make_payment}>Make Payment</Button>
 </div>
 <br />
@@ -120,7 +120,7 @@
 </div>
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

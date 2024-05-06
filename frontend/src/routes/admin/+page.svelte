@@ -5,13 +5,13 @@
 	import Meta from '$lib/meta.svelte';
 	import Button from '$lib/button/button.svelte';
 	import Center from '$lib/center.svelte';
+	import Title from '$lib/title.svelte';
 </script>
 
 <Meta title="Admin Dashboard" description="This is an area for users with elevated permission." />
 
 <Center>
-	<br />
-	<div class="ctitle">Dashboard</div>
+	<Title>Dashboard</Title>
 </Center>
 
 <Card>

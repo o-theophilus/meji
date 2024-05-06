@@ -41,10 +41,7 @@
 	div {
 		display: flex;
 		align-items: center;
-		justify-content: center;
 		gap: 4px;
-
-		padding: var(--sp1);
 
 		font-size: small;
 		color: var(--ac3);
@@ -52,6 +49,9 @@
 	}
 
 	a {
+		justify-content: center;
+		padding: var(--sp1);
+
 		text-decoration: none;
 		width: 100%;
 	}

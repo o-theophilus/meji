@@ -128,7 +128,7 @@
 	</svelte:fragment>
 
 	<IG name="variation" {error} let:id>
-		<form class="line" on:submit|preventDefault>
+		<form class="row" on:submit|preventDefault>
 			<Input bind:value={input} type="text" {id} placeholder="variation here" />
 			<Button primary={input} on:click={add_key}>Add</Button>
 		</form>
@@ -147,7 +147,7 @@
 				placeholder="options here"
 			>
 				<svelte:fragment slot="label">
-					<div class="line">
+					<div class="row">
 						<label for={key}>
 							{key}
 						</label>
@@ -178,7 +178,7 @@
 </Form>
 
 <style>
-	.line {
+	.row {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

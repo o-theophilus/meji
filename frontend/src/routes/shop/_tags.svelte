@@ -116,7 +116,7 @@
 
 	<br />
 
-	<div class="line">
+	<div class="row">
 		<Toggle
 			state_1="any"
 			state_2="all"
@@ -127,7 +127,7 @@
 			}}
 		/>
 
-		<div class="line buttons">
+		<div class="row buttons">
 			<Button
 				disabled={!_selected_string && !selected_string}
 				extra="hover_red"
@@ -196,7 +196,7 @@
 		width: 100%;
 	}
 
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp3);
 		justify-content: space-between;

@@ -96,7 +96,7 @@
 
 	<br />
 
-	<div class="line">
+	<div class="row">
 		<Button
 			disabled={item.quantity == 0}
 			primary
@@ -120,7 +120,7 @@
 		text-transform: capitalize;
 	}
 
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}

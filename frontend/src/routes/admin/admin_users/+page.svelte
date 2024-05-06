@@ -11,6 +11,7 @@
 	import Search from './search.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: users = data.users;
@@ -20,23 +21,23 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Users" description="Users with elevated permission." />
+<Meta title="Admin" description="Users with elevated permission." />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			User{users.length > 1 ? 's' : ''}
-		</div>
-		<OrderBy {order_by} />
-	</div>
+		</svelte:fragment>
+		Admin{users.length > 1 ? 's' : ''}
+		<svelte:fragment slot="right">
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
 	<Search {permissions} />
 
-	<br />
 	{#each users as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<User user={x} />

@@ -15,6 +15,7 @@
 	import FilterNote from '../shop/filter_note.svelte';
 	import ItemPack from '$lib/item_pack.svelte';
 	import View from '../shop/view.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -31,14 +32,13 @@
 <Log action="viewed" entity_type="save" />
 
 <Center>
-	<br />
-	<div class="ctitle">
+	<Title>
 		Saved Item{items.length > 1 ? 's' : ''}
-		<div class="line">
+		<svelte:fragment slot="right">
 			<View />
 			<OrderBy {order_by} />
-		</div>
-	</div>
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -48,7 +48,6 @@
 <FilterNote />
 
 {#if items.length > 0}
-	<br />
 	<Center>
 		<ItemPack let:style style={$user.setting_item_view}>
 			{#each items as item (item.key)}
@@ -65,8 +64,4 @@
 <Pagination {total_page} />
 
 <style>
-	.line {
-		display: flex;
-		gap: var(--sp1);
-	}
 </style>

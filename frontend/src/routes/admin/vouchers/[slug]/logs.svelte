@@ -26,6 +26,11 @@
 
 	{#if open}
 		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+			<Link href="/log?{new URLSearchParams(`search=:voucher:all:${voucher_key}`).toString()}" icon>
+				view more
+			</Link>
+			<br />
+
 			{#each logs as log (log.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<Log {log} />
@@ -35,14 +40,6 @@
 				no item here
 			{/each}
 		</div>
-
-		<br />
-		<Link
-			href="/log?{new URLSearchParams(`search=all:voucher:all:${voucher_key}`).toString()}"
-			icon
-		>
-			view more
-		</Link>
 	{/if}
 </Card>
 

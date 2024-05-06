@@ -2,6 +2,7 @@
 	import { module } from '$lib/store';
 
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 	import Button from '$lib/button/button.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
@@ -14,13 +15,12 @@
 <Meta title="Setting" description="Setting" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Settings
-		</div>
-	</div>
+		</svelte:fragment>
+		Settings
+	</Title>
 </Center>
 
 <Card>

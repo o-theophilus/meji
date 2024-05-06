@@ -7,17 +7,17 @@
 
 	export let advert;
 	export let spaces;
-	export let disabled;
+	export let photo_length;
+	let selected = [...advert.spaces];
+
 	let error = {};
 
-	$: s_spaces = advert.spaces;
-
 	const select = (_in) => {
-		if (!s_spaces.includes(_in)) {
-			s_spaces.push(_in);
-			s_spaces = s_spaces;
+		if (!selected.includes(_in)) {
+			selected.push(_in);
+			selected = selected;
 		} else {
-			s_spaces = s_spaces.filter((x) => x != _in);
+			selected = selected.filter((x) => x != _in);
 		}
 	};
 
@@ -30,7 +30,7 @@
 				'Content-Type': 'application/json',
 				Authorization: $token
 			},
-			body: JSON.stringify({ spaces: s_spaces })
+			body: JSON.stringify({ spaces: selected })
 		});
 		resp = await resp.json();
 		$loading = false;
@@ -58,11 +58,11 @@
 	<div class="spaces">
 		{#each spaces as x}
 			<Tag
-				active={s_spaces.includes(x)}
+				active={selected.includes(x)}
 				on:click={() => {
 					select(x);
 				}}
-				{disabled}
+				disabled={photo_length(advert) == 0}
 			>
 				{x}
 			</Tag>
@@ -78,8 +78,13 @@
 		<br />
 	{/if}
 
-	<!-- TODDO: primary if different -->
-	<Button  on:click={submit} {disabled}>Save Space</Button>
+	<Button
+		on:click={submit}
+		disabled={photo_length(advert) == 0 ||
+			selected.sort().join(', ') == advert.spaces.sort().join(', ')}
+	>
+		Save Space
+	</Button>
 </div>
 
 <style>

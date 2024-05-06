@@ -27,17 +27,6 @@ html {
 	font-size: small;
 }
 
-.ctitle {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: var(--sp2);
-
-	font-weight: 900;
-	font-size: large;
-	color: var(--ac1);
-	fill: currentColor;
-}
 
 hr {
 	border: none;

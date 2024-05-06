@@ -5,6 +5,7 @@
 	import Log from '$lib/log.svelte';
 	import Center from '$lib/center.svelte';
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 
 	import Cart from './cart.svelte';
 	import Delivery from './delivery.svelte';
@@ -88,8 +89,7 @@
 {/if}
 
 <Center>
-	<br />
-	<div class="ctitle">Cart</div>
+	<Title>Cart</Title>
 </Center>
 
 {#if !cart}
@@ -124,7 +124,4 @@
 {/if}
 
 <style>
-	.ctitle {
-		text-transform: capitalize;
-	}
 </style>

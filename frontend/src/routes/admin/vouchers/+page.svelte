@@ -18,6 +18,7 @@
 	import Search from '$lib/search.svelte';
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: vouchers = data.vouchers;
@@ -38,14 +39,17 @@
 {/key}
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Voucher{vouchers.length > 1 ? 's' : ''}
-		</div>
-		<OrderBy {order_by} />
-	</div>
+		</svelte:fragment>
+
+		Voucher{vouchers.length > 1 ? 's' : ''}
+
+		<svelte:fragment slot="right">
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -66,7 +70,6 @@
 	</Status>
 	<br />
 	<Search />
-	<br />
 
 	{#each vouchers as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>

@@ -14,10 +14,10 @@
 	let open_discount = false;
 </script>
 
-<div class="horizontal">
+<div class="row space v_margin">
 	<Info {item} />
 
-	<div class="horizontal">
+	<div class="row">
 		{#if item.old_price}
 			<BRound
 				on:click={() => {
@@ -42,18 +42,26 @@
 		{/if}
 	</div>
 </div>
+
 {#if item.old_price && open_discount}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+	<div class="v_margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		<Discount {item} />
 	</div>
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
-		justify-content: space-between;
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	.space {
+		justify-content: space-between;
+	}
+
+	.v_margin {
+		margin: var(--sp1) 0;
 	}
 </style>

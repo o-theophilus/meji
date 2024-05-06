@@ -133,7 +133,7 @@
 	/>
 
 	<IG name="otp" label="OTP" {error}>
-		<div class="line">
+		<div class="row">
 			<Input bind:value={form.otp} type="text" placeholder="OTP here" />
 			<form on:submit|preventDefault>
 				<Button primary on:click={request_otp}>Request OTPs</Button>
@@ -163,12 +163,12 @@
 </div>
 
 <style>
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}
 
-	.line form {
+	.row form {
 		flex-shrink: 0;
 	}
 

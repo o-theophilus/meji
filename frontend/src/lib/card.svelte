@@ -12,7 +12,6 @@
 	.card {
 		width: 100%;
 		padding: var(--sp3);
-		margin-top: var(--sp2);
 		border-radius: var(--sp0);
 
 		color: var(--ac2);
@@ -22,7 +21,7 @@
 
 	@media screen and (min-width: 700px) {
 		.card {
-			padding: var(--sp5);
+			padding: calc(var(--sp5) - var(--sp2)) var(--sp5);
 		}
 	}
 </style>

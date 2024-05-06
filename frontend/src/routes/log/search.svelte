@@ -53,7 +53,7 @@
 
 <section>
 	{#if $user.permissions.includes('log:view')}
-		<div class="line">
+		<div class="row">
 			<Search
 				non_default
 				placeholder="Search for User"
@@ -72,7 +72,7 @@
 		</div>
 	{/if}
 
-	<div class="line">
+	<div class="row">
 		<select
 			bind:value={entity_type}
 			on:input={() => {
@@ -93,7 +93,7 @@
 			{/each}
 		</select>
 	</div>
-	<div class="line">
+	<div class="row">
 		<Search
 			non_default
 			placeholder="Search for {entity_type}"
@@ -128,7 +128,7 @@
 		flex-direction: column;
 		gap: var(--sp1);
 	}
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;

@@ -42,7 +42,7 @@
 	};
 </script>
 
-<div class="line">
+<div class="row">
 	<div class="input">
 		<div class="float svg">
 			<SVG type="search" size="15" />
@@ -86,7 +86,7 @@
 </div>
 
 <style>
-	.line {
+	.row {
 		display: flex;
 		width: 100%;
 	}

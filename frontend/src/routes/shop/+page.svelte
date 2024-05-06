@@ -20,6 +20,7 @@
 	import Pagination from '$lib/pagination.svelte';
 	import FilterNote from './filter_note.svelte';
 	import ItemPack from '$lib/item_pack.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: items = data.items;
@@ -33,14 +34,13 @@
 <Log entity_type={'page'} />
 
 <Center>
-	<br />
-	<div class="ctitle">
+	<Title>
 		Shop
-		<div class="line">
+		<svelte:fragment slot="right">
 			<View />
 			<OrderBy {order_by} />
-		</div>
-	</div>
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -60,10 +60,10 @@
 				</Button>
 			{/if}
 		</Status>
-		<br />
+		<!-- <br /> -->
 	{/if}
 
-	<div class="line">
+	<div class="row">
 		<Button
 			on:click={() => {
 				$module = {
@@ -81,7 +81,6 @@
 <FilterNote />
 
 {#if items.length > 0}
-	<br />
 	<Center>
 		<ItemPack let:style style={$user.setting_item_view}>
 			{#each items as item (item.key)}
@@ -98,8 +97,9 @@
 <Pagination {total_page} />
 
 <style>
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
+		margin-top: var(--sp2);
 	}
 </style>

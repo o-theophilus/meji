@@ -9,7 +9,7 @@
 	export let edit_mode = false;
 </script>
 
-<div class="horizontal">
+<div class="row">
 	<span class="name">
 		{user.name}
 	</span>
@@ -34,7 +34,7 @@
 		color: var(--ac1);
 	}
 
-	.horizontal {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;

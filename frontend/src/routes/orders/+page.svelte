@@ -17,6 +17,7 @@
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
 	import Search from '$lib/search.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: orders = data.orders;
@@ -38,11 +39,13 @@
 {/key}
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title card>
+		<svelte:fragment slot="left">
 			<Back />
-			Orders
+		</svelte:fragment>
+		Orders
+
+		<svelte:fragment slot="right">
 			{#if $user.permissions.includes('order:view')}
 				<Toggle
 					state_1="Mine"
@@ -59,23 +62,23 @@
 					}}
 				/>
 			{/if}
-		</div>
 
-		<OrderBy {order_by} />
-	</div>
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
 	<Status array={[...order_status, 'all']} default_value="created" />
 	<br />
 	<Search />
-	<br />
 
 	{#each orders as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<Order order={x} {is_admin} />
 		</div>
 	{:else}
+		<br />
 		no item here
 	{/each}
 

@@ -5,7 +5,6 @@
 
 	import Link from '$lib/button/link.svelte';
 	import ButtonFold from '$lib/button/fold.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Rating from '$lib/item/rating.svelte';
 	import Review from './feedback/review.svelte';
 	import Spinner from '$lib/loading_spinner.svelte';
@@ -45,8 +44,8 @@
 	};
 </script>
 
-<div class="horizontal">
-	<div class="horizontal">
+<div class="row space v_margin" class:open>
+	<div class="row">
 		<span class="bold">
 			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
 		</span>
@@ -65,34 +64,25 @@
 </div>
 
 {#if open}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		<div class="horizontal">
-			<div class="horizontal">
-				{#if feedbacks.length > 0}
-					<Link href="/{item.slug}/feedback" on:click={click} on:mouseenter={click} icon>
-						view more
-					</Link>
-				{/if}
-
-				{#if give_feedback && feedbacks.length > 0}
-					|
-				{/if}
-
-				{#if give_feedback}
-					<Link href="/{item.slug}/feedback?add=true" on:click={click} on:mouseenter={click} icon>
-						add review
-					</Link>
-				{/if}
-			</div>
-		</div>
-		{#if give_feedback || feedbacks.length > 0}
-			<br />
+	<div class="row">
+		{#if feedbacks.length > 0}
+			<Link href="/{item.slug}/feedback" on:click={click} on:mouseenter={click} icon>
+				view more
+			</Link>
 		{/if}
+		{#if give_feedback && feedbacks.length > 0} | {/if}
+		{#if give_feedback}
+			<Link href="/{item.slug}/feedback?add=true" on:click={click} on:mouseenter={click} icon>
+				add review
+			</Link>
+		{/if}
+	</div>
 
+	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		{#each feedbacks as feedback}
 			<Review {feedback} {item} />
 		{:else}
-			<span>
+			<div class="v_margin">
 				There is no feedback yet.
 				<br />
 				{#if give_feedback}
@@ -105,20 +95,31 @@
 
 					customers who have purchased this item can add a review.
 				{/if}
-			</span>
-			<br />
+				<br />
+				<br />
+			</div>
 		{/each}
 	</div>
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
-		justify-content: space-between;
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
 	}
+
+	.space {
+		justify-content: space-between;
+	}
+
+	.v_margin {
+		margin: var(--sp1) 0;
+	}
+	/* .open {
+		margin-bottom: 0;
+	} */
 
 	.bold {
 		color: var(--ac1);

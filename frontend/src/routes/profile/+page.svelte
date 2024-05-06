@@ -5,6 +5,7 @@
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
+	import Title from '$lib/title.svelte';
 
 	import Button from '$lib/button/button.svelte';
 	import Link from '$lib/button/link.svelte';
@@ -59,19 +60,20 @@
 {/if}
 
 <Center>
-	<br />
-	<div class="ctitle">
+	<Title>
 		User Details
-		{#if user && user.key == $me.key}
-			<Toggle
-				active={edit_mode}
-				state_2="edit"
-				on:click={() => {
-					edit_mode = !edit_mode;
-				}}
-			/>
-		{/if}
-	</div>
+		<svelte:fragment slot="right">
+			{#if user && user.key == $me.key}
+				<Toggle
+					active={edit_mode}
+					state_2="edit"
+					on:click={() => {
+						edit_mode = !edit_mode;
+					}}
+				/>
+			{/if}
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -111,7 +113,7 @@
 					<hr />
 					<br />
 
-					<div class="horizontal">
+					<div class="row">
 						{#if user.permissions.length != 0}
 							<Link href="/admin">Admin</Link> |
 						{/if}
@@ -125,7 +127,7 @@
 					<hr />
 					<br />
 
-					<div class="horizontal">
+					<div class="row">
 						{#if edit_mode}
 							<Button href="/profile/setting">
 								<SVG type="setting" size="12" />
@@ -166,7 +168,7 @@
 		font-weight: 700;
 	}
 
-	.horizontal {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;

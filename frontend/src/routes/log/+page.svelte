@@ -3,6 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 	import Center from '$lib/center.svelte';
 	import Meta from '$lib/meta.svelte';
 	import Pagination from '$lib/pagination.svelte';
@@ -23,19 +24,16 @@
 <Meta title="Logs" description="Logs" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Logs
-		</div>
-	</div>
+		</svelte:fragment>
+		Logs
+	</Title>
 </Center>
 
 <Card>
 	<Search bind:this={search} {search_query} />
-
-	<br />
 
 	{#each logs as log (log.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
@@ -47,9 +45,9 @@
 			/>
 		</div>
 	{:else}
+		<br />
 		no item here
 	{/each}
-
 	<Pagination {total_page} />
 </Card>
 

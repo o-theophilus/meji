@@ -3,6 +3,7 @@
 
 	import Meta from '$lib/meta.svelte';
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 	import Button from '$lib/button/button.svelte';
 	import Link from '$lib/button/link.svelte';
 	import Center from '$lib/center.svelte';
@@ -41,13 +42,12 @@
 <Log action={'viewed'} entity_key={order.key} entity_type={'order'} />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Order
-		</div>
-	</div>
+		</svelte:fragment>
+		Order
+	</Title>
 </Center>
 
 <Card>
@@ -105,7 +105,7 @@
 	{#if !['delivered', 'canceled'].includes(order.status)}
 		<br />
 		<br />
-		<div class="line">
+		<div class="row">
 			{#if $user.permissions.includes('order:status')}
 				<Button
 					on:click={() => {
@@ -177,7 +177,7 @@
 		text-transform: capitalize;
 	}
 
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}

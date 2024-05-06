@@ -1,11 +1,12 @@
 <script>
 	import Card from '$lib/card.svelte';
 	import SVG from '$lib/svg.svelte';
+	import Title from '$lib/title.svelte';
 </script>
 
 <div id="about" />
 <Card>
-	<div class="ctitle">About Us</div>
+	<Title card>About Us</Title>
 
 	<section>
 		<div class="row_1">
@@ -57,7 +58,7 @@
 		flex-direction: column;
 		align-items: center;
 
-		margin-top: var(--sp4);
+		margin: var(--sp4) 0;
 		text-align: center;
 	}
 

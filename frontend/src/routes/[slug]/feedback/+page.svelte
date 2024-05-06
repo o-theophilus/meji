@@ -6,6 +6,7 @@
 	import { module, portal, user } from '$lib/store.js';
 
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 	import Button from '$lib/button/button.svelte';
 	import Back from '$lib/button/back.svelte';
 	import Center from '$lib/center.svelte';
@@ -53,31 +54,33 @@
 <Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Feedback{feedbacks.length > 1 ? 's' : ''}
-		</div>
-		<OrderBy {order_by} />
-	</div>
+		</svelte:fragment>
+		Feedback{feedbacks.length > 1 ? 's' : ''}
+
+		<svelte:fragment slot="right">
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
 	<section>
 		{#if feedbacks.length > 0}
 			<div>
-				<b>Rating</b>
-				<br />
-				<br />
+				<Title card>
+					<span class="bold">Rating</span>
+				</Title>
 				<Rating {feedbacks} />
 			</div>
 		{/if}
 
 		<div>
-			<b>Review{feedbacks.length > 1 ? 's' : ''}</b>
-			<br />
-			<br />
+			<Title card>
+				<span class="bold">Review{feedbacks.length > 1 ? 's' : ''}</span>
+			</Title>
 			{#each feedbacks as feedback (feedback.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<Review editable {feedback} {item} />
@@ -119,7 +122,7 @@
 		}
 	}
 
-	b {
+	.bold {
 		color: var(--ac1);
 	}
 </style>

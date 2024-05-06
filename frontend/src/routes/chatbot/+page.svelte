@@ -2,6 +2,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Center from '$lib/center.svelte';
 	import Card from '$lib/card.svelte';
+	import Title from '$lib/title.svelte';
 
 	import Button from '$lib/button/tag.svelte';
 </script>
@@ -9,8 +10,7 @@
 <Meta title="ChatBot" description="ChatBot" />
 
 <Center>
-	<br />
-	<div class="ctitle">ChatBot</div>
+	<Title>ChatBot</Title>
 </Center>
 
 <Card>

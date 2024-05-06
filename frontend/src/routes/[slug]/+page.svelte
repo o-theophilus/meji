@@ -8,10 +8,10 @@
 	import Log from '$lib/log.svelte';
 	import Link from '$lib/button/link.svelte';
 	import Toggle from '$lib/toggle.svelte';
-	import Group from '$lib/group.svelte';
-	import ButtonFold from '$lib/button/fold.svelte';
+	import Group from '$lib/item_group.svelte';
 	import Photo from './photo.svelte';
 	import Center from '$lib/center.svelte';
+	import Title from '$lib/title.svelte';
 
 	import Status from './status.svelte';
 	import Name from './name.svelte';
@@ -22,6 +22,7 @@
 	import Feedback from './feedback.svelte';
 	import Floater from './floater.svelte';
 	import Refresh from './refresh.svelte';
+	import Skeleton from './item_group_skeleton.svelte';
 
 	export let data;
 	$: item = data.item;
@@ -72,19 +73,20 @@
 {/key}
 
 <Center>
-	<br />
-	<div class="ctitle">
+	<Title>
 		Item Details
-		{#if $user && is_admin}
-			<Toggle
-				active={edit_mode}
-				state_2="edit"
-				on:click={() => {
-					edit_mode = !edit_mode;
-				}}
-			/>
-		{/if}
-	</div>
+		<svelte:fragment slot="right">
+			{#if $user && is_admin}
+				<Toggle
+					active={edit_mode}
+					state_2="edit"
+					on:click={() => {
+						edit_mode = !edit_mode;
+					}}
+				/>
+			{/if}
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -99,15 +101,12 @@
 			{/if}
 
 			<Status {item} {edit_mode} />
-			<Name {item} {edit_mode} />
-			<Tag {item} {edit_mode} />
-			<br />
+			<Name {item} {edit_mode} let:open>
+				<Tag {item} {edit_mode} {open} />
+			</Name>
 			<Price {item} {edit_mode} />
-			<br />
 			<Info {item} {edit_mode} />
-			<br />
 			<Variation {item} {edit_mode} />
-			<br />
 			{#key item.key}
 				<Feedback {item} bind:get_feedback />
 			{/key}
@@ -117,17 +116,9 @@
 </Card>
 
 {#each groups as x}
-	<Group open={x.open} let:open let:set_open name={x.name} items={x.items} style={x.style}>
-		<ButtonFold {open} on:click={set_open} />
-	</Group>
+	<Group open={x.open} name={x.name} items={x.items} style={x.style} fold />
 {:else}
-	<Card>
-		<div class="skeleton_frame">
-			{#each Array(10).slice(0, width < 700 ? 2 : width < 1000 ? 3 : 4) as _}
-				<div class="item" />
-			{/each}
-		</div>
-	</Card>
+	<Skeleton />
 {/each}
 
 <svelte:window bind:innerWidth={width} />
@@ -153,50 +144,6 @@
 			top: var(--sp2);
 
 			align-self: flex-start;
-		}
-	}
-
-	.skeleton_frame {
-		display: grid;
-		gap: var(--sp2);
-		grid-template-columns: repeat(2, 1fr);
-
-		color: var(--ac1);
-	}
-
-	@media screen and (min-width: 700px) {
-		.skeleton_frame {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-
-	@media screen and (min-width: 1000px) {
-		.skeleton_frame {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
-	.skeleton_frame .item {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		aspect-ratio: 1/1;
-
-		width: 100%;
-		border-radius: var(--sp1);
-
-		animation: blink 2s infinite linear;
-	}
-
-	@keyframes blink {
-		0% {
-			background-color: var(--ac5);
-		}
-		50% {
-			background-color: var(--ac6);
-		}
-		100% {
-			background-color: var(--ac5);
 		}
 	}
 </style>

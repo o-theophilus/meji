@@ -74,10 +74,9 @@
 	<IG name="message" {error} bind:value={form.message} type="textarea" placeholder="Message here" />
 
 	{#if error.error}
-		<p class="error">
+		<span class="error">
 			{error.error}
-		</p>
-		<br />
+		</span>
 	{/if}
 
 	<Button primary on:click={validate}>Send</Button>

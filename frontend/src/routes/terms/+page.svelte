@@ -4,6 +4,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Log from '$lib/log.svelte';
 	import Center from '$lib/center.svelte';
+	import Title from '$lib/title.svelte';
 
 	let md = `
 # Terms of use
@@ -220,8 +221,7 @@ Contact Us: [Contact](/#contact)
 <Log entity_type={'page'} />
 
 <Center>
-	<br />
-	<div class="ctitle">Terms and Conditions</div>
+	<Title>Terms and Conditions</Title>
 </Center>
 
 <Card>

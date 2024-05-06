@@ -13,6 +13,7 @@
 	import OrderBy from '$lib/order_by.svelte';
 	import UpdateUrl from '$lib/update_url.svelte';
 	import Search from '$lib/search.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: adverts = data.adverts;
@@ -26,22 +27,21 @@
 <Meta title="Item Adverts" description="Here are the items with adverts" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Advert{adverts.length > 1 ? 's' : ''}
-		</div>
-
-		<OrderBy {order_by} />
-	</div>
+		</svelte:fragment>
+		Advert{adverts.length > 1 ? 's' : ''}
+		<svelte:fragment slot="right">
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
 	<Status array={['all', ...spaces]} default_value="all" />
 	<br />
 	<Search />
-	<br />
 
 	{#each adverts as advert, i (`${advert.key}_${i}`)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>

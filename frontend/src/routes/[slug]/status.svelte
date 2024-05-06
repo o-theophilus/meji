@@ -10,7 +10,7 @@
 </script>
 
 {#if edit_mode}
-	<div class="horizontal">
+	<div class="row">
 		<span>
 			Status: <span
 				class="bold"
@@ -41,7 +41,7 @@
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
 		justify-content: space-between;
 		gap: var(--sp1);

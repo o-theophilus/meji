@@ -11,6 +11,7 @@
 	import Activate from './_activate.svelte';
 	import Status from './_status.svelte';
 	import Back from '$lib/button/back.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	let { voucher } = data;
@@ -38,13 +39,12 @@
 <Log action={'viewed'} entity_key={voucher.key} entity_type={'voucher'} />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Voucher
-		</div>
-	</div>
+		</svelte:fragment>
+		Voucher
+	</Title>
 </Center>
 
 <Card>
@@ -80,7 +80,7 @@
 			<br />
 		{/if}
 
-		<div class="horizontal">
+		<div class="row">
 			{#if ['created', 'deactivated'].includes(voucher.status)}
 				<Button
 					on:click={() => {
@@ -131,7 +131,7 @@
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;

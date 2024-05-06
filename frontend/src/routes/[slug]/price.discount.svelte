@@ -2,7 +2,6 @@
 	export let item;
 </script>
 
-<br />
 <dir class="details">
 	<div>Maximum Price</div>
 	<div>₦{item.old_price.toLocaleString()}</div>

@@ -32,8 +32,8 @@
 			{/if}
 		</div>
 
-		<div class="line price">
-			<div class="line">
+		<div class="row price">
+			<div class="row">
 				₦{item.price.toLocaleString()}
 
 				x &nbsp;
@@ -62,8 +62,8 @@
 		gap: var(--sp3);
 		align-items: center;
 
-		padding-bottom: var(--sp2);
-		border-bottom: 2px solid var(--ac5);
+		padding-top: var(--sp2);
+		border-top: 2px solid var(--ac5);
 	}
 
 	img {
@@ -81,7 +81,7 @@
 		min-height: var(--height);
 	}
 
-	.line {
+	.row {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;

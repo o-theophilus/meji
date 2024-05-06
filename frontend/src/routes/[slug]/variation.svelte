@@ -15,9 +15,11 @@
 </script>
 
 {#if edit_mode || Object.keys(item.variation).length > 0}
-	<div class="horizontal bold">
-		Variation{Object.keys(item.variation).length > 1 ? 's' : ''}
-		<div class="horizontal">
+	<div class="row space v_margin">
+		<span class="bold">
+			Variation{Object.keys(item.variation).length > 1 ? 's' : ''}
+		</span>
+		<div class="row">
 			<ButtonFold
 				{open}
 				on:click={() => {
@@ -39,8 +41,9 @@
 			{/if}
 		</div>
 	</div>
+
 	{#if open}
-		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+		<div class="v_margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each Object.entries(item.variation) as [key, values]}
 				{@const s = values.length > 0 ? 's' : ''}
 				<div class="property">
@@ -59,12 +62,19 @@
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
-		justify-content: space-between;
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	.space {
+		justify-content: space-between;
+	}
+
+	.v_margin {
+		margin: var(--sp1) 0;
 	}
 
 	.bold {

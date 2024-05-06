@@ -28,8 +28,10 @@
 <style>
 	a {
 		display: block;
-		padding: var(--sp2) 0;
-		border-bottom: 1px solid var(--ac4);
+
+		padding-top: var(--sp2);
+		margin-top: var(--sp2);
+		border-top: 1px solid var(--ac4);
 
 		text-decoration: none;
 		color: var(--ac2);

@@ -12,6 +12,7 @@
 	import Center from '$lib/center.svelte';
 	import Search from '$lib/search.svelte';
 	import OrderBy from '$lib/order_by.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	$: users = data.users;
@@ -24,22 +25,23 @@
 <Meta title="All Users" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			User{users.length > 1 ? 's' : ''}
-		</div>
+		</svelte:fragment>
 
-		<OrderBy {order_by} />
-	</div>
+		User{users.length > 1 ? 's' : ''}
+
+		<svelte:fragment slot="right">
+			<OrderBy {order_by} />
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
 	<Status array={['all', ...user_status]} default_value="all" />
 	<br />
 	<Search />
-	<br />
 
 	{#each users as x (x.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>

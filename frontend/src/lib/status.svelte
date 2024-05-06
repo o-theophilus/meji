@@ -22,7 +22,7 @@
 	$: set($page.url);
 </script>
 
-<div class="status">
+<div class="component">
 	<div class="buttons">
 		{#each array as x}
 			<Tag
@@ -40,13 +40,13 @@
 		{/each}
 	</div>
 
-	<div class="special">
+	<div class="right">
 		<slot />
 	</div>
 </div>
 
 <style>
-	.status {
+	.component {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;
@@ -59,7 +59,7 @@
 		flex-wrap: wrap;
 	}
 
-	.special {
+	.right {
 		padding-left: var(--sp1);
 		border-left: 2px solid var(--ac4);
 		flex-shrink: 0;

@@ -6,7 +6,6 @@
 	import { user, module, loading, portal, state } from '$lib/store.js';
 
 	import BRound from '$lib/button/round.svelte';
-	import ButtonFold from '$lib/button/fold.svelte';
 	import SVG from '$lib/svg.svelte';
 	import Form from './tag_form.svelte';
 	import Tag from '$lib/button/tag.svelte';
@@ -14,7 +13,7 @@
 
 	export let item = {};
 	export let edit_mode = false;
-	let open = true;
+	export let open = true;
 
 	onMount(() => {
 		$portal = {
@@ -27,12 +26,12 @@
 	});
 </script>
 
-<div class="horizontal main">
-	{#if open}
-		<div
-			class="horizontal tags"
-			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
-		>
+{#if open}
+	<div
+		class="row space v_margin"
+		transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
+	>
+		<div class="row tags">
 			{#each item.tags as tag}
 				<Tag
 					no_grow
@@ -62,38 +61,36 @@
 				{/if}
 			{/each}
 		</div>
-	{/if}
 
-	<!-- <ButtonFold
-		{open}
-		on:click={() => {
-			open = !open;
-		}}
-	/> -->
-	{#if edit_mode && $user.permissions.includes('item:edit_tag')}
-		<BRound
-			on:click={() => {
-				$module = {
-					module: Form,
-					item
-				};
-			}}
-			tooltip="Edit tag"
-		>
-			<SVG type="edit" size="10" />
-		</BRound>
-	{/if}
-</div>
+		{#if edit_mode && $user.permissions.includes('item:edit_tag')}
+			<BRound
+				on:click={() => {
+					$module = {
+						module: Form,
+						item
+					};
+				}}
+				tooltip="Edit tag"
+			>
+				<SVG type="edit" size="10" />
+			</BRound>
+		{/if}
+	</div>
+{/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}
 
-	.main {
+	.space {
 		align-items: center;
 		justify-content: space-between;
+	}
+
+	.v_margin {
+		margin: var(--sp1) 0;
 	}
 
 	.tags {

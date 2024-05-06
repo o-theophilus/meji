@@ -8,6 +8,7 @@
 	import Back from '$lib/button/back.svelte';
 	import Advert from './advert.svelte';
 	import Space from './space.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	let { advert } = data;
@@ -36,17 +37,18 @@
 <Meta title="{item.name} Adverts" description="Manage images" />
 
 <Center>
-	<br />
-	<div class="h">
-		<Back />
+	<Title>
+		<svelte:fragment slot="left">
+			<Back />
+		</svelte:fragment>
+		Advert
 
-		<div>
-			<div class="ctitle">Advert</div>
+		<svelte:fragment slot="down">
 			<Link href="/{item.slug}" icon>
 				{item.name}
 			</Link>
-		</div>
-	</div>
+		</svelte:fragment>
+	</Title>
 </Center>
 
 <Card>
@@ -56,7 +58,7 @@
 		</div>
 
 		<div>
-			<Space {advert} {spaces} disabled={photo_length(advert) == 0} />
+			<Space {advert} {spaces} {photo_length} />
 		</div>
 	</section>
 </Card>
@@ -70,16 +72,11 @@
 	.block > div {
 		width: 100%;
 	}
-	
+
 	@media screen and (min-width: 800px) {
 		.block {
 			flex-direction: unset;
 			position: relative;
 		}
-	}
-	.h {
-		display: flex;
-		gap: var(--sp2);
-		align-items: center;
 	}
 </style>

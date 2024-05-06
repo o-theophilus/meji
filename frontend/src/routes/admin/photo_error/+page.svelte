@@ -5,6 +5,7 @@
 	import { token } from '$lib/cookie.js';
 
 	import Center from '$lib/center.svelte';
+	import Title from '$lib/title.svelte';
 	import Card from '$lib/card.svelte';
 	import Meta from '$lib/meta.svelte';
 	import ButtonFold from '$lib/button/fold.svelte';
@@ -56,13 +57,12 @@
 <Meta title="Manage Photos" description="Here you will find missing or excess images" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title>
+		<svelte:fragment slot="left">
 			<Back />
-			Photo Error
-		</div>
-	</div>
+		</svelte:fragment>
+		Photo Error
+	</Title>
 </Center>
 
 <Card>
@@ -110,7 +110,7 @@
 
 		{#if unused.length > 0}
 			<br />
-			<div class="line">
+			<div class="row">
 				<Button
 					on:click={() => {
 						if (photos.length != unused.length) {
@@ -212,7 +212,7 @@
 		align-items: center;
 	}
 
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}

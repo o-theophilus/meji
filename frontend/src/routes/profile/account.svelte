@@ -8,7 +8,7 @@
 	export let user;
 </script>
 
-<div class="horizontal">
+<div class="row">
 	<span>
 		<span class="bold"> Account: </span>
 		<br />
@@ -43,7 +43,7 @@
 		font-weight: 700;
 	}
 
-	.horizontal {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;

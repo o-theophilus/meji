@@ -83,16 +83,14 @@ to: **${status}**
 		<b>Change Order Status</b>
 	</svelte:fragment>
 
-	{#each order_status as s}
-		<div class="state" class:active={order.status == s}>
-			<div class="h">
-				<div>
-					<div>
-						<SVG type="check" size="10" />
-					</div>
-				</div>
-				{s}
+	{#each order_status as s, i}
+		<div class="state row">
+			<div class="circle" class:active={i <= index}>
+				<SVG type="check" size="10" />
 			</div>
+			<span class="cap">
+				{s}
+			</span>
 		</div>
 	{/each}
 	<br />
@@ -106,7 +104,7 @@ to: **${status}**
 		<br />
 	{/if}
 
-	<div class="line">
+	<div class="row">
 		{#if index > 0}
 			<Button
 				on:click={() => {
@@ -135,45 +133,38 @@ to: **${status}**
 </div>
 
 <style>
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 	}
+	.cap {
+		text-transform: capitalize;
+	}
 
 	.state {
-		--color: var(--cl5);
-		--size: 24px;
-		text-transform: capitalize;
-		fill: var(--ac6_);
-	}
-	.active ~ .state {
-		--color: var(--ac4);
-	}
-
-	.h {
-		display: flex;
 		align-items: center;
 		gap: var(--sp2);
 		margin: var(--sp0) 0;
 	}
-	.h div {
+
+	.circle {
+		--size: 24px;
+
 		display: flex;
 		justify-content: center;
 		align-items: center;
 
-		border: 2px solid var(--color);
-		border-radius: 50%;
 		width: var(--size);
 		height: var(--size);
-	}
-	.h div div {
-		width: calc(var(--size) - 8px);
-		height: calc(var(--size) - 8px);
+		
 		border-radius: 50%;
-		background-color: var(--color);
+		background-color: var(--ac4);
+		outline: 2px solid var(--ac6);
+		outline-offset: -4px;
+		fill: var(--ac6_);
 	}
 
-	.cap {
-		text-transform: capitalize;
+	.circle.active {
+		background-color: var(--cl5);
 	}
 </style>

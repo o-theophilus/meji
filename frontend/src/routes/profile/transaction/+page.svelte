@@ -4,6 +4,7 @@
 	import Meta from '$lib/meta.svelte';
 	import Back from '$lib/button/back.svelte';
 	import Trx from './trx.svelte';
+	import Title from '$lib/title.svelte';
 
 	export let data;
 	export let { transactions } = data;
@@ -12,13 +13,12 @@
 <Meta title="Transaction" description="Transaction" />
 
 <Center>
-	<br />
-	<div class="ctitle">
-		<div class="ctitle">
+	<Title card>
+		<svelte:fragment slot="left">
 			<Back />
-			Transaction{transactions.length > 1 ? 's' : ''}
-		</div>
-	</div>
+		</svelte:fragment>
+		Transaction{transactions.length > 1 ? 's' : ''}
+	</Title>
 </Center>
 
 <Card>

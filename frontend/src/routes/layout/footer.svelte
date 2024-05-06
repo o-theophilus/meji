@@ -1,49 +1,37 @@
+<script>
+	import Nav from './footer.nav.svelte';
+	import Contact from './footer.contact.svelte';
+	import Copy from './footer.copy.svelte';
+	import Social from './footer.social.svelte';
+	import Center from '$lib/center.svelte';
+</script>
+
 <footer>
-	<br />
-	<br />
-	<div class="nav">
-		<a href="/">Home</a>
-		&nbsp; &#8226; &nbsp;
-		<a href="/#about">About</a>
-		<!-- &#8226; <a href="/terms">Terms</a> -->
-	</div>
-
-	<br />
-	<div class="copyright">&copy; Meji.ng 2021</div>
-
-	<br />
-	<br />
+	<Center>
+		<Nav />
+		<br />
+		<br />
+		<Contact />
+		<br />
+		<Social />
+		<br />
+		<br />
+		<div class="row">
+			<Copy />
+		</div>
+	</Center>
 </footer>
 
 <style>
 	footer {
-		color: var(--ac1);
-
-		width: min(100%, 1200px);
-
-		margin: auto;
-		padding: 0 var(--sp2);
+		padding-bottom: var(--sp5);
 	}
 
+	.row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
 	@media screen and (min-width: 800px) {
-	}
-
-	.nav {
-		text-align: center;
-	}
-
-	a {
-		color: var(--ac1);
-		text-decoration: none;
-
-		border-bottom: 2px solid transparent;
-	}
-	a:hover {
-		border-color: var(--cl1);
-	}
-
-	.copyright {
-		text-align: center;
-		font-size: small;
 	}
 </style>

@@ -14,9 +14,10 @@
 	let open = true && item.information;
 </script>
 
-<div class="horizontal bold">
-	Details
-	<div class="horizontal">
+<div class="row space v_margin">
+	<span class="bold"> Details </span>
+
+	<div class="row">
 		<ButtonFold
 			{open}
 			on:click={() => {
@@ -38,8 +39,9 @@
 		{/if}
 	</div>
 </div>
+
 {#if open}
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+	<div class="v_margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		{#if item.information}
 			<Marked md={item.information} />
 		{:else}
@@ -49,12 +51,19 @@
 {/if}
 
 <style>
-	.horizontal {
+	.row {
 		display: flex;
-		justify-content: space-between;
 		gap: var(--sp1);
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	.space {
+		justify-content: space-between;
+	}
+
+	.v_margin {
+		margin: var(--sp1) 0;
 	}
 
 	.bold {

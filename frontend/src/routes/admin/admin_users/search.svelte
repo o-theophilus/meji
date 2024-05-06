@@ -43,7 +43,7 @@
 </script>
 
 <section>
-	<div class="line">
+	<div class="row">
 		<select
 			bind:value={type}
 			on:input={() => {
@@ -65,7 +65,7 @@
 		</select>
 	</div>
 
-	<div class="line">
+	<div class="row">
 		<Search
 			non_default
 			placeholder="Search for User"
@@ -101,7 +101,7 @@
 		gap: var(--sp1);
 	}
 
-	.line {
+	.row {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;
