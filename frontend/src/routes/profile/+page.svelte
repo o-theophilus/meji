@@ -141,7 +141,7 @@
 					<hr />
 					<br />
 
-					<Link href="/log?{new URLSearchParams(`search=${user.email}:all:all:all`).toString()}">
+					<Link href="/log?{new URLSearchParams(`search=${user.email}:all:all:`).toString()}">
 						view logs
 					</Link>
 				{/if}

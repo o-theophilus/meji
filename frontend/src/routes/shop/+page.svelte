@@ -60,7 +60,7 @@
 				</Button>
 			{/if}
 		</Status>
-		<!-- <br /> -->
+		<br />
 	{/if}
 
 	<div class="row">
@@ -100,6 +100,5 @@
 	.row {
 		display: flex;
 		gap: var(--sp1);
-		margin-top: var(--sp2);
 	}
 </style>

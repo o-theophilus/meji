@@ -3,8 +3,7 @@
 	import { onMount } from 'svelte';
 	import { set_state } from '$lib/store.js';
 
-	import Center from '$lib/center.svelte';
-
+	export let card = false;
 	let _value, value, width;
 	export let total_page = 1;
 
@@ -37,7 +36,9 @@
 </script>
 
 {#if total_page > 1}
-	<Center>
+	<div class="center" class:card>
+		<div class="hr" />
+
 		<section>
 			{#if _value > 1}
 				<button
@@ -97,10 +98,25 @@
 				</button>
 			{/if}
 		</section>
-	</Center>
+	</div>
 {/if}
 
 <style>
+	.center {
+		width: min(100%, 1200px);
+		margin: 0 auto;
+		padding: 0 var(--sp2);
+	}
+	.card {
+		padding: unset;
+	}
+
+	.hr {
+		margin-top: var(--sp2);
+		border-top: 2px solid var(--ac4);
+		padding-top: var(--sp2);
+	}
+
 	section {
 		--size: var(--sp1);
 		--height: 40px;

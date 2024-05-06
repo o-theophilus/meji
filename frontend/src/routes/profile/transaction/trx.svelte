@@ -49,8 +49,9 @@
 
 <style>
 	section:not(:last-child) {
-		padding-bottom: var(--sp2);
-		border-bottom: 2px solid var(--ac5);
+		margin-top: var(--sp2);
+		padding-top: var(--sp2);
+		border-top: 2px solid var(--ac5);
 	}
 	section:not(:first-child) {
 		padding-top: var(--sp2);

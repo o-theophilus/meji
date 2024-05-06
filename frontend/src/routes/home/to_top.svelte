@@ -20,11 +20,14 @@
 	<section>
 		<div transition:scale|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			<BRound
+				extra="outline"
 				on:click={() => {
 					go('top');
 				}}
 			>
-				<SVG type="angle" size="12" />
+				<div class="svg">
+					<SVG type="angle" size="8" />
+				</div>
 			</BRound>
 		</div>
 	</section>
@@ -33,18 +36,20 @@
 <style>
 	section {
 		position: sticky;
-		bottom: var(--headerHeight);
+		bottom: calc(var(--headerHeight) + var(--sp2));
 
-		padding: var(--sp2);
-		padding-right: var(--sp4);
+		width: min(100%, 1200px);
+		margin: var(--sp2) auto;
+		padding: 0 var(--sp4);
 
 		display: flex;
 		justify-content: flex-end;
-		pointer-events: none;
 	}
 
-	div {
-		pointer-events: all;
+	.svg {
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		transform: rotate(90deg);
 	}
 </style>

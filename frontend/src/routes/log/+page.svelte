@@ -48,7 +48,7 @@
 		<br />
 		no item here
 	{/each}
-	<Pagination {total_page} />
+	<Pagination {total_page} card />
 </Card>
 
 <style>

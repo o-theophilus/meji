@@ -24,7 +24,9 @@
 
 <style>
 	footer {
-		padding-bottom: var(--sp5);
+		margin-top: var(--sp2);
+		padding: var(--sp4) 0;
+		border-top: 2px solid var(--ac4);
 	}
 
 	.row {
