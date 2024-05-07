@@ -16,7 +16,7 @@
 						$module = '';
 					}}
 				>
-					<SVG type="close" size="8" />
+					<SVG icon="close" size="8" />
 				</button>
 
 				<svelte:component this={$module.module} />

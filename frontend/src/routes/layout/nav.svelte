@@ -27,9 +27,9 @@
 	>
 		<div class="label">
 			{#if segment == '/'}
-				<SVG type="home_active" size="15" />
+				<SVG icon="home_active" size="15" />
 			{:else}
-				<SVG type="home" size="15" />
+				<SVG icon="home" size="15" />
 			{/if}
 			Home
 		</div>
@@ -45,9 +45,9 @@
 	>
 		<div class="label">
 			{#if segment == '/shop'}
-				<SVG type="shop_active" size="15" />
+				<SVG icon="shop_active" size="15" />
 			{:else}
-				<SVG type="shop" size="15" />
+				<SVG icon="shop" size="15" />
 			{/if}
 			Shop
 		</div>
@@ -63,9 +63,9 @@
 	>
 		<div class="label">
 			{#if segment == '/save'}
-				<SVG type="like_active" size="15" />
+				<SVG icon="like_active" size="15" />
 			{:else}
-				<SVG type="like" size="15" />
+				<SVG icon="like" size="15" />
 			{/if}
 			Save
 			{#if $user && $user.saves.length > 0}
@@ -88,9 +88,9 @@
 	>
 		<div class="label">
 			{#if segment == '/cart'}
-				<SVG type="cart_active" size="15" />
+				<SVG icon="cart_active" size="15" />
 			{:else}
-				<SVG type="cart" size="15" />
+				<SVG icon="cart" size="15" />
 			{/if}
 			Cart
 			{#if $user && $user.cart.length > 0}
@@ -109,9 +109,9 @@
 		<a href="/profile" class:active={segment == '/profile'}>
 			<div class="label">
 				{#if segment == '/profile'}
-					<SVG type="user_active" size="15" />
+					<SVG icon="user_active" size="15" />
 				{:else}
-					<SVG type="user" size="15" />
+					<SVG icon="user" size="15" />
 				{/if}
 				User
 				<div class="circle profile">✓</div>
@@ -131,7 +131,7 @@
 			}}
 		>
 			<div class="label">
-				<SVG type="user" size="15" />
+				<SVG icon="user" size="15" />
 				Login
 			</div>
 			<div class="hover" style:--height="{width}px" />

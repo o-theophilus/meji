@@ -1,37 +1,32 @@
 <script>
+	import SVG from '$lib/svg.svelte';
+
 	export let href = '';
 	export let target = '';
 	export let tooltip = '';
 	export let disabled = false;
 
-	export let size = ''; // large
-	export let extra = ''; // outline:not(primary), hov_red:not(primary)
+	export let icon = '';
+	export let icon_size = 15;
+
+	export let large = false;
+	export let extra = ''; // outline, hov_red
 </script>
 
-<!-- TODO: remove a element -->
-{#if href}
-	<a
-		{href}
-		class:large={size == 'large'}
-		class:outline={extra == 'outline'}
-		class:hover_red={extra == 'hover_red'}
-		{target}
-		title={tooltip}
-	>
-		<slot />
-	</a>
-{:else}
-	<button
-		on:click
-		class:large={size == 'large'}
-		class:outline={extra == 'outline'}
-		class:hover_red={extra == 'hover_red'}
-		title={tooltip}
-		{disabled}
-	>
-		<slot />
-	</button>
-{/if}
+<svelte:element
+	this={href ? 'a' : 'button'}
+	{href}
+	{target}
+	on:click
+	{disabled}
+	role="presentation"
+	class:large
+	class={extra}
+	title={tooltip}
+>
+	<SVG {icon} size={icon_size} />
+	<slot />
+</svelte:element>
 
 <style>
 	button,
@@ -68,6 +63,7 @@
 	:not(:disabled):hover {
 		background-color: var(--cl1_b);
 		color: var(--ac6_);
+		fill: var(--ac5_);
 	}
 	:not(:disabled).hover_red:hover {
 		background-color: var(--cl4);

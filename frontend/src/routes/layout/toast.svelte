@@ -37,18 +37,16 @@
 	>
 		<div class="block">
 			{#if $toast.status == 201}
-				<SVG type="info" size="12" />
+				<SVG icon="info" size="12" />
 			{:else if $toast.status == 400}
-				<SVG type="close" size="8" />
+				<SVG icon="close" size="8" />
 			{:else}
-				<SVG type="check" size="12" />
+				<SVG icon="check" size="12" />
 			{/if}
 
 			<Marked md={$toast?.message || 'no message'} />
 
-			<BRound extra="hover_red" on:click={close}>
-				<SVG type="close" size="8" />
-			</BRound>
+			<BRound icon="close" icon_size="8" extra="hover_red" on:click={close} />
 		</div>
 
 		<div class="progress" class:zero />

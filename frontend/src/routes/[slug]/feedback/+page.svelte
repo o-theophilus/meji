@@ -22,6 +22,7 @@
 	export let data;
 	$: item = data.item;
 	$: feedbacks = data.feedbacks;
+	$: ratings = data.ratings;
 	$: give_feedback = data.give_feedback;
 	$: total_page = data.total_page;
 	let { order_by } = data;
@@ -73,7 +74,7 @@
 				<Title card>
 					<span class="bold">Rating</span>
 				</Title>
-				<Rating {feedbacks} />
+				<Rating {ratings} />
 			</div>
 		{/if}
 

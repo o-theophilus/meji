@@ -19,8 +19,8 @@
 		alt={feedback.name}
 	/>
 	<div class="right">
-		<div class="name">
-			<span class="bold">
+		<div class="row">
+			<span class="name">
 				{feedback.user_name}
 			</span>
 			<Rating rating={feedback.rating} />
@@ -30,25 +30,24 @@
 			<Datetime datetime={feedback.date} type="time" />
 		</span>
 
-		<div class="v_margin">
+		<div class="fbk">
 			{feedback.review}
 		</div>
 
 		{#if $user.key == feedback.user_key && editable}
-			<div class="v_margin">
-				<Link
-					on:click={() => {
-						$module = {
-							module: Add,
-							item,
-							feedback
-						};
-					}}
-				>
-					<SVG type="edit" size="10" />
-					Edit
-				</Link>
-			</div>
+			<br />
+			<Link
+				on:click={() => {
+					$module = {
+						module: Add,
+						item,
+						feedback
+					};
+				}}
+			>
+				<SVG icon="edit" size="10" />
+				Edit
+			</Link>
 		{/if}
 	</div>
 </section>
@@ -57,6 +56,7 @@
 	section {
 		display: flex;
 		gap: var(--sp2);
+		margin: var(--sp2) 0;
 		padding-top: var(--sp2);
 		border-top: 2px solid var(--ac4);
 	}
@@ -73,23 +73,22 @@
 		width: 100%;
 	}
 
-	.name {
+	.row {
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
 		gap: var(--sp2);
+	}
+	.name {
+		font-weight: 700;
+		color: var(--ac1);
 	}
 	.date {
 		font-size: smaller;
 		color: var(--ac3);
 	}
 
-	.v_margin {
-		margin: var(--sp2) 0;
-	}
-
-	.bold {
-		font-weight: 700;
-		color: var(--ac1);
+	.fbk {
+		margin-top: var(--sp1);
 	}
 </style>

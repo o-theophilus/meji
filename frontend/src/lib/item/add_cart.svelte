@@ -20,7 +20,7 @@
 			};
 		}}
 	>
-		<SVG type="cart_add" size="18" />
+		<SVG icon="cart_add" size="18" />
 		Add to cart
 	</Button>
 {:else}
@@ -34,7 +34,7 @@
 			};
 		}}
 	>
-		<SVG type="cart_add" />
+		<SVG icon="cart_add" />
 	</button>
 {/if}
 

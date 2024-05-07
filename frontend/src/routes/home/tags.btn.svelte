@@ -26,7 +26,7 @@
 		goto('/shop');
 	}}
 >
-	<SVG type={tag.toLowerCase()} size="30" />
+	<SVG icon={tag.toLowerCase()} size="30" />
 	{tag}
 </button>
 

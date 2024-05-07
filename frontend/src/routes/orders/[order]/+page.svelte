@@ -132,7 +132,7 @@
 						};
 					}}
 				>
-					<SVG type="close" size="8" />
+					<SVG icon="close" size="8" />
 					Cancel Order
 				</Button>
 			{/if}

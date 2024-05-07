@@ -20,20 +20,19 @@
 					.url.href}"
 				target="_blank"
 			>
-				<SVG type="whatsapp" />
+				<SVG icon="whatsapp" />
 				Chat
 			</Button>
 		</div>
 		<BRound
+			icon="share"
 			on:click={() => {
 				$module = {
 					module: Share,
 					item
 				};
 			}}
-		>
-			<SVG type="share" />
-		</BRound>
+		/>
 	</div>
 </div>
 
@@ -49,8 +48,11 @@
 	.floater {
 		position: sticky;
 		bottom: var(--headerHeight);
-
 		padding: var(--sp2) 0;
+
+		/* bottom: calc(var(--headerHeight) + var(--sp2));
+
+		padding-top: var(--sp2); */
 		border-top: 2px solid var(--ac4);
 
 		background-color: var(--ac6);

@@ -11,7 +11,7 @@
 			show_password = !show_password;
 		}}
 	>
-		<SVG type={show_password ? 'hide_password' : 'show_password'} size="12" />
+		<SVG icon={show_password ? 'hide_password' : 'show_password'} size="12" />
 	</button>
 </form>
 

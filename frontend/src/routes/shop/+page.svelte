@@ -55,7 +55,7 @@
 						};
 					}}
 				>
-					<SVG type="add" size="12" />
+					<SVG icon="add" size="12" />
 					Add
 				</Button>
 			{/if}

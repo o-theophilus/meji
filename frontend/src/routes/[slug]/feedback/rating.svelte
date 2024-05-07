@@ -2,21 +2,21 @@
 	import SVG from '$lib/svg.svelte';
 	import Bar from './rating.bar.svelte';
 
-	export let feedbacks = [];
+	export let ratings = [];
 	let sum = 0;
 	let _ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-	let ratings = { ..._ratings };
+	let arranged = { ..._ratings };
 
 	$: {
 		sum = 0;
-		ratings = { ..._ratings };
+		arranged = { ..._ratings };
 
-		for (const x of feedbacks) {
-			sum += x.rating;
-			ratings[x.rating]++;
+		for (const x of ratings) {
+			sum += x;
+			arranged[x]++;
 		}
 
-		sum = sum / feedbacks.length;
+		sum = sum / ratings.length;
 		sum = sum % 1 == 0 ? sum.toString() : sum.toFixed(1);
 	}
 </script>
@@ -24,18 +24,18 @@
 <section>
 	<div class="left">
 		<span class="gold"> <span class="sum">{sum}</span>/5 </span>
-		<SVG type="star" size="30" />
+		<SVG icon="star" size="30" />
 		<span>
-			{feedbacks.length} rating{#if feedbacks.length > 1}s{/if}
+			{ratings.length} rating{#if ratings.length > 1}s{/if}
 		</span>
 	</div>
 
 	<div class="right">
-		{#each Object.entries(ratings).reverse() as [name, value]}
+		{#each Object.entries(arranged).reverse() as [name, value]}
 			{name}
-			<SVG type="star" size="12" />
+			<SVG icon="star" size="12" />
 			<span> ({value})</span>
-			{@const width = (value * 100) / feedbacks.length}
+			{@const width = (value * 100) / ratings.length}
 			<Bar {width} />
 		{/each}
 	</div>

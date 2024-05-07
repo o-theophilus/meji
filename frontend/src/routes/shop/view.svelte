@@ -18,6 +18,6 @@
 </script>
 
 <Button extra="outline" on:click={save_view}>
-	<SVG type={$user.setting_item_view == 'grid' ? 'shop_active' : 'list'} />
+	<SVG icon={$user.setting_item_view == 'grid' ? 'shop_active' : 'list'} />
 	view
 </Button>

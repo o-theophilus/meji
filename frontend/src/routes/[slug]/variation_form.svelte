@@ -10,7 +10,6 @@
 	import BRound from '$lib/button/round.svelte';
 	import IG from '$lib/input_group.svelte';
 	import Input from '$lib/input.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
 	let variation = { ...item.variation };
@@ -152,13 +151,13 @@
 							{key}
 						</label>
 						<BRound
+							icon="close"
+							icon_size="8"
 							extra="hover_red"
 							on:click={() => {
 								delete_key(key);
 							}}
-						>
-							<SVG type="close" size="8" />
-						</BRound>
+						/>
 					</div>
 				</svelte:fragment>
 			</IG>

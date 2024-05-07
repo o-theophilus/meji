@@ -97,7 +97,7 @@
 	{/if}
 
 	<Button extra="hover_red" on:click={validate}>
-		<SVG type="close" size="8" />
+		<SVG icon="close" size="8" />
 		Cancel
 	</Button>
 </Form>

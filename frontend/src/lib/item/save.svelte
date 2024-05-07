@@ -1,5 +1,4 @@
 <script>
-	import Button from '$lib/button/button.svelte';
 	import BRound from '$lib/button/round.svelte';
 	import SVG from '$lib/svg.svelte';
 
@@ -53,14 +52,14 @@
 </script>
 
 {#if _type == 1}
-	<BRound size="large" on:click={submit}>
+	<BRound large on:click={submit}>
 		<div class:save={$user.saves.includes(item.key)}>
-			<SVG type="like_active" size="12" />
+			<SVG icon="like_active" size="12" />
 		</div>
 	</BRound>
 {:else}
 	<button title="save" class:save={$user.saves.includes(item.key)} on:click={submit}>
-		<SVG type="like_active" />
+		<SVG icon="like_active" />
 	</button>
 {/if}
 

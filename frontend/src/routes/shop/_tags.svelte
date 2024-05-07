@@ -7,7 +7,6 @@
 	import Input from '$lib/input.svelte';
 	import BRound from '$lib/button/round.svelte';
 	import Button from '$lib/button/button.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Form from '$lib/form.svelte';
 	import Tag from '$lib/button/tag.svelte';
 	import Spinner from '$lib/loading_spinner.svelte';
@@ -82,12 +81,12 @@
 		{#if filter}
 			<div class="clear">
 				<BRound
+					icon="close"
+					icon_size="8"
 					on:click={() => {
 						filter = '';
 					}}
-				>
-					<SVG type="close" size="8" />
-				</BRound>
+				/>
 			</div>
 		{/if}
 	</div>

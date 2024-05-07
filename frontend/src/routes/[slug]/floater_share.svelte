@@ -3,7 +3,6 @@
 	import { module } from '$lib/store.js';
 
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	let item = { ...$module.item };
 	let text = `Check Out: ${item.name}`;
@@ -14,54 +13,50 @@
 
 	<div class="block">
 		<BRound
-			size="large"
+			icon="facebook"
+			tooltip="Facebook"
 			href="https://www.facebook.com/sharer.php?u={$page.url.href}"
 			target="_blank"
-			tooltip="Facebook"
+			large
 			on:click={() => {
 				$module = '';
 			}}
-		>
-			<SVG type="facebook" />
-		</BRound>
+		/>
 
 		<BRound
-			size="large"
+			icon="twitter"
+			tooltip="Twitter"
 			href="http://twitter.com/share?text={text}&url={$page.url.href}&hashtags=meji,shopping"
 			target="_blank"
-			tooltip="Twitter"
+			large
 			on:click={() => {
 				$module = '';
 			}}
-		>
-			<SVG type="twitter" />
-		</BRound>
+		/>
 
 		<BRound
-			size="large"
-			href="whatsapp://send?text={text}%20{$page.url.href}"
+			icon="whatsapp"
 			tooltip="Whatsapp"
+			href="whatsapp://send?text={text}%20{$page.url.href}"
+			large
 			on:click={() => {
 				$module = '';
 			}}
-		>
-			<SVG type="whatsapp" />
-		</BRound>
+		/>
 
 		<BRound
-			size="large"
+			icon="telegram"
+			tooltip="Telegram"
 			href="https://telegram.me/share/url?url={$page.url.href}&text={text}"
 			target="_blank"
-			tooltip="Telegram"
+			large
 			on:click={() => {
 				$module = '';
 			}}
-		>
-			<SVG type="telegram" />
-		</BRound>
+		/>
 
 		<!-- <div class="icon">
-		<div class="svg"><SVG type="instagram" /></div>
+		<div class="svg" icon="instagram" ></div>
 		</div> -->
 	</div>
 </section>

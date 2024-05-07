@@ -57,7 +57,7 @@
 			}
 		}}
 	>
-		<SVG type="cart_out" />
+		<SVG icon="cart_out" />
 		Checkout
 	</Button>
 

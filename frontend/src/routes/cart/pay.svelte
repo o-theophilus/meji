@@ -5,7 +5,6 @@
 	import Card from '$lib/card.svelte';
 	import Link from '$lib/button/link.svelte';
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Title from '$lib/title.svelte';
 
 	import MakePayment from './pay.make_payment.svelte';
@@ -23,12 +22,12 @@
 	<Title card>
 		<svelte:fragment slot="left">
 			<BRound
+				icon="angle"
+				icon_size="10"
 				on:click={() => {
 					emit('back');
 				}}
-			>
-				<SVG type="angle" size="10" />
-			</BRound>
+			/>
 		</svelte:fragment>
 		Payment
 	</Title>

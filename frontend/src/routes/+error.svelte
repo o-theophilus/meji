@@ -28,7 +28,7 @@
 			document.location = '/';
 		}}
 	>
-		<SVG type="home" />
+		<SVG icon="home" />
 		Home
 	</Button>
 </Card>

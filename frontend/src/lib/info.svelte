@@ -13,11 +13,11 @@
 	class:caution={$module.status == 201}
 >
 	{#if $module.status == 200}
-		<SVG type="check" size="20" />
+		<SVG icon="check" size="20" />
 	{:else if $module.status == 400}
-		<SVG type="close" />
+		<SVG icon="close" />
 	{:else if $module.status == 201}
-		<SVG type="info" size="20" />
+		<SVG icon="info" size="20" />
 	{/if}
 	{$module?.title || 'no title'}
 </div>
@@ -27,7 +27,7 @@
 		<br />
 		{#each $module.button as b}
 			<Button on:click={b.fn}>
-				<SVG type={b.icon} />
+				<SVG icon={b.icon} />
 				{b.name}
 			</Button>
 		{/each}

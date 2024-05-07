@@ -4,7 +4,6 @@
 	import { user, module } from '$lib/store.js';
 
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Info from './price.info.svelte';
 	import Discount from './price.discount.svelte';
 	import Form from './price_form.svelte';
@@ -20,25 +19,25 @@
 	<div class="row">
 		{#if item.old_price}
 			<BRound
+				icon="info"
+				size="8"
 				on:click={() => {
 					open_discount = !open_discount;
 				}}
-			>
-				<SVG type="info" size="8" />
-			</BRound>
+			/>
 		{/if}
 		{#if edit_mode && $user.permissions.includes('item:edit_price')}
 			<BRound
+				icon="edit"
+				size="10"
+				tooltip="Edit Price"
 				on:click={() => {
 					$module = {
 						module: Form,
 						item
 					};
 				}}
-				tooltip="Edit Price"
-			>
-				<SVG type="edit" size="10" />
-			</BRound>
+			/>
 		{/if}
 	</div>
 </div>

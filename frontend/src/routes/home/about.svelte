@@ -18,7 +18,7 @@
 
 		<div class="row_2">
 			<div>
-				<SVG size="28" type="change" />
+				<SVG icon="change" size="28" />
 				<br />
 				<span> Convenience Delivered </span>
 				<p>
@@ -29,7 +29,7 @@
 				</p>
 			</div>
 			<div>
-				<SVG size="28" type="offer" />
+				<SVG icon="offer" size="28" />
 				<br />
 				<span> Secure Payment Solutions </span>
 				<p>
@@ -39,7 +39,7 @@
 				</p>
 			</div>
 			<div>
-				<SVG size="28" type="time" />
+				<SVG icon="time" size="28" />
 				<br />
 				<span> 24/7 Services </span>
 				<p>

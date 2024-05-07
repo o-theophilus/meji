@@ -6,7 +6,6 @@
 	import Button from '$lib/button/button.svelte';
 	import Link from '$lib/button/link.svelte';
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Title from '$lib/title.svelte';
 
 	import Datetime from '$lib/datetime.svelte';
@@ -32,12 +31,12 @@
 	<Title card>
 		<svelte:fragment slot="left">
 			<BRound
+				icon="angle"
+				icon_size="10"
 				on:click={() => {
 					emit('back');
 				}}
-			>
-				<SVG type="angle" size="10" />
-			</BRound>
+			/>
 		</svelte:fragment>
 		Delivery
 	</Title>

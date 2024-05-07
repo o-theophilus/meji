@@ -7,7 +7,6 @@
 	import Tag from '$lib/button/tag.svelte';
 	import Input from '$lib/input.svelte';
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	let tags = [];
 	let filter = '';
@@ -30,12 +29,12 @@
 		{#if filter}
 			<div class="clear">
 				<BRound
+					icon="close"
+					icon_size="8"
 					on:click={() => {
 						filter = '';
 					}}
-				>
-					<SVG type="close" size="8" />
-				</BRound>
+				/>
 			</div>
 		{/if}
 	</div>

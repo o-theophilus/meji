@@ -44,63 +44,63 @@
 	};
 </script>
 
-<div class="row space v_margin" class:open>
-	<div class="row">
-		<span class="bold">
-			Customer{feedbacks.length > 1 ? 's' : ''} Feedback
-		</span>
-		<Spinner active={loading_feedbacks} size="16" />
-		<Rating ratings={item.ratings} />
-	</div>
+<div class="v_margin" class:open>
+	<div class="row space" class:open>
+		<div class="row">
+			<span class="bold">
+				Customer{feedbacks.length > 1 ? 's' : ''} Feedback
+			</span>
+			<Spinner active={loading_feedbacks} size="16" />
+			<Rating ratings={item.ratings} />
+		</div>
 
-	{#if !loading_feedbacks}
 		<ButtonFold
 			{open}
 			on:click={() => {
 				open = !open;
 			}}
 		/>
+	</div>
+
+	{#if open}
+		<div class="row">
+			{#if feedbacks.length > 0}
+				<Link href="/{item.slug}/feedback" on:click={click} on:mouseenter={click} icon>
+					view more
+				</Link>
+			{/if}
+			{#if give_feedback && feedbacks.length > 0} | {/if}
+			{#if give_feedback}
+				<Link href="/{item.slug}/feedback?add=true" on:click={click} on:mouseenter={click} icon>
+					add review
+				</Link>
+			{/if}
+		</div>
+
+		<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+			{#each feedbacks as feedback}
+				<Review {feedback} {item} />
+			{:else}
+				<div class="v_margin">
+					There is no feedback yet.
+					<br />
+					{#if give_feedback}
+						Be the first to add a review.
+					{:else}
+						Only
+						{#if !$user.login}
+							logged in
+						{/if}
+
+						customers who have purchased this item can add a review.
+					{/if}
+					<br />
+					<br />
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
-
-{#if open}
-	<div class="row">
-		{#if feedbacks.length > 0}
-			<Link href="/{item.slug}/feedback" on:click={click} on:mouseenter={click} icon>
-				view more
-			</Link>
-		{/if}
-		{#if give_feedback && feedbacks.length > 0} | {/if}
-		{#if give_feedback}
-			<Link href="/{item.slug}/feedback?add=true" on:click={click} on:mouseenter={click} icon>
-				add review
-			</Link>
-		{/if}
-	</div>
-
-	<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		{#each feedbacks as feedback}
-			<Review {feedback} {item} />
-		{:else}
-			<div class="v_margin">
-				There is no feedback yet.
-				<br />
-				{#if give_feedback}
-					Be the first to add a review.
-				{:else}
-					Only
-					{#if !$user.login}
-						logged in
-					{/if}
-
-					customers who have purchased this item can add a review.
-				{/if}
-				<br />
-				<br />
-			</div>
-		{/each}
-	</div>
-{/if}
 
 <style>
 	.row {

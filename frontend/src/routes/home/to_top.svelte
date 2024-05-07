@@ -26,7 +26,7 @@
 				}}
 			>
 				<div class="svg">
-					<SVG type="angle" size="8" />
+					<SVG icon="angle" size="8" />
 				</div>
 			</BRound>
 		</div>

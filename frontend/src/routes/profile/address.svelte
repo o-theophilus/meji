@@ -3,7 +3,6 @@
 
 	import BRound from '$lib/button/round.svelte';
 	import Form from './address_form.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	export let user = {};
 	export let edit_mode = false;
@@ -18,6 +17,8 @@
 
 {#if edit_mode}
 	<BRound
+		icon="edit"
+		icon_size="10"
 		tooltip="Edit Address"
 		on:click={() => {
 			$module = {
@@ -25,9 +26,7 @@
 				user: user
 			};
 		}}
-	>
-		<SVG type="edit" size="10" />
-	</BRound>
+	/>
 {:else}
 	<div />
 {/if}

@@ -4,7 +4,6 @@
 	import { set_state } from '$lib/store.js';
 
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Center from '$lib/center.svelte';
 
 	let text = '';
@@ -45,14 +44,14 @@
 			</span>
 
 			<BRound
+				icon="close"
+				icon_size="8"
 				extra="hover_red"
 				on:click={() => {
 					set_state('search', '');
 					set_state('tag', '');
 				}}
-			>
-				<SVG type="close" size="8" />
-			</BRound>
+			/>
 		</div>
 	</Center>
 {/if}

@@ -5,7 +5,6 @@
 
 	import BRound from '$lib/button/round.svelte';
 	import ButtonFold from '$lib/button/fold.svelte';
-	import SVG from '$lib/svg.svelte';
 	import Marked from '$lib/marked.svelte';
 	import Form from './info_form.svelte';
 
@@ -26,16 +25,16 @@
 		/>
 		{#if edit_mode && $user.permissions.includes('item:edit_info')}
 			<BRound
+				icon="edit"
+				icon_size="10"
+				tooltip="Edit Details"
 				on:click={() => {
 					$module = {
 						module: Form,
 						item
 					};
 				}}
-				tooltip="Edit Details"
-			>
-				<SVG type="edit" size="10" />
-			</BRound>
+			/>
 		{/if}
 	</div>
 </div>

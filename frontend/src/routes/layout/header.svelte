@@ -8,7 +8,7 @@
 <header>
 	<div class="block">
 		<a href="/">
-			<SVG type="logo" size="28" />
+			<SVG icon="logo" size="28" />
 			Meji
 		</a>
 		<div class="right">

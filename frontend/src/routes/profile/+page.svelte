@@ -130,7 +130,7 @@
 					<div class="row">
 						{#if edit_mode}
 							<Button href="/profile/setting">
-								<SVG type="setting" size="12" />
+								<SVG icon="setting" size="12" />
 								Setting
 							</Button>
 						{/if}

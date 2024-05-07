@@ -5,7 +5,6 @@
 
 	import Search from '$lib/search.svelte';
 	import BRound from '$lib/button/round.svelte';
-	import SVG from '$lib/svg.svelte';
 
 	export let permissions;
 
@@ -75,22 +74,22 @@
 			}}
 		/>
 		<BRound
+			icon="search"
+			icon_size="12"
 			disabled={`${user_key}:${type}:${action}` == search}
 			on:click={() => {
 				submit();
 			}}
-		>
-			<SVG type="search" size="12" />
-		</BRound>
+		/>
 		<BRound
+			icon="close"
+			icon_size="8"
 			extra="hover_red"
 			disabled={`${user_key}:${type}:${action}` == ':all:all'}
 			on:click={() => {
 				submit(true);
 			}}
-		>
-			<SVG type="close" size="8" />
-		</BRound>
+		/>
 	</div>
 </section>
 

@@ -45,7 +45,7 @@
 <div class="row">
 	<div class="input">
 		<div class="float svg">
-			<SVG type="search" size="15" />
+			<SVG icon="search" size="15" />
 		</div>
 
 		<input
@@ -64,12 +64,12 @@
 		<div class="float clear">
 			{#if search}
 				<BRound
+					icon="close"
+					icon_size="8"
 					on:click={() => {
 						submit('clear');
 					}}
-				>
-					<SVG type="close" size="8" />
-				</BRound>
+				/>
 			{/if}
 		</div>
 	</div>

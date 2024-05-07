@@ -23,12 +23,12 @@
 	{#if href}
 		<a {href}>
 			{sum}
-			<SVG type="star" />
+			<SVG icon="star" />
 		</a>
 	{:else}
 		<div>
 			{sum}
-			<SVG type="star" />
+			<SVG icon="star" />
 			{#if ratings.length > 0}
 				( {ratings.length} rating{#if ratings.length > 1}s{/if} )
 			{/if}

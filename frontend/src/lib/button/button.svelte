@@ -8,33 +8,21 @@
 	export let extra = ''; // outline, hover_red,
 </script>
 
-{#if href}
-	<a
-		class:primary
-		class:small={size == 'small'}
-		class:large={size == 'large'}
-		class:wide={size == 'wide'}
-		class:outline={extra == 'outline'}
-		class:hover_red={extra == 'hover_red'}
-		{href}
-		{target}
-	>
-		<slot />
-	</a>
-{:else}
-	<button
-		class:primary
-		class:small={size == 'small'}
-		class:large={size == 'large'}
-		class:wide={size == 'wide'}
-		class:outline={extra == 'outline'}
-		class:hover_red={extra == 'hover_red'}
-		on:click
-		{disabled}
-	>
-		<slot />
-	</button>
-{/if}
+<svelte:element
+	this={href ? 'a' : 'button'}
+	{href}
+	{target}
+	on:click
+	{disabled}
+	role="presentation"
+	class:primary
+	class:small={size == 'small'}
+	class:large={size == 'large'}
+	class:wide={size == 'wide'}
+	class={extra}
+>
+	<slot />
+</svelte:element>
 
 <style>
 	button,

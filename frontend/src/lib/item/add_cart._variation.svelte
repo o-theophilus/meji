@@ -109,7 +109,7 @@
 			validate();
 		}}
 	>
-		<SVG type="cart_add" size="18" />
+		<SVG icon="cart_add" size="18" />
 		Add to cart
 	</Button>
 </Form>

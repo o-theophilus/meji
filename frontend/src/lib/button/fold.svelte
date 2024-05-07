@@ -7,7 +7,7 @@
 
 <BRound on:click>
 	<div class="fold" class:open>
-		<SVG type="angle" size="8" />
+		<SVG icon="angle" size="8" />
 	</div>
 </BRound>
 

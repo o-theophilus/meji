@@ -12,7 +12,7 @@
 				form.rating = 5 - i;
 			}}
 		>
-			<SVG type="star" size="24" />
+			<SVG icon="star" size="24" />
 		</button>
 	{/each}
 </section>

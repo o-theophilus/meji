@@ -24,7 +24,7 @@
 				<br />
 				<Button primary size="large" href="/shop">
 					Shop Now
-					<SVG type="arrow_right" size="16" />
+					<SVG icon="arrow_right" size="16" />
 				</Button>
 			</div>
 		</div>
@@ -44,7 +44,7 @@
 				<br />
 				<Button primary size="large" href="/shop">
 					Shop Now
-					<SVG type="arrow_right" size="16" />
+					<SVG icon="arrow_right" size="16" />
 				</Button>
 			</div>
 		</div>

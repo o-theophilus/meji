@@ -69,10 +69,10 @@ def create(item_key):
     """, (user["key"], item["key"]))
     feedback = cur.fetchone()
 
-    # if feedback:
-    #     cur.execute("""
-    #         DELETE FROM feedback WHERE WHERE user_key = %s AND item_key = %s;
-    #     """, (user["key"], item["key"]))
+    if feedback:
+        cur.execute("""
+            DELETE FROM feedback WHERE WHERE user_key = %s AND item_key = %s;
+        """, (user["key"], item["key"]))
 
     cur.execute("""
         INSERT INTO feedback (key, user_key, item_key, rating, review)
@@ -157,6 +157,14 @@ def get_many(item_key, user_key):
     ))
     feedbacks = cur.fetchall()
 
+    cur.execute("""
+        SELECT
+            COALESCE(ARRAY_AGG(feedback.rating), ARRAY[]::int[]) AS ratings
+        FROM feedback
+        WHERE feedback.item_key = %s;
+    """, (item_key,))
+    ratings = cur.fetchone()
+
     has_feedback = False
     for x in feedbacks:
         if x["user_photo"]:
@@ -182,6 +190,7 @@ def get_many(item_key, user_key):
     return jsonify({
         "status": 200,
         "feedbacks": feedbacks,
+        "ratings": ratings["ratings"],
         "give_feedback": True if has_purchased and not has_feedback else False,
         "order_by": list(order_by.keys()),
         "total_page": ceil(feedbacks[0][

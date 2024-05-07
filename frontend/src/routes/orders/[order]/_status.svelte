@@ -86,7 +86,7 @@ to: **${status}**
 	{#each order_status as s, i}
 		<div class="state row">
 			<div class="circle" class:active={i <= index}>
-				<SVG type="check" size="10" />
+				<SVG icon="check" size="10" />
 			</div>
 			<span class="cap">
 				{s}
@@ -156,7 +156,7 @@ to: **${status}**
 
 		width: var(--size);
 		height: var(--size);
-		
+
 		border-radius: 50%;
 		background-color: var(--ac4);
 		outline: 2px solid var(--ac6);

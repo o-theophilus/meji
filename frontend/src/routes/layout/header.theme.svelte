@@ -27,10 +27,10 @@
 		<div class="block">
 			<div class="switch" class:dark={$user.setting_theme == 'dark'}>
 				<div>
-					<SVG type="light" size="12" />
+					<SVG icon="light" size="12" />
 				</div>
 				<div>
-					<SVG type="dark" size="12" />
+					<SVG icon="dark" size="12" />
 				</div>
 			</div>
 		</div>
