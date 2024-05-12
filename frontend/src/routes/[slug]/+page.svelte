@@ -66,12 +66,11 @@
 	};
 </script>
 
-<Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
 {#key item.key}
+	<Meta title={item.name} description={item.info} image="{item.photos[0]}/200" />
 	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
 	<Refresh on:refresh={refresh} />
 {/key}
-
 
 <Center>
 	<Title>

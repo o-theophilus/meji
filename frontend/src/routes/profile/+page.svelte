@@ -39,25 +39,24 @@
 	}
 </script>
 
-<Meta title={user?.name || data.error} description={user?.name || data.error} />
-{#if user}
-	{#key user.key}
+{#key `${$page.url.pathname}${$page.url.search}`}
+	<Meta title={user?.name || data.error} />
+
+	{#if user}
 		<Log
 			action={'viewed'}
 			entity_key={user.key == $me.key ? null : user.key}
 			entity_type={'user'}
 		/>
-	{/key}
-{:else if data.error}
-	{#key `${$page.url.pathname}${$page.url.search}`}
+	{:else if data.error}
 		<Log
 			action={'viewed'}
 			entity_key={$page.url.searchParams.get('search')}
 			entity_type={'user'}
 			status={data.status}
 		/>
-	{/key}
-{/if}
+	{/if}
+{/key}
 
 <Center>
 	<Title>

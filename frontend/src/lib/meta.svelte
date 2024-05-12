@@ -5,43 +5,29 @@
 	export let description;
 	export let image = `${$page.url.origin}/favicon.png`;
 
-	let imageAlt = image;
-	let type = 'website';
-	let twitterCard = 'summary_large_image';
-
+	title = `${title} | Meji`;
 	description = description ? description : title;
 </script>
 
 <svelte:head>
-	{#if title}
-		<title>{title} | Meji</title>
-		<meta name="title" content={title} />
-		<meta property="og:title" content={title} />
-		<meta property="twitter:title" content={title} />
-	{/if}
+	<title>{title}</title>
+	<meta name="title" content={title} />
+	<meta property="og:title" content={title} />
+	<meta property="twitter:title" content={title} />
 
-	{#if description}
-		<meta name="description" content={description} />
-		<meta property="og:description" content={description} />
-		<meta property="twitter:description" content={description} />
-	{/if}
+	<meta name="description" content={description} />
+	<meta property="og:description" content={description} />
+	<meta property="twitter:description" content={description} />
 
-	{#if image}
-		<meta property="og:image" content={image} />
-		<meta property="twitter:image" content={image} />
-	{/if}
+	<meta property="og:image" content={image} />
+	<meta property="twitter:image" content={image} />
 
-	{#if imageAlt}
-		<meta property="og:image:alt" content={imageAlt} />
-		<meta property="twitter:image:alt" content={imageAlt} />
-	{/if}
+	<meta property="og:image:alt" content={title} />
+	<meta property="twitter:image:alt" content={title} />
 
 	<meta property="og:url" content={$page.url.href} />
 	<meta property="twitter:url" content={$page.url.href} />
 
-	{#if type}
-		<meta property="og:type" content={type} />
-	{/if}
-
-	<meta property="twitter:card" content={twitterCard} />
+	<meta property="og:type" content="website" />
+	<meta property="twitter:card" content="summary_large_image" />
 </svelte:head>
