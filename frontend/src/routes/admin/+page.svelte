@@ -39,14 +39,15 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] better page meta descriptions
 		<br />
+		<br /> [ - ] meji contacts
 		<br /> [ - ] how changing item status and price of items affect save, advert and cart
 		<br /> [ - ] how deleted users signup again
 		<br /> [ - ] use version for financial ops
 		<br /> [ - ] does going back restore token
 		<br />
+		<br /> [ - ] integrate AI assistant
 		<br /> [ - ] use svelte runes
 		<br /> [ - ] address api: www.geoapify.com/tutorials
 		<br /> [ - ] update brand guide
