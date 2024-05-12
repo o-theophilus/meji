@@ -1,5 +1,4 @@
 <script>
-	import { page } from '$app/stores';
 	import { user, module } from '$lib/store.js';
 
 	import Login from '../auth/login.svelte';

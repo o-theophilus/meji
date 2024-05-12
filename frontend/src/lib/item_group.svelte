@@ -25,13 +25,18 @@
 	<Center>
 		<div class="block">
 			<Title>
-				{#if fold}
-					<div on:click={set_open} role="presentation" class="fold">
-						{name}
-					</div>
-				{:else}
+				<div
+					on:click={() => {
+						if (fold) {
+							set_open();
+						}
+					}}
+					role="presentation"
+					class:fold
+				>
 					{name}
-				{/if}
+				</div>
+
 				<svelte:fragment slot="down">
 					{#if href}
 						<Link {href} icon>view more</Link>

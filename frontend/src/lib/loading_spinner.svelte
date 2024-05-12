@@ -4,19 +4,57 @@
 </script>
 
 {#if active}
-	<div class="circle" style:--size="{size}px" />
+	<div class="circle" style:--size="{size}px">
+		<div class="sector" />
+		<div class=" sector v2" />
+		<div class="center" />
+	</div>
 {/if}
 
 <style>
 	.circle {
+		position: relative;
+
+		--thickness: 8px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		background-color: var(--cl1_t);
+		background-color: var(--ac5);
+
+		width: var(--size);
+		height: var(--size);
+		border-radius: 50%;
+
+		overflow: hidden;
+	}
+
+	.center {
+		position: relative;
+		background-color: var(--ac6);
+
+		width: calc(var(--size) * (1 / 3) * 2);
+		height: calc(var(--size) * (1 / 3) * 2);
+		border-radius: 50%;
+	}
+
+	.sector {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+
+		background-color: var(--cl1);
+
 		width: var(--size);
 		height: var(--size);
 
-		background-image: url('/image/loading.png');
-		background-size: contain;
-		background-repeat: no-repeat;
-
+		transform-origin: 0 0;
 		animation: rotation 1s infinite linear;
+	}
+
+	.v2 {
+		animation-duration: 2s;
 	}
 
 	@keyframes rotation {

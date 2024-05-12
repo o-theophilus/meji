@@ -119,9 +119,7 @@
 			<div class="hover" style:--height="{width}px" />
 			<div class="indicator" />
 		</a>
-	{/if}
-
-	{#if !$user?.login}
+	{:else}
 		<button
 			class="login"
 			on:click={() => {

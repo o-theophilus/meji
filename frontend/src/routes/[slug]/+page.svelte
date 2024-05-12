@@ -72,6 +72,7 @@
 	<Refresh on:refresh={refresh} />
 {/key}
 
+
 <Center>
 	<Title>
 		Item Details

@@ -7,10 +7,9 @@
 		<div class="row">
 			<slot name="left" />
 			<div>
-				<span class="name">
+				<div class="name">
 					<slot />
-				</span>
-				<br />
+				</div>
 				<slot name="down" />
 			</div>
 		</div>
