@@ -12,7 +12,7 @@
 	import Password from './_password.svelte';
 </script>
 
-<Meta title="Setting" description="Setting" />
+<Meta title="Setting" />
 
 <Center>
 	<Title>

@@ -21,7 +21,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Admin" description="Users with elevated permission." />
+<Meta title="Admin" description="Users with elevated permission" />
 
 <Center>
 	<Title>

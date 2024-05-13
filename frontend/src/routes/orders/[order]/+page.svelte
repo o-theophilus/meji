@@ -38,7 +38,7 @@
 	}
 </script>
 
-<Meta title="Order" description="Order" />
+<Meta title="Order" description="Order details" />
 <Log action={'viewed'} entity_key={order.key} entity_type={'order'} />
 
 <Center>

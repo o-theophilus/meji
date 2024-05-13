@@ -10,7 +10,7 @@
 	export let { transactions } = data;
 </script>
 
-<Meta title="Transaction" description="Transaction" />
+<Meta title="Transactions"  />
 
 <Center>
 	<Title card>

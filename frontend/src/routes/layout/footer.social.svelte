@@ -11,24 +11,16 @@
 		target="_blank"
 	/>
 
-	<BRound
-		icon="twitter"
-		extra="outline"
-		large
-		href="https://twitter.com/o__theophilus"
-		target="_blank"
-	/>
+	<BRound icon="twitter" extra="outline" large href="https://twitter.com/meji_ng" target="_blank" />
 
 	<BRound
 		icon="facebook"
 		extra="outline"
 		large
-		href="https://m.facebook.com/o.theophilus"
+		href="https://web.facebook.com/profile.php?id=61559751445797"
 		target="_blank"
 	/>
-
-	<!-- <BRound extra=outline large href="https://www.instagram.com/o_theophilus_/" target="_blank" rel="noopener noreferrer"		icon="instagram" >
-	</BRound> -->
+	<!-- href="https://m.facebook.com/o.theophilus" -->
 </div>
 
 <style>

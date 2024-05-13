@@ -52,7 +52,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title={item?.name} description={item.info} image="{item.photos[0]}/200" />
+<Meta title={item.name} description={item.info} image="{item.photos[0]}/200" />
 
 <Center>
 	<Title>

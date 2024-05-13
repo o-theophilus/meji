@@ -30,7 +30,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Shop" description="Shop" />
+<Meta title="Shop" description="Purchase items" />
 <Log entity_type={'page'} />
 
 <Center>

@@ -217,7 +217,7 @@ Contact Us: [Contact](/#contact)
 	`;
 </script>
 
-<Meta title="Terms and Conditions" description="Terms and Conditions" />
+<Meta title="Terms and Conditions" />
 <Log entity_type={'page'} />
 
 <Center>

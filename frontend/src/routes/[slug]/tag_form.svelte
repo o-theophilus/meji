@@ -80,7 +80,6 @@
 		if (i == -1) {
 			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
 			resp = await resp.json();
-			loading_tags = false;
 
 			if (resp.status == 200) {
 				all_tags = resp.tags;
@@ -91,8 +90,8 @@
 			}
 		} else {
 			all_tags = $state[i].data;
-			loading_tags = false;
 		}
+		loading_tags = false;
 
 		clean_value();
 	});

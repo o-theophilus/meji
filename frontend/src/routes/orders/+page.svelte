@@ -33,7 +33,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Order" description="Order" />
+<Meta title="Order" />
 {#key `${$page.url.pathname}${$page.url.search}`}
 	<Log entity_type="page" />
 {/key}

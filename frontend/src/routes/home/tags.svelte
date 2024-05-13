@@ -7,18 +7,11 @@
 	import Link from '$lib/button/link.svelte';
 
 	import Tag from './tags.btn.svelte';
-	import All from './tags._all.svelte';
+	import AllTags from './tags._all.svelte';
 	import ItemPack from '$lib/item_pack.svelte';
 
 	let width;
-	let tags = [];
-
-	onMount(async () => {
-		let i = $state.findIndex((x) => x.name == 'tags');
-		if (i != -1) {
-			tags = $state[i].data;
-		}
-	});
+	let tags = ['male', 'palm', 'female', 'sandals', 'sneakers', 'nike', 'timberland', 'cover shoe'];
 </script>
 
 <svelte:window bind:innerWidth={width} />
@@ -32,7 +25,7 @@
 				<Link
 					on:click={() => {
 						$module = {
-							module: All
+							module: AllTags
 						};
 					}}
 					icon

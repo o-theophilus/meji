@@ -28,7 +28,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Saved" description="Saved" />
+<Meta title="Saved" description="Items y0u may be interested in" />
 <Log action="viewed" entity_type="save" />
 
 <Center>

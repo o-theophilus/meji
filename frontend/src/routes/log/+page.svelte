@@ -21,7 +21,7 @@
 </script>
 
 <UpdateUrl />
-<Meta title="Logs" description="Logs" />
+<Meta title="Logs" />
 
 <Center>
 	<Title>

@@ -7,6 +7,7 @@
 	import Tag from '$lib/button/tag.svelte';
 	import Input from '$lib/input.svelte';
 	import BRound from '$lib/button/round.svelte';
+	import Spinner from '$lib/loading_spinner.svelte';
 
 	let tags = [];
 	let filter = '';
@@ -16,6 +17,27 @@
 		if (i != -1) {
 			tags = $state[i].data;
 		}
+	});
+
+	let loading_tags = true;
+	onMount(async () => {
+		let pn = 'tags';
+		let i = $state.findIndex((x) => x.name == pn);
+		if (i == -1) {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
+			resp = await resp.json();
+
+			if (resp.status == 200) {
+				tags = resp.tags;
+				$state.push({
+					name: pn,
+					data: resp.tags
+				});
+			}
+		} else {
+			tags = $state[i].data;
+		}
+		loading_tags = false;
 	});
 </script>
 
@@ -42,6 +64,11 @@
 	<br />
 
 	<div class="tags_space">
+		{#if loading_tags}
+			<div class="spinner">
+				<Spinner active />
+			</div>
+		{/if}
 		{#each tags as tag}
 			{#if tag.includes(filter.toLowerCase())}
 				<Tag
@@ -97,5 +124,13 @@
 		border-radius: var(--sp1);
 		padding: var(--sp1);
 		border: 2px solid var(--ac4);
+	}
+
+	.spinner {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100px;
+		width: 100%;
 	}
 </style>

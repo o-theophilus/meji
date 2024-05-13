@@ -19,24 +19,6 @@ export const load = async ({ fetch, parent }) => {
 		return _state[i].data
 	}
 
-
-	const tags = async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tag`);
-		resp = await resp.json();
-		return resp
-	}
-
-	let pn = 'tags';
-	let j = _state.findIndex(x => x.name == pn);
-	if (j == -1) {
-		let _tags = await tags()
-		_state.push({
-			name: pn,
-			data: _tags.tags,
-		})
-		state.set(_state)
-	}
-
 	let a = await parent();
 	const new_arrivals = async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/shop?order=latest&page_size=8`, {

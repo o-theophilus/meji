@@ -39,8 +39,6 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] better page meta descriptions
-		<br />
 		<br /> [ - ] meji contacts
 		<br /> [ - ] how changing item status and price of items affect save, advert and cart
 		<br /> [ - ] how deleted users signup again

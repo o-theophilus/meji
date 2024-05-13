@@ -83,7 +83,7 @@
 	let state = 0;
 </script>
 
-<Meta title="Cart" description="Cart" />
+<Meta title="Cart" description="view / purchase the items in the cart" />
 {#if cart}
 	<Log action="viewed" entity_key={cart.key} entity_type="cart" />
 {/if}

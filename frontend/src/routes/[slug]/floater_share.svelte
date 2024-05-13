@@ -5,7 +5,10 @@
 	import BRound from '$lib/button/round.svelte';
 
 	let item = { ...$module.item };
-	let text = `Check Out: ${item.name}`;
+	let text = `Check this out: ${item.name}`;
+
+	let tags = item.tags.join(',').replace(/\s/g, '_');
+	tags = tags ? `,${tags}` : '';
 </script>
 
 <section>
@@ -26,7 +29,7 @@
 		<BRound
 			icon="twitter"
 			tooltip="Twitter"
-			href="http://twitter.com/share?text={text}&url={$page.url.href}&hashtags=meji,shopping"
+			href="http://twitter.com/share?text={text}&url={$page.url.href}&hashtags=meji,shopping{tags}"
 			target="_blank"
 			large
 			on:click={() => {
@@ -47,17 +50,13 @@
 		<BRound
 			icon="telegram"
 			tooltip="Telegram"
-			href="https://telegram.me/share/url?url={$page.url.href}&text={text}"
+			href="https://telegram.me/share/url?text={text}&url={$page.url.href}"
 			target="_blank"
 			large
 			on:click={() => {
 				$module = '';
 			}}
 		/>
-
-		<!-- <div class="icon">
-		<div class="svg" icon="instagram" ></div>
-		</div> -->
 	</div>
 </section>
 
