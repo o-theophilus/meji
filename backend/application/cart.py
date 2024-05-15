@@ -227,7 +227,6 @@ def get():
             item.price,
             item.status,
             COALESCE(item.photos[1], NULL) AS photo,
-            order_item.key AS key2,
             order_item.variation,
             order_item.quantity
         FROM item
