@@ -96,7 +96,7 @@ def edit_user(key):
     if "name" in request.json:
         if not request.json["name"]:
             error['name'] = "this field is required"
-        elif  request.json["name"] == user["name"]:
+        elif request.json["name"] == user["name"]:
             error['name'] = "no change"
         else:
             cur.execute("""
@@ -111,7 +111,7 @@ def edit_user(key):
     if "phone" in request.json:
         if not request.json["phone"]:
             error['phone'] = "this field is required"
-        elif  request.json["phone"] == user["phone"]:
+        elif request.json["phone"] == user["phone"]:
             error['phone'] = "no change"
         else:
             cur.execute("""
@@ -130,17 +130,17 @@ def edit_user(key):
         or "local_area" in request.json
         or "postal_code" in request.json
     ):
-        ra=request.json["line"]
-        rs=request.json["state"]
-        rc=request.json["country"]
-        rl=request.json["local_area"]
-        rp=request.json["postal_code"]
-        ua=user["line"]
-        us=user["state"]
-        uc=user["country"]
-        ul=user["local_area"]
-        up=user["postal_code"]
-        if(f"{ra} {rs} {rc} {rl} {rp}" == f"{ua} {us} {uc} {ul} {up}"):
+        ra = request.json["line"]
+        rs = request.json["state"]
+        rc = request.json["country"]
+        rl = request.json["local_area"]
+        rp = request.json["postal_code"]
+        ua = user["line"]
+        us = user["state"]
+        uc = user["country"]
+        ul = user["local_area"]
+        up = user["postal_code"]
+        if (f"{ra} {rs} {rc} {rl} {rp}" == f"{ua} {us} {uc} {ul} {up}"):
             error["error"] = "no change"
         else:
             if not request.json["line"]:

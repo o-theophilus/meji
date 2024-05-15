@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { loading, state } from '$lib/store.js';
 
-	import SVG from '$lib/svg_tags.svelte';
+	import SVG from '$lib/svg.svelte';
 
 	export let tag = '';
 </script>

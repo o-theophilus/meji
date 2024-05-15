@@ -39,9 +39,7 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] meji contacts
-		<br /> [ - ] how changing item status and price of items affect save, advert and cart
-		<br /> [ - ] how deleted users signup again
+		<br /> [ - ] how changing item status of items affect save and cart
 		<br /> [ - ] use version for financial ops
 		<br /> [ - ] does going back restore token
 		<br />

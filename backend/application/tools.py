@@ -33,7 +33,9 @@ def token_to_user(cur):
     except Exception:
         return None
 
-    cur.execute('SELECT * FROM "user" WHERE key = %s;', (token,))
+    cur.execute("""
+        SELECT * FROM "user" WHERE key = %s AND status != 'deleted';
+    """, (token,))
     user = cur.fetchone()
     return user
 

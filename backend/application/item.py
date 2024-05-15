@@ -104,7 +104,7 @@ def edit(key):
             or request.json["status"] not in ['live', 'draft', 'delete']
         ):
             error["status"] = "invalid request"
-        elif  request.json["status"]== item["status"]:
+        elif request.json["status"] == item["status"]:
             error["status"] = "no change"
         elif request.json["status"] == "live" and len(item["photos"]) == 0:
             error["status"] = "add photo"
@@ -130,7 +130,8 @@ def edit(key):
         else:
             slug = re.sub('-+', '-', re.sub(
                 '[^a-zA-Z0-9]', '-', request.json["name"].lower()))
-            cur.execute('SELECT * FROM item WHERE key != %s AND slug = %s;', (item["key"], slug))
+            cur.execute('SELECT * FROM item WHERE key != %s AND slug = %s;',
+                        (item["key"], slug))
             slug_in_use = cur.fetchone()
             if (slug_in_use or slug in reserved_words):
                 slug = f"{slug}-{str(uuid4().hex)[:10]}"

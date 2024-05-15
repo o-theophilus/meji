@@ -7,7 +7,7 @@
 		icon="whatsapp"
 		extra="outline"
 		large
-		href="https://wa.me/2348067397793/?text=Hello%20Theophilus"
+		href="https://wa.me/2349113717298/?text=Hello%20Meji.ng"
 		target="_blank"
 	/>
 
@@ -20,7 +20,6 @@
 		href="https://web.facebook.com/profile.php?id=61559751445797"
 		target="_blank"
 	/>
-	<!-- href="https://m.facebook.com/o.theophilus" -->
 </div>
 
 <style>

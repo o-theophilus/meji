@@ -16,7 +16,7 @@
 		<div class="row">
 			<Add_Cart {item} />
 			<Button
-				href="https://api.whatsapp.com/send?phone=+2348067397793&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{$page
+				href="https://api.whatsapp.com/send?phone=+2349113717298&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{$page
 					.url.href}"
 				target="_blank"
 			>

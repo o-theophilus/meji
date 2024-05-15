@@ -290,7 +290,7 @@ def login():
 
     if (
         not in_user
-        or in_user["status"] == "anonymous"
+        or in_user["status"] in ["anonymous", "deleted"]
         or not check_password_hash(
             in_user["password"], request.json["password"])
     ):
@@ -539,7 +539,7 @@ def forgot_password():
     cur.execute('SELECT * FROM "user" WHERE email = %s;',
                 (request.json["email"],))
     user = cur.fetchone()
-    if not user:
+    if not user or user["status"] == "deleted":
         db_close(con, cur)
         return jsonify({
             "status": 400,

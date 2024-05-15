@@ -211,34 +211,48 @@ def get():
     """, (user["key"],))
     cart = cur.fetchone()
 
-    items = []
-    if cart:
-        if cart["pay_account"] > user["account_balance"]:
-            cur.execute("""
-                UPDATE "order"
-                SET pay_account = 0
-                WHERE key = %s
-                RETURNING *;
-            """, (cart["key"],))
-            cart = cur.fetchone()
+    if not cart:
+        db_close(con, cur)
+        return jsonify({
+            "status": 200,
+            "cart": None,
+            "items": []
+        })
 
+    cur.execute("""
+        SELECT
+            item.key,
+            item.slug,
+            item.name,
+            item.price,
+            item.status,
+            COALESCE(item.photos[1], NULL) AS photo,
+            order_item.key AS key2,
+            order_item.variation,
+            order_item.quantity
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        WHERE order_item.order_key = %s;
+    """, (cart["key"],))
+    items = cur.fetchall()
+
+    cost_items = 0
+    for x in items:
+        cost_items += x["price"] * x["quantity"]
+        x["photo"] = f"{request.host_url}photo/{x['photo']}"
+
+    if (
+        cart["pay_account"] > user["account_balance"]
+        or cart["pay_account"] > cost_items
+        or cart["cost_items"] != cost_items
+    ):
         cur.execute("""
-            SELECT
-                item.key AS key,
-                item.slug AS slug,
-                item.name AS name,
-                item.price AS price,
-                COALESCE(item.photos[1], NULL) AS photo,
-                order_item.variation AS variation,
-                order_item.quantity AS quantity
-            FROM item
-            LEFT JOIN order_item ON item.key = order_item.item_key
-            WHERE order_item.order_key = %s;
-        """, (cart["key"],))
-        items = cur.fetchall()
-
-        for x in items:
-            x["photo"] = f"{request.host_url}photo/{x['photo']}"
+            UPDATE "order"
+            SET pay_account = 0, cost_items = %s
+            WHERE key = %s
+            RETURNING *;
+        """, (cost_items, cart["key"]))
+        cart = cur.fetchone()
 
     db_close(con, cur)
     return jsonify({
