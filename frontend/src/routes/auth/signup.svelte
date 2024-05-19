@@ -77,7 +77,7 @@
 				module: Info,
 				status: 200,
 				title: 'Confirmation Email Sent',
-				message: `A confirmation message has been sent to your email`,
+				message: 'A confirmation message has been sent to your email',
 				button: [
 					{
 						name: 'Ok',

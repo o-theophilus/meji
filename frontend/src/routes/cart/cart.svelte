@@ -10,10 +10,12 @@
 	import Login from '../auth/login.svelte';
 	import Item from './cart.item.svelte';
 	import Title from '$lib/title.svelte';
+	import Info from '$lib/info.svelte';
 
 	let emit = createEventDispatcher();
 
 	export let items;
+	export let live_items;
 	export let total;
 	let error = {};
 </script>
@@ -47,13 +49,31 @@
 	<Button
 		primary
 		on:click={() => {
-			if ($user.login) {
-				emit('next');
-			} else {
+			if (live_items.length == 0) {
+				$module = {
+					module: Info,
+					status: 400,
+					title: 'Empty Cart',
+					message: `The item${items.length > 1 ? 's' : ''} in the cart ${
+						items.length > 1 ? 'are' : 'is'
+					} unavailable`,
+					button: [
+						{
+							name: 'Ok',
+							icon: 'ok',
+							fn: () => {
+								$module = '';
+							}
+						}
+					]
+				};
+			} else if (!$user.login) {
 				$module = {
 					module: Login,
 					message: 'please login to checkout'
 				};
+			} else {
+				emit('next');
 			}
 		}}
 	>

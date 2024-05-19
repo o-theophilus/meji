@@ -21,21 +21,25 @@
 		loaded: false,
 		receivers: []
 	};
+	let live_items = [];
 
 	onMount(() => {
 		for (const x of items) {
 			if (x.status == 'live') {
 				total += x.quantity * x.price;
+				live_items.push(x);
 			}
 		}
 
-		if (cart.delivery_date) {
-			cart.delivery_date = new Date(cart.delivery_date);
-		} else {
-			let temp = new Date();
-			temp.setDate(temp.getDate() + 4);
-			temp.setHours(10, 0, 0, 0);
-			cart.delivery_date = temp;
+		if (cart) {
+			if (cart.delivery_date) {
+				cart.delivery_date = new Date(cart.delivery_date);
+			} else {
+				let temp = new Date();
+				temp.setDate(temp.getDate() + 4);
+				temp.setHours(10, 0, 0, 0);
+				cart.delivery_date = temp;
+			}
 		}
 	});
 
@@ -102,6 +106,7 @@
 	<Cart
 		{total}
 		{items}
+		{live_items}
 		on:next={() => {
 			state = 1;
 		}}
@@ -120,7 +125,7 @@
 {:else if state == 2}
 	<Pay
 		{cart}
-		{items}
+		items={live_items}
 		{total}
 		on:back={() => {
 			state = 1;

@@ -56,6 +56,31 @@ def order_check():
         })
 
     cur.execute("""
+        SELECT
+            item.price,
+            order_item.quantity
+        FROM order_item
+        LEFT JOIN item ON item.key = order_item.item_key
+        WHERE
+            order_item.order_key = %s
+            AND item.status = 'live';
+    """, (order["key"],))
+    items = cur.fetchall()
+
+    if len(items) == 0:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    total = 0
+    for x in items:
+        total += x["price"] * x["quantity"]
+
+    pay = total + order["cost_delivery"] - order["pay_account"]
+
+    cur.execute("""
         UPDATE order_item
         SET price = (
             SELECT item.price
@@ -66,27 +91,8 @@ def order_check():
     """, (order["key"],))
 
     cur.execute("""
-        SELECT
-            SUM(order_item.price * order_item.quantity) AS total
-        FROM item
-        LEFT JOIN order_item ON item.key = order_item.item_key
-        WHERE
-            order_item.order_key = %s
-            AND item.status = 'live';
-    """, (order["key"],))
-    total = cur.fetchone()[0]
-
-    pay = total + order["cost_delivery"] - order["pay_account"]
-
-    cur.execute("""
-        UPDATE "order"
-        SET
-            cost_items = %s
-        WHERE user_key = %s AND status = 'cart';
-    """, (
-        total,
-        user["key"]
-    ))
+        UPDATE "order" SET cost_items = %s WHERE key = %s;
+    """, (total, order["key"]))
 
     db_close(con, cur)
     return jsonify({
@@ -131,15 +137,28 @@ def cart_to_order():
 
     cur.execute("""
         SELECT
-            SUM(order_item.price * order_item.quantity) AS total
-        FROM item
-        LEFT JOIN order_item ON item.key = order_item.item_key
+            order_item.price,
+            order_item.quantity
+        FROM order_item
+        LEFT JOIN item ON item.key = order_item.item_key
         WHERE
             order_item.order_key = %s
             AND item.status = 'live';
     """, (order["key"],))
+    items = cur.fetchall()
 
-    pay = cur.fetchone()[0] + order["cost_delivery"] - order["pay_account"]
+    if len(items) == 0:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    total = 0
+    for x in items:
+        total += x["price"] * x["quantity"]
+
+    pay = total + order["cost_delivery"] - order["pay_account"]
 
     if pay > 0:
         if not request.json['reference']:
@@ -211,12 +230,12 @@ def cart_to_order():
             status = 'created',
             pay_user = %s,
             pay_reference = %s
-        WHERE user_key = %s AND status = 'cart'
+        WHERE key = %s
         RETURNING *;
     """, (
         pay,
         request.json['reference'] if request.json['reference'] else None,
-        user["key"]
+        order["key"]
     ))
     order = cur.fetchone()
 

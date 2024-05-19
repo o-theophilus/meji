@@ -517,18 +517,15 @@ def account():
         })
 
     cur.execute("""
-        SELECT
-            item.price,
-            item.status,
-            order_item.quantity
+       SELECT
+            SUM(item.price * order_item.quantity) AS total
         FROM item
         LEFT JOIN order_item ON item.key = order_item.item_key
-        WHERE order_item.order_key = %s;
+        WHERE
+            order_item.order_key = %s
+            AND item.status = 'live';
     """, (cart["key"],))
-    items = cur.fetchall()
-    cost_items = 0
-    for x in items:
-        cost_items += x["price"] * x["quantity"]
+    cost_items = cur.fetchone()[0]
 
     error = None
     if "amount" not in request.json:

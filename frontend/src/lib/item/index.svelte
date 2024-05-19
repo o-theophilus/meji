@@ -4,7 +4,7 @@
 	import Save from './save.svelte';
 	import Unavailable from './unavailable.svelte';
 
-	import { state } from '$lib/store.js';
+	import { state, user } from '$lib/store.js';
 
 	export let item;
 	export let style = 'grid';
@@ -29,7 +29,7 @@
 	data-sveltekit-preload-data="off"
 >
 	{#if item.status != 'live'}
-		<Unavailable key={item.key} />
+		<Unavailable {item} />
 	{/if}
 	<a class="img" href="/{item.slug}" on:click={click} on:mouseenter={click}>
 		<img

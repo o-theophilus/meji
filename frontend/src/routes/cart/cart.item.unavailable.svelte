@@ -60,6 +60,7 @@
 	<div class="block">
 		Unavailable
 		<div class="button">
+			<Button size="small" href="/{item.slug}">view</Button>
 			<Button size="small" on:click={submit}>Remove</Button>
 		</div>
 	</div>
@@ -87,6 +88,9 @@
 	}
 
 	.button {
+		display: flex;
+		gap: var(--sp1);
+
 		pointer-events: all;
 	}
 </style>

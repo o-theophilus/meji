@@ -5,11 +5,11 @@
 
 	import Button from '$lib/button/button.svelte';
 
-	export let key;
+	export let item;
 
 	const submit = async () => {
 		$loading = true;
-		$user.saves = $user.saves.filter((i) => i != key);
+		$user.saves = $user.saves.filter((i) => i != item.key);
 
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/save`, {
 			method: 'post',
@@ -18,7 +18,7 @@
 				Authorization: $token
 			},
 			body: JSON.stringify({
-				key,
+				key: item.key,
 				save: false
 			})
 		});
@@ -44,9 +44,14 @@
 <div class="blocker">
 	<div class="block">
 		Unavailable
-		{#if $page.url.pathname == '/save' && $user.saves.includes(key)}
+		{#if $user.permissions.includes('item:edit_status') || ($page.url.pathname == '/save' && $user.saves.includes(item.key))}
 			<div class="button">
-				<Button size="small" on:click={submit}>Remove</Button>
+				{#if $user.permissions.includes('item:edit_status')}
+					<Button size="small" href="/{item.slug}">view</Button>
+				{/if}
+				{#if $page.url.pathname == '/save' && $user.saves.includes(item.key)}
+					<Button size="small" extra="hover_red" on:click={submit}>Remove</Button>
+				{/if}
 			</div>
 		{/if}
 	</div>
@@ -74,6 +79,9 @@
 	}
 
 	.button {
+		display: flex;
+		gap: var(--sp1);
+
 		pointer-events: all;
 	}
 </style>
