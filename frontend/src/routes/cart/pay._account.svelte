@@ -6,7 +6,7 @@
 	import IG from '$lib/input_group.svelte';
 
 	let cart = { ...$module.cart };
-	let pay = cart.cost_items + cart.cost_delivery - cart.pay_account;
+	let pay = { ...$module.pay };
 	let error = {};
 	let amount = cart.pay_account;
 

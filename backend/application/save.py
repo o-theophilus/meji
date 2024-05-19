@@ -178,7 +178,7 @@ def save():
             entity_type="item"
         )
 
-    elif not saved_item and request.json["save"]:
+    elif not saved_item and request.json["save"] and item["status"] == "live":
         cur.execute("""
             INSERT INTO save (key, user_key, item_key)
             VALUES (%s, %s, %s);

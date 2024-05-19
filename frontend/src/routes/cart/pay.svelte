@@ -15,7 +15,8 @@
 
 	export let cart;
 	export let items;
-	$: pay = cart.cost_items + cart.cost_delivery - cart.pay_account;
+	export let total;
+	$: pay = total + cart.cost_delivery - cart.pay_account;
 </script>
 
 <Card>
@@ -37,7 +38,7 @@
 	<div class="grid">
 		<div class="title">Total Item</div>
 		<div class="value">
-			₦{cart.cost_items.toLocaleString()}
+			₦{total.toLocaleString()}
 		</div>
 		<div class="title">Delivery Fee</div>
 		<div class="value">
@@ -76,7 +77,8 @@
 					on:click={() => {
 						$module = {
 							module: Account,
-							cart
+							cart,
+							pay
 						};
 					}}
 				>
@@ -101,7 +103,7 @@
 	<br />
 	<br />
 
-	<MakePayment {cart} {items} {pay} />
+	<MakePayment {cart} {items} />
 </Card>
 
 <style>

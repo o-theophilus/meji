@@ -20,7 +20,7 @@
 		{#if item.old_price}
 			<BRound
 				icon="info"
-				size="8"
+				icon_size="8"
 				on:click={() => {
 					open_discount = !open_discount;
 				}}
@@ -29,7 +29,7 @@
 		{#if edit_mode && $user.permissions.includes('item:edit_price')}
 			<BRound
 				icon="edit"
-				size="10"
+				icon_size="10"
 				tooltip="Edit Price"
 				on:click={() => {
 					$module = {

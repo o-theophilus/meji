@@ -4,11 +4,16 @@
 	import Quantity from './cart._quantity.svelte';
 	import Value from '$lib/item/variation_value.svelte';
 	import Button from '$lib/button/button.svelte';
+	import Unavailable from './cart.item.unavailable.svelte';
 
 	export let item;
 </script>
 
 <section>
+	{#if item.status != 'live'}
+		<Unavailable {item} />
+	{/if}
+
 	<a href="/{item.slug}">
 		<img
 			src={`${item.photo}/200` || '/image/item.png'}
@@ -57,6 +62,8 @@
 
 <style>
 	section {
+		position: relative;
+
 		--height: 80px;
 		display: flex;
 		gap: var(--sp3);

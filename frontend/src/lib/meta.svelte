@@ -28,6 +28,5 @@
 	<meta name="twitter:image:alt" content={title} />
 	<meta name="twitter:url" content={$page.url.href} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<!-- TODO: add handle -->
-	<meta name="twitter:site" content="@o__theophilus" />
+	<meta name="twitter:site" content="@meji_ng" />
 </svelte:head>

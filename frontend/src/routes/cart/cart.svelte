@@ -13,8 +13,8 @@
 
 	let emit = createEventDispatcher();
 
-	export let cart;
 	export let items;
+	export let total;
 	let error = {};
 </script>
 
@@ -38,7 +38,7 @@
 			Item{#if items.length != 1 || items[0].quantity != 1}s Total{/if} Price
 		</div>
 		<div class="amount">
-			₦{cart.cost_items.toLocaleString()}
+			₦{total.toLocaleString()}
 		</div>
 	</div>
 

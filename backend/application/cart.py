@@ -37,10 +37,10 @@ def add_to_cart():
     cur.execute("""
         SELECT *
         FROM item
-        WHERE key = %s;
+        WHERE key = %s AND status = 'live';
     """, (request.json["key"],))
     item = cur.fetchone()
-    if not item:
+    if not item or item["status"] != "live":
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -105,20 +105,6 @@ def add_to_cart():
             json.dumps(request.json["variation"]),
             request.json["quantity"]
         ))
-
-    cur.execute("""
-        UPDATE "order"
-        SET cost_items = (
-            SELECT SUM(order_item.quantity * item.price)
-            FROM order_item
-            LEFT JOIN item ON order_item.item_key = item.key
-            WHERE order_item.order_key = %s
-        )
-        WHERE key = %s;
-    """, (
-        cart["key"],
-        cart["key"]
-    ))
 
     log(
         cur=cur,
@@ -243,14 +229,13 @@ def get():
     if (
         cart["pay_account"] > user["account_balance"]
         or cart["pay_account"] > cost_items
-        or cart["cost_items"] != cost_items
     ):
         cur.execute("""
             UPDATE "order"
-            SET pay_account = 0, cost_items = %s
+            SET pay_account = 0
             WHERE key = %s
             RETURNING *;
-        """, (cost_items, cart["key"]))
+        """, (cart["key"],))
         cart = cur.fetchone()
 
     db_close(con, cur)
@@ -345,53 +330,57 @@ def quantity():
 
     cur.execute("""
         SELECT
-            item.key AS key,
-            item.slug AS slug,
-            item.name AS name,
-            item.price AS price,
+            item.key,
+            item.slug,
+            item.name,
+            item.price,
+            item.status,
             COALESCE(item.photos[1], NULL) AS photo,
-            order_item.variation AS variation,
-            order_item.quantity AS quantity
+            order_item.variation,
+            order_item.quantity
         FROM item
         LEFT JOIN order_item ON item.key = order_item.item_key
         WHERE order_item.order_key = %s;
     """, (cart["key"],))
     items = cur.fetchall()
 
-    if items != []:
-        for x in items:
-            x["photo"] = f"{request.host_url}photo/{x['photo']}"
+    if items == []:
+        cur.execute("""DELETE FROM "order" WHERE key = %s;""", (cart["key"],))
+        db_close(con, cur)
+        return jsonify({
+            "status": 200,
+            "user": user_schema(user),
+            "cart": None,
+            "items": []
+        })
 
+    cost_items = 0
+    for x in items:
+        cost_items += x["price"] * x["quantity"]
+        x["photo"] = f"{request.host_url}photo/{x['photo']}"
+
+    if (
+        cart["pay_account"] > user["account_balance"]
+        or cart["pay_account"] > cost_items
+    ):
         cur.execute("""
             UPDATE "order"
-            SET cost_items = (
-                SELECT SUM(order_item.quantity * item.price)
-                FROM order_item
-                LEFT JOIN item ON order_item.item_key = item.key
-                WHERE order_item.order_key = %s
-            )
+            SET pay_account = 0
             WHERE key = %s
             RETURNING *;
-        """, (
-            cart["key"],
-            cart["key"]
-        ))
+        """, (cart["key"],))
         cart = cur.fetchone()
-
-    else:
-        cur.execute("""DELETE FROM "order" WHERE key = %s;""", (cart["key"],))
-        cart = None
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
+        "cart": cart,
+        "items": items,
         "user": user_schema(
             user,
             cart=[f"{x['key']}_{json.dumps(x['variation'])}"
                   for x in items]
-        ),
-        "cart": cart,
-        "items": items
+        )
     })
 
 
@@ -527,6 +516,20 @@ def account():
             "error": "invalid request"
         })
 
+    cur.execute("""
+        SELECT
+            item.price,
+            item.status,
+            order_item.quantity
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        WHERE order_item.order_key = %s;
+    """, (cart["key"],))
+    items = cur.fetchall()
+    cost_items = 0
+    for x in items:
+        cost_items += x["price"] * x["quantity"]
+
     error = None
     if "amount" not in request.json:
         error = "invalid request"
@@ -537,7 +540,7 @@ def account():
         error = "Please enter a valid amount"
     elif request.json["amount"] > user["account_balance"]:
         error = "amount larger than available balance"
-    elif request.json["amount"] > cart["cost_items"] + cart["cost_delivery"]:
+    elif request.json["amount"] > cost_items + cart["cost_delivery"]:
         error = "amount larger than total cost"
     if error:
         db_close(con, cur)

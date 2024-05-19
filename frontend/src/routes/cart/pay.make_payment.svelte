@@ -12,10 +12,42 @@
 
 	export let cart;
 	export let items;
-	export let pay;
 	let error = {};
 
-	const make_payment = async () => {
+	const order_check = async () => {
+		$loading = 'loading . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+			make_payment(resp.pay);
+		} else {
+			error = resp;
+		}
+	};
+
+	const make_payment = async (pay) => {
+		$loading = 'loading . . .';
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: $token
+			}
+		});
+		resp = await resp.json();
+		$loading = false;
+
+		if (resp.status == 200) {
+		} else {
+			error = resp;
+		}
+
 		if (pay > 0) {
 			const paystack = PaystackPop.setup({
 				key: import.meta.env.VITE_PAYSTACK_KEY,
@@ -97,7 +129,7 @@
 </svelte:head>
 
 <div class="row">
-	<Button primary on:click={make_payment}>Make Payment</Button>
+	<Button primary on:click={order_check}>Make Payment</Button>
 </div>
 <br />
 {#if error.error}

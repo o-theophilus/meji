@@ -152,19 +152,28 @@ def fix():
 
     #     ALTER TABLE save
     #     DROP COLUMN date;
+
+    # ALTER TABLE order_item
+    # ADD COLUMN price FLOAT DEFAULT 0 NOT NULL;
     # """)
 
     # cur.execute("""
-    #     ALTER TABLE "user"
-    #     ALTER COLUMN photo
-    #     TYPE VARCHAR(50);
+    #     ALTER TABLE order_item
+    #     ADD COLUMN price FLOAT DEFAULT 0 NOT NULL;
+    # """)
 
-    #     ALTER TABLE advert
-    #     ALTER COLUMN photo_300x300 TYPE VARCHAR(50),
-    #     ALTER COLUMN photo_300x600 TYPE VARCHAR(50),
-    #     ALTER COLUMN photo_600x300 TYPE VARCHAR(50),
-    #     ALTER COLUMN photo_900x300 TYPE VARCHAR(50);
-
+    # cur.execute("""
+    #     UPDATE order_item
+    #     SET price = (
+    #         SELECT item.price
+    #         FROM item
+    #         WHERE item.key = order_item.item_key
+    #     )
+    #     WHERE order_key IN (
+    #         SELECT "order".key
+    #         FROM "order"
+    #         WHERE "order".status != 'cart'
+    #     );
     # """)
 
     db_close(con, cur)

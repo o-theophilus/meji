@@ -15,7 +15,7 @@
 		$loading = true;
 
 		let key = `${item.key}_${JSON.stringify(item.variation)}`;
-		if (quantity == 0 && $user.cart.includes(key)) {
+		if (quantity == 0) {
 			$user.cart = $user.cart.filter((i) => i != key);
 		}
 
@@ -34,7 +34,7 @@
 			body: JSON.stringify({
 				key: item.key,
 				variation: item.variation,
-				quantity
+				quantity: item.quantity
 			})
 		});
 		resp = await resp.json();
@@ -55,11 +55,6 @@
 				status: 200,
 				message: `${item.name} ${quantity > 0 ? 'quantity changed' : 'removed'}`
 			};
-
-			let i = $state.findIndex((x) => x.name == 'cart');
-			if (i != -1) {
-				$state[i].loaded = false;
-			}
 		} else {
 			error = resp;
 		}

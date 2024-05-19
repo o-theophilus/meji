@@ -95,6 +95,7 @@ order_item_table = """CREATE TABLE IF NOT EXISTS order_item (
 
     variation JSONB DEFAULT '{}'::JSONB,
     quantity INT DEFAULT 0,
+    price FLOAT DEFAULT 0 NOT NULL,
 
     FOREIGN KEY (order_key) REFERENCES "order"(key) ON DELETE CASCADE,
     FOREIGN KEY (item_key) REFERENCES item(key)

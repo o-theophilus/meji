@@ -10,12 +10,25 @@
 	import Cart from './cart.svelte';
 	import Delivery from './delivery.svelte';
 	import Pay from './pay.svelte';
+	import { onMount } from 'svelte';
 
 	export let data;
 	let { items } = data;
 	let { cart } = data;
+	let total = 0;
+	let state = 0;
+	let prev = {
+		loaded: false,
+		receivers: []
+	};
 
-	$: if (cart) {
+	onMount(() => {
+		for (const x of items) {
+			if (x.status == 'live') {
+				total += x.quantity * x.price;
+			}
+		}
+
 		if (cart.delivery_date) {
 			cart.delivery_date = new Date(cart.delivery_date);
 		} else {
@@ -24,47 +37,40 @@
 			temp.setHours(10, 0, 0, 0);
 			cart.delivery_date = temp;
 		}
-	}
-
-	let prev = {
-		loaded: false,
-		receivers: []
-	};
+	});
 
 	$: if ($portal) {
 		if ($portal.type == 'item') {
 			let temp_items = [];
 			let temp_cart = [];
-			let temp_cost = 0;
+			total = 0;
 
-			for (const x in items) {
-				let xid = `${items[x].key}_${JSON.stringify(items[x].variation)}`;
+			for (let x of items) {
+				let xid = `${x.key}_${JSON.stringify(x.variation)}`;
 				if (xid == `${$portal.data.key}_${JSON.stringify($portal.data.variation)}`) {
-					items[x].quantity = $portal.data.quantity;
-					if (items[x].quantity > 0) {
-						temp_items.push(items[x]);
+					x.quantity = $portal.data.quantity;
+					if (x.quantity > 0) {
+						temp_items.push(x);
 						temp_cart.push(xid);
 					}
 				} else {
-					temp_items.push(items[x]);
+					temp_items.push(x);
 					temp_cart.push(xid);
 				}
-
-				temp_cost += items[x].quantity * items[x].price;
+				total += x.quantity * x.price;
 			}
 
 			items = temp_items;
 			$user.cart = temp_cart;
-			cart.cost_items = temp_cost;
 
 			if (items.length == 0) {
 				cart = null;
 			}
-		} else if ($portal.type == 'items_quantity') {
-			cart = $portal.data.cart;
-			items = $portal.data.items;
 		} else if ($portal.type == 'prev') {
 			prev = $portal.data;
+		} else if ($portal.type == 'items_quantity') {
+			cart.pay_account = $portal.data.cart.pay_account;
+			items = $portal.data.items;
 		} else if ($portal.type == 'receiver') {
 			cart.name = $portal.data.name;
 			cart.phone = $portal.data.phone;
@@ -79,8 +85,6 @@
 
 		$portal = '';
 	}
-
-	let state = 0;
 </script>
 
 <Meta title="Cart" description="view / purchase the items in the cart" />
@@ -96,7 +100,7 @@
 	<Card>no item here</Card>
 {:else if state == 0}
 	<Cart
-		{cart}
+		{total}
 		{items}
 		on:next={() => {
 			state = 1;
@@ -117,6 +121,7 @@
 	<Pay
 		{cart}
 		{items}
+		{total}
 		on:back={() => {
 			state = 1;
 		}}

@@ -2,6 +2,7 @@
 	import Rating from './rating.svelte';
 	import Add_Cart from './add_cart.svelte';
 	import Save from './save.svelte';
+	import Unavailable from './unavailable.svelte';
 
 	import { state } from '$lib/store.js';
 
@@ -22,7 +23,14 @@
 	};
 </script>
 
-<section class="item {style}" data-sveltekit-preload-data="off">
+<section
+	class="item {style}"
+	class:not_live={item.status != 'live'}
+	data-sveltekit-preload-data="off"
+>
+	{#if item.status != 'live'}
+		<Unavailable key={item.key} />
+	{/if}
 	<a class="img" href="/{item.slug}" on:click={click} on:mouseenter={click}>
 		<img
 			src={item.photos.length > 0 ? `${item.photos[0]}/200` : '/image/item.png'}
@@ -69,6 +77,8 @@
 		display: flex;
 		flex-direction: column;
 
+		position: relative;
+
 		height: 100%;
 
 		background-color: var(--ac6);
@@ -81,7 +91,7 @@
 
 		box-shadow: var(--shad1);
 	}
-	.item:hover {
+	.item:hover:not(.not_live) {
 		outline-color: var(--ac1);
 	}
 	a {
@@ -138,6 +148,10 @@
 
 		transform: rotate(-10deg);
 		background: var(--cl4);
+	}
+
+	.not_live {
+		pointer-events: none;
 	}
 
 	/* ------------------------------------ */

@@ -39,7 +39,6 @@
 
 		<br /> TODO:
 		<br />
-		<br /> [ - ] how changing item status of items affect save and cart
 		<br /> [ - ] use version for financial ops
 		<br /> [ - ] does going back restore token
 		<br />

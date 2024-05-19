@@ -5,7 +5,6 @@
 	import SVG from '$lib/svg.svelte';
 	import Login from '../auth/login.svelte';
 
-	$: segment = $page.url.pathname;
 	let width;
 
 	const click = (page_name) => {
@@ -19,14 +18,14 @@
 <nav>
 	<a
 		href="/"
-		class:active={segment == '/'}
+		class:active={$page.url.pathname == '/'}
 		bind:clientWidth={width}
 		on:click={() => {
 			click('home');
 		}}
 	>
 		<div class="label">
-			{#if segment == '/'}
+			{#if $page.url.pathname == '/'}
 				<SVG icon="home_active" size="15" />
 			{:else}
 				<SVG icon="home" size="15" />
@@ -38,13 +37,13 @@
 	</a>
 	<a
 		href="/shop"
-		class:active={segment == '/shop'}
+		class:active={$page.url.pathname == '/shop'}
 		on:click={() => {
 			click('shop');
 		}}
 	>
 		<div class="label">
-			{#if segment == '/shop'}
+			{#if $page.url.pathname == '/shop'}
 				<SVG icon="shop_active" size="15" />
 			{:else}
 				<SVG icon="shop" size="15" />
@@ -56,13 +55,13 @@
 	</a>
 	<a
 		href="/save"
-		class:active={segment == '/save'}
+		class:active={$page.url.pathname == '/save'}
 		on:click={() => {
 			click('save');
 		}}
 	>
 		<div class="label">
-			{#if segment == '/save'}
+			{#if $page.url.pathname == '/save'}
 				<SVG icon="like_active" size="15" />
 			{:else}
 				<SVG icon="like" size="15" />
@@ -81,13 +80,13 @@
 	</a>
 	<a
 		href="/cart"
-		class:active={segment == '/cart'}
+		class:active={$page.url.pathname == '/cart'}
 		on:click={() => {
 			click('cart');
 		}}
 	>
 		<div class="label">
-			{#if segment == '/cart'}
+			{#if $page.url.pathname == '/cart'}
 				<SVG icon="cart_active" size="15" />
 			{:else}
 				<SVG icon="cart" size="15" />
@@ -106,9 +105,9 @@
 	</a>
 
 	{#if $user && $user.login}
-		<a href="/profile" class:active={segment == '/profile'}>
+		<a href="/profile" class:active={$page.url.pathname == '/profile'}>
 			<div class="label">
-				{#if segment == '/profile'}
+				{#if $page.url.pathname == '/profile'}
 					<SVG icon="user_active" size="15" />
 				{:else}
 					<SVG icon="user" size="15" />

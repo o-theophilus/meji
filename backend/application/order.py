@@ -14,8 +14,8 @@ order_status = ['created', 'processing', 'enroute', 'delivered',
                 'canceled']
 
 
-@bp.post("/order")
-def cart_to_order():
+@bp.get("/order/check")
+def order_check():
     con, cur = db_open()
 
     user = token_to_user(cur)
@@ -33,14 +33,7 @@ def cart_to_order():
     """, (user["key"],))
     order = cur.fetchone()
 
-    if (
-        not order
-        or "email_template_admin" not in request.json
-        or not request.json["email_template_admin"]
-        or "email_template_user" not in request.json
-        or not request.json["email_template_user"]
-        or "reference" not in request.json
-    ):
+    if not order or order["pay_account"] > user["account_balance"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -62,10 +55,93 @@ def cart_to_order():
             "error": "invalid delivery address"
         })
 
-    to_pay = order["cost_items"] + order[
-        "cost_delivery"] - order["pay_account"]
+    cur.execute("""
+        UPDATE order_item
+        SET price = (
+            SELECT item.price
+            FROM item
+            WHERE item.key = order_item.item_key
+        )
+        WHERE order_key = %s;
+    """, (order["key"],))
 
-    if to_pay > 0:
+    cur.execute("""
+        SELECT
+            SUM(order_item.price * order_item.quantity) AS total
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        WHERE
+            order_item.order_key = %s
+            AND item.status = 'live';
+    """, (order["key"],))
+    total = cur.fetchone()[0]
+
+    pay = total + order["cost_delivery"] - order["pay_account"]
+
+    cur.execute("""
+        UPDATE "order"
+        SET
+            cost_items = %s
+        WHERE user_key = %s AND status = 'cart';
+    """, (
+        total,
+        user["key"]
+    ))
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "pay": pay
+    })
+
+
+@bp.post("/order")
+def cart_to_order():
+    con, cur = db_open()
+
+    user = token_to_user(cur)
+    if not user:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid token"
+        })
+
+    cur.execute("""
+        SELECT *
+        FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    order = cur.fetchone()
+
+    if (
+        not order
+        or order["pay_account"] > user["account_balance"]
+        or "email_template_admin" not in request.json
+        or not request.json["email_template_admin"]
+        or "email_template_user" not in request.json
+        or not request.json["email_template_user"]
+        or "reference" not in request.json
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    cur.execute("""
+        SELECT
+            SUM(order_item.price * order_item.quantity) AS total
+        FROM item
+        LEFT JOIN order_item ON item.key = order_item.item_key
+        WHERE
+            order_item.order_key = %s
+            AND item.status = 'live';
+    """, (order["key"],))
+
+    pay = cur.fetchone()[0] + order["cost_delivery"] - order["pay_account"]
+
+    if pay > 0:
         if not request.json['reference']:
             db_close(con, cur)
             return jsonify({
@@ -100,7 +176,7 @@ def cart_to_order():
             or "reference" not in resp["data"]
             or resp["data"]["reference"] != request.json["reference"]
             or "amount" not in resp["data"]
-            or resp["data"]["amount"]/100 != to_pay
+            or resp["data"]["amount"]/100 != pay
             or "currency" not in resp["data"]
             or resp["data"]["currency"] != "NGN"
         ):
@@ -120,6 +196,16 @@ def cart_to_order():
     ))
 
     cur.execute("""
+        DELETE FROM order_item
+        WHERE order_key = %s
+        AND item_key IN (
+            SELECT item.key
+            FROM item
+            WHERE item.status != 'live'
+        );
+    """, (order["key"],))
+
+    cur.execute("""
         UPDATE "order"
         SET
             status = 'created',
@@ -128,7 +214,7 @@ def cart_to_order():
         WHERE user_key = %s AND status = 'cart'
         RETURNING *;
     """, (
-        to_pay,
+        pay,
         request.json['reference'] if request.json['reference'] else None,
         user["key"]
     ))
@@ -277,17 +363,17 @@ def get(key):
 
     cur.execute("""
         SELECT
-            item.key AS key,
-            item.slug AS slug,
-            item.name AS name,
-            item.price AS price,
+            item.key,
+            item.slug,
+            item.name,
             COALESCE(item.photos[1], NULL) AS photo,
-            order_item.variation AS variation,
-            order_item.quantity AS quantity
+            order_item.price,
+            order_item.variation,
+            order_item.quantity
         FROM item
         LEFT JOIN order_item ON item.key = order_item.item_key
         WHERE order_item.order_key = %s;
-    """, (order["key"],))
+    """, (key,))
     items = cur.fetchall()
 
     if (
