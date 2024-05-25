@@ -1,6 +1,7 @@
 import { loading } from "$lib/store.js"
 
 export const load = async ({ fetch, parent }) => {
+	loading.set(true)
 	let a = await parent();
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 		method: 'get',

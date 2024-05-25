@@ -4,12 +4,14 @@ from .tools import send_mail
 import re
 import os
 from .postgres import db_close, db_open
-# from .postgres import (
-#     user_table, item_table, save_table, order_table, order_item_table,
-#     feedback_table, advert_table, voucher_table, log_table, otp_table)
+from .postgres import (
+    user_table, item_table, save_table, order_table, order_item_table,
+    feedback_table, advert_table, voucher_table, log_table, otp_table)
 from uuid import uuid4
 import json
 from .log import log
+import psycopg2
+import psycopg2.extras
 
 
 bp = Blueprint("test", __name__)
@@ -107,32 +109,31 @@ def cron():
     })
 
 
-# @bp.get("/fix")
 def fix():
     con, cur = db_open()
 
-    # cur.execute(f"""
-    #     DROP TABLE IF EXISTS "user" CASCADE;
-    #     DROP TABLE IF EXISTS item CASCADE;
-    #     DROP TABLE IF EXISTS save;
-    #     DROP TABLE IF EXISTS "order" CASCADE;
-    #     DROP TABLE IF EXISTS order_item;
-    #     DROP TABLE IF EXISTS feedback;
-    #     DROP TABLE IF EXISTS advert;
-    #     DROP TABLE IF EXISTS voucher;
-    #     DROP TABLE IF EXISTS log;
-    #     DROP TABLE IF EXISTS otp;
-    #     {user_table};
-    #     {item_table};
-    #     {save_table};
-    #     {order_table};
-    #     {order_item_table};
-    #     {feedback_table};
-    #     {advert_table};
-    #     {voucher_table};
-    #     {log_table};
-    #     {otp_table};
-    # """)
+    cur.execute(f"""
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS save;
+        DROP TABLE IF EXISTS "order" CASCADE;
+        DROP TABLE IF EXISTS order_item;
+        DROP TABLE IF EXISTS feedback;
+        DROP TABLE IF EXISTS advert;
+        DROP TABLE IF EXISTS voucher;
+        DROP TABLE IF EXISTS log;
+        DROP TABLE IF EXISTS otp;
+        {user_table};
+        {item_table};
+        {save_table};
+        {order_table};
+        {order_item_table};
+        {feedback_table};
+        {advert_table};
+        {voucher_table};
+        {log_table};
+        {otp_table};
+    """)
 
     # cur.execute("""
     #     ALTER TABLE item
@@ -241,6 +242,54 @@ def deta_to_postgres():
             ))
 
     db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+    })
+
+
+@bp.get("/fix")
+def copy_db():
+    pw = "s16TIDEw5N0iI1yolcN2N4Spypn504ec"
+    un = "tbdnifxw"
+    src = f'postgres://{un}:{pw}@isabelle.db.elephantsql.com/{un}'
+    tgt = 'postgres://meji:meji@localhost/meji'
+
+    src_conn = psycopg2.connect(src)
+    tgt_conn = psycopg2.connect(tgt)
+    src_cur = src_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    tgt_cur = tgt_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    src_cur.execute("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE
+            table_schema = 'public'
+            AND table_type = 'BASE TABLE';
+    """)
+    table_names = [x["table_name"] for x in src_cur.fetchall()]
+
+    for tn in table_names:
+        src_cur.execute(f"""SELECT * FROM "{tn}";""")
+        rows = src_cur.fetchall()
+
+        for x in rows:
+            values = []
+            for y in x.values():
+                if type(y) is dict:
+                    values.append(json.dumps(y))
+                else:
+                    values.append(y)
+
+            i = ', '.join(['%s'] * len(values))
+            tgt_cur.execute(f"""INSERT INTO "{tn}" VALUES ({i});""", values)
+
+    src_conn.commit()
+    tgt_conn.commit()
+    src_cur.close()
+    tgt_cur.close()
+    src_conn.close()
+    tgt_conn.close()
     return jsonify({
         "status": 200,
         "message": "successful",

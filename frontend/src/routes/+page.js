@@ -18,7 +18,8 @@ export const load = async ({ fetch, parent }) => {
 	} else if (_state[i].loaded) {
 		return _state[i].data
 	}
-
+	
+	loading.set(true)
 	let a = await parent();
 	const new_arrivals = async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/shop?order=latest&page_size=8`, {
