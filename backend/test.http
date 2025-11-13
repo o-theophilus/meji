@@ -1,0 +1,20 @@
+@hostname = http://127.0.0.1
+@port = 5000
+@host = {{hostname}}:{{port}}
+@Authorization = IjI1Zjc1NjRiN2NkMTQyYTY5MjlhMTMzZTkzODRlYzU2Ig.YFI30g.yNCajtuI6kwYj65OiHT5KGsxya0
+
+
+### fix
+get {{host}}/fix HTTP/1.1
+content-type: application/json
+###
+
+### cron
+get {{host}}/cron HTTP/1.1
+content-type: application/json
+###
+
+### notification
+get {{host}}/notification HTTP/1.1
+content-type: application/json
+###

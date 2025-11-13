@@ -1,0 +1,14 @@
+{
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "cSpell.words": [
+    "highlightjs",
+  ],
+  "cSpell.ignoreWords": [
+    "linkify"
+  ],
+  "workbench.colorCustomizations": {
+    "editorUnnecessaryCode.border": "#dd7aab"
+  },
+}
