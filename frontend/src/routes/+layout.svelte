@@ -2,7 +2,7 @@
 	import '$lib/+layout/var.css';
 	import '$lib/+layout/main.css';
 	import { app } from '$lib/store.svelte.js';
-	import { Nav, Footer, Module, Loading } from '$lib/+layout';
+	import { Header, Nav, Footer, Module, Loading } from '$lib/+layout';
 	import { Notify } from '$lib/info';
 
 	let { data, children } = $props();
@@ -12,9 +12,14 @@
 </script>
 
 <main class:dark={app.user.theme == 'dark'}>
-	<Nav />
+	<Header />
+	<!-- <Nav /> -->
 	{@render children()}
 	<Footer />
+
+	<div class="nav">
+		<Nav />
+	</div>
 
 	<Module />
 	<Loading />
@@ -31,4 +36,15 @@
 			background-color var(--trans),
 			color var(--trans);
 	}
+
+	.nav {
+		position: sticky;
+		bottom: 0;
+	}
+
+	/* @media screen and (min-width: 800px) {
+		.nav {
+			display: none;
+		}
+	} */
 </style>

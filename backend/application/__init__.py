@@ -24,14 +24,14 @@ from .user import email
 from .user import password
 from .user import photo as user_photo
 from .user import notification
-from . import post
-from .post import file
-from .post import get as post_get
-from .post import photo as post_photo
-from .post import engage
-from .post.engage import get as post_engage_get
-from .post import comment
-from .post.comment import get as comment_get
+from . import item
+from .item import file
+from .item import get as item_get
+from .item import photo as item_photo
+from .item import engage
+from .item.engage import get as item_engage_get
+from .item import comment
+from .item.comment import get as comment_get
 from . import api
 from . import fix
 
@@ -73,12 +73,12 @@ def create_app(conf=None):
     app.register_blueprint(password.bp)
     app.register_blueprint(user_photo.bp)
     app.register_blueprint(notification.bp)
-    app.register_blueprint(post.bp)
-    app.register_blueprint(post_get.bp)
+    app.register_blueprint(item.bp)
+    app.register_blueprint(item_get.bp)
     app.register_blueprint(file.bp)
-    app.register_blueprint(post_photo.bp)
+    app.register_blueprint(item_photo.bp)
     app.register_blueprint(engage.bp)
-    app.register_blueprint(post_engage_get.bp)
+    app.register_blueprint(item_engage_get.bp)
     app.register_blueprint(comment.bp)
     app.register_blueprint(comment_get.bp)
     app.register_blueprint(api.bp)

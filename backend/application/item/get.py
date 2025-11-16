@@ -1,0 +1,208 @@
+from flask import Blueprint, jsonify, request
+from math import ceil
+import re
+from ..postgres import db_open, db_close
+from ..tools import get_session
+
+bp = Blueprint("item_get", __name__)
+
+
+def item_schema(x):
+    x["photo"] = (f"{request.host_url}file/{x['photo']}"
+                  if x['photo'] else None)
+    x["files"] = [f"{request.host_url}file/{x}" for x in x["files"]]
+    return x
+
+
+@bp.get("/item/<key>")
+def get(key):
+    con, cur = db_open()
+
+    session = get_session(cur)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    cur.execute("""
+        SELECT * FROM item WHERE slug = %s OR key::TEXT = %s
+    """, (key, key))
+    item = cur.fetchone()
+
+    if not item:
+        db_close(con, cur)
+        return jsonify({
+            "status": 404,
+            "error": "Oops! The item you're looking for doesn't exist"
+        })
+
+    if (
+        item["status"] != "active"
+        and "item:add" not in user["access"]
+        and "item:edit_status" not in user["access"]
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "item": item_schema(item)
+    })
+
+
+@bp.get("/items")
+def get_many(cur=None):
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
+
+    session = get_session(cur)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    search = request.args.get("search", "").strip()
+    status = request.args.get("status", "active")
+    tag = request.args.get("tag", "")
+    order = request.args.get("order", "latest")
+    page_no = int(request.args.get("page_no", 1))
+    page_size = int(request.args.get("page_size", 24))
+
+    if (
+        "item:edit_status" not in user["access"]
+        or "item:add" not in user["access"]
+    ):
+        status = "active"
+
+    multiply = False
+    if tag[-4:] == ":all":
+        multiply = True
+        tag = tag[:-4]
+    tags = tag.split(",")
+    tags = [] if not tags[0] else tags
+
+    order_by = {
+        'latest': 'item.date_created',
+        'oldest': 'item.date_created',
+        'title (a-z)': 'item.title',
+        'title (z-a)': 'item.title'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'title (a-z)': 'ASC',
+        'title (z-a)': 'DESC'
+    }
+
+    params = [status, search, f"%{search}%"]
+    tag_query = ""
+    if tags != []:
+        op = "@>" if multiply else "&&"
+        tag_query = f"AND cardinality(item.tags) > 0 AND item.tags {op} %s"
+        params.append(tags)
+    params.append(page_size)
+    params.append((page_no - 1) * page_size)
+
+    cur.execute(f"""
+        SELECT
+            item.*,
+            COUNT(*) OVER() AS _count
+        FROM item
+        WHERE
+            item.status = %s
+            AND (%s = '' OR item.name ILIKE %s) {tag_query}
+        ORDER BY {order_by[order]} {order_dir[order]}
+        LIMIT %s OFFSET %s;
+    """, (params))
+    items = cur.fetchall()
+
+    if close_conn:
+        db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "items": [item_schema(x) for x in items],
+        "order_by": list(order_by.keys()),
+        "_status": ['active', 'draft'],
+        "total_page": ceil(items[0]["_count"] / page_size) if items else 0
+    })
+
+
+@bp.get("/item/similar/<key>")
+def similar_items(key):
+    con, cur = db_open()
+
+    cur.execute("""
+        SELECT * FROM item WHERE key = %s;
+    """, (key,))
+    item = cur.fetchone()
+
+    if not item:
+        db_close(con, cur)
+        return jsonify({
+            "status": 200,
+            "items": []
+        })
+
+    keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["title"].lower())))
+
+    cur.execute("""
+        WITH likeness AS (
+            SELECT key, COUNT(*) AS score
+            FROM item,
+                unnest(tags || STRING_TO_ARRAY(lower(title), ' ')) AS tn
+            WHERE tn = ANY(%s)
+            GROUP BY key
+        )
+        SELECT item.*
+        FROM item
+        JOIN likeness ON item.key = likeness.key
+        WHERE item.status = 'active'
+            AND item.key != %s
+            AND likeness.score > 0
+        ORDER BY likeness.score DESC
+        LIMIT 4;
+    """, (keywords, key))
+    items = cur.fetchall()
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "items": [item_schema(x) for x in items]
+    })
+
+
+@bp.get("/tags")
+def all_tags():
+    con, cur = db_open()
+
+    cur.execute("SELECT tags FROM item WHERE status = 'active';")
+    temp = cur.fetchall()
+
+    tags = []
+    for x in temp:
+        tags += x["tags"]
+
+    tags_count = []
+    unique_tags = []
+    for x in tags:
+        if x not in unique_tags:
+            unique_tags.append(x)
+            tags_count.append({
+                "tag":  x,
+                "count":  tags.count(x)
+            })
+
+    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "tags": [x["tag"] for x in tags_count]
+    })

@@ -24,7 +24,7 @@ access_pass = {
     "admin": [
         ['manage_files', 3]
     ],
-    "post": [
+    "item": [
         ['add', 2],
         ['edit_photo', 2],
         ['edit_title', 2],

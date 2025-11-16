@@ -7,7 +7,7 @@ from ..tools import reserved_words, get_session
 from ..postgres import db_open, db_close
 from ..storage import storage
 from ..log import log
-from .get import get_many, post_schema
+from .get import get_many, item_schema
 
 bp = Blueprint("post", __name__)
 
@@ -78,7 +78,7 @@ def add():
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": post_schema(item),
+        "item": item_schema(item),
         "items": items.json["items"],
         "total_page": items.json["total_page"]
     })
@@ -232,7 +232,7 @@ def edit(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": post_schema(item)
+        "item": item_schema(item)
     })
 
 

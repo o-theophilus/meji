@@ -18,6 +18,7 @@
 		<div class="page_title">Get In Touch</div>
 
 		<section>
+			<!-- TODO: move form to contact us page -->
 			<div class="form">
 				Got a question or proposal, or just want to say hello? Please go ahead.
 				<br />
@@ -35,7 +36,7 @@
 				<Nav />
 			</div>
 		</section>
-		<div class="copyright">&copy 2025 | Designed & Built by Theophilus Ogbolu.</div>
+		<div class="copyright">&copy 2025 | Meji.ng</div>
 	</footer>
 </Content>
 

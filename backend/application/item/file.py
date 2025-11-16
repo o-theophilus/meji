@@ -3,7 +3,7 @@ from ..tools import get_session
 from ..postgres import db_open, db_close
 from ..storage import storage
 from ..log import log
-from .get import post_schema
+from .get import item_schema
 
 bp = Blueprint("post_file", __name__)
 
@@ -91,7 +91,7 @@ def add_file(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": post_schema(post),
+        "item": item_schema(post),
         "error": error
     })
 
@@ -164,5 +164,5 @@ def order_delete_file(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": post_schema(post)
+        "item": item_schema(post)
     })

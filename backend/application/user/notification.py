@@ -28,15 +28,15 @@ def notification():
     users_photo = cur.fetchall()
     users_photo = [x["photo"] for x in users_photo if x["photo"]]
 
-    cur.execute("""SELECT photo, files FROM post;""")
+    cur.execute("""SELECT files FROM item;""")
     temp = cur.fetchall()
-    posts_files = []
+    items_files = []
     for x in temp:
-        posts_files.append(x["photo"])
+        items_files.append(x["photo"])
         if x["files"] != []:
-            posts_files += x["files"]
+            items_files += x["files"]
 
-    all_used_files = users_photo + posts_files
+    all_used_files = users_photo + items_files
     all_stored_files = storage("get_all")
 
     unused_photos = [x for x in all_stored_files if x not in all_used_files]

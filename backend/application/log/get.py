@@ -59,7 +59,7 @@ def get_many():
             jsonb_build_object(
                 'key', log.entity_key,
                 'type', log.entity_type,
-                'name', COALESCE(usr.name, post.title, comment.comment,
+                'name', COALESCE(usr.name, item.name, feedback.comment,
                     log.entity_key)
             ) AS entity,
 
@@ -70,11 +70,11 @@ def get_many():
         LEFT JOIN "user" usr ON log.entity_key = usr.key::TEXT
             AND (log.entity_type = 'user' OR log.entity_type = 'admin')
         LEFT JOIN
-            post ON log.entity_key = post.key::TEXT
-            AND log.entity_type = 'post'
+            item ON log.entity_key = item.key::TEXT
+            AND log.entity_type = 'item'
         LEFT JOIN
-            comment ON log.entity_key = comment.key::TEXT
-            AND log.entity_type = 'comment'
+            feedback ON log.entity_key = feedback.key::TEXT
+            AND log.entity_type = 'feedback'
 
         WHERE
             (%s = '' OR CONCAT_WS(
@@ -83,7 +83,7 @@ def get_many():
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
             AND (%s = '' OR CONCAT_WS(
-                ', ', log.entity_key, usr.name, usr.email, post.title
+                ', ', log.entity_key, usr.name, usr.email, item.name
             ) ILIKE %s)
         ORDER BY log.date_created DESC
         LIMIT %s OFFSET %s;

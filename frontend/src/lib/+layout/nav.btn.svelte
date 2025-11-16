@@ -1,22 +1,19 @@
 <script>
 	import { page } from '$app/state';
-	let { href = '', is_home = false, onclick, children } = $props();
+	import { Icon } from '$lib/macro';
+	let { name, icon, icon2, href = '', onclick } = $props();
+	let active = $derived(href.split('/')[1] == page.url.pathname.split('/')[1]);
 </script>
 
 {#if href}
-	<a
-		class:active={href.split('/')[1] == page.url.pathname.split('/')[1]}
-		class:is_home
-		{href}
-		data-sveltekit-preload-data
-	>
-		{@render children()}
-		<div class="hover"></div>
+	<a class:active {href} data-sveltekit-preload-data>
+		<Icon icon={!active ? icon : `${icon}_active`} size="24" />
+		{name}
 	</a>
 {:else}
-	<button class:is_home onclick={() => onclick?.()}>
-		{@render children()}
-		<div class="hover"></div>
+	<button onclick={() => onclick?.()}>
+		<Icon icon={!active ? icon : `${icon}_active`} size="24" />
+		{name}
 	</button>
 {/if}
 
@@ -26,54 +23,42 @@
 		cursor: pointer;
 	}
 
-	button,
-	a {
+	a,
+	button {
 		position: relative;
 
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+
+		padding: 16px;
+		width: 100%;
+		border-radius: 8px;
+
 		color: var(--ft2);
+		fill: var(--ft2);
 		font-size: 0.8rem;
-		font-weight: 600;
 		text-decoration: none;
 		line-height: 100%;
 
 		transition:
 			border-color var(--trans),
 			color var(--trans),
-			font-weight var(--trans);
+			fill var(--trans),
+			font-weight var(--trans),
+			background-color var(--trans);
 	}
 
-	button:hover,
-	a:hover {
-		color: var(--ft1);
-	}
-
-	.is_home {
-		color: var(--bg1);
-	}
-	a.is_home:hover,
-	button.is_home:hover {
-		color: var(--bg1);
+	a:hover,
+	button:hover {
+		background-color: var(--bg2);
 	}
 
 	.active {
-		font-weight: bold;
+		font-weight: 600;
 		color: var(--ft1);
-	}
-
-	.hover {
-		position: absolute;
-		bottom: -8px;
-
-		width: 100%;
-		height: 2px;
-		background-color: transparent;
-		pointer-events: none;
-
-		transition: background-color var(--trans);
-	}
-
-	button:hover .hover,
-	a:hover .hover {
-		background-color: var(--cl1);
+		fill: var(--ft1);
+		background-color: var(--bg2);
 	}
 </style>

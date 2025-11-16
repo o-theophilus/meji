@@ -1,7 +1,6 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { page } from '$app/state';
 
 	import { app } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
@@ -47,7 +46,6 @@
 {#if nots.length}
 	<div class="comp">
 		<button
-			class:is_home={page.url.pathname == '/'}
 			onclick={() => {
 				open = !open;
 				self = true;
@@ -98,10 +96,6 @@
 		transition:
 			color var(--trans),
 			background-color var(--trans);
-	}
-
-	.is_home {
-		color: var(--bg1);
 	}
 
 	button:hover {

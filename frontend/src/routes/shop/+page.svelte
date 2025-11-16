@@ -55,7 +55,7 @@
 
 <Log entity_type={'page'} />
 <Meta
-	title="Posts"
+	title="Shop"
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
@@ -66,9 +66,9 @@
 >
 	<div class="line space">
 		<div class="page_title">
-			Post{items.length > 1 ? 's' : ''}
+			Shop
 		</div>
-		{#if app.user.access.includes('post:add')}
+		{#if app.user.access.includes('item:add')}
 			<div class="line">
 				<Radio
 					--button-outline-color-hover="var(--ft1)"
@@ -148,7 +148,7 @@
 	{:else}
 		<PageNote>
 			<Icon icon="search" size="50" />
-			No post found
+			No item found
 		</PageNote>
 	{/if}
 

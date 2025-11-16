@@ -3,7 +3,7 @@ from ..tools import get_session
 from ..postgres import db_open, db_close
 from ..storage import storage
 from ..log import log
-from .get import post_schema
+from .get import item_schema
 
 bp = Blueprint("post_photo", __name__)
 
@@ -75,7 +75,7 @@ def add_photo(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "post": post_schema(post)
+        "post": item_schema(post)
     })
 
 
@@ -140,5 +140,5 @@ def delete_photo(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "post": post_schema(post)
+        "post": item_schema(post)
     })

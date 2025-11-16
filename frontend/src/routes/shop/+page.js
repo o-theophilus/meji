@@ -3,7 +3,7 @@ import { loading, page_state } from "$lib/store.svelte.js"
 export const load = async ({ fetch, url, parent, depends }) => {
 	depends(true)
 
-	let page_name = "post"
+	let page_name = "shop"
 	if (!page_state.state[page_name]) {
 		let sp = {}
 		for (let [key, value] of url.searchParams) {
@@ -18,7 +18,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 		return page_state.state[page_name].data
 	}
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/posts`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/items`)
 	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
 	let a = await parent();
 	let resp = await fetch(backend.href, {

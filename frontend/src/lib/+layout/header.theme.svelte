@@ -1,5 +1,4 @@
 <script>
-	import { page } from '$app/state';
 	import { app } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
 
@@ -23,7 +22,6 @@
 
 {#if app.user}
 	<button
-		class:is_home={page.url.pathname == '/'}
 		onclick={() => {
 			submit();
 			app.user.theme = app.user.theme == 'dark' ? 'light' : 'dark';
@@ -67,10 +65,6 @@
 		transition:
 			color var(--trans),
 			background-color var(--trans);
-	}
-
-	.is_home {
-		color: var(--bg1);
 	}
 
 	button:hover {

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from psycopg2.extras import Json
 from ...postgres import db_open, db_close
-from ...post import post_schema
+from ...item import item_schema
 
 
 bp = Blueprint("highlight_get", __name__)
@@ -20,12 +20,12 @@ def get_many(cur=None):
             INSERT INTO app (alias, value)
             VALUES ('highlight', %s)
             RETURNING *;
-        """, (Json({"post_keys": []}),))
+        """, (Json({"item_keys": []}),))
         highlight = cur.fetchone()
-    keys = highlight["value"]["post_keys"]
+    keys = highlight["value"]["item_keys"]
 
     cur.execute("""
-        SELECT * FROM post WHERE status = 'active' AND key::TEXT = ANY(%s);
+        SELECT * FROM item WHERE status = 'active' AND key::TEXT = ANY(%s);
     """, (keys,))
     items = cur.fetchall()
     items = sorted(items, key=lambda d: keys.index(d['key']))
@@ -34,5 +34,5 @@ def get_many(cur=None):
         db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": [post_schema(x) for x in items]
+        "items": [item_schema(x) for x in items]
     })
