@@ -1,385 +1,12 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 import os
 import psycopg2
 import psycopg2.extras
+from werkzeug.security import generate_password_hash
+from .tools import access_pass
 
 
 bp = Blueprint("postgres", __name__)
-
-
-schema = {
-    "app": {
-        "key": {
-            "type": "uuid",
-        },
-        "alias": {
-            "type": "text",
-            "unique": True,
-        },
-        "value": {
-            "type": "dict",
-        },
-    },
-
-    "user": {
-        "key": {
-            "type": "uuid",
-        },
-        "status": {
-            "type": "text",
-            "default": "anonymous",
-            "values": ["anonymous", "signedup", "confirmed", "blocked"]
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "name": {
-            "type": "text",
-            "max_length": 100,
-        },
-        "username": {
-            "type": "text",
-            "max_length": 20,
-            "unique": True,
-            "validate": r"^[A-Za-z][A-Za-z0-9-]*$"
-        },
-        "email": {
-            "type": "text",
-            "max_length": 255,
-            "unique": True,
-            "validate": r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-        },
-        "password": {
-            "type": "text",
-            "max_length": 18,
-            "min_length": 8,
-            "validate": r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$"
-        },
-        "phone": {
-            "type": "text",
-            "max_length": 20,
-            "nullable": True
-        },
-        "photo": {
-            "type": "text",
-            "max_length": 40,
-            "nullable": True
-        },
-        "access": {
-            "type": "array_text",
-        },
-        "theme": {
-            "type": "text",
-            "default": "dark",
-            "values": ["dark", "light"]
-        },
-    },
-
-    "post": {
-        "key": {
-            "type": "uuid",
-        },
-        "status": {
-            "type": "text",
-            "default": "draft",
-            "values": ["draft", "live"]
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "author_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "title": {
-            "type": "text",
-            "max_length": 100,
-        },
-        "slug": {
-            "type": "text",
-            "max_length": 100,
-            "unique": True,
-            "validate": "^[a-z][a-z0-9-]*$"
-        },
-        "content": {
-            "type": "text",
-            "nullable": True
-        },
-        "description": {
-            "max_length": 500,
-            "type": "text",
-            "nullable": True
-        },
-        "photo": {
-            "type": "text",
-            "nullable": True
-        },
-        "files": {
-            "type": "array_text",
-        },
-        "tags": {
-            "type": "array_text",
-        },
-    },
-
-    "comment": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "post_key": {
-            "type": "uuid",
-            "foreign_key": ["post", "key"]
-        },
-        "parent_key": {
-            "type": "uuid",
-            "foreign_key": ["comment", "key"],
-            "nullable": True,
-        },
-        "comment": {
-            "type": "text",
-            "max_length": 500,
-        },
-    },
-
-    "report": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "entity_key": {
-            "type": "uuid",
-        },
-        "entity_type": {
-            "type": "text",
-            "max_length": 20,
-        },
-        "comment": {
-            "type": "text",
-            "max_length": 500,
-        },
-        "tags": {
-            "type": "array_text",
-        },
-    },
-
-    "block": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "admin_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "user_key": {
-            "type": "uuid",
-        },
-        "comment": {
-            "type": "text",
-            "max_length": 500,
-        },
-    },
-
-    "like": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "entity_type": {
-            "type": "text",
-            "max_length": 100,
-        },
-        "entity_key": {
-            "type": "uuid",
-        },
-        "reaction": {
-            "type": "text",
-            "values": ["like", "dislike"]
-        },
-    },
-
-    "code": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "pin": {
-            "type": "text",
-            "max_length": 10,
-            "min_length": 10,
-        },
-        "email": {
-            "type": "text",
-            "max_length": 255,
-            "validate": r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-        },
-    },
-
-    "log": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-        },
-        "action": {
-            "type": "text",
-            "max_length": 20,
-        },
-        "entity_key": {
-            "type": "text",
-            "max_length": 100,
-        },
-        "entity_type": {
-            "type": "text",
-            "max_length": 100,
-        },
-        "status": {
-            "type": "text",
-            "default": "200",
-            "values": ["200", "201", "400"],
-        },
-        "misc": {
-            "type": "dict",
-        },
-    },
-
-    "session": {
-        "key": {
-            "type": "uuid",
-        },
-        "date_created": {
-            "type": "datetime",
-        },
-        "date_updated": {
-            "type": "datetime",
-        },
-        "user_key": {
-            "type": "uuid",
-            "foreign_key": ["user", "key"]
-        },
-        "login": {
-            "type": "text",
-            "default": "false",
-            "values": ["false", "true", "persist"]
-        },
-        "remember": {
-            "type": "bool",
-            "default": False,
-        },
-    },
-}
-
-keywords = ["user", "like"]
-
-
-def get_col(name, ppt):
-    column = []
-
-    default = ppt.get("default")
-    _type = ppt.get("type")
-    fk = ppt.get("foreign_key")
-
-    column.append(name)
-
-    if _type == "uuid":
-        column.append("UUID")
-    elif _type == "datetime":
-        column.append("TIMESTAMPTZ")
-    elif _type == "array_text":
-        column.append("TEXT[]")
-    elif _type == "array_dict":
-        column.append("JSONB")
-    elif _type == "dict":
-        column.append("JSONB")
-    elif _type == "int":
-        column.append("INT")
-    elif _type == "bool":
-        column.append("BOOL")
-    else:
-        column.append("TEXT")
-
-    if name == "key":
-        column.append("PRIMARY KEY")
-    elif ppt.get("unique"):
-        column.append("UNIQUE")
-
-    if (
-        not ppt.get("nullable")
-        and name != "key"
-        and _type != "datetime"
-        and _type != "dict"
-        and _type != "array_text"
-        and _type != "array_dict"
-    ):
-        column.append("NOT NULL")
-
-    if _type == "uuid" and name == "key":
-        column.append("DEFAULT gen_random_uuid()")
-    elif _type == "datetime":
-        column.append("DEFAULT now()")
-    elif _type == "dict":
-        column.append("DEFAULT '{}'::jsonb")
-    elif _type == "array_text":
-        column.append("DEFAULT '{}'::TEXT[]")
-    elif _type == "array_dict":
-        column.append("DEFAULT '[]'::jsonb")
-    elif _type == "int":
-        column.append("DEFAULT 0")
-    elif _type == "bool":
-        column.append("DEFAULT FALSE")
-    elif default is not None and _type == "text":
-        column.append(f"DEFAULT '{default}'")
-
-    if fk:
-        ref_table = fk[0] if fk[0] not in keywords else f'"{fk[0]}"'
-        ref_col = fk[1]
-        column.append(f"REFERENCES {ref_table}({ref_col})")
-
-    return " ".join(column)
-
-
-def create_tables_query():
-    tables = []
-    for tn, cols in schema.items():
-        tn = tn if tn not in keywords else f'"{tn}"'
-        table = [f"CREATE TABLE IF NOT EXISTS {tn} ("]
-        cols_ = [f"    {get_col(cn, p)}" for cn, p in cols.items()]
-        table.append(",\n".join(cols_))
-        table.append(");")
-        tables.append("\n".join(table))
-
-    return "\n\n".join(tables)
 
 
 def db_open():
@@ -392,3 +19,235 @@ def db_close(con, cur):
     con.commit()
     cur.close()
     con.close()
+
+
+@bp.get("/fix")
+def create_tables():
+    con, cur = db_open()
+
+    cur.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
+    cur.execute("""
+        DROP TABLE IF EXISTS app CASCADE;
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS post CASCADE;
+        DROP TABLE IF EXISTS comment CASCADE;
+        DROP TABLE IF EXISTS report CASCADE;
+        DROP TABLE IF EXISTS block CASCADE;
+        DROP TABLE IF EXISTS "like" CASCADE;
+        DROP TABLE IF EXISTS code CASCADE;
+        DROP TABLE IF EXISTS log CASCADE;
+        DROP TABLE IF EXISTS session CASCADE;
+
+        CREATE TABLE IF NOT EXISTS app (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            alias TEXT UNIQUE NOT NULL,
+            value JSONB DEFAULT '{}'::JSONB
+        );
+
+        CREATE TABLE IF NOT EXISTS "user" (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'anonymous',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
+            access TEXT[] DEFAULT '{}'::TEXT[],
+            theme TEXT NOT NULL DEFAULT 'dark',
+            item_view TEXT NOT NULL DEFAULT 'grid',
+            name TEXT NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            phone TEXT,
+            address JSONB DEFAULT '{}'::JSONB,
+            photo TEXT,
+            account_balance FLOAT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS session (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            login TEXT NOT NULL DEFAULT 'false',
+            remember BOOL NOT NULL DEFAULT FALSE
+        );
+
+        CREATE TABLE IF NOT EXISTS log (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL,
+            action TEXT NOT NULL,
+            entity_key TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT '200',
+            misc JSONB DEFAULT '{}'::JSONB
+        );
+
+        CREATE TABLE IF NOT EXISTS code (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            pin TEXT NOT NULL,
+            email TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS report (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            entity_key UUID NOT NULL,
+            entity_type TEXT NOT NULL,
+            comment TEXT NOT NULL,
+            tags TEXT[] DEFAULT '{}'::TEXT[]
+        );
+
+        CREATE TABLE IF NOT EXISTS block (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            admin_key UUID NOT NULL REFERENCES "user"(key),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            comment TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS item (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            price FLOAT DEFAULT 0,
+            price_old FLOAT DEFAULT 0,
+            information TEXT,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS save (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            item_key UUID NOT NULL REFERENCES item(key)
+        );
+
+        CREATE TABLE IF NOT EXISTS "order" (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'cart',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            name TEXT NOT NULL,
+            phone TEXT,
+            address JSONB DEFAULT '{}'::JSONB,
+            delivery_date TIMESTAMPTZ,
+            cost_delivery FLOAT DEFAULT 1500,
+            cost_items FLOAT DEFAULT 0,
+            pay_account FLOAT DEFAULT 0,
+            pay_user FLOAT DEFAULT 0,
+            pay_reference TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS order_item (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            order_key UUID NOT NULL REFERENCES "order"(key),
+            item_key UUID NOT NULL REFERENCES item(key),
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0,
+            price FLOAT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS feedback (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            item_key UUID NOT NULL REFERENCES item(key),
+            parent_key UUID REFERENCES feedback(key),
+            comment TEXT NOT NULL,
+            rating INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS voucher (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
+            status TEXT NOT NULL DEFAULT 'created',
+            pin TEXT NOT NULL,
+            value FLOAT DEFAULT 0,
+            validity TIMESTAMPTZ,
+            usage JSONB DEFAULT '{}'::JSONB
+        );
+    """)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
+def copy_post_table():
+    con = psycopg2.connect(os.environ["LOCAL_DB"])
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute("SELECT * FROM post;")
+    data = cur.fetchall()
+    con.commit()
+    cur.close()
+    con.close()
+
+    con = psycopg2.connect(os.environ["ONLINE_DB"])
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute("""
+            INSERT INTO "user"
+            (status, name, username, email, password, access)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING *;
+        """, (
+        "confirmed",
+        "Theophilus",
+        "theophilus",
+        os.environ["MAIL_USERNAME"],
+        generate_password_hash(
+            os.environ["MAIL_PASSWORD"], method="scrypt"),
+        [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
+    ))
+    user = cur.fetchone()
+
+    for x in data:
+        cur.execute("""
+            INSERT INTO post(
+                key,
+                status,
+                date_created,
+                author_key,
+                title,
+                slug,
+                content,
+                description,
+                photo,
+                files,
+                tags
+            )
+            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
+            x["key"],
+            x["status"],
+            x["date_created"],
+            user["key"],
+            x["title"],
+            x["slug"],
+            x["content"],
+            x["description"],
+            x["photo"],
+            x["files"],
+            x["tags"]
+        ))
+
+    con.commit()
+    cur.close()
+    con.close()
+
+    return jsonify({
+        "status": 200
+    })
