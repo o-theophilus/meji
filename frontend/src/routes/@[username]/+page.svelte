@@ -7,7 +7,7 @@
 	import { Meta, Icon, Avatar, Log } from '$lib/macro';
 	import { RoundButton, Button, LinkArrow, Toggle } from '$lib/button';
 
-	import Photo from '../[slug]/photo/edit.svelte';
+	import Photo from './_photo.svelte';
 	import Name from './_name.svelte';
 	import Phone from './_phone.svelte';
 	import Username from './_username.svelte';

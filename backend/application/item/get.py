@@ -8,8 +8,6 @@ bp = Blueprint("item_get", __name__)
 
 
 def item_schema(x):
-    x["photo"] = (f"{request.host_url}file/{x['photo']}"
-                  if x['photo'] else None)
     x["files"] = [f"{request.host_url}file/{x}" for x in x["files"]]
     return x
 
@@ -89,18 +87,18 @@ def get_many(cur=None):
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
-        'title (a-z)': 'item.title',
-        'title (z-a)': 'item.title'
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name'
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'title (a-z)': 'ASC',
-        'title (z-a)': 'DESC'
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
     }
 
-    params = [status, search, f"%{search}%"]
+    params = [user["key"], status, search, f"%{search}%"]
     tag_query = ""
     if tags != []:
         op = "@>" if multiply else "&&"
@@ -112,8 +110,14 @@ def get_many(cur=None):
     cur.execute(f"""
         SELECT
             item.*,
+            ("like".entity_key IS NOT NULL) AS "like",
             COUNT(*) OVER() AS _count
         FROM item
+        LEFT JOIN "like" ON
+            item.key::TEXT = "like".entity_key
+            AND "like".entity_type = 'item'
+            AND "like".user_key = %s
+            AND "like".reaction = 'like'
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {tag_query}
@@ -150,13 +154,13 @@ def similar_items(key):
         })
 
     keywords = list(set(
-        item["tags"] + re.split(r'\s+', item["title"].lower())))
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
 
     cur.execute("""
         WITH likeness AS (
             SELECT key, COUNT(*) AS score
             FROM item,
-                unnest(tags || STRING_TO_ARRAY(lower(title), ' ')) AS tn
+                unnest(tags || STRING_TO_ARRAY(lower(name), ' ')) AS tn
             WHERE tn = ANY(%s)
             GROUP BY key
         )
@@ -205,4 +209,64 @@ def all_tags():
     return jsonify({
         "status": 200,
         "tags": [x["tag"] for x in tags_count]
+    })
+
+
+@bp.get("/like")
+def get_like():
+    con, cur = db_open()
+
+    session = get_session(cur)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    search = request.args.get("search", "").strip()
+    order = request.args.get("order", "latest")
+    page_no = int(request.args.get("page_no", 1))
+    page_size = int(request.args.get("page_size", 24))
+
+    order_by = {
+        'latest': 'item.date_created',
+        'oldest': 'item.date_created',
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
+    }
+
+    cur.execute(f"""
+        SELECT
+            item.*,
+            COUNT(*) OVER() AS _count
+        FROM item
+        LEFT JOIN "like" ON
+            item.key::TEXT = "like".entity_key
+        WHERE
+            item.status = 'active'
+            AND "like".entity_type = 'item'
+            AND "like".user_key = %s
+            AND "like".reaction = 'like'
+            AND (%s = '' OR item.name ILIKE %s)
+        ORDER BY {order_by[order]} {order_dir[order]}
+        LIMIT %s OFFSET %s;
+    """, (
+        user["key"],
+        search, f"%{search}%",
+        page_size, (page_no - 1) * page_size
+    ))
+    items = cur.fetchall()
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "items": [item_schema(x) for x in items],
+        "order_by": list(order_by.keys()),
+        "total_page": ceil(items[0]["_count"] / page_size) if items else 0
     })

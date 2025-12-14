@@ -48,7 +48,7 @@ def delete_user(cur, user):
     ;""", (os.environ["MAIL_USERNAME"], user["key"]))
 
     cur.execute("""
-        DELETE FROM "like" WHERE user_key = %s;
+        DELETE FROM save WHERE user_key = %s;
     """, (user["key"],))
 
     cur.execute("""
@@ -62,24 +62,18 @@ def delete_user(cur, user):
     cur.execute("""
         WITH RECURSIVE to_delete AS (
             SELECT key
-            FROM comment
+            FROM review
             WHERE user_key = %s
 
             UNION ALL
 
-            SELECT c.key
-            FROM comment c
-            INNER JOIN to_delete td ON c.parent_key = td.key
+            SELECT f.key
+            FROM review f
+            INNER JOIN to_delete td ON f.parent_key = td.key
         )
-        DELETE FROM comment
+        DELETE FROM review
         WHERE key IN (SELECT key FROM to_delete);
     """, (user["key"],))
-
-    cur.execute("""
-        UPDATE post
-        SET author_key = (SELECT key FROM "user" WHERE email = %s)
-        WHERE key = %s
-    ;""", (os.environ["MAIL_USERNAME"], user["key"]))
 
     cur.execute("""
         DELETE FROM "user" WHERE key = %s;
@@ -111,12 +105,21 @@ def init():
             entity_type="account",
         )
 
+    cur.execute("""
+        SELECT entity_key FROM "like"
+        WHERE entity_type = 'item'
+            AND user_key::TEXT = %s
+            AND reaction = 'like';
+    """, (user["key"],))
+    likes = cur.fetchall()
+
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "user": user_schema(user),
         "token": token,
         "login": login,
+        "likes": [x["entity_key"] for x in likes],
     })
 
 

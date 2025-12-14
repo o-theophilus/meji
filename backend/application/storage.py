@@ -109,7 +109,7 @@ def delete(x, path):
 def storage(method, x=None, path="", thumbnail=False):
     test = current_app.config["DEBUG"]
     if test:
-        path = "static/post"
+        path = "static/photo"
         os.makedirs(f"{os.getcwd()}/{path}", exist_ok=True)
     # test = False
 

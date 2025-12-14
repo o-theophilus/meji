@@ -58,7 +58,7 @@
 	}
 	.content {
 		background-color: var(--bg1);
-		box-shadow: var(--shad1);
+		box-shadow:  0 0 10px 0 var(--input);
 		border-radius: var(--sp1);
 
 		overflow: hidden;

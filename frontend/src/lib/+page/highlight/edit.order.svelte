@@ -71,8 +71,8 @@
 
 {#each items as x, i (x.key)}
 	<div class="line space" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-		<div class="post_name">
-			{x.title}
+		<div class="item_name">
+			{x.name}
 		</div>
 
 		<div class="buttons">
@@ -126,7 +126,7 @@
 		flex-shrink: 0;
 	}
 
-	.post_name {
+	.item_name {
 		width: 100%;
 		font-size: 0.8rem;
 	}

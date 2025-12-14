@@ -9,6 +9,7 @@
 		onclick,
 		onmouseenter,
 		href = null,
+		target,
 		tabindex = null,
 		icon = null,
 		icon2 = null,
@@ -17,13 +18,13 @@
 </script>
 
 {#if href}
-	<a {href} class:caps {onmouseenter} title={tooltip} tabindex={null}>
+	<a {href} class:caps {onmouseenter} title={tooltip} tabindex={null} {target}>
 		{#if icon}
 			<Icon {icon} size={icon_size}></Icon>
 		{/if}
 		{@render children?.()}
 		{#if icon2}
-			<div data-lucide={icon2}></div>
+			<Icon icon={icon2} size={icon_size}></Icon>
 		{/if}
 	</a>
 {:else if onclick}
@@ -33,7 +34,7 @@
 		{/if}
 		{@render children?.()}
 		{#if icon2}
-			<div data-lucide={icon2}></div>
+			<Icon icon={icon2} size={icon_size}></Icon>
 		{/if}
 	</button>
 {:else}
@@ -43,7 +44,7 @@
 		{/if}
 		{@render children?.()}
 		{#if icon2}
-			<div data-lucide={icon2}></div>
+			<Icon icon={icon2} size={icon_size}></Icon>
 		{/if}
 	</div>
 {/if}

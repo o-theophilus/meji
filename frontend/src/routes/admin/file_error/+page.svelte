@@ -34,8 +34,7 @@
 			body: JSON.stringify({ files })
 		});
 		resp = await resp.json();
-		console.log(resp);
-		
+
 		loading.close();
 
 		if (resp.status == 200) {
@@ -167,7 +166,7 @@
 		{#if open_posts}
 			<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 				{#each posts as x}
-					<a href="/{x.slug}">{x.title}</a>
+					<a href="/{x.slug}">{x.name}</a>
 
 					<br />
 				{:else}

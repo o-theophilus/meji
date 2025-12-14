@@ -1,51 +1,52 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
+	import { Icon } from '$lib/macro';
 
-	import { Datetime, Icon } from '$lib/macro';
+	import Like from './like.svelte';
 
 	let { item } = $props();
 
 	const prerender = () => {
-		app.post = item;
+		app.item = item;
 	};
-	let src = $state(item.photo ? `${item.photo}/500`: '/no_photo.png');
+	let src = $state(item.files[0] ? `${item.files[0]}/500` : '/no_photo.png');
 </script>
 
 <a href="/{item.slug}" onclick={prerender} onmouseenter={prerender}>
-	<img {src} loading="lazy" alt={item.title} onerror={() => (src = '/file_error.png')} />
+	<div
+		class="like"
+		onclick={(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+		}}
+		role="presentation"
+	>
+		<Like {item} small></Like>
+	</div>
+	<img {src} loading="lazy" alt={item.name} onerror={() => (src = '/file_error.png')} />
 
-	<div class="details">
-		<div class="title">
-			{item.title}
+	<div class="line space nowrap name_rating">
+		<div class="name">
+			{item.name}
 		</div>
+		<div class="rating">
+			4.5
+			<Icon icon="star" size="12" --icon-fill="goldenrod" --icon-stroke="none" />
+		</div>
+	</div>
 
-		{#if item.description}
-			<div class="description">
-				<div>
-					{item.description}
-				</div>
+	<div class="line cost">
+		<div class="price">
+			{#if item.price}
+				₦{item.price.toLocaleString()}
+			{/if}
+		</div>
+		{#if item.price_old}
+			<div class="old_price">
+				₦{item.price_old.toLocaleString()}
+				<div class="strike"></div>
 			</div>
 		{/if}
-
-		<div class="bottom line">
-			<Datetime datetime={item.date_created} type="ago" />
-			<div class="line info">
-				<div class="line">
-					<Icon icon="eye" size="12" />
-					{item.engagement.view}
-				</div>
-
-				<div class="line">
-					<Icon icon="message-circle" size="12" />
-					{item.engagement.comment}
-				</div>
-
-				<div class="line">
-					<Icon icon="thumbs-up" size="12" />
-					{item.engagement.like}
-				</div>
-			</div>
-		</div>
 	</div>
 </a>
 
@@ -54,89 +55,75 @@
 		display: block;
 		position: relative;
 		text-decoration: none;
+		color: var(--ft2);
+	}
 
-		outline: 2px solid transparent;
-		transition: outline-color var(--trans);
-
-		border-radius: var(--sp0);
-		overflow: hidden;
+	.like {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 8px;
 	}
 
 	img {
-		display: block;
-
 		width: 100%;
 		object-fit: cover;
-		aspect-ratio: 3/4;
+		aspect-ratio: 1;
 		background-color: var(--bg1);
+		border-radius: 8px;
 
-		transition: transform var(--aTime);
-		transition-timing-function: ease-in-out;
+		outline: 2px solid transparent;
+		outline-offset: -2px;
+		transition: outline-color var(--trans);
 	}
 
-	a:hover {
+	a:hover img {
 		outline-color: var(--ft1);
 	}
-	a:hover img {
-		transition-duration: 5s;
-		transform: scale(1.2) rotate(5deg);
+
+	.name_rating {
+		align-items: flex-start;
 	}
 
-	a:hover .description {
-		grid-template-rows: 1fr;
-		margin: var(--sp2) 0;
-	}
-
-	.details {
-		position: absolute;
-		bottom: 0;
-
-		width: 100%;
-		padding: 0 var(--sp3);
-
-		color: var(--ft1);
-		background-color: color-mix(in srgb, var(--bg1), transparent 10%);
-	}
-
-	.title {
-		margin: var(--sp2) 0;
-		line-height: 120%;
-		font-weight: 700;
-		transition: color var(--trans);
-	}
-
-	.description {
-		display: grid;
-		grid-template-rows: 0fr;
-
-		color: var(--ft2);
+	.name {
 		font-size: 0.8rem;
-		transition:
-			grid-template-rows var(--trans),
-			margin var(--trans);
-	}
-	.description div {
-		overflow-y: hidden;
 	}
 
-	.bottom {
-		font-size: 0.8rem;
-		transition: color var(--trans);
-		justify-content: space-between;
-		flex-wrap: wrap;
+	.cost {
 		gap: var(--sp2);
-
-		color: var(--ft2);
-		line-height: 1;
-		padding: var(--sp1) 0;
-		border-top: 1px solid gray;
+	}
+	.price {
+		font-weight: 700;
+		color: var(--ac1);
+		color: var(--ft1);
 	}
 
-	.line {
-		gap: 0;
+	.old_price {
+		font-size: 0.8rem;
+		position: relative;
+	}
+	.strike {
+		position: absolute;
+		top: calc(50% - 0.5px);
+		left: -3px;
+		right: -3px;
+
+		height: 2px;
+
+		transform: rotate(-10deg);
+		background-color: red;
+		mix-blend-mode: multiply;
 	}
 
-	.info {
-		gap: 8px;
+	.rating {
+		display: flex;
+		align-items: center;
+		gap: 2px;
+
+		padding: 2px;
+		border-radius: 4px;
+		background-color: var(--input);
+
+		font-size: 0.8rem;
 	}
 </style>

@@ -13,19 +13,19 @@
 
 	const validate = () => {
 		error = {};
-		if (!form.title) {
-			error.title = 'This field is required';
-		} else if (form.title.length > 100) {
-			error.title = 'This field cannot exceed 100 characters';
+		if (!form.name) {
+			error.name = 'This field is required';
+		} else if (form.name.length > 100) {
+			error.name = 'This field cannot exceed 100 characters';
 		}
 
 		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		loading.open('Creating Post . . .');
+		loading.open('Creating Item . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/post${page.url.search}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -39,7 +39,7 @@
 		if (resp.status == 200) {
 			module.value.update(resp.items, resp.total_page);
 			module.open(Dialogue, {
-				message: 'Post Created',
+				message: 'Item Created',
 				buttons: [
 					{
 						name: 'OK',
@@ -57,15 +57,19 @@
 	};
 </script>
 
-<Form title="Add Post" error={error.error}>
+<Form
+	title="Add New Item"
+	description="Enter the item name to create a draft. You'll be taken to the item page to add details and images."
+	error={error.error}
+>
 	<IG
-		name="Title"
+		name="Name"
 		icon="square-pen"
-		error={error.title}
-		placeholder="Title here"
+		error={error.name}
+		placeholder="Name here"
 		type="text"
-		bind:value={form.title}
+		bind:value={form.name}
 	/>
 
-	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
+	<Button icon2="plus" onclick={validate}>Create Draft & Continue</Button>
 </Form>

@@ -9,7 +9,7 @@
 	import { Content } from '$lib/layout';
 </script>
 
-{#if page.url.pathname != '/post'}
+{#if page.url.pathname != '/shop'}
 	<hr />
 {/if}
 

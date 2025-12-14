@@ -18,17 +18,18 @@
 
 	let { data } = $props();
 	let items = $derived(data.items);
-
+	
+	
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
 	let _status = $derived(data._status);
 	let search = $state({ order: 'latest', search: '', tag: '', status: 'active', page_no: 1 });
-
+	
 	const update = (a, b) => {
 		items = a;
 		total_page = b;
 	};
-
+	
 	onMount(() => {
 		if (page_state.searchParams.order) {
 			search.order = page_state.searchParams.order;
@@ -59,15 +60,9 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content
-	--content-background-color="var(--bg2)"
-	--content-height="auto"
-	--content-padding-bottom="0"
->
+<Content --content-height="auto" --content-padding-bottom="0">
 	<div class="line space">
-		<div class="page_title">
-			Shop
-		</div>
+		<div class="page_title">Shop</div>
 		{#if app.user.access.includes('item:add')}
 			<div class="line">
 				<Radio
@@ -81,7 +76,7 @@
 					}}
 				></Radio>
 				<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>
-					Add
+					Add New Item
 				</Button>
 			</div>
 		{/if}
@@ -136,7 +131,7 @@
 	/>
 </Content>
 
-<Content --content-background-color="var(--bg2)" --content-padding-top="1px" --content-width="1500px">
+<Content --content-padding-top="1px" --content-width="1500px">
 	{#if items.length}
 		<section class="items">
 			{#each items as item (item.key)}
@@ -166,7 +161,7 @@
 	.items {
 		margin: var(--sp2) 0;
 		display: grid;
-		gap: var(--sp2);
+		gap: 32px 16px;
 	}
 
 	@media screen and (min-width: 550px) {

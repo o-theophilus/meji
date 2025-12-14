@@ -1,5 +1,6 @@
 <script>
 	import Code from './code.svelte';
+	import Number from './number.svelte';
 	let { value = $bindable(), type, ...props } = $props();
 	if (type == 'datetime') type = 'datetime-local';
 </script>
@@ -8,6 +9,8 @@
 	<textarea bind:value {...props}></textarea>
 {:else if type == 'code'}
 	<Code bind:value {...props}></Code>
+{:else if type == 'number'}
+	<Number bind:value {...props}></Number>
 {:else}
 	<input bind:value {type} {...props} />
 {/if}

@@ -6,7 +6,7 @@
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-	import Status from './edit.svelte';
+	import Status from './form.svelte';
 
 	let form = $state({});
 	let error = $state({});
@@ -24,8 +24,8 @@
 	const submit = async () => {
 		error = {};
 
-		loading.open('Deleting Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/post/${module.value.key}`, {
+		loading.open('Deleting Item . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${module.value.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -38,8 +38,8 @@
 
 		if (resp.status == 200) {
 			module.close();
-			notify.open('Post Deleted');
-			goto('/post');
+			notify.open('Item Deleted');
+			goto('/shop');
 		} else {
 			error = resp;
 		}
@@ -47,7 +47,7 @@
 </script>
 
 <Form title="Delete" error={error.error}>
-	<Note status="400" note="Are you sure you want to delete this post"></Note>
+	<Note status="400" note="Are you sure you want to delete this item"></Note>
 
 	<IG
 		name="Password"

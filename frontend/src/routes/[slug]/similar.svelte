@@ -14,7 +14,7 @@
 	export const load = async () => {
 		loading = true;
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/post/similar/${key}`);
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/similar/${key}`);
 		resp = await resp.json();
 		loading = false;
 
@@ -23,8 +23,8 @@
 		}
 	};
 
-	const prerender = (post) => {
-		app.post = post;
+	const prerender = (x) => {
+		app.item = x;
 	};
 </script>
 
@@ -57,7 +57,7 @@
 						}}
 						onmouseenter={() => prerender(item)}
 					>
-						<Avatar size="58" photo={item.photo} no_photo="/no_photo.png" name={item.title}
+						<Avatar size="58" photo={item.photo} no_photo="/no_photo.png" name={item.name}
 						></Avatar>
 					</a>
 					<div class="details">
@@ -70,7 +70,7 @@
 							}}
 							onmouseenter={() => prerender(item)}
 						>
-							{item.title}
+							{item.name}
 						</a>
 
 						{#if item.description}

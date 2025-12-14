@@ -21,7 +21,7 @@ def db_close(con, cur):
     con.close()
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def create_tables():
     con, cur = db_open()
 
@@ -29,14 +29,17 @@ def create_tables():
     cur.execute("""
         DROP TABLE IF EXISTS app CASCADE;
         DROP TABLE IF EXISTS "user" CASCADE;
-        DROP TABLE IF EXISTS post CASCADE;
-        DROP TABLE IF EXISTS comment CASCADE;
+        DROP TABLE IF EXISTS session CASCADE;
+        DROP TABLE IF EXISTS log CASCADE;
+        DROP TABLE IF EXISTS code CASCADE;
         DROP TABLE IF EXISTS report CASCADE;
         DROP TABLE IF EXISTS block CASCADE;
+        DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS review CASCADE;
         DROP TABLE IF EXISTS "like" CASCADE;
-        DROP TABLE IF EXISTS code CASCADE;
-        DROP TABLE IF EXISTS log CASCADE;
-        DROP TABLE IF EXISTS session CASCADE;
+        DROP TABLE IF EXISTS "order" CASCADE;
+        DROP TABLE IF EXISTS order_item CASCADE;
+        DROP TABLE IF EXISTS voucher CASCADE;
 
         CREATE TABLE IF NOT EXISTS app (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -112,22 +115,34 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             status TEXT NOT NULL DEFAULT 'draft',
             date_created TIMESTAMPTZ DEFAULT now(),
-            name TEXT NOT NULL,
             slug TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            tags TEXT[] DEFAULT '{}'::TEXT[],
             price FLOAT DEFAULT 0,
             price_old FLOAT DEFAULT 0,
             information TEXT,
             files TEXT[] DEFAULT '{}'::TEXT[],
-            tags TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0
         );
 
-        CREATE TABLE IF NOT EXISTS save (
+        CREATE TABLE IF NOT EXISTS review (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key),
-            item_key UUID NOT NULL REFERENCES item(key)
+            item_key UUID NOT NULL REFERENCES item(key),
+            parent_key UUID REFERENCES review(key),
+            comment TEXT NOT NULL,
+            rating INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS "like" (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key),
+            entity_key TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            reaction TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS "order" (
@@ -155,16 +170,6 @@ def create_tables():
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
             price FLOAT DEFAULT 0
-        );
-
-        CREATE TABLE IF NOT EXISTS feedback (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
-            item_key UUID NOT NULL REFERENCES item(key),
-            parent_key UUID REFERENCES feedback(key),
-            comment TEXT NOT NULL,
-            rating INT DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS voucher (
@@ -202,8 +207,7 @@ def copy_post_table():
             INSERT INTO "user"
             (status, name, username, email, password, access)
             VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING *;
-        """, (
+        ;""", (
         "confirmed",
         "Theophilus",
         "theophilus",
@@ -212,7 +216,6 @@ def copy_post_table():
             os.environ["MAIL_PASSWORD"], method="scrypt"),
         [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
     ))
-    user = cur.fetchone()
 
     for x in data:
         cur.execute("""
@@ -220,7 +223,6 @@ def copy_post_table():
                 key,
                 status,
                 date_created,
-                author_key,
                 title,
                 slug,
                 content,
@@ -229,12 +231,11 @@ def copy_post_table():
                 files,
                 tags
             )
-            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (
             x["key"],
             x["status"],
             x["date_created"],
-            user["key"],
             x["title"],
             x["slug"],
             x["content"],

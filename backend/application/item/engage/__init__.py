@@ -22,7 +22,7 @@ def like():
     reaction = request.json.get("reaction")
 
     if (
-        entity_type not in ["post", "comment"]
+        entity_type not in ["item", "comment"]
         or reaction not in ["like", "dislike"]
     ):
         return jsonify({

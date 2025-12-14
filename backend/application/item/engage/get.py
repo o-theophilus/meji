@@ -5,7 +5,7 @@ from ...tools import get_session
 bp = Blueprint("post_engage_get", __name__)
 
 
-@bp.get("/post/engagement/<key>")
+@bp.get("/item/engagement/<key>")
 def engagement(key):
     con, cur = db_open()
 

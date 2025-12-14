@@ -29,28 +29,31 @@
 
 <style>
 	.block {
-		border-top: 2px solid transparent;
-		border-bottom: 1px solid var(--bg2);
+		border-top: 2px solid var(--bg2);
+		/* border-bottom: 1px solid var(--bg2); */
 
 		transition:
 			border-color var(--trans),
 			border-size var(--trans);
 	}
-	.open {
+	/* .open {
 		border-top: 2px solid var(--ft1_d);
 		border-bottom: 2px solid var(--ft1_d);
-	}
+	} */
 
 	.line {
 		padding: var(--sp2) 0;
 		text-transform: capitalize;
+		font-size: large;
+		font-weight: 800;
+		color: var(--ft1);
 
 		transition: font-weight var(--trans);
 	}
 
-	.open .line {
+	/* .open .line {
 		font-weight: 800;
-	}
+	} */
 
 	.content {
 		padding-bottom: var(--sp2);

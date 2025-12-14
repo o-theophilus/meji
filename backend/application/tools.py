@@ -26,15 +26,15 @@ access_pass = {
     ],
     "item": [
         ['add', 2],
-        ['edit_photo', 2],
-        ['edit_title', 2],
-        ['edit_date', 2],
-        ['edit_description', 2],
-        ['edit_content', 2],
-        ['edit_files', 2],
-        ['edit_tags', 2],
         ['edit_status', 2],
-        ['edit_author', 2],
+        ['edit_file', 2],
+        ['edit_name', 2],
+        ['edit_tag', 2],
+        ['edit_price', 2],
+        ['edit_information', 2],
+        ['edit_files', 2],
+        ['edit_variation', 2],
+        ['edit_quantity', 2],
         ['edit_highlight', 2]
     ],
     "report": [

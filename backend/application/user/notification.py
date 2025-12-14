@@ -32,9 +32,7 @@ def notification():
     temp = cur.fetchall()
     items_files = []
     for x in temp:
-        items_files.append(x["photo"])
-        if x["files"] != []:
-            items_files += x["files"]
+        items_files += x["files"]
 
     all_used_files = users_photo + items_files
     all_stored_files = storage("get_all")

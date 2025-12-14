@@ -7,7 +7,7 @@
 	&#8226;
 	<Link --link-font-size="0.8rem" href="/#about">About</Link>
 	&#8226;
-	<Link --link-font-size="0.8rem" href="/post">Terms</Link>
+	<Link --link-font-size="0.8rem" href="/shop">Terms</Link>
 </div>
 
 <style>

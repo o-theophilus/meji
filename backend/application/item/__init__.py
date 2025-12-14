@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 import re
-import os
 from uuid import uuid4
 from werkzeug.security import check_password_hash
 from ..tools import reserved_words, get_session
@@ -8,11 +7,12 @@ from ..postgres import db_open, db_close
 from ..storage import storage
 from ..log import log
 from .get import get_many, item_schema
+from psycopg2.extras import Json
 
-bp = Blueprint("post", __name__)
+bp = Blueprint("item", __name__)
 
 
-@bp.post("/post")
+@bp.post("/item")
 def add():
     con, cur = db_open()
 
@@ -22,20 +22,20 @@ def add():
         return jsonify(session)
     user = session["user"]
 
-    if "post:add" not in user["access"]:
+    if "item:add" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
-    title = request.json.get("title")
+    name = ' '.join(request.json.get("name", "").strip().split())
 
     error = {}
-    if not title:
-        error["title"] = "This field is required"
-    elif len(title) > 100:
-        error["title"] = "This field cannot exceed 100 characters"
+    if not name:
+        error["name"] = "This field is required"
+    elif len(name) > 100:
+        error["name"] = "This field cannot exceed 100 characters"
     if error != {}:
         db_close(con, cur)
         return jsonify({
@@ -43,26 +43,17 @@ def add():
             **error
         })
 
-    slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', title.lower()))
+    slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', name.lower()))
     slug = slug[:100]
-    cur.execute('SELECT * FROM post WHERE slug = %s;', (slug,))
-    post = cur.fetchone()
-    if post or slug in reserved_words:
+    cur.execute('SELECT * FROM item WHERE slug = %s;', (slug,))
+    item = cur.fetchone()
+    if item or slug in reserved_words:
         slug = f"{slug[:89]}-{str(uuid4().hex)[:10]}"
 
     cur.execute("""
-        SELECT key FROM "user" WHERE email = %s;
-    """, (os.environ["MAIL_USERNAME"],))
-    author = cur.fetchone()
-
-    cur.execute("""
-        INSERT INTO post (title, slug, author_key)
-        VALUES (%s, %s, %s) RETURNING *;
-    """, (
-        title,
-        slug,
-        author["key"] if author else None,
-    ))
+        INSERT INTO item (name, slug)
+        VALUES (%s, %s) RETURNING *;
+    """, (name, slug))
     item = cur.fetchone()
 
     log(
@@ -70,7 +61,7 @@ def add():
         user_key=user["key"],
         action="created",
         entity_key=item["key"],
-        entity_type="post"
+        entity_type="item"
     )
 
     items = get_many(cur)
@@ -84,7 +75,7 @@ def add():
     })
 
 
-@bp.put("/post/<key>")
+@bp.put("/item/<key>")
 def edit(key):
     con, cur = db_open()
 
@@ -94,9 +85,9 @@ def edit(key):
         return jsonify(session)
     user = session["user"]
 
-    cur.execute('SELECT * FROM post WHERE key = %s;', (key,))
-    post = cur.fetchone()
-    if not post:
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
+    if not item:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -105,94 +96,97 @@ def edit(key):
 
     error = {}
 
-    title = post["title"]
-    date_created = post["date_created"]
-    description = post["description"]
-    content = post["content"]
-    tags = post["tags"]
-    author_key = post["author_key"]
-    status = post["status"]
-
-    if "title" in request.json:
-        title = request.json.get("title")
-        if "post:edit_title" not in user["access"]:
-            error["title"] = "unauthorized access"
-        elif not title:
-            error["title"] = "This field is required"
-        elif title == post["title"]:
-            error["title"] = "No changes were made"
-        elif len(title) > 100:
-            error["name"] = "This field cannot exceed 100 characters"
-
-    if "date_created" in request.json:
-        date_created = request.json.get("date_created")
-        if "post:edit_date" not in user["access"]:
-            error["date_created"] = "unauthorized access"
-        elif not date_created:
-            error["date_created"] = "This field is required"
-        elif date_created == post["date_created"]:
-            error["date_created"] = "No changes were made"
-
-    if "description" in request.json:
-        description = request.json.get("description")
-        if "post:edit_description" not in user["access"]:
-            error["description"] = "unauthorized access"
-        elif description == post["description"]:
-            error["description"] = "No changes were made"
-        elif len(description) > 500:
-            error["description"] = "This field cannot exceed 500 characters"
-
-    if "content" in request.json:
-        content = request.json.get("content")
-        if "post:edit_content" not in user["access"]:
-            error["content"] = "unauthorized access"
-        elif content == post["content"]:
-            error["content"] = "No changes were made"
-
-    if "tags" in request.json:
-        tags = request.json.get("tags")
-        if "post:edit_tags" not in user["access"]:
-            error["tags"] = "unauthorized access"
-        elif type(tags) is not list:
-            error["tags"] = "This field is required"
-        elif set(tags) == set(post["tags"]):
-            error["tags"] = "No changes were made"
-
-    if "author_key" in request.json:
-        author_key = request.json.get("author_key")
-        if "post:edit_author" not in user["access"]:
-            error["author_key"] = "unauthorized access"
-        elif not author_key:
-            error["author_key"] = "This field is required"
-        else:
-            if author_key == "default":
-                author_key = os.environ["MAIL_USERNAME"]
-
-            cur.execute("""
-                SELECT key FROM "user"
-                WHERE key = %s OR email = %s OR username = %s;
-            """, (author_key, author_key, author_key))
-            author = cur.fetchone()
-
-            if not author:
-                error["author_key"] = "no user found"
-            elif author["key"] == post["author_key"]:
-                error["author_key"] = "No changes were made"
-            else:
-                author_key = author["key"]
+    status = item["status"]
+    name = item["name"]
+    slug = item["slug"]
+    tags = item["tags"]
+    price = item["price"]
+    price_old = item["price_old"]
+    information = item["information"]
+    variation = item["variation"]
+    quantity = item["quantity"]
 
     if "status" in request.json:
         status = request.json.get("status")
-        if "post:edit_status" not in user["access"]:
+        if "item:edit_status" not in user["access"]:
             error["status"] = "unauthorized access"
         elif not status or status not in ['active', 'draft']:
             error["status"] = "Invalid request"
-        elif status == post["status"]:
+        elif status == item["status"]:
             error["status"] = "No changes were made"
-        elif status == "active" and not post["photo"]:
-            error["status"] = "no title photo"
-        elif status == "active" and not post["content"]:
-            error["status"] = "no content"
+        elif status == "active" and item["files"] == []:
+            error["status"] = "no photo"
+
+    if "name" in request.json:
+        name = ' '.join(request.json.get("name", "").strip().split())
+        if "item:edit_name" not in user["access"]:
+            error["name"] = "unauthorized access"
+        elif not name:
+            error["name"] = "This field is required"
+        elif name == item["name"]:
+            error["name"] = "No changes were made"
+        elif len(name) > 100:
+            error["name"] = "This field cannot exceed 100 characters"
+        else:
+            slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', name.lower()))
+            slug = slug[:100]
+            cur.execute('SELECT * FROM item WHERE key != %s AND slug = %s;',
+                        (item["key"], slug))
+            slug_in_use = cur.fetchone()
+            if (slug_in_use or slug in reserved_words):
+                slug = f"{slug[:89]}-{str(uuid4().hex)[:10]}"
+
+    if "tags" in request.json:
+        tags = request.json.get("tags")
+        if "item:edit_tag" not in user["access"]:
+            error["tags"] = "unauthorized access"
+        elif type(tags) is not list:
+            error["tags"] = "This field is required"
+        elif set(tags) == set(item["tags"]):
+            error["tags"] = "No changes were made"
+
+    if "price" in request.json or "price_old" in request.json:
+        price = request.json.get("price", price)
+        price_old = 0 if price == 0 else request.json.get(
+            "price_old", price_old)
+
+        if "item:edit_price" not in user["access"]:
+            error["error"] = "unauthorized access"
+        elif price == item["price"] and price_old == item["price_old"]:
+            error["error"] = "No changes were made"
+        if not isinstance(price, (int, float)) or price < 0:
+            error["price"] = "Please enter a valid number"
+        if not isinstance(price_old, (int, float)) or price_old < 0:
+            error["price_old"] = "Please enter a valid number"
+        elif price_old <= price and price_old != 0:
+            error["price_old"] = "This must be greater than current price"
+
+    if "information" in request.json:
+        information = request.json.get("information")
+        if "item:edit_information" not in user["access"]:
+            error["information"] = "unauthorized access"
+        elif information == item["information"]:
+            error["information"] = "No changes were made"
+        elif len(information) > 5000:
+            error["information"] = "This field cannot exceed 5000 characters"
+
+    if "variation" in request.json:
+        variation = request.json.get("variation")
+        if "item:edit_variation" not in user["access"]:
+            error["variation"] = "unauthorized access"
+        elif type(variation) is not dict:
+            error["variation"] = "This field is required"
+        elif variation == item["variation"]:
+            error["variation"] = "No changes were made"
+
+    if "quantity" in request.json:
+        quantity = request.json.get("quantity")
+        if "item:edit_quantity" not in user["access"]:
+            error["error"] = "unauthorized access"
+        elif quantity == item["quantity"]:
+            error["error"] = "No changes were made"
+        if not isinstance(quantity, int) or quantity < 0:
+            error["quantity"] = "Please enter a valid number"
 
     if error != {}:
         db_close(con, cur)
@@ -201,22 +195,17 @@ def edit(key):
             **error
         })
 
-    slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', title.lower()))
-    slug = slug[:100]
-    cur.execute('SELECT * FROM post WHERE key != %s AND slug = %s;',
-                (post["key"], slug))
-    slug_in_use = cur.fetchone()
-    if (slug_in_use or slug in reserved_words):
-        slug = f"{slug[:89]}-{str(uuid4().hex)[:10]}"
-
     cur.execute("""
-        UPDATE post
-        SET title = %s, slug = %s, date_created= %s, description= %s,
-        content= %s, tags= %s, author_key= %s, status= %s
+        UPDATE item
+        SET status= %s, slug = %s, name = %s, tags= %s,
+        price = %s, price_old = %s,
+        information= %s, variation= %s, quantity= %s
         WHERE key = %s RETURNING *;
     """, (
-        title, slug, date_created, description, content, tags,
-        author_key, status, post["key"]
+        status, slug, name, tags,
+        price, price_old,
+        information, Json(variation), quantity,
+        item["key"]
     ))
     item = cur.fetchone()
 
@@ -225,7 +214,7 @@ def edit(key):
         user_key=user["key"],
         action="edited",
         entity_key=item["key"],
-        entity_type="post",
+        entity_type="item",
         misc=request.json
     )
 
@@ -236,7 +225,7 @@ def edit(key):
     })
 
 
-@bp.delete("/post/<key>")
+@bp.delete("/item/<key>")
 def delete(key):
     con, cur = db_open()
 
@@ -249,7 +238,7 @@ def delete(key):
     password = request.json.GET("password")
 
     error = None
-    if "post:edit_status" not in user["access"]:
+    if "item:edit_status" not in user["access"]:
         error = "unauthorized access"
     elif not password:
         error = "This field is required"
@@ -262,9 +251,9 @@ def delete(key):
             "error": error
         })
 
-    cur.execute('SELECT * FROM post WHERE key = %s;', (key,))
-    post = cur.fetchone()
-    if not post:
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
+    if not item:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -273,39 +262,39 @@ def delete(key):
 
     cur.execute("""
         DELETE FROM "like"
-        WHERE entity_type = 'post' entity_key = %s;
-    """, (post["key"],))
+        WHERE entity_type = 'item' entity_key = %s;
+    """, (item["key"],))
 
     cur.execute("""
         WITH RECURSIVE to_delete AS (
             SELECT key
-            FROM comment
-            WHERE post_key = %s
+            FROM review
+            WHERE item_key = %s
 
             UNION ALL
 
             SELECT c.key
-            FROM comment c
+            FROM review c
             INNER JOIN to_delete td ON c.parent_key = td.key
         )
-        DELETE FROM comment
+        DELETE FROM review
         WHERE key IN (SELECT key FROM to_delete);
-    """, (post["key"],))
+    """, (item["key"],))
 
     cur.execute("""
-        DELETE FROM post WHERE key = %s;
-    """, (post["key"],))
+        DELETE FROM item WHERE key = %s;
+    """, (item["key"],))
 
-    storage("delete", post["photo"])
-    for x in post["files"]:
+    storage("delete", item["photo"])
+    for x in item["files"]:
         storage("delete", x)
 
     log(
         cur=cur,
         user_key=user["key"],
         action="deleted",
-        entity_key=post["key"],
-        entity_type="post"
+        entity_key=item["key"],
+        entity_type="item"
     )
 
     db_close(con, cur)

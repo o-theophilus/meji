@@ -59,7 +59,7 @@ def get_many():
             jsonb_build_object(
                 'key', log.entity_key,
                 'type', log.entity_type,
-                'name', COALESCE(usr.name, item.name, feedback.comment,
+                'name', COALESCE(usr.name, item.name, review.comment,
                     log.entity_key)
             ) AS entity,
 
@@ -73,8 +73,8 @@ def get_many():
             item ON log.entity_key = item.key::TEXT
             AND log.entity_type = 'item'
         LEFT JOIN
-            feedback ON log.entity_key = feedback.key::TEXT
-            AND log.entity_type = 'feedback'
+            review ON log.entity_key = review.key::TEXT
+            AND log.entity_type = 'review'
 
         WHERE
             (%s = '' OR CONCAT_WS(

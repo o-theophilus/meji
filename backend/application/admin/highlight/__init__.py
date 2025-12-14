@@ -19,7 +19,7 @@ def set_highlight():
         return jsonify(session)
     user = session["user"]
 
-    if "post:edit_highlight" not in user["access"]:
+    if "item:edit_highlight" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -36,17 +36,17 @@ def set_highlight():
         })
 
     cur.execute("""
-        SELECT * FROM post WHERE key::TEXT = %s OR slug = %s;
+        SELECT * FROM item WHERE key::TEXT = %s OR slug = %s;
     """, (key, key))
-    post = cur.fetchone()
-    if not post:
+    item = cur.fetchone()
+    if not item:
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "Post not found"
+            "error": "Item not found"
         })
 
-    if post["status"] != "active":
+    if item["status"] != "active":
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -54,16 +54,16 @@ def set_highlight():
         })
 
     cur.execute("SELECT * FROM app WHERE alias = 'highlight';",)
-    keys = cur.fetchone()["value"]["post_keys"]
+    keys = cur.fetchone()["value"]["item_keys"]
     _from = [*keys]
 
-    if post["key"] in keys:
-        keys.remove(post["key"])
+    if item["key"] in keys:
+        keys.remove(item["key"])
     else:
-        keys.append(post["key"])
+        keys.append(item["key"])
 
     cur.execute("UPDATE app SET value = %s WHERE alias = 'highlight';",
-                (Json({"post_keys": keys}),))
+                (Json({"item_keys": keys}),))
 
     log(
         cur=cur,
@@ -96,7 +96,7 @@ def edit_highlight():
         return jsonify(session)
     user = session["user"]
 
-    if "post:edit_highlight" not in user["access"]:
+    if "item:edit_highlight" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -113,7 +113,7 @@ def edit_highlight():
         })
 
     cur.execute("SELECT * FROM app WHERE alias = 'highlight';",)
-    keys = cur.fetchone()["value"]["post_keys"]
+    keys = cur.fetchone()["value"]["item_keys"]
 
     if new_key == keys:
         db_close(con, cur)
@@ -123,7 +123,7 @@ def edit_highlight():
         })
 
     cur.execute("UPDATE app SET value = %s WHERE alias = 'highlight';",
-                (Json({"post_keys": new_key}),))
+                (Json({"item_keys": new_key}),))
 
     log(
         cur=cur,

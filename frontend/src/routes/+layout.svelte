@@ -9,6 +9,7 @@
 	app.user = data.locals.user;
 	app.token = data.locals.token;
 	app.login = data.locals.login;
+	app.likes = data.locals.likes;
 </script>
 
 <main class:dark={app.user.theme == 'dark'}>

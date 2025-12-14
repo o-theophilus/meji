@@ -23,8 +23,8 @@
 		}
 	};
 
-	const prerender = (post) => {
-		app.post = post;
+	const prerender = (x) => {
+		app.item = x;
 	};
 
 	const reset_index = () => {
@@ -45,7 +45,7 @@
 	let src = $derived(app.highlight?.[index]?.photo || '/no_photo.png');
 </script>
 
-{#if app.highlight?.length > 0 || app.user.access.includes('post:edit_highlight')}
+{#if app.highlight?.length > 0 || app.user.access.includes('item:edit_highlight')}
 	<Content --content-height="100%" --content-padding-top="80px" --content-padding-bottom="56px">
 		<div class="line">
 			<div class="page_title">
@@ -53,13 +53,13 @@
 				I've Built
 			</div>
 
-			{#if app.user.access.includes('post:edit_highlight')}
+			{#if app.user.access.includes('item:edit_highlight')}
 				<RoundButton icon="square-pen" onclick={() => module.open(Edit, { reset_index })} />
 			{/if}
 		</div>
 
 		{#if app.highlight?.length > 0}
-			<LinkArrow href="/post" --link-font-size="0.8rem">View more</LinkArrow>
+			<LinkArrow href="/shop" --link-font-size="0.8rem">View more</LinkArrow>
 
 			<br />
 			<br />
@@ -77,13 +77,13 @@
 						}}
 						role="presentation"
 						{src}
-						alt={app.highlight[index].title}
+						alt={app.highlight[index].name}
 						onerror={() => (src = '/no_photo.png')}
 					/>
 				{/key}
 				<div class="hidden">
 					{#each Array(app.highlight.length) as _, i}
-						<img src={app.highlight[i].photo || '/no_photo.png'} alt={app.highlight[i].title} />
+						<img src={app.highlight[i].photo || '/no_photo.png'} alt={app.highlight[i].name} />
 					{/each}
 				</div>
 
@@ -125,7 +125,7 @@
 			{#key index}
 				<div class="info" in:fade|local={{ delay: 0, duration: 500, easing: cubicInOut }}>
 					<a href="/{app.highlight[index].slug}" class="name">
-						{app.highlight[index].title}
+						{app.highlight[index].name}
 					</a>
 
 					{#if app.highlight[index].description}

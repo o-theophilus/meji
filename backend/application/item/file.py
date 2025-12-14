@@ -5,10 +5,10 @@ from ..storage import storage
 from ..log import log
 from .get import item_schema
 
-bp = Blueprint("post_file", __name__)
+bp = Blueprint("item_file", __name__)
 
 
-@bp.post("/post/file/<key>")
+@bp.post("/item/file/<key>")
 def add_file(key):
     con, cur = db_open()
 
@@ -18,16 +18,16 @@ def add_file(key):
         return jsonify(session)
     user = session["user"]
 
-    if "post:edit_files" not in user["access"]:
+    if "item:edit_file" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
-    cur.execute('SELECT * FROM post WHERE key = %s;', (key,))
-    post = cur.fetchone()
-    if 'files' not in request.files or not post:
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
+    if 'files' not in request.files or not item:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -39,12 +39,8 @@ def add_file(key):
 
     for x in request.files.getlist("files"):
         err = ""
-        if x.content_type not in [
-                'image/jpeg', 'image/png', 'application/pdf']:
+        if x.content_type not in ['image/jpeg', 'image/png']:
             err = f"{x.filename} => invalid file"
-        elif len(post["files"]) + len(
-                files) >= post["content"].count("@[file]"):
-            err = f"{x.filename} => excess file"
 
         if err:
             error = f"{error}, {err}" if error else err
@@ -66,22 +62,22 @@ def add_file(key):
         file_names.append(filename)
 
     cur.execute("""
-        UPDATE post
+        UPDATE item
         SET files = %s
         WHERE key = %s
         RETURNING *;
     """, (
-        post["files"] + file_names,
-        post["key"]
+        item["files"] + file_names,
+        item["key"]
     ))
-    post = cur.fetchone()
+    item = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
         action="added_file",
-        entity_key=post["key"],
-        entity_type="post",
+        entity_key=item["key"],
+        entity_type="item",
         misc={
             "added": ", ".join(file_names),
             "error": error
@@ -91,12 +87,12 @@ def add_file(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(post),
+        "item": item_schema(item),
         "error": error
     })
 
 
-@bp.put("/post/file/<key>")
+@bp.put("/item/file/<key>")
 def order_delete_file(key):
     con, cur = db_open()
 
@@ -106,19 +102,19 @@ def order_delete_file(key):
         return jsonify(session)
     user = session["user"]
 
-    if "post:edit_files" not in user["access"]:
+    if "item:edit_file" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
-    cur.execute('SELECT * FROM post WHERE key = %s;', (key,))
-    post = cur.fetchone()
+    cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
+    item = cur.fetchone()
 
     files = request.json.get("files")
 
-    if not post or not files or type(files) is not list:
+    if not item or type(files) is not list:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -127,14 +123,14 @@ def order_delete_file(key):
 
     files = [p.split("/")[-1] for p in files]
 
-    if not all(x in post["files"] for x in files):
+    if not all(x in item["files"] for x in files):
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "Invalid request"
         })
 
-    for x in post["files"]:
+    for x in item["files"]:
         if x not in files:
             storage("delete", x)
 
@@ -142,27 +138,27 @@ def order_delete_file(key):
         cur=cur,
         user_key=user["key"],
         action="edited_files",
-        entity_key=post["key"],
-        entity_type="post",
+        entity_key=item["key"],
+        entity_type="item",
         misc={
-            "from": post["files"],
+            "from": item["files"],
             "to": files
         }
     )
 
     cur.execute("""
-        UPDATE post
+        UPDATE item
         SET files = %s
         WHERE key = %s
         RETURNING *;
     """, (
         files,
-        post["key"]
+        item["key"]
     ))
-    post = cur.fetchone()
+    item = cur.fetchone()
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(post)
+        "item": item_schema(item)
     })

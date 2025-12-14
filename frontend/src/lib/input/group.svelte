@@ -47,7 +47,7 @@
 	let show_check = $state(false);
 </script>
 
-<div class="inputGroup" class:no_pad>
+<div class="inputGroup" class:no_pad class:fit={type == 'number'}>
 	{#if label}
 		{@render label()}
 	{:else if name}
@@ -114,6 +114,9 @@
 <style>
 	.inputGroup {
 		width: 100%;
+	}
+	.inputGroup.fit {
+		width: fit-content;
 	}
 	.inputGroup:not(.no_pad) {
 		margin: var(--sp2) 0;

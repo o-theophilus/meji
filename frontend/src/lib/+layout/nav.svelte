@@ -2,35 +2,32 @@
 	import { app, module } from '$lib/store.svelte.js';
 
 	import { Icon } from '$lib/macro';
-	import { Login } from '$lib/auth';
-	import Link from './nav.btn.svelte';
+	import Button from './nav.btn.svelte';
 	import User from './nav.user.svelte';
 </script>
 
-<div class="block">
-	<Link name="Home" icon="home" href="/"></Link>
-	<Link name="Shop" icon="shop" href="/shop"></Link>
-	<Link name="Save" icon="save" href="/save"></Link>
-	<Link name="Cart" icon="cart" href="/cart"></Link>
-	{#if app.login}
-		<Link name="User" icon="user" href="/@{app.user.username}"></Link>
-		<!-- <User /> -->
-	{:else}
-		<Link name="Login" icon="user" onclick={() => module.open(Login)}></Link>
-	{/if}
+<div class="section">
+	<div class="block">
+		<Button name="Home" icon="home" href="/"></Button>
+		<Button name="Shop" icon="shop" href="/shop"></Button>
+		<Button name="Save" icon="bookmark" href="/save" count={app.likes.length}></Button>
+		<Button name="Cart" icon="cart" href="/cart" count="0"></Button>
+		<User />
+	</div>
 </div>
 
 <style>
+	.section {
+		background-color: var(--bg1);
+		border-top: 1px solid var(--bg2);
+	}
+
 	.block {
 		display: flex;
 		align-items: center;
 
-		/* min-height: var(--headerHeight); */
 		max-width: var(--mobileWidth);
-		width: 100%;
+		height: var(--headerHeight);
 		margin: auto;
-		/* padding: var(--sp2); */
-
-		background-color: var(--bg1);
 	}
 </style>

@@ -7,7 +7,8 @@ export const app = $state({
 	login: false,
 	highlight: null,
 	tags: null,
-	post: {},
+	likes: [],
+	item: {},
 
 	token_name: 'token',
 	get token() {
@@ -81,14 +82,6 @@ export let notify = $state({
 
 export const page_state = $state({
 	state: {},
-	refresh() {
-		this.state[page.data.page_name].loaded = false
-		let ss = new URLSearchParams(this.state[page.data.page_name].searchParams);
-		page.url.search = ss.toString()
-		loading.open()
-		goto(page.url.href, { replaceState: true, invalidate: [true] });
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	},
 	clear(page_name) {
 		this.state[page_name] = {
 			searchParams: {},
@@ -100,6 +93,14 @@ export const page_state = $state({
 		this.clear(page_name);
 		this.state[page_name].searchParams = obj;
 		goto(`/${page_name}`);
+	},
+	refresh() {
+		this.state[page.data.page_name].loaded = false
+		let ss = new URLSearchParams(this.state[page.data.page_name].searchParams);
+		page.url.search = ss.toString()
+		loading.open()
+		goto(page.url.href, { replaceState: true, invalidate: [true] });
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	},
 	set(obj) {
 		for (const [key, val] of Object.entries(obj)) {

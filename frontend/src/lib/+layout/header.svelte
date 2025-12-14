@@ -18,7 +18,9 @@
 	<div class="line">
 		<Notification />
 		<Theme />
-		<User />
+		{#if app.login}
+			<User />
+		{/if}
 	</div>
 </div>
 
@@ -34,7 +36,7 @@
 		max-width: var(--mobileWidth);
 		width: 100%;
 		margin: auto;
-		padding: var(--sp2);
+		padding: 16px 24px;
 	}
 
 	a {

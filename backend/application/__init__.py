@@ -27,11 +27,10 @@ from .user import notification
 from . import item
 from .item import file
 from .item import get as item_get
-from .item import photo as item_photo
 from .item import engage
 from .item.engage import get as item_engage_get
-from .item import comment
-from .item.comment import get as comment_get
+from .item import review
+from .item.review import get as review_get
 from . import api
 from . import fix
 
@@ -76,11 +75,10 @@ def create_app(conf=None):
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
     app.register_blueprint(file.bp)
-    app.register_blueprint(item_photo.bp)
     app.register_blueprint(engage.bp)
     app.register_blueprint(item_engage_get.bp)
-    app.register_blueprint(comment.bp)
-    app.register_blueprint(comment_get.bp)
+    app.register_blueprint(review.bp)
+    app.register_blueprint(review_get.bp)
     app.register_blueprint(api.bp)
     app.register_blueprint(postgres.bp)
     app.register_blueprint(fix.bp)
