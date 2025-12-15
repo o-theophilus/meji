@@ -28,18 +28,20 @@
 	</div>
 </div>
 
-<div class="line">
-	{#each item.files as x}
-		<img
-			src="{x}/200"
-			alt={item.name}
-			class:active={src == x}
-			onclick={() => (src = x)}
-			onerror={(e) => (e.target.src = '/file_error.png')}
-			role="presentation"
-		/>
-	{/each}
-</div>
+{#if item.files.length > 1}
+	<div class="line">
+		{#each item.files as x}
+			<img
+				src="{x}/200"
+				alt={item.name}
+				class:active={src == x}
+				onclick={() => (src = x)}
+				onerror={(e) => (e.target.src = '/file_error.png')}
+				role="presentation"
+			/>
+		{/each}
+	</div>
+{/if}
 
 <style>
 	.img {

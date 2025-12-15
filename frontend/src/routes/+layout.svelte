@@ -10,6 +10,7 @@
 	app.token = data.locals.token;
 	app.login = data.locals.login;
 	app.likes = data.locals.likes;
+	app.cart_items = data.locals.cart_items;
 </script>
 
 <main class:dark={app.user.theme == 'dark'}>

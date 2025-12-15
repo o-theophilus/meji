@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
-from .tools import token_to_user, user_schema
-from uuid import uuid4
+from ..tools import get_session
 from ..postgres import db_open, db_close
-import json
-from .log import log
+from psycopg2.extras import Json
+from ..log import log
+from .get import get_cart_items
 
 bp = Blueprint("cart", __name__)
 
@@ -12,268 +12,157 @@ bp = Blueprint("cart", __name__)
 def add_to_cart():
     con, cur = db_open()
 
-    user = token_to_user(cur)
-    if not user:
+    session = get_session(cur, True)
+    if session["status"] != 200:
         db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid token"
-        })
+        return jsonify(session)
+    user = session["user"]
 
+    item_key = request.json.get("key")
+    quantity = request.json.get("quantity", 1)
+    variation = request.json.get("variation", {})
+    operation = request.json.get("operation", "replace")
+
+    cur.execute("""
+        SELECT * FROM item WHERE key = %s AND status = 'active'
+    ;""", (item_key,))
+    item = cur.fetchone()
+
+    cur.execute("""
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
     if (
-        "key" not in request.json
-        or not request.json["key"]
-        or "variation" not in request.json
-        or "quantity" not in request.json
-        or type(request.json["quantity"]) is not int
-        or request.json["quantity"] < 0
+        not item
+        or not cart
+        or type(variation) is not dict
+        or operation not in ["add", "replace"]
     ):
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "invalid request"
+            "error": "Invalid request"
         })
 
-    cur.execute("""
-        SELECT *
-        FROM item
-        WHERE key = %s AND status = 'live';
-    """, (request.json["key"],))
-    item = cur.fetchone()
-    if not item or item["status"] != "live":
+    error = {}
+    if not isinstance(quantity, int) or quantity < 1:
+        error["quantity"] = "Please enter a valid number"
+
+    invalid_keys = [x for x in variation if x not in item["variation"]]
+    for x in invalid_keys:
+        del variation[x]
+
+    for x, val in item["variation"].items():
+        if x not in variation or variation[x] not in val:
+            error[x] = f"Please select a {x}"
+
+    if error != {}:
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "invalid request"
+            **error
         })
 
     cur.execute("""
-        SELECT *
-        FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
+        SELECT * FROM order_item
+        WHERE order_key = %s AND item_key = %s AND variation = %s;
+    """, (cart["key"], item_key, Json(variation)))
+    order_item = cur.fetchone()
 
-    if not cart:
+    if order_item:
         cur.execute("""
-            INSERT INTO "order" (key, version, user_key)
-            VALUES (%s, %s, %s)
-            RETURNING *;
-        """, (
-            uuid4().hex,
-            uuid4().hex,
-            user["key"]
+            UPDATE order_item SET quantity = %s WHERE key = %s
+            RETURNING *
+        ;""", (
+            order_item["quantity"] +
+            quantity if operation == "add" else quantity,
+            order_item["key"]
         ))
-        cart = cur.fetchone()
-
-    cur.execute("""
-        SELECT *
-        FROM order_item
-        WHERE
-            order_key = %s
-            AND item_key = %s
-            AND variation = %s;
-    """, (
-        cart["key"],
-        item["key"],
-        json.dumps(request.json["variation"])
-    ))
-    if cur.fetchone():
-        cur.execute("""
-            UPDATE order_item
-            SET quantity = order_item.quantity + %s
-            WHERE
-                order_key = %s
-                AND item_key = %s
-                AND variation = %s;
-        """, (
-            request.json["quantity"],
-            cart["key"],
-            item["key"],
-            json.dumps(request.json["variation"]),
-        ))
-
     else:
         cur.execute("""
             INSERT INTO order_item (
-                key, order_key, item_key, variation, quantity)
-            VALUES (%s, %s, %s, %s, %s);
-        """, (
-            uuid4().hex,
-            cart["key"],
-            item["key"],
-            json.dumps(request.json["variation"]),
-            request.json["quantity"]
-        ))
+                order_key, item_key, variation, quantity)
+            VALUES (%s, %s, %s, %s)
+            RETURNING *
+        ;""", (cart["key"], item_key, Json(variation), quantity))
+    order_item = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="added_to",
+        action="added_to_cart",
         entity_key=cart["key"],
         entity_type="cart",
         misc={
-            "key": request.json["key"],
-            **request.json["variation"],
-            "quantity": request.json["quantity"]
+            "key": order_item["item_key"],
+            "variation": order_item["variation"],
+            "quantity": order_item["quantity"]
         }
     )
 
-    cur.execute("""
-        SELECT item_key, variation
-        FROM order_item
-        WHERE order_key = %s;
-    """, (cart["key"],))
-    cart_items = cur.fetchall()
+    cart_items = get_cart_items(cur)
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "user": user_schema(
-            user,
-            cart=[f"{x['item_key']}_{json.dumps(x['variation'])}"
-                  for x in cart_items]
-        )
+        "cart_items": cart_items.json["cart_items"]
     })
 
 
-# @bp.put("/cart/quantity")
-# def quantity():
-#     con, cur = db_open()
+@bp.delete("/cart")
+def remove_from_cart():
+    con, cur = db_open()
 
-#     user = token_to_user(cur)
-#     if not user:
-#         db_close(con, cur)
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid token"
-#         })
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
 
-#     cur.execute("""
-#         SELECT * FROM "order"
-#         WHERE user_key = %s AND status = 'cart';
-#     """, (user["key"],))
-#     cart = cur.fetchone()
+    item_key = request.json.get("key")
+    variation = request.json.get("variation", {})
 
-#     if (
-#         "key" not in request.json
-#         or not request.json["key"]
-#         or "variation" not in request.json
-#         or "quantity" not in request.json
-#         or type(request.json["quantity"]) is not int
-#         or request.json["quantity"] < 0
-#         or not cart
-#     ):
-#         db_close(con, cur)
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
+    cur.execute("""
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
 
-#     cur.execute("""
-#         SELECT *
-#         FROM order_item
-#         WHERE order_key = %s
-#             AND item_key = %s
-#             AND variation = %s;
-#     """, (
-#         cart["key"],
-#         request.json["key"],
-#         json.dumps(request.json["variation"])
-#     ))
-#     item = cur.fetchone()
-#     if not item:
-#         db_close(con, cur)
-#         return jsonify({
-#             "status": 400,
-#             "error": "invalid request"
-#         })
+    if not cart or not item_key or type(variation) is not dict:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
 
-#     cur.execute("""
-#         UPDATE order_item
-#         SET quantity = %s
-#         WHERE key = %s;
+    cur.execute("""
+        SELECT * FROM order_item
+        WHERE order_key = %s AND item_key = %s AND variation = %s;
+    """, (cart["key"], item_key, Json(variation)))
+    if cur.fetchone():
+        cur.execute("""
+            DELETE FROM order_item
+            WHERE order_key = %s AND item_key = %s AND variation = %s;
+        """, (cart["key"], item_key, Json(variation)))
 
-#         DELETE FROM order_item
-#         WHERE quantity = 0;
-#     """, (
-#         request.json["quantity"],
-#         item["key"]
-#     ))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="removed_from_cart",
+            entity_key=cart["key"],
+            entity_type="cart",
+            misc={
+                "key": item_key,
+                "variation": variation
+            }
+        )
 
-#     log(
-#         cur=cur,
-#         user_key=user["key"],
-#         action="changed_quantity" if request.json[
-#             "quantity"] > 0 else "removed_from",
-#         entity_key=cart["key"],
-#         entity_type="cart",
-#         misc={
-#             "key": request.json["key"],
-#             **request.json["variation"],
-#             "from_quantity": item["quantity"],
-#             "to_quantity": request.json["quantity"]
-#         } if request.json["quantity"] > 0 else {
-#             "key": request.json["key"],
-#             **request.json["variation"]
-#         }
-#     )
+    cart_items = get_cart_items(cur)
 
-#     cur.execute("""
-#         SELECT
-#             item.key,
-#             item.slug,
-#             item.name,
-#             item.price,
-#             item.status,
-#             COALESCE(item.photos[1], NULL) AS photo,
-#             order_item.variation,
-#             order_item.quantity
-#         FROM item
-#         LEFT JOIN order_item ON item.key = order_item.item_key
-#         WHERE order_item.order_key = %s;
-#     """, (cart["key"],))
-#     items = cur.fetchall()
-
-#     if items == []:
-#         cur.execute("""DELETE FROM "order" WHERE key = %s;""", 
-# (cart["key"],))
-#         db_close(con, cur)
-#         return jsonify({
-#             "status": 200,
-#             "user": user_schema(user),
-#             "cart": None,
-#             "items": []
-#         })
-
-#     cost_items = 0
-#     for x in items:
-#         cost_items += x["price"] * x["quantity"]
-#         x["photo"] = f"{request.host_url}photo/{x['photo']}"
-
-#     if (
-#         cart["pay_account"] > user["account_balance"]
-#         or cart["pay_account"] > cost_items
-#     ):
-#         cur.execute("""
-#             UPDATE "order"
-#             SET pay_account = 0
-#             WHERE key = %s
-#             RETURNING *;
-#         """, (cart["key"],))
-#         cart = cur.fetchone()
-
-#     db_close(con, cur)
-#     return jsonify({
-#         "status": 200,
-#         "cart": cart,
-#         "items": items,
-#         "user": user_schema(
-#             user,
-#             cart=[f"{x['key']}_{json.dumps(x['variation'])}"
-#                   for x in items]
-#         )
-#     })
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "cart_items": cart_items.json["cart_items"]
+    })
 
 
 # @bp.put("/cart/receiver")

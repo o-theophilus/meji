@@ -60,7 +60,8 @@ def get_many(cur=None):
 
     session = get_session(cur)
     if session["status"] != 200:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify(session)
     user = session["user"]
 
@@ -88,14 +89,18 @@ def get_many(cur=None):
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
         'name (a-z)': 'item.name',
-        'name (z-a)': 'item.name'
+        'name (z-a)': 'item.name',
+        'cheap': 'item.price',
+        'costly': 'item.price'
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
         'name (a-z)': 'ASC',
-        'name (z-a)': 'DESC'
+        'name (z-a)': 'DESC',
+        'cheap': 'ASC',
+        'costly': 'DESC'
     }
 
     params = [user["key"], status, search, f"%{search}%"]
@@ -231,14 +236,18 @@ def get_like():
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
         'name (a-z)': 'item.name',
-        'name (z-a)': 'item.name'
+        'name (z-a)': 'item.name',
+        'cheap': 'item.price',
+        'costly': 'item.price'
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
         'name (a-z)': 'ASC',
-        'name (z-a)': 'DESC'
+        'name (z-a)': 'DESC',
+        'cheap': 'ASC',
+        'costly': 'DESC'
     }
 
     cur.execute(f"""

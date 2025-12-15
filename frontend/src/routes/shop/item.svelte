@@ -73,7 +73,7 @@
 		border-radius: 8px;
 
 		outline: 2px solid transparent;
-		outline-offset: -2px;
+		outline-offset: 2px;
 		transition: outline-color var(--trans);
 	}
 

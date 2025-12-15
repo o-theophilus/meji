@@ -38,7 +38,6 @@
 				onclick={() => {
 					delete ops.variation[key];
 					ops.error = {};
-					console.log(ops.variation);
 				}}
 			/>
 		</div>

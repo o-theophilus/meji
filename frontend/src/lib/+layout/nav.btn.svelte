@@ -77,11 +77,11 @@
 		align-items: center;
 		justify-content: center;
 
-		width: 12px;
-		height: 12px;
+		width: 14px;
+		height: 14px;
 		border-radius: 50%;
 
-		font-size: 0.5rem;
+		font-size: 0.7rem;
 		background-color: var(--cl1);
 		color: white;
 	}

@@ -151,15 +151,13 @@ def create_tables():
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key),
-            name TEXT NOT NULL,
-            phone TEXT,
-            address JSONB DEFAULT '{}'::JSONB,
-            delivery_date TIMESTAMPTZ,
+            reciever JSONB DEFAULT '{}'::JSONB,
             cost_delivery FLOAT DEFAULT 1500,
             cost_items FLOAT DEFAULT 0,
             pay_account FLOAT DEFAULT 0,
             pay_user FLOAT DEFAULT 0,
-            pay_reference TEXT
+            pay_reference TEXT,
+            delivery_date TIMESTAMPTZ
         );
 
         CREATE TABLE IF NOT EXISTS order_item (

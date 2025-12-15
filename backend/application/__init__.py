@@ -31,6 +31,8 @@ from .item import engage
 from .item.engage import get as item_engage_get
 from .item import review
 from .item.review import get as review_get
+from . import cart
+from .cart import get as cart_get
 from . import api
 from . import fix
 
@@ -51,6 +53,7 @@ def create_app(conf=None):
         })
 
     app.register_blueprint(storage.bp)
+    app.register_blueprint(postgres.bp)
     app.register_blueprint(log.bp)
     app.register_blueprint(log_get.bp)
     app.register_blueprint(auth.bp)
@@ -79,8 +82,9 @@ def create_app(conf=None):
     app.register_blueprint(item_engage_get.bp)
     app.register_blueprint(review.bp)
     app.register_blueprint(review_get.bp)
+    app.register_blueprint(cart.bp)
+    app.register_blueprint(cart_get.bp)
     app.register_blueprint(api.bp)
-    app.register_blueprint(postgres.bp)
     app.register_blueprint(fix.bp)
 
     return app

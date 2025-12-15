@@ -8,6 +8,7 @@ export const app = $state({
 	highlight: null,
 	tags: null,
 	likes: [],
+	cart_items: [],
 	item: {},
 
 	token_name: 'token',

@@ -4,14 +4,13 @@
 	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
-	import Value from './variation/value.svelte';
 
 	let item = { ...module.value };
 	let form = $state({
 		key: item.key,
-		quantity: 1,
-		variation: {},
-		operation: 'add'
+		quantity: item.quantity,
+		variation: item.variation,
+		operation: 'replace'
 	});
 	let error = $state({});
 
@@ -21,17 +20,11 @@
 			error.quantity = 'Please enter a valid number';
 		}
 
-		for (const [key, val] of Object.entries(item.variation)) {
-			if (!form.variation[key] || !val.includes(form.variation[key])) {
-				error[key] = `Please select a ${key}`;
-			}
-		}
-
 		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		loading.open('Adding item to cart . . .');
+		loading.open('Updating item quantity . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
 			headers: {
@@ -45,7 +38,30 @@
 
 		if (resp.status == 200) {
 			app.cart_items = resp.cart_items;
-			notify.open('Item added to cart');
+			notify.open('item quantity updated');
+			module.close();
+			// page_state.clear('cart');
+		} else {
+			error = resp;
+		}
+	};
+
+	const remove = async () => {
+		loading.open('Removing item from cart . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+			method: 'delete',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: app.token
+			},
+			body: JSON.stringify(form)
+		});
+		resp = await resp.json();
+		loading.close();
+
+		if (resp.status == 200) {
+			app.cart_items = resp.cart_items;
+			notify.open('Item removed from cart');
 			module.close();
 			// page_state.clear('cart');
 		} else {
@@ -54,26 +70,14 @@
 	};
 </script>
 
-<Form title="Add to Cart" description="Select variation" error={error.error}>
-	{#each Object.entries(item.variation) as [key, values]}
-		<IG name={key} error={error[key]}>
-			{#snippet input()}
-				<div class="line">
-					{#each values as value}
-						<Value
-							active={form.variation[key] == value}
-							{value}
-							onclick={() => {
-								form.variation[key] = value;
-							}}
-						></Value>
-					{/each}
-				</div>
-			{/snippet}
-		</IG>
-	{/each}
-
+<Form title="Edit Quantity" description="Select variation" error={error.error}>
 	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
 
-	<Button icon="cart" onclick={validate}>Add to Cart</Button>
+	<div class="line">
+		<Button onclick={validate}>Ok</Button>
+		<Button icon="trash2" onclick={remove}>Remove Item</Button>
+	</div>
 </Form>
+
+<style>
+</style>

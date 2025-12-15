@@ -1,5 +1,5 @@
 <script>
-	let { value, active = false, onclick } = $props();
+	let { value, active = false, small = false, onclick } = $props();
 
 	let v = value.split(':');
 	let label = v[0];
@@ -7,12 +7,19 @@
 </script>
 
 {#if color && label}
-	<button class:active class:onclick class="block" {onclick}>
+	<button class:active class:small class:onclick class="block" {onclick}>
 		{label}
 		<div class="color block" style:background-color={color}></div>
 	</button>
 {:else}
-	<button class:active class:onclick class="block" style:background-color={color} {onclick}>
+	<button
+		class:active
+		class:small
+		class:onclick
+		class="block"
+		style:background-color={color}
+		{onclick}
+	>
 		{label}
 	</button>
 {/if}
@@ -47,6 +54,14 @@
 
 	.active {
 		outline-color: var(--ft1);
+	}
+
+	.small {
+		--size: 24px;
+		font-size: 0.8rem;
+	}
+	.small .color {
+		--size: 8px;
 	}
 
 	.onclick {

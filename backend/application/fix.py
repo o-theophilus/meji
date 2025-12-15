@@ -17,16 +17,21 @@ def quick_fix():
     # """)
 
     cur.execute("""
-        DROP TABLE IF EXISTS feedback CASCADE;
+        DROP TABLE IF EXISTS "order" CASCADE;
 
-        CREATE TABLE IF NOT EXISTS review (
+        CREATE TABLE IF NOT EXISTS "order" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'cart',
             date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key),
-            item_key UUID NOT NULL REFERENCES item(key),
-            parent_key UUID REFERENCES review(key),
-            comment TEXT NOT NULL,
-            rating INT DEFAULT 0
+            reciever JSONB DEFAULT '{}'::JSONB,
+            cost_delivery FLOAT DEFAULT 1500,
+            cost_items FLOAT DEFAULT 0,
+            pay_account FLOAT DEFAULT 0,
+            pay_user FLOAT DEFAULT 0,
+            pay_reference TEXT,
+            delivery_date TIMESTAMPTZ
         );
     """)
 

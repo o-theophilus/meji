@@ -119,26 +119,30 @@
 
 <style>
 	.items {
-		margin: var(--sp2) 0;
 		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+
+		justify-content: center;
+		flex-wrap: wrap;
 		gap: 32px 16px;
+
+		margin: var(--sp2) 0;
 	}
 
-	@media screen and (min-width: 550px) {
-		.items {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-
-	@media screen and (min-width: 850px) {
+	@media screen and (min-width: 580px) {
 		.items {
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}
 
-	@media screen and (min-width: 1200px) {
+	@media screen and (min-width: 940px) {
 		.items {
-			grid-template-columns: repeat(4, 1fr);
+			display: flex;
 		}
+	}
+
+	.items div {
+		width: 100%;
+		max-width: 280px;
 	}
 </style>

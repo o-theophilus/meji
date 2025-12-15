@@ -18,18 +18,17 @@
 
 	let { data } = $props();
 	let items = $derived(data.items);
-	
-	
+
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
 	let _status = $derived(data._status);
 	let search = $state({ order: 'latest', search: '', tag: '', status: 'active', page_no: 1 });
-	
+
 	const update = (a, b) => {
 		items = a;
 		total_page = b;
 	};
-	
+
 	onMount(() => {
 		if (page_state.searchParams.order) {
 			search.order = page_state.searchParams.order;
@@ -131,7 +130,7 @@
 	/>
 </Content>
 
-<Content --content-padding-top="1px" --content-width="1500px">
+<Content --content-padding-top="1px" --content-width="100%">
 	{#if items.length}
 		<section class="items">
 			{#each items as item (item.key)}
@@ -159,26 +158,30 @@
 
 <style>
 	.items {
-		margin: var(--sp2) 0;
 		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+
+		justify-content: center;
+		flex-wrap: wrap;
 		gap: 32px 16px;
+
+		margin: var(--sp2) 0;
 	}
 
-	@media screen and (min-width: 550px) {
-		.items {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-
-	@media screen and (min-width: 850px) {
+	@media screen and (min-width: 580px) {
 		.items {
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}
 
-	@media screen and (min-width: 1200px) {
+	@media screen and (min-width: 940px) {
 		.items {
-			grid-template-columns: repeat(4, 1fr);
+			display: flex;
 		}
+	}
+
+	.items div {
+		width: 100%;
+		max-width: 280px;
 	}
 </style>

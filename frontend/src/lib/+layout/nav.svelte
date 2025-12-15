@@ -11,7 +11,7 @@
 		<Button name="Home" icon="home" href="/"></Button>
 		<Button name="Shop" icon="shop" href="/shop"></Button>
 		<Button name="Save" icon="bookmark" href="/save" count={app.likes.length}></Button>
-		<Button name="Cart" icon="cart" href="/cart" count="0"></Button>
+		<Button name="Cart" icon="cart" href="/cart" count={app.cart_items.length}></Button>
 		<User />
 	</div>
 </div>
