@@ -3,7 +3,8 @@
 	import { onMount } from 'svelte';
 	import { module } from '$lib/store.svelte.js';
 
-	import { Hero, About, Skill, Experience, Contact, Highlight, ACD } from '$lib/+page';
+	import { About, Skill, Experience, Contact, Highlight, ACD } from '$lib/+page';
+	import { Hero, Tags } from '$lib/+page_';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
@@ -39,13 +40,18 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Home" description="Welcome to my personal portfolio website." />
+<Meta
+	title="Home"
+	description="Meji is your No. 1 trusted online shopping destination in Nigeria."
+/>
 
 <Hero />
-<ACD />
-<About />
-<Skill />
-<Contact />
-<Experience />
-<Highlight />
+<!-- <Advert space="home_1" placeholder /> -->
+
+<!-- <ACD /> -->
+<!-- <About /> -->
+<!-- <Skill /> -->
+<!-- <Contact /> -->
+<!-- <Experience /> -->
+<!-- <Highlight /> -->
 <!-- <Carousel></Carousel> -->

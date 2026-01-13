@@ -4,7 +4,7 @@ import os
 from ..tools import send_mail
 from ..postgres import db_open, db_close
 from ..log import log
-from ..auth import delete_user
+from ..storage import storage
 
 
 bp = Blueprint("api", __name__)
@@ -34,15 +34,18 @@ def cron():
             AND date_created <= NOW() - INTERVAL '30 days';
     """)
     users = cur.fetchall()
-    user_keys = [x["key"] for x in users]
 
-    for x in user_keys:
-        delete_user(cur, x)
+    for user in users:
+        cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
+        storage("delete", user["photo"])
+
+    user_keys = [x["key"] for x in users]
 
     cur.execute("""
         SELECT * FROM "user" WHERE email = %s;
     """, (os.environ["MAIL_USERNAME"],))
     user = cur.fetchone()
+
     log(
         cur=cur,
         user_key=user["key"],

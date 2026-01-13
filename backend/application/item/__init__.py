@@ -8,6 +8,7 @@ from ..storage import storage
 from ..log import log
 from .get import get_many, item_schema
 from psycopg2.extras import Json
+from decimal import Decimal
 
 bp = Blueprint("item", __name__)
 
@@ -203,7 +204,7 @@ def edit(key):
         WHERE key = %s RETURNING *;
     """, (
         status, slug, name, tags,
-        price, price_old,
+        Decimal(price), Decimal(price_old),
         information, Json(variation), quantity,
         item["key"]
     ))
@@ -235,7 +236,7 @@ def delete(key):
         return jsonify(session)
     user = session["user"]
 
-    password = request.json.GET("password")
+    password = request.json.get("password")
 
     error = None
     if "item:edit_status" not in user["access"]:
@@ -261,31 +262,9 @@ def delete(key):
         })
 
     cur.execute("""
-        DELETE FROM "like"
-        WHERE entity_type = 'item' entity_key = %s;
-    """, (item["key"],))
-
-    cur.execute("""
-        WITH RECURSIVE to_delete AS (
-            SELECT key
-            FROM review
-            WHERE item_key = %s
-
-            UNION ALL
-
-            SELECT c.key
-            FROM review c
-            INNER JOIN to_delete td ON c.parent_key = td.key
-        )
-        DELETE FROM review
-        WHERE key IN (SELECT key FROM to_delete);
-    """, (item["key"],))
-
-    cur.execute("""
         DELETE FROM item WHERE key = %s;
     """, (item["key"],))
 
-    storage("delete", item["photo"])
     for x in item["files"]:
         storage("delete", x)
 

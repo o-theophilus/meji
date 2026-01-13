@@ -9,3 +9,19 @@ get {{host}}/fix HTTP/1.1
 content-type: application/json
 ###
 
+
+### geocode_address
+get {{host}}/geocode_address HTTP/1.1
+content-type: application/json
+{
+  "address": "3 Tunde Ilufoye St, Ikotun, Lagos 102213, Lagos",
+  "address2": "3 tunde ilufoye street, Egan, fatoki, Igando, Lagos. Nigeria"
+}
+
+
+
+### calculate_distance
+get {{host}}/calculate_distance HTTP/1.1
+content-type: application/json
+
+

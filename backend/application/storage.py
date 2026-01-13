@@ -21,14 +21,14 @@ def save_test(x, path):
     photo = Image.alpha_composite(white, photo).convert('RGB')
 
     name = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
-    photo.save(f"{path}/{name}")
+    photo.save(f"{path}{name}")
 
     return name
 
 
 def get_test(x, path, thumbnail):
     try:
-        photo = Image.open(f"{path}/{x}")
+        photo = Image.open(f"{path}{x}")
     except Exception as e:
         abort(400, description=str(e))
 
@@ -50,8 +50,8 @@ def get_all_test(path):
 
 
 def delete_test(x, path):
-    if os.path.exists(f"{path}/{x}"):
-        os.remove(f"{path}/{x}")
+    if os.path.exists(f"{path}{x}"):
+        os.remove(f"{path}{x}")
         return True
     return False
 
@@ -96,7 +96,18 @@ def get(x, path, thumbnail):
 
 def get_all(path):
     try:
-        files = drive().list(path)
+        offset = 0
+        limit = 100
+        files = []
+
+        while True:
+            resp = drive().list(f"{path}", {"limit": limit, "offset": offset})
+            files += resp
+            offset += limit
+
+            if len(resp) < limit:
+                break
+
     except Exception as e:
         abort(400, description=str(e))
     return [x["name"] for x in files]
@@ -108,10 +119,10 @@ def delete(x, path):
 
 def storage(method, x=None, path="", thumbnail=False):
     test = current_app.config["DEBUG"]
-    if test:
-        path = "static/photo"
-        os.makedirs(f"{os.getcwd()}/{path}", exist_ok=True)
     # test = False
+    if test:
+        path = f"static/photo/{path}"
+        os.makedirs(f"{os.getcwd()}/{path}", exist_ok=True)
 
     defs = {
         "save": {
@@ -133,16 +144,16 @@ def storage(method, x=None, path="", thumbnail=False):
     }
 
     try:
-        return defs[method][test](x, path)
+        return defs[method][test](x, f"{path}/" if path else "")
     except Exception as e:
         abort(400, description=str(e))
 
 
-@bp.get("/file/<x>")
-@bp.get("/file/<x>/<thumbnail>")
-def get_photo(x, thumbnail=False):
+@bp.get("/photo/<path>/<x>")
+@bp.get("/photo/<path>/<x>/<thumbnail>")
+def get_photo(x, path, thumbnail=False):
     try:
-        file = storage("get", x, thumbnail=thumbnail)
+        file = storage("get", x, path, thumbnail)
     except Exception as e:
         abort(400, description=str(e))
     return send_file(file, mimetype="image/jpg")

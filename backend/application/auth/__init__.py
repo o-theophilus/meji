@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from uuid import uuid4
 import re
-import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..tools import (
     get_session, user_schema, send_mail, generate_code,
@@ -28,7 +27,7 @@ def anon(cur):
     return cur.fetchone()
 
 
-def new_token(cur, user_key, login=False, remember=False):
+def create_session(cur, user_key, login=False, remember=False):
     cur.execute("""
         INSERT INTO session (user_key, login, remember) VALUES (%s, %s, %s)
         RETURNING *;
@@ -37,49 +36,72 @@ def new_token(cur, user_key, login=False, remember=False):
     return cur.fetchone()["key"]
 
 
-def delete_user(cur, user):
+def copy_like_n_cart(cur, in_key, out_key):
     cur.execute("""
-        DELETE FROM report WHERE user_key = %s OR entity_key = %s;
-    """, (user["key"], user["key"]))
-
-    cur.execute("""
-        UPDATE block
-        SET admin_key = (SELECT key FROM "user" WHERE email = %s)
-        WHERE admin_key = %s
-    ;""", (os.environ["MAIL_USERNAME"], user["key"]))
+        SELECT * FROM "like"
+        WHERE user_key = %s AND entity_type = 'item';
+    """, (in_key,))
+    in_likes = cur.fetchall()
+    in_likes = [x["entity_key"] for x in in_likes]
 
     cur.execute("""
-        DELETE FROM save WHERE user_key = %s;
-    """, (user["key"],))
+        SELECT * FROM "like"
+        WHERE user_key = %s AND entity_type = 'item';
+    """, (out_key,))
+    out_likes = cur.fetchall()
+    out_likes = [x["entity_key"] for x in out_likes if x not in in_likes]
+
+    for _in in out_likes:
+        cur.execute("""
+            INSERT INTO "like" (user_key, entity_type, entity_key, reaction)
+            VALUES (%s, %s, %s, %s);
+        """, (in_key, "item", _in, "like"))
 
     cur.execute("""
-        DELETE FROM code WHERE user_key = %s;
-    """, (user["key"],))
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (in_key,))
+    in_cart = cur.fetchone()
+    if not in_cart:
+        cur.execute("""
+            INSERT INTO "order" (user_key) VALUES (%s) RETURNING *
+        ;""", (in_key,))
+        in_cart = cur.fetchone()
 
     cur.execute("""
-        DELETE FROM session WHERE user_key = %s;
-    """, (user["key"],))
+        SELECT order_item.*
+        FROM order_item
+        LEFT JOIN "order" ON "order".key = order_item.order_key
+        WHERE "order".user_key = %s AND "order".status = 'cart';
+    """, (in_key,))
+    in_item = cur.fetchall()
 
     cur.execute("""
-        WITH RECURSIVE to_delete AS (
-            SELECT key
-            FROM review
-            WHERE user_key = %s
+        SELECT order_item.*
+        FROM order_item
+        LEFT JOIN "order" ON "order".key = order_item.order_key
+        WHERE "order".user_key = %s AND "order".status = 'cart';
+    """, (out_key,))
+    out_item = cur.fetchall()
 
-            UNION ALL
+    for _out in out_item:
+        exist = False
+        for _in in in_item:
+            if (
+                _out["entity_key"] == _in["entity_key"]
+                and _out["variation"] == _in["variation"]
+            ):
+                exist = _in["key"]
+                break
 
-            SELECT f.key
-            FROM review f
-            INNER JOIN to_delete td ON f.parent_key = td.key
-        )
-        DELETE FROM review
-        WHERE key IN (SELECT key FROM to_delete);
-    """, (user["key"],))
-
-    cur.execute("""
-        DELETE FROM "user" WHERE key = %s;
-    """, (user["key"],))
-    storage("delete", user["photo"])
+        if exist:
+            cur.execute("""
+                UPDATE order_item SET quantity = %s WHERE key = %s
+            ;""", (_out["quantity"], exist))
+        else:
+            cur.execute("""
+                UPDATE order_item SET order_key = %s WHERE key = %s
+            ;""", (in_cart["key"], _out["key"]))
 
 
 @bp.post("/init")
@@ -88,14 +110,16 @@ def init():
 
     session = get_session(cur)
 
+    cart_items = []
     if session["status"] == 200:
         user = session["user"]
         token = request.headers.get("Authorization")
         login = session["login"]
+        cart_items = get_cart_items(cur).json["items"]
 
     else:
         user = anon(cur)
-        token = new_token(cur, user["key"])
+        token = create_session(cur, user["key"])
         login = False
 
         log(
@@ -114,8 +138,6 @@ def init():
     """, (user["key"],))
     likes = cur.fetchall()
 
-    cart_items = get_cart_items(cur)
-
     db_close(con, cur)
     return jsonify({
         "status": 200,
@@ -123,7 +145,7 @@ def init():
         "token": token,
         "login": login,
         "likes": [x["entity_key"] for x in likes],
-        "cart_items": cart_items.json["cart_items"]
+        "cart_items": cart_items
     })
 
 
@@ -376,10 +398,14 @@ def login():
 
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
-        DELETE FROM "user" WHERE key = %s AND status = 'anonymous';
-    """, (out_user["key"], out_user["key"]))
+    """, (out_user["key"],))
 
-    token = new_token(cur, in_user["key"], True, remember)
+    if out_user["status"] == "anonymous":
+        copy_like_n_cart(cur, in_user["key"], out_user["key"])
+        cur.execute("""DELETE FROM "user" WHERE key = %s;""",
+                    (out_user["key"],))
+
+    token = create_session(cur, in_user["key"], True, remember)
 
     log(
         cur=cur,
@@ -426,7 +452,7 @@ def logout():
         DELETE FROM session WHERE user_key = %s;
     """, (user["key"],))
 
-    token = new_token(cur, anon_user["key"])
+    token = create_session(cur, anon_user["key"])
 
     log(
         cur=cur,
@@ -492,9 +518,10 @@ def deactivate():
             **error
         })
 
-    delete_user(cur, user)
+    cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
+    storage("delete", user["photo"])
     anon_user = anon(cur)
-    token = new_token(cur, anon_user["key"])
+    token = create_session(cur, anon_user["key"])
 
     log(
         cur=cur,

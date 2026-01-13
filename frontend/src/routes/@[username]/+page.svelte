@@ -169,6 +169,9 @@
 	{/if}
 	<br /><br /><br />
 
+	<div class="pad">
+		<LinkArrow --link-font-size="0.8rem" href="/orders">Orders</LinkArrow>
+	</div>
 	{#if app.user.access.includes('log:view')}
 		<hr />
 		<div class="pad">

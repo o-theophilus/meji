@@ -33,6 +33,8 @@ from .item import review
 from .item.review import get as review_get
 from . import cart
 from .cart import get as cart_get
+from . import order
+from .order import get as order_get
 from . import api
 from . import fix
 
@@ -84,6 +86,8 @@ def create_app(conf=None):
     app.register_blueprint(review_get.bp)
     app.register_blueprint(cart.bp)
     app.register_blueprint(cart_get.bp)
+    app.register_blueprint(order.bp)
+    app.register_blueprint(order_get.bp)
     app.register_blueprint(api.bp)
     app.register_blueprint(fix.bp)
 

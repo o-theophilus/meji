@@ -36,9 +36,9 @@ def add_photo():
     old_photo = None
     if user["photo"]:
         old_photo = user["photo"]
-        storage("delete", user["photo"])
+        storage("delete", user["photo"], "user")
 
-    file_name = storage("save", file)
+    file_name = storage("save", file, "user")
 
     cur.execute("""
         UPDATE "user"
@@ -87,7 +87,7 @@ def delete_photo():
             "error": "Invalid request"
         })
 
-    storage("delete", user["photo"])
+    storage("delete", user["photo"], "user")
 
     cur.execute("""
         UPDATE "user"

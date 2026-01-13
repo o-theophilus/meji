@@ -15,7 +15,7 @@
 
 	import Like from '../shop/like.svelte';
 	import Share from './share.svelte';
-	import AddCart from './add_to_cart.svelte';
+	import AddCart from '../cart/add_to_cart.svelte';
 
 	let { data } = $props();
 	let item = $derived(data.item);

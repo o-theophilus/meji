@@ -21,6 +21,7 @@ def db_close(con, cur):
     con.close()
 
 
+# TODO: remove date_updated from user
 # @bp.get("/fix")
 def create_tables():
     con, cur = db_open()
@@ -61,15 +62,14 @@ def create_tables():
             password TEXT NOT NULL,
             phone TEXT,
             address JSONB DEFAULT '{}'::JSONB,
-            photo TEXT,
-            account_balance FLOAT DEFAULT 0
+            photo TEXT
         );
 
         CREATE TABLE IF NOT EXISTS session (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             login TEXT NOT NULL DEFAULT 'false',
             remember BOOL NOT NULL DEFAULT FALSE
         );
@@ -88,7 +88,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS code (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             pin TEXT NOT NULL,
             email TEXT NOT NULL
         );
@@ -96,7 +96,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS report (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             entity_key UUID NOT NULL,
             entity_type TEXT NOT NULL,
             comment TEXT NOT NULL,
@@ -106,8 +106,8 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS block (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            admin_key UUID NOT NULL REFERENCES "user"(key),
-            user_key UUID NOT NULL REFERENCES "user"(key),
+            admin_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             comment TEXT NOT NULL
         );
 
@@ -118,8 +118,8 @@ def create_tables():
             slug TEXT UNIQUE NOT NULL,
             name TEXT NOT NULL,
             tags TEXT[] DEFAULT '{}'::TEXT[],
-            price FLOAT DEFAULT 0,
-            price_old FLOAT DEFAULT 0,
+            price DECIMAL DEFAULT 0,
+            price_old DECIMAL DEFAULT 0,
             information TEXT,
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
@@ -129,9 +129,9 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS review (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
-            item_key UUID NOT NULL REFERENCES item(key),
-            parent_key UUID REFERENCES review(key),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
+            parent_key UUID REFERENCES review(key) ON DELETE CASCADE,
             comment TEXT NOT NULL,
             rating INT DEFAULT 0
         );
@@ -139,7 +139,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "like" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             entity_key TEXT NOT NULL,
             entity_type TEXT NOT NULL,
             reaction TEXT NOT NULL
@@ -150,33 +150,51 @@ def create_tables():
             status TEXT NOT NULL DEFAULT 'cart',
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key),
-            reciever JSONB DEFAULT '{}'::JSONB,
-            cost_delivery FLOAT DEFAULT 1500,
-            cost_items FLOAT DEFAULT 0,
-            pay_account FLOAT DEFAULT 0,
-            pay_user FLOAT DEFAULT 0,
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            receiver JSONB DEFAULT '{}'::JSONB,
+            cost_items DECIMAL DEFAULT 0,
+            cost_delivery DECIMAL DEFAULT 1500,
+            pay_user DECIMAL DEFAULT 0,
             pay_reference TEXT,
+            coupons TEXT[] DEFAULT '{}'::TEXT[],
             delivery_date TIMESTAMPTZ
         );
 
         CREATE TABLE IF NOT EXISTS order_item (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            order_key UUID NOT NULL REFERENCES "order"(key),
-            item_key UUID NOT NULL REFERENCES item(key),
+            order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE,
+            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
-            price FLOAT DEFAULT 0
+            price DECIMAL DEFAULT 0
         );
 
-        CREATE TABLE IF NOT EXISTS voucher (
+        CREATE TABLE IF NOT EXISTS item_snap (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            slug TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            price DECIMAL DEFAULT 0,
+            price_old DECIMAL DEFAULT 0,
+            information TEXT,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0,
+
+            item_key UUID NOT NULL,
+            order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS modifier (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
             status TEXT NOT NULL DEFAULT 'created',
             pin TEXT NOT NULL,
-            value FLOAT DEFAULT 0,
+            value JSONB DEFAULT '{}'::JSONB,
             validity TIMESTAMPTZ,
             usage JSONB DEFAULT '{}'::JSONB
         );

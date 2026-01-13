@@ -10,6 +10,7 @@
 	let like = $derived(app.likes.includes(item.key));
 
 	const submit = async () => {
+		let init = [...app.likes];
 		if (app.likes.includes(item.key)) {
 			app.likes = app.likes.filter((x) => x != item.key);
 		} else {
@@ -29,10 +30,17 @@
 			})
 		});
 		resp = await resp.json();
+		console.log(resp);
 
 		if (resp.status == 200) {
 			app.likes = resp.likes;
 			page_state.clear('save');
+		} else {
+			if (init.includes(item.key)) {
+				app.likes.push(item.key);
+			} else {
+				app.likes = app.likes.filter((x) => x != item.key);
+			}
 		}
 	};
 </script>

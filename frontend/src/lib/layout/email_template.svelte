@@ -30,7 +30,7 @@ margin: auto;
 		font-size: x-large;
 		margin-left: 10px;
 	"
-			>Theophilus Ogbolu
+			>Meji
 		</b>
 	</div>
 
@@ -51,7 +51,7 @@ margin: auto;
 	font-size: x-small;
 	color: grey;"
 	>
-		&copy 2025 | Theophilus Ogbolu All rights reserved.
+		&copy 2026 | Meji All rights reserved.
 		<br />
 		Design for impact
 	</div>

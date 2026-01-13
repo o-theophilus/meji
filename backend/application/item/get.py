@@ -8,7 +8,7 @@ bp = Blueprint("item_get", __name__)
 
 
 def item_schema(x):
-    x["files"] = [f"{request.host_url}file/{x}" for x in x["files"]]
+    x["files"] = [f"{request.host_url}photo/item/{x}" for x in x["files"]]
     return x
 
 
@@ -103,7 +103,7 @@ def get_many(cur=None):
         'costly': 'DESC'
     }
 
-    params = [user["key"], status, search, f"%{search}%"]
+    params = [status, search, f"%{search}%"]
     tag_query = ""
     if tags != []:
         op = "@>" if multiply else "&&"
@@ -113,16 +113,8 @@ def get_many(cur=None):
     params.append((page_no - 1) * page_size)
 
     cur.execute(f"""
-        SELECT
-            item.*,
-            ("like".entity_key IS NOT NULL) AS "like",
-            COUNT(*) OVER() AS _count
+        SELECT item.*, COUNT(*) OVER() AS _count
         FROM item
-        LEFT JOIN "like" ON
-            item.key::TEXT = "like".entity_key
-            AND "like".entity_type = 'item'
-            AND "like".user_key = %s
-            AND "like".reaction = 'like'
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {tag_query}

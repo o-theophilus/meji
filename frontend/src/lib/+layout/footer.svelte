@@ -36,7 +36,7 @@
 				<Nav />
 			</div>
 		</section>
-		<div class="copyright">&copy 2025 | Meji.ng</div>
+		<div class="copyright">&copy 2026 | Meji.ng</div>
 	</footer>
 </Content>
 

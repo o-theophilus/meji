@@ -1,22 +1,32 @@
 <script>
-	import { flip } from 'svelte/animate';
-	import { cubicInOut } from 'svelte/easing';
-
 	import { app } from '$lib/store.svelte.js';
-	import { Content } from '$lib/layout';
-	import { PageNote } from '$lib/info';
-	import { Meta, Icon, Log } from '$lib/macro';
+	import { Meta, Log } from '$lib/macro';
 
-	import Item from './item.svelte';
-	import Checkout from './checkout.svelte';
+	import Cart from './1_cart/index.svelte';
+	import Receiver from './2_receiver/index.svelte';
+	import Pay from './3_pay/index.svelte';
+	import { onMount } from 'svelte';
 
-	// let { data } = $props();
-	// let items = $state(data.items);
+	let { data } = $props();
 	// let cart = data.cart;
+	onMount(() => {
+		app.cart_items = data.items;
+	});
 
-	// const update = (a) => {
-	// 	items = a;
-	// };
+	let ops = $state({
+		status: 'cart',
+		cart: data.cart,
+		isFilled() {
+			return !!(
+				this.cart.receiver?.name &&
+				this.cart.receiver?.phone &&
+				this.cart.receiver?.email &&
+				this.cart.receiver?.address?.address &&
+				this.cart.receiver?.address?.state &&
+				this.cart.receiver?.address?.country
+			);
+		}
+	});
 </script>
 
 <Log entity_type={'page'} />
@@ -25,21 +35,10 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
-	<div class="page_title">Cart</div>
-
-	{#if app.cart_items.length}
-		{#each app.cart_items as item (item.key + JSON.stringify(item.variation))}
-			<div animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}>
-				<Item {item} />
-			</div>
-		{/each}
-	{:else}
-		<PageNote>
-			<Icon icon="search" size="50" />
-			No item found
-		</PageNote>
-	{/if}
-</Content>
-
-<Checkout></Checkout>
+{#if ops.status == 'cart'}
+	<Cart bind:ops></Cart>
+{:else if ops.status == 'receiver'}
+	<Receiver bind:ops></Receiver>
+{:else if ops.status == 'pay'}
+	<Pay bind:ops></Pay>
+{/if}

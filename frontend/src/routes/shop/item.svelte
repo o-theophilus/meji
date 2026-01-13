@@ -5,6 +5,8 @@
 	import Like from './like.svelte';
 
 	let { item } = $props();
+	console.log(item);
+	
 
 	const prerender = () => {
 		app.item = item;

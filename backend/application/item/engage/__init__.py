@@ -109,7 +109,7 @@ def like():
 def like_item():
     con, cur = db_open()
 
-    session = get_session(cur, True)
+    session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
