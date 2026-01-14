@@ -87,7 +87,7 @@
 		input.files = e.dataTransfer.files;
 		on_input();
 	}}
-	onerror={(e) => (e.target.src = '/file_error.png')}
+	onerror={(e) => (e.target.src = '/no_photo.png')}
 	role="presentation"
 />
 <input

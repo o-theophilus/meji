@@ -44,7 +44,7 @@ def get_cart_items(cur=None):
     items = cur.fetchall()
 
     for x in items:
-        x["photo"] = f"{request.host_url}file/{x['photo']}" if x[
+        x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 
     if close_conn:

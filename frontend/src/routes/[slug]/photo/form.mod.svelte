@@ -80,7 +80,7 @@
 				ops.error = {};
 				ops.active = x;
 			}}
-			onerror={(e) => (e.target.src = '/file_error.png')}
+			onerror={(e) => (e.target.src = '/no_photo.png')}
 			animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}
 			role="presentation"
 		/>

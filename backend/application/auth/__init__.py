@@ -519,7 +519,7 @@ def deactivate():
         })
 
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
-    storage("delete", user["photo"])
+    storage.delete(user["photo"], "user")
     anon_user = anon(cur)
     token = create_session(cur, anon_user["key"])
 

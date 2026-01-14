@@ -23,6 +23,7 @@
 	let is_admin = $state(false);
 
 	const update = (data) => {
+		// TODO: delete store / save item from mrmory at this point
 		item = data;
 	};
 

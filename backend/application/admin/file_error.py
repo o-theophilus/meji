@@ -38,7 +38,7 @@ def get_file_error():
             posts_files += x["files"]
 
     all_used_files = users_photo + posts_files
-    all_stored_files = storage("get_all")
+    all_stored_files = storage.get_all("item")
 
     cur.execute("""
         SELECT username, name
@@ -96,7 +96,7 @@ def delete_file():
         })
 
     for x in files:
-        storage("delete", x.split("/")[-1])
+        storage.delete(x.split("/")[-1], "item")
 
     log(
         cur=cur,

@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file, current_app, abort
+from flask import Blueprint, send_file, abort
 from PIL import Image, ImageOps
 from io import BytesIO
 from uuid import uuid4
@@ -12,24 +12,43 @@ bp = Blueprint("storage", __name__)
 
 def drive():
     sb = create_client(os.environ["STORE_URI"], os.environ["STORE_KEY"])
-    return sb.storage.from_('portfolio.website')
+    return sb.storage.from_('meji')
 
 
-def save_test(x, path):
-    photo = Image.open(x).convert('RGBA')
+def save_test(file, path=""):
+    photo = Image.open(file).convert('RGBA')
     white = Image.new('RGBA', photo.size, (255, 255, 255))
     photo = Image.alpha_composite(white, photo).convert('RGB')
 
-    name = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
-    photo.save(f"{path}{name}")
+    filename = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
+    photo.save(f"{path}{filename}")
 
-    return name
+    return filename
 
 
-def get_test(x, path, thumbnail):
+def copy_test(filename, from_path="", to_path=""):
     try:
-        photo = Image.open(f"{path}{x}")
+        photo = Image.open(f"{from_path}{filename}")
+        photo.save(f"{to_path}{filename}")
     except Exception as e:
+        abort(400, description=str(e))
+
+    return f"{to_path}{filename}"
+
+
+def delete_test(filename, path=""):
+    if os.path.exists(f"{path}{filename}"):
+        os.remove(f"{path}{filename}")
+        return True
+    return False
+
+
+def get_test(filename, path="", thumbnail=False):
+    try:
+        print(filename, path)
+        photo = Image.open(f"{path}{filename}")
+    except Exception as e:
+        print(e)
         abort(400, description=str(e))
 
     if thumbnail:
@@ -42,22 +61,15 @@ def get_test(x, path, thumbnail):
     return file_io
 
 
-def get_all_test(path):
+def get_all_test(path=""):
     folder_path = Path(f"{os.getcwd()}/{path}")
     file_names = [file.name for file in folder_path.iterdir()
                   if file.is_file()]
     return file_names
 
 
-def delete_test(x, path):
-    if os.path.exists(f"{path}{x}"):
-        os.remove(f"{path}{x}")
-        return True
-    return False
-
-
-def save(x, path):
-    photo = Image.open(x).convert('RGBA')
+def save_live(file, path=""):
+    photo = Image.open(file).convert('RGBA')
     white = Image.new('RGBA', photo.size, (255, 255, 255))
     photo = Image.alpha_composite(white, photo).convert('RGB')
 
@@ -65,19 +77,32 @@ def save(x, path):
     photo.save(file_io, format="JPEG")
     file_io.seek(0)
 
-    name = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
+    filename = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
     drive().upload(
-        f"{path}{name}",
+        f"{path}{filename}",
         file_io.getvalue(),
         {'content-type': 'image/jpeg'}
     )
 
-    return name
+    return filename
 
 
-def get(x, path, thumbnail):
+def copy_live(filename, from_path="", to_path=""):
     try:
-        photo = drive().download(f"{path}{x}")
+        drive().copy(f"{from_path}{filename}", f"{to_path}{filename}")
+    except Exception as e:
+        abort(400, description=str(e))
+
+    return f"{to_path}{filename}"
+
+
+def delete_live(filename, path=""):
+    return drive().remove([f"{path}{filename}"])
+
+
+def get_live(filename, path="", thumbnail=False):
+    try:
+        photo = drive().download(f"{path}{filename}")
     except Exception as e:
         abort(400, description=str(e))
 
@@ -94,7 +119,7 @@ def get(x, path, thumbnail):
     return file_io
 
 
-def get_all(path):
+def get_all_live(path=""):
     try:
         offset = 0
         limit = 100
@@ -113,47 +138,59 @@ def get_all(path):
     return [x["name"] for x in files]
 
 
-def delete(x, path):
-    return drive().remove([f"{path}{x}"])
+test = True
 
 
-def storage(method, x=None, path="", thumbnail=False):
-    test = current_app.config["DEBUG"]
-    # test = False
+def get_path(path=""):
     if test:
         path = f"static/photo/{path}"
         os.makedirs(f"{os.getcwd()}/{path}", exist_ok=True)
 
-    defs = {
-        "save": {
-            True: save_test,
-            False: save,
-        },
-        "get": {
-            True: lambda x, path: get_test(x, path, thumbnail),
-            False: lambda x, path: get(x, path, thumbnail),
-        },
-        "get_all": {
-            True: lambda x, path: get_all_test(path),
-            False: lambda x, path: get_all(path),
-        },
-        "delete": {
-            True: delete_test,
-            False: delete,
-        }
-    }
+    return f"{path}/" if path and not path.endswith("/") else path
 
+
+class storage:
+    @staticmethod
+    def save(file, path=""):
+        if test:
+            return save_test(file, get_path(path))
+        else:
+            return save_live(file, get_path(path))
+
+    def copy(filename, path="", path2=""):
+        if test:
+            return copy_test(filename, get_path(path), get_path(path2))
+        else:
+            return copy_live(filename, get_path(path), get_path(path2))
+
+    @staticmethod
+    def delete(filename, path=""):
+        if test:
+            return delete_test(filename, get_path(path))
+        else:
+            return delete_live(filename, get_path(path))
+
+    @staticmethod
+    def get(filename, path="", thumbnail=False):
+        if test:
+            return get_test(filename, get_path(path), thumbnail)
+        else:
+            return get_live(filename, get_path(path), thumbnail)
+
+    @staticmethod
+    def get_all(path=""):
+        if test:
+            return get_all_test(get_path(path))
+        else:
+            return get_all_live(get_path(path))
+
+
+@bp.get("/photo/<path>/<filename>")
+@bp.get("/photo/<path>/<filename>/<thumbnail>")
+def get_photo(filename, path="", thumbnail=False):
     try:
-        return defs[method][test](x, f"{path}/" if path else "")
-    except Exception as e:
-        abort(400, description=str(e))
-
-
-@bp.get("/photo/<path>/<x>")
-@bp.get("/photo/<path>/<x>/<thumbnail>")
-def get_photo(x, path, thumbnail=False):
-    try:
-        file = storage("get", x, path, thumbnail)
+        file = storage.get(filename, path, thumbnail)
+        storage.copy(filename, path, "item_snap")
     except Exception as e:
         abort(400, description=str(e))
     return send_file(file, mimetype="image/jpg")

@@ -37,7 +37,7 @@ def cron():
 
     for user in users:
         cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
-        storage("delete", user["photo"])
+        storage.delete(user["photo"], "user")
 
     user_keys = [x["key"] for x in users]
 

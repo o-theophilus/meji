@@ -9,7 +9,8 @@
 </script>
 
 <div class="img">
-	<img {src} alt={item.name} onerror={() => (src = '/file_error.png')} />
+	<!-- TODO: go through all the img onerror -->
+	<img {src} alt={item.name} onerror={() => (src = '/no_photo.png')} />
 	<div class="edit">
 		{#if app.user.access.includes('item:edit_file') && edit_mode}
 			<Edit_Button
@@ -36,9 +37,9 @@
 				alt={item.name}
 				class:active={src == x}
 				onclick={() => (src = x)}
-				onerror={(e) => (e.target.src = '/file_error.png')}
+				onerror={(e) => (e.target.src = '/no_photo.png')}
 				role="presentation"
-			/>
+				/>
 		{/each}
 	</div>
 {/if}

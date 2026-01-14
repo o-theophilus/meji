@@ -266,7 +266,7 @@ def delete(key):
     """, (item["key"],))
 
     for x in item["files"]:
-        storage("delete", x)
+        storage.delete(x, "item")
 
     log(
         cur=cur,

@@ -1,12 +1,14 @@
 from flask import Blueprint, jsonify, request
 from ..tools import get_session, send_mail
 from ..postgres import db_open, db_close
+from ..storage import storage
 from ..log import log
 import os
 import requests
 from ..cart.get import get_cart_items
 from .get import order_status
 from datetime import datetime, timezone, timedelta
+from psycopg2.extras import Json
 
 bp = Blueprint("order", __name__)
 
@@ -76,13 +78,11 @@ def order_check():
             "error": "invalid request"
         })
 
-    total = 0
+    pay = order["cost_delivery"]
     for x in items:
-        total += x["price"] * x["quantity"]
+        pay += x["price"] * x["quantity"]
 
     # TODO: also check Coupons here
-
-    pay = total + order["cost_delivery"]
 
     db_close(con, cur)
     return jsonify({
@@ -127,8 +127,8 @@ def cart_to_order():
     # TODO: check item availability
     cur.execute("""
         SELECT
-            item.price,
-            order_item.quantity
+            item.*,
+            order_item.quantity AS order_quantity
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE
@@ -143,13 +143,11 @@ def cart_to_order():
             "error": "invalid request"
         })
 
-    total = 0
-    for x in items:
-        total += x["price"] * x["quantity"]
+    pay = order["cost_delivery"]
+    for filename in items:
+        pay += filename["price"] * filename["order_quantity"]
 
     # TODO: also check Coupons here
-
-    pay = total + order["cost_delivery"]
 
     cur.execute(
         """SELECT * FROM "order" WHERE pay_reference = %s;""",
@@ -188,16 +186,28 @@ def cart_to_order():
             "error": "invalid transaction"
         })
 
-    # TODO: do i remove unavaolable items?
-    # cur.execute("""
-    #     DELETE FROM order_item
-    #     WHERE order_key = %s
-    #     AND item_key IN (
-    #         SELECT item.key
-    #         FROM item
-    #         WHERE item.status != 'live'
-    #     );
-    # """, (order["key"],))
+    values_list = []
+    for row in items:
+        row["item_key"] = row["key"]
+        row["order_key"] = order["key"]
+        del row["key"]
+        del row["order_quantity"]
+
+        for filename in row["files"]:
+            storage.copy(filename, "item", "item_snap")
+
+        columns = list(row.keys())
+        values = []
+        for column in columns:
+            if type(row[column]) is dict:
+                row[column] = Json(row[column])
+            values.append(row[column])
+        values_list.append(tuple(values))
+
+    cur.executemany(f"""
+        INSERT INTO item_snap({', '.join(columns)})
+        VALUES ({', '.join(['%s'] * len(columns))});
+    """, values_list)
 
     cur.execute("""
         UPDATE "order"
@@ -207,7 +217,7 @@ def cart_to_order():
             pay_user = %s,  pay_reference = %s
         WHERE key = %s RETURNING *;
     """, (
-        total, datetime.now(timezone.utc) + timedelta(days=7),
+        pay, datetime.now(timezone.utc) + timedelta(days=7),
         pay, reference,
         order["key"]
     ))

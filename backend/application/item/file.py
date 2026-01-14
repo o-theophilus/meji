@@ -58,7 +58,7 @@ def add_file(key):
 
     file_names = []
     for x in files:
-        filename = storage("save", x, "item")
+        filename = storage.save(x, "item")
         file_names.append(filename)
 
     cur.execute("""
@@ -132,7 +132,7 @@ def order_delete_file(key):
 
     for x in item["files"]:
         if x not in files:
-            storage("delete", x, "item")
+            storage.delete(x, "item")
 
     log(
         cur=cur,

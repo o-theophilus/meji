@@ -1,9 +1,7 @@
 from flask import Blueprint, jsonify
 import os
 import psycopg2
-import psycopg2.extras
-from werkzeug.security import generate_password_hash
-from .tools import access_pass
+from psycopg2.extras import Json, RealDictCursor
 
 
 bp = Blueprint("postgres", __name__)
@@ -11,7 +9,7 @@ bp = Blueprint("postgres", __name__)
 
 def db_open():
     con = psycopg2.connect(os.environ["DATABASE_URI"])
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = con.cursor(cursor_factory=RealDictCursor)
     return con, cur
 
 
@@ -21,7 +19,6 @@ def db_close(con, cur):
     con.close()
 
 
-# TODO: remove date_updated from user
 # @bp.get("/fix")
 def create_tables():
     con, cur = db_open()
@@ -40,7 +37,8 @@ def create_tables():
         DROP TABLE IF EXISTS "like" CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
-        DROP TABLE IF EXISTS voucher CASCADE;
+        DROP TABLE IF EXISTS item_snap CASCADE;
+        DROP TABLE IF EXISTS coupon CASCADE;
 
         CREATE TABLE IF NOT EXISTS app (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,7 +50,6 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             status TEXT NOT NULL DEFAULT 'anonymous',
             date_created TIMESTAMPTZ DEFAULT now(),
-            date_updated TIMESTAMPTZ DEFAULT now(),
             access TEXT[] DEFAULT '{}'::TEXT[],
             theme TEXT NOT NULL DEFAULT 'dark',
             item_view TEXT NOT NULL DEFAULT 'grid',
@@ -121,6 +118,7 @@ def create_tables():
             price DECIMAL DEFAULT 0,
             price_old DECIMAL DEFAULT 0,
             information TEXT,
+            specification JSONB DEFAULT '{}'::JSONB,
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0
@@ -174,21 +172,22 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             status TEXT NOT NULL DEFAULT 'draft',
             date_created TIMESTAMPTZ DEFAULT now(),
-            slug TEXT UNIQUE NOT NULL,
+            slug TEXT NOT NULL,
             name TEXT NOT NULL,
             tags TEXT[] DEFAULT '{}'::TEXT[],
             price DECIMAL DEFAULT 0,
             price_old DECIMAL DEFAULT 0,
             information TEXT,
+            specification JSONB DEFAULT '{}'::JSONB,
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
 
-            item_key UUID NOT NULL,
+            item_key UUID NOT NULL REFERENCES item(key) ON DELETE NO ACTION,
             order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS modifier (
+        CREATE TABLE IF NOT EXISTS coupon (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
@@ -196,7 +195,7 @@ def create_tables():
             pin TEXT NOT NULL,
             value JSONB DEFAULT '{}'::JSONB,
             validity TIMESTAMPTZ,
-            usage JSONB DEFAULT '{}'::JSONB
+            order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION
         );
     """)
 
@@ -206,64 +205,55 @@ def create_tables():
     })
 
 
-def copy_post_table():
-    con = psycopg2.connect(os.environ["LOCAL_DB"])
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+def copy_db():
+    def copy_table(from_cur, to_cur, table_name):
+        from_cur.execute(f"""SELECT * FROM "{table_name}";""")
+        data = from_cur.fetchall()
 
-    cur.execute("SELECT * FROM post;")
-    data = cur.fetchall()
-    con.commit()
-    cur.close()
-    con.close()
+        print("########################")
+        print(table_name, len(data))
 
-    con = psycopg2.connect(os.environ["ONLINE_DB"])
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        if not data:
+            return
 
-    cur.execute("""
-            INSERT INTO "user"
-            (status, name, username, email, password, access)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        ;""", (
-        "confirmed",
-        "Theophilus",
-        "theophilus",
-        os.environ["MAIL_USERNAME"],
-        generate_password_hash(
-            os.environ["MAIL_PASSWORD"], method="scrypt"),
-        [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
-    ))
+        columns = list(data[0].keys())
 
-    for x in data:
-        cur.execute("""
-            INSERT INTO post(
-                key,
-                status,
-                date_created,
-                title,
-                slug,
-                content,
-                description,
-                photo,
-                files,
-                tags
-            )
-            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """, (
-            x["key"],
-            x["status"],
-            x["date_created"],
-            x["title"],
-            x["slug"],
-            x["content"],
-            x["description"],
-            x["photo"],
-            x["files"],
-            x["tags"]
-        ))
+        values_list = []
+        for row in data:
+            values = []
+            for column in columns:
+                if type(row[column]) is dict:
+                    row[column] = Json(row[column])
+                values.append(row[column])
+            values_list.append(tuple(values))
 
-    con.commit()
-    cur.close()
-    con.close()
+        to_cur.executemany(f"""
+            INSERT INTO "{table_name}"({', '.join(columns)})
+            VALUES ({', '.join(['%s'] * len(columns))});
+        """, values_list)
+
+    from_con = psycopg2.connect(os.environ["ONLINE_DB"])
+    from_cur = from_con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    to_con = psycopg2.connect(os.environ["LOCAL_DB"])
+    to_cur = to_con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    copy_table(from_cur, to_cur, "app")
+    copy_table(from_cur, to_cur, "user")
+    copy_table(from_cur, to_cur, "post")
+    copy_table(from_cur, to_cur, "comment")
+    copy_table(from_cur, to_cur, "report")
+    copy_table(from_cur, to_cur, "block")
+    copy_table(from_cur, to_cur, "like")
+    copy_table(from_cur, to_cur, "code")
+    copy_table(from_cur, to_cur, "log")
+    copy_table(from_cur, to_cur, "session")
+
+    from_con.commit()
+    from_cur.close()
+    from_con.close()
+    to_con.commit()
+    to_cur.close()
+    to_con.close()
 
     return jsonify({
         "status": 200
