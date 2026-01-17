@@ -10,6 +10,8 @@
 	<Link --link-font-size="0.8rem" href="/shop">Terms</Link>
 </div>
 
+<!-- TODO: Move to the homepage -->
+
 <style>
 	.block {
 		text-align: center;

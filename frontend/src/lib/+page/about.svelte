@@ -1,61 +1,99 @@
 <script>
-	import { Content } from '$lib/layout';
-	import { Observe } from '$lib/macro';
-	import Morph from './about.morph.svelte';
+	import { Card } from '$lib/layout';
+	import { Icon } from '$lib/macro';
 </script>
 
-<div id="scroll_1"></div>
-<Content --content-height="100%">
-	<Observe let:intersecting>
-		<div class="comp" class:intersecting>
-			<div class="headline">Creating Engaging & Accessible Digital Experiences.</div>
-
-			<div class="about">
-				I'm <span class="bold"> Theophilus Ogbolu </span>
-				, a designer and developer passionate about creating digital products that delight users. I blend
-				design and technology to build intuitive, visually appealing experiences. With a focus on user-centric
-				design, I strive to create solutions that are both functional and aesthetically pleasing.
-			</div>
-
-			<Morph />
+<section id="about">
+	<div class="row_1">
+		<div class="text">
+			Meji is your No. 1 trusted online shopping destination in Nigeria. At Meji, we provide you
+			with a seamless shopping experience, offering a wide range of products right at your
+			fingertips. Whether you're looking for fashion items for men, women, or children, or searching
+			for other essentials, we've got you covered.
 		</div>
-	</Observe>
-</Content>
+	</div>
+
+	<div class="row_2">
+		<div class="block">
+			<Icon icon="change" size="56" />
+			<div class="title">Convenience Delivered</div>
+			<div class="text">
+				We understand the value of time and convenience. That's why Meji offers you the ease of
+				shopping from anywhere, at any time. Our user-friendly platform allows you to browse and
+				purchase your desired items with just a few clicks. Plus, we ensure swift and reliable
+				delivery directly to your doorstep.
+			</div>
+		</div>
+
+		<div class="block">
+			<Icon icon="offer" size="56" />
+			<div class="title">Secure Payment Solutions</div>
+			<div class="text">
+				At Meji, your security is our top priority. With our trusted online shopping payment
+				methods, you can enjoy stress-free transactions. We prioritize the safety of your personal
+				and financial information, allowing you to shop with peace of mind.
+			</div>
+		</div>
+
+		<div class="block">
+			<Icon icon="time" size="56" />
+			<div class="title">24/7 Services</div>
+			<div class="text">
+				We're dedicated to serving you around the clock. Shop online anytime, any day, and
+				experience our exceptional customer service. Our team is here to assist you with any
+				inquiries or support you may need throughout your shopping journey.
+			</div>
+		</div>
+	</div>
+</section>
 
 <style>
-	.comp {
-		position: relative;
-		opacity: 0;
-		transform: translate(0, -500px) scale(0);
-
-		transition:
-			opacity,
-			transform 1000ms;
-		transition-timing-function: cubic-bezier(0.47, 1.64, 0.41, 0.8);
+	section {
+		text-align: center;
 	}
-
-	.intersecting {
-		opacity: 1;
-		transform: translate(0, 0) scale(1);
-	}
-
-	.headline {
-		color: var(--ft1);
-		font-size: 2.6rem;
+	.title {
 		font-weight: 800;
-		line-height: 120%;
-
-		max-width: 400px;
-		transition: color var(--trans);
+		font-size: 1.2rem;
+		color: var(--cl1);
+		margin: 16px 0;
 	}
 
-	.about {
-		margin-top: var(--sp3);
+	.row_1,
+	.row_2 {
+		display: flex;
+		justify-content: center;
+		gap: 16px;
+	}
+
+	.row_1 {
+		padding: 48px 16px;
+	}
+	.row_2 {
+		flex-direction: column;
+	}
+
+	.block {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		background-color: var(--bg3);
+		border-radius: 8px;
+		padding: 32px 24px;
+		width: 100%;
+		fill: var(--cl1);
+	}
+	.row_1 .text {
 		font-size: 1.4rem;
-		max-width: 490px;
+		max-width: 740px;
+	}
+	.row_2 .text {
+		max-width: 450px;
 	}
 
-	.bold {
-		font-weight: 800;
+	@media screen and (min-width: 800px) {
+		.row_2 {
+			flex-direction: row;
+		}
 	}
 </style>

@@ -20,12 +20,14 @@
 main {
 	--ft1: black;
 	--ft2: hsl(0, 0%, 40%);
+	--bg3: #F7F7F8;
 	--bg2: hsl(233, 10%, 89%);
 	--bg1: white;
 }
 main.dark {
 	--ft1: white;
 	--ft2: hsl(0, 0%, 60%);
+	--bg3: #2A2A2E;
 	--bg2: hsl(0, 0%, 10%);
 	--bg1: hsl(0, 0%, 5%);
 
@@ -53,8 +55,8 @@ main{
 	--select-background-color-hover:var(--cl1);
 	--select-color-hover:white;
 	
-	--link-color:var(--ft2);
-	--link-color-hover:var(--cl1);
+	/* --link-color:var(--ft2); */
+	/* --link-color-hover:var(--cl1); */
 	
 	--pagination-background-color:var(--input);
 	--pagination-outline-color:var(--input);

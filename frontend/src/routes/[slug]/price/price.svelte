@@ -4,15 +4,15 @@
 
 <div class="cost">
 	<div class="price">
-		{#if item.price}
-			₦{item.price.toLocaleString()}
+		{#if Number(item.price)}
+			₦{Number(item.price).toLocaleString()}
 		{:else}
 			<span class="no_price"> Nil </span>
 		{/if}
 	</div>
-	{#if item.price_old}
+	{#if Number(item.price_old)}
 		<div class="old_price">
-			₦{item.price_old.toLocaleString()}
+			₦{Number(item.price_old).toLocaleString()}
 			<div class="strike"></div>
 		</div>
 

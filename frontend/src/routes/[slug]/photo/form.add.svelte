@@ -111,6 +111,7 @@
 		transition: outline-color var(--trans);
 	}
 
+	.dragover,
 	img:hover {
 		outline-color: var(--cl1);
 	}

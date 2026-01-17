@@ -4,58 +4,65 @@
 
 	import { FoldButton } from '$lib/button';
 
-	let { open = false, onopen, children, title } = $props();
+	let { open = true, onclick, children, title, border = false } = $props();
 </script>
 
-<div class="block" class:open>
-	<div
-		class="line space"
-		role="presentation"
-		onclick={(e) => {
-			if (e.target != e.currentTarget) return;
-			onopen();
-		}}
-	>
-		{@render title()}
-		<FoldButton {open} onclick={onopen} />
-	</div>
+<div class="card" class:open>
+	{#if title || onclick}
+		<div
+			class="title"
+			role="presentation"
+			onclick={(e) => {
+				if (e.target != e.currentTarget) return;
+				if (onclick) onclick();
+			}}
+		>
+			<div class="a">
+				{@render title?.()}
+			</div>
+
+			{#if onclick}
+				<FoldButton {open} {onclick} />
+			{/if}
+		</div>
+	{/if}
 
 	{#if open}
-		<div class="content" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+		<div
+			class="content"
+			class:border
+			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
+		>
 			{@render children()}
 		</div>
 	{/if}
 </div>
 
 <style>
-	.block {
-		border-top: 2px solid var(--bg2);
-		/* border-bottom: 1px solid var(--bg2); */
-
-		transition:
-			border-color var(--trans),
-			border-size var(--trans);
+	.card {
+		margin: 8px 0;
+		background-color: var(--bg1);
+		border-radius: 8px;
 	}
-	/* .open {
-		border-top: 2px solid var(--ft1_d);
-		border-bottom: 2px solid var(--ft1_d);
-	} */
-
-	.line {
-		padding: var(--sp2) 0;
-		text-transform: capitalize;
-		font-size: large;
-		font-weight: 800;
-		color: var(--ft1);
-
-		transition: font-weight var(--trans);
-	}
-
-	/* .open .line {
-		font-weight: 800;
-	} */
 
 	.content {
-		padding-bottom: var(--sp2);
+		padding: 24px;
+		padding-top: 0;
+	}
+	.border {
+		padding-top: 24px;
+		border-top: 1px solid var(--bg2);
+	}
+
+	.title {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		padding: 24px;
+	}
+	.a {
+		width: 100%;
+		pointer-events: none;
 	}
 </style>

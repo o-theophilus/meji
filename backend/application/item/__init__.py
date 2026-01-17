@@ -98,6 +98,7 @@ def edit(key):
     error = {}
 
     status = item["status"]
+    date_created = item["date_created"]
     name = item["name"]
     slug = item["slug"]
     tags = item["tags"]
@@ -117,6 +118,15 @@ def edit(key):
             error["status"] = "No changes were made"
         elif status == "active" and item["files"] == []:
             error["status"] = "no photo"
+
+    if "date_created" in request.json:
+        date_created = request.json.get("date_created")
+        if "item:edit_date" not in user["access"]:
+            error["date_created"] = "unauthorized access"
+        elif not date_created:
+            error["date_created"] = "This field is required"
+        elif date_created == item["date_created"]:
+            error["date_created"] = "No changes were made"
 
     if "name" in request.json:
         name = ' '.join(request.json.get("name", "").strip().split())
@@ -198,12 +208,12 @@ def edit(key):
 
     cur.execute("""
         UPDATE item
-        SET status= %s, slug = %s, name = %s, tags= %s,
+        SET status= %s, slug = %s, date_created= %s, name = %s, tags= %s,
         price = %s, price_old = %s,
         information= %s, variation= %s, quantity= %s
         WHERE key = %s RETURNING *;
     """, (
-        status, slug, name, tags,
+        status, slug, date_created, name, tags,
         Decimal(price), Decimal(price_old),
         information, Json(variation), quantity,
         item["key"]

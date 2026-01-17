@@ -25,7 +25,7 @@
 {/if}
 
 {#if Object.keys(item.variation).length != 0}
-	<Card {open} onopen={() => (open = !open)}>
+	<Card {open} onclick={() => (open = !open)}>
 		{#snippet title()}
 			Variation{#if Object.keys(item.variation).length > 1}s{/if}
 		{/snippet}

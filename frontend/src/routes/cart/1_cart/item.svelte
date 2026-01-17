@@ -13,7 +13,7 @@
 
 <div class="item">
 	<a class="img" href="/{item.slug}">
-		<img {src} loading="lazy" alt={item.name} />
+		<img {src} loading="lazy" alt={item.name} onerror={() => (src = '/no_photo.png')} />
 	</a>
 
 	<div class="details">

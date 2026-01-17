@@ -53,7 +53,7 @@ def get(key):
 
 
 @bp.get("/items")
-def get_many(cur=None):
+def get_many(cur=None, _order="latest", _page_size=24):
     close_conn = not cur
     if not cur:
         con, cur = db_open()
@@ -68,9 +68,9 @@ def get_many(cur=None):
     search = request.args.get("search", "").strip()
     status = request.args.get("status", "active")
     tag = request.args.get("tag", "")
-    order = request.args.get("order", "latest")
+    order = request.args.get("order", _order)
     page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
+    page_size = int(request.args.get("page_size", _page_size))
 
     if (
         "item:edit_status" not in user["access"]
@@ -91,7 +91,9 @@ def get_many(cur=None):
         'name (a-z)': 'item.name',
         'name (z-a)': 'item.name',
         'cheap': 'item.price',
-        'costly': 'item.price'
+        'costly': 'item.price',
+        'discount': 'discount',
+        # 'rating': 'rating'
     }
 
     order_dir = {
@@ -100,7 +102,10 @@ def get_many(cur=None):
         'name (a-z)': 'ASC',
         'name (z-a)': 'DESC',
         'cheap': 'ASC',
-        'costly': 'DESC'
+        'costly': 'DESC',
+        'discount': 'DESC',
+        'rating': 'DESC',
+
     }
 
     params = [status, search, f"%{search}%"]
@@ -113,14 +118,19 @@ def get_many(cur=None):
     params.append((page_no - 1) * page_size)
 
     cur.execute(f"""
-        SELECT item.*, COUNT(*) OVER() AS _count
+        SELECT item.*,
+            CASE
+                WHEN item.price = 0 OR item.price_old = 0 THEN 0
+                ELSE (100 * item.price_old - item.price) / item.price_old
+            END AS discount,
+            COUNT(*) OVER() AS _count
         FROM item
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {tag_query}
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """, (params))
+    """, params)
     items = cur.fetchall()
 
     if close_conn:
@@ -134,54 +144,26 @@ def get_many(cur=None):
     })
 
 
-@bp.get("/item/similar/<key>")
-def similar_items(key):
+@bp.get("/home")
+def home():
     con, cur = db_open()
 
-    cur.execute("""
-        SELECT * FROM item WHERE key = %s;
-    """, (key,))
-    item = cur.fetchone()
-
-    if not item:
-        db_close(con, cur)
-        return jsonify({
-            "status": 200,
-            "items": []
-        })
-
-    keywords = list(set(
-        item["tags"] + re.split(r'\s+', item["name"].lower())))
-
-    cur.execute("""
-        WITH likeness AS (
-            SELECT key, COUNT(*) AS score
-            FROM item,
-                unnest(tags || STRING_TO_ARRAY(lower(name), ' ')) AS tn
-            WHERE tn = ANY(%s)
-            GROUP BY key
-        )
-        SELECT item.*
-        FROM item
-        JOIN likeness ON item.key = likeness.key
-        WHERE item.status = 'active'
-            AND item.key != %s
-            AND likeness.score > 0
-        ORDER BY likeness.score DESC
-        LIMIT 4;
-    """, (keywords, key))
-    items = cur.fetchall()
+    new_arrivals = get_many(cur, "latest", 8).json['items']
+    discount = get_many(cur, "discount", 8).json['items']
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": [item_schema(x) for x in items]
+        "new_arrivals": new_arrivals,
+        "discount": discount
     })
 
 
-@bp.get("/tags")
-def all_tags():
-    con, cur = db_open()
+# @bp.get("/tags")
+def get_tags(cur=None):
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
 
     cur.execute("SELECT tags FROM item WHERE status = 'active';")
     temp = cur.fetchall()
@@ -202,7 +184,8 @@ def all_tags():
 
     tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
 
-    db_close(con, cur)
+    if close_conn:
+        db_close(con, cur)
     return jsonify({
         "status": 200,
         "tags": [x["tag"] for x in tags_count]
@@ -270,4 +253,49 @@ def get_like():
         "items": [item_schema(x) for x in items],
         "order_by": list(order_by.keys()),
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0
+    })
+
+
+@bp.get("/item/similar/<key>")
+def similar_items(key):
+    con, cur = db_open()
+
+    cur.execute("""
+        SELECT * FROM item WHERE key = %s;
+    """, (key,))
+    item = cur.fetchone()
+
+    if not item:
+        db_close(con, cur)
+        return jsonify({
+            "status": 200,
+            "items": []
+        })
+
+    keywords = list(set(
+        item["tags"] + re.split(r'\s+', item["name"].lower())))
+
+    cur.execute("""
+        WITH likeness AS (
+            SELECT key, COUNT(*) AS score
+            FROM item,
+                unnest(tags || STRING_TO_ARRAY(lower(name), ' ')) AS tn
+            WHERE tn = ANY(%s)
+            GROUP BY key
+        )
+        SELECT item.*
+        FROM item
+        JOIN likeness ON item.key = likeness.key
+        WHERE item.status = 'active'
+            AND item.key != %s
+            AND likeness.score > 0
+        ORDER BY likeness.score DESC
+        LIMIT 4;
+    """, (keywords, key))
+    items = cur.fetchall()
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "items": [item_schema(x) for x in items]
     })

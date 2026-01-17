@@ -9,6 +9,8 @@
 
 	let form = $state({ access: module.value.mods });
 	let error = $state({});
+	console.log(page);
+	
 
 	const validate = async () => {
 		error = {};
@@ -25,7 +27,7 @@
 
 		loading.open('saving . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/admin/user/access/${page.data.user.key}`,
+			`${import.meta.env.VITE_BACKEND}/admin/access/${page.data.item.key}`,
 			{
 				method: 'put',
 				headers: {

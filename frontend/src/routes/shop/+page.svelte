@@ -59,7 +59,7 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-height="auto" --content-padding-bottom="0">
+<Content --content-height="auto" --content-background-color="var(--bg2)">
 	<div class="line space">
 		<div class="page_title">Shop</div>
 		{#if app.user.access.includes('item:add')}
@@ -130,7 +130,7 @@
 	/>
 </Content>
 
-<Content --content-padding-top="1px" --content-width="100%">
+<Content --content-padding-top="1px" --content-width="100%" --content-background-color="var(--bg2)">
 	{#if items.length}
 		<section class="items">
 			{#each items as item (item.key)}
@@ -163,7 +163,7 @@
 
 		justify-content: center;
 		flex-wrap: wrap;
-		gap: 32px 16px;
+		gap: 16px;
 
 		margin: var(--sp2) 0;
 	}

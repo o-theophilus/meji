@@ -1,20 +1,27 @@
 <script>
+	import { onMount } from 'svelte';
 	import { app } from '$lib/store.svelte.js';
-	import { Meta, Log } from '$lib/macro';
-
+	import { Meta, Log, Icon } from '$lib/macro';
+	import { Content } from '$lib/layout';
+	import { PageNote } from '$lib/info';
+	import { Button, Link } from '$lib/button';
 	import Cart from './1_cart/index.svelte';
 	import Receiver from './2_receiver/index.svelte';
-	import Pay from './3_pay/index.svelte';
-	import { onMount } from 'svelte';
+	import Coupons from './3_coupon/index.svelte';
+	import Checkout from './checkout.svelte';
 
 	let { data } = $props();
-	// let cart = data.cart;
+
 	onMount(() => {
 		app.cart_items = data.items;
 	});
 
+	const today = new Date();
+	const nextWeek = new Date(today);
+	nextWeek.setDate(today.getDate() + 7);
+
 	let ops = $state({
-		status: 'cart',
+		status: 'Items',
 		cart: data.cart,
 		isFilled() {
 			return !!(
@@ -25,7 +32,20 @@
 				this.cart.receiver?.address?.state &&
 				this.cart.receiver?.address?.country
 			);
-		}
+		},
+		total_items() {
+			let total = 0;
+			for (const i of app.cart_items) {
+				total += i.price * i.quantity;
+			}
+			return total;
+		},
+		coupons: [
+			{ code: 'SAVE10', entity: 'items', type: 'number', value: 10 },
+			{ code: 'SAVE20', entity: 'delivery', type: 'number', value: 20 },
+			{ code: 'SAVE30', entity: 'delivery', type: 'percent', value: 100 }
+		],
+		delivery_date: nextWeek
 	});
 </script>
 
@@ -35,10 +55,41 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-{#if ops.status == 'cart'}
-	<Cart bind:ops></Cart>
-{:else if ops.status == 'receiver'}
-	<Receiver bind:ops></Receiver>
-{:else if ops.status == 'pay'}
-	<Pay bind:ops></Pay>
+<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
+	<div class="page_title">Cart</div>
+	{#if app.cart_items.length}
+		<Cart bind:ops></Cart>
+		<Receiver bind:ops></Receiver>
+		<Coupons bind:ops></Coupons>
+
+		<span class="terms">
+			by clicking the order button, you have accepred our
+			<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
+		</span>
+	{:else}
+		<PageNote>
+			No item in cart yet
+			<div class="icon">
+				<Icon icon="cart" size="50" />
+			</div>
+			<Button href="/shop">Shop now</Button>
+		</PageNote>
+	{/if}
+</Content>
+
+{#if app.cart_items.length}
+	<Checkout {ops}></Checkout>
 {/if}
+
+<style>
+	.page_title {
+		margin: 24px 0;
+	}
+	.icon {
+		fill: var(--ft2);
+	}
+
+	.terms {
+		font-size: small;
+	}
+</style>

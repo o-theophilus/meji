@@ -1,5 +1,6 @@
 export { default as Status } from "./status/index.svelte"
 export { default as Photo } from "./photo/index.svelte"
+export { default as Date } from "./date/index.svelte"
 export { default as Name } from "./name/index.svelte"
 export { default as Tags } from "./tag/index.svelte"
 export { default as Price } from "./price/index.svelte"

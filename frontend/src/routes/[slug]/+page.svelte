@@ -1,17 +1,27 @@
 <script>
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import { module, app } from '$lib/store.svelte.js';
+	import { module, app, page_state } from '$lib/store.svelte.js';
 
 	import { Content } from '$lib/layout';
 	import { Button, Toggle } from '$lib/button';
-	import { Meta, Log } from '$lib/macro';
+	import { Meta, Log, ToTop } from '$lib/macro';
 	import Edit_Button from './edit_button.svelte';
 
-	import { Status, Photo, Name, Tags, Price, Information, Quantity, Feedback, Variation } from '.';
+	import {
+		Status,
+		Photo,
+		Date,
+		Name,
+		Tags,
+		Price,
+		Information,
+		Quantity,
+		Feedback,
+		Variation
+	} from '.';
 	import Highlight from './highlight.svelte';
 	import Similar from './similar.svelte';
-	import ToTop from './to_top.svelte';
 
 	import Like from '../shop/like.svelte';
 	import Share from './share.svelte';
@@ -25,6 +35,9 @@
 	const update = (data) => {
 		// TODO: delete store / save item from mrmory at this point
 		item = data;
+		page_state.clear('home');
+		page_state.clear('shop');
+		page_state.clear('save');
 	};
 
 	let comment = $state();
@@ -88,6 +101,7 @@
 		</div>
 
 		<div class="info">
+			<Date {item} {edit_mode} {update} />
 			<Name {item} {edit_mode} {update} />
 			<Tags {item} {edit_mode} {update} />
 			<Price {item} {edit_mode} {update} />

@@ -9,6 +9,7 @@ from ..postgres import db_open, db_close
 from ..log import log
 from ..storage import storage
 from ..cart.get import get_cart_items
+from ..item.get import get_tags
 
 bp = Blueprint("auth", __name__)
 
@@ -138,6 +139,8 @@ def init():
     """, (user["key"],))
     likes = cur.fetchall()
 
+    tags = get_tags(cur).json["tags"]
+
     db_close(con, cur)
     return jsonify({
         "status": 200,
@@ -145,7 +148,8 @@ def init():
         "token": token,
         "login": login,
         "likes": [x["entity_key"] for x in likes],
-        "cart_items": cart_items
+        "cart_items": cart_items,
+        "tags": tags
     })
 
 

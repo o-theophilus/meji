@@ -1,26 +1,36 @@
 <script>
+	import { slide } from 'svelte/transition';
 	import { module } from '$lib/store.svelte.js';
-	import { Content } from '$lib/layout';
-	import { Button, RoundButton } from '$lib/button';
+	import { Button } from '$lib/button';
+	import { Card } from '$lib/layout';
 	import { PageNote } from '$lib/info';
 	import { Icon } from '$lib/macro';
-	import Form from './form.svelte';
-	import Next from '../next.svelte';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
+	import Form from './form.svelte';
 
 	let { ops = $bindable() } = $props();
+	let name = 'Receiver';
 </script>
 
-<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
-	<div class="line">
-		<RoundButton
-			icon="arrow-left"
-			onclick={() => {
-				ops.status = 'cart';
-			}}
-		></RoundButton>
-		<div class="page_title">Cart / Receiver</div>
-	</div>
+<Card
+	open={ops.status == name}
+	onclick={() => {
+		ops.status = ops.status != name ? name : null;
+	}}
+>
+	{#snippet title()}
+		<div class="line space">
+			<div class="title">{name}</div>
+			{#if ops.status != name && ops.isFilled()}
+				<div class="c">
+					<div class="a">Delivery Fee</div>
+					<div class="b" transition:slide>
+						₦{Number(ops.cart.cost_delivery).toLocaleString()}
+					</div>
+				</div>
+			{/if}
+		</div>
+	{/snippet}
 
 	{#if !ops.isFilled()}
 		<PageNote>
@@ -35,28 +45,38 @@
 
 	<br />
 	<Button icon="square-pen" onclick={() => module.open(Form, ops)}>Edit</Button>
-</Content>
 
-{#if ops.isFilled()}
-	<Next
-		value={ops.cart.cost_delivery}
-		label="Delivery Cost:"
-		btn_label="Next"
-		icon2="send-horizontal"
-		onclick={() => {
-			ops.status = 'pay';
-		}}
-	></Next>
-{/if}
+	{#if ops.isFilled()}
+		<div class="line space total">
+			<span class="a">Delivery Fee</span>
+			<div class="b">
+				₦{Number(ops.cart.cost_delivery).toLocaleString()}
+			</div>
+		</div>
+	{/if}
+</Card>
 
 <style>
-	.page_title {
-		margin: 24px 0;
+	.title {
+		font-size: 1.2rem;
 	}
 
-	.card {
-		padding: 16px;
-		border-radius: 8px;
-		background-color: var(--bg1);
+	.c {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+	}
+	.a {
+		font-size: 0.8rem;
+	}
+	.b {
+		font-weight: bold;
+		font-size: 1.2rem;
+		color: var(--ft1);
+	}
+	.total {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid var(--bg2);
 	}
 </style>

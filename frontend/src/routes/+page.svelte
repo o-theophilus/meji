@@ -1,15 +1,19 @@
 <script>
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import { module } from '$lib/store.svelte.js';
+	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { About, Skill, Experience, Contact, Highlight, ACD } from '$lib/+page';
-	import { Hero, Tags } from '$lib/+page_';
+	import { Hero, Tags, About } from '$lib/+page';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
+	import { Content } from '$lib/layout';
+	import { LinkArrow } from '$lib/button';
+	import ItemGroup from './shop/item_group.svelte';
 
-	import Carousel from '$lib/+page/carousel.svelte';
+	let { data } = $props();
+	let new_arrivals = $derived(data.new_arrivals);
+	let discount = $derived(data.discount);
 
 	const get_module = (x) => {
 		if (x == 'login') {
@@ -47,11 +51,37 @@
 
 <Hero />
 <!-- <Advert space="home_1" placeholder /> -->
+<Tags />
 
-<!-- <ACD /> -->
-<!-- <About /> -->
-<!-- <Skill /> -->
-<!-- <Contact /> -->
-<!-- <Experience /> -->
-<!-- <Highlight /> -->
-<!-- <Carousel></Carousel> -->
+<Content --content-width="1200px" --content-height="100%" --content-background-color="var(--bg2)">
+	<ItemGroup id="new_arrivals" items={new_arrivals}>
+		{#snippet _title()}
+			<div class="a">
+				New Arrivals
+				<LinkArrow
+					onclick={() => page_state.goto('shop', { order: 'latest' })}
+					--link-font-size="0.8rem">See All</LinkArrow
+				>
+			</div>
+		{/snippet}
+	</ItemGroup>
+	<ItemGroup id="discount" items={discount}>
+		{#snippet _title()}
+			<div class="a">
+				Discounted Items
+				<LinkArrow
+					onclick={() => page_state.goto('shop', { order: 'discount' })}
+					--link-font-size="0.8rem">See All</LinkArrow
+				>
+			</div>
+		{/snippet}
+	</ItemGroup>
+	<About></About>
+</Content>
+
+<style>
+	.a {
+		display: flex;
+		flex-direction: column;
+	}
+</style>

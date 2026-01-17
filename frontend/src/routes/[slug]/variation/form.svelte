@@ -52,18 +52,20 @@
 	<Add bind:ops />
 	<Mod bind:ops />
 
-	<Button
-		icon2="save"
-		onclick={submit}
-		disabled={JSON.stringify(ops.variation) === JSON.stringify(module.value.variation)}
-	>
-		Save</Button
-	>
-	<Button
-		icon="history"
-		onclick={reset}
-		disabled={JSON.stringify(ops.variation) === JSON.stringify(module.value.variation)}
-	>
-		Reset
-	</Button>
+	<div class="line">
+		<Button
+			icon2="save"
+			onclick={submit}
+			disabled={JSON.stringify(ops.variation) === JSON.stringify(module.value.variation)}
+		>
+			Save</Button
+		>
+		<Button
+			icon="history"
+			onclick={reset}
+			disabled={JSON.stringify(ops.variation) === JSON.stringify(module.value.variation)}
+		>
+			Reset
+		</Button>
+	</div>
 </Form>

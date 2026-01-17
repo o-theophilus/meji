@@ -12,22 +12,12 @@
 	let selected = $state([]);
 	let multiply = $state(false);
 	let filter = $state('');
-	let loading = $state(true);
 	let open = $state(false);
 
 	let _selected = $state([]);
 	let _multiply = $state(false);
 
 	onMount(async () => {
-		if (!app.tags) {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-			resp = await resp.json();
-
-			if (resp.status == 200) {
-				app.tags = resp.tags;
-			}
-		}
-
 		if (value.endsWith(':all')) {
 			multiply = true;
 			_multiply = multiply;
@@ -36,7 +26,6 @@
 
 		selected = value.split(',').filter(Boolean);
 		_selected = [...selected];
-		loading = false;
 	});
 
 	const submit = () => {
@@ -77,7 +66,6 @@
 			open = !open;
 			filter = '';
 		}}
-		disabled={loading}
 	></Button>
 
 	{#if open}
@@ -97,7 +85,7 @@
 			</IG>
 
 			<div class="tags">
-				{#if app.tags?.length}
+				{#if app.tags.length}
 					{#each app.tags as x}
 						{#if x.toLowerCase().includes(filter.toLowerCase())}
 							<button
@@ -112,7 +100,7 @@
 							>
 								<div class="checkbox" class:active={selected.includes(x)}>
 									<div class="icon">
-										<Icon icon="check"></Icon>
+										<!-- <Icon icon="check"></Icon> -->
 									</div>
 								</div>
 								{x}

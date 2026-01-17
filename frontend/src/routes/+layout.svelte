@@ -11,6 +11,7 @@
 	app.login = data.locals.login;
 	app.likes = data.locals.likes;
 	app.cart_items = data.locals.cart_items;
+	app.tags = data.locals.tags;
 </script>
 
 <main class:dark={app.user.theme == 'dark'}>

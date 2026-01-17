@@ -1,17 +1,14 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { app, module, loading } from '$lib/store.svelte.js';
-
-	import { Button, Link } from '$lib/button';
+	import { app, loading } from '$lib/store.svelte.js';
+	import { Button } from '$lib/button';
 	import { Dialogue, Note } from '$lib/info';
-	import Next from '../next.svelte';
 
-	import Email_Admin from './email_template_admin.svelte';
-	import Email_User from './email_template_user.svelte';
+	import Email_Admin from '../orders/[slug]/email/email_template_admin.svelte';
+	import Email_User from '../orders/[slug]/email/email_template_user.svelte';
 	let email_template_admin;
 	let email_template_user;
 
-	let { ops, total } = $props();
+	let { ops } = $props();
 	let error = $state({});
 
 	const make_payment = async () => {
@@ -98,26 +95,52 @@
 			error = resp;
 		}
 	};
+
+	let total = $derived.by(() => {
+		let sum = ops.total_items() - (Number(ops.cart.discount_amount) || 0);
+		if (ops.isFilled()) {
+			sum += Number(ops.cart.cost_delivery || 0);
+		}
+		return sum;
+	});
 </script>
 
 <svelte:head>
 	<script src="https://js.paystack.co/v2/inline.js"></script>
 </svelte:head>
 
-<Next
-	value={total + Number(ops.cart.cost_delivery)}
-	label="Total Amount"
-	btn_label="Make Payment"
-	icon="cart"
-	onclick={make_payment}
->
-	<Note note={error.error} status="400" --note-margin-top="16px"></Note>
+<div class="floater">
+	<div class="floater_block">
+		<div class="line space">
+			<div class="total">Total Amount</div>
+			<div class="cost">
+				₦{total.toLocaleString()}
+			</div>
+		</div>
 
-	<span class="terms">
-		by clicking the order button, you have accepred our
-		<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
-	</span>
-</Next>
+		<div class="checkout">
+			<Button
+				icon="cart"
+				--button-color="white"
+				--button-background-color="var(--cl1)"
+				onclick={() => {
+					if (app.login) {
+						make_payment();
+					} else {
+						module.open(Login);
+					}
+				}}
+			>
+				{#if !app.login}
+					Login to
+				{/if}
+				Checkout
+			</Button>
+		</div>
+
+		<Note note={error.error} status="400" --note-margin-top="16px"></Note>
+	</div>
+</div>
 
 <div bind:this={email_template_admin} style="display: none;">
 	<Email_Admin order={ops.cart} items={app.cart_items} />
@@ -127,7 +150,33 @@
 </div>
 
 <style>
-	.terms {
-		font-size: small;
+	.floater {
+		position: sticky;
+		bottom: var(--headerHeight);
+
+		background-color: var(--bg1);
+		border-top: 1px solid var(--bg2);
 	}
+
+	.floater_block {
+		padding: 16px 24px;
+		max-width: var(--mobileWidth);
+		margin: auto;
+	}
+
+	.total {
+		font-size: 0.8rem;
+	}
+	.cost {
+		font-weight: 700;
+		font-size: 1.2rem;
+		color: var(--ft1);
+	}
+
+	.checkout {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 16px;
+	}
+
 </style>

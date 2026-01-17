@@ -28,6 +28,7 @@ access_pass = {
         ['add', 2],
         ['edit_status', 2],
         ['edit_file', 2],
+        ['edit_date', 2],
         ['edit_name', 2],
         ['edit_tag', 2],
         ['edit_price', 2],

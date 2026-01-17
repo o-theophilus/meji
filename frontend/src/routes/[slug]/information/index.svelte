@@ -22,7 +22,7 @@
 	{/if}
 
 	{#if item.information}
-		<Card {open} onopen={() => (open = !open)}>
+		<Card {open} onclick={() => (open = !open)}>
 			{#snippet title()}
 				Details & Specifications
 			{/snippet}

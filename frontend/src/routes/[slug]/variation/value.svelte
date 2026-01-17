@@ -6,6 +6,7 @@
 	let color = v[1];
 </script>
 
+<!-- TODO: make better and inline style -->
 {#if color && label}
 	<button class:active class:small class:onclick class="block" {onclick}>
 		{label}
@@ -44,7 +45,7 @@
 		background-color: var(--input);
 		color: var(--ft2);
 		outline: 2px solid var(--input);
-		outline-offset: -2px;
+		outline-offset: 4px;
 	}
 
 	.color {

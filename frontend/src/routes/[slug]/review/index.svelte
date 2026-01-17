@@ -54,7 +54,7 @@
 	};
 </script>
 
-<Card {open} onopen={() => (open = !open)}>
+<Card {open} onclick={() => (open = !open)}>
 	{#snippet title()}
 		<div class="line">
 			<span>

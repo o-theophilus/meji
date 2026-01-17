@@ -4,14 +4,17 @@
 
 <dir class="details">
 	<div>Maximum Price</div>
-	<div>₦{item.price_old.toLocaleString()}</div>
+	<div>₦{Number(item.price_old).toLocaleString()}</div>
 
 	<div>Selling Price</div>
-	<div>₦{item.price.toLocaleString()}</div>
+	<div>₦{Number(item.price).toLocaleString()}</div>
 
 	<div>Discount</div>
-	{#if item.price && item.price_old}
-		<div>{(((item.price_old - item.price) * 100) / item.price_old).toFixed(0)}% off</div>
+	{#if Number(item.price) && Number(item.price_old)}
+		<div>
+			{(((Number(item.price_old) - Number(item.price)) * 100) / Number(item.price_old)).toFixed(0)}%
+			off
+		</div>
 	{:else}
 		<div>0% off</div>
 	{/if}
@@ -19,12 +22,12 @@
 	<div class="hr"></div>
 
 	<div>Total</div>
-	<div>₦{item.price.toLocaleString()}</div>
+	<div>₦{Number(item.price).toLocaleString()}</div>
 
 	<div class="hr"></div>
 
 	<div>Overall save</div>
-	<div>₦{(item.price_old - item.price).toLocaleString()}</div>
+	<div>₦{(Number(item.price_old) - Number(item.price)).toLocaleString()}</div>
 </dir>
 
 <style>

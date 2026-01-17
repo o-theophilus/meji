@@ -6,7 +6,7 @@ export const app = $state({
 	user: {},
 	login: false,
 	highlight: null,
-	tags: null,
+	tags: [],
 	likes: [],
 	cart_items: [],
 	item: {},
@@ -118,6 +118,7 @@ export const page_state = $state({
 
 export let isMobile = $state(false)
 export const scroll = (query) => {
+
 	let e = document.querySelector(query);
 
 	const scrollMobile = () => {

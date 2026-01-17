@@ -1,5 +1,5 @@
 <script>
-	import Value from '../../[slug]/variation/value.svelte';
+	import Value from '../../../[slug]/variation/value.svelte';
 	let { items = [] } = $props();
 </script>
 
@@ -28,6 +28,7 @@
 				{#each Object.entries(item.variation) as [key, value], i}
 					{#if i != 0},&nbsp;{/if}
 					{key}: <Value {value} small></Value>
+					<!-- TODO: convert this value component to inline style -->
 				{/each}
 			{/if}
 		</span>
