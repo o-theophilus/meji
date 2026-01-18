@@ -59,7 +59,9 @@
 </script>
 
 <Form title="Cancel Order" error={error.error}>
-	<Note status="201" note="Are you sure you want to cancel this order?">Please give reason why you are canceling this order</Note>
+	<Note status="201" note="Are you sure you want to cancel this order?"
+		>Please give reason why you are canceling this order</Note
+	>
 	<IG
 		name="Comment ({500 - form.comment.length})"
 		error={error.comment}

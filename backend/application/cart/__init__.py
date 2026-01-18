@@ -77,7 +77,6 @@ def add_to_cart():
     """, (cart["key"], item_key, Json(variation)))
     order_item = cur.fetchone()
 
-    # TODO: update price when cart changes to order
     if order_item:
         cur.execute("""
             UPDATE order_item SET quantity = %s WHERE key = %s
@@ -333,9 +332,11 @@ def receiver_clear():
         "cart": cart
     })
 
+# TODO: coupon
 
-@bp.put("/cart/modifier")
-def modifier():
+
+@bp.put("/cart/coupon")
+def coupon():
     con, cur = db_open()
 
     session = get_session(cur, True)

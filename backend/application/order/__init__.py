@@ -56,7 +56,7 @@ def order_check():
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "invalid delivery address"
+            "error": "incomplete receiver information"
         })
 
     # TODO: check item availability
@@ -153,8 +153,8 @@ def cart_to_order():
         })
 
     pay = order["cost_delivery"]
-    for filename in items:
-        pay += filename["price"] * filename["order_quantity"]
+    for x in items:
+        pay += x["price"] * x["order_quantity"]
 
     # TODO: also check Coupons here
 
@@ -202,8 +202,8 @@ def cart_to_order():
         del row["key"]
         del row["order_quantity"]
 
-        for filename in row["files"]:
-            storage.copy(filename, "item", "item_snap")
+        for x in row["files"]:
+            storage.copy(x, "item", "item_snap")
 
         columns = list(row.keys())
         values = []
@@ -218,15 +218,19 @@ def cart_to_order():
         VALUES ({', '.join(['%s'] * len(columns))});
     """, values_list)
 
+    order["timeline"]["created"] = f"{datetime.now(timezone.utc)}"
+    order["timeline"]["delivery_date"
+                      ] = f"{datetime.now(timezone.utc) + timedelta(days=7)}"
+
     cur.execute("""
         UPDATE "order"
         SET
             status = 'created',
-            cost_items = %s, delivery_date = %s,
+            cost_items = %s, timeline = %s,
             pay_user = %s,  pay_reference = %s
         WHERE key = %s RETURNING *;
     """, (
-        pay, datetime.now(timezone.utc) + timedelta(days=7),
+        pay, Json(order["timeline"]),
         pay, reference,
         order["key"]
     ))
@@ -296,7 +300,7 @@ def delivery_date(key):
     delivery_date = request.json.get("delivery_date", "").strip()
     if not delivery_date or type(delivery_date) is not str:
         error["delivery_date"] = "This field is required"
-    elif delivery_date == order["delivery_date"]:
+    elif delivery_date == order["timeline"]["delivery_date"]:
         error["delivery_date"] = "No changes were made"
     else:
         try:
@@ -318,15 +322,17 @@ def delivery_date(key):
         entity_key=order["key"],
         entity_type="order",
         misc={
-            "from": f"{order['delivery_date']}",
+            "from": f"{order["timeline"]['delivery_date']}",
             "to": delivery_date
         }
     )
 
+    order["timeline"]["delivery_date"] = delivery_date
+
     cur.execute("""
-        UPDATE "order" SET delivery_date = %s
+        UPDATE "order" SET timeline = %s
         WHERE key = %s RETURNING *;
-    """, (delivery_date, order["key"]))
+    """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
     db_close(con, cur)
@@ -410,10 +416,13 @@ def cancel(key):
         misc={"comment": comment}
     )
 
+    order["timeline"]["canceled"] = f"{datetime.now(timezone.utc)}"
+
     cur.execute("""
-        UPDATE "order" SET status = 'canceled'
+        UPDATE "order"
+        SET status = 'canceled', timeline = %s
         WHERE key = %s RETURNING *;
-    """, (order["key"],))
+    """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
     send_mail(
@@ -527,10 +536,19 @@ def status(key):
         }
     )
 
+    i = order_status.index(status)
+    for x in order_status[i+1:]:
+        if x in order["timeline"]:
+            del order["timeline"][x]
+
+    if status != "created":
+        order["timeline"][status] = f"{datetime.now(timezone.utc)}"
+
     cur.execute("""
-        UPDATE "order" SET status = %s
+        UPDATE "order"
+            SET status = %s, timeline = %s
         WHERE key = %s RETURNING *;
-    """, (status, order["key"]))
+    """, (status, Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
     if status == "delivered":

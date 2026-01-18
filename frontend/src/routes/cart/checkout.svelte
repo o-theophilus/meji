@@ -1,5 +1,6 @@
 <script>
-	import { app, loading } from '$lib/store.svelte.js';
+	import { goto } from '$app/navigation';
+	import { app, loading, scroll, module } from '$lib/store.svelte.js';
 	import { Button } from '$lib/button';
 	import { Dialogue, Note } from '$lib/info';
 
@@ -8,11 +9,10 @@
 	let email_template_admin;
 	let email_template_user;
 
-	let { ops } = $props();
-	let error = $state({});
+	let { ops = $bindable() } = $props();
 
 	const make_payment = async () => {
-		error = {};
+		ops.error = {};
 		loading.open('Loading . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
 			headers: {
@@ -50,12 +50,12 @@
 			});
 			paystack.openIframe();
 		} else {
-			error = resp;
+			ops.error = resp;
 		}
 	};
 
 	const submit = async (reference) => {
-		error = {};
+		ops.error = {};
 
 		loading.open('Loading . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
@@ -92,13 +92,13 @@
 				]
 			});
 		} else {
-			error = resp;
+			ops.error = resp;
 		}
 	};
 
 	let total = $derived.by(() => {
 		let sum = ops.total_items() - (Number(ops.cart.discount_amount) || 0);
-		if (ops.isFilled()) {
+		if (ops.has_receiver()) {
 			sum += Number(ops.cart.cost_delivery || 0);
 		}
 		return sum;
@@ -124,10 +124,14 @@
 				--button-color="white"
 				--button-background-color="var(--cl1)"
 				onclick={() => {
-					if (app.login) {
-						make_payment();
-					} else {
+					if (!app.login) {
 						module.open(Login);
+					} else if (!ops.has_receiver()) {
+						ops.status = 'Receiver';
+						ops.error.error = 'Please provide receiver information before checkout';
+						scroll('#Receiver');
+					} else {
+						make_payment();
 					}
 				}}
 			>
@@ -138,7 +142,7 @@
 			</Button>
 		</div>
 
-		<Note note={error.error} status="400" --note-margin-top="16px"></Note>
+		<Note note={ops.error.error} status="400" --note-margin-top="16px"></Note>
 	</div>
 </div>
 

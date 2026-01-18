@@ -56,6 +56,7 @@ def get_cart_items(cur=None):
     })
 
 
+# TODO: previous_receivers
 @bp.get("/cart/previous_receivers")
 def previous_receivers():
     con, cur = db_open()

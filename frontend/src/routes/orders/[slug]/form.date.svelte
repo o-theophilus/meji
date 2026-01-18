@@ -6,7 +6,7 @@
 	import { Form } from '$lib/layout';
 
 	let form = $state({
-		delivery_date: new Date(module.value.delivery_date).toISOString().slice(0, 19)
+		delivery_date: new Date(module.value.timeline.delivery_date).toISOString().slice(0, 19)
 	});
 	let error = $state({});
 
@@ -22,14 +22,17 @@
 
 	const submit = async () => {
 		loading.open('Saving Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/delivery_date/${module.value.key}`, {
-			method: 'put',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/order/delivery_date/${module.value.key}`,
+			{
+				method: 'put',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify(form)
+			}
+		);
 		resp = await resp.json();
 		loading.close();
 

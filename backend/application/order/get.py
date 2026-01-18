@@ -41,6 +41,7 @@ def get(key):
             "error": "unauthorized access"
         })
 
+    # TODO:do the full journey
     cur.execute("""
         SELECT
             item.key, item.slug, item.name, item.price, item.status,
@@ -48,7 +49,8 @@ def get(key):
             order_item.variation, order_item.quantity
         FROM order_item
         LEFT JOIN "order" ON "order".key = order_item.order_key
-        LEFT JOIN item ON order_item.item_key = item.key
+        --LEFT JOIN item ON order_item.item_key = item.key
+        LEFT JOIN item_snap AS item ON order_item.item_key = item.item_key
         WHERE "order".key = %s
         ORDER BY order_item.date_created DESC
     ;""", (order["key"],))

@@ -5,7 +5,7 @@
 	import User from './_email.user.svelte';
 	import Date from './_email.date.svelte';
 
-	let { order, datetime, items } = $props();
+	let { order, items } = $props();
 </script>
 
 <EmailTemplate>
@@ -33,7 +33,7 @@
 
 	<Table {items} />
 	<User label="Receiver" receiver={order.receiver}></User>
-	<Date datetime={order.delivery_date}></Date>
+	<Date datetime={order.timeline.delivery_date}></Date>
 
 	<hr style="border-color: gray; margin: 24px 0;" />
 

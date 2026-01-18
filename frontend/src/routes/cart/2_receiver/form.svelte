@@ -15,57 +15,55 @@
 		postal_code: module.value.cart.receiver?.address?.postal_code || ''
 	});
 
-	let error = $state({});
-
 	const validate = () => {
-		error = {};
+		module.value.error = {};
 
 		form.name = form.name.trim().replace(/\s+/g, ' ');
 		if (!form.name) {
-			error.name = 'This field is required';
+			module.value.error.name = 'This field is required';
 		} else if (form.name.length > 100) {
-			error.name = 'This field cannot exceed 100 characters';
+			module.value.error.name = 'This field cannot exceed 100 characters';
 		}
 
 		form.phone = form.phone.replace(/\s/g, '');
 		if (!form.phone) {
-			error.phone = 'This field is required';
+			module.value.error.phone = 'This field is required';
 		} else if (form.phone.length > 20) {
-			error.phone = 'This field cannot exceed 20 characters';
+			module.value.error.phone = 'This field cannot exceed 20 characters';
 		}
 
 		form.email = form.email.trim();
 		if (!form.email) {
-			error.email = 'This field is required';
+			module.value.error.email = 'This field is required';
 		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-			error.email = 'Invalid email address';
+			module.value.error.email = 'Invalid email address';
 		} else if (form.email.length > 255) {
-			error.email = 'This field cannot exceed 255 characters';
+			module.value.error.email = 'This field cannot exceed 255 characters';
 		}
 
 		if (!form.address) {
-			error.address = 'This field is required';
+			module.value.error.address = 'This field is required';
 		} else if (form.address.length > 255) {
-			error.address = 'This field cannot exceed 255 characters';
+			module.value.error.address = 'This field cannot exceed 255 characters';
 		}
 
 		if (!form.state) {
-			error.state = 'This field is required';
+			module.value.error.state = 'This field is required';
 		} else if (form.state.length > 20) {
-			error.state = 'This field cannot exceed 20 characters';
+			module.value.error.state = 'This field cannot exceed 20 characters';
 		}
 
 		if (!form.country) {
-			error.country = 'This field is required';
+			module.value.error.country = 'This field is required';
 		} else if (form.country.length > 20) {
-			error.country = 'This field cannot exceed 20 characters';
+			module.value.error.country = 'This field cannot exceed 20 characters';
 		}
 
 		if (form.postal_code && form.postal_code.length > 10) {
-			error.postal_code = 'This field cannot exceed 10 characters';
+			module.value.error.postal_code = 'This field cannot exceed 10 characters';
 		}
 
-		Object.keys(error).length === 0 && submit();
+		Object.keys(module.value.error).length === 0 && submit();
 	};
 
 	const submit = async () => {
@@ -86,7 +84,7 @@
 			module.value.cart = resp.cart;
 			module.close();
 		} else {
-			error = resp;
+			module.value.error = resp;
 		}
 	};
 
@@ -108,16 +106,16 @@
 			module.value.cart = resp.cart;
 			module.close();
 		} else {
-			error = resp;
+			module.value.error = resp;
 		}
 	};
 </script>
 
-<Form title="Edit Name" error={error.error}>
+<Form title="Edit Name" error={module.value.error.error}>
 	<IG
 		name="Name"
 		icon="user"
-		error={error.name}
+		error={module.value.error.name}
 		placeholder="Name here"
 		type="text"
 		bind:value={form.name}
@@ -127,7 +125,7 @@
 	<IG
 		name="Phone Number"
 		icon="phone"
-		error={error.phone}
+		error={module.value.error.phone}
 		placeholder="Phone number here"
 		type="tel"
 		bind:value={form.phone}
@@ -137,7 +135,7 @@
 	<IG
 		name="Email"
 		icon="mail"
-		error={error.email}
+		error={module.value.error.email}
 		placeholder="Email here"
 		type="text"
 		bind:value={form.email}
@@ -147,7 +145,7 @@
 	<IG
 		name="Address"
 		icon="user"
-		error={error.address}
+		error={module.value.error.address}
 		placeholder="Address here"
 		type="text"
 		bind:value={form.address}
@@ -157,7 +155,7 @@
 	<IG
 		name="State"
 		icon="user"
-		error={error.state}
+		error={module.value.error.state}
 		placeholder="State here"
 		type="text"
 		bind:value={form.state}
@@ -167,7 +165,7 @@
 	<IG
 		name="Country"
 		icon="user"
-		error={error.country}
+		error={module.value.error.country}
 		placeholder="Country here"
 		type="text"
 		bind:value={form.country}
@@ -177,7 +175,7 @@
 	<IG
 		name="Postal Code"
 		icon="user"
-		error={error.postal_code}
+		error={module.value.error.postal_code}
 		placeholder="Postal Code here"
 		type="text"
 		bind:value={form.postal_code}
@@ -188,7 +186,10 @@
 		--button-background-color="darkred"
 		--button-background-color-hover="red"
 		--button-color-hover="white"
-		onclick={clear}>Clear</Button
+		disabled={!module.value.has_receiver()}
+		onclick={clear}
 	>
+		Clear
+	</Button>
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>

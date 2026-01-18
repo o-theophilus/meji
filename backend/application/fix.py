@@ -1187,13 +1187,10 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DELETE FROM "order"
+        ALTER TABLE "order"
+        DROP COLUMN date_updated,
+        DROP COLUMN delivery_date;
     """)
-
-    # cur.execute("""
-    #     ALTER TABLE "user"
-    #     DROP COLUMN date_updated;
-    # """)
 
     # cur.execute("""
     #     ALTER TABLE item

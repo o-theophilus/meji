@@ -16,14 +16,11 @@
 		app.cart_items = data.items;
 	});
 
-	const today = new Date();
-	const nextWeek = new Date(today);
-	nextWeek.setDate(today.getDate() + 7);
-
 	let ops = $state({
 		status: 'Items',
 		cart: data.cart,
-		isFilled() {
+		error: {},
+		has_receiver() {
 			return !!(
 				this.cart.receiver?.name &&
 				this.cart.receiver?.phone &&
@@ -45,7 +42,11 @@
 			{ code: 'SAVE20', entity: 'delivery', type: 'number', value: 20 },
 			{ code: 'SAVE30', entity: 'delivery', type: 'percent', value: 100 }
 		],
-		delivery_date: nextWeek
+		get delivery_date() {
+			const today = new Date();
+			const nextWeek = new Date(today);
+			return nextWeek.setDate(today.getDate() + 7);
+		}
 	});
 </script>
 
@@ -62,8 +63,9 @@
 		<Receiver bind:ops></Receiver>
 		<Coupons bind:ops></Coupons>
 
+		<!-- TODO: add terms page -->
 		<span class="terms">
-			by clicking the order button, you have accepred our
+			By clicking the order button, you have accepred our
 			<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
 		</span>
 	{:else}
@@ -78,7 +80,7 @@
 </Content>
 
 {#if app.cart_items.length}
-	<Checkout {ops}></Checkout>
+	<Checkout bind:ops></Checkout>
 {/if}
 
 <style>

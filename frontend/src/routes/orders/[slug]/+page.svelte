@@ -16,6 +16,7 @@
 
 	let { data } = $props();
 	let order = $state(data.order);
+
 	let items = data.items;
 	let status = data._status;
 
@@ -52,7 +53,7 @@
 	</div>
 
 	<div class="label">Status</div>
-	<StatusView {status} order_status={order.status}></StatusView>
+	<StatusView {status} {order}></StatusView>
 
 	<br />
 	<div class="card">
@@ -61,7 +62,7 @@
 		<div class="line space">
 			<span class="label bold"> Total Item Cost: </span>
 			<span class="cost">
-				₦{order.cost_items.toLocaleString()}
+				₦{Number(order.cost_items).toLocaleString()}
 			</span>
 		</div>
 
@@ -80,11 +81,11 @@
 		<div class="label">
 			To be delivered on or before
 			<span class="bold">
-				<Datetime datetime={order.delivery_date} type="day_full" />
-				<Datetime datetime={order.delivery_date} type="date_numeric" />
+				<Datetime datetime={order.timeline.delivery_date} type="day_full" />
+				<Datetime datetime={order.timeline.delivery_date} type="date_numeric" />
 			</span>. Time:
 			<span class="bold">
-				<Datetime datetime={order.delivery_date} type="time_period" />
+				<Datetime datetime={order.timeline.delivery_date} type="time_period" />
 			</span>.
 		</div>
 
@@ -97,7 +98,7 @@
 		<div class="line space">
 			<span class="label bold"> Delivery fee: </span>
 			<span class="cost">
-				₦{order.cost_delivery.toLocaleString()}
+				₦{Number(order.cost_delivery).toLocaleString()}
 			</span>
 		</div>
 	</div>

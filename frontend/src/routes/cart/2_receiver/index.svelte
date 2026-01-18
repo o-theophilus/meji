@@ -19,9 +19,9 @@
 	}}
 >
 	{#snippet title()}
-		<div class="line space">
+		<div class="line space" id={name}>
 			<div class="title">{name}</div>
-			{#if ops.status != name && ops.isFilled()}
+			{#if ops.status != name && ops.has_receiver()}
 				<div class="c">
 					<div class="a">Delivery Fee</div>
 					<div class="b" transition:slide>
@@ -32,7 +32,7 @@
 		</div>
 	{/snippet}
 
-	{#if !ops.isFilled()}
+	{#if !ops.has_receiver()}
 		<PageNote>
 			<Icon icon="User" size="50" />
 			No receiver
@@ -44,9 +44,15 @@
 	{/if}
 
 	<br />
-	<Button icon="square-pen" onclick={() => module.open(Form, ops)}>Edit</Button>
+	<Button
+		icon="square-pen"
+		onclick={() => {
+			ops.error = {};
+			module.open(Form, ops);
+		}}>Edit</Button
+	>
 
-	{#if ops.isFilled()}
+	{#if ops.has_receiver()}
 		<div class="line space total">
 			<span class="a">Delivery Fee</span>
 			<div class="b">
