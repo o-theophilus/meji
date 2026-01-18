@@ -3,8 +3,8 @@
 	import { Button } from '$lib/button';
 	import { Dialogue, Note } from '$lib/info';
 
-	import Email_Admin from '../orders/[slug]/email/email_template_admin.svelte';
-	import Email_User from '../orders/[slug]/email/email_template_user.svelte';
+	import Email_Admin from '../orders/[slug]/email/create_admin.svelte';
+	import Email_User from '../orders/[slug]/email/create_user.svelte';
 	let email_template_admin;
 	let email_template_user;
 
@@ -178,5 +178,4 @@
 		justify-content: flex-end;
 		margin-top: 16px;
 	}
-
 </style>

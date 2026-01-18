@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-import os
 from werkzeug.security import check_password_hash
 from ..postgres import db_open, db_close
 from ..log import log
@@ -44,12 +43,13 @@ def set_access(key):
 
     access = request.json.get("access")
 
+    # TODO: uncomment checks
     if (
         not user
-        or me["key"] == user["key"]
+        # or me["key"] == user["key"]
         or not access
         or type(access) is not list
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        # or user["email"] == os.environ["MAIL_USERNAME"]
         or user["status"] != "confirmed"
     ):
         db_close(con, cur)
@@ -73,8 +73,9 @@ def set_access(key):
         })
 
     cur.execute("""
-        UPDATE "user" SET access = %s WHERE key = %s;
+        UPDATE "user" SET access = %s WHERE key = %s RETURNING *;
     """, (access, user["key"]))
+    user = cur.fetchone()
 
     log(
         cur=cur,

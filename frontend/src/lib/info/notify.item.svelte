@@ -56,26 +56,30 @@
 		flex-direction: column;
 		align-items: end;
 
-		border-radius: var(--sp0);
+		border-radius: 4px;
 		fill: currentColor;
 		font-size: 0.8rem;
 
 		pointer-events: all;
-		padding: var(--sp2);
 
 		color: green;
 		border-left: 8px solid green;
-		background-color: color-mix(in srgb, green, white 90%);
+		background-color: color-mix(in srgb, var(--bg1), transparent 20%);
 	}
+	.line {
+		padding: 16px;
+		background-color: color-mix(in srgb, green, transparent 80%);
+	}
+
 	.bad {
 		color: red;
 		border-color: red;
-		background-color: color-mix(in srgb, red, white 90%);
+		background-color: color-mix(in srgb, red, transparent 90%);
 	}
 	.caution {
 		color: var(--yellow);
 		border-color: var(--yellow);
-		background-color: color-mix(in srgb, var(--yellow), white 90%);
+		background-color: color-mix(in srgb, var(--yellow), transparent 90%);
 	}
 
 	button {

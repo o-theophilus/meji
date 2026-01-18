@@ -46,14 +46,14 @@ def get_admins():
     page_no = int(request.args.get("page_no", 1))
     page_size = int(request.args.get("size", 24))
 
+    # TODO: also check all query comment
     cur.execute("""
         SELECT *, COUNT(*) OVER() AS _count
         FROM "user"
         WHERE
             array_length(access, 1) IS NOT NULL
             -- AND status = "confirmed"
-            AND (%s = ''
-                OR CONCAT_WS(', ', key, name, email)
+            AND (%s = '' OR CONCAT_WS(', ', key, name, email)
                 ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING(access, ',')
                 ILIKE %s)

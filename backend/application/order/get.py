@@ -31,6 +31,16 @@ def get(key):
             "error": "Oops! The order you're looking for doesn't exist"
         })
 
+    if (
+        order["user_key"] != session["user"]["key"]
+        and "order:view" not in session["user"]["access"]
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
     cur.execute("""
         SELECT
             item.key, item.slug, item.name, item.price, item.status,
@@ -48,7 +58,8 @@ def get(key):
     return jsonify({
         "status": 200,
         "order": order,
-        "items": items
+        "items": items,
+        "_status": order_status,
     })
 
 
@@ -60,38 +71,50 @@ def get_many():
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
-
-    # if "user:view" not in session["user"]["access"]:
-    #     db_close(con, cur)
-    #     return jsonify({
-    #         "status": 400,
-    #         "error": "unauthorized access"
-    #     })
+    user = session["user"]
 
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
-        # 'name (a-z)': 'name',
-        # 'name (z-a)': 'name'
+        'cost_items (hi)': 'cost_items',
+        'cost_items (lo)': 'cost_items',
+        'cost_delivery (hi)': 'cost_delivery',
+        'cost_delivery (lo)': 'cost_delivery',
+        'pay_user (hi)': 'pay_user',
+        'pay_user (lo)': 'pay_user',
+        'delivery_date (hi)': 'delivery_date',
+        'delivery_date (lo)': 'delivery_date',
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'name (a-z)': 'ASC',
-        'name (z-a)': 'DESC'
+        'cost_items (hi)': 'DESC',
+        'cost_items (lo)': 'ASC',
+        'cost_delivery (hi)': 'DESC',
+        'cost_delivery (lo)': 'ASC',
+        'pay_user (hi)': 'DESC',
+        'pay_user (lo)': 'ASC',
+        'delivery_date (hi)': 'DESC',
+        'delivery_date (lo)': 'ASC',
     }
 
     status = request.args.get("status", "created")
+    view = request.args.get("view", "")
     search = request.args.get("search", "").strip()
     order = request.args.get("order", "latest")
     page_no = int(request.args.get("page_no", 1))
     page_size = int(request.args.get("size", 24))
 
+    user_key = user["key"]
+    if view == "all" and "order:view" in user["access"]:
+        user_key = ""
+
     cur.execute("""
         SELECT *, COUNT(*) OVER() AS _count
         FROM "order"
         WHERE (%s = 'all' OR status = %s)
+            AND (%s = '' OR user_key::TEXT = %s)
             AND (%s = '' OR CONCAT_WS(', ', key) ILIKE %s)
         ORDER BY {} {}
         LIMIT %s OFFSET %s;
@@ -99,16 +122,17 @@ def get_many():
         order_by[order], order_dir[order]
     ), (
         status, status,
+        user_key, user_key,
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
-    items = cur.fetchall()
+    orders = cur.fetchall()
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": items,
+        "orders": orders,
         "order_by": list(order_by.keys()),
         "_status": order_status,
-        "total_page": ceil(items[0]["_count"] / page_size) if items else 0
+        "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0
     })

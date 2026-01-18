@@ -3,22 +3,24 @@
 	import { page } from '$app/state';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { page_state } from '$lib/store.svelte.js';
+	import { app, page_state } from '$lib/store.svelte.js';
 
 	import { Content } from '$lib/layout';
-	import { BackButton } from '$lib/button';
+	import { BackButton, Radio } from '$lib/button';
 	import { Pagination, Dropdown, Search } from '$lib/input';
 	import { Meta, Log, Icon } from '$lib/macro';
 	import { PageNote } from '$lib/info';
-	import Item from './item.svelte';
+	import One from './one.svelte';
 
 	let { data } = $props();
-	let items = $derived(data.items);
+
+	let orders = $derived(data.orders);
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
 	let { _status } = data;
 	let search = $state({
 		search: '',
+		view: '',
 		status: 'created',
 		order: 'latest',
 		page_no: 1
@@ -27,6 +29,9 @@
 	onMount(() => {
 		if (page_state.searchParams.search) {
 			search.search = page_state.searchParams.search;
+		}
+		if (page_state.searchParams.view) {
+			search.view = page_state.searchParams.view;
 		}
 		if (page_state.searchParams.status) {
 			search.status = page_state.searchParams.status;
@@ -51,19 +56,34 @@
 		<div class="line">
 			<BackButton />
 			<div class="page_title">
-				Order{items.length > 1 ? 's' : ''}
+				Order{orders?.length > 1 ? 's' : ''}
 			</div>
 		</div>
 
-		<Dropdown
-			icon2="chevron-down"
-			list={['all', ..._status]}
-			bind:value={search.status}
-			onchange={(v) => {
-				v = v == 'confirmed' ? '' : v;
-				page_state.set({ status: v });
-			}}
-		/>
+		<div class="line">
+			{#if app.user.access.includes('order:view')}
+				<Radio
+					--button-outline-color-hover="var(--ft1)"
+					list={['me', 'all']}
+					bind:value={search.view}
+					ondone={(v) => {
+						search.page_no = 1;
+						v = v == 'me' ? '' : v;
+						page_state.set({ view: v });
+					}}
+				></Radio>
+			{/if}
+
+			<Dropdown
+				icon2="chevron-down"
+				list={['all', ..._status]}
+				bind:value={search.status}
+				onchange={(v) => {
+					v = v == 'confirmed' ? '' : v;
+					page_state.set({ status: v });
+				}}
+			/>
+		</div>
 	</div>
 
 	<Search
@@ -95,9 +115,9 @@
 	<br />
 	<br />
 
-	{#each items as item (item.key)}
+	{#each orders as order (order.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} />
+			<One {order} />
 		</div>
 	{:else}
 		<PageNote>

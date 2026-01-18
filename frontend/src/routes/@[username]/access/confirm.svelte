@@ -7,10 +7,8 @@
 	import { Form } from '$lib/layout';
 	import Access from './form.svelte';
 
-	let form = $state({ access: module.value.mods });
+	let form = $state({ access: module.value.access });
 	let error = $state({});
-	console.log(page);
-	
 
 	const validate = async () => {
 		error = {};
@@ -26,23 +24,21 @@
 		error = {};
 
 		loading.open('saving . . .');
-		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/admin/access/${page.data.item.key}`,
-			{
-				method: 'put',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: app.token
-				},
-				body: JSON.stringify(form)
-			}
-		);
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/access/${module.value.user.key}`, {
+			method: 'put',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: app.token
+			},
+			body: JSON.stringify(form)
+		});
 		resp = await resp.json();
 		loading.close();
 
 		if (resp.status == 200) {
-			module.close();
 			notify.open('Access saved');
+			module.value.update(resp.user);
+			module.close();
 		} else {
 			error = resp;
 		}
@@ -60,7 +56,14 @@
 	></IG>
 
 	<div class="line">
-		<Button icon="arrow-left" onclick={() => module.open(Access, { mods: module.value.mods })}>
+		<Button
+			icon="arrow-left"
+			onclick={() =>
+				module.open(Access, {
+					user: module.value.user,
+					update: module.value.update
+				})}
+		>
 			Back
 		</Button>
 		<Button icon2="send-horizontal" onclick={validate}>Submit</Button>

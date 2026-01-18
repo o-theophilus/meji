@@ -38,6 +38,15 @@ access_pass = {
         ['edit_quantity', 2],
         ['edit_highlight', 2]
     ],
+    "order": [
+        ['view', 1],  # TODO: emforce this
+        ['edit_delivery_date', 2],
+        ['edit_status', 2],
+        ['cancel', 2],
+        ['email_order_created', 3],
+        ['email_order_canceled', 3],
+        ['email_order_delivered', 3]
+    ],
     "report": [
         ['view', 1],
         ['resolve', 3]
@@ -141,7 +150,7 @@ def send_mail(to, subject, body):
         resend.api_key = os.environ["RESEND_API_KEY"]
         params = {
             "from": "Theophilus <info@theophilus.website>",
-            "to": [to],
+            "to": [to] if type(to) is not list else to,
             "subject": subject,
             "html": body,
         }

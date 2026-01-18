@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from .postgres import db_open, db_close
-from psycopg2.extras import Json
+# from psycopg2.extras import Json
 
 
 bp = Blueprint("fix", __name__)
@@ -1182,14 +1182,13 @@ data = [
 ]
 
 
-@bp.get("/fix")
+# @bp.get("/fix")
 def quick_fix():
     con, cur = db_open()
 
-    # cur.execute("""
-    #     ALTER TABLE "order"
-    #     RENAME COLUMN modifiers TO coupons;
-    # """)
+    cur.execute("""
+        DELETE FROM "order"
+    """)
 
     # cur.execute("""
     #     ALTER TABLE "user"
@@ -1201,21 +1200,21 @@ def quick_fix():
     #     ADD COLUMN specification JSONB DEFAULT '{}'::JSONB;
     # """)
 
-    columns = list(data[0].keys())
+    # columns = list(data[0].keys())
 
-    values_list = []
-    for row in data:
-        values = []
-        for column in columns:
-            if type(row[column]) is dict:
-                row[column] = Json(row[column])
-            values.append(row[column])
-        values_list.append(tuple(values))
+    # values_list = []
+    # for row in data:
+    #     values = []
+    #     for column in columns:
+    #         if type(row[column]) is dict:
+    #             row[column] = Json(row[column])
+    #         values.append(row[column])
+    #     values_list.append(tuple(values))
 
-    cur.executemany(f"""
-        INSERT INTO item ({', '.join(columns)})
-        VALUES ({', '.join(['%s'] * len(columns))});
-    """, values_list)
+    # cur.executemany(f"""
+    #     INSERT INTO item ({', '.join(columns)})
+    #     VALUES ({', '.join(['%s'] * len(columns))});
+    # """, values_list)
 
     db_close(con, cur)
     return jsonify({

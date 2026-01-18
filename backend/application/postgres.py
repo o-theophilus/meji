@@ -147,7 +147,7 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             status TEXT NOT NULL DEFAULT 'cart',
             date_created TIMESTAMPTZ DEFAULT now(),
-            date_updated TIMESTAMPTZ DEFAULT now(),
+            --date_updated TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             receiver JSONB DEFAULT '{}'::JSONB,
             cost_items DECIMAL DEFAULT 0,
@@ -155,7 +155,8 @@ def create_tables():
             pay_user DECIMAL DEFAULT 0,
             pay_reference TEXT,
             coupons TEXT[] DEFAULT '{}'::TEXT[],
-            delivery_date TIMESTAMPTZ
+            timeline JSONB DEFAULT '{}'::JSONB
+            --delivery_date TIMESTAMPTZ
         );
 
         CREATE TABLE IF NOT EXISTS order_item (

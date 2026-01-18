@@ -90,6 +90,8 @@ def order_check():
         "pay": pay
     })
 
+# order.date_updated => also update thus colums
+
 
 @bp.post("/order")
 def cart_to_order():
@@ -108,12 +110,19 @@ def cart_to_order():
     """, (user["key"],))
     order = cur.fetchone()
 
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order:email_order_created' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
     reference = request.json.get("reference")
     email_template_admin = request.json.get("email_template_admin")
     email_template_user = request.json.get("email_template_user")
 
     if (
         not order
+        or admins == []
         or not reference
         or not email_template_admin
         or not email_template_user
@@ -233,14 +242,19 @@ def cart_to_order():
     )
 
     send_mail(
-        os.environ["MAIL_USERNAME"],
-        "New Order",
-        email_template_admin
-    )
-    send_mail(
         user["email"],
         "Processing Order",
-        email_template_user
+        email_template_user.format(name=user["name"])
+    )
+    send_mail(
+        [x["email"] for x in admins],
+        "New Order",
+        email_template_admin.format(
+            name=user["name"],
+            username=user["username"]
+        )
+
+
     )
 
     db_close(con, cur)
@@ -250,8 +264,8 @@ def cart_to_order():
     })
 
 
-@bp.put("/order/eta/<key>")
-def date(key):
+@bp.put("/order/delivery_date/<key>")
+def delivery_date(key):
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -260,7 +274,7 @@ def date(key):
         return jsonify(session)
     user = session["user"]
 
-    if "order:edit_eta" not in user["permissions"]:
+    if "order:edit_delivery_date" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -269,7 +283,6 @@ def date(key):
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-
     if not order or order["status"] != "created":
         db_close(con, cur)
         return jsonify({
@@ -277,85 +290,19 @@ def date(key):
             "error": "invalid request"
         })
 
-    try:
-        datetime.strptime(
-            f"{request.json['delivery_date']}",
-            "%Y-%m-%dT%H:%M"
-        )
-    except Exception:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if (
-        "delivery_date" not in request.json
-        or not request.json["delivery_date"]
-    ):
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "this field is required"
-        })
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed_date",
-        entity_key=order["key"],
-        entity_type="order",
-        misc={
-            "from": f"{order['delivery_date']}",
-            "to": request.json['delivery_date']
-        }
-    )
-
-    cur.execute("""
-        UPDATE "order"
-        SET delivery_date = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        request.json['delivery_date'],
-        order["key"]
-    ))
-    order = cur.fetchone()
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "order": order
-    })
-
-
-@bp.post("/cart/delivery_date")
-def delivery_date():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
     error = {}
-    delivery_date = request.json.get("delivery_date")
-
-    if not delivery_date:
+    # TODO: prevent backdating in frontend also
+    # TODO: do this for other dates
+    delivery_date = request.json.get("delivery_date", "").strip()
+    if not delivery_date or type(delivery_date) is not str:
         error["delivery_date"] = "This field is required"
+    elif delivery_date == order["delivery_date"]:
+        error["delivery_date"] = "No changes were made"
+    else:
+        try:
+            datetime.strptime(delivery_date, "%Y-%m-%dT%H:%M:%S")
+        except Exception:
+            error["error"] = "invalid request"
 
     if error != {}:
         db_close(con, cur)
@@ -367,166 +314,20 @@ def delivery_date():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_delivery_date",
-        entity_key=cart["key"],
-        entity_type="cart",
+        action="changed_date",
+        entity_key=order["key"],
+        entity_type="order",
         misc={
-            "from": cart["delivery_date"],
+            "from": f"{order['delivery_date']}",
             "to": delivery_date
         }
     )
 
     cur.execute("""
-        UPDATE "order" SET delivery_date = %s WHERE key = %s RETURNING *;
-    """, (delivery_date, cart["key"]))
-    cart = cur.fetchone()
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": cart
-    })
-
-
-@bp.put("/order/status/<key>")
-def status(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    if "order:status" not in user["permissions"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+        UPDATE "order" SET delivery_date = %s
+        WHERE key = %s RETURNING *;
+    """, (delivery_date, order["key"]))
     order = cur.fetchone()
-
-    if order and order["user_key"] == user["key"]:
-        order_user = user
-    else:
-        cur.execute("""SELECT * FROM "user" WHERE key = %s;""",
-                    (order["user_key"],))
-        order_user = cur.fetchone()
-
-    if (
-        not order or not order_user
-        or "status" not in request.json
-        or not request.json["status"]
-        or request.json["status"] not in order_status[:-1]
-        or "email_template" not in request.json
-        or order["status"] in ["delivered", "canceled"]
-    ):
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    i = order_status.index(order["status"])
-    j = order_status.index(request.json["status"])
-    if i + 1 != j and i - 1 != j:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if "note" not in request.json or not request.json["note"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "note": "this field is required"
-        })
-
-    if (
-        order["status"] == "created"
-        and not order["delivery_date"]
-    ):
-        new_date = datetime.now() + timedelta(days=4)
-        new_date = new_date.replace(
-            hour=10, minute=0, second=0, microsecond=0)
-
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="changed_date",
-            entity_key=order["key"],
-            entity_type="order",
-            misc={
-                "from": order["delivery_date"],
-                "to": f'{new_date}'
-            }
-        )
-        cur.execute("""
-            UPDATE "order"
-            SET delivery_date = %s
-            WHERE key = %s;
-        """, (
-            new_date,
-            order["key"]
-        ))
-
-    if order["status"] == "processing" and request.json['status'] == "created":
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="changed_date",
-            entity_key=order["key"],
-            entity_type="order",
-            misc={
-                "from": f"{order['delivery_date']}",
-                "to": None
-            }
-        )
-
-        cur.execute("""
-            UPDATE "order"
-            SET delivery_date = %s
-            WHERE key = %s;
-        """, (
-            None,
-            order["key"]
-        ))
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed_status",
-        entity_key=order["key"],
-        entity_type="order",
-        misc={
-            "from": order['status'],
-            "to": request.json['status'],
-            "note": request.json["note"]
-        }
-    )
-
-    cur.execute("""
-        UPDATE "order"
-        SET status = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        request.json["status"],
-        order["key"]
-    ))
-    order = cur.fetchone()
-
-    if request.json["status"] == "delivered":
-        send_mail(
-            order_user["email"],
-            "Order Delivered - Thank you",
-            request.json["email_template"].format(
-                name=order_user["name"]
-            )
-        )
 
     db_close(con, cur)
     return jsonify({
@@ -547,22 +348,39 @@ def cancel(key):
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-    cur.execute("""SELECT * FROM "user" WHERE key = %s;""",
-                (order["user_key"],))
-    order_user = cur.fetchone()
+    if not order:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
-    if (
-        "order:cancel" not in user["permissions"]
-        and user["key"] != order_user["key"]
-    ):
+    if "order:cancel" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order:email_order_canceled' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
+    comment = request.json.get("comment")
+    email_template_user = request.json.get("email_template_user")
+    email_template_admin = request.json.get("email_template_admin")
+
     if (
-        not order or not order_user
+        not order_user
+        or admins == []
+        or not email_template_user
+        or not email_template_admin
         or order["status"] in ["delivered", "canceled"]
     ):
         db_close(con, cur)
@@ -571,18 +389,16 @@ def cancel(key):
             "error": "invalid request"
         })
 
-    if (
-        "note" not in request.json
-        or not request.json["note"]
-        or "email_template_admin" not in request.json
-        or not request.json["email_template_admin"]
-        or "email_template_user" not in request.json
-        or not request.json["email_template_user"]
-    ):
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error != {}:
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "note": "this field is required"
+            **error
         })
 
     log(
@@ -591,33 +407,146 @@ def cancel(key):
         action="canceled",
         entity_key=order["key"],
         entity_type="order",
+        misc={"comment": comment}
+    )
+
+    cur.execute("""
+        UPDATE "order" SET status = 'canceled'
+        WHERE key = %s RETURNING *;
+    """, (order["key"],))
+    order = cur.fetchone()
+
+    send_mail(
+        order_user["email"],
+        "Order Canceled",
+        email_template_user.format(name=order_user["name"])
+    )
+    send_mail(
+        [x["email"] for x in admins],
+        "Order Canceled",
+        email_template_admin.format(
+            name=order_user["name"],
+            username=order_user["username"]
+        )
+    )
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "order": order
+    })
+
+
+@bp.put("/order/status/<key>")
+def status(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "order:edit_status" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    if not order:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order:email_order_delivered' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
+    status = request.json.get("status")
+    comment = request.json.get("comment")
+    email_template_user = request.json.get("email_template_user")
+    email_template_admin = request.json.get("email_template_admin")
+
+    if (
+        not order_user
+        or admins == []
+        or not status
+        or status not in order_status[:-1]
+        or not email_template_user
+        or not email_template_admin
+        or order["status"] in ["delivered", "canceled"]
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error != {}:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    i = order_status.index(order["status"])
+    j = order_status.index(status)
+    if i + 1 != j and i - 1 != j:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed_status",
+        entity_key=order["key"],
+        entity_type="order",
         misc={
             "from": order['status'],
-            "to": "canceled",
-            "note": request.json["note"]
+            "to": status,
+            "comment": comment
         }
     )
 
     cur.execute("""
-        UPDATE "order"
-        SET status = 'canceled'
-        WHERE key = %s
-        RETURNING *;
-    """, (key))
+        UPDATE "order" SET status = %s
+        WHERE key = %s RETURNING *;
+    """, (status, order["key"]))
     order = cur.fetchone()
 
-    send_mail(
-        os.environ["MAIL_USERNAME"],
-        "Cancelled Order",
-        request.json["email_template_admin"]
-    )
-    send_mail(
-        user["email"],
-        "Cancelled Order",
-        request.json["email_template_user"].format(
-            user_name=order_user["name"]
+    if status == "delivered":
+        send_mail(
+            order_user["email"],
+            "Order Delivered - Thank you",
+            email_template_user.format(name=order_user["name"])
         )
-    )
+        send_mail(
+            [x["email"] for x in admins],
+            "Order Delivered",
+            email_template_admin.format(
+                name=order_user["name"],
+                username=order_user["username"]
+            )
+        )
 
     db_close(con, cur)
     return jsonify({

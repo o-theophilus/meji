@@ -1,19 +1,19 @@
 <script>
 	import { Datetime } from '$lib/macro';
 
-	let { item } = $props();
+	let { order } = $props();
 </script>
 
-<a href="/orders/{item.key}">
+<a href="/orders/{order.key}">
 	<div class="date">
-		<Datetime datetime={item.date_created} type="date_numeric" />
-		<Datetime datetime={item.date_created} type="time_12h" />
+		<Datetime datetime={order.date_created} type="date_numeric" />
+		<Datetime datetime={order.date_created} type="time_12h" />
 	</div>
 	<div>
-		{item.key.substring(0, 8)}
+		{order.key.substring(0, 8)}
 	</div>
 	<div>
-		₦{Number(item.pay_user).toLocaleString()}
+		₦{Number(order.pay_user).toLocaleString()}
 	</div>
 </a>
 
