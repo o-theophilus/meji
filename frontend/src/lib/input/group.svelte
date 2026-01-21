@@ -47,7 +47,12 @@
 	let show_check = $state(false);
 </script>
 
-<div class="inputGroup" class:no_pad class:fit={type == 'number'}>
+<div
+	class="inputGroup"
+	class:no_pad
+	class:number={type == 'number'}
+	class:rating={type == 'rating'}
+>
 	{#if label}
 		{@render label()}
 	{:else if name}
@@ -111,28 +116,35 @@
 	{/if}
 </div>
 
+<!-- TOOD: improve component -->
 <style>
 	.inputGroup {
 		width: 100%;
 	}
-	.inputGroup.fit {
+	.inputGroup.number,
+	.inputGroup.rating {
 		width: fit-content;
 	}
+
+	.inputGroup.rating .input {
+		outline: none;
+		background-color: transparent;
+	}
+
 	.inputGroup:not(.no_pad) {
 		margin: var(--sp2) 0;
 	}
 
 	.input {
 		position: relative;
+
 		display: flex;
 		align-items: center;
 
 		width: 100%;
-
+		margin: var(--sp1) 0;
 		border-radius: var(--sp0);
 		border: none;
-		margin: var(--sp1) 0;
-
 		outline: 2px solid var(--input);
 		outline-offset: -2px;
 		color: var(--ft2);

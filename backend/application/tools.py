@@ -47,6 +47,9 @@ access_pass = {
         ['email_order_canceled', 3],
         ['email_order_delivered', 3]
     ],
+    "review": [
+        ['delete', 3]
+    ],
     "report": [
         ['view', 1],
         ['resolve', 3]

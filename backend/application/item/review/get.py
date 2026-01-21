@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
 from ...postgres import db_close, db_open
 from ...tools import get_session
+from math import ceil
 
 bp = Blueprint("review_get", __name__)
 
 
-@bp.get("/<key>/review")
+@bp.get("/review/<key>")
 def get_many(key, cur=None):
     close_conn = not cur
     if not cur:
@@ -18,7 +19,16 @@ def get_many(key, cur=None):
         return jsonify(session)
     user = session["user"]
 
-    order = request.args.get("order", "oldest")
+    cur.execute("""
+        SELECT * FROM item WHERE slug = %s OR key::TEXT = %s;
+    """, (key, key))
+    item = cur.fetchone()
+    if not item:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
 
     order_by = {
         'latest': 'review.date_created',
@@ -39,6 +49,10 @@ def get_many(key, cur=None):
         'reply': 'DESC',
         'most_engaged': 'DESC',
     }
+
+    order = request.args.get("order", "oldest")
+    page_no = int(request.args.get("page_no", 1))
+    page_size = int(request.args.get("page_size", 24))
 
     cur.execute(f"""
         WITH
@@ -65,7 +79,6 @@ def get_many(key, cur=None):
             WHERE parent_key IS NOT NULL
             GROUP BY parent_key
         ),
-
         engagement AS (
             SELECT
                 review.key,
@@ -76,11 +89,31 @@ def get_many(key, cur=None):
                 COALESCE(reply.reply_count, 0) AS reply,
                 COALESCE(_like."like", 0)
                 + COALESCE(_like.dislike, 0)
-                + COALESCE(reply.reply_count, 0) AS total
+                + COALESCE(reply.reply_count, 0) AS total,
+                user_like.reaction AS reaction
             FROM review
             LEFT JOIN _like ON review.key::TEXT = _like.key
             LEFT JOIN reply ON review.key = reply.key
+            LEFT JOIN user_like ON review.key::TEXT = user_like.key
+        ),
+
+
+        parent AS (
+            SELECT
+                review.key,
+                review.date_created,
+                review.comment,
+                review.rating,
+                jsonb_build_object(
+                    'key', "user".key,
+                    'name', "user".name,
+                    'username', "user".username,
+                    'photo', "user".photo
+                ) AS user
+            FROM review
+            LEFT JOIN "user" ON review.user_key = "user".key
         )
+
 
         SELECT
             review.key,
@@ -100,29 +133,49 @@ def get_many(key, cur=None):
                 'most_like', COALESCE(engagement.most_like, 0),
                 'reply', COALESCE(engagement.reply, 0),
                 'most_engaged', COALESCE(engagement.total, 0),
-
-                'user_like', user_like.reaction
-            ) AS engagement
+                'user_like', engagement.reaction
+            ) AS engagement,
+            jsonb_build_object(
+                'key', parent.key,
+                'date_created', parent.date_created,
+                'comment', parent.comment,
+                'rating', parent.rating,
+                'user', parent.user
+            ) AS parent,
+            COUNT(*) OVER() AS _count
         FROM review
-        LEFT JOIN engagement ON review.key = engagement.key
         LEFT JOIN "user" ON review.user_key = "user".key
-        LEFT JOIN user_like ON review.key::TEXT = user_like.key
+        LEFT JOIN engagement ON review.key = engagement.key
+        LEFT JOIN parent ON review.parent_key = parent.key
         WHERE review.item_key = %s
-        ORDER BY {order_by[order]} {order_dir[order]};
-    """, (user["key"], user["key"], key))
+        ORDER BY {order_by[order]} {order_dir[order]}
+        LIMIT %s OFFSET %s;
+    """, (
+        user["key"], user["key"],
+        item['key'],
+        page_size, (page_no - 1) * page_size
+    ))
 
-    items = cur.fetchall()
+    reviews = cur.fetchall()
 
-    for x in items:
-        x["user"]["photo"] = (
-            f"{request.host_url}file/{x['user']['photo']}"
-            if x["user"]["photo"] else None
-        )
+    for x in reviews:
+        if x["user"]["photo"]:
+            x["user"]["photo"] = f'{request.host_url}photo/user/{
+                x["user"]["photo"]}'
+        if (
+            x["parent"]["user"]
+            and "photo" in x["parent"]["user"]
+            and x["parent"]["user"]["photo"]
+        ):
+            x["parent"]["user"]["photo"] = f'{request.host_url}photo/user/{
+                x["parent"]["user"]["photo"]}'
 
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": items,
+        "item": item,
+        "reviews": reviews,
         "order_by": list(order_by.keys()),
+        "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0
     })

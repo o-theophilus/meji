@@ -1,15 +1,9 @@
-import { error } from '@sveltejs/kit';
 import { loading, page_state } from "$lib/store.svelte.js"
 
-export const load = async ({ fetch, url, parent, depends }) => {
+export const load = async ({ fetch, url, parent, depends, params }) => {
 	depends(true)
 
-	let a = await parent();
-	if (!a.locals.user.access.includes("user:set_access")) {
-		throw error(400, "Unauthorized access")
-	}
-
-	let page_name = "admin_users"
+	let page_name = "review"
 	if (!page_state.state[page_name]) {
 		let sp = {}
 		for (let [key, value] of url.searchParams) {
@@ -21,11 +15,13 @@ export const load = async ({ fetch, url, parent, depends }) => {
 			loaded: false
 		}
 	} else if (page_state.state[page_name].loaded) {
-		return page_state.state[page_name].data
+		// return page_state.state[page_name].data
 	}
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/users/admin`)
+
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/review/${params.slug}`)
 	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
+	let a = await parent();
 	let resp = await fetch(backend.href, {
 		method: 'get',
 		headers: {

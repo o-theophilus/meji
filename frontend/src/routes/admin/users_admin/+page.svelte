@@ -13,7 +13,7 @@
 	import Item from '../users/item.svelte';
 
 	let { data } = $props();
-	let items = $derived(data.items);
+	let users = $derived(data.users);
 	let total_page = $derived(data.total_page);
 	let { search_query } = data;
 	let { order_by } = data;
@@ -54,7 +54,7 @@
 	<div class="line">
 		<BackButton />
 		<div class="page_title">
-			Admin{items.length > 1 ? 's' : ''}
+			Admin{users?.length > 1 ? 's' : ''}
 		</div>
 	</div>
 
@@ -111,7 +111,7 @@
 		}}
 	/>
 
-	{#each items as item (item.key)}
+	{#each users as item (item.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<Item {item} />
 		</div>

@@ -4,7 +4,7 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-	import Item from './item.svelte';
+	import Item from './one.svelte';
 
 	let item = { ...module.value.item };
 	let error = $state({});

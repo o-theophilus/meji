@@ -28,44 +28,34 @@ def get_file_error():
     cur.execute("""SELECT photo FROM "user";""")
     users_photo = cur.fetchall()
     users_photo = [x["photo"] for x in users_photo if x["photo"]]
+    user_store_photo = storage.get_all("user")
+    cur.execute("""
+        SELECT username, name FROM "user"
+        WHERE photo IS NOT NULL AND NOT photo = ANY(%s);
+    """, (user_store_photo,))
+    users_with_missing_photo = cur.fetchall()
 
-    cur.execute("""SELECT photo, files FROM post;""")
+    cur.execute("""SELECT files FROM item;""")
     temp = cur.fetchall()
-    posts_files = []
+    items_photo = []
     for x in temp:
-        posts_files.append(x["photo"])
-        if x["files"] != []:
-            posts_files += x["files"]
-
-    all_used_files = users_photo + posts_files
-    all_stored_files = storage.get_all("item")
-
+        items_photo += x["files"]
+    item_store_photo = storage.get_all("item")
     cur.execute("""
-        SELECT username, name
-        FROM "user"
-        WHERE
-            photo IS NOT NULL
-            AND NOT photo = ANY(%s);
-    """, (all_stored_files,))
-    _users = cur.fetchall()
-
-    cur.execute("""
-        SELECT slug, title
-        FROM post
-        WHERE
-            photo IS NOT NULL
-            AND NOT photo = ANY(%s)
-            OR NOT ARRAY[%s] @> files;
-    """, (all_stored_files, all_stored_files))
-    _posts = cur.fetchall()
+        SELECT slug, name FROM item
+        WHERE NOT ARRAY[%s] @> files;
+    """, (item_store_photo,))
+    items_with_missing_photo = cur.fetchall()
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "unused": [f"{request.host_url}file/{x}"
-                   for x in all_stored_files if x not in all_used_files],
-        "users": _users,
-        "posts": _posts
+        "unused_item_photo": [f"{request.host_url}photo/item/{x}"
+                   for x in item_store_photo if x not in items_photo],
+        "unused_user_photo": [f"{request.host_url}photo/user/{x}"
+                   for x in user_store_photo if x not in users_photo],
+        "users": users_with_missing_photo,
+        "items": items_with_missing_photo
     })
 
 
@@ -86,26 +76,31 @@ def delete_file():
             "error": "unauthorized access"
         })
 
-    files = request.json.get("files")
+    photos = request.json.get("photos")
+    entity = request.json.get("entity")
 
-    if not files or type(files) is not list:
+    if (
+        not photos or type(photos) is not list
+        or not entity or entity not in ["user", "item"]
+    ):
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "Invalid request"
         })
 
-    for x in files:
-        storage.delete(x.split("/")[-1], "item")
+    for x in photos:
+        storage.delete(x.split("/")[-1], entity)
 
     log(
         cur=cur,
         user_key=user["key"],
         action="deleted",
         entity_key="app",
-        entity_type="file",
+        entity_type="photo",
         misc={
-            "file(s)": files
+            "file(s)": photos,
+            "from": entity
         }
     )
 

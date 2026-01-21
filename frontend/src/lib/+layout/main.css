@@ -8,6 +8,8 @@ button {
 
 }
 
+/* TODO: global transition: 
+border color, color, bgcolor, outline color */
 * {
 	line-height: 150%;
 	margin: 0;

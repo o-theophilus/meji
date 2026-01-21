@@ -11,23 +11,30 @@
 	let open = $state(true);
 </script>
 
-{#if app.user.access.includes('item:edit_variation') && edit_mode}
-	<Edit_Button
-		onclick={() =>
-			module.open(Form, {
-				key: item.key,
-				name: item.name,
-				variation: item.variation,
-				update
-			})}
-		>Edit Variation
-	</Edit_Button>
-{/if}
-
 {#if Object.keys(item.variation).length != 0}
-	<Card {open} onclick={() => (open = !open)}>
+	<Card
+		{open}
+		onclick={() => (open = !open)}
+		--card-title-border-color="var(--bg2)"
+		--card-title-padding="16px 0"
+		--card-content-padding="0"
+	>
 		{#snippet title()}
-			Variation{#if Object.keys(item.variation).length > 1}s{/if}
+			{#if app.user.access.includes('item:edit_variation') && edit_mode}
+				<Edit_Button
+					onclick={() =>
+						module.open(Form, {
+							key: item.key,
+							name: item.name,
+							variation: item.variation,
+							update
+						})}
+					>Edit Variation
+				</Edit_Button>
+			{/if}
+			<div class="title">
+				Variation{#if Object.keys(item.variation).length > 1}s{/if}
+			</div>
 		{/snippet}
 
 		<div class="grid">
@@ -49,11 +56,17 @@
 {/if}
 
 <style>
+	.title {
+		font-weight: 800;
+	}
+
 	.grid {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 16px;
 		align-items: center;
+
+		margin: 24px 0;
 	}
 
 	.key {

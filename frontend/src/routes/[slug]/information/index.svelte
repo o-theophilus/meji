@@ -9,32 +9,35 @@
 	let open = $state(false);
 </script>
 
-<div class="margin">
-	{#if app.user.access.includes('item:edit_information') && edit_mode}
-		<Edit_Button
-			onclick={() =>
-				module.open(Form, {
-					key: item.key,
-					information: item.information,
-					update
-				})}>Edit information</Edit_Button
-		>
-	{/if}
-
-	{#if item.information}
-		<Card {open} onclick={() => (open = !open)}>
-			{#snippet title()}
-				Details & Specifications
-			{/snippet}
-			<Marked content={item.information}></Marked>
-		</Card>
-	{:else if edit_mode}
-		No information
-	{/if}
-</div>
+{#if item.information}
+	<Card
+		{open}
+		onclick={() => (open = !open)}
+		--card-title-border-color="var(--bg2)"
+		--card-title-padding="16px 0"
+		--card-content-padding="0"
+	>
+		{#snippet title()}
+			{#if app.user.access.includes('item:edit_information') && edit_mode}
+				<Edit_Button
+					onclick={() =>
+						module.open(Form, {
+							key: item.key,
+							information: item.information,
+							update
+						})}>Edit information</Edit_Button
+				>
+			{/if}
+			<div class="title">Details & Specifications</div>
+		{/snippet}
+		<Marked content={item.information}></Marked>
+	</Card>
+{:else if edit_mode}
+	No information
+{/if}
 
 <style>
-	.margin {
-		margin: var(--sp2) 0;
+	.title {
+		font-weight: 800;
 	}
 </style>

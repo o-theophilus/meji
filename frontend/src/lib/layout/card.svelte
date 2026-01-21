@@ -4,7 +4,7 @@
 
 	import { FoldButton } from '$lib/button';
 
-	let { open = true, onclick, children, title, border = false } = $props();
+	let { open = true, onclick, children, title } = $props();
 </script>
 
 <div class="card" class:open>
@@ -17,7 +17,7 @@
 				if (onclick) onclick();
 			}}
 		>
-			<div class="a">
+			<div>
 				{@render title?.()}
 			</div>
 
@@ -28,11 +28,7 @@
 	{/if}
 
 	{#if open}
-		<div
-			class="content"
-			class:border
-			transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
-		>
+		<div class="content" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{@render children()}
 		</div>
 	{/if}
@@ -45,24 +41,21 @@
 		border-radius: 8px;
 	}
 
-	.content {
-		padding: 24px;
-		padding-top: 0;
-	}
-	.border {
-		padding-top: 24px;
-		border-top: 1px solid var(--bg2);
-	}
-
 	.title {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		gap: 16px;
-		padding: 24px;
+		padding: var(--card-title-padding, 24px);
+		border-bottom: 1px solid var(--card-title-border-color, transparent);
 	}
-	.a {
+	.title div {
 		width: 100%;
 		pointer-events: none;
+	}
+
+	.content {
+		padding: var(--card-content-padding, 0 24px 24px 24px);
+		border-top: 1px solid var(--card-content-border-color, transparent);
 	}
 </style>

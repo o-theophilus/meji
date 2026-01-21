@@ -82,6 +82,8 @@
 		padding: 32px 24px;
 		width: 100%;
 		fill: var(--cl1);
+		outline: 1px solid var(--bg1);
+		outline-offset: -1px;
 	}
 	.row_1 .text {
 		font-size: 1.4rem;

@@ -6,20 +6,19 @@
 	import { Datetime, Marked, Avatar, Icon } from '$lib/macro';
 	import { Link, RoundButton, Like } from '$lib/button';
 	import Add from './_add.svelte';
-	import Item from './item.svelte';
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
 
-	let { post, item, update, search } = $props();
+	let { item, review, update, search } = $props();
 
 	let error = $state({});
 
 	let open_menu = $state(false);
 	let self = false;
 
-	let _like = $state(item.engagement.like);
-	let _dislike = $state(item.engagement.dislike);
-	let user_like = $state(item.engagement.user_like);
+	let _like = $state(review.engagement.like);
+	let _dislike = $state(review.engagement.dislike);
+	let user_like = $state(review.engagement.user_like);
 	let like = $derived.by(() => {
 		if (user_like == 'like') return _like + 1;
 		return _like;
@@ -46,7 +45,7 @@
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			},
-			body: JSON.stringify({ entity_type: 'comment', entity_key: item.key, reaction })
+			body: JSON.stringify({ entity_type: 'comment', entity_key: review.key, reaction })
 		});
 		resp = await resp.json();
 
@@ -78,11 +77,13 @@
 
 {#snippet menu()}
 	<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		{#if item.user.key == app.user.key}
-			{@render button('Delete', 'trash-2', () => module.open(Delete, { item, update, search }))}
+		{#if review.user.key == app.user.key}
+			{@render button('Delete', 'trash-2', () =>
+				module.open(Delete, { item: review, update, search })
+			)}
 		{:else}
 			{@render button('Report', 'flag-triangle-right', () => {
-				module.open(Report, { item });
+				module.open(Report, { item: review });
 			})}
 		{/if}
 	</div>
@@ -97,7 +98,10 @@
 
 	<div class="line space control">
 		<div class="line">
-			<RoundButton icon="reply" onclick={() => module.open(Add, { post, item, update, search })} />
+			<RoundButton
+				icon="reply"
+				onclick={() => module.open(Add, { item, parent: review, update, search })}
+			/>
 
 			<Like
 				--like-outline-color="var(--cl3)"
@@ -131,9 +135,6 @@
 		color: red;
 		font-size: 0.8rem;
 		margin: 8px 0;
-	}
-	.control {
-		margin-top: 16px;
 	}
 
 	.menu_area {

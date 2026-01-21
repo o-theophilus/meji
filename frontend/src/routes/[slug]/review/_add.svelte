@@ -6,12 +6,14 @@
 	import { Marked } from '$lib/macro';
 	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-	import Item from './item.svelte';
+	import One from './one.details.svelte';
 
-	let post = module.value.post;
-	let parent = module.value.item;
+	let item = module.value.item;
+	let parent = module.value.parent;
+	console.log(parent);
 
 	let form = $state({
+		rating: 1,
 		comment: '',
 		parent_key: parent ? parent.key : null
 	});
@@ -20,6 +22,9 @@
 	const validate = () => {
 		error = {};
 
+		if (![1, 2, 3, 4, 5].includes(form.rating)) {
+			error.rating = 'This field is required';
+		}
 		if (!form.comment) {
 			error.comment = 'This field is required';
 		} else if (form.comment.length > 500) {
@@ -30,9 +35,9 @@
 	};
 
 	const submit = async () => {
-		loading.open('Adding Comment . . .');
+		loading.open('Adding Review . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/review/${post.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(
 				module.value.search
 			).toString()}`,
 			{
@@ -45,30 +50,45 @@
 			}
 		);
 		resp = await resp.json();
+		console.log(resp);
+
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.items);
+			module.value.update(resp.reviews);
 			module.close();
-			notify.open('Comment Added');
+			notify.open('Review Added');
 		} else {
 			error = resp;
 		}
 	};
 </script>
 
-<Form title="{parent ? 'Reply' : 'Add'} Comment" error={error.error}>
+<Form title="{parent ? 'Reply' : 'Add'} Review" error={error.error}>
 	{#if parent}
-		<Item item={parent}></Item>
+		<div class="parent">
+			<One review={parent}></One>
+		</div>
+	{:else}
+		<IG name="Rating" error={error.rating} type="rating" bind:value={form.rating} />
 	{/if}
 
 	<IG
-		name="Comment ({500 - form.comment.length})"
+		name="Review ({500 - form.comment.length})"
 		error={error.comment}
 		type="textarea"
-		placeholder="Comment here"
+		placeholder="Review here"
 		bind:value={form.comment}
 	/>
 
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
+
+<style>
+	.parent {
+		border-radius: 8px;
+		border: 2px solid var(--bg2);
+		padding: 16px;
+		background-color: var(--bg3);
+	}
+</style>

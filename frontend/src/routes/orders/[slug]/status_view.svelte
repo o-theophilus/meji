@@ -28,12 +28,18 @@
 <style>
 	.status_block {
 		display: flex;
+		flex-direction: column;
 		gap: 2px;
 
 		margin-top: 4px;
-		padding: 8px;
-		border: 2px solid var(--bg3);
+		padding: 4px;
+		border: 1px solid var(--bg3);
 		border-radius: 8px;
+	}
+	@media screen and (min-width: 400px) {
+		.status_block {
+			flex-direction: unset;
+		}
 	}
 
 	.status {

@@ -106,7 +106,7 @@ def get_many():
     search = request.args.get("search", "").strip()
     order = request.args.get("order", "latest")
     page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("size", 24))
+    page_size = int(request.args.get("page_size", 24))
 
     user_key = user["key"]
     if view == "all" and "order:view" in user["access"]:

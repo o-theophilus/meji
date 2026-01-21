@@ -1,6 +1,7 @@
 <script>
 	import Code from './code.svelte';
 	import Number from './number.svelte';
+	import Rating from './rating.svelte';
 	let { value = $bindable(), type, ...props } = $props();
 	if (type == 'datetime') type = 'datetime-local';
 </script>
@@ -11,6 +12,8 @@
 	<Code bind:value {...props}></Code>
 {:else if type == 'number'}
 	<Number bind:value {...props}></Number>
+{:else if type == 'rating'}
+	<Rating bind:value></Rating>
 {:else}
 	<input bind:value {type} {...props} />
 {/if}

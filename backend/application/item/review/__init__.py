@@ -38,12 +38,16 @@ def create(key):
                 "error": "Invalid request"
             })
 
-    review = request.json.get("review")
+    rating = request.json.get("rating", 0)
+    comment = request.json.get("comment")
     error = {}
-    if not review:
-        error["review"] = "This field is required"
-    elif len(review) > 500:
-        error["review"] = "This field cannot exceed 500 characters"
+    if rating not in [1, 2, 3, 4, 5]:
+        error["rating"] = "This field is required"
+
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
     if error != {}:
         db_close(con, cur)
         return jsonify({
@@ -52,23 +56,23 @@ def create(key):
         })
 
     cur.execute("""
-        INSERT INTO review (user_key, item, review, parent_key)
-        VALUES (%s, %s, %s, %s) RETURNING *;
-    """, (user["key"], item["key"], review, parent_key))
-    review = cur.fetchone()
+        INSERT INTO review (user_key, item_key, rating, comment, parent_key)
+        VALUES (%s, %s, %s, %s, %s) RETURNING *;
+    """, (user["key"], item["key"], rating, comment, parent_key))
+    comment = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
         action="created",
-        entity_key=review["key"],
+        entity_key=comment["key"],
         entity_type="review",
         misc={"item_key": item["key"]}
     )
 
-    items = get_many(item["key"], cur)
+    reviews = get_many(item["key"], cur)
     db_close(con, cur)
-    return items
+    return reviews
 
 
 @bp.delete("/review/<key>")
@@ -85,8 +89,23 @@ def delete(key):
         SELECT * FROM review WHERE key = %s AND user_key = %s;
     """, (key, user["key"]))
     review = cur.fetchone()
-
     if not review:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    if (
+        not review["user_key"] != user["key"]
+        and "review:delete" not in user["access"]
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+    if not review["user_key"] != user["key"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -98,21 +117,7 @@ def delete(key):
         WHERE entity_type = 'review' entity_key = %s;
     """, (review["key"],))
 
-    cur.execute("""
-        WITH RECURSIVE to_delete AS (
-            SELECT key
-            FROM review
-            WHERE key = %s
-
-            UNION ALL
-
-            SELECT c.key
-            FROM review c
-            INNER JOIN to_delete td ON c.parent_key = td.key
-        )
-        DELETE FROM review
-        WHERE key IN (SELECT key FROM to_delete);
-    """, (review["key"],))
+    cur.execute("""DELETE FROM review WHERE key = %s;""", (review["key"],))
 
     log(
         cur=cur,
@@ -123,6 +128,6 @@ def delete(key):
         misc={"item_key": review["item_key"]}
     )
 
-    items = get_many(review["item_key"], cur)
+    reviews = get_many(review["item_key"], cur)
     db_close(con, cur)
-    return items
+    return reviews

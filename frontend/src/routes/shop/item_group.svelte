@@ -29,7 +29,7 @@
 
 {#if items.length > 0}
 	<div {id}></div>
-	<Card {open} onclick={() => (open = !open)} border>
+	<Card {open} onclick={() => (open = !open)}>
 		{#snippet title()}
 			{#if _title}
 				{@render _title()}

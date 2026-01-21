@@ -8,7 +8,6 @@ from .log import get as log_get
 from . import auth
 from .auth import forgot
 from . import admin
-from .admin import get as admin_get
 from .admin import access
 from .admin import action
 from .admin import block
@@ -61,7 +60,6 @@ def create_app(conf=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(forgot.bp)
     app.register_blueprint(admin.bp)
-    app.register_blueprint(admin_get.bp)
     app.register_blueprint(access.bp)
     app.register_blueprint(action.bp)
     app.register_blueprint(block.bp)

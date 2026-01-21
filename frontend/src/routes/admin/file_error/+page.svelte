@@ -5,42 +5,51 @@
 
 	import { loading, notify, app } from '$lib/store.svelte.js';
 
-	import { Content } from '$lib/layout';
+	import { Content, Card } from '$lib/layout';
 	import { FoldButton, Button, BackButton } from '$lib/button';
-	import { Meta, Log } from '$lib/macro';
+	import { Meta, Log, Icon } from '$lib/macro';
+	import { Note, PageNote } from '$lib/info';
 
 	let { data } = $props();
-	let unused = $state(data.unused);
-	let { users } = data;
-	let { posts } = data;
+	let { users, items } = data;
+	let unused_user_photo = $state(data.unused_user_photo);
+	let unused_item_photo = $state(data.unused_item_photo);
 
-	let open_unused = $derived(unused.length > 0);
+	let open_unused_user = $derived(unused_user_photo.length > 0);
+	let open_unused_item = $derived(unused_item_photo.length > 0);
 	let open_users = $state(users.length > 0);
-	let open_posts = $state(posts.length > 0);
+	let open_items = $state(items.length > 0);
 
-	let files = $state([]);
+	let selected_user_photo = $state([]);
+	let selected_item_photo = $state([]);
 	let error = $state({});
 
-	const remove = async () => {
+	const remove = async (photos, entity) => {
 		error = {};
 
-		loading.open('deleting . . .');
+		loading.open(`Deleting ${entity} photo . . .`);
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/file_error`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			},
-			body: JSON.stringify({ files })
+			body: JSON.stringify({ photos, entity })
 		});
 		resp = await resp.json();
-
 		loading.close();
+		console.log(resp);
 
 		if (resp.status == 200) {
-			unused = unused.filter((x) => !files.includes(x));
-			notify.open(`Photo${files.length > 1 ? 's' : ''} Deleted`);
-			files = [];
+			notify.open(`${entity} photo${photos.length > 1 ? 's' : ''} deleted`);
+
+			if (entity == 'user') {
+				unused_user_photo = unused_user_photo.filter((x) => !photos.includes(x));
+				selected_user_photo = [];
+			} else if (entity == 'item') {
+				unused_item_photo = unused_item_photo.filter((x) => !photos.includes(x));
+				selected_item_photo = [];
+			}
 		} else {
 			error = resp;
 		}
@@ -50,171 +59,265 @@
 <Log entity_type={'page'} />
 <Meta title="Manage Files" description="Here you will find missing or excess images" />
 
-<Content>
+<Content --content-background-color="var(--bg2)">
 	<div class="line">
 		<BackButton />
 		<div class="page_title">Photo Error</div>
 	</div>
 
-	<div class="fold">
-		<div class="group_title">
-			Unused Photo{unused.length > 1 ? 's' : ''} / Fils{unused.length > 1 ? 's' : ''} ({unused.length})
-			<FoldButton
-				open={open_unused}
-				onclick={() => {
-					open_unused = !open_unused;
-				}}
-			/>
-		</div>
+	<br />
 
-		{#if open_unused}
-			<div class="unused" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-				{#each unused as x (x)}
+	<Card
+		open={open_unused_user}
+		onclick={() => {
+			open_unused_user = !open_unused_user;
+		}}
+	>
+		{#snippet title()}
+			<div class="group_title">
+				{unused_user_photo.length} Unused User Photo{unused_user_photo.length > 1 ? 's' : ''}
+			</div>
+		{/snippet}
+
+		{#if unused_user_photo.length}
+			<div class="photo_area">
+				{#each unused_user_photo as x (x)}
 					<img
 						animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}
-						class:selected={files.includes(x)}
+						class:selected={selected_user_photo.includes(x)}
 						src={x.slice(-4) == '.jpg' ? `${x}/100` : '/no_preview.png'}
 						loading="lazy"
 						alt="unused file"
 						onclick={() => {
-							if (files.includes(x)) {
-								files = files.filter((y) => y != x);
+							if (selected_user_photo.includes(x)) {
+								selected_user_photo = selected_user_photo.filter((y) => y != x);
 							} else {
-								files.push(x);
-								files = files;
+								selected_user_photo.push(x);
+								selected_user_photo = selected_user_photo;
 							}
 						}}
+						onerror={(e) => (e.target.src = '/no_photo.png')}
 						role="presentation"
 					/>
-				{:else}
-					<div class="none">no photo here</div>
 				{/each}
 			</div>
+		{:else}
+			<PageNote>
+				<Icon icon="search" size="50" />
+				<div class="none">No photo here</div>
+			</PageNote>
+		{/if}
 
-			{#if error.error}
-				<div class="error" transition:slide>
-					{error.error}
-				</div>
-			{/if}
+		<Note status="400" note={error.user} --note-margin-top="16px"></Note>
 
-			{#if unused.length > 0}
-				<br />
-				<div class="line">
-					<Button
+		{#if unused_user_photo.length > 0}
+			<div class="line btns">
+				<Button
+					onclick={() => {
+						if (selected_user_photo.length != unused_user_photo.length) {
+							selected_user_photo = [...unused_user_photo];
+						} else {
+							selected_user_photo = [];
+						}
+					}}
+				>
+					Select
+					{#if selected_user_photo.length != unused_user_photo.length}
+						All
+					{:else}
+						None
+					{/if}
+				</Button>
+				<Button
+					extra="hover_red"
+					onclick={() => {
+						remove(selected_user_photo, 'user');
+					}}
+					disabled={selected_user_photo.length == 0}
+				>
+					Delete ({selected_user_photo.length})
+				</Button>
+			</div>
+		{/if}
+	</Card>
+
+	<Card
+		open={open_unused_item}
+		onclick={() => {
+			open_unused_item = !open_unused_item;
+		}}
+	>
+		{#snippet title()}
+			<div class="group_title">
+				{unused_item_photo.length} Unused item Photo{unused_item_photo.length > 1 ? 's' : ''}
+			</div>
+		{/snippet}
+
+		{#if unused_item_photo.length}
+			<div class="photo_area">
+				{#each unused_item_photo as x (x)}
+					<img
+						animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}
+						class:selected={selected_item_photo.includes(x)}
+						src={x.slice(-4) == '.jpg' ? `${x}/100` : '/no_preview.png'}
+						loading="lazy"
+						alt="unused file"
 						onclick={() => {
-							if (files.length != unused.length) {
-								files = unused;
+							if (selected_item_photo.includes(x)) {
+								selected_item_photo = selected_item_photo.filter((y) => y != x);
 							} else {
-								files = [];
+								selected_item_photo.push(x);
+								selected_item_photo = selected_item_photo;
 							}
 						}}
-					>
-						Select
-						{#if files.length != unused.length}
-							All
-						{:else}
-							None
-						{/if}
-					</Button>
-					<Button extra="hover_red" onclick={remove} disabled={files.length == 0}>
-						Delete ({files.length})
-					</Button>
-				</div>
-			{/if}
+						onerror={(e) => (e.target.src = '/no_photo.png')}
+						role="presentation"
+					/>
+				{/each}
+			</div>
+		{:else}
+			<PageNote>
+				<Icon icon="search" size="50" />
+				<div class="none">No photo here</div>
+			</PageNote>
 		{/if}
-	</div>
 
-	<hr />
+		<Note status="400" note={error.item} --note-margin-top="16px"></Note>
 
-	<div class="fold">
-		<div class="group_title">
-			User{users.length > 1 ? 's' : ''} ({users.length}) with missing photo
-			<FoldButton
-				open={open_users}
-				onclick={() => {
-					open_users = !open_users;
-				}}
-			/>
-		</div>
+		{#if unused_item_photo.length > 0}
+			<div class="line btns">
+				<Button
+					onclick={() => {
+						if (selected_item_photo.length != unused_item_photo.length) {
+							selected_item_photo = [...unused_item_photo];
+						} else {
+							selected_item_photo = [];
+						}
+					}}
+				>
+					Select
+					{#if selected_item_photo.length != unused_item_photo.length}
+						All
+					{:else}
+						None
+					{/if}
+				</Button>
+				<Button
+					extra="hover_red"
+					onclick={() => {
+						remove(selected_item_photo, 'item');
+					}}
+					disabled={selected_item_photo.length == 0}
+				>
+					Delete ({selected_item_photo.length})
+				</Button>
+			</div>
+		{/if}
+	</Card>
 
-		{#if open_users}
-			<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+	<Card
+		open={open_users}
+		onclick={() => {
+			open_users = !open_users;
+		}}
+	>
+		{#snippet title()}
+			<div class="group_title">
+				{users.length} user{users.length > 1 ? 's' : ''} with missing photo
+			</div>
+		{/snippet}
+
+		{#if users.length}
+			<div class="link_area">
 				{#each users as x}
-					<a href="/@{x.username}">{x.name}</a>
-
-					<br />
-				{:else}
-					<div class="none">no user here</div>
+					<a class="link" href="/@{x.username}">{x.name}</a>
 				{/each}
 			</div>
+		{:else}
+			<PageNote>
+				<Icon icon="search" size="50" />
+				<div class="none">No user here</div>
+			</PageNote>
 		{/if}
-	</div>
+	</Card>
 
-	<hr />
+	<Card
+		open={open_items}
+		onclick={() => {
+			open_items = !open_items;
+		}}
+	>
+		{#snippet title()}
+			<div class="group_title">
+				{items.length} item{items.length > 1 ? 's' : ''} with missing photo
+			</div>
+		{/snippet}
 
-	<div class="fold">
-		<div class="group_title">
-			Post{posts.length > 1 ? 's' : ''} ({posts.length}) with missing photo / files
-			<FoldButton
-				open={open_posts}
-				onclick={() => {
-					open_posts = !open_posts;
-				}}
-			/>
-		</div>
-
-		{#if open_posts}
-			<div transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-				{#each posts as x}
-					<a href="/{x.slug}">{x.name}</a>
-
-					<br />
-				{:else}
-					<div class="none">no post here</div>
+		{#if items.length}
+			<div class="link_area">
+				{#each items as x}
+					<a class="link" href="/{x.slug}">{x.name}</a>
 				{/each}
 			</div>
+		{:else}
+			<PageNote>
+				<Icon icon="search" size="50" />
+				<div class="none">No item here</div>
+			</PageNote>
 		{/if}
-	</div>
+	</Card>
 </Content>
 
 <style>
-	.fold {
-		margin: var(--sp2) 0;
-	}
-
 	.group_title {
-		font-weight: 900;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin: var(--sp2) 0;
+		font-weight: 800;
 	}
 
-	.unused {
+	.photo_area {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
+		/* display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		gap: 8px; */
 	}
-
 	img {
 		width: 100px;
-		border-radius: var(--sp0);
+		border-radius: 8px;
 		cursor: pointer;
-		background-color: var(--bg2);
+		background-color: var(--bg3);
 	}
 	img.selected {
 		outline: 2px solid var(--cl1);
 	}
-
-	.line {
-		display: flex;
-		gap: var(--sp1);
+	.btns {
+		margin-top: 16px;
 	}
 
-	.error {
-		margin: var(--sp2) 0;
-		color: red;
-		font-size: 0.8rem;
+	.link_area {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		gap: 4px;
+	}
+	.link {
+		display: flex;
+		align-items: center;
+
+		padding: 4px;
+		border-radius: 4px;
+
+		line-height: 120%;
+		color: var(--ft2);
+		font-size: 0.7rem;
+		text-decoration: none;
+		background-color: var(--bg3);
+		outline: 1px solid var(--bg2);
+		outline-offset: -1px;
+
+		transition: background-color 0.2s ease-in-out;
+	}
+	.link:hover {
+		background-color: var(--bg2);
 	}
 
 	.none {

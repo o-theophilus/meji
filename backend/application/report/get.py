@@ -61,9 +61,9 @@ def get_many():
             ) AS "user",
 
             jsonb_build_object(
-                'date_created', comment.date_created,
-                'comment', comment.comment,
-                'post_key', comment.post_key
+                'date_created', review.date_created,
+                'comment', review.comment,
+                'item_key', review.item_key
             ) AS user_comment,
 
             COUNT(*) OVER() AS _count
@@ -73,9 +73,9 @@ def get_many():
         LEFT JOIN "user" user_1 ON report.entity_key = user_1.key
             AND report.entity_type = 'user'
 
-        LEFT JOIN comment ON report.entity_key = comment.key
+        LEFT JOIN review ON report.entity_key = review.key
             AND report.entity_type = 'comment'
-        LEFT JOIN "user" user_2 ON comment.user_key = user_2.key
+        LEFT JOIN "user" user_2 ON review.user_key = user_2.key
             AND report.entity_type = 'comment'
 
         WHERE

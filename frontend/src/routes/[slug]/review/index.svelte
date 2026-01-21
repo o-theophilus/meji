@@ -4,29 +4,30 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { module, app } from '$lib/store.svelte.js';
 
-	import { Button, FoldButton } from '$lib/button';
+	import { Button, FoldButton, LinkArrow } from '$lib/button';
 	import { Login } from '$lib/auth';
 	import { Icon, Spinner } from '$lib/macro';
 	import { Dropdown } from '$lib/input';
 	import { PageNote } from '$lib/info';
 	import { Card } from '$lib/layout';
-	import Item from './item.svelte';
+	import One from './one.svelte';
 	import Add from './_add.svelte';
-	import Control from './control.svelte';
+	import Control from './one.control.svelte';
 
 	let { item } = $props();
-	let items = $state([]);
+	let reviews = $state([]);
 
 	let order_by = $state([]);
 	let open = $state(false);
 	let loading = $state(true);
 	let search = $state({
-		order: 'oldest',
-		page_no: 1
+		order: 'most_like',
+		page_no: 1,
+		page_size: 3
 	});
 
 	const update = (data) => {
-		items = data;
+		reviews = data;
 		open = true;
 	};
 
@@ -34,7 +35,7 @@
 		loading = true;
 
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/${item.key}/review?${new URLSearchParams(search).toString()}`,
+			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(search).toString()}`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -45,31 +46,39 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			items = resp.items;
+			reviews = resp.reviews;
+
 			order_by = resp.order_by;
-			if (items.length) open = true;
+			if (reviews.length) open = true;
 		}
 
 		loading = false;
 	};
 </script>
 
-<Card {open} onclick={() => (open = !open)}>
+<Card
+	{open}
+	onclick={() => (open = !open)}
+	--card-title-border-color="var(--bg2)"
+	--card-title-padding="16px 0"
+	--card-content-padding="0"
+>
 	{#snippet title()}
 		<div class="line">
-			<span>
-				{#if items.length > 0}
-					{items.length}
+			<div class="title">
+				{#if reviews.length > 0}
+					{reviews.length}
 				{/if}
-				Comment{#if items.length > 1}s{/if}
-			</span>
+				Review{#if reviews.length > 1}s{/if}
+			</div>
 			<Spinner active={loading} size="20" />
 		</div>
+		<LinkArrow href="/{item.slug}/review" --link-font-size="0.8rem">See All</LinkArrow>
 	{/snippet}
 
 	{#if open && !loading}
 		<div class="margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			{#if items.length > 1}
+			<!-- {#if reviews.length > 1}
 				<Dropdown
 					--select-height="10"
 					--select-padding-x="0"
@@ -87,27 +96,27 @@
 						load();
 					}}
 				/>
-			{/if}
+			{/if} -->
 
-			{#each items as item (item.key)}
+			{#each reviews as review (review.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<Item {item}>
+					<One {review}>
 						{#snippet parent()}
-							{#each items as x}
-								{#if item.parent_key == x.key}
-									<Item item={x}></Item>
+							{#each reviews as x}
+								{#if review.parent_key == x.key}
+									<One review={x}></One>
 								{/if}
 							{/each}
 						{/snippet}
 						{#snippet control()}
-							<Control post={item} {item} {items} {update} {search}></Control>
+							<Control {item} {review} {update} {search}></Control>
 						{/snippet}
-					</Item>
+					</One>
 				</div>
 			{:else}
 				<PageNote>
 					<Icon icon="message-circle-off" size="50" />
-					No comment
+					No review
 				</PageNote>
 			{/each}
 		</div>
@@ -116,18 +125,19 @@
 
 <div class="button">
 	{#if app.login}
-		<Button
-			icon="message-circle-plus"
-			onclick={() => module.open(Add, { post: item, update, search })}
-		>
-			Add comment
+		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, update, search })}>
+			Add review
 		</Button>
 	{:else}
-		<Button icon="log-in" onclick={() => module.open(Login)}>Login to add comment</Button>
+		<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
 	{/if}
 </div>
 
 <style>
+	.title {
+		font-weight: 800;
+	}
+
 	.button {
 		margin: 16px 0;
 	}

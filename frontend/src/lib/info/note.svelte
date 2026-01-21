@@ -38,7 +38,7 @@
 		margin-bottom: var(--note-margin-bottom, 16px);
 		max-width: var(--note-width, 100%);
 
-		background-color: color-mix(in srgb, var(--bg3), transparent 80%);
+		background-color: color-mix(in srgb, var(--bg3), transparent 70%);
 		outline: 1px solid color-mix(in srgb, var(--bg2), transparent 20%);
 		outline-offset: -1px;
 		border-radius: var(--sp0);

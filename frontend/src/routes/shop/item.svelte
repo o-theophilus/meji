@@ -3,6 +3,7 @@
 	import { Icon } from '$lib/macro';
 
 	import Like from './like.svelte';
+	import Rating from '../[slug]/review/rating.svelte';
 
 	let { item } = $props();
 
@@ -35,8 +36,7 @@
 			<Like {item} small></Like>
 		</div>
 		<div class="rating">
-			4.5
-			<Icon icon="star" size="12" --icon-fill="goldenrod" --icon-stroke="none" />
+			<Rating value="4.5" mini></Rating>
 		</div>
 		{#if date_created >= oneWeekAgo}
 			<div class="new">New</div>
@@ -84,6 +84,8 @@
 		height: 100%;
 
 		--red: rgb(186, 63, 63);
+
+		transition: outline-color 0.2s ease-in-out;
 	}
 	a:hover {
 		outline-color: var(--ft1);
@@ -103,18 +105,8 @@
 		position: absolute;
 		bottom: 8px;
 		right: 8px;
-
-		display: flex;
-		align-items: center;
-		gap: 2px;
-
-		padding: 2px 4px;
-		border-radius: 4px;
-		color: hsl(0, 0%, 80%);
-		background-color: rgba(0, 0, 0, 0.6);
-
-		font-size: 0.8rem;
-		line-height: 100%;
+		--ratig-padding: 2px 4px;
+		--rating-background-color: rgba(0, 0, 0, 0.6);
 	}
 	.new {
 		position: absolute;

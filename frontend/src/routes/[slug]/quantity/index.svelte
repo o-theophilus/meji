@@ -8,26 +8,19 @@
 	let { item, edit_mode, update } = $props();
 </script>
 
-<div class="comp">
-	{#if app.user.access.includes('item:edit_quantity') && edit_mode}
-		<Edit_Button
-			onclick={() =>
-				module.open(Form, {
-					key: item.key,
-					quantity: item.quantity,
-					update
-				})}
-		>
-			Edit Quantity
-		</Edit_Button>
-	{/if}
+{#if app.user.access.includes('item:edit_quantity') && edit_mode}
+	<Edit_Button
+		onclick={() =>
+			module.open(Form, {
+				key: item.key,
+				quantity: item.quantity,
+				update
+			})}
+	>
+		Edit Quantity
+	</Edit_Button>
 	<div class="page_title">
 		{item.quantity}
 	</div>
-</div>
+{/if}
 
-<style>
-	.comp {
-		margin-top: var(--sp3);
-	}
-</style>

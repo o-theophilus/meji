@@ -57,7 +57,8 @@
 		LockOpen,
 		Bell,
 		ListFilter,
-		Heart
+		Heart,
+		StarHalf
 	} from 'lucide';
 	import { onMount } from 'svelte';
 	onMount(() => {
@@ -119,12 +120,13 @@
 				LockOpen,
 				Bell,
 				ListFilter,
-				Heart
+				Heart,
+				StarHalf
 			},
 			attrs: {
-				width: 16,
-				height: 16,
-				'stroke-width': 2.5
+				// width: 16,
+				// height: 16,
+				// 'stroke-width': 2.5
 			},
 			nameAttr: 'data-lucide'
 		});
@@ -309,5 +311,9 @@
 
 		stroke: var(--icon-stroke, currentColor);
 		fill: var(--icon-fill, none);
+		stroke-width: var(--icon-stroke-width, 2.5);
+
+		transition: fill 0.2s ease-in-out;
+		transition: stroke 0.2s ease-in-out;
 	}
 </style>
