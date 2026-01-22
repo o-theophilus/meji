@@ -4,18 +4,16 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-	import Item from './one.svelte';
+	import One from './one.details.svelte';
 
-	let item = { ...module.value.item };
+	let review = { ...module.value.review };
 	let error = $state({});
 
 	const submit = async () => {
 		error = {};
-
 		loading.open(`Deleting comment . . .`);
-
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/comment/${item.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/review/${review.key}?${new URLSearchParams(
 				module.value.search
 			).toString()}`,
 			{
@@ -30,7 +28,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			module.value.update(resp.items);
+			module.value.update(resp.reviews, resp.ratings, resp.total_page);
 			module.close();
 			notify.open('Comment Deleted');
 		} else {
@@ -40,20 +38,30 @@
 </script>
 
 <Form title="Delete Comment" error={error.error}>
-	<Item {item}></Item>
+	<div class="parent">
+		<One {review}></One>
+	</div>
 
 	<Note --note-margin-top="16px" status="400" note="Are you sure you want to delete this comment"
 	></Note>
 
 	<div class="line">
 		<Button icon="x" onclick={() => module.close()}>Close</Button>
-		<Button icon="trash-2" --button-background-color-hover="red" onclick={submit}>Delete</Button>
+		<Button
+			icon="trash-2"
+			--button-background-color="darkred"
+			--button-background-color-hover="red"
+			--button-color="white"
+			onclick={submit}>Delete</Button
+		>
 	</div>
 </Form>
 
 <style>
-	.line {
-		display: flex;
-		gap: var(--sp1);
+	.parent {
+		border-radius: 8px;
+		border: 2px solid var(--bg2);
+		padding: 16px;
+		background-color: var(--bg3);
 	}
 </style>

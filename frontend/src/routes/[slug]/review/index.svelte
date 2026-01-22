@@ -17,17 +17,27 @@
 	let { item } = $props();
 	let reviews = $state([]);
 
+	let ratings = $state([]);
+
 	let order_by = $state([]);
 	let open = $state(false);
 	let loading = $state(true);
+	let count = $derived.by(() => {
+		let _temp = 0;
+		for (const x of ratings) {
+			_temp += x.count;
+		}
+		return _temp;
+	});
 	let search = $state({
-		order: 'most_like',
+		order: 'most like ▼',
 		page_no: 1,
 		page_size: 3
 	});
 
-	const update = (data) => {
-		reviews = data;
+	const update = (a, b, c) => {
+		reviews = a;
+		ratings = b;
 		open = true;
 	};
 
@@ -44,10 +54,11 @@
 			}
 		);
 		resp = await resp.json();
+		console.log(resp);
 
 		if (resp.status == 200) {
 			reviews = resp.reviews;
-
+			ratings = resp.ratings;
 			order_by = resp.order_by;
 			if (reviews.length) open = true;
 		}
@@ -67,37 +78,19 @@
 		<div class="line">
 			<div class="title">
 				{#if reviews.length > 0}
-					{reviews.length}
+					{count}
 				{/if}
-				Review{#if reviews.length > 1}s{/if}
+				Rating{#if reviews.length > 1}s{/if} and Review{#if reviews.length > 1}s{/if}
 			</div>
 			<Spinner active={loading} size="20" />
 		</div>
-		<LinkArrow href="/{item.slug}/review" --link-font-size="0.8rem">See All</LinkArrow>
+		{#if count > 3}
+			<LinkArrow href="/{item.slug}/review" --link-font-size="0.8rem">See All</LinkArrow>
+		{/if}
 	{/snippet}
 
 	{#if open && !loading}
 		<div class="margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			<!-- {#if reviews.length > 1}
-				<Dropdown
-					--select-height="10"
-					--select-padding-x="0"
-					--select-font-size="0.8rem"
-					--select-background-color="transparent"
-					--select-background-color-hover="transparent"
-					--select-color-hover="var(--ft1)"
-					--select-outline-color="transparent"
-					list={order_by}
-					icon="arrow-down-narrow-wide"
-					icon2="chevron-down"
-					bind:value={search.order}
-					onchange={(v) => {
-						search.page_no = 1;
-						load();
-					}}
-				/>
-			{/if} -->
-
 			{#each reviews as review (review.key)}
 				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 					<One {review}>

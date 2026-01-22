@@ -12,7 +12,7 @@ def get_many(key, cur=None):
     if not cur:
         con, cur = db_open()
 
-    session = get_session(cur, True)
+    session = get_session(cur)
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
@@ -30,24 +30,41 @@ def get_many(key, cur=None):
             "error": "Invalid request"
         })
 
+    cur.execute("""
+        WITH series AS (
+            SELECT generate_series(1, 5) as rating
+        )
+
+        SELECT series.rating, COUNT(review.key) as count
+        FROM series
+        LEFT JOIN review ON
+            series.rating = review.rating
+            AND review.parent_key IS NULL
+            AND review.item_key = %s
+        GROUP BY series.rating
+        ORDER BY series.rating DESC;
+    """, (item["key"],))
+    ratings = cur.fetchall()
+
+# [ ] style all the orderby with arrows
     order_by = {
-        'latest': 'review.date_created',
-        'oldest': 'review.date_created',
-        'like': 'engagement."like"',
-        'dislike': 'engagement.dislike',
-        'most_like': 'engagement.most_like',
-        'reply': 'engagement.reply',
-        'most_engaged': 'engagement.total',
+        'latest': 'date_created',
+        'oldest': 'date_created',
+        'most like ▼': 'most_like',
+        'most like ▲': 'most_like',
+        'reply': 'reply_count',
+        'rating ▼': 'rating',
+        'rating ▲': 'rating',
     }
 
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'like': 'DESC',
-        'dislike': 'DESC',
-        'most_like': 'DESC',
+        'most like ▼': 'DESC',
+        'most like ▲': 'ASC',
         'reply': 'DESC',
-        'most_engaged': 'DESC',
+        'rating ▼': 'DESC',
+        'rating ▲': 'ASC',
     }
 
     order = request.args.get("order", "oldest")
@@ -56,71 +73,46 @@ def get_many(key, cur=None):
 
     cur.execute(f"""
         WITH
-        _like AS (
+        replies AS (
             SELECT
-                entity_key AS key,
-                COUNT(*) FILTER (WHERE reaction = 'like') AS "like",
-                COUNT(*) FILTER (WHERE reaction = 'dislike') AS dislike
-            FROM "like"
-            WHERE entity_type = 'review' AND user_key != %s
-            GROUP BY entity_key
-        ),
-        user_like AS (
-            SELECT
-                entity_key AS key, reaction
-            FROM "like"
-            WHERE entity_type = 'review' AND user_key = %s
-        ),
-        reply AS (
-            SELECT
-                parent_key AS key,
-                COUNT(*) AS reply_count
-            FROM review
-            WHERE parent_key IS NOT NULL
-            GROUP BY parent_key
-        ),
-        engagement AS (
-            SELECT
-                review.key,
-                COALESCE(_like."like", 0) AS "like",
-                COALESCE(_like.dislike, 0) AS dislike,
-                COALESCE(_like."like", 0)
-                - COALESCE(_like.dislike, 0) AS most_like,
-                COALESCE(reply.reply_count, 0) AS reply,
-                COALESCE(_like."like", 0)
-                + COALESCE(_like.dislike, 0)
-                + COALESCE(reply.reply_count, 0) AS total,
-                user_like.reaction AS reaction
-            FROM review
-            LEFT JOIN _like ON review.key::TEXT = _like.key
-            LEFT JOIN reply ON review.key = reply.key
-            LEFT JOIN user_like ON review.key::TEXT = user_like.key
-        ),
-
-
-        parent AS (
-            SELECT
-                review.key,
-                review.date_created,
-                review.comment,
-                review.rating,
-                jsonb_build_object(
-                    'key', "user".key,
-                    'name', "user".name,
-                    'username', "user".username,
-                    'photo', "user".photo
-                ) AS user
+                review.parent_key,
+                jsonb_agg(jsonb_build_object(
+                    'key', review.key,
+                    'date_created', review.date_created,
+                    'comment', review.comment,
+                    'user', jsonb_build_object(
+                        'key', "user".key,
+                        'name', "user".name,
+                        'username', "user".username,
+                        'photo', "user".photo
+                    )
+                ) ORDER BY review.date_created ASC) AS replies_array,
+                COUNT(*) AS _count
             FROM review
             LEFT JOIN "user" ON review.user_key = "user".key
+            WHERE review.parent_key IS NOT NULL
+            GROUP BY review.parent_key
+        ),
+        like_info AS (
+            SELECT
+                entity_key,
+                COUNT(CASE WHEN user_key != %s AND reaction = 'like' THEN 1 END) AS others_like,
+                COUNT(CASE WHEN user_key != %s AND reaction = 'dislike' THEN 1 END) AS others_dislike,
+                COUNT(CASE WHEN reaction = 'like' THEN 1 END) AS all_like,
+                COUNT(CASE WHEN reaction = 'dislike' THEN 1 END) AS all_dislike,
+                COUNT(CASE WHEN reaction = 'like' THEN 1 END) - COUNT(CASE WHEN reaction = 'dislike' THEN 1 END) AS most_like,
+                MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
+            FROM "like"
+            WHERE entity_type = 'review'
+            GROUP BY entity_key
         )
-
 
         SELECT
             review.key,
             review.date_created,
             review.comment,
             review.rating,
-            review.parent_key,
+            COALESCE(replies.replies_array, '[]'::jsonb) AS replies,
             jsonb_build_object(
                 'key', "user".key,
                 'name', "user".name,
@@ -128,47 +120,41 @@ def get_many(key, cur=None):
                 'photo', "user".photo
             ) AS user,
             jsonb_build_object(
-                'like', COALESCE(engagement."like", 0),
-                'dislike', COALESCE(engagement.dislike, 0),
-                'most_like', COALESCE(engagement.most_like, 0),
-                'reply', COALESCE(engagement.reply, 0),
-                'most_engaged', COALESCE(engagement.total, 0),
-                'user_like', engagement.reaction
-            ) AS engagement,
-            jsonb_build_object(
-                'key', parent.key,
-                'date_created', parent.date_created,
-                'comment', parent.comment,
-                'rating', parent.rating,
-                'user', parent.user
-            ) AS parent,
-            COUNT(*) OVER() AS _count
+                'others_like', COALESCE(like_info.others_like, 0),
+                'others_dislike', COALESCE(like_info.others_dislike, 0),
+                'all_like', COALESCE(like_info.all_like, 0),
+                'all_dislike', COALESCE(like_info.all_dislike, 0),
+                'most_like', COALESCE(like_info.all_like,0) - COALESCE(like_info.all_dislike, 0),
+                'user_reaction', like_info.user_reaction
+            ) AS stats,
+            COUNT(*) OVER() AS _count,
+            COALESCE(replies._count, 0) AS reply_count,
+            COALESCE(like_info.most_like, 0) AS most_like
         FROM review
         LEFT JOIN "user" ON review.user_key = "user".key
-        LEFT JOIN engagement ON review.key = engagement.key
-        LEFT JOIN parent ON review.parent_key = parent.key
-        WHERE review.item_key = %s
+        LEFT JOIN replies ON review.key = replies.parent_key
+        LEFT JOIN like_info ON review.key::TEXT = like_info.entity_key
+        WHERE
+            review.item_key = %s
+            AND review.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
     """, (
-        user["key"], user["key"],
+        user["key"], user["key"], user["key"],
         item['key'],
         page_size, (page_no - 1) * page_size
     ))
 
     reviews = cur.fetchall()
-
-    for x in reviews:
-        if x["user"]["photo"]:
-            x["user"]["photo"] = f'{request.host_url}photo/user/{
-                x["user"]["photo"]}'
-        if (
-            x["parent"]["user"]
-            and "photo" in x["parent"]["user"]
-            and x["parent"]["user"]["photo"]
-        ):
-            x["parent"]["user"]["photo"] = f'{request.host_url}photo/user/{
-                x["parent"]["user"]["photo"]}'
+    for review in reviews:
+        if review["user"]["photo"]:
+            review["user"]["photo"] = f'{request.host_url}photo/user/{review[
+                "user"]["photo"]}'
+        if review.get("replies"):
+            for reply in review["replies"]:
+                if reply["user"]["photo"]:
+                    reply["user"]["photo"] = f'{request.host_url}photo/user/{
+                        reply["user"]["photo"]}'
 
     if close_conn:
         db_close(con, cur)
@@ -176,6 +162,7 @@ def get_many(key, cur=None):
         "status": 200,
         "item": item,
         "reviews": reviews,
+        "ratings": ratings,
         "order_by": list(order_by.keys()),
         "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0
     })

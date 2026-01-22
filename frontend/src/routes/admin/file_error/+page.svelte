@@ -38,7 +38,6 @@
 		});
 		resp = await resp.json();
 		loading.close();
-		console.log(resp);
 
 		if (resp.status == 200) {
 			notify.open(`${entity} photo${photos.length > 1 ? 's' : ''} deleted`);

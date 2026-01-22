@@ -10,7 +10,6 @@
 
 	let item = module.value.item;
 	let parent = module.value.parent;
-	console.log(parent);
 
 	let form = $state({
 		rating: 1,
@@ -50,12 +49,11 @@
 			}
 		);
 		resp = await resp.json();
-		console.log(resp);
 
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.reviews);
+			module.value.update(resp.reviews, resp.ratings, resp.total_page);
 			module.close();
 			notify.open('Review Added');
 		} else {

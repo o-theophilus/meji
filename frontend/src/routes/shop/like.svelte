@@ -17,7 +17,7 @@
 			app.likes.push(item.key);
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/like/item`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -30,7 +30,6 @@
 			})
 		});
 		resp = await resp.json();
-		console.log(resp);
 
 		if (resp.status == 200) {
 			app.likes = resp.likes;

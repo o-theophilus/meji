@@ -86,7 +86,7 @@
 		outline-offset: -1px;
 	}
 	.row_1 .text {
-		font-size: 1.4rem;
+		font-size: 1.2rem;
 		max-width: 740px;
 	}
 	.row_2 .text {

@@ -97,7 +97,7 @@ def delete(key):
         })
 
     if (
-        not review["user_key"] != user["key"]
+        review["user_key"] != user["key"]
         and "review:delete" not in user["access"]
     ):
         db_close(con, cur)
@@ -105,7 +105,7 @@ def delete(key):
             "status": 400,
             "error": "unauthorized access"
         })
-    if not review["user_key"] != user["key"]:
+    elif review["user_key"] != user["key"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -114,7 +114,7 @@ def delete(key):
 
     cur.execute("""
         DELETE FROM "like"
-        WHERE entity_type = 'review' entity_key = %s;
+        WHERE entity_type = 'review' AND entity_key = %s;
     """, (review["key"],))
 
     cur.execute("""DELETE FROM review WHERE key = %s;""", (review["key"],))

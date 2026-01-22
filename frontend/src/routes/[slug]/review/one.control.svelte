@@ -10,53 +10,40 @@
 	import Report from './_report.svelte';
 
 	let { item, review, update, search } = $props();
-
 	let error = $state({});
 
-	let open_menu = $state(false);
-	let self = false;
-
-	let _like = $state(review.engagement.like);
-	let _dislike = $state(review.engagement.dislike);
-	let user_like = $state(review.engagement.user_like);
-	let like = $derived.by(() => {
-		if (user_like == 'like') return _like + 1;
-		return _like;
-	});
-	let dislike = $derived.by(() => {
-		if (user_like == 'dislike') return _dislike + 1;
-		return _dislike;
-	});
+	let others_like = $state(review.stats.others_like);
+	let others_dislike = $state(review.stats.others_dislike);
+	let user_reaction = $state(review.stats.user_reaction);
 
 	const submit = async (reaction) => {
-		if (
-			!user_like ||
-			(reaction == 'like' && user_like == 'dislike') ||
-			(reaction == 'dislike' && user_like == 'like')
-		) {
-			user_like = reaction;
+		if (reaction == user_reaction) {
+			user_reaction = null;
 		} else {
-			user_like = null;
+			user_reaction = reaction;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/like`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/review/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			},
-			body: JSON.stringify({ entity_type: 'comment', entity_key: review.key, reaction })
+			body: JSON.stringify({ entity_type: 'review', entity_key: review.key, reaction })
 		});
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			_like = resp.like;
-			_dislike = resp.dislike;
-			user_like = resp.user_like;
+			others_like = resp.others_like;
+			others_dislike = resp.others_dislike;
+			user_reaction = resp.user_reaction;
 		} else {
 			error = resp;
 		}
 	};
+
+	let open_menu = $state(false);
+	let self = false;
 </script>
 
 <svelte:window
@@ -78,17 +65,16 @@
 {#snippet menu()}
 	<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
 		{#if review.user.key == app.user.key}
-			{@render button('Delete', 'trash-2', () =>
-				module.open(Delete, { item: review, update, search })
-			)}
+			{@render button('Delete', 'trash-2', () => module.open(Delete, { review, update, search }))}
 		{:else}
 			{@render button('Report', 'flag-triangle-right', () => {
-				module.open(Report, { item: review });
+				module.open(Report, { review });
 			})}
 		{/if}
 	</div>
 {/snippet}
 
+<!-- TODO: enforce all app.login backend -->
 {#if app.login}
 	{#if error.error}
 		<div class="error" transition:slide>
@@ -106,9 +92,9 @@
 			<Like
 				--like-outline-color="var(--cl3)"
 				--like-height="32px"
-				{like}
-				{dislike}
-				active={user_like}
+				like={user_reaction == 'like' ? others_like + 1 : others_like}
+				dislike={user_reaction == 'dislike' ? others_dislike + 1 : others_dislike}
+				active={user_reaction}
 				onlike={() => submit('like')}
 				ondislike={() => submit('dislike')}
 			/>

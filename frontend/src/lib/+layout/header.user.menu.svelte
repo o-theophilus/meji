@@ -7,7 +7,7 @@
 
 	import { Logout } from '$lib/auth';
 
-	let { open, admin, children } = $props();
+	let { open, is_admin, children } = $props();
 </script>
 
 {#if open}
@@ -15,7 +15,7 @@
 		<a href="/@{app.user.username}" class="profile">
 			{@render children()}
 		</a>
-		{#if admin && page.url.pathname != '/admin'}
+		{#if is_admin && page.url.pathname != '/admin'}
 			<a href="/admin" class="link">Admin</a>
 		{/if}
 		{#if app.user.access.includes('log:view')}

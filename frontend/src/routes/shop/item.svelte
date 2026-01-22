@@ -12,11 +12,6 @@
 	const oneWeekAgo = new Date();
 	oneWeekAgo.setDate(today.getDate() - 7);
 
-	let discount = (
-		((Number(item.price_old) - Number(item.price)) * 100) /
-		Number(item.price_old)
-	).toFixed(0);
-
 	const prerender = () => {
 		app.item = item;
 	};
@@ -35,9 +30,11 @@
 		>
 			<Like {item} small></Like>
 		</div>
-		<div class="rating">
-			<Rating value="4.5" mini></Rating>
-		</div>
+		{#if item.rating > 0}
+			<div class="rating">
+				<Rating value={item.rating} mini></Rating>
+			</div>
+		{/if}
 		{#if date_created >= oneWeekAgo}
 			<div class="new">New</div>
 		{/if}
@@ -56,10 +53,10 @@
 				{/if}
 			</div>
 
-			{#if discount > 15}
+			{#if item.discount > 15}
 				{#if Number(item.price) && Number(item.price_old)}
 					<div class="discount">
-						{discount}% off
+						{Number(item.discount).toFixed(0)}% off
 					</div>
 				{/if}
 			{:else if Number(item.price_old)}
@@ -117,7 +114,7 @@
 
 		background-color: var(--red);
 		color: white;
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		width: 100px;
 		text-align: center;
 	}
@@ -136,7 +133,7 @@
 	}
 
 	.name {
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		line-height: 120%;
 	}
 
@@ -148,13 +145,14 @@
 		margin-top: 4px;
 	}
 	.price {
+		font-size: 1.1rem;
 		font-weight: 700;
 		color: var(--ac1);
 		color: var(--ft1);
 	}
 
 	.old_price {
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		position: relative;
 	}
 	.strike {
@@ -167,26 +165,14 @@
 
 		transform: rotate(-10deg);
 		background-color: var(--red);
-		/* mix-blend-mode: invert; */
 	}
 	.discount {
 		line-height: 100%;
-		font-size: 0.8rem;
-
-		/* position: absolute; */
-		/* bottom: 8px; */
-		/* right: 8px; */
-
-		/* display: flex; */
-		/* align-items: center; */
-		/* gap: 2px; */
+		font-size: 0.9rem;
 
 		padding: 2px 4px;
 		border-radius: 4px;
 		color: var(--red);
 		background-color: var(--bg2);
-
-		/* font-size: 0.8rem; */
-		/* line-height: 100%; */
 	}
 </style>

@@ -160,6 +160,10 @@
 	}
 
 	.floater_block {
+		display: flex;
+		gap: 4px;
+		flex-wrap: wrap;
+
 		padding: 8px 24px;
 		max-width: var(--mobileWidth);
 		margin: auto;

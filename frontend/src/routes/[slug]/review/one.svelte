@@ -16,21 +16,17 @@
 </script>
 
 <section id={review.key}>
-	{#if review.parent_key}
-		<div
-			class="parent"
-			onclick={() => {
-				scroll(`#${review.parent_key}`);
-			}}
-			role="presentation"
-		>
-			<Details review={review.parent}></Details>
-		</div>
-	{/if}
 	<div class="review">
 		<Details {review}></Details>
 	</div>
+
 	{@render control?.()}
+
+	{#each review.replies as reply}
+		<div class="reply">
+			<Details review={reply} admin></Details>
+		</div>
+	{/each}
 </section>
 
 <style>
@@ -40,15 +36,12 @@
 		border-radius: 8px;
 		background-color: var(--bg3);
 	}
-	.parent {
-		border-radius: 8px;
-		border: 2px solid var(--bg2);
-		padding: 16px;
-	}
-	section:has(.parent) .review {
-		padding-top: 16px;
-	}
 	.review {
 		padding-bottom: 16px;
+	}
+	.reply {
+		border-top: 1px solid var(--bg2);
+		margin-top: 16px;
+		padding-top: 16px;
 	}
 </style>

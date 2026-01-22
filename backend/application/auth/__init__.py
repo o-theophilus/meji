@@ -105,6 +105,17 @@ def copy_like_n_cart(cur, in_key, out_key):
             ;""", (in_cart["key"], _out["key"]))
 
 
+def user_like(cur, key):
+    cur.execute("""
+        SELECT entity_key FROM "like"
+        WHERE entity_type = 'item'
+            AND user_key::TEXT = %s
+            AND reaction = 'like';
+    """, (key,))
+    likes = cur.fetchall()
+    return [x["entity_key"] for x in likes]
+
+
 @bp.post("/init")
 def init():
     con, cur = db_open()
@@ -131,14 +142,7 @@ def init():
             entity_type="account",
         )
 
-    cur.execute("""
-        SELECT entity_key FROM "like"
-        WHERE entity_type = 'item'
-            AND user_key::TEXT = %s
-            AND reaction = 'like';
-    """, (user["key"],))
-    likes = cur.fetchall()
-
+    likes = user_like(cur, user["key"])
     tags = get_tags(cur).json["tags"]
 
     db_close(con, cur)
@@ -147,7 +151,7 @@ def init():
         "user": user_schema(user),
         "token": token,
         "login": login,
-        "likes": [x["entity_key"] for x in likes],
+        "likes": likes,
         "cart_items": cart_items,
         "tags": tags
     })

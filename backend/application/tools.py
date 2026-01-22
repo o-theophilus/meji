@@ -145,7 +145,6 @@ def check_code(cur, user_key, email, n="code"):
 
 
 def send_mail(to, subject, body):
-    print(f"Sending email to {to} with subject '{subject}'")
 
     if current_app.config["DEBUG"]:
         print(body)

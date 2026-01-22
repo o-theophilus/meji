@@ -45,10 +45,8 @@ def delete_test(filename, path=""):
 
 def get_test(filename, path="", thumbnail=False):
     try:
-        print(filename, path)
         photo = Image.open(f"{path}{filename}")
     except Exception as e:
-        print(e)
         abort(400, description=str(e))
 
     if thumbnail:

@@ -1,8 +1,7 @@
 <script>
 	import { Datetime, Avatar } from '$lib/macro';
 	import Rating from './rating.svelte';
-	let { review } = $props();
-	console.log(review);
+	let { review, admin = false } = $props();
 </script>
 
 <section>
@@ -12,17 +11,24 @@
 		<div class="name_date">
 			<div class="name_username">
 				<div class="name">{review.user.name}</div>
-				<div class="username">@{review.user.username}</div>
+				<div class="username">
+					@{review.user.username}
+					{#if admin}
+						(Admin)
+					{/if}
+				</div>
 			</div>
 
 			<div class="date"><Datetime datetime={review.date_created} type="ago" /></div>
 		</div>
 	</div>
 
-	<div class="rating">
-		<Rating value={review.rating}></Rating>
-	</div>
 	<div class="comment">
+		{#if !admin}
+			<div class="rating">
+				<Rating value={review.rating}></Rating>
+			</div>
+		{/if}
 		{review.comment}
 	</div>
 </section>
@@ -53,19 +59,19 @@
 	}
 
 	.date {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 		line-height: 100%;
 	}
 
 	.username {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 	}
 
 	.rating {
-		margin-top: 16px;
+		margin-bottom: 8px;
 	}
 	.comment {
-		font-size: 0.8rem;
-		margin-top: 8px;
+		margin-top: 16px;
+		font-size: 0.9rem;
 	}
 </style>

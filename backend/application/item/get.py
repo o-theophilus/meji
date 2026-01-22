@@ -93,7 +93,7 @@ def get_many(cur=None, _order="latest", _page_size=24):
         'cheap': 'item.price',
         'costly': 'item.price',
         'discount': 'discount',
-        # 'rating': 'rating'
+        'rating': 'rating'
     }
 
     order_dir = {
@@ -118,13 +118,24 @@ def get_many(cur=None, _order="latest", _page_size=24):
     params.append((page_no - 1) * page_size)
 
     cur.execute(f"""
+        WITH rating AS (
+            SELECT
+                review.item_key AS key,
+                AVG(review.rating) as rating
+            FROM review
+            WHERE review.parent_key IS NULL
+            GROUP BY review.item_key
+        )
+
         SELECT item.*,
             CASE
                 WHEN item.price = 0 OR item.price_old = 0 THEN 0
-                ELSE (100 * item.price_old - item.price) / item.price_old
+                ELSE ((item.price_old - item.price) * 100) / item.price_old
             END AS discount,
+            COALESCE(rating.rating, 0) AS rating,
             COUNT(*) OVER() AS _count
         FROM item
+        LEFT JOIN rating ON item.key = rating.key
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {tag_query}

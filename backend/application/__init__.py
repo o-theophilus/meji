@@ -24,12 +24,12 @@ from .user import password
 from .user import photo as user_photo
 from .user import notification
 from . import item
-from .item import file
 from .item import get as item_get
-from .item import engage
-from .item.engage import get as item_engage_get
+from .item import file
+from .item import item_like
 from .item import review
 from .item.review import get as review_get
+from .item.review import like as review_like
 from . import cart
 from .cart import get as cart_get
 from . import order
@@ -78,10 +78,10 @@ def create_app(conf=None):
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
     app.register_blueprint(file.bp)
-    app.register_blueprint(engage.bp)
-    app.register_blueprint(item_engage_get.bp)
+    app.register_blueprint(item_like.bp)
     app.register_blueprint(review.bp)
     app.register_blueprint(review_get.bp)
+    app.register_blueprint(review_like.bp)
     app.register_blueprint(cart.bp)
     app.register_blueprint(cart_get.bp)
     app.register_blueprint(order.bp)

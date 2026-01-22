@@ -72,6 +72,8 @@
 
 <style>
 	button {
+		all: unset;
+
 		position: relative;
 
 		display: inline-flex;
@@ -130,6 +132,6 @@
 	option {
 		background-color: var(--bg1);
 		color: var(--ft2);
-		font-size: 0.8rem;
+		font-size: 1rem;
 	}
 </style>

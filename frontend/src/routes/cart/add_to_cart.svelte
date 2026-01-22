@@ -75,7 +75,6 @@
 		});
 		resp = await resp.json();
 		loading.close();
-		console.log(resp);
 
 		if (resp.status == 200) {
 			app.cart_items = resp.items;

@@ -8,7 +8,7 @@
 <div class="rating">
 	{#if mini}
 		<div class="mini">
-			{value}
+			{Number(value).toFixed(1)}
 			<Icon icon="star" {size} />
 		</div>
 	{:else}

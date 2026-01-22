@@ -10,14 +10,14 @@
 
 	let open = $state(false);
 	let self = false;
-	let admin = $state(false);
+	let is_admin = $state(false);
 	let { is_home } = $props();
 
 	onMount(async () => {
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/access`);
 		resp = await resp.json();
 		if (resp.status == 200) {
-			admin = app.user.access.some((x) => resp.access.includes(x));
+			is_admin = app.user.access.some((x) => resp.access.includes(x));
 		}
 	});
 
@@ -90,7 +90,7 @@
 		{@render _user(false)}
 	</button>
 
-	<Menu {open} {admin}>
+	<Menu {open} {is_admin}>
 		{@render _user()}
 	</Menu>
 </div>

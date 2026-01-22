@@ -209,9 +209,6 @@ def copy_db():
         from_cur.execute(f"""SELECT * FROM "{table_name}";""")
         data = from_cur.fetchall()
 
-        print("########################")
-        print(table_name, len(data))
-
         if not data:
             return
 
