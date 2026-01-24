@@ -30,6 +30,13 @@ def create(key):
 
     parent_key = request.json.get("parent_key")
     if parent_key:
+        if "review:reply" not in user["access"]:
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                "error": "unauthorized access"
+            })
+
         cur.execute("SELECT * FROM review WHERE key = %s;", (parent_key,))
         if not cur.fetchone():
             db_close(con, cur)
@@ -85,9 +92,7 @@ def delete(key):
         return jsonify(session)
     user = session["user"]
 
-    cur.execute("""
-        SELECT * FROM review WHERE key = %s AND user_key = %s;
-    """, (key, user["key"]))
+    cur.execute("""SELECT * FROM review WHERE key = %s;""", (key,))
     review = cur.fetchone()
     if not review:
         db_close(con, cur)
@@ -98,7 +103,7 @@ def delete(key):
 
     if (
         review["user_key"] != user["key"]
-        and "review:delete" not in user["access"]
+        and "review:delete_other_review" not in user["access"]
     ):
         db_close(con, cur)
         return jsonify({

@@ -23,6 +23,14 @@ def get_many():
             "error": "unauthorized access"
         })
 
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "tag": "",
+        "order": _order,
+        "page_no": 1,
+        "page_size": _page_size
+    }
     search = request.args.get("search", "")
     order = request.args.get("order", "latest")
     page_no = int(request.args.get("page_no", 1))

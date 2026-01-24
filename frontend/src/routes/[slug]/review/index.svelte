@@ -10,9 +10,8 @@
 	import { Dropdown } from '$lib/input';
 	import { PageNote } from '$lib/info';
 	import { Card } from '$lib/layout';
-	import One from './one.svelte';
 	import Add from './_add.svelte';
-	import Control from './one.control.svelte';
+	import One from './one.svelte';
 
 	let { item } = $props();
 	let reviews = $state([]);
@@ -30,7 +29,7 @@
 		return _temp;
 	});
 	let search = $state({
-		order: 'most like ▼',
+		order: 'like ▼',
 		page_no: 1,
 		page_size: 3
 	});
@@ -54,7 +53,6 @@
 			}
 		);
 		resp = await resp.json();
-		console.log(resp);
 
 		if (resp.status == 200) {
 			reviews = resp.reviews;
@@ -80,7 +78,7 @@
 				{#if reviews.length > 0}
 					{count}
 				{/if}
-				Rating{#if reviews.length > 1}s{/if} and Review{#if reviews.length > 1}s{/if}
+				Rating{#if reviews.length > 1}s{/if} and review{#if reviews.length > 1}s{/if}
 			</div>
 			<Spinner active={loading} size="20" />
 		</div>
@@ -92,19 +90,8 @@
 	{#if open && !loading}
 		<div class="margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each reviews as review (review.key)}
-				<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<One {review}>
-						{#snippet parent()}
-							{#each reviews as x}
-								{#if review.parent_key == x.key}
-									<One review={x}></One>
-								{/if}
-							{/each}
-						{/snippet}
-						{#snippet control()}
-							<Control {item} {review} {update} {search}></Control>
-						{/snippet}
-					</One>
+				<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+					<One {item} {review} {search} {update}></One>
 				</div>
 			{:else}
 				<PageNote>
@@ -118,7 +105,7 @@
 
 <div class="button">
 	{#if app.login}
-		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, update, search })}>
+		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, search, update })}>
 			Add review
 		</Button>
 	{:else}
@@ -133,5 +120,12 @@
 
 	.button {
 		margin: 16px 0;
+	}
+
+	.item {
+		margin-top: 8px;
+	}
+	.item:first-child {
+		margin-top: 0;
 	}
 </style>

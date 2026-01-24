@@ -58,7 +58,8 @@
 		Bell,
 		ListFilter,
 		Heart,
-		StarHalf
+		StarHalf,
+		Laptop
 	} from 'lucide';
 	import { onMount } from 'svelte';
 	onMount(() => {
@@ -121,7 +122,8 @@
 				Bell,
 				ListFilter,
 				Heart,
-				StarHalf
+				StarHalf,
+				Laptop
 			},
 			attrs: {
 				// width: 16,

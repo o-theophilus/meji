@@ -5,10 +5,8 @@
 
 <Button
 	{...props}
-	--button-padding-x="0"
-	--button-width="32px"
-	--button-height="32px"
-	--button-border-radius="50%"
-	--button-color="var(--ft2)"
-	--button-background-color="var(--bg2)"
+	--button-padding-x="var(--button-padding-x_, 0)"
+	--button-width="var(--button-width_, 32px)"
+	--button-height="var(--button-height_, 32px)"
+	--button-border-radius="var(--button-border-radius_, 50%)"
 ></Button>

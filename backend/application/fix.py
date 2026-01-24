@@ -1187,9 +1187,20 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        ALTER TABLE "order"
-        DROP COLUMN date_updated,
-        DROP COLUMN delivery_date;
+        DROP TABLE IF EXISTS "like" CASCADE;
+
+        CREATE TABLE IF NOT EXISTS "like" (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
+            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
+            reaction TEXT NOT NULL,
+            CHECK (
+                (item_key IS NOT NULL AND review_key IS NULL) OR
+                (item_key IS NULL AND review_key IS NOT NULL)
+            )
+        );
     """)
 
     # cur.execute("""

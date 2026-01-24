@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash
 from ..postgres import db_open, db_close
 from ..log import log
 from ..tools import get_session, user_schema, access_pass
+import os
 
 
 bp = Blueprint("access", __name__)
@@ -43,13 +44,12 @@ def set_access(key):
 
     access = request.json.get("access")
 
-    # TODO: uncomment checks
     if (
         not user
-        # or me["key"] == user["key"]
+        or me["key"] == user["key"]
         or not access
         or type(access) is not list
-        # or user["email"] == os.environ["MAIL_USERNAME"]
+        or user["email"] == os.environ["MAIL_USERNAME"]
         or user["status"] != "confirmed"
     ):
         db_close(con, cur)

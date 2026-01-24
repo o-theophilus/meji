@@ -46,12 +46,12 @@ def get_many(key, cur=None):
     """, (item["key"],))
     ratings = cur.fetchall()
 
-# [ ] style all the orderby with arrows
+    # [ ] style all the orderby with arrows
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
-        'most like ▼': 'most_like',
-        'most like ▲': 'most_like',
+        'like ▼': 'most_like',
+        'like ▲': 'most_like',
         'reply': 'reply_count',
         'rating ▼': 'rating',
         'rating ▲': 'rating',
@@ -60,14 +60,14 @@ def get_many(key, cur=None):
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'most like ▼': 'DESC',
-        'most like ▲': 'ASC',
+        'like ▼': 'DESC',
+        'like ▲': 'ASC',
         'reply': 'DESC',
         'rating ▼': 'DESC',
         'rating ▲': 'ASC',
     }
 
-    order = request.args.get("order", "oldest")
+    order = request.args.get("order", 'like ▼')
     page_no = int(request.args.get("page_no", 1))
     page_size = int(request.args.get("page_size", 24))
 
@@ -95,16 +95,17 @@ def get_many(key, cur=None):
         ),
         like_info AS (
             SELECT
-                entity_key,
-                COUNT(CASE WHEN user_key != %s AND reaction = 'like' THEN 1 END) AS others_like,
-                COUNT(CASE WHEN user_key != %s AND reaction = 'dislike' THEN 1 END) AS others_dislike,
-                COUNT(CASE WHEN reaction = 'like' THEN 1 END) AS all_like,
-                COUNT(CASE WHEN reaction = 'dislike' THEN 1 END) AS all_dislike,
-                COUNT(CASE WHEN reaction = 'like' THEN 1 END) - COUNT(CASE WHEN reaction = 'dislike' THEN 1 END) AS most_like,
+                review_key,
+                COUNT(CASE WHEN user_key != %s
+                    AND reaction = 'like' THEN 1 END) AS others_like,
+                COUNT(CASE WHEN user_key != %s
+                    AND reaction = 'dislike' THEN 1 END) AS others_dislike,
+                (COUNT(CASE WHEN reaction = 'like' THEN 1 END) - COUNT(
+                    CASE WHEN reaction = 'dislike' THEN 1 END)) AS most_like,
                 MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
             FROM "like"
-            WHERE entity_type = 'review'
-            GROUP BY entity_key
+            WHERE review_key IS NOT NULL
+            GROUP BY review_key
         )
 
         SELECT
@@ -122,9 +123,6 @@ def get_many(key, cur=None):
             jsonb_build_object(
                 'others_like', COALESCE(like_info.others_like, 0),
                 'others_dislike', COALESCE(like_info.others_dislike, 0),
-                'all_like', COALESCE(like_info.all_like, 0),
-                'all_dislike', COALESCE(like_info.all_dislike, 0),
-                'most_like', COALESCE(like_info.all_like,0) - COALESCE(like_info.all_dislike, 0),
                 'user_reaction', like_info.user_reaction
             ) AS stats,
             COUNT(*) OVER() AS _count,
@@ -133,7 +131,7 @@ def get_many(key, cur=None):
         FROM review
         LEFT JOIN "user" ON review.user_key = "user".key
         LEFT JOIN replies ON review.key = replies.parent_key
-        LEFT JOIN like_info ON review.key::TEXT = like_info.entity_key
+        LEFT JOIN like_info ON review.key = like_info.review_key
         WHERE
             review.item_key = %s
             AND review.parent_key IS NULL

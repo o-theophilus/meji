@@ -48,7 +48,9 @@ access_pass = {
         ['email_order_delivered', 3]
     ],
     "review": [
-        ['delete', 3]
+        ['delete_other_review', 3],
+        ['delete_other_reply', 3],
+        ['reply', 3]
     ],
     "report": [
         ['view', 1],

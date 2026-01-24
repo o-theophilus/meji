@@ -65,12 +65,20 @@ def get_many(cur=None, _order="latest", _page_size=24):
         return jsonify(session)
     user = session["user"]
 
-    search = request.args.get("search", "").strip()
-    status = request.args.get("status", "active")
-    tag = request.args.get("tag", "")
-    order = request.args.get("order", _order)
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", _page_size))
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "tag": "",
+        "order": _order,
+        "page_no": 1,
+        "page_size": _page_size
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    tag = request.args.get("tag", searchParams["tag"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     if (
         "item:edit_status" not in user["access"]
@@ -108,6 +116,7 @@ def get_many(cur=None, _order="latest", _page_size=24):
 
     }
 
+    # FIXME check for sql injection
     params = [status, search, f"%{search}%"]
     tag_query = ""
     if tags != []:
@@ -149,9 +158,10 @@ def get_many(cur=None, _order="latest", _page_size=24):
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
+        "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "_status": ['active', 'draft'],
-        "total_page": ceil(items[0]["_count"] / page_size) if items else 0
+        "searchParams": searchParams,
+        "_status": ['active', 'draft']
     })
 
 
@@ -242,10 +252,9 @@ def get_like():
             COUNT(*) OVER() AS _count
         FROM item
         LEFT JOIN "like" ON
-            item.key::TEXT = "like".entity_key
+            item.key = "like".item_key
         WHERE
             item.status = 'active'
-            AND "like".entity_type = 'item'
             AND "like".user_key = %s
             AND "like".reaction = 'like'
             AND (%s = '' OR item.name ILIKE %s)

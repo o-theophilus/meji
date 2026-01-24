@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { module, app, page_state } from '$lib/store.svelte.js';
@@ -18,36 +19,28 @@
 
 	let { data } = $props();
 	let items = $derived(data.items);
-
 	let total_page = $derived(data.total_page);
-	let order_by = $derived(data.order_by);
-	let _status = $derived(data._status);
-	let search = $state({ order: 'latest', search: '', tag: '', status: 'active', page_no: 1 });
+	// TODO get from backend
+	// [ ] update on portfolio website
+	let searchParams = $state(data.searchParams);
+	let { order_by } = data;
+	let { _status } = data;
 
 	const update = (a, b) => {
 		items = a;
 		total_page = b;
 	};
 
+	// TODO update this across where necessary
+	// [ ] update on portfolio website
 	onMount(() => {
-		if (page_state.searchParams.order) {
-			search.order = page_state.searchParams.order;
+		const sp = page_state.searchParams;
+		if (Object.keys(sp).length) {
+			replaceState(`?${new URLSearchParams(sp)}`);
+			for (const key of Object.keys(searchParams)) {
+				if (sp[key]) searchParams[key] = sp[key];
+			}
 		}
-		if (page_state.searchParams.search) {
-			search.search = page_state.searchParams.search;
-		}
-		if (page_state.searchParams.tag) {
-			search.tag = page_state.searchParams.tag;
-		}
-		if (page_state.searchParams.status) {
-			search.status = page_state.searchParams.status;
-		}
-		if (page_state.searchParams.page_no) {
-			search.page_no = page_state.searchParams.page_no;
-		}
-
-		page.url.search = new URLSearchParams(page_state.searchParams);
-		window.history.replaceState(history.state, '', page.url.href);
 	});
 
 	let tags = $state();
@@ -67,9 +60,9 @@
 				<Radio
 					--button-outline-color-hover="var(--ft1)"
 					list={_status}
-					bind:value={search.status}
+					bind:value={searchParams.status}
 					ondone={(v) => {
-						search.page_no = 1;
+						searchParams.page_no = 1;
 						v = v == 'active' ? '' : v;
 						page_state.set({ status: v });
 					}}
@@ -83,18 +76,18 @@
 
 	<div class="line nowrap">
 		<Search
-			bind:value={search.search}
+			bind:value={searchParams.search}
 			ondone={(v) => {
-				search.page_no = 1;
+				searchParams.page_no = 1;
 				page_state.set({ search: v });
 			}}
 		></Search>
 
 		<Tags
 			bind:this={tags}
-			bind:value={search.tag}
+			bind:value={searchParams.tag}
 			ondone={(v) => {
-				search.page_no = 1;
+				searchParams.page_no = 1;
 				page_state.set({ tag: v });
 			}}
 		/>
@@ -111,9 +104,9 @@
 		list={order_by}
 		icon="arrow-down-narrow-wide"
 		icon2="chevron-down"
-		bind:value={search.order}
+		bind:value={searchParams.order}
 		onchange={(v) => {
-			search.page_no = 1;
+			searchParams.page_no = 1;
 			v = v == 'latest' ? '' : v;
 			page_state.set({ order: v });
 		}}
@@ -121,9 +114,9 @@
 
 	<FilterNote
 		onclick={() => {
-			search.page_no = 1;
-			search.search = '';
-			search.tag = '';
+			searchParams.page_no = 1;
+			searchParams.search = '';
+			searchParams.tag = '';
 			tags.clear();
 			page_state.set({ search: '', tag: '' });
 		}}
@@ -148,7 +141,7 @@
 
 	<Pagination
 		{total_page}
-		bind:value={search.page_no}
+		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

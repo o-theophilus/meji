@@ -1,10 +1,11 @@
 <script>
-	import { slide } from 'svelte/transition';
+	import { slide, scale } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { module, app } from '$lib/store.svelte.js';
 
 	import { Datetime, Marked, Avatar, Icon } from '$lib/macro';
 	import { Link, RoundButton, Like } from '$lib/button';
+	import { Note } from '$lib/info';
 	import Add from './_add.svelte';
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
@@ -16,6 +17,9 @@
 	let others_dislike = $state(review.stats.others_dislike);
 	let user_reaction = $state(review.stats.user_reaction);
 
+	let all_like = $derived(user_reaction == 'like' ? others_like + 1 : others_like);
+	let all_dislike = $derived(user_reaction == 'dislike' ? others_dislike + 1 : others_dislike);
+
 	const submit = async (reaction) => {
 		if (reaction == user_reaction) {
 			user_reaction = null;
@@ -23,13 +27,13 @@
 			user_reaction = reaction;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/review/like`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/review/like/${review.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			},
-			body: JSON.stringify({ entity_type: 'review', entity_key: review.key, reaction })
+			body: JSON.stringify({ reaction })
 		});
 		resp = await resp.json();
 
@@ -62,65 +66,71 @@
 	</button>
 {/snippet}
 
-{#snippet menu()}
-	<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-		{#if review.user.key == app.user.key}
-			{@render button('Delete', 'trash-2', () => module.open(Delete, { review, update, search }))}
-		{:else}
-			{@render button('Report', 'flag-triangle-right', () => {
-				module.open(Report, { review });
-			})}
-		{/if}
-	</div>
-{/snippet}
-
 <!-- TODO: enforce all app.login backend -->
+
 {#if app.login}
-	{#if error.error}
-		<div class="error" transition:slide>
-			{error.error}
+	<section>
+		<Note status="400" note={error.error}></Note>
+
+		<div class="line space control">
+			<div class="line">
+				<div class="like">
+					{#if !user_reaction}
+						<div transition:slide={{ axis: 'x' }} class="note">
+							<div>Was this helpful?</div>
+						</div>
+					{/if}
+
+					<Like
+						--like-outline-color="var(--cl3)"
+						--like-height="32px"
+						active={user_reaction}
+						onlike={() => submit('like')}
+						ondislike={() => submit('dislike')}
+					/>
+					<!-- like={all_like} -->
+					<!-- dislike={all_dislike} -->
+				</div>
+
+				{#if app.user.access.includes('review:reply')}
+					<RoundButton
+						icon="reply"
+						onclick={() => module.open(Add, { item, search, update, parent: review })}
+					/>
+				{/if}
+			</div>
+
+			<div class="menu_area">
+				<RoundButton
+					icon="ellipsis"
+					onclick={() => {
+						open_menu = !open_menu;
+						self = true;
+					}}
+				/>
+
+				{#if open_menu}
+					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
+						{#if review.user.key == app.user.key || app.user.access.includes('review:delete_other_review')}
+							{@render button('Delete', 'trash-2', () =>
+								module.open(Delete, { review, update, search })
+							)}
+						{:else}
+							{@render button('Report', 'flag-triangle-right', () => {
+								module.open(Report, { review });
+							})}
+						{/if}
+					</div>
+				{/if}
+			</div>
 		</div>
-	{/if}
-
-	<div class="line space control">
-		<div class="line">
-			<RoundButton
-				icon="reply"
-				onclick={() => module.open(Add, { item, parent: review, update, search })}
-			/>
-
-			<Like
-				--like-outline-color="var(--cl3)"
-				--like-height="32px"
-				like={user_reaction == 'like' ? others_like + 1 : others_like}
-				dislike={user_reaction == 'dislike' ? others_dislike + 1 : others_dislike}
-				active={user_reaction}
-				onlike={() => submit('like')}
-				ondislike={() => submit('dislike')}
-			/>
-		</div>
-
-		<div class="menu_area">
-			<RoundButton
-				icon="ellipsis"
-				onclick={() => {
-					open_menu = !open_menu;
-					self = true;
-				}}
-			/>
-
-			{#if open_menu}
-				{@render menu()}
-			{/if}
-		</div>
-	</div>
+	</section>
 {/if}
 
 <style>
-	.error {
-		color: red;
-		font-size: 0.8rem;
-		margin: 8px 0;
+	section {
+		padding: 16px;
+		padding-top: 0;
 	}
 
 	.menu_area {
@@ -162,5 +172,18 @@
 	.btn:hover {
 		background-color: var(--bg2);
 		color: var(--ft1);
+	}
+
+	.like {
+		display: flex;
+		align-items: center;
+	}
+	.note {
+		font-size: 0.8rem;
+		width: 60px;
+	}
+	.note div {
+		width: 60px;
+		line-height: 130%;
 	}
 </style>

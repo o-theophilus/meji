@@ -14,9 +14,8 @@
 	app.tags = data.locals.tags;
 </script>
 
-<main class:dark={app.user.theme == 'dark'}>
+<main class="{app.user.theme}_theme">
 	<Header />
-	<!-- <Nav /> -->
 	{@render children()}
 	<Footer />
 
@@ -44,10 +43,4 @@
 		position: sticky;
 		bottom: 0;
 	}
-
-	/* @media screen and (min-width: 800px) {
-		.nav {
-			display: none;
-		}
-	} */
 </style>

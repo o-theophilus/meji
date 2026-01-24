@@ -6,7 +6,7 @@
 	import { IG, Dropdown } from '$lib/input';
 	import { Avatar } from '$lib/macro';
 	import { template, tags } from './_report.template.js';
-	import Item from './one.svelte';
+	import One from './one.details.svelte';
 
 	let item = { ...module.value.item };
 
@@ -55,7 +55,7 @@
 </script>
 
 <Form title="Report" error={error.error}>
-	<Item {item}></Item>
+	<One {item}></One>
 
 	<IG
 		bind:value={form.comment}

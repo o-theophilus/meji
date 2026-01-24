@@ -40,23 +40,23 @@ def create_session(cur, user_key, login=False, remember=False):
 def copy_like_n_cart(cur, in_key, out_key):
     cur.execute("""
         SELECT * FROM "like"
-        WHERE user_key = %s AND entity_type = 'item';
+        WHERE user_key = %s AND item_key IS NOT NULL;
     """, (in_key,))
     in_likes = cur.fetchall()
-    in_likes = [x["entity_key"] for x in in_likes]
+    in_likes = [x["item_key"] for x in in_likes]
 
     cur.execute("""
         SELECT * FROM "like"
-        WHERE user_key = %s AND entity_type = 'item';
+        WHERE user_key = %s AND item_key IS NOT NULL;
     """, (out_key,))
     out_likes = cur.fetchall()
-    out_likes = [x["entity_key"] for x in out_likes if x not in in_likes]
+    out_likes = [x["item_key"] for x in out_likes if x not in in_likes]
 
     for _in in out_likes:
         cur.execute("""
-            INSERT INTO "like" (user_key, entity_type, entity_key, reaction)
-            VALUES (%s, %s, %s, %s);
-        """, (in_key, "item", _in, "like"))
+            INSERT INTO "like" (user_key, item_key, reaction)
+            VALUES (%s, %s, 'like');
+        """, (in_key, _in))
 
     cur.execute("""
         SELECT * FROM "order"
@@ -89,7 +89,7 @@ def copy_like_n_cart(cur, in_key, out_key):
         exist = False
         for _in in in_item:
             if (
-                _out["entity_key"] == _in["entity_key"]
+                _out["item_key"] == _in["item_key"]
                 and _out["variation"] == _in["variation"]
             ):
                 exist = _in["key"]
@@ -105,15 +105,16 @@ def copy_like_n_cart(cur, in_key, out_key):
             ;""", (in_cart["key"], _out["key"]))
 
 
-def user_like(cur, key):
+def user_like(cur, user_key):
     cur.execute("""
-        SELECT entity_key FROM "like"
-        WHERE entity_type = 'item'
-            AND user_key::TEXT = %s
+        SELECT item_key FROM "like"
+        WHERE
+            user_key = %s
+            AND item_key IS NOT NULL
             AND reaction = 'like';
-    """, (key,))
+    """, (user_key,))
     likes = cur.fetchall()
-    return [x["entity_key"] for x in likes]
+    return [x["item_key"] for x in likes]
 
 
 @bp.post("/init")

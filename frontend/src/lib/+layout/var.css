@@ -15,40 +15,36 @@
 	--yellow: rgb(255, 162, 0);
 	--overlay: rgba(128, 128, 128, 0.5);
 	--input: hsla(230, 30%, 41%, 0.1);
+
+	
+	--ft1: light-dark(black, white);
+	--ft2: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 60%));
+	--bg3: light-dark(#F7F7F8, #2A2A2E);
+	--bg2: light-dark(hsl(233, 10%, 89%), hsl(0, 0%, 10%));
+	--bg1: light-dark(white, hsl(0, 0%, 5%));
 }
 
-main {
-	--ft1: black;
-	--ft2: hsl(0, 0%, 40%);
-	--bg3: #F7F7F8;
-	--bg2: hsl(233, 10%, 89%);
-	--bg1: white;
+:root:has(main.system_theme){
+	color-scheme: light dark;
 }
+:root:has(main.light_theme){
+	color-scheme: light;
+}
+:root:has(main.dark_theme){
+	color-scheme: dark;
+}
+
+
 main.dark {
-	--ft1: white;
-	--ft2: hsl(0, 0%, 60%);
-	--bg3: #2A2A2E;
-	--bg2: hsl(0, 0%, 10%);
-	--bg1: hsl(0, 0%, 5%);
-
-	--button-outline-color:hsl(0, 0%, 20%);
 	--select-outline-color:hsl(0, 0%, 20%);
 
 	--cl2: hsl(0, 0%, 20%);
 	--cl3: hsl(0, 0%, 20%);
 }
 
-
-
-
 main{
 	--input-color:var(--ft1);
 	--group-background-color:var(--input);
-	
-	--button-background-color:hsl(0, 0%, 5%);
-	--button-color:hsl(0, 0%, 60%);
-	--button-background-color-hover:var(--cl1);
-	--button-color-hover:white;
 	
 	--select-background-color:hsl(0, 0%, 5%);
 	--select-color:hsl(0, 0%, 60%);

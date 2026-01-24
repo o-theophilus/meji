@@ -1,7 +1,16 @@
 <script>
+	import { page } from '$app/state';
+	import { scroll } from '$lib/store.svelte.js';
 	import { Datetime, Avatar } from '$lib/macro';
+	import { onMount } from 'svelte';
 	import Rating from './rating.svelte';
-	let { review, admin = false } = $props();
+	let { review, is_admin = false } = $props();
+
+	onMount(() => {
+		if (page.url.hash == `#${review.key}`) {
+			scroll(`#${review.key}`);
+		}
+	});
 </script>
 
 <section>
@@ -13,7 +22,7 @@
 				<div class="name">{review.user.name}</div>
 				<div class="username">
 					@{review.user.username}
-					{#if admin}
+					{#if is_admin}
 						(Admin)
 					{/if}
 				</div>
@@ -24,16 +33,28 @@
 	</div>
 
 	<div class="comment">
-		{#if !admin}
+		{#if !is_admin}
 			<div class="rating">
 				<Rating value={review.rating}></Rating>
 			</div>
 		{/if}
+
 		{review.comment}
+
+		{#if !is_admin && review.stats?.others_like}
+			<div class="note">
+				{review.stats.others_like.toLocaleString()}
+				{review.stats.others_like > 1 ? 'people' : 'person'} found this helpful
+			</div>
+		{/if}
 	</div>
 </section>
 
 <style>
+	section {
+		padding: 16px;
+	}
+
 	.avatar_name_date {
 		display: flex;
 		align-items: center;
@@ -42,29 +63,20 @@
 
 	.name_date {
 		display: flex;
-		align-items: flex-start;
-		gap: 8px 16px;
+		gap: 4px 16px;
 		justify-content: space-between;
 		flex-wrap: wrap;
-
 		width: 100%;
 	}
 
 	.name {
 		color: var(--ft1);
-		font-size: 0.8rem;
-		font-weight: 800;
+		font-weight: 600;
 		line-height: 100%;
-		margin-bottom: 4px;
 	}
 
 	.date {
-		font-size: 0.8rem;
 		line-height: 100%;
-	}
-
-	.username {
-		font-size: 0.8rem;
 	}
 
 	.rating {
@@ -72,6 +84,16 @@
 	}
 	.comment {
 		margin-top: 16px;
-		font-size: 0.9rem;
+	}
+	.note {
+		margin-top: 16px;
+		font-style: italic;
+	}
+
+	.username,
+	.name,
+	.note,
+	.date {
+		font-size: 0.8rem;
 	}
 </style>

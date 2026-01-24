@@ -49,7 +49,6 @@
 			}
 		);
 		resp = await resp.json();
-
 		loading.close();
 
 		if (resp.status == 200) {

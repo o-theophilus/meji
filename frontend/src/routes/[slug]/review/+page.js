@@ -14,7 +14,7 @@ export const load = async ({ fetch, url, parent, depends, params }) => {
 			data: [],
 			loaded: false
 		}
-	} else if (page_state.state[page_name].loaded) {
+		// } else if (page_state.state[page_name].loaded) {
 		// return page_state.state[page_name].data
 	}
 

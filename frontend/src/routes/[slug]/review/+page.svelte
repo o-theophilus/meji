@@ -1,7 +1,7 @@
 <script>
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { module, page_state, app } from '$lib/store.svelte.js';
+	import { module, page_state, app, scroll } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Content } from '$lib/layout';
@@ -10,10 +10,9 @@
 	import { PageNote } from '$lib/info';
 	import { Meta, Icon, Log } from '$lib/macro';
 	import { Login } from '$lib/auth';
-	import One from './one.svelte';
-	import Add from './_add.svelte';
-	import Control from './one.control.svelte';
 	import RatingSummary from './rating.summary.svelte';
+	import Add from './_add.svelte';
+	import One from './one.svelte';
 
 	let { data } = $props();
 	let { item } = data;
@@ -21,7 +20,7 @@
 	let ratings = $derived(data.ratings);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let search = $state({ order: 'most like ▼', page_no: 1 });
+	let search = $state({ order: 'like ▼', page_no: 1 });
 
 	const update = (a, b, c) => {
 		reviews = a;
@@ -50,15 +49,28 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-height="auto" --content-background-color="var(--bg2)">
+<Content
+	--content-height="auto"
+	--content-background-color="var(--bg2)"
+	--content-padding-bottom="0"
+>
 	<div class="line">
 		<BackButton href="/{item.slug}" />
 		<div class="page_title">
-			Rating{reviews.length ? 's' : ''} and Review{reviews.length ? 's' : ''}
+			Rating{reviews.length ? 's' : ''} and review{reviews.length ? 's' : ''}
 		</div>
 	</div>
 
+	<br />
+
+	Ratings and reviews from verified customers who have purchased this item.
+
+	<br />
+	<br />
+
 	<RatingSummary bind:ratings></RatingSummary>
+
+	<br />
 
 	<div class="line space">
 		<Dropdown
@@ -75,7 +87,7 @@
 			bind:value={search.order}
 			onchange={(v) => {
 				search.page_no = 1;
-				v = v == 'most like ▼' ? '' : v;
+				v = v == 'like ▼' ? '' : v;
 				page_state.set({ order: v });
 			}}
 		/>
@@ -95,17 +107,10 @@
 	</div>
 </Content>
 
-<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
+<Content --content-background-color="var(--bg2)">
 	{#each reviews as review (review.key)}
-		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {review}>
-				{#snippet control()}
-					most_like: {review.stats.most_like} <br />
-					all_like: {review.stats.all_like} <br />
-					all_dislike: {review.stats.all_dislike} <br />
-					<Control {item} {review} {update} {search}></Control>
-				{/snippet}
-			</One>
+		<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<One {item} {review} {search} {update}></One>
 		</div>
 	{:else}
 		<PageNote>
@@ -127,5 +132,12 @@
 <style>
 	.line {
 		align-items: flex-end;
+	}
+
+	.item {
+		margin-top: 8px;
+	}
+	.item:first-child {
+		margin-top: 0;
 	}
 </style>

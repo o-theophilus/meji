@@ -1,14 +1,28 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
+	import { onMount } from 'svelte';
 
-	const submit = async () => {
+	let media;
+	const apply = () => {
+		document.documentElement.dataset.theme =
+			app.user.theme == 'system' ? (media.matches ? 'dark' : 'light') : app.user.theme;
+	};
+	onMount(() => {
+		media = window.matchMedia('(prefers-color-scheme: dark)');
+		media.addEventListener('change', apply);
+		return () => media.removeEventListener('change', apply);
+	});
+
+	const submit = async (theme) => {
+		app.user.theme = theme;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/theme`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
-			}
+			},
+			body: JSON.stringify({ theme })
 		});
 		resp = await resp.json();
 
@@ -22,12 +36,21 @@
 
 {#if app.user}
 	<button
+		title="theme"
 		onclick={() => {
-			submit();
-			app.user.theme = app.user.theme == 'dark' ? 'light' : 'dark';
+			let theme = 'system';
+			if (app.user.theme == 'system') {
+				theme = 'light';
+			} else if (app.user.theme == 'light') {
+				theme = 'dark';
+			}
+			submit(theme);
 		}}
 	>
-		<div class="switch" class:dark={app.user.theme == 'dark'}>
+		<div class="switch {app.user.theme} test">
+			<div class="state">
+				<Icon icon="laptop" />
+			</div>
 			<div class="state">
 				<Icon icon="sun" />
 			</div>
@@ -44,6 +67,9 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		width: var(--size);
+		height: var(--size);
 	}
 
 	button {
@@ -54,10 +80,6 @@
 
 		color: var(--ft2);
 		border-radius: 50%;
-
-		height: var(--size);
-		width: var(--size);
-
 		background-color: transparent;
 		border: none;
 		cursor: pointer;
@@ -77,12 +99,11 @@
 		top: 0;
 		transition: top var(--trans);
 	}
-	.dark {
-		top: -100%;
-	}
 
-	.state {
-		width: var(--size);
-		height: var(--size);
+	.light {
+		top: -20px;
+	}
+	.dark {
+		top: -40px;
 	}
 </style>

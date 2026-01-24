@@ -17,17 +17,12 @@
 			app.likes.push(item.key);
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/like`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/like/${item.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
-			},
-			body: JSON.stringify({
-				entity_key: item.key,
-				entity_type: 'item',
-				reaction: 'like'
-			})
+			}
 		});
 		resp = await resp.json();
 

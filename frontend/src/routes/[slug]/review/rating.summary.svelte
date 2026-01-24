@@ -37,7 +37,7 @@
 					</div>
 				</div>
 				<div class="bar">
-					<div class="fill" style:width="{(rating.rating * rating.count * 100) / info.sum}%"></div>
+					<div class="fill" style:width="{(rating.count * 100) / info.count}%"></div>
 				</div>
 			{/each}
 		</div>
@@ -92,9 +92,9 @@
 
 	.bar {
 		width: 100%;
-		height: 16px;
+		height: 10px;
 		background-color: var(--bg3);
-		border-radius: 4px;
+		border-radius: 5px;
 		outline: 1px solid var(--bg1);
 		outline-offset: -1px;
 	}
@@ -102,7 +102,7 @@
 	.fill {
 		height: 100%;
 		background-color: goldenrod;
-		border-radius: 4px;
+		border-radius: 5px;
 		transition: width 1s ease-in-out;
 	}
 </style>

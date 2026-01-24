@@ -51,7 +51,7 @@ def create_tables():
             status TEXT NOT NULL DEFAULT 'anonymous',
             date_created TIMESTAMPTZ DEFAULT now(),
             access TEXT[] DEFAULT '{}'::TEXT[],
-            theme TEXT NOT NULL DEFAULT 'dark',
+            theme TEXT NOT NULL DEFAULT 'system',
             item_view TEXT NOT NULL DEFAULT 'grid',
             name TEXT NOT NULL,
             username TEXT UNIQUE NOT NULL,
@@ -138,9 +138,13 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            entity_key TEXT NOT NULL,
-            entity_type TEXT NOT NULL,
-            reaction TEXT NOT NULL
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
+            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
+            reaction TEXT NOT NULL,
+            CHECK (
+                (item_key IS NOT NULL AND review_key IS NULL) OR
+                (item_key IS NULL AND review_key IS NOT NULL)
+            )
         );
 
         CREATE TABLE IF NOT EXISTS "order" (

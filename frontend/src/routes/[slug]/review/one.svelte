@@ -1,47 +1,62 @@
 <script>
-	import { onMount } from 'svelte';
-	import { page } from '$app/state';
-	import { Datetime, Avatar } from '$lib/macro';
-	import { scroll } from '$lib/store.svelte.js';
 	import Details from './one.details.svelte';
+	import Control from './one.control.svelte';
+	import { RoundButton } from '$lib/button';
+	import Delete from './_delete.svelte';
+	import { module, app } from '$lib/store.svelte.js';
 
-	let { review, control } = $props();
-
-	// TODO: test this scroll
-	onMount(() => {
-		if (page.url.hash == `#${review.key}`) {
-			scroll(`#${review.key}`);
-		}
-	});
+	let { item, review, search, update } = $props();
 </script>
 
-<section id={review.key}>
-	<div class="review">
-		<Details {review}></Details>
-	</div>
-
-	{@render control?.()}
+<div class="item">
+	<Details {review}></Details>
+	<Control {item} {review} {search} {update}></Control>
 
 	{#each review.replies as reply}
 		<div class="reply">
-			<Details review={reply} admin></Details>
+			<Details review={reply} is_admin></Details>
+			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review:delete_other_reply'))}
+				<div class="control">
+					<RoundButton
+						icon="trash-2"
+						onclick={() => module.open(Delete, { review: reply, search, update })}
+					></RoundButton>
+				</div>
+			{/if}
+			<div class="control">
+				<RoundButton
+					icon="trash-2"
+					onclick={() => module.open(Delete, { review: reply, search, update })}
+				></RoundButton>
+				<RoundButton
+					icon="trash-2"
+					onclick={() => module.open(Delete, { review: reply, search, update })}
+				></RoundButton>
+			</div>
 		</div>
 	{/each}
-</section>
+</div>
 
 <style>
-	section {
-		margin-top: 8px;
-		padding: var(--sp2);
+	.item {
 		border-radius: 8px;
 		background-color: var(--bg3);
-	}
-	.review {
-		padding-bottom: 16px;
+		outline: 1px solid var(--one-outline-color, var(--bg1));
+		outline-offset: -1px;
+		overflow: hidden;
 	}
 	.reply {
-		border-top: 1px solid var(--bg2);
-		margin-top: 16px;
-		padding-top: 16px;
+		background-color: var(--input);
+	}
+
+	.control {
+		display: flex;
+		justify-content: flex-end;
+		padding: 16px;
+		padding-top: 0;
+
+		--button-color_: white;
+		--button-background-color-hover: red;
+		--button-background-color_: darkred;
 	}
 </style>

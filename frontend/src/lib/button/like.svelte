@@ -7,12 +7,16 @@
 <div class="group">
 	<button class="like" onclick={onlike} class:active={active == 'like'}>
 		<Icon icon="thumbs-up" />
-		{like}
+		{#if like}
+			{like}
+		{/if}
 	</button>
 
 	<button class="dislike" onclick={ondislike} class:active={active == 'dislike'}>
 		<Icon icon="thumbs-down" />
-		{dislike}
+		{#if dislike}
+			{dislike}
+		{/if}
 	</button>
 </div>
 

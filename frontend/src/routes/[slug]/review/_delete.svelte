@@ -38,7 +38,7 @@
 </script>
 
 <Form title="Delete Comment" error={error.error}>
-	<div class="parent">
+	<div class="details">
 		<One {review}></One>
 	</div>
 
@@ -58,10 +58,10 @@
 </Form>
 
 <style>
-	.parent {
+	.details {
 		border-radius: 8px;
-		border: 2px solid var(--bg2);
-		padding: 16px;
 		background-color: var(--bg3);
+		outline: 1px solid var(--bg2);
+		outline-offset: -1px;
 	}
 </style>
