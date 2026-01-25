@@ -9,6 +9,7 @@ from ..log import log
 from .get import get_many, item_schema
 from psycopg2.extras import Json
 from decimal import Decimal
+from datetime import datetime
 
 bp = Blueprint("item", __name__)
 
@@ -60,7 +61,7 @@ def add():
     log(
         cur=cur,
         user_key=user["key"],
-        action="created",
+        action="created item",
         entity_key=item["key"],
         entity_type="item"
     )
@@ -127,6 +128,12 @@ def edit(key):
             error["date_created"] = "This field is required"
         elif date_created == item["date_created"]:
             error["date_created"] = "No changes were made"
+        else:
+            # TEST: this validation
+            try:
+                datetime.strptime(date_created, "%Y-%m-%dT%H:%M:%S")
+            except Exception:
+                error["date_created"] = "invalid input"
 
     if "name" in request.json:
         name = ' '.join(request.json.get("name", "").strip().split())
@@ -223,7 +230,7 @@ def edit(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited",
+        action="edited item",
         entity_key=item["key"],
         entity_type="item",
         misc=request.json
@@ -281,7 +288,7 @@ def delete(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted",
+        action="deleted item",
         entity_key=item["key"],
         entity_type="item"
     )

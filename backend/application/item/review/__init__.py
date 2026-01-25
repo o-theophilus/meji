@@ -71,7 +71,7 @@ def create(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="created",
+        action="added item review",
         entity_key=comment["key"],
         entity_type="review",
         misc={"item_key": item["key"]}
@@ -127,7 +127,7 @@ def delete(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted",
+        action="deleted item review",
         entity_key=review["key"],
         entity_type="review",
         misc={"item_key": review["item_key"]}

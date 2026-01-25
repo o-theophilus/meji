@@ -11,6 +11,10 @@
 	let src = $state(item.photo ? `${item.photo}/500` : '/no_photo.png');
 </script>
 
+<!-- TODO: indicate items that are not active or quantity == 0 
+	set restriction on quantity to avoid unessary quantity set
+-->
+
 <div class="item">
 	<a class="img" href="/{item.slug}">
 		<img {src} loading="lazy" alt={item.name} onerror={() => (src = '/no_photo.png')} />

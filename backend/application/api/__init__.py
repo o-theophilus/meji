@@ -49,7 +49,7 @@ def cron():
     log(
         cur=cur,
         user_key=user["key"],
-        action="run cron",
+        action="app maintenance",
         entity_key="app",
         entity_type="app",
         misc={

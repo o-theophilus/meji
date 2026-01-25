@@ -10,7 +10,7 @@
 	<Link --link-font-size="0.8rem" href="/shop">Terms</Link>
 </div>
 
-<!-- TODO: Move to the homepage -->
+<!-- TODO: show only on homepage -->
 
 <style>
 	.block {

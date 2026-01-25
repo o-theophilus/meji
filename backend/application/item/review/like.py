@@ -50,13 +50,13 @@ def like_review(key):
             SET date_created = %s, reaction = %s WHERE key = %s;
         """, (datetime.now(timezone.utc), reaction, user_reaction["key"]))
 
-    # TODO: make all other log action more (full) descriptive
     log(
         cur=cur,
         user_key=user["key"],
         action=f"{un}{reaction} review",
         entity_key=review["key"],
-        entity_type="review"
+        entity_type="review",
+        misc={"item_key": review["item_key"]}
     )
 
     cur.execute("""
@@ -75,8 +75,4 @@ def like_review(key):
     return jsonify({
         "status": 200,
         **reactions
-        # FIXME: use the below instead
-        # "others_like": reactions['others_like'],
-        # "others_dislike": reactions['others_dislike'],
-        # "user_reaction": reactions['user_reaction']
     })

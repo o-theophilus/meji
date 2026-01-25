@@ -39,7 +39,7 @@ access_pass = {
         ['edit_highlight', 2]
     ],
     "order": [
-        ['view', 1],  # TODO: emforce this
+        ['view', 1],
         ['edit_delivery_date', 2],
         ['edit_status', 2],
         ['cancel', 2],

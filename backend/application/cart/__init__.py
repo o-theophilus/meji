@@ -43,6 +43,10 @@ def add_to_cart():
     error = {}
     if not isinstance(quantity, int) or quantity < 1:
         error["quantity"] = "Please enter a valid number"
+    elif quantity > item["quantity"]:
+        s = "s" if item['quantity'] > 1 else ""
+        error["quantity"
+              ] = f"Only {item['quantity']} item{s} available in stock"
 
     invalid_keys = [x for x in variation if x not in item["variation"]]
     for x in invalid_keys:
@@ -98,8 +102,8 @@ def add_to_cart():
     log(
         cur=cur,
         user_key=user["key"],
-        action="added_to_cart",
-        entity_key="cart",
+        action="added item to cart",
+        entity_key=cart["key"],
         entity_type="cart",
         misc={
             "key": order_item["item_key"],
@@ -158,8 +162,8 @@ def remove_from_cart():
         log(
             cur=cur,
             user_key=user["key"],
-            action="removed_from_cart",
-            entity_key="cart",
+            action="removed item from cart",
+            entity_key=cart["key"],
             entity_type="cart",
             misc={
                 "key": item_key,
@@ -266,7 +270,7 @@ def receiver():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_receiver",
+        action="edited cart receiver",
         entity_key=cart["key"],
         entity_type="cart",
         misc={
@@ -312,7 +316,7 @@ def receiver_clear():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_receiver",
+        action="edited cart receiver",
         entity_key=cart["key"],
         entity_type="cart",
         misc={
@@ -332,11 +336,10 @@ def receiver_clear():
         "cart": cart
     })
 
-# TODO: coupon
-
 
 @bp.put("/cart/coupon")
 def coupon():
+    # FEATURE: coupon
     con, cur = db_open()
 
     session = get_session(cur, True)

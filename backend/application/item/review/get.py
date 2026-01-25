@@ -19,6 +19,35 @@ def get_many(key, cur=None):
         return jsonify(session)
     user = session["user"]
 
+    # PORTFOLIO upgrade on portfolio website
+    searchParams = {
+        "order": 'like ▼',
+        "page_no": 1,
+        "page_size": 24
+    }
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+
+    order_by = {
+        'latest': 'date_created',
+        'oldest': 'date_created',
+        'like ▼': 'most_like',
+        'like ▲': 'most_like',
+        'reply': 'reply_count',
+        'rating ▼': 'rating',
+        'rating ▲': 'rating',
+    }
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'like ▼': 'DESC',
+        'like ▲': 'ASC',
+        'reply': 'DESC',
+        'rating ▼': 'DESC',
+        'rating ▲': 'ASC',
+    }
+
     cur.execute("""
         SELECT * FROM item WHERE slug = %s OR key::TEXT = %s;
     """, (key, key))
@@ -45,31 +74,6 @@ def get_many(key, cur=None):
         ORDER BY series.rating DESC;
     """, (item["key"],))
     ratings = cur.fetchall()
-
-    # [ ] style all the orderby with arrows
-    order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created',
-        'like ▼': 'most_like',
-        'like ▲': 'most_like',
-        'reply': 'reply_count',
-        'rating ▼': 'rating',
-        'rating ▲': 'rating',
-    }
-
-    order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC',
-        'like ▼': 'DESC',
-        'like ▲': 'ASC',
-        'reply': 'DESC',
-        'rating ▼': 'DESC',
-        'rating ▲': 'ASC',
-    }
-
-    order = request.args.get("order", 'like ▼')
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
 
     cur.execute(f"""
         WITH
@@ -161,6 +165,7 @@ def get_many(key, cur=None):
         "item": item,
         "reviews": reviews,
         "ratings": ratings,
+        "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0,
         "order_by": list(order_by.keys()),
-        "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0
+        "searchParams": searchParams,
     })

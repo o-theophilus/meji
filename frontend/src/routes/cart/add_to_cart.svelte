@@ -107,6 +107,7 @@
 		</IG>
 	{/each}
 
+	<!-- TODO: restrict available item quatity -->
 	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
 
 	<Button icon="cart" onclick={validate}>Add to Cart</Button>

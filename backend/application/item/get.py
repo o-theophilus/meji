@@ -12,6 +12,38 @@ def item_schema(x):
     return x
 
 
+def get_tags(cur=None):
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
+
+    cur.execute("SELECT tags FROM item WHERE status = 'active';")
+    temp = cur.fetchall()
+
+    tags = []
+    for x in temp:
+        tags += x["tags"]
+
+    tags_count = []
+    unique_tags = []
+    for x in tags:
+        if x not in unique_tags:
+            unique_tags.append(x)
+            tags_count.append({
+                "tag":  x,
+                "count":  tags.count(x)
+            })
+
+    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
+
+    if close_conn:
+        db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "tags": [x["tag"] for x in tags_count]
+    })
+
+
 @bp.get("/item/<key>")
 def get(key):
     con, cur = db_open()
@@ -65,6 +97,12 @@ def get_many(cur=None, _order="latest", _page_size=24):
         return jsonify(session)
     user = session["user"]
 
+    if (
+        "item:edit_status" not in user["access"]
+        or "item:add" not in user["access"]
+    ):
+        status = "active"
+
     searchParams = {
         "search": "",
         "status": "active",
@@ -80,19 +118,6 @@ def get_many(cur=None, _order="latest", _page_size=24):
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
-    if (
-        "item:edit_status" not in user["access"]
-        or "item:add" not in user["access"]
-    ):
-        status = "active"
-
-    multiply = False
-    if tag[-4:] == ":all":
-        multiply = True
-        tag = tag[:-4]
-    tags = tag.split(",")
-    tags = [] if not tags[0] else tags
-
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
@@ -103,7 +128,6 @@ def get_many(cur=None, _order="latest", _page_size=24):
         'discount': 'discount',
         'rating': 'rating'
     }
-
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
@@ -113,10 +137,16 @@ def get_many(cur=None, _order="latest", _page_size=24):
         'costly': 'DESC',
         'discount': 'DESC',
         'rating': 'DESC',
-
     }
 
-    # FIXME check for sql injection
+    multiply = False
+    if tag[-4:] == ":all":
+        multiply = True
+        tag = tag[:-4]
+    tags = tag.split(",")
+    tags = [] if not tags[0] else tags
+
+    # TEST check for sql injection
     params = [status, search, f"%{search}%"]
     tag_query = ""
     if tags != []:
@@ -160,13 +190,13 @@ def get_many(cur=None, _order="latest", _page_size=24):
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": searchParams,  # TODO: Implement this frontend
         "_status": ['active', 'draft']
     })
 
 
 @bp.get("/home")
-def home():
+def home_page():
     con, cur = db_open()
 
     new_arrivals = get_many(cur, "latest", 8).json['items']
@@ -180,41 +210,8 @@ def home():
     })
 
 
-# @bp.get("/tags")
-def get_tags(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    cur.execute("SELECT tags FROM item WHERE status = 'active';")
-    temp = cur.fetchall()
-
-    tags = []
-    for x in temp:
-        tags += x["tags"]
-
-    tags_count = []
-    unique_tags = []
-    for x in tags:
-        if x not in unique_tags:
-            unique_tags.append(x)
-            tags_count.append({
-                "tag":  x,
-                "count":  tags.count(x)
-            })
-
-    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
-
-    if close_conn:
-        db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "tags": [x["tag"] for x in tags_count]
-    })
-
-
 @bp.get("/like")
-def get_like():
+def like_page():
     con, cur = db_open()
 
     session = get_session(cur)
@@ -223,10 +220,16 @@ def get_like():
         return jsonify(session)
     user = session["user"]
 
-    search = request.args.get("search", "").strip()
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
+    searchParams = {
+        "search": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
         'latest': 'item.date_created',
@@ -271,8 +274,9 @@ def get_like():
     return jsonify({
         "status": 200,
         "items": [item_schema(x) for x in items],
+        "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "total_page": ceil(items[0]["_count"] / page_size) if items else 0
+        "searchParams": searchParams,
     })
 
 

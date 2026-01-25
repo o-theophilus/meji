@@ -33,7 +33,8 @@
 	let is_admin = $state(false);
 
 	const update = (data) => {
-		// TODO: delete store / save item from mrmory at this point
+		// TODO: delete storeD PAGE MEMORY STATE at this point
+		// FOR HOME, SAVE, AND SHOP PAFE
 		item = data;
 		page_state.clear('home');
 		page_state.clear('shop');

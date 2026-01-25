@@ -23,23 +23,29 @@ def get_many():
             "error": "unauthorized access"
         })
 
-    search = request.args.get("search", "")
-    _type = request.args.get("type", "")
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
+    searchParams = {
+        "search": "",
+        "type": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    _type = request.args.get("status", searchParams["status"]).strip()
+    order = request.args.get("order", searchParams["order"]).strip()
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created'
     }
-
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC'
     }
 
-    cur.execute("""
+    cur.execute(f"""
         SELECT
             report.key,
             report.date_created,
@@ -84,10 +90,9 @@ def get_many():
                 "user".key, "user".name, "user".username, "user".email
             ) ILIKE %s)
             AND (%s = '' OR report.entity_type = %s)
-        ORDER BY {} {}
+        ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """.format(order_by[order], order_dir[order]),
-        (
+    """, (
         search, f"%{search}%",
         _type, _type,
         page_size, (page_no - 1) * page_size

@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 from math import ceil
-from ..tools import get_session, user_schema
+from ..tools import get_session, user_schema, access_pass
 from ..postgres import db_close, db_open
-from ..admin.access import access_pass
 
 
 bp = Blueprint("user_get", __name__)
@@ -62,13 +61,25 @@ def get_many():
             "error": "unauthorized access"
         })
 
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
         'name (a-z)': 'name',
         'name (z-a)': 'name'
     }
-
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
@@ -76,14 +87,7 @@ def get_many():
         'name (z-a)': 'DESC'
     }
 
-    status = request.args.get("status", "confirmed")
-    search = request.args.get("search", "").strip()
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
-
-    # TODO: be consistent. f-string or .format?
-    cur.execute("""
+    cur.execute(f"""
         SELECT *, COUNT(*) OVER() AS _count
         FROM "user"
         WHERE (
@@ -93,11 +97,9 @@ def get_many():
                 OR CONCAT_WS(', ', key, name, email
             ) ILIKE %s
         )
-        ORDER BY {} {}
+        ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """.format(
-        order_by[order], order_dir[order]
-    ), (
+    """, (
         status, status,
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
@@ -108,9 +110,10 @@ def get_many():
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
+        "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "_status": ['anonymous', 'signedup', 'confirmed'],
-        "total_page": ceil(users[0]["_count"] / page_size) if users else 0
+        "searchParams": searchParams,
+        "_status": ['anonymous', 'signedup', 'active'],
     })
 
 
@@ -131,13 +134,28 @@ def get_admins():
             "error": "unauthorized access"
         })
 
+    searchParams = {
+        "entity_type": "all",
+        "action": "all",
+        "search": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    entity_type = request.args.get(
+        "entity_type", searchParams["entity_type"]).strip()
+    action = request.args.get("action", searchParams["action"]).strip()
+    search = request.args.get("search", searchParams["search"]).strip()
+    order = request.args.get("order", searchParams["order"]).strip()
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
         'name (a-z)': 'name',
         'name (z-a)': 'name'
     }
-
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
@@ -145,31 +163,20 @@ def get_admins():
         'name (z-a)': 'DESC'
     }
 
-    entity_type = request.args.get("entity_type", "all")
-    action = request.args.get("action", "all")
-    search = request.args.get("search", "").strip()
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
-
-    # TODO: also check all query comment
-    cur.execute("""
+    cur.execute(f"""
         SELECT *, COUNT(*) OVER() AS _count
         FROM "user"
         WHERE
             array_length(access, 1) IS NOT NULL
-            -- AND status = "confirmed"
             AND (%s = '' OR CONCAT_WS(', ', key, name, email)
                 ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING(access, ',')
                 ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING(access, ',')
                 ILIKE %s)
-        ORDER BY {} {}
+        ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """.format(
-        order_by[order], order_dir[order]
-    ), (
+    """, (
         search, f"%{search}%",
         entity_type, f"%{entity_type}:%",
         action, f"%{entity_type}:{action}%",
@@ -190,7 +197,8 @@ def get_admins():
     return jsonify({
         "status": 200,
         "users": [user_schema(x) for x in users],
-        "search_query": _access,
+        "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "total_page": ceil(users[0]["_count"] / page_size) if users else 0
+        "searchParams": searchParams,
+        "search_query": _access,
     })

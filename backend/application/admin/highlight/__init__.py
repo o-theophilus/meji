@@ -68,7 +68,7 @@ def set_highlight():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_highlight",
+        action="edited highlight",
         entity_key="app",
         entity_type="app",
         misc={
@@ -128,7 +128,7 @@ def edit_highlight():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_highlight",
+        action="edited highlight",
         entity_key="app",
         entity_type="app",
         misc={

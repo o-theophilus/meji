@@ -61,7 +61,7 @@ def create():
     log(
         cur=cur,
         user_key=user["key"],
-        action="created",
+        action="created report",
         entity_key=report["key"],
         entity_type="report",
         misc={
@@ -134,7 +134,7 @@ def resolve(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="resolved",
+        action="resolved report",
         entity_key=report["key"],
         entity_type="report",
         misc=misc

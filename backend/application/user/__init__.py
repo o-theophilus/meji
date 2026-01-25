@@ -121,7 +121,7 @@ def edit_user():
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited",
+        action="edited profile details",
         entity_type="user",
         entity_key=user["key"],
         misc=request.json

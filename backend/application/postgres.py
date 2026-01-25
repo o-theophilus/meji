@@ -121,7 +121,7 @@ def create_tables():
             specification JSONB DEFAULT '{}'::JSONB,
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
-            quantity INT DEFAULT 0
+            quantity INT DEFAULT 10
         );
 
         CREATE TABLE IF NOT EXISTS review (

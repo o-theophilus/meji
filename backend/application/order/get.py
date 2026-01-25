@@ -41,7 +41,15 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    # TODO:do the full journey
+    # FEATURE:do the full journey of item snapshot,
+    # remove the comment
+    # duplicate item on purchase
+    # join item snapshot table on order view
+    # get item snapshot on order item view
+    # check if snapshot item is unchanged
+    # if unchanged get the original item
+    # if changed get the snapshot item
+    #       then suggest to see the latest version
     cur.execute("""
         SELECT
             item.key, item.slug, item.name, item.price, item.status,
@@ -75,54 +83,60 @@ def get_many():
         return jsonify(session)
     user = session["user"]
 
+    searchParams = {
+        "search": "",
+        "status": "created",
+        "view": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    view = request.args.get("view", searchParams["view"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
-        'cost_items (hi)': 'cost_items',
-        'cost_items (lo)': 'cost_items',
-        'cost_delivery (hi)': 'cost_delivery',
-        'cost_delivery (lo)': 'cost_delivery',
-        'pay_user (hi)': 'pay_user',
-        'pay_user (lo)': 'pay_user',
-        'delivery_date (hi)': 'delivery_date',
-        'delivery_date (lo)': 'delivery_date',
+        'cost_items ▼': 'cost_items',
+        'cost_items ▲': 'cost_items',
+        'cost_delivery ▼': 'cost_delivery',
+        'cost_delivery ▲': 'cost_delivery',
+        'pay_user ▼': 'pay_user',
+        'pay_user ▲': 'pay_user',
+        'delivery_date ▼': 'delivery_date',
+        'delivery_date ▲': 'delivery_date',
     }
-
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'cost_items (hi)': 'DESC',
-        'cost_items (lo)': 'ASC',
-        'cost_delivery (hi)': 'DESC',
-        'cost_delivery (lo)': 'ASC',
-        'pay_user (hi)': 'DESC',
-        'pay_user (lo)': 'ASC',
-        'delivery_date (hi)': 'DESC',
-        'delivery_date (lo)': 'ASC',
+        'cost_items ▼': 'DESC',
+        'cost_items ▲': 'ASC',
+        'cost_delivery ▼': 'DESC',
+        'cost_delivery ▲': 'ASC',
+        'pay_user ▼': 'DESC',
+        'pay_user ▲': 'ASC',
+        'delivery_date ▼': 'DESC',
+        'delivery_date ▲': 'ASC',
     }
 
-    status = request.args.get("status", "created")
-    view = request.args.get("view", "")
-    search = request.args.get("search", "").strip()
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
-
+    # TODO: emforce this access restriction in the frontend
     user_key = user["key"]
     if view == "all" and "order:view" in user["access"]:
         user_key = ""
 
-    cur.execute("""
+    cur.execute(f"""
         SELECT *, COUNT(*) OVER() AS _count
         FROM "order"
         WHERE (%s = 'all' OR status = %s)
             AND (%s = '' OR user_key::TEXT = %s)
             AND (%s = '' OR CONCAT_WS(', ', key) ILIKE %s)
-        ORDER BY {} {}
+        ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """.format(
-        order_by[order], order_dir[order]
-    ), (
+    """, (
         status, status,
         user_key, user_key,
         search, f"%{search}%",
@@ -134,7 +148,8 @@ def get_many():
     return jsonify({
         "status": 200,
         "orders": orders,
+        "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0,
         "order_by": list(order_by.keys()),
+        "searchParams": searchParams,
         "_status": order_status,
-        "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0
     })

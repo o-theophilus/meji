@@ -53,7 +53,7 @@
 <Content>
 	<div class="line">
 		<div class="page_title">Profile</div>
-
+<!-- TODO: restrict blocked user -->
 		{#if app.login && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'block:block', 'block:unblock'].includes(x) ))}
 			<Toggle
 				state_2="edit"

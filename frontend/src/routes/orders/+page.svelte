@@ -79,7 +79,7 @@
 				list={['all', ..._status]}
 				bind:value={search.status}
 				onchange={(v) => {
-					v = v == 'confirmed' ? '' : v;
+					v = v == 'created' ? '' : v;
 					page_state.set({ status: v });
 				}}
 			/>

@@ -19,7 +19,7 @@
 	let { _status } = data;
 	let search = $state({
 		search: '',
-		status: 'confirmed',
+		status: 'active',
 		order: 'latest',
 		page_no: 1
 	});
@@ -60,7 +60,7 @@
 			list={['all', ..._status]}
 			bind:value={search.status}
 			onchange={(v) => {
-				v = v == 'confirmed' ? '' : v;
+				v = v == 'active' ? '' : v;
 				page_state.set({ status: v });
 			}}
 		/>

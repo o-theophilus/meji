@@ -75,7 +75,7 @@ def add_file(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="added_file",
+        action="added photo to item",
         entity_key=item["key"],
         entity_type="item",
         misc={
@@ -137,7 +137,7 @@ def order_delete_file(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="edited_files",
+        action="edited item photo",
         entity_key=item["key"],
         entity_type="item",
         misc={

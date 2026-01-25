@@ -21,7 +21,7 @@
 	let items = $derived(data.items);
 	let total_page = $derived(data.total_page);
 	// TODO get from backend
-	// [ ] update on portfolio website
+	// PORTFOLIO update on portfolio website
 	let searchParams = $state(data.searchParams);
 	let { order_by } = data;
 	let { _status } = data;
@@ -32,7 +32,7 @@
 	};
 
 	// TODO update this across where necessary
-	// [ ] update on portfolio website
+	// PORTFOLIO update on portfolio website
 	onMount(() => {
 		const sp = page_state.searchParams;
 		if (Object.keys(sp).length) {

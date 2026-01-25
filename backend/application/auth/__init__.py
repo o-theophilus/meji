@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
 from uuid import uuid4
 import re
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..tools import (
     get_session, user_schema, send_mail, generate_code,
-    reserved_words, check_code)
+    reserved_words, check_code, access_pass)
 from ..postgres import db_open, db_close
 from ..log import log
 from ..storage import storage
@@ -117,6 +118,56 @@ def user_like(cur, user_key):
     return [x["item_key"] for x in likes]
 
 
+@bp.get("/admin/default")
+def default():
+    con, cur = db_open()
+    email = os.environ["MAIL_USERNAME"]
+
+    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
+    if not cur.fetchone():
+        cur.execute("""
+                INSERT INTO "user"
+                (status, name, username, email, password, access)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
+            """, (
+            "active",
+            "Theophilus",
+            "omni",
+            email,
+            generate_password_hash(
+                os.environ["MAIL_PASSWORD"], method="scrypt"),
+            [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
+        ))
+        user = cur.fetchone()
+
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="created anonymous account",
+            entity_key="auth",
+            entity_type="account",
+        )
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="signedup account",
+            entity_key="auth",
+            entity_type="account",
+        )
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="actived account",
+            entity_key="auth",
+            entity_type="account",
+        )
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
 @bp.post("/init")
 def init():
     con, cur = db_open()
@@ -138,7 +189,7 @@ def init():
         log(
             cur=cur,
             user_key=user["key"],
-            action="created",
+            action="created anonymous account",
             entity_key="auth",
             entity_type="account",
         )
@@ -198,7 +249,8 @@ def signup():
     else:
         cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
         email_user = cur.fetchone()
-        if email_user and email_user["status"] == "confirmed":
+        # PORTFOLIO: fix this on portfolio : != "signedup"
+        if email_user and email_user["status"] != "signedup":
             error["email"] = "Email already in use"
 
     if not password:
@@ -255,7 +307,7 @@ def signup():
     log(
         cur=cur,
         user_key=user["key"],
-        action="signedup",
+        action="signedup account",
         entity_key="auth",
         entity_type="account",
     )
@@ -307,13 +359,13 @@ def confirm():
         })
 
     cur.execute("""
-        UPDATE "user" SET status = 'confirmed' WHERE key = %s;
+        UPDATE "user" SET status = 'active' WHERE key = %s;
     """, (user["key"],))
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="confirmed_email",
+        action="activated account",
         entity_key="auth",
         entity_type="account",
     )
@@ -371,7 +423,7 @@ def login():
 
     if (
         not in_user
-        or in_user["status"] not in ['signedup', 'confirmed']
+        or in_user["status"] not in ['signedup', 'active']
         or not check_password_hash(in_user["password"], password)
     ):
         db_close(con, cur)
@@ -402,7 +454,7 @@ def login():
         db_close(con, cur)
         return jsonify({
             "status": 400,
-            "error": "not confirmed"
+            "error": "not active"
         })
 
     cur.execute("""
@@ -419,7 +471,7 @@ def login():
     log(
         cur=cur,
         user_key=in_user["key"],
-        action="logged_in",
+        action="logged in",
         entity_key="auth",
         entity_type="account",
         misc={
@@ -430,7 +482,7 @@ def login():
     log(
         cur=cur,
         user_key=out_user["key"],
-        action="logged_out",
+        action="logged out",
         entity_key="auth",
         entity_type="account",
         misc={
@@ -466,7 +518,7 @@ def logout():
     log(
         cur=cur,
         user_key=user["key"],
-        action="logged_out",
+        action="logged out",
         entity_key="auth",
         entity_type="account",
         misc={
@@ -477,7 +529,7 @@ def logout():
     log(
         cur=cur,
         user_key=anon_user["key"],
-        action="created",
+        action="created account",
         entity_key="auth",
         entity_type="account",
         misc={
@@ -535,7 +587,7 @@ def deactivate():
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted_account",
+        action="deleted account",
         entity_key="auth",
         entity_type="account",
         misc={"note": note} if note else {}
@@ -543,7 +595,7 @@ def deactivate():
     log(
         cur=cur,
         user_key=anon_user["key"],
-        action="created",
+        action="created account",
         entity_key="auth",
         entity_type="account",
         misc={

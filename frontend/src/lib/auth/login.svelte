@@ -60,7 +60,7 @@
 			app.login = true;
 			app.user = {};
 			document.location = return_url;
-		} else if (resp.error == 'not confirmed') {
+		} else if (resp.error == 'not active') {
 			module.open(Confirm, { email: form.email });
 		} else {
 			error = resp;

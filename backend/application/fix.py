@@ -1187,20 +1187,8 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DROP TABLE IF EXISTS "like" CASCADE;
-
-        CREATE TABLE IF NOT EXISTS "like" (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
-            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
-            reaction TEXT NOT NULL,
-            CHECK (
-                (item_key IS NOT NULL AND review_key IS NULL) OR
-                (item_key IS NULL AND review_key IS NOT NULL)
-            )
-        );
+        ALTER TABLE item
+        ALTER COLUMN quantity SET DEFAULT 10;
     """)
 
     # cur.execute("""
@@ -1223,6 +1211,13 @@ def quick_fix():
     #     INSERT INTO item ({', '.join(columns)})
     #     VALUES ({', '.join(['%s'] * len(columns))});
     # """, values_list)
+
+    # cur.execute("""
+    #     UPDATE "user" SET access=%s WHERE email = %s;
+    # """, (
+    #     [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]],
+    #     os.environ["MAIL_USERNAME"]
+    # ))
 
     db_close(con, cur)
     return jsonify({

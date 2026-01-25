@@ -2,7 +2,7 @@
 	import { RoundButton } from '$lib/button';
 
 	let { show_password = $bindable() } = $props();
-	// TODO: fix this now swapping
+	// FIXME: fix this now swapping
 </script>
 
 <form onsubmit={(e) => e.preventDefault()}>

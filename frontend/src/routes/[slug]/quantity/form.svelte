@@ -48,7 +48,6 @@
 <Form title="Edit Quantity" error={error.error}>
 	<IG
 		name="Quantity"
-		icon="square-pen"
 		error={error.quantity}
 		placeholder="Quantity here"
 		type="number"

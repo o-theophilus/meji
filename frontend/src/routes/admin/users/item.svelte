@@ -3,6 +3,7 @@
 	let { item } = $props();
 </script>
 
+<!-- TODO: indicate blocked user -->
 <a href="/@{item.username}">
 	<Avatar name={item.name} photo={item.photo} --avatar-border-radius="50%" />
 	<div class="details">

@@ -34,6 +34,7 @@
 	};
 </script>
 
+<!-- PORTFOLIO: UPDATE THEME COMPONENT -->
 {#if app.user}
 	<button
 		title="theme"

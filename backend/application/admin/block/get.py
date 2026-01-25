@@ -25,16 +25,14 @@ def get_many():
 
     searchParams = {
         "search": "",
-        "status": "active",
-        "tag": "",
-        "order": _order,
+        "order": "latest",
         "page_no": 1,
-        "page_size": _page_size
+        "page_size": 24
     }
-    search = request.args.get("search", "")
-    order = request.args.get("order", "latest")
-    page_no = int(request.args.get("page_no", 1))
-    page_size = int(request.args.get("page_size", 24))
+    search = request.args.get("search", searchParams["search"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
         'latest': 'date_created',
@@ -45,7 +43,7 @@ def get_many():
         'oldest': 'ASC'
     }
 
-    cur.execute("""
+    cur.execute(f"""
         SELECT
             block.key,
             block.date_created,
@@ -65,7 +63,6 @@ def get_many():
                 'photo', "user".photo
             ) AS "user",
 
-
             COUNT(*) OVER() AS _count
 
         FROM block
@@ -78,10 +75,9 @@ def get_many():
                 "user".key, "user".name, "user".email,
                 admin.key, admin.name, admin.email
             ) ILIKE %s)
-        ORDER BY {} {}
+        ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """.format(order_by[order], order_dir[order]),
-        (
+    """, (
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
@@ -101,9 +97,9 @@ def get_many():
     return jsonify({
         "status": 200,
         "items": items,
+        "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "total_page": ceil(
-            items[0]["_count"] / page_size) if items else 0
+        "searchParams": searchParams,
     })
 
 

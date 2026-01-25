@@ -82,6 +82,7 @@
 </script>
 
 <Form title="Edit Quantity" description="Select variation" error={error.error}>
+	<!-- TODO: restrict available item quatity -->
 	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
 
 	<div class="line">

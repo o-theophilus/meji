@@ -95,11 +95,11 @@ def delete_file():
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted",
+        action="deleted unuded photo(s)",
         entity_key="app",
         entity_type="photo",
         misc={
-            "file(s)": photos,
+            "photo(s)": photos,
             "from": entity
         }
     )

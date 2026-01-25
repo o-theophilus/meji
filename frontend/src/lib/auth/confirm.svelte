@@ -39,7 +39,7 @@
 		if (resp.status == 200) {
 			module.open(Dialogue, {
 				title: 'Signup Complete',
-				message: 'Your email has been confirmed successfully.',
+				message: 'Your email has been activated successfully.',
 				buttons: [
 					{
 						name: 'Login',

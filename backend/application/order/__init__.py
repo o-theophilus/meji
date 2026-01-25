@@ -59,16 +59,15 @@ def order_check():
             "error": "incomplete receiver information"
         })
 
-    # TODO: check item availability
     cur.execute("""
         SELECT
             item.price,
+            item.quantity AS available_quantity,
             order_item.quantity
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE
-            order_item.order_key = %s
-            -- AND item.status = 'active';
+            order_item.order_key = %s;
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
@@ -78,19 +77,28 @@ def order_check():
             "error": "invalid request"
         })
 
+    for x in items:
+        # TEST: check item availability
+        if (
+            x["status"] != 'active'
+            or x["quantity"] == 0 or x["quantity"] > x["available_quantity"]
+        ):
+            return jsonify({
+                "status": 400,
+                "error": "Some items in your cart are no longer available"
+            })
+
     pay = order["cost_delivery"]
     for x in items:
         pay += x["price"] * x["quantity"]
 
-    # TODO: also check Coupons here
+    # FEATURE: check Coupons here
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "pay": pay
     })
-
-# order.date_updated => also update thus colums
 
 
 @bp.post("/order")
@@ -133,7 +141,6 @@ def cart_to_order():
             "error": "invalid request"
         })
 
-    # TODO: check item availability
     cur.execute("""
         SELECT
             item.*,
@@ -141,8 +148,7 @@ def cart_to_order():
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE
-            order_item.order_key = %s
-            -- AND item.status = 'active';
+            order_item.order_key = %s;
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
@@ -156,7 +162,7 @@ def cart_to_order():
     for x in items:
         pay += x["price"] * x["order_quantity"]
 
-    # TODO: also check Coupons here
+    # FEATURE: spend / use Coupons here
 
     cur.execute(
         """SELECT * FROM "order" WHERE pay_reference = %s;""",
@@ -240,7 +246,7 @@ def cart_to_order():
     log(
         cur=cur,
         user_key=user["key"],
-        action="created",
+        action="created order",
         entity_key=order["key"],
         entity_type="order"
     )
@@ -296,7 +302,6 @@ def delivery_date(key):
 
     error = {}
     # TODO: prevent backdating in frontend also
-    # TODO: do this for other dates
     delivery_date = request.json.get("delivery_date", "").strip()
     if not delivery_date or type(delivery_date) is not str:
         error["delivery_date"] = "This field is required"
@@ -318,7 +323,7 @@ def delivery_date(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="changed_date",
+        action="changed order delivery date",
         entity_key=order["key"],
         entity_type="order",
         misc={
@@ -410,7 +415,7 @@ def cancel(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="canceled",
+        action="canceled order",
         entity_key=order["key"],
         entity_type="order",
         misc={"comment": comment}
@@ -526,7 +531,7 @@ def status(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="changed_status",
+        action="changed order status",
         entity_key=order["key"],
         entity_type="order",
         misc={
