@@ -106,7 +106,7 @@ def footer_send_email():
 
     send_mail(
         os.environ["MAIL_USERNAME"],
-        f"{name} from Theophilus Portfolio Website",
+        f"{name} from Meji.ng",
         message
     )
 

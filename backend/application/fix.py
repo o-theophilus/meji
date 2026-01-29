@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from .postgres import db_open, db_close
-# from psycopg2.extras import Json
+from psycopg2.extras import Json
+import os
 
 
 bp = Blueprint("fix", __name__)
@@ -1191,26 +1192,12 @@ def quick_fix():
         ALTER COLUMN quantity SET DEFAULT 10;
     """)
 
+
     # cur.execute("""
     #     ALTER TABLE item
     #     ADD COLUMN specification JSONB DEFAULT '{}'::JSONB;
     # """)
 
-    # columns = list(data[0].keys())
-
-    # values_list = []
-    # for row in data:
-    #     values = []
-    #     for column in columns:
-    #         if type(row[column]) is dict:
-    #             row[column] = Json(row[column])
-    #         values.append(row[column])
-    #     values_list.append(tuple(values))
-
-    # cur.executemany(f"""
-    #     INSERT INTO item ({', '.join(columns)})
-    #     VALUES ({', '.join(['%s'] * len(columns))});
-    # """, values_list)
 
     # cur.execute("""
     #     UPDATE "user" SET access=%s WHERE email = %s;
@@ -1218,6 +1205,32 @@ def quick_fix():
     #     [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]],
     #     os.environ["MAIL_USERNAME"]
     # ))
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
+# @bp.get("/fix")
+def populate():
+    con, cur = db_open()
+
+    columns = list(data[0].keys())
+
+    values_list = []
+    for row in data:
+        values = []
+        for column in columns:
+            if type(row[column]) is dict:
+                row[column] = Json(row[column])
+            values.append(row[column])
+        values_list.append(tuple(values))
+
+    cur.executemany(f"""
+        INSERT INTO item ({', '.join(columns)})
+        VALUES ({', '.join(['%s'] * len(columns))});
+    """, values_list)
 
     db_close(con, cur)
     return jsonify({

@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { Hero, Tags, About } from '$lib/+page';
+	import { Hero, Tags, About } from './_home';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';

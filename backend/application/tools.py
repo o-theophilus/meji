@@ -153,7 +153,7 @@ def send_mail(to, subject, body):
     else:
         resend.api_key = os.environ["RESEND_API_KEY"]
         params = {
-            "from": "Theophilus <info@theophilus.website>",
+            "from": "Meji.ng <info@theophilus.website>",
             "to": [to] if type(to) is not list else to,
             "subject": subject,
             "html": body,

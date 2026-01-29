@@ -19,6 +19,8 @@
 		error = {};
 		if (form.quantity && (!Number.isInteger(form.quantity) || form.quantity < 1)) {
 			error.quantity = 'Please enter a valid number';
+		} else if (form.quantity > item.quantity) {
+			error.quantity = `Only ${item.quantity} items available in stock`;
 		}
 
 		for (const [key, val] of Object.entries(item.variation)) {
@@ -107,7 +109,6 @@
 		</IG>
 	{/each}
 
-	<!-- TODO: restrict available item quatity -->
 	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
 
 	<Button icon="cart" onclick={validate}>Add to Cart</Button>

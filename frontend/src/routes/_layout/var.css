@@ -1,3 +1,15 @@
+@media(prefers-color-scheme: dark){
+	:root:has(main.system_theme){
+		color-scheme: light dark;
+	}
+}
+:root:has(main.light_theme){
+	color-scheme: light;
+}
+:root:has(main.dark_theme){
+	color-scheme: dark;
+}
+
 :root {
 	--trans: 0.2s ease-in-out;
 	--mobileWidth: 800px;
@@ -26,35 +38,11 @@
 	--bg2: light-dark(hsl(0, 0%, 95%), hsl(0, 0%, 15%));
 	--bg1: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 10%));
 	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
-}
-
-@media(prefers-color-scheme: dark){
-	:root:has(main.system_theme){
-		color-scheme: light dark;
-	}
-}
-:root:has(main.light_theme){
-	color-scheme: light;
-}
-:root:has(main.dark_theme){
-	color-scheme: dark;
-}
 
 
-:root{
 	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
-	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
-
+	--select-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
 }
-
-
-main.dark {
-	--select-outline-color:hsl(0, 0%, 20%);
-
-	--cl2: hsl(0, 0%, 20%);
-	--cl3: hsl(0, 0%, 20%);
-}
-
 
 
 
@@ -62,18 +50,10 @@ main{
 	--input-color:var(--ft1);
 	--group-background-color:var(--input);
 	
-	--select-background-color:hsl(0, 0%, 5%);
-	--select-color:hsl(0, 0%, 60%);
-	--select-background-color-hover:var(--cl1);
-	--select-color-hover:white;
-	
 	/* --link-color:var(--ft2); */
 	/* --link-color-hover:var(--cl1); */
 	
 	--pagination-background-color:var(--input);
 	--pagination-outline-color:var(--input);
 	--pagination-outline-color-hover:var(--ft1);
-
-	--cl2: hsl(0, 0%, 75%);
-	--cl3: transparent;
 }

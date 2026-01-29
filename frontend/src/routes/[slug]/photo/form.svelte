@@ -4,7 +4,6 @@
 
 	import Add from './form.add.svelte';
 	import Mod from './form.mod.svelte';
-	import Module from '$lib/+layout/module.svelte';
 
 	let item = $state(module.value);
 

@@ -10,7 +10,7 @@
 	import { Content } from '$lib/layout';
 	import { PageNote } from '$lib/info';
 	import { Meta, Icon } from '$lib/macro';
-	import Item from './item.svelte';
+	import One from './one.svelte';
 
 	let { data } = $props();
 	let items = $derived(data.items);
@@ -49,11 +49,11 @@
 
 <Meta title="Logs" />
 
-<Content>
+<Content --content-height="auto">
 	<div class="page_title">Logs</div>
-
+	
 	<br />
-
+	
 	{#if app.user.access.includes('log:view')}
 		<div class="line nowrap">
 			<Search
@@ -67,7 +67,7 @@
 			<Button onclick={() => (search.u_search = app.user.key)}>Me</Button>
 		</div>
 	{/if}
-
+	
 	<div class="line nowrap">
 		<Dropdown
 			icon2="chevron-down"
@@ -93,7 +93,7 @@
 			--select-width="100%"
 		/>
 	</div>
-
+	
 	<Search
 		placeholder="Search for {search.entity_type}"
 		bind:value={search.e_search}
@@ -102,10 +102,12 @@
 			page_state.set({ e_search: v });
 		}}
 	></Search>
+</Content>
 
+<Content --content-padding-top="1px">
 	{#each items as item (item.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} bind:search />
+			<One {item} bind:search />
 		</div>
 	{:else}
 		<PageNote>

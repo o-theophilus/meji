@@ -105,7 +105,7 @@
 		border-radius: 8px;
 		background-color: var(--bg3);
 		outline: 1px solid var(--ol);
-		outline-offset: -2px;
+		outline-offset: -1px;
 	}
 
 	.block {

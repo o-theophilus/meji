@@ -1,8 +1,8 @@
 <script>
-	import '$lib/+layout/var.css';
-	import '$lib/+layout/main.css';
+	import './_layout/var.css';
+	import './_layout/main.css';
 	import { app } from '$lib/store.svelte.js';
-	import { Header, Nav, Footer, Module, Loading } from '$lib/+layout';
+	import { Header, Nav, Footer, Module, Loading } from './_layout/index.js';
 	import { Notify } from '$lib/info';
 
 	let { data, children } = $props();

@@ -73,6 +73,7 @@
 		outline: 1px solid var(--button-outline-color, transparent);
 		outline-offset: -1px;
 		fill: currentColor;
+		pointer-events: all;
 	}
 
 	a,
@@ -96,7 +97,7 @@
 	a:hover,
 	button:hover {
 		background-color: var(--button-background-color-hover, hsl(0, 0%, 20%));
-		color: var(--button-color-hover, hsl(0, 0%, 100%));
+		color: var(--button-color-hover, hsl(0, 0%, 95%));
 		outline-color: var(--button-outline-color-hover, transparent);
 	}
 

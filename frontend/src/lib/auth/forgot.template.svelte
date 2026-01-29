@@ -35,5 +35,5 @@
 	Best regards,
 	<br />
 	<br />
-	<b> Theophilus Ogbolu </b>
+	<b> Meji.ng</b>
 </EmailTemplate>

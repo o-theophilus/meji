@@ -48,7 +48,7 @@ def create_app(conf=None):
 
         return jsonify({
             "status": 200,
-            "message": "Welcome to Theophilus Portfolio Website"
+            "message": "Welcome to Meji.ng"
         })
 
     app.register_blueprint(storage.bp)

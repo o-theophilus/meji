@@ -84,10 +84,13 @@
 
 <style>
 	section {
-		margin: var(--sp2) 0;
-		padding-top: var(--sp2);
-		border-top: 2px solid var(--bg1);
+		margin-top: 8px;
 		color: var(--ft1);
+		background-color: var(--bg3);
+		border-radius: 8px;
+		padding: 16px;
+		outline: 1px solid var(--ol);
+		outline-offset: -1pxs;
 
 		font-size: 0.8rem;
 	}

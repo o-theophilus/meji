@@ -82,7 +82,7 @@
 					{/if}
 
 					<Like
-						--like-outline-color="var(--cl3)"
+						--like-outline-color="var(--ol)"
 						--like-height="32px"
 						active={user_reaction}
 						onlike={() => submit('like')}

@@ -7,26 +7,34 @@
 </script>
 
 <!-- TODO: make better and inline style -->
-{#if color && label}
-	<button class:active class:small class:onclick class="block" {onclick}>
+
+
+
+
+{#if label}
+	<button class:active class:small class:onclick {onclick}>
 		{label}
-		<div class="color block" style:background-color={color}></div>
+
+		{#if color}
+			<div class="color block" style:background-color={color}></div>
+		{/if}
 	</button>
 {:else}
 	<button
 		class:active
 		class:small
 		class:onclick
-		class="block"
 		style:background-color={color}
 		{onclick}
 	>
-		{label}
+		<!-- {label} -->
 	</button>
 {/if}
 
 <style>
-	.block {
+	button {
+		/* all: unset; */
+		
 		--size: 40px;
 		padding: 8px;
 
@@ -39,33 +47,45 @@
 		min-width: var(--size);
 		border-radius: 8px;
 		border: none;
-
-		font-weight: 800;
-
-		background-color: var(--input);
+		
+		/* font-weight: 800; */
+		
+		background-color: transparent;
+		border: 1px solid var(--ft2);
 		color: var(--ft2);
-		outline: 2px solid var(--input);
-		outline-offset: 4px;
+		outline: 2px solid transparent;
+		outline-offset: 1px;
+		/* line-height: 100%; */
+		
+		&.active {
+			outline-color: var(--ft1);
+			/* border-color: transparent; */
+		}
+		&.onclick {
+			cursor: pointer;
+		}
+		
+		& .color {
+			--size: 24px;
+			height: var(--size);
+			width: var(--size);
+			border-radius: 4px;
+			flex-shrink: 0;
+		}
+
+		&.small {
+			--size: 24px;
+			font-size: 0.8rem;
+			/* padding: 2px; */
+			/* padding: 0; */
+			
+			& .color {
+				--size: 8px;
+			}
+		}
 	}
 
-	.color {
-		--size: 24px;
-		border-radius: 4px;
-	}
 
-	.active {
-		outline-color: var(--ft1);
-	}
 
-	.small {
-		--size: 24px;
-		font-size: 0.8rem;
-	}
-	.small .color {
-		--size: 8px;
-	}
 
-	.onclick {
-		cursor: pointer;
-	}
 </style>

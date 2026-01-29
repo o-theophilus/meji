@@ -90,10 +90,10 @@
 		border: none;
 		font-size: var(--select-font-size, 1rem);
 		font-weight: var(--select-font-weight, 400);
-		background-color: var(--select-background-color, hsl(0, 0%, 90%));
-		color: var(--select-color, hsl(0, 0%, 0%));
-		outline: 2px solid var(--select-outline-color, transparent);
-		outline-offset: -2px;
+		background-color: var(--select-background-color, hsl(0, 0%, 5%));
+		color: var(--select-color, hsl(0, 0%, 70%));
+		outline: 1px solid var(--select-outline-color, transparent);
+		outline-offset: -1px;
 
 		transition:
 			color 0.2s ease-in-out,
@@ -101,8 +101,8 @@
 			outline-color 0.2s ease-in-out;
 	}
 	button:hover {
-		background-color: var(--select-background-color-hover, hsl(0, 0%, 85%));
-		color: var(--select-color-hover, hsl(0, 0%, 0%));
+		background-color: var(--select-background-color-hover, hsl(0, 0%,20%));
+		color: var(--select-color-hover, hsl(0, 0%, 95%));
 		outline-color: var(--select-outline-color-hover, transparent);
 	}
 	:disabled {

@@ -64,13 +64,10 @@
 	description="Available Quantity ({item.available_quantity})"
 	error={error.error}
 >
-	<!-- TODO: restrict available item quatity -->
 	<IG
 		name="Quantity"
 		error={error.quantity}
 		type="number"
-		min="10"
-		max="15"
 		bind:value={form.quantity}
 	/>
 
