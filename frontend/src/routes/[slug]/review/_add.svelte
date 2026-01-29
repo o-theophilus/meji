@@ -84,8 +84,8 @@
 <style>
 	.parent {
 		border-radius: 8px;
-		border: 2px solid var(--bg2);
+		border: 2px solid var(--bg1);
 		padding: 16px;
-		background-color: var(--bg3);
+		background-color: var(--bg2);
 	}
 </style>

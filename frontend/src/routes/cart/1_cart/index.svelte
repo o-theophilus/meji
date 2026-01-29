@@ -3,53 +3,63 @@
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { app } from '$lib/store.svelte.js';
-	import { Card } from '$lib/layout';
-	import Item from './item.svelte';
+	import { FoldButton } from '$lib/button';
+	import One from './one.svelte';
 
 	let { ops = $bindable() } = $props();
-
 	let name = 'Items';
 </script>
 
-<Card
-	open={ops.status == name}
-	onclick={() => {
-		ops.status = ops.status != name ? name : null;
-	}}
->
-	{#snippet title()}
-		<div class="line space">
-			<div class="title">{name}</div>
-			{#if ops.status != name}
-				<div class="c">
-					<div class="a">Total Amount</div>
-					<div class="b" transition:slide>
-						₦{ops.total_items().toLocaleString()}
-					</div>
+<div class="content" id={name}>
+	{#if ops.status == name}
+		<div class="content" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+			{#each app.cart_items as item (item.key + JSON.stringify(item.variation))}
+				<div animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}>
+					<One {item} bind:ops />
 				</div>
-			{/if}
+			{/each}
 		</div>
-	{/snippet}
+	{/if}
 
-	{#each app.cart_items as item (item.key + JSON.stringify(item.variation))}
-		<div animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}>
-			<Item {item} />
-		</div>
-	{/each}
+	<div
+		class="total line space"
+		onclick={() => {
+			ops.status = ops.status != name ? name : null;
+		}}
+		role="presentation"
+	>
+		<div class="title">{name}</div>
 
-	<div class="line space total">
-		<span class="a">Total Amount</span>
-		<div class="b">
-			₦{ops.total_items().toLocaleString()}
+		<div class="line d">
+			<div class="c">
+				<div class="a">Total Amount</div>
+				<div class="b">
+					₦{ops.total_items().toLocaleString()}
+				</div>
+			</div>
+			<FoldButton open={ops.status == name} />
 		</div>
 	</div>
-</Card>
+</div>
 
 <style>
+	.content {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.total {
+		background-color: var(--bg);
+		padding: 24px 16px;
+		border-radius: 8px;
+	}
 	.title {
 		font-size: 1.2rem;
 	}
 
+	.d {
+		gap: 16px;
+	}
 	.c {
 		display: flex;
 		flex-direction: column;
@@ -62,10 +72,5 @@
 		font-weight: bold;
 		font-size: 1.2rem;
 		color: var(--ft1);
-	}
-	.total {
-		margin-top: 16px;
-		padding-top: 16px;
-		border-top: 1px solid var(--bg2);
 	}
 </style>

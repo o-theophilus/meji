@@ -127,10 +127,10 @@
 		flex-direction: column;
 
 		width: 200px;
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		border-radius: var(--sp0);
 
-		outline: 2px solid var(--bg2);
+		outline: 2px solid var(--bg1);
 	}
 
 	.title {
@@ -147,10 +147,10 @@
 		transition: background-color var(--trans);
 	}
 	a:hover {
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 	.title,
 	a:not(:last-child) {
-		border-bottom: 2px solid var(--bg2);
+		border-bottom: 2px solid var(--bg1);
 	}
 </style>

@@ -67,6 +67,7 @@
 
 	.row_1 {
 		padding: 48px 16px;
+		color: var(--ft1);
 	}
 	.row_2 {
 		flex-direction: column;
@@ -82,7 +83,7 @@
 		padding: 32px 24px;
 		width: 100%;
 		fill: var(--cl1);
-		outline: 1px solid var(--bg1);
+		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 	}
 	.row_1 .text {

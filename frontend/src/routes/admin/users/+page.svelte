@@ -10,7 +10,7 @@
 	import { Pagination, Dropdown, Search } from '$lib/input';
 	import { Meta, Log, Icon } from '$lib/macro';
 	import { PageNote } from '$lib/info';
-	import Item from './item.svelte';
+	import One from './One.svelte';
 
 	let { data } = $props();
 	let users = $derived(data.users);
@@ -46,7 +46,7 @@
 <Log entity_type={'page'} />
 <Meta title="All Users" />
 
-<Content>
+<Content --content-height="auto">
 	<div class="line space">
 		<div class="line">
 			<BackButton />
@@ -91,10 +91,12 @@
 			page_state.set({ order: v });
 		}}
 	/>
+</Content>
 
+<Content --content-padding-top="1px">
 	{#each users as item (item.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} />
+			<One {item} />
 		</div>
 	{:else}
 		<PageNote>

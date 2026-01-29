@@ -51,7 +51,7 @@
 <Log entity_type={'page'} />
 <Meta title="All Orders" />
 
-<Content --content-background-color="var(--bg2)">
+<Content>
 	<div class="line space">
 		<div class="line">
 			<BackButton />

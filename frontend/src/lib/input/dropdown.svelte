@@ -130,7 +130,7 @@
 		cursor: pointer;
 	}
 	option {
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		color: var(--ft2);
 		font-size: 1rem;
 	}

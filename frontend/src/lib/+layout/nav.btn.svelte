@@ -39,7 +39,7 @@
 
 	a:hover,
 	.active {
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 
 	.block {

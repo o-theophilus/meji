@@ -61,7 +61,7 @@
 <Log entity_type={'page'} />
 <Meta title="All Users" />
 
-<Content --content-background-color="var(--bg2)">
+<Content>
 	<div class="line space">
 		<div class="line">
 			<BackButton />

@@ -33,6 +33,7 @@ def get_cart_items(cur=None):
     cur.execute("""
         SELECT
             item.key, item.slug, item.name, item.price, item.status,
+            item.quantity AS available_quantity,
             COALESCE(item.files[1], NULL) as photo,
             order_item.variation, order_item.quantity
         FROM order_item

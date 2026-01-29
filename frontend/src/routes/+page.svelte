@@ -53,7 +53,7 @@
 <!-- <Advert space="home_1" placeholder /> -->
 <Tags />
 
-<Content --content-width="1200px" --content-height="100%" --content-background-color="var(--bg2)">
+<Content --content-width="1200px" --content-height="100%">
 	<ItemGroup id="new_arrivals" items={new_arrivals}>
 		{#snippet _title()}
 			<div class="a">

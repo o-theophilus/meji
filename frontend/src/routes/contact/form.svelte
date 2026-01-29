@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { loading, module, app } from '$lib/store.svelte.js';
 
-	import { template } from './footer.form.template.js';
+	import { template } from './form.template.js';
 	import { Button } from '$lib/button';
 	import { EmailTemplate, Form } from '$lib/layout';
 	import { Dialogue } from '$lib/info';

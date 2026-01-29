@@ -86,7 +86,7 @@
 	section {
 		margin: var(--sp2) 0;
 		padding-top: var(--sp2);
-		border-top: 2px solid var(--bg2);
+		border-top: 2px solid var(--bg1);
 		color: var(--ft1);
 
 		font-size: 0.8rem;

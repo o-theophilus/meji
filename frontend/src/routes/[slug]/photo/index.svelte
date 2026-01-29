@@ -9,7 +9,6 @@
 </script>
 
 <div class="img">
-	<!-- TODO: go through all the img onerror -->
 	<img {src} alt={item.name} onerror={() => (src = '/no_photo.png')} />
 	<div class="edit">
 		{#if app.user.access.includes('item:edit_file') && edit_mode}
@@ -39,7 +38,7 @@
 				onclick={() => (src = x)}
 				onerror={(e) => (e.target.src = '/no_photo.png')}
 				role="presentation"
-				/>
+			/>
 		{/each}
 	</div>
 {/if}
@@ -55,7 +54,7 @@
 		width: 100%;
 		border-radius: var(--sp1);
 
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 	.edit {
 		position: absolute;
@@ -80,7 +79,7 @@
 		border-radius: var(--sp0);
 		cursor: pointer;
 
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 		outline: 2px solid transparent;
 		transition:
 			outline-color var(--trans),

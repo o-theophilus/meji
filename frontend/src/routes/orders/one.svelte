@@ -25,7 +25,7 @@
 		padding: var(--sp2);
 		border-radius: 8px;
 
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		text-decoration: none;
 		color: var(--ft2);
 		outline: 2px solid transparent;

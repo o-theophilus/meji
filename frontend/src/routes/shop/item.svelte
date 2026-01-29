@@ -15,7 +15,6 @@
 	const prerender = () => {
 		app.item = item;
 	};
-	let src = $state(item.files[0] ? `${item.files[0]}/500` : '/no_photo.png');
 </script>
 
 <a href="/{item.slug}" onclick={prerender} onmouseenter={prerender}>
@@ -38,7 +37,12 @@
 		{#if date_created >= oneWeekAgo}
 			<div class="new">New</div>
 		{/if}
-		<img {src} loading="lazy" alt={item.name} onerror={() => (src = '/no_photo.png')} />
+		<img
+			src="{item.files[0]}/500"
+			loading="lazy"
+			alt={item.name}
+			onerror={(e) => (e.target.src = '/no_photo.png')}
+		/>
 	</div>
 
 	<div class="details">
@@ -77,7 +81,7 @@
 		background-color: var(--bg3);
 		border-radius: 8px;
 		overflow: hidden;
-		outline: 2px solid var(--bg2);
+		outline: 1px solid var(--ol);
 		height: 100%;
 
 		--red: rgb(186, 63, 63);
@@ -173,6 +177,6 @@
 		padding: 2px 4px;
 		border-radius: 4px;
 		color: var(--red);
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 </style>

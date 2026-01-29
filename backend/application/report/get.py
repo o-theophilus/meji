@@ -31,7 +31,7 @@ def get_many():
         "page_size": 24
     }
     search = request.args.get("search", searchParams["search"]).strip()
-    _type = request.args.get("status", searchParams["status"]).strip()
+    _type = request.args.get("type", searchParams["type"]).strip()
     order = request.args.get("order", searchParams["order"]).strip()
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))

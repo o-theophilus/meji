@@ -17,15 +17,21 @@
 	--input: hsla(230, 30%, 41%, 0.1);
 
 	
-	--ft1: light-dark(black, white);
-	--ft2: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 60%));
-	--bg3: light-dark(#F7F7F8, #2A2A2E);
-	--bg2: light-dark(hsl(233, 10%, 89%), hsl(0, 0%, 10%));
-	--bg1: light-dark(white, hsl(0, 0%, 5%));
+	--ft1: light-dark(hsl(0, 0%, 5%), hsl(0, 0%, 95%));
+	--ft2: light-dark(hsl(0, 0%, 30%), hsl(0, 0%, 70%));
+
+	--ol: light-dark(hsl(0, 0%, 85%), hsl(0, 0%, 25%));
+
+	--bg3: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 20%));
+	--bg2: light-dark(hsl(0, 0%, 95%), hsl(0, 0%, 15%));
+	--bg1: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 10%));
+	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
 }
 
-:root:has(main.system_theme){
-	color-scheme: light dark;
+@media(prefers-color-scheme: dark){
+	:root:has(main.system_theme){
+		color-scheme: light dark;
+	}
 }
 :root:has(main.light_theme){
 	color-scheme: light;
@@ -35,12 +41,22 @@
 }
 
 
+:root{
+	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
+	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
+
+}
+
+
 main.dark {
 	--select-outline-color:hsl(0, 0%, 20%);
 
 	--cl2: hsl(0, 0%, 20%);
 	--cl3: hsl(0, 0%, 20%);
 }
+
+
+
 
 main{
 	--input-color:var(--ft1);

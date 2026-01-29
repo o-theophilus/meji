@@ -33,12 +33,11 @@
 	let is_admin = $state(false);
 
 	const update = (data) => {
-		// TODO: delete storeD PAGE MEMORY STATE at this point
-		// FOR HOME, SAVE, AND SHOP PAFE
 		item = data;
 		page_state.clear('home');
 		page_state.clear('shop');
 		page_state.clear('save');
+		page_state.clear('cart');
 	};
 
 	let comment = $state();
@@ -83,7 +82,7 @@
 {/key}
 <Meta title={item.name} description={item.description} image={item.photo} />
 
-<Content>
+<Content --content-background-color="var(--bg)">
 	{#if is_admin}
 		<Toggle state_2="edit" active={edit_mode} onclick={() => (edit_mode = !edit_mode)} />
 		<br />
@@ -112,7 +111,7 @@
 			<Feedback {item} bind:this={comment} />
 		</div>
 	</div>
-</Content>
+</Content >
 
 <div class="floater">
 	<div class="floater_block">
@@ -132,7 +131,7 @@
 	</div>
 </div>
 
-<Content --content-height --content-padding-top="0" --content-padding-bottom="0">
+<Content --content-height --content-padding-top="0" --content-padding-bottom="0" --content-background-color="var(--bg)">
 	<Similar key={item.key} bind:this={similar} {refresh} />
 	<ToTop />
 </Content>
@@ -156,8 +155,8 @@
 		position: sticky;
 		bottom: var(--headerHeight);
 
-		background-color: var(--bg1);
-		border-top: 1px solid var(--bg2);
+		background-color: var(--bg);
+		border-top: 1px solid var(--bg1);
 	}
 
 	.floater_block {

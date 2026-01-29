@@ -10,7 +10,7 @@
 	import { BackButton } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Meta, Log, Icon } from '$lib/macro';
-	import Item from '../users/item.svelte';
+	import One from '../users/One.svelte';
 
 	let { data } = $props();
 	let users = $derived(data.users);
@@ -50,7 +50,7 @@
 <Log entity_type={'page'} />
 <Meta title="Admin" description="Users with elevated Access" />
 
-<Content>
+<Content --content-height="auto">
 	<div class="line">
 		<BackButton />
 		<div class="page_title">
@@ -110,10 +110,12 @@
 			page_state.set({ order: v });
 		}}
 	/>
+</Content>
 
+<Content --content-padding-top="1px">
 	{#each users as item (item.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} />
+			<One {item} />
 		</div>
 	{:else}
 		<PageNote>

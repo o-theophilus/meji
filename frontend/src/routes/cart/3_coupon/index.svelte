@@ -100,7 +100,7 @@
 	.total {
 		margin-top: 16px;
 		padding-top: 16px;
-		border-top: 1px solid var(--bg2);
+		border-top: 1px solid var(--bg1);
 	}
 
 	.label {

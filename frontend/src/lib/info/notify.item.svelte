@@ -64,7 +64,7 @@
 
 		color: green;
 		border-left: 8px solid green;
-		background-color: color-mix(in srgb, var(--bg1), transparent 20%);
+		background-color: color-mix(in srgb, var(--bg), transparent 20%);
 	}
 	.line {
 		padding: 16px;

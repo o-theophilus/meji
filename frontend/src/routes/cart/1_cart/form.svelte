@@ -5,7 +5,8 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 
-	let item = { ...module.value };
+	let item = { ...module.value.item };
+
 	let form = $state({
 		key: item.key,
 		quantity: item.quantity,
@@ -15,9 +16,13 @@
 	let error = $state({});
 
 	const validate = () => {
+		module.value.ops.error = {};
 		error = {};
+
 		if (form.quantity && (!Number.isInteger(form.quantity) || form.quantity < 1)) {
 			error.quantity = 'Please enter a valid number';
+		} else if (form.quantity > item.available_quantity) {
+			error.quantity = `Only ${item.available_quantity} items available in stock`;
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -52,43 +57,24 @@
 			error = resp;
 		}
 	};
-
-	const remove = async () => {
-		app.cart_items = app.cart_items.filter(
-			(x) => !(x.key == form.key && JSON.stringify(x.variation) == JSON.stringify(form.variation))
-		);
-
-		loading.open('Removing item from cart . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
-			method: 'delete',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
-		resp = await resp.json();
-		loading.close();
-
-		if (resp.status == 200) {
-			app.cart_items = resp.items;
-			notify.open('Item removed from cart');
-			module.close();
-			page_state.clear('cart');
-		} else {
-			error = resp;
-		}
-	};
 </script>
 
-<Form title="Edit Quantity" description="Select variation" error={error.error}>
+<Form
+	title="Edit Quantity"
+	description="Available Quantity ({item.available_quantity})"
+	error={error.error}
+>
 	<!-- TODO: restrict available item quatity -->
-	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
+	<IG
+		name="Quantity"
+		error={error.quantity}
+		type="number"
+		min="10"
+		max="15"
+		bind:value={form.quantity}
+	/>
 
-	<div class="line">
-		<Button onclick={validate}>Ok</Button>
-		<Button icon="trash2" onclick={remove}>Remove Item</Button>
-	</div>
+	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
 
 <style>

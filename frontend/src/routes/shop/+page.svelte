@@ -52,7 +52,7 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-height="auto" --content-background-color="var(--bg2)">
+<Content --content-height="auto">
 	<div class="line space">
 		<div class="page_title">Shop</div>
 		{#if app.user.access.includes('item:add')}
@@ -123,7 +123,7 @@
 	/>
 </Content>
 
-<Content --content-padding-top="1px" --content-width="100%" --content-background-color="var(--bg2)">
+<Content --content-padding-top="1px" --content-width="100%">
 	{#if items.length}
 		<section class="items">
 			{#each items as item (item.key)}

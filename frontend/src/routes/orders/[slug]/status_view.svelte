@@ -33,7 +33,7 @@
 
 		margin-top: 4px;
 		padding: 4px;
-		border: 1px solid var(--bg3);
+		border: 1px solid var(--bg2);
 		border-radius: 8px;
 	}
 	@media screen and (min-width: 400px) {
@@ -71,7 +71,7 @@
 	}
 	.active ~ .status {
 		color: var(--ft2);
-		background-color: var(--bg3);
+		background-color: var(--bg2);
 	}
 
 	.canceled {

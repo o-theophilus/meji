@@ -58,7 +58,7 @@
 <Log entity_type={'page'} />
 <Meta title="Manage Files" description="Here you will find missing or excess images" />
 
-<Content --content-background-color="var(--bg2)">
+<Content>
 	<div class="line">
 		<BackButton />
 		<div class="page_title">Photo Error</div>
@@ -276,19 +276,18 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--sp1);
-		/* display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-		gap: 8px; */
 	}
 	img {
 		width: 100px;
 		border-radius: 8px;
 		cursor: pointer;
-		background-color: var(--bg3);
+		background-color: var(--bg2);
+
+		&.selected {
+			outline: 2px solid var(--cl1);
+		}
 	}
-	img.selected {
-		outline: 2px solid var(--cl1);
-	}
+
 	.btns {
 		margin-top: 16px;
 	}
@@ -297,26 +296,28 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 		gap: 4px;
-	}
-	.link {
-		display: flex;
-		align-items: center;
 
-		padding: 4px;
-		border-radius: 4px;
+		& .link {
+			display: flex;
+			align-items: center;
 
-		line-height: 120%;
-		color: var(--ft2);
-		font-size: 0.7rem;
-		text-decoration: none;
-		background-color: var(--bg3);
-		outline: 1px solid var(--bg2);
-		outline-offset: -1px;
+			padding: 4px;
+			border-radius: 4px;
 
-		transition: background-color 0.2s ease-in-out;
-	}
-	.link:hover {
-		background-color: var(--bg2);
+			line-height: 120%;
+			color: var(--ft2);
+			font-size: 0.7rem;
+			text-decoration: none;
+			background-color: var(--bg3);
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+
+			transition: background-color 0.2s ease-in-out;
+			&:hover {
+				background-color: var(--bg2);
+				color: var(--ft1);
+			}
+		}
 	}
 
 	.none {

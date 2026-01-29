@@ -20,6 +20,14 @@
 		status: 'Items',
 		cart: data.cart,
 		error: {},
+		item_ckeck() {
+			for (const item of app.cart_items) {
+				if (item.status != 'active' || item.quantity > item.available_quantity) {
+					return false;
+				}
+			}
+			return true;
+		},
 		has_receiver() {
 			return !!(
 				this.cart.receiver?.name &&
@@ -56,14 +64,13 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
+<Content --content-padding-top="1px">
 	<div class="page_title">Cart</div>
 	{#if app.cart_items.length}
 		<Cart bind:ops></Cart>
 		<Receiver bind:ops></Receiver>
 		<Coupons bind:ops></Coupons>
 
-		<!-- TODO: add terms page -->
 		<span class="terms">
 			By clicking the order button, you have accepred our
 			<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>

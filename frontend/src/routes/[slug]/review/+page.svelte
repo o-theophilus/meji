@@ -20,7 +20,7 @@
 	let ratings = $derived(data.ratings);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let search = $state({ order: 'like ▼', page_no: 1 });
+	let search = $state({ order: 'most relevant ▼', page_no: 1 });
 
 	const update = (a, b, c) => {
 		reviews = a;
@@ -49,11 +49,7 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content
-	--content-height="auto"
-	--content-background-color="var(--bg2)"
-	--content-padding-bottom="0"
->
+<Content --content-height="auto" --content-padding-bottom="0">
 	<div class="line">
 		<BackButton href="/{item.slug}" />
 		<div class="page_title">
@@ -87,7 +83,7 @@
 			bind:value={search.order}
 			onchange={(v) => {
 				search.page_no = 1;
-				v = v == 'like ▼' ? '' : v;
+				v = v == 'most relevant ▼' ? '' : v;
 				page_state.set({ order: v });
 			}}
 		/>
@@ -107,7 +103,7 @@
 	</div>
 </Content>
 
-<Content --content-background-color="var(--bg2)">
+<Content>
 	{#each reviews as review (review.key)}
 		<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<One {item} {review} {search} {update}></One>

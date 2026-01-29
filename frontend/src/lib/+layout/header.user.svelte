@@ -67,10 +67,10 @@
 		<Hamburger
 			--hamburger-background-color="transpatent"
 			--hamburger-background-color-hover={is_home
-				? 'color-mix(in srgb, var(--bg1), transparent 80%)'
-				: 'var(--bg2)'}
-			--hamburger-color={is_home ? 'var(--bg1)' : 'var(--ft2)'}
-			--hamburger-color-hover={is_home ? 'var(--bg1)' : 'var(--ft1)'}
+				? 'color-mix(in srgb, var(--bg), transparent 80%)'
+				: 'var(--bg1)'}
+			--hamburger-color={is_home ? 'var(--bg)' : 'var(--ft2)'}
+			--hamburger-color-hover={is_home ? 'var(--bg)' : 'var(--ft1)'}
 			{open}
 			onclick={() => {
 				open = !open;
@@ -113,13 +113,13 @@
 	}
 	.menu_btn:hover {
 		color: var(--ft1);
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 	.menu_btn.is_home {
-		color: var(--bg1);
+		color: var(--bg);
 	}
 	.menu_btn.is_home:hover {
-		background-color: color-mix(in srgb, var(--bg1), transparent 80%);
+		background-color: color-mix(in srgb, var(--bg), transparent 80%);
 	}
 
 	.menu_btn.full {

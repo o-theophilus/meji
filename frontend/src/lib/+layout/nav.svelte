@@ -18,8 +18,8 @@
 
 <style>
 	.section {
-		background-color: var(--bg1);
-		border-top: 1px solid var(--bg2);
+		background-color: var(--bg);
+		border-top: 1px solid var(--ol);
 	}
 
 	.block {

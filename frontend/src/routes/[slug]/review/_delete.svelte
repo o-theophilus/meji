@@ -60,8 +60,8 @@
 <style>
 	.details {
 		border-radius: 8px;
-		background-color: var(--bg3);
-		outline: 1px solid var(--bg2);
+		background-color: var(--bg2);
+		outline: 1px solid var(--bg1);
 		outline-offset: -1px;
 	}
 </style>

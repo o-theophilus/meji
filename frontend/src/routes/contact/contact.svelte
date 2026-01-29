@@ -28,22 +28,9 @@
 </div>
 
 <style>
-	.block {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		gap: var(--sp1);
-	}
-
 	span {
 		display: flex;
 		gap: var(--sp1);
 		align-items: center;
-	}
-	@media screen and (min-width: 600px) {
-		.block {
-			align-items: unset;
-		}
 	}
 </style>

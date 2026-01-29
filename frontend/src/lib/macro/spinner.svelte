@@ -20,7 +20,7 @@
 		align-items: center;
 
 		background-color: var(--cl1_t);
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 
 		width: var(--size);
 		height: var(--size);
@@ -31,7 +31,7 @@
 
 	.center {
 		position: relative;
-		background-color: var(--bg1);
+		background-color: var(--bg);
 
 		width: calc(var(--size) * (1 / 3) * 2);
 		height: calc(var(--size) * (1 / 3) * 2);

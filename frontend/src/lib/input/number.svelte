@@ -6,13 +6,16 @@
 	let width = $state();
 </script>
 
-<Button
-	icon="minus"
-	onclick={() => {
-		value--;
-		value = value < 1 ? 1 : value;
-	}}
-></Button>
+<form onsubmit={(e) => e.preventDefault()} novalidate autocomplete="off">
+	<Button
+		icon="minus"
+		tabindex={-1}
+		onclick={() => {
+			value--;
+			value = value < 1 ? 1 : value;
+		}}
+	></Button>
+</form>
 
 <input
 	style:width="{width}px"
@@ -59,12 +62,15 @@
 	}}
 />
 
-<Button
-	icon="plus"
-	onclick={() => {
-		value++;
-	}}
-></Button>
+<form onsubmit={(e) => e.preventDefault()} novalidate autocomplete="off">
+	<Button
+		icon="plus"
+		tabindex={-1}
+		onclick={() => {
+			value++;
+		}}
+	></Button>
+</form>
 
 <div class="width_helper" bind:clientWidth={width}>
 	{value}

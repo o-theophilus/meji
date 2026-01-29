@@ -23,16 +23,6 @@
 					></RoundButton>
 				</div>
 			{/if}
-			<div class="control">
-				<RoundButton
-					icon="trash-2"
-					onclick={() => module.open(Delete, { review: reply, search, update })}
-				></RoundButton>
-				<RoundButton
-					icon="trash-2"
-					onclick={() => module.open(Delete, { review: reply, search, update })}
-				></RoundButton>
-			</div>
 		</div>
 	{/each}
 </div>
@@ -41,12 +31,17 @@
 	.item {
 		border-radius: 8px;
 		background-color: var(--bg3);
-		outline: 1px solid var(--one-outline-color, var(--bg1));
+		outline: 1px solid var(--one-outline-color, var(--ol));
 		outline-offset: -1px;
 		overflow: hidden;
 	}
 	.reply {
-		background-color: var(--input);
+		margin: 16px;
+		margin-top: 0;
+		border-radius: 8px;
+		background-color: var(--bg2);
+		outline: 1px solid var(--one-outline-color, var(--ol));
+		outline-offset: -1px;
 	}
 
 	.control {

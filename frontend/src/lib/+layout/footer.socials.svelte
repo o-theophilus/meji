@@ -23,13 +23,7 @@
 
 <style>
 	.line {
-		justify-content: center;
 		gap: 4px;
-	}
-	@media screen and (min-width: 600px) {
-		.line {
-			justify-content: unset;
-		}
 	}
 
 	a {

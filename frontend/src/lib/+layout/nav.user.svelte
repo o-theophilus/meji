@@ -56,13 +56,13 @@
 
 	a:hover,
 	button:hover {
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 
 	.active {
 		font-weight: 600;
 		color: var(--ft1);
 		fill: var(--ft1);
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 	}
 </style>

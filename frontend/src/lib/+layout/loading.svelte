@@ -47,7 +47,7 @@
 <style>
 	section {
 		z-index: 1;
-		
+
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -71,7 +71,7 @@
 		width: var(--size);
 		height: var(--size);
 
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		border-radius: var(--sp1);
 	}
 

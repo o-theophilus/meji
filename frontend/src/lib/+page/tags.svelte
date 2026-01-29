@@ -14,7 +14,7 @@
 <svelte:window bind:innerWidth={width} />
 
 {#if tags.length > 0}
-	<Content --content-height="100%" --content-background-color="var(--bg2)">
+	<Content --content-height="100%">
 		<div id="tag"></div>
 		<Card>
 			Tags

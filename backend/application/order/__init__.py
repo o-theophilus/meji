@@ -63,6 +63,7 @@ def order_check():
         SELECT
             item.price,
             item.quantity AS available_quantity,
+            item.status,
             order_item.quantity
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
@@ -79,6 +80,8 @@ def order_check():
 
     for x in items:
         # TEST: check item availability
+        # TODO: match messaging to frontend message
+        # FIXME: HOW ABOUT IF ITEM IS DELETED?
         if (
             x["status"] != 'active'
             or x["quantity"] == 0 or x["quantity"] > x["available_quantity"]

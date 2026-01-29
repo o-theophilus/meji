@@ -35,10 +35,10 @@
 		width: max-content;
 		display: flex;
 		flex-direction: column;
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		border-radius: var(--sp0);
 
-		outline: 2px solid var(--bg2);
+		outline: 2px solid var(--bg1);
 	}
 
 	a {
@@ -48,7 +48,7 @@
 		text-align: center;
 		padding: 8px;
 
-		border-bottom: 1px solid var(--bg2);
+		border-bottom: 1px solid var(--bg1);
 
 		transition:
 			color var(--trans),
@@ -56,7 +56,7 @@
 	}
 
 	a:hover {
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 		color: var(--ft1);
 	}
 

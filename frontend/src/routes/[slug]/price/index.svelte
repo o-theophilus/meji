@@ -36,7 +36,7 @@
 			--button-height="18px"
 			--button-border-radius="50%"
 			--button-color="var(--ft2)"
-			--button-background-color="var(--bg2)"
+			--button-background-color="var(--bg1)"
 			onclick={() => {
 				show_discount = !show_discount;
 			}}

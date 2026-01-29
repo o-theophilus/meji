@@ -36,10 +36,10 @@
 		gap: var(--sp1) var(--sp2);
 		grid-template-columns: 1fr auto;
 
-		background-color: var(--bg3);
+		background-color: var(--bg2);
 		padding: var(--sp2);
 		border-radius: var(--sp1);
-		outline: 1px solid var(--bg2);
+		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 
 		font-size: small;

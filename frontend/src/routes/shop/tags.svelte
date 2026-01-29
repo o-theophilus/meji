@@ -164,9 +164,9 @@
 
 		padding: 0 8px;
 
-		background-color: var(--bg1);
+		background-color: var(--bg);
 		border-radius: var(--sp0);
-		outline: 2px solid var(--bg2);
+		outline: 2px solid var(--bg1);
 	}
 
 	.close {
@@ -178,7 +178,7 @@
 		padding: 8px;
 		overflow: auto;
 
-		outline: 2px solid var(--bg2);
+		outline: 2px solid var(--bg1);
 		outline-offset: -2px;
 	}
 

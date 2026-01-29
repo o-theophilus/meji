@@ -93,9 +93,9 @@
 	.bar {
 		width: 100%;
 		height: 10px;
-		background-color: var(--bg3);
+		background-color: var(--bg2);
 		border-radius: 5px;
-		outline: 1px solid var(--bg1);
+		outline: 1px solid var(--bg);
 		outline-offset: -1px;
 	}
 

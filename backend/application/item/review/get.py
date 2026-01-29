@@ -21,7 +21,7 @@ def get_many(key, cur=None):
 
     # PORTFOLIO upgrade on portfolio website
     searchParams = {
-        "order": 'like ▼',
+        "order": 'most relevant ▼',
         "page_no": 1,
         "page_size": 24
     }
@@ -32,8 +32,8 @@ def get_many(key, cur=None):
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
-        'like ▼': 'most_like',
-        'like ▲': 'most_like',
+        'most relevant ▼': 'most_like',
+        'least relevant ▲': 'most_like',
         'reply': 'reply_count',
         'rating ▼': 'rating',
         'rating ▲': 'rating',
@@ -41,8 +41,8 @@ def get_many(key, cur=None):
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'like ▼': 'DESC',
-        'like ▲': 'ASC',
+        'most relevant ▼': 'DESC',
+        'least relevant ▲': 'ASC',
         'reply': 'DESC',
         'rating ▼': 'DESC',
         'rating ▲': 'ASC',

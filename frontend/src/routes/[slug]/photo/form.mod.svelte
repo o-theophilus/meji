@@ -147,7 +147,7 @@
 		border-radius: var(--sp0);
 		cursor: pointer;
 
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 		outline: 2px solid transparent;
 		transition:
 			outline-color var(--trans),

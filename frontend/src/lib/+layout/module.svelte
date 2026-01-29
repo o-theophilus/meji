@@ -14,7 +14,9 @@
 			<div class="close">
 				<RoundButton
 					icon="x"
-					--button-background-color-hover="red"
+					--button-background-color_="darkred"
+					--button-background-color-hover_="red"
+					--button-outline-color-hover_="transparent"
 					onclick={() => {
 						module.close();
 					}}
@@ -32,7 +34,7 @@
 <style>
 	section {
 		z-index: 1;
-		
+
 		display: grid;
 		align-items: center;
 		grid-template-columns: 1fr min(400px, 100%) 1fr;
@@ -57,8 +59,8 @@
 		position: relative;
 	}
 	.content {
-		background-color: var(--bg1);
-		box-shadow:  0 0 10px 0 var(--input);
+		background-color: var(--bg);
+		box-shadow: 0 0 10px 0 var(--input);
 		border-radius: var(--sp1);
 
 		overflow: hidden;

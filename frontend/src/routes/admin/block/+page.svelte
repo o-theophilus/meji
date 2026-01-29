@@ -52,7 +52,7 @@
 <Log entity_type={'page'} />
 <Meta title="Blocked User{items.length > 1 ? 's' : ''}" />
 
-<Content --content-background-color="var(--bg2)">
+<Content>
 	<div class="line space">
 		<div class="line">
 			<BackButton />

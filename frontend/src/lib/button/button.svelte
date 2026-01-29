@@ -70,7 +70,7 @@
 		font-weight: var(--button-font-weight, 700);
 		background-color: var(--button-background-color, hsl(0, 0%, 5%));
 		color: var(--button-color, hsl(0, 0%, 60%));
-		outline: 1px solid var(--button-outline-color, hsl(0, 0%, 20%));
+		outline: 1px solid var(--button-outline-color, transparent);
 		outline-offset: -1px;
 		fill: currentColor;
 	}
@@ -95,9 +95,9 @@
 	/* button:focus, */
 	a:hover,
 	button:hover {
-		background-color: var(--button-background-color-hover, hsl(0, 0%, 8%));
+		background-color: var(--button-background-color-hover, hsl(0, 0%, 20%));
 		color: var(--button-color-hover, hsl(0, 0%, 100%));
-		outline-color: var(--button-outline-color-hover, hsl(0, 0%, 20%));
+		outline-color: var(--button-outline-color-hover, transparent);
 	}
 
 	button:disabled {

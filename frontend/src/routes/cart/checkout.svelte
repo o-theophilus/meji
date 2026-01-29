@@ -126,6 +126,10 @@
 				onclick={() => {
 					if (!app.login) {
 						module.open(Login);
+					} else if (!ops.item_ckeck()) {
+						ops.status = 'Items';
+						ops.error.error = 'Kindly check the items for error';
+						scroll('#Items');
 					} else if (!ops.has_receiver()) {
 						ops.status = 'Receiver';
 						ops.error.error = 'Please provide receiver information before checkout';
@@ -158,8 +162,8 @@
 		position: sticky;
 		bottom: var(--headerHeight);
 
-		background-color: var(--bg1);
-		border-top: 1px solid var(--bg2);
+		background-color: var(--bg);
+		border-top: 1px solid var(--bg1);
 	}
 
 	.floater_block {

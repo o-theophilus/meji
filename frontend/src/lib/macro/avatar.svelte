@@ -38,7 +38,7 @@
 		height: var(--size);
 
 		object-fit: cover;
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 
 		border-radius: var(--avatar-border-radius, 4px);
 	}

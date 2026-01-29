@@ -29,7 +29,7 @@
 		return _temp;
 	});
 	let search = $state({
-		order: 'like ▼',
+		order: 'most relevant ▼',
 		page_no: 1,
 		page_size: 3
 	});
@@ -68,7 +68,7 @@
 <Card
 	{open}
 	onclick={() => (open = !open)}
-	--card-title-border-color="var(--bg2)"
+	--card-title-border-color="var(--bg1)"
 	--card-title-padding="16px 0"
 	--card-content-padding="0"
 >

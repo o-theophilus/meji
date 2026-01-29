@@ -7,18 +7,15 @@
 	&#8226;
 	<Link --link-font-size="0.8rem" href="/#about">About</Link>
 	&#8226;
-	<Link --link-font-size="0.8rem" href="/shop">Terms</Link>
+	<Link --link-font-size="0.8rem" href="/contact">Contact Us</Link>
+	&#8226;
+	<Link --link-font-size="0.8rem" href="/terms">Terms</Link>
+	&#8226;
+	<Link --link-font-size="0.8rem" href="/privacy">Privacy Policy</Link>
 </div>
-
-<!-- TODO: show only on homepage -->
 
 <style>
 	.block {
-		text-align: center;
-	}
-	@media screen and (min-width: 600px) {
-		.block {
-			text-align: unset;
-		}
+		width: fit-content;
 	}
 </style>

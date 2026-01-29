@@ -37,6 +37,7 @@
 		width: 100%;
 		margin: auto;
 		padding: 16px 24px;
+		border-bottom: 1px solid var(--ol);
 	}
 
 	a {

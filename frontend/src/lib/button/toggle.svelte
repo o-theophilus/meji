@@ -27,7 +27,7 @@
 
 		font-size: 0.8rem;
 		cursor: pointer;
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 		text-transform: capitalize;
 		box-shadow: 0 0 3px color-mix(in srgb, var(--ft2), transparent 50%) inset;
 

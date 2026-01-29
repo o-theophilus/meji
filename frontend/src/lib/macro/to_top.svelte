@@ -58,7 +58,7 @@
 		height: var(--size);
 		border-radius: 50%;
 
-		background-color: var(--bg2);
+		background-color: var(--bg1);
 		opacity: 0;
 		pointer-events: none;
 
@@ -97,6 +97,6 @@
 		height: calc(var(--size) - (var(--stroke_width) / 2));
 
 		border-radius: 50%;
-		background-color: var(--bg1);
+		background-color: var(--bg);
 	}
 </style>

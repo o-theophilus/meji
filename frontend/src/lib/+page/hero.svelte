@@ -51,7 +51,7 @@
 		position: relative;
 		overflow: hidden;
 
-		background: linear-gradient(var(--bgc) 50%, var(--bg2) 50%);
+		background: linear-gradient(var(--bgc) 50%, var(--bg1) 50%);
 		box-shadow: inset 0 7px 9px -7px rgba(0, 0, 0, 0.5);
 	}
 

@@ -89,7 +89,7 @@
 	}
 
 	.content {
-		border: 0 solid var(--bg2);
+		border: 0 solid var(--bg1);
 		border-width: 1px 0;
 		padding-bottom: var(--sp1);
 	}

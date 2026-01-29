@@ -50,7 +50,7 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-height="auto" --content-background-color="var(--bg2)">
+<Content --content-height="auto">
 	<div class="page_title">Save</div>
 
 	<Search
@@ -89,11 +89,7 @@
 	/>
 </Content>
 
-<Content
-	--content-padding-top="1px"
-	--content-width="1500px"
-	--content-background-color="var(--bg2)"
->
+<Content --content-padding-top="1px" --content-width="1500px">
 	{#if items.length}
 		<section class="items">
 			{#each items as item (item.key)}

@@ -3,17 +3,6 @@
 	import { Icon } from '$lib/macro';
 	import { onMount } from 'svelte';
 
-	let media;
-	const apply = () => {
-		document.documentElement.dataset.theme =
-			app.user.theme == 'system' ? (media.matches ? 'dark' : 'light') : app.user.theme;
-	};
-	onMount(() => {
-		media = window.matchMedia('(prefers-color-scheme: dark)');
-		media.addEventListener('change', apply);
-		return () => media.removeEventListener('change', apply);
-	});
-
 	const submit = async (theme) => {
 		app.user.theme = theme;
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/theme`, {

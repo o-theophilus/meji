@@ -38,7 +38,7 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<Content --content-padding-top="1px" --content-background-color="var(--bg2)">
+<Content --content-padding-top="1px">
 	<div class="line">
 		<RoundButton icon="arrow-left" href="/orders"></RoundButton>
 		<div class="page_title_block">
@@ -158,7 +158,7 @@
 	.card {
 		padding: 24px;
 		border-radius: 8px;
-		background-color: var(--bg1);
+		background-color: var(--bg);
 	}
 
 	.label {

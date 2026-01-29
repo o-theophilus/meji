@@ -68,7 +68,7 @@
 
 <style>
 	.one {
-		background-color: var(--bg1);
+		background-color: var(--bg);
 
 		border-radius: 8px;
 		margin: 8px 0;
@@ -89,7 +89,7 @@
 		gap: 16px;
 
 		padding: var(--sp2);
-		border-top: 2px solid var(--bg2);
+		border-top: 2px solid var(--bg1);
 	}
 
 	.comment_area {
