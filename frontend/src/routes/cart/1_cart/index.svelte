@@ -37,7 +37,7 @@
 					₦{ops.total_items().toLocaleString()}
 				</div>
 			</div>
-			<FoldButton open={ops.status == name} />
+			<FoldButton open={ops.status == name} onclick={() => {}} />
 		</div>
 	</div>
 </div>

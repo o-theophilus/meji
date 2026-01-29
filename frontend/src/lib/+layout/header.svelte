@@ -10,21 +10,27 @@
 	import User from './header.user.svelte';
 </script>
 
-<div class="block">
-	<a href="/">
-		<Icon icon="logo" size="32" />
-		Meji
-	</a>
-	<div class="line">
-		<Notification />
-		<Theme />
-		{#if app.login}
-			<User />
-		{/if}
+<section>
+	<div class="block">
+		<a href="/">
+			<Icon icon="logo" size="32" />
+			Meji
+		</a>
+		<div class="line">
+			<Notification />
+			<Theme />
+			{#if app.login}
+				<User />
+			{/if}
+		</div>
 	</div>
-</div>
+</section>
 
 <style>
+	section {
+		border-bottom: 1px solid var(--ol);
+	}
+
 	.block {
 		display: flex;
 		justify-content: space-between;
@@ -37,7 +43,6 @@
 		width: 100%;
 		margin: auto;
 		padding: 16px 24px;
-		border-bottom: 1px solid var(--ol);
 	}
 
 	a {

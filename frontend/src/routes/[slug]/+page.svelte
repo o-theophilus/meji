@@ -111,11 +111,17 @@
 			<Feedback {item} bind:this={comment} />
 		</div>
 	</div>
-</Content >
+</Content>
 
 <div class="floater">
 	<div class="floater_block">
-		<Button icon="cart" onclick={() => module.open(AddCart, item)}>Add to Chat</Button>
+		<Button
+			--button-background-color="var(--cl1)"
+			--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
+			--button-color="var(--ft1)"
+			icon="cart"
+			onclick={() => module.open(AddCart, item)}>Add to Chat</Button
+		>
 		<Button
 			icon="whatsapp"
 			href="https://api.whatsapp.com/send?phone=+2349113717298&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{page
@@ -131,7 +137,12 @@
 	</div>
 </div>
 
-<Content --content-height --content-padding-top="0" --content-padding-bottom="0" --content-background-color="var(--bg)">
+<Content
+	--content-height
+	--content-padding-top="0"
+	--content-padding-bottom="0"
+	--content-background-color="var(--bg)"
+>
 	<Similar key={item.key} bind:this={similar} {refresh} />
 	<ToTop />
 </Content>
@@ -156,7 +167,7 @@
 		bottom: var(--headerHeight);
 
 		background-color: var(--bg);
-		border-top: 1px solid var(--bg1);
+		border-top: 1px solid var(--ol);
 	}
 
 	.floater_block {
