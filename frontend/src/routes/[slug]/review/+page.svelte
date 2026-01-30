@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { module, page_state, app, scroll } from '$lib/store.svelte.js';
@@ -20,7 +21,7 @@
 	let ratings = $derived(data.ratings);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let search = $state({ order: 'most relevant ▼', page_no: 1 });
+	let searchParams = $state(data.searchParams);
 
 	const update = (a, b, c) => {
 		reviews = a;
@@ -29,15 +30,13 @@
 	};
 
 	onMount(() => {
-		if (page_state.searchParams.order) {
-			search.order = page_state.searchParams.order;
+		const sp = page_state.searchParams;
+		if (Object.keys(sp).length) {
+			replaceState(`?${new URLSearchParams(sp)}`);
+			for (const key of Object.keys(searchParams)) {
+				if (sp[key]) searchParams[key] = sp[key];
+			}
 		}
-		if (page_state.searchParams.page_no) {
-			search.page_no = page_state.searchParams.page_no;
-		}
-
-		page.url.search = new URLSearchParams(page_state.searchParams);
-		window.history.replaceState(history.state, '', page.url.href);
 	});
 
 	let tags = $state();
@@ -80,9 +79,9 @@
 			list={order_by}
 			icon="arrow-down-narrow-wide"
 			icon2="chevron-down"
-			bind:value={search.order}
+			bind:value={searchParams.order}
 			onchange={(v) => {
-				search.page_no = 1;
+				searchParams.page_no = 1;
 				v = v == 'most relevant ▼' ? '' : v;
 				page_state.set({ order: v });
 			}}
@@ -92,7 +91,7 @@
 			{#if app.login}
 				<Button
 					icon="message-circle-plus"
-					onclick={() => module.open(Add, { item, update, search })}
+					onclick={() => module.open(Add, { item, update, search: searchParams })}
 				>
 					Add review
 				</Button>
@@ -106,7 +105,7 @@
 <Content>
 	{#each reviews as review (review.key)}
 		<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {item} {review} {search} {update}></One>
+			<One {item} {review} search={searchParams} {update}></One>
 		</div>
 	{:else}
 		<PageNote>
@@ -117,7 +116,7 @@
 
 	<Pagination
 		{total_page}
-		bind:value={search.page_no}
+		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

@@ -53,7 +53,8 @@ def get_many(key, cur=None):
     """, (key, key))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "Invalid request"

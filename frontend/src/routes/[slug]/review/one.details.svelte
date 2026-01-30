@@ -77,6 +77,7 @@
 
 	.date {
 		line-height: 100%;
+		font-size: 0.7rem;
 	}
 
 	.rating {
@@ -92,8 +93,7 @@
 
 	.username,
 	.name,
-	.note,
-	.date {
+	.note {
 		font-size: 0.8rem;
 	}
 </style>

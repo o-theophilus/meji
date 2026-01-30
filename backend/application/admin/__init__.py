@@ -18,13 +18,15 @@ def perform_action(key):
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
-    user = session["user"]
+    me = session["user"]
 
     cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    e_user = cur.fetchone()
+    user = cur.fetchone()
     if (
-        not e_user or user["key"] == e_user["key"]
-        or e_user["email"] == os.environ["MAIL_USERNAME"]
+        not user
+        or user["key"] == me["key"]
+        or user["key"] != "active"
+        or user["email"] == os.environ["MAIL_USERNAME"]
     ):
         db_close(con, cur)
         return jsonify({
@@ -50,17 +52,17 @@ def perform_action(key):
     actions = []
     error = None
     if "reset_name" in _actions:
-        if "user:reset_name" in user["access"]:
+        if "user:reset_name" in me["access"]:
             actions.append("name")
         else:
             error = "unauthorized access"
     if "reset_username" in _actions:
-        if "user:reset_username" in user["access"]:
+        if "user:reset_username" in me["access"]:
             actions.append("username")
         else:
             error = "unauthorized access"
     if "reset_photo" in _actions:
-        if "user:reset_photo" in user["access"]:
+        if "user:reset_photo" in me["access"]:
             actions.append("photo")
         else:
             error = "unauthorized access"
@@ -79,19 +81,19 @@ def perform_action(key):
         UPDATE "user" SET name = %s, username = %s, photo = %s
         WHERE key = %s RETURNING *;
     """, (
-        f"user {_key[-8:]}" if "name" in actions else e_user["name"],
-        f"user_{_key[:8]}" if "username" in actions else e_user["username"],
-        None if "photo" in actions else e_user["photo"],
-        e_user["key"]
+        f"user {_key[-8:]}" if "name" in actions else user["name"],
+        f"user_{_key[:8]}" if "username" in actions else user["username"],
+        None if "photo" in actions else user["photo"],
+        user["key"]
     ))
-    e_user = cur.fetchone()
+    user = cur.fetchone()
 
     log(
         cur=cur,
-        user_key=user["key"],
+        user_key=me["key"],
         action="reset user details",
         entity_type="user",
-        entity_key=e_user["key"],
+        entity_key=user["key"],
         misc={
             "field(s)": ", ".join(actions),
             "note": note
@@ -101,14 +103,13 @@ def perform_action(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "user": user_schema(e_user)
+        "user": user_schema(user)
     })
 
 
 @bp.get("/admin/access")
 @bp.get("/admin/access/<search>")
 def get_access(search=None):
-    # UNUSED: do i really need this function?
     _all = [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
     if search:
         _all = [x for x in _all if x.find(search) != -1]
@@ -143,11 +144,11 @@ def set_access(key):
 
     if (
         not user
-        or me["key"] == user["key"]
         or not access
         or type(access) is not list
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        or user["key"] == me["key"]
         or user["status"] != "active"
+        or user["email"] == os.environ["MAIL_USERNAME"]
     ):
         db_close(con, cur)
         return jsonify({

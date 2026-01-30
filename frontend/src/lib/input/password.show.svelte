@@ -2,7 +2,7 @@
 	import { RoundButton } from '$lib/button';
 
 	let { show_password = $bindable() } = $props();
-	// FIXME: fix this now swapping
+	let icon = $derived(show_password ? 'eye' : 'eye-off');
 </script>
 
 <form onsubmit={(e) => e.preventDefault()}>

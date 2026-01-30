@@ -30,10 +30,10 @@
 	button {
 		display: flex;
 		align-items: center;
-		gap: var(--sp0);
+		gap: 4px;
 
 		height: var(--like-height, 48px);
-		padding: var(--sp0) var(--sp2);
+		padding: 4px 16px;
 		font-size: 0.7rem;
 
 		color: var(--like-color, var(--ft2));
@@ -44,9 +44,9 @@
 		cursor: pointer;
 
 		transition:
-			background-color var(--trans),
-			outline-color var(--trans),
-			color var(--trans);
+			background-color 0.2s ease-in-out,
+			outline-color 0.2s ease-in-out,
+			color 0.2s ease-in-out;
 	}
 	.like {
 		border-radius: var(--like-height, 48px) 0 0 var(--like-height, 48px);

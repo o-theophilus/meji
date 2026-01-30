@@ -23,10 +23,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: var(--sp2);
+		gap: 16px;
 
-		padding: var(--sp3);
-		padding-top: calc(var(--sp3) * 2);
+		padding: 24px;
+		padding-top: calc(24px * 2);
 
 		font-weight: 700;
 		color: var(--ac2);

@@ -6,7 +6,7 @@
 	import { Button } from '$lib/button';
 	import { Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
-	import Item from './item.svelte';
+	import Item from '../shop/item.svelte';
 
 	let width = $state();
 	let open = $state(true);
@@ -24,7 +24,6 @@
 	});
 </script>
 
-<!-- TODO: move this item_group component to home -->
 <svelte:window bind:innerWidth={width} />
 
 {#if items.length > 0}

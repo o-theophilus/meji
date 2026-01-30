@@ -136,22 +136,22 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: var(--sp1);
+		gap: 8px;
 		flex-wrap: wrap;
-		margin-top: var(--sp2);
+		margin-top: 16px;
 	}
 
 	img {
 		width: var(--size);
 		height: var(--size);
-		border-radius: var(--sp0);
+		border-radius: 4px;
 		cursor: pointer;
 
 		background-color: var(--bg1);
 		outline: 2px solid transparent;
 		transition:
-			outline-color var(--trans),
-			transform var(--trans);
+			outline-color 0.2s ease-in-out,
+			transform 0.2s ease-in-out;
 	}
 
 	img:hover {

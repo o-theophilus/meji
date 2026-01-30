@@ -103,12 +103,12 @@
 	img {
 		width: 100%;
 		aspect-ratio: var(--ar);
-		border-radius: var(--sp1);
+		border-radius: 8px;
 		outline: 2px solid transparent;
 		object-fit: cover;
 		cursor: pointer;
 
-		transition: outline-color var(--trans);
+		transition: outline-color 0.2s ease-in-out;
 	}
 
 	.dragover,

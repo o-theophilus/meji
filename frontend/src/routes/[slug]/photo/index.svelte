@@ -52,14 +52,14 @@
 		display: block;
 
 		width: 100%;
-		border-radius: var(--sp1);
+		border-radius: 8px;
 
 		background-color: var(--bg1);
 	}
 	.edit {
 		position: absolute;
-		bottom: var(--sp1);
-		left: var(--sp1);
+		bottom: 8px;
+		left: 8px;
 	}
 
 	.line {
@@ -68,22 +68,22 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: var(--sp1);
+		gap: 8px;
 		flex-wrap: wrap;
-		margin-top: var(--sp2);
+		margin-top: 16px;
 	}
 
 	.line img {
 		width: var(--size);
 		height: var(--size);
-		border-radius: var(--sp0);
+		border-radius: 4px;
 		cursor: pointer;
 
 		background-color: var(--bg1);
 		outline: 2px solid transparent;
 		transition:
-			outline-color var(--trans),
-			transform var(--trans);
+			outline-color 0.2s ease-in-out,
+			transform 0.2s ease-in-out;
 	}
 
 	.line img:hover {

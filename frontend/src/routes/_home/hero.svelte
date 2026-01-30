@@ -76,7 +76,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: var(--sp3);
+		gap: 24px;
 
 		width: min(100%, 1000px);
 
@@ -91,7 +91,7 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		gap: var(--sp1);
+		gap: 8px;
 
 		width: 100%;
 		max-width: 300px;

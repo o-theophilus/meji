@@ -36,7 +36,7 @@
 		display: flex;
 		flex-direction: column;
 		background-color: var(--bg);
-		border-radius: var(--sp0);
+		border-radius: 4px;
 
 		outline: 2px solid var(--bg1);
 	}
@@ -51,8 +51,8 @@
 		border-bottom: 1px solid var(--bg1);
 
 		transition:
-			color var(--trans),
-			background-color var(--trans);
+			color 0.2s ease-in-out,
+			background-color 0.2s ease-in-out;
 	}
 
 	a:hover {

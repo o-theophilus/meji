@@ -40,8 +40,8 @@
 		fill: var(--ft2);
 
 		transition:
-			background-color var(--trans),
-			fill var(--trans);
+			background-color 0.2s ease-in-out,
+			fill 0.2s ease-in-out;
 	}
 
 	a:hover {

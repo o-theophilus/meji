@@ -107,8 +107,8 @@ def get_many():
         'cost_delivery ▲': 'cost_delivery',
         'pay_user ▼': 'pay_user',
         'pay_user ▲': 'pay_user',
-        'delivery_date ▼': 'delivery_date',
-        'delivery_date ▲': 'delivery_date',
+        'delivery_date ▼': "timeline->>'delivery_date'",
+        'delivery_date ▲': "timeline->>'delivery_date'",
     }
     order_dir = {
         'latest': 'DESC',

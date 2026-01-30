@@ -108,12 +108,14 @@ def copy_like_n_cart(cur, in_key, out_key):
 
 def user_like(cur, user_key):
     cur.execute("""
-        SELECT item_key FROM "like"
+        SELECT "like".item_key
+        FROM "like"
+        LEFT JOIN item ON "like".item_key = item.key
         WHERE
-            user_key = %s
-            AND item_key IS NOT NULL
-            AND reaction = 'like';
-    """, (user_key,))
+            "like".user_key = %s
+            AND "like".item_key IS NOT NULL
+            AND item.status = 'active'
+    ;""", (user_key,))
     likes = cur.fetchall()
     return [x["item_key"] for x in likes]
 
@@ -250,6 +252,7 @@ def signup():
         cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
         email_user = cur.fetchone()
         # PORTFOLIO: fix this on portfolio : != "signedup"
+        # PORTFOLIO: test unblocking user"
         if email_user and email_user["status"] != "signedup":
             error["email"] = "Email already in use"
 

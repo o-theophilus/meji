@@ -22,21 +22,6 @@
 	let { data } = $props();
 	let user = $derived(data.user);
 	let edit_mode = $state(false);
-	let blocked = $state(true);
-
-	onMount(async () => {
-		if (app.user.access.includes('block:block')) {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blocked/${user.key}`);
-			resp = await resp.json();
-
-			if (resp.status == 200) {
-				blocked = resp.blocked;
-			}
-		}
-	});
-	const udate_blocked = () => {
-		blocked = true;
-	};
 
 	const update = (data) => {
 		user = data;
@@ -53,7 +38,7 @@
 <Content --content-background-color="var(--bg)">
 	<div class="line">
 		<div class="page_title">Profile</div>
-		{#if app.login && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'block:block', 'block:unblock'].includes(x) ))}
+		{#if app.login && user.status == 'active' && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'block:block', 'block:unblock'].includes(x) ))}
 			<Toggle
 				state_2="edit"
 				active={edit_mode}
@@ -150,10 +135,10 @@
 				{#if app.user.access.includes('block:block')}
 					<Button
 						icon="lock-keyhole"
-						disabled={blocked}
-						onclick={() => module.open(Block, { key: user.key, update: udate_blocked })}
+						disabled={user.blocked}
+						onclick={() => module.open(Block, { user, update })}
 					>
-						Block{#if blocked}ed{/if}
+						Block{#if user.blocked}ed{/if}
 					</Button>
 				{/if}
 			{/if}
@@ -190,6 +175,6 @@
 
 	.pad,
 	hr {
-		margin: var(--sp2) 0;
+		margin: 16px 0;
 	}
 </style>

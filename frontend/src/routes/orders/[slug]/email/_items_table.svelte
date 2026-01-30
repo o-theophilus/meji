@@ -1,5 +1,5 @@
 <script>
-	import Value from '../../../[slug]/variation/value.svelte';
+	import Value from '../../../cart/1_cart/variation_value.svelte';
 	let { items = [] } = $props();
 </script>
 
@@ -9,7 +9,7 @@
 <br />
 <br />
 
-<div style="display: grid; gap: var(--sp1) var(--sp1); grid-template-columns: auto 1fr auto auto;">
+<div style="display: grid; gap: 8px 8px; grid-template-columns: auto 1fr auto auto;">
 	<div style="text-align: center; font-size: 0.8rem;">s/n</div>
 	<div style="text-align: left; font-size: 0.8rem;">Name</div>
 	<div style="text-align: center; font-size: 0.8rem;">Price</div>
@@ -26,9 +26,8 @@
 			{#if Object.keys(item.variation).length > 0}
 				-
 				{#each Object.entries(item.variation) as [key, value], i}
-					{#if i != 0},&nbsp;{/if}
-					{key}: <Value {value} small></Value>
-					<!-- TODO: convert this value component to inline style -->
+					{#if i != 0},{/if}
+					{key}: <Value {value}></Value>
 				{/each}
 			{/if}
 		</span>

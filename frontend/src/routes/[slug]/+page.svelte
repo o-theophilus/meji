@@ -115,13 +115,29 @@
 
 <div class="floater">
 	<div class="floater_block">
-		<Button
-			--button-background-color="var(--cl1)"
-			--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
-			--button-color="var(--ft1)"
-			icon="cart"
-			onclick={() => module.open(AddCart, item)}>Add to Chat</Button
-		>
+		{#if item.status == 'active' && item.quantity > 0}
+			<Button
+				--button-background-color="var(--cl1)"
+				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
+				--button-color="hsl(0, 0%, 95%)"
+				--button-color-hover="hsl(0, 0%, 95%)"
+				icon="cart"
+				onclick={() => module.open(AddCart, item)}>Add to Chat</Button
+			>
+		{:else}
+			<Button
+				--button-background-color="color-mix(in srgb, red, transparent 80%)"
+				--button-outline-color="red"
+				--button-color="hsl(0, 0%, 95%)"
+			>
+				{#if item.status != 'active'}
+					Unavailable
+				{:else if item.quantity == 0}
+					Out of stock
+				{/if}
+			</Button>
+		{/if}
+
 		<Button
 			icon="whatsapp"
 			href="https://api.whatsapp.com/send?phone=+2349113717298&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{page
@@ -151,10 +167,10 @@
 	.photo_info {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp3);
+		gap: 24px;
 	}
 	.info {
-		margin-top: var(--sp3);
+		margin-top: 24px;
 	}
 
 	.photo,
@@ -188,7 +204,7 @@
 
 		.photo {
 			position: sticky;
-			top: var(--sp2);
+			top: 16px;
 
 			align-self: flex-start;
 		}

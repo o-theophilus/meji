@@ -151,11 +151,11 @@
 <style>
 	img {
 		width: 100%;
-		border-radius: var(--sp1);
+		border-radius: 8px;
 		outline: 2px solid transparent;
 		transition:
-			outline-color var(--trans),
-			transform var(--trans);
+			outline-color 0.2s ease-in-out,
+			transform 0.2s ease-in-out;
 	}
 	img.no_photo:hover,
 	.dragover.no_photo {

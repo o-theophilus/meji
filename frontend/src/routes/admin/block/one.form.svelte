@@ -7,7 +7,7 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 
-	let form = $state({ comment: '', blocked: false });
+	let form = $state({ comment: '' });
 	let error = $state({});
 
 	const validate = () => {
@@ -26,19 +26,22 @@
 		error = {};
 
 		loading.open('Unblocking User . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/block/${module.value.key}`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/block/${module.value.user.key}?${new URLSearchParams(module.value.searchParams).toString()}`,
+			{
+				method: 'delete',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify(form)
+			}
+		);
 		resp = await resp.json();
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(module.value.key);
+			module.value.update(resp.blocks);
 			notify.open('User Unblocked');
 			module.close();
 		} else {

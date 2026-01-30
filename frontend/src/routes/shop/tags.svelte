@@ -165,7 +165,7 @@
 		padding: 0 8px;
 
 		background-color: var(--bg);
-		border-radius: var(--sp0);
+		border-radius: 4px;
 		outline: 2px solid var(--bg1);
 	}
 
@@ -211,7 +211,7 @@
 		background-color: var(--input);
 		cursor: pointer;
 
-		transition: background-color var(--trans);
+		transition: background-color 0.2s ease-in-out;
 	}
 
 	.checkbox:hover {
@@ -230,7 +230,7 @@
 		justify-content: center;
 		color: transparent;
 
-		transition: color var(--trans);
+		transition: color 0.2s ease-in-out;
 	}
 	.active .icon {
 		color: white;

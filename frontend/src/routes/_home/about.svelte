@@ -1,5 +1,4 @@
 <script>
-	import { Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 </script>
 

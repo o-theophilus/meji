@@ -94,8 +94,8 @@
 		cursor: pointer;
 
 		transition:
-			color var(--trans),
-			background-color var(--trans);
+			color 0.2s ease-in-out,
+			background-color 0.2s ease-in-out;
 	}
 
 	button:hover {
@@ -128,7 +128,7 @@
 
 		width: 200px;
 		background-color: var(--bg);
-		border-radius: var(--sp0);
+		border-radius: 4px;
 
 		outline: 2px solid var(--bg1);
 	}
@@ -144,7 +144,7 @@
 		text-decoration: none;
 		color: var(--ft1);
 
-		transition: background-color var(--trans);
+		transition: background-color 0.2s ease-in-out;
 	}
 	a:hover {
 		background-color: var(--bg1);

@@ -35,7 +35,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: var(--sp2);
+		gap: 16px;
 		flex-wrap: wrap;
 
 		min-height: var(--headerHeight);
@@ -48,14 +48,14 @@
 	a {
 		display: flex;
 		align-items: center;
-		gap: var(--sp1);
+		gap: 8px;
 
 		color: var(--ft1);
 		fill: var(--cl1);
 		font-weight: 800;
 		text-decoration: none;
 
-		transition: color var(--trans);
+		transition: color 0.2s ease-in-out;
 	}
 
 	.line {

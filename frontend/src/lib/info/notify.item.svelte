@@ -100,8 +100,8 @@
 		color: var(--ft2);
 
 		transition:
-			background-color var(--trans),
-			color var(--trans);
+			background-color 0.2s ease-in-out,
+			color 0.2s ease-in-out;
 	}
 	button:hover {
 		background-color: red;

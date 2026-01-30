@@ -24,9 +24,7 @@ def add_to_cart():
     variation = request.json.get("variation", {})
     operation = request.json.get("operation", "replace")
 
-    cur.execute("""
-        SELECT * FROM item WHERE key = %s AND status = 'active'
-    ;""", (item_key,))
+    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
     item = cur.fetchone()
 
     if (
@@ -41,6 +39,17 @@ def add_to_cart():
         })
 
     error = {}
+    if item["status"] != "active":
+        error["error"] = "This item is not currently available"
+    elif item["quantity"] == 0:
+        error["error"] = "Sorry, this item is currently out of stock"
+    if error != {}:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
     if not isinstance(quantity, int) or quantity < 1:
         error["quantity"] = "Please enter a valid number"
     elif quantity > item["quantity"]:

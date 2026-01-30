@@ -7,17 +7,21 @@ bp = Blueprint("block_get", __name__)
 
 
 @bp.get("/blocks")
-def get_many():
-    con, cur = db_open()
+def get_many(cur=None):
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
 
     session = get_session(cur, True)
     if session["status"] != 200:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify(session)
     user = session["user"]
 
     if "block:view" not in user["access"]:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
@@ -81,9 +85,9 @@ def get_many():
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
-    items = cur.fetchall()
+    blocks = cur.fetchall()
 
-    for x in items:
+    for x in blocks:
         x["admin"]["photo"] = (
             f"{request.host_url}file/{x['admin']['photo']}"
             if x["admin"]["photo"] else None
@@ -93,25 +97,12 @@ def get_many():
             if x["user"]["photo"] else None
         )
 
-    db_close(con, cur)
+    if close_conn:
+        db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": items,
-        "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
+        "blocks": blocks,
+        "total_page": ceil(blocks[0]["_count"] / page_size) if blocks else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-    })
-
-
-@bp.get("/blocked/<key>")
-def ckeck(key):
-    con, cur = db_open()
-
-    cur.execute("SELECT * FROM block WHERE user_key = %s;", (key,))
-    blocked = cur.fetchone()
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "blocked":  True if blocked else False
     })

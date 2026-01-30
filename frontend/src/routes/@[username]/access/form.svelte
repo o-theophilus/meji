@@ -73,16 +73,16 @@
 
 <style>
 	section {
-		padding: var(--sp3);
+		padding: 24px;
 	}
 
 	.type {
 		display: flex;
 		align-items: center;
-		gap: var(--sp2);
+		gap: 16px;
 		justify-content: space-between;
 
-		padding: var(--sp1) 0;
+		padding: 8px 0;
 		cursor: pointer;
 		text-transform: capitalize;
 		font-weight: 900;
@@ -91,22 +91,22 @@
 	.content {
 		border: 0 solid var(--bg1);
 		border-width: 1px 0;
-		padding-bottom: var(--sp1);
+		padding-bottom: 8px;
 	}
 
 	.sub_type {
 		font-weight: 900;
 		font-size: 0.8rem;
-		margin: var(--sp1) 0;
+		margin: 8px 0;
 	}
 
 	.access_area {
 		display: flex;
 		align-items: center;
-		gap: var(--sp0);
+		gap: 4px;
 		flex-wrap: wrap;
 
-		margin: var(--sp0) 0;
+		margin: 4px 0;
 	}
 
 	.line {

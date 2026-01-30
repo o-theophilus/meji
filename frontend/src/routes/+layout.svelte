@@ -1,5 +1,4 @@
 <script>
-	import './_layout/var.css';
 	import './_layout/main.css';
 	import { app } from '$lib/store.svelte.js';
 	import { Header, Nav, Footer, Module, Loading } from './_layout/index.js';
@@ -35,8 +34,8 @@
 		background-color: var(--bg);
 		color: var(--ft2);
 		transition:
-			background-color var(--trans),
-			color var(--trans);
+			background-color 0.2s ease-in-out,
+			color 0.2s ease-in-out;
 	}
 
 	.nav {

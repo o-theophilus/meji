@@ -33,12 +33,12 @@
 <style>
 	.details {
 		display: grid;
-		gap: var(--sp1) var(--sp2);
+		gap: 8px 16px;
 		grid-template-columns: 1fr auto;
 
 		background-color: var(--bg2);
-		padding: var(--sp2);
-		border-radius: var(--sp1);
+		padding: 16px;
+		border-radius: 8px;
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 

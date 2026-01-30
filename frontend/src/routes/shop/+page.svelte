@@ -5,14 +5,12 @@
 	import { module, app, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-
 	import { Content } from '$lib/layout';
 	import { Button, Radio } from '$lib/button';
 	import { Dropdown, Search, Pagination } from '$lib/input';
 	import { PageNote } from '$lib/info';
 	import { Meta, Icon, Log } from '$lib/macro';
 	import Item from './item.svelte';
-
 	import Add from './_add.svelte';
 	import Tags from './tags.svelte';
 	import FilterNote from './filter_note.svelte';
@@ -20,7 +18,6 @@
 	let { data } = $props();
 	let items = $derived(data.items);
 	let total_page = $derived(data.total_page);
-	// TODO get from backend
 	// PORTFOLIO update on portfolio website
 	let searchParams = $state(data.searchParams);
 	let { order_by } = data;
@@ -31,7 +28,6 @@
 		total_page = b;
 	};
 
-	// TODO update this across where necessary
 	// PORTFOLIO update on portfolio website
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -61,7 +57,7 @@
 					--button-outline-color-hover="var(--ft1)"
 					list={_status}
 					bind:value={searchParams.status}
-					ondone={(v) => {
+					onclick={(v) => {
 						searchParams.page_no = 1;
 						v = v == 'active' ? '' : v;
 						page_state.set({ status: v });
@@ -158,7 +154,7 @@
 		flex-wrap: wrap;
 		gap: 16px;
 
-		margin: var(--sp2) 0;
+		margin: 16px 0;
 	}
 
 	@media screen and (min-width: 580px) {

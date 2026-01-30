@@ -21,8 +21,8 @@
 	a {
 		display: block;
 
-		margin: var(--sp1) 0;
-		padding: var(--sp2);
+		margin: 8px 0;
+		padding: 16px;
 		border-radius: 8px;
 
 		background-color: var(--bg);
@@ -31,7 +31,7 @@
 		outline: 2px solid transparent;
 		outline-offset: -2px;
 
-		transition: outline-color var(--trans);
+		transition: outline-color 0.2s ease-in-out;
 	}
 	a:hover {
 		outline-color: var(--ft2);

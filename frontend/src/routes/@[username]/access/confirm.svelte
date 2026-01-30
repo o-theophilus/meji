@@ -24,14 +24,17 @@
 		error = {};
 
 		loading.open('saving . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/access/${module.value.user.key}`, {
-			method: 'put',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/admin/access/${module.value.user.key}`,
+			{
+				method: 'put',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify(form)
+			}
+		);
 		resp = await resp.json();
 		loading.close();
 
@@ -74,6 +77,6 @@
 	.line {
 		display: flex;
 		align-items: center;
-		gap: var(--sp1);
+		gap: 8px;
 	}
 </style>

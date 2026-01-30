@@ -30,7 +30,7 @@
 <style>
 	span {
 		display: flex;
-		gap: var(--sp1);
+		gap: 8px;
 		align-items: center;
 	}
 </style>

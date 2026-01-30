@@ -42,7 +42,7 @@
 		position: fixed;
 		inset: 0;
 
-		padding: var(--sp4) var(--sp3);
+		padding: 64px 24px;
 		overflow-y: auto;
 
 		background-color: var(--overlay);
@@ -61,7 +61,7 @@
 	.content {
 		background-color: var(--bg);
 		box-shadow: 0 0 10px 0 var(--input);
-		border-radius: var(--sp1);
+		border-radius: 8px;
 
 		overflow: hidden;
 	}

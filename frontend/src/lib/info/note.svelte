@@ -33,7 +33,7 @@
 
 <style>
 	.block {
-		padding: var(--sp2);
+		padding: 16px;
 		margin-top: var(--note-margin-top, 0);
 		margin-bottom: var(--note-margin-bottom, 16px);
 		max-width: var(--note-width, 100%);
@@ -41,7 +41,7 @@
 		background-color: color-mix(in srgb, var(--bg2), transparent 70%);
 		outline: 1px solid color-mix(in srgb, var(--ft2), transparent 70%);
 		outline-offset: -1px;
-		border-radius: var(--sp0);
+		border-radius: 4px;
 		font-size: 0.8rem;
 	}
 

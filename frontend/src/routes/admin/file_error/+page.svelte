@@ -275,7 +275,7 @@
 	.photo_area {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--sp1);
+		gap: 8px;
 	}
 	img {
 		width: 100px;

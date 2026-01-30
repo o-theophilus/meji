@@ -20,21 +20,29 @@
 {#if href}
 	<a {href} class:caps {onmouseenter} title={tooltip} tabindex={null} {target}>
 		{#if icon}
-			<Icon {icon} size={icon_size}></Icon>
+			{#key icon}
+				<Icon {icon} size={icon_size}></Icon>
+			{/key}
 		{/if}
 		{@render children?.()}
 		{#if icon2}
-			<Icon icon={icon2} size={icon_size}></Icon>
+			{#key icon2}
+				<Icon icon={icon2} size={icon_size}></Icon>
+			{/key}
 		{/if}
 	</a>
 {:else if onclick}
 	<button {onclick} class:caps {disabled} {onmouseenter} title={tooltip} {tabindex}>
 		{#if icon}
-			<Icon {icon} size={icon_size}></Icon>
+			{#key icon}
+				<Icon {icon} size={icon_size}></Icon>
+			{/key}
 		{/if}
 		{@render children?.()}
 		{#if icon2}
-			<Icon icon={icon2} size={icon_size}></Icon>
+			{#key icon2}
+				<Icon icon={icon2} size={icon_size}></Icon>
+			{/key}
 		{/if}
 	</button>
 {:else}

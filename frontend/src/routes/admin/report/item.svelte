@@ -111,7 +111,7 @@
 	.user {
 		display: flex;
 		gap: 16px;
-		padding: var(--sp2);
+		padding: 16px;
 		align-items: flex-start;
 	}
 	.right {
@@ -122,7 +122,7 @@
 		display: flex;
 		gap: 16px;
 
-		padding: var(--sp2);
+		padding: 16px;
 		border-top: 2px solid var(--bg1);
 	}
 

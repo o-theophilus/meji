@@ -49,8 +49,13 @@ def like_item(key):
     )
 
     cur.execute("""
-        SELECT item_key FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL
+        SELECT "like".item_key
+        FROM "like"
+        LEFT JOIN item ON "like".item_key = item.key
+        WHERE
+            "like".user_key = %s
+            AND "like".item_key IS NOT NULL
+            AND item.status = 'active'
     ;""", (user["key"],))
     likes = cur.fetchall()
 

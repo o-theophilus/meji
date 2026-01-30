@@ -39,9 +39,9 @@
 	.btns {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp1);
+		gap: 8px;
 
-		margin: var(--sp2) 0;
+		margin: 16px 0;
 		max-width: 400px;
 	}
 </style>

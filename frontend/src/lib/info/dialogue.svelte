@@ -43,10 +43,10 @@
 	.title {
 		display: flex;
 		align-items: center;
-		gap: var(--sp2);
+		gap: 16px;
 
-		padding: var(--sp2);
-		padding-right: var(--sp4);
+		padding: 16px;
+		padding-right: 64px;
 
 		color: white;
 		fill: currentColor;
@@ -66,8 +66,8 @@
 
 	.text,
 	.btn {
-		padding: 0 var(--sp2);
-		margin: var(--sp2) 0;
+		padding: 0 16px;
+		margin: 16px 0;
 	}
 
 	.text:first-letter {

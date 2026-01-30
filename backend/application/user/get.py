@@ -17,7 +17,13 @@ def get(key):
         return jsonify(session)
 
     cur.execute("""
-        SELECT * FROM "user" WHERE key::TEXT = %s OR username = %s;
+        SELECT
+            "user".*,
+            CASE WHEN block.user_key IS NOT NULL
+                THEN true ELSE false END AS blocked
+        FROM "user"
+        LEFT JOIN block ON "user".key = block.user_key
+        WHERE "user".key::TEXT = %s OR "user".username = %s;
     """, (key, key))
     user = cur.fetchone()
 
@@ -88,13 +94,18 @@ def get_many():
     }
 
     cur.execute(f"""
-        SELECT *, COUNT(*) OVER() AS _count
+        SELECT
+            "user".*,
+            CASE WHEN block.user_key IS NOT NULL
+                THEN true ELSE false END AS blocked,
+            COUNT(*) OVER() AS _count
         FROM "user"
+        LEFT JOIN block ON "user".key = block.user_key
         WHERE (
-                %s = 'all' OR status = %s
+                %s = 'all' OR "user".status = %s
             ) AND (
                 %s = ''
-                OR CONCAT_WS(', ', key, name, email
+                OR CONCAT_WS(', ', "user".key, "user".name, "user".email
             ) ILIKE %s
         )
         ORDER BY {order_by[order]} {order_dir[order]}
@@ -151,10 +162,10 @@ def get_admins():
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created',
-        'name (a-z)': 'name',
-        'name (z-a)': 'name'
+        'latest': '"user".date_created',
+        'oldest': '"user".date_created',
+        'name (a-z)': '"user".name',
+        'name (z-a)': '"user".name'
     }
     order_dir = {
         'latest': 'DESC',
@@ -164,16 +175,19 @@ def get_admins():
     }
 
     cur.execute(f"""
-        SELECT *, COUNT(*) OVER() AS _count
+        SELECT
+            "user".*,
+            CASE WHEN block.user_key IS NOT NULL
+                THEN true ELSE false END AS blocked,
+            COUNT(*) OVER() AS _count
         FROM "user"
+        LEFT JOIN block ON "user".key = block.user_key
         WHERE
-            array_length(access, 1) IS NOT NULL
-            AND (%s = '' OR CONCAT_WS(', ', key, name, email)
-                ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(access, ',')
-                ILIKE %s)
-            AND (%s = 'all' OR ARRAY_TO_STRING(access, ',')
-                ILIKE %s)
+            array_length("user".access, 1) IS NOT NULL
+            AND (%s = '' OR CONCAT_WS(
+                ', ', "user".key, "user".name, "user".email) ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".access, ',') ILIKE %s)
+            AND (%s = 'all' OR ARRAY_TO_STRING("user".access, ',') ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
     """, (

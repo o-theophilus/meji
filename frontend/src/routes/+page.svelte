@@ -3,13 +3,12 @@
 	import { onMount } from 'svelte';
 	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { Hero, Tags, About } from './_home';
+	import { Hero, Tags, ItemGroup, About, FAQ } from './_home';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
 	import { Content } from '$lib/layout';
 	import { LinkArrow } from '$lib/button';
-	import ItemGroup from './shop/item_group.svelte';
 
 	let { data } = $props();
 	let new_arrivals = $derived(data.new_arrivals);
@@ -77,6 +76,7 @@
 		{/snippet}
 	</ItemGroup>
 	<About></About>
+	<FAQ></FAQ>
 </Content>
 
 <style>

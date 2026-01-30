@@ -11,7 +11,12 @@
 	<hr />
 {/if}
 
-<Content --content-height="100%" --content-padding-top="56px" --content-padding-bottom="56px" --content-background-color="var(--bg)">
+<Content
+	--content-height="100%"
+	--content-padding-top="56px"
+	--content-padding-bottom="56px"
+	--content-background-color="var(--bg)"
+>
 	<footer id="footer">
 		<Nav />
 		<br />
@@ -27,7 +32,7 @@
 		align-items: center;
 	}
 	.copyright {
-		margin-top: var(--sp5);
+		margin-top: 80px;
 		font-size: 0.8rem;
 		text-align: center;
 	}

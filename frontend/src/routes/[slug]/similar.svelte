@@ -57,8 +57,7 @@
 						}}
 						onmouseenter={() => prerender(item)}
 					>
-						<Avatar size="58" photo={item.photo} no_photo="/no_photo.png" name={item.name}
-						></Avatar>
+						<Avatar size="58" photo={item.photo} no_photo="/no_photo.png" name={item.name}></Avatar>
 					</a>
 					<div class="details">
 						<a
@@ -94,13 +93,13 @@
 
 	.area {
 		display: grid;
-		gap: var(--sp3);
+		gap: 24px;
 		margin: 48px 0;
 	}
 
 	.post {
 		display: flex;
-		gap: var(--sp2);
+		gap: 16px;
 	}
 
 	.link {
@@ -108,7 +107,7 @@
 		color: var(--ft1);
 		font-weight: 700;
 
-		transition: color var(--trans);
+		transition: color 0.2s ease-in-out;
 	}
 
 	.link:hover {

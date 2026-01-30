@@ -26,7 +26,7 @@
 		flex-wrap: wrap;
 
 		align-items: center;
-		gap: var(--sp2);
+		gap: 16px;
 	}
 	.price {
 		font-weight: 700;

@@ -26,7 +26,7 @@
 		error = {};
 
 		loading.open('Blocking User . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/block/${module.value.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/block/${module.value.user.key}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -39,7 +39,7 @@
 
 		if (resp.status == 200) {
 			notify.open('User Blocked');
-			module.value.update();
+			module.value.update(resp.user);
 			page_state.clear('block');
 			module.close();
 		} else {

@@ -84,7 +84,8 @@ def order_check():
         # FIXME: HOW ABOUT IF ITEM IS DELETED?
         if (
             x["status"] != 'active'
-            or x["quantity"] == 0 or x["quantity"] > x["available_quantity"]
+            or x["quantity"] == 0
+            or x["quantity"] > x["available_quantity"]
         ):
             return jsonify({
                 "status": 400,

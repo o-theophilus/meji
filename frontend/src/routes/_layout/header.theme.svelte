@@ -75,8 +75,8 @@
 		cursor: pointer;
 
 		transition:
-			color var(--trans),
-			background-color var(--trans);
+			color 0.2s ease-in-out,
+			background-color 0.2s ease-in-out;
 	}
 
 	button:hover {
@@ -87,7 +87,7 @@
 	.switch {
 		position: absolute;
 		top: 0;
-		transition: top var(--trans);
+		transition: top 0.2s ease-in-out;
 	}
 
 	.light {

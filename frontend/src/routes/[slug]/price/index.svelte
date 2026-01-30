@@ -52,6 +52,6 @@
 
 <style>
 	.comp {
-		margin-top: var(--sp3);
+		margin-top: 24px;
 	}
 </style>

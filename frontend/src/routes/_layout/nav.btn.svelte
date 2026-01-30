@@ -34,7 +34,7 @@
 
 		text-decoration: none;
 
-		transition: background-color var(--trans);
+		transition: background-color 0.2s ease-in-out;
 	}
 
 	a:hover,
@@ -57,9 +57,9 @@
 		line-height: 100%;
 
 		transition:
-			color var(--trans),
-			fill var(--trans),
-			font-weight var(--trans);
+			color 0.2s ease-in-out,
+			fill 0.2s ease-in-out,
+			font-weight 0.2s ease-in-out;
 	}
 
 	.active .block {

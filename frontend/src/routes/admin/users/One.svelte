@@ -1,27 +1,33 @@
 <script>
 	import { Avatar } from '$lib/macro';
-	let { item } = $props();
+	import { Tag } from '$lib/button';
+	let { user, all = false } = $props();
 </script>
 
-<!-- TODO: indicate blocked user -->
-<a href="/@{item.username}">
-	<Avatar name={item.name} photo={item.photo} --avatar-border-radius="50%" />
+<a href="/@{user.username}">
+	<Avatar name={user.name} photo={user.photo} --avatar-border-radius="50%" />
 	<div class="details">
 		<div class="name">
-			{item.name}
+			{user.name}
 		</div>
 
 		<span class="username">
-			@{item.username}
+			@{user.username}
 		</span>
 	</div>
+
+	{#if user.blocked}
+		<Tag>Blocked</Tag>
+	{:else if all}
+		<Tag>{user.status}</Tag>
+	{/if}
 </a>
 
 <style>
 	a {
 		display: flex;
 		align-items: center;
-		gap: var(--sp2);
+		gap: 16px;
 
 		margin-top: 8px;
 		padding: 16px;
@@ -43,18 +49,17 @@
 		& .details {
 			width: 100%;
 			line-height: 100%;
+
 			& .name {
 				font-weight: 700;
 				color: var(--ft1);
 			}
+
 			& .username {
 				font-size: 0.7em;
 			}
 		}
-	}
 
-	span {
-		word-wrap: break-word;
-		word-break: break-all;
+		--tag-font-size: 0.7rem;
 	}
 </style>

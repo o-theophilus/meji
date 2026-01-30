@@ -116,6 +116,7 @@ def get_many():
         "order_by": list(order_by.keys()),
         "_type": ["user", "comment"],
         "_status": ["unresolved", "resolved"],
+        "searchParams": searchParams,
         "total_page": ceil(items[0]["_count"] / page_size
                            ) if items else 0
     })

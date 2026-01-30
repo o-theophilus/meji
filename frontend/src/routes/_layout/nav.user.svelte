@@ -47,11 +47,11 @@
 		line-height: 100%;
 
 		transition:
-			border-color var(--trans),
-			color var(--trans),
-			fill var(--trans),
-			font-weight var(--trans),
-			background-color var(--trans);
+			border-color 0.2s ease-in-out,
+			color 0.2s ease-in-out,
+			fill 0.2s ease-in-out,
+			font-weight 0.2s ease-in-out,
+			background-color 0.2s ease-in-out;
 	}
 
 	a:hover,

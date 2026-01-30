@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { flip } from 'svelte/animate';
@@ -10,60 +11,44 @@
 	import { Pagination, Dropdown, Search } from '$lib/input';
 	import { Meta, Log, Icon, Datetime } from '$lib/macro';
 	import { PageNote } from '$lib/info';
-	import Item from './item.svelte';
+	import One from './one.svelte';
 
 	let { data } = $props();
-	let items = $derived(data.items);
-
+	let blocks = $derived(data.blocks);
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
-	let search = $state({
-		search: '',
-		order: 'latest',
-		page_no: 1
-	});
+	let searchParams = $state(data.searchParams);
 
 	onMount(() => {
-		if (page_state.searchParams.search) {
-			search.search = page_state.searchParams.search;
+		const sp = page_state.searchParams;
+		if (Object.keys(sp).length) {
+			replaceState(`?${new URLSearchParams(sp)}`);
+			for (const key of Object.keys(searchParams)) {
+				if (sp[key]) searchParams[key] = sp[key];
+			}
 		}
-		if (page_state.searchParams.order) {
-			search.order = page_state.searchParams.order;
-		}
-		if (page_state.searchParams.page_no) {
-			search.page_no = page_state.searchParams.page_no;
-		}
-
-		page.url.search = new URLSearchParams(page_state.searchParams);
-		window.history.replaceState(history.state, '', page.url.href);
 	});
 
-	const update = (key) => {
-		let temp = [];
-		for (const x of items) {
-			if (x.user.key == key) continue;
-			temp.push(x);
-		}
-		items = temp;
-		page_state.refresh();
+	const update = (x) => {
+		blocks = x;
 	};
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Blocked User{items.length > 1 ? 's' : ''}" />
+<Meta title="Blocked User{blocks.length > 1 ? 's' : ''}" />
 
-<Content>
+<Content --content-height="auto">
 	<div class="line space">
 		<div class="line">
 			<BackButton />
 			<div class="page_title">
-				Blocked User{items.length > 1 ? 's' : ''}
+				Blocked User{blocks.length > 1 ? 's' : ''}
 			</div>
 		</div>
 	</div>
 
 	<Search
-		bind:value={search.search}
+		bind:value={searchParams.search}
 		ondone={(v) => {
 			page_state.set({ search: v });
 		}}
@@ -80,17 +65,19 @@
 		list={order_by}
 		icon="arrow-down-narrow-wide"
 		icon2="chevron-down"
-		bind:value={search.order}
+		bind:value={searchParams.order}
 		onchange={(v) => {
-			search.page_no = 1;
+			searchParams.page_no = 1;
 			v = v == 'latest' ? '' : v;
 			page_state.set({ order: v });
 		}}
 	/>
+</Content>
 
-	{#each items as item (item.key)}
+<Content --content-padding-top="1px">
+	{#each blocks as block (block.key)}
 		<div class="report" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} {update} />
+			<One {block} {update} {searchParams} />
 		</div>
 	{:else}
 		<PageNote>
@@ -101,7 +88,7 @@
 
 	<Pagination
 		{total_page}
-		bind:value={search.page_no}
+		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

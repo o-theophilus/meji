@@ -55,7 +55,7 @@
 		position: fixed;
 		inset: 0;
 
-		padding: var(--sp1);
+		padding: 8px;
 
 		background-color: var(--overlay);
 	}
@@ -72,12 +72,12 @@
 		height: var(--size);
 
 		background-color: var(--bg);
-		border-radius: var(--sp1);
+		border-radius: 8px;
 	}
 
 	.loading {
 		height: 0;
 		text-align: center;
-		padding: 0 var(--sp3);
+		padding: 0 24px;
 	}
 </style>

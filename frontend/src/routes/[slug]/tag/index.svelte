@@ -49,6 +49,6 @@
 	}
 
 	/* hr {
-		margin: var(--sp2) 0;
+		margin: 16px 0;
 	} */
 </style>

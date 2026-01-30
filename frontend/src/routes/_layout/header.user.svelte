@@ -109,7 +109,7 @@
 		text-decoration: none;
 		cursor: pointer;
 
-		transition: background-color var(--trans);
+		transition: background-color 0.2s ease-in-out;
 	}
 	.menu_btn:hover {
 		color: var(--ft1);
@@ -152,7 +152,7 @@
 		gap: 8px;
 		text-align: left;
 
-		transition: color var(--trans);
+		transition: color 0.2s ease-in-out;
 	}
 	.details {
 		display: flex;

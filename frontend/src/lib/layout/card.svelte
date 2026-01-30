@@ -37,8 +37,11 @@
 <style>
 	.card {
 		margin: 8px 0;
-		background-color: var(--bg);
+		background-color: var(--card-background-color, var(--bg));
 		border-radius: 8px;
+		outline: 1px solid var(--card-outline-color, transparent);
+		outline-offset: -1px;
+		border-bottom: 1px solid var(--card-bottom-border-color, transparent);
 	}
 
 	.title {
@@ -53,9 +56,9 @@
 		width: 100%;
 		pointer-events: none;
 	}
-
+	
 	.content {
 		padding: var(--card-content-padding, 0 24px 24px 24px);
-		border-top: 1px solid var(--card-content-border-color, transparent);
+		border-top: 1px solid var(--card-content-top-border-color, transparent);
 	}
 </style>

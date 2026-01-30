@@ -1,5 +1,5 @@
 <script>
-	import Value from '../../[slug]/variation/value.svelte';
+	import Value from '../../cart/1_cart/variation_value.svelte';
 	let { items = [] } = $props();
 </script>
 
@@ -21,8 +21,8 @@
 			{#if Object.keys(item.variation).length > 0}
 				-
 				{#each Object.entries(item.variation) as [key, value], i}
-					{#if i != 0},&nbsp;{/if}
-					{key}: <Value {value} small></Value>
+					{#if i != 0},{/if}
+					{key}: <Value {value}></Value>
 				{/each}
 			{/if}
 		</span>
@@ -42,7 +42,7 @@
 <style>
 	.grid {
 		display: grid;
-		gap: var(--sp1) var(--sp1);
+		gap: 8px 8px;
 		grid-template-columns: auto 1fr auto auto auto;
 
 		text-align: center;

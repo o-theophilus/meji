@@ -3,7 +3,7 @@
 	import { Icon } from '$lib/macro';
 	import { Button } from '$lib/button';
 	import { Note } from '$lib/info';
-	import Value from '../../[slug]/variation/value.svelte';
+	import Value from './variation_value.svelte';
 	import Form from './form.svelte';
 
 	let { item, ops } = $props();
@@ -46,31 +46,31 @@
 	};
 </script>
 
-<!-- TODO: indicate items that are not active or quantity == 0 
-	set restriction on quantity to avoid unessary quantity set
--->
-
-<div class="item">
+<div class="container">
 	<div class="block">
-		<a class="img" href="/{item.slug}">
+		<svelte:element this={item.status == 'active' ? 'a' : 'span'} class="img" href="/{item.slug}">
 			<img
 				src="{item.photo}/500"
 				loading="lazy"
 				alt={item.name}
 				onerror={(e) => (e.target.src = '/no_photo.png')}
 			/>
-		</a>
+		</svelte:element>
 
 		<div class="details">
 			<div class="name_quantity">
 				<div>
-					<a class="name" href="/{item.slug}">
+					<svelte:element
+						this={item.status == 'active' ? 'a' : 'span'}
+						class="name"
+						href="/{item.slug}"
+					>
 						{item.name}
-					</a>
+					</svelte:element>
 					<div class="variation">
 						{#each Object.entries(item.variation) as [key, value], i}
 							{#if i != 0},{/if}
-							{key}: <Value {value} small></Value>
+							{key}: <Value {value}></Value>
 						{/each}
 					</div>
 				</div>
@@ -100,7 +100,7 @@
 </div>
 
 <style>
-	.item {
+	.container {
 		padding: 16px;
 		border-radius: 8px;
 		background-color: var(--bg3);
@@ -115,8 +115,8 @@
 
 	.img {
 		display: flex;
-		width: 120px;
-		height: 120px;
+		width: 80px;
+		height: 80px;
 		flex-shrink: 0;
 	}
 
@@ -129,7 +129,7 @@
 
 		outline: 2px solid transparent;
 		outline-offset: 2px;
-		transition: outline-color var(--trans);
+		transition: outline-color 0.2s ease-in-out;
 	}
 
 	a:hover img {
@@ -153,7 +153,7 @@
 	.name {
 		display: block;
 		text-decoration: none;
-		color: var(--ft2);
+		color: var(--ft1);
 	}
 
 	.variation {

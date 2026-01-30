@@ -3,7 +3,6 @@
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { module, app } from '$lib/store.svelte.js';
-
 	import { Button, FoldButton, LinkArrow } from '$lib/button';
 	import { Login } from '$lib/auth';
 	import { Icon, Spinner } from '$lib/macro';
@@ -28,7 +27,7 @@
 		}
 		return _temp;
 	});
-	let search = $state({
+	let searchParams = $state({
 		order: 'most relevant ▼',
 		page_no: 1,
 		page_size: 3
@@ -44,7 +43,7 @@
 		loading = true;
 
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(search).toString()}`,
+			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(searchParams).toString()}`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -68,7 +67,7 @@
 <Card
 	{open}
 	onclick={() => (open = !open)}
-	--card-title-border-color="var(--bg1)"
+	--card-bottom-border-color="var(--bg1)"
 	--card-title-padding="16px 0"
 	--card-content-padding="0"
 >
@@ -91,7 +90,7 @@
 		<div class="margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each reviews as review (review.key)}
 				<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-					<One {item} {review} {search} {update}></One>
+					<One {item} {review} search={searchParams} {update}></One>
 				</div>
 			{:else}
 				<PageNote>
@@ -105,7 +104,7 @@
 
 <div class="button">
 	{#if app.login}
-		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, search, update })}>
+		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, search: searchParams, update })}>
 			Add review
 		</Button>
 	{:else}

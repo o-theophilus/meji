@@ -3,7 +3,7 @@
 
 	import { module, loading, app } from '$lib/store.svelte.js';
 
-	import { IG } from '$lib/input';
+	import { IG, Checkbox } from '$lib/input';
 	import { Button, Link } from '$lib/button';
 	import { Form } from '$lib/layout';
 	import { Icon } from '$lib/macro';
@@ -89,19 +89,7 @@
 
 	<IG>
 		{#snippet input()}
-			<div
-				class="custom-checkbox"
-				onclick={() => (form.remember = !form.remember)}
-				role="presentation"
-
-			>
-				<div class="checkbox" class:active={form.remember}>
-					<div class="icon">
-						<Icon icon="check"></Icon>
-					</div>
-				</div>
-				Remember me
-			</div>
+			<Checkbox label="Remember me" value={form.remember}></Checkbox>
 		{/snippet}
 	</IG>
 
@@ -128,51 +116,5 @@
 <style>
 	.line {
 		gap: 16px;
-	}
-
-	.custom-checkbox {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		font-size: 0.8rem;
-		width: max-content;
-	}
-
-	.checkbox {
-		--size: 20px;
-		position: relative;
-
-		width: var(--size);
-		height: var(--size);
-		border-radius: 4px;
-		outline: 2px solid var(--input);
-		outline-offset: -2px;
-
-		background-color: var(--input);
-		cursor: pointer;
-
-		transition: background-color var(--trans);
-	}
-
-	.checkbox:hover{
-		outline-color: var(--ft1);
-	}
-	.active {
-		background-color: var(--cl1);
-	}
-
-	.icon {
-		position: absolute;
-		inset: 0;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: transparent;
-
-		transition: color var(--trans);
-	}
-	.active .icon {
-		color: white;
 	}
 </style>

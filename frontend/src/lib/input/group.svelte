@@ -75,7 +75,7 @@
 	{#if input}
 		{@render input(id)}
 	{:else}
-		<div class="input" class:left_pad={icon} class:disabled={props.disabled}>
+		<div class="input" class:has_icon={icon} class:disabled={props.disabled}>
 			{#if icon}
 				<Icon {icon}></Icon>
 			{/if}
@@ -116,23 +116,23 @@
 	{/if}
 </div>
 
-<!-- TOOD: improve component -->
 <style>
 	.inputGroup {
 		width: 100%;
-	}
-	.inputGroup.number,
-	.inputGroup.rating {
-		width: fit-content;
-	}
 
-	.inputGroup.rating .input {
-		outline: none;
-		background-color: transparent;
-	}
+		&.number,
+		&.rating {
+			width: fit-content;
+		}
 
-	.inputGroup:not(.no_pad) {
-		margin: var(--sp2) 0;
+		&.rating .input {
+			outline: none;
+			background-color: transparent;
+		}
+
+		&:not(.no_pad) {
+			margin: 16px 0;
+		}
 	}
 
 	.input {
@@ -142,8 +142,8 @@
 		align-items: center;
 
 		width: 100%;
-		margin: var(--sp1) 0;
-		border-radius: var(--sp0);
+		margin: 8px 0;
+		border-radius: 4px;
 		border: none;
 		outline: 2px solid var(--input);
 		outline-offset: -2px;
@@ -151,43 +151,43 @@
 		fill: currentColor;
 
 		background-color: var(--group-background-color, transparent);
-		transition: outline-color var(--trans);
-	}
+		transition: outline-color 0.2s ease-in-out;
 
-	.input.disabled {
-		opacity: 0.4;
-	}
+		&.disabled {
+			opacity: 0.4;
+		}
 
-	.input:hover:not(.disabled),
-	:global(.input:has(:focus)) {
-		outline-color: var(--ft1);
-		color: var(--ft1);
+		&.has_icon {
+			padding-left: 16px;
+		}
+
+		& .show_password {
+			padding-right: 8px;
+		}
+
+		&:hover:not(.disabled),
+		:global(&:has(:focus)) {
+			outline-color: var(--ft1);
+			color: var(--ft1);
+		}
 	}
 
 	.label {
 		font-size: 0.8rem;
-		transition: color var(--trans);
+		transition: color 0.2s ease-in-out;
+
+		& .required {
+			color: red;
+			font-weight: 1000;
+		}
 	}
 	:global(.inputGroup:has(.input:hover:not(.disabled))),
 	:global(.inputGroup:has(:focus) .label) {
 		color: var(--ft1);
 	}
 
-	.required {
-		color: red;
-		font-weight: 1000;
-	}
-
 	.error {
 		color: red;
 		font-size: 0.8rem;
-	}
-
-	.left_pad {
-		padding-left: var(--sp2);
-	}
-
-	.show_password {
-		padding-right: 8px;
 	}
 </style>
