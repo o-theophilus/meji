@@ -80,7 +80,14 @@
 {#key item.key}
 	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
 {/key}
-<Meta title={item.name} description={item.description} image={item.photo} />
+
+<Meta
+	title={item.name}
+	description={item.information.length > 100
+		? item.information.slice(0, 100) + '...'
+		: item.information}
+	image={item.photo}
+/>
 
 <Content --content-background-color="var(--bg)">
 	{#if is_admin}

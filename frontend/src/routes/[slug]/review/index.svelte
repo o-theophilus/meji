@@ -7,17 +7,18 @@
 	import { Login } from '$lib/auth';
 	import { Icon, Spinner } from '$lib/macro';
 	import { Dropdown } from '$lib/input';
-	import { PageNote } from '$lib/info';
+	import { PageNote, Dialogue } from '$lib/info';
 	import { Card } from '$lib/layout';
 	import Add from './_add.svelte';
 	import One from './one.svelte';
 
 	let { item } = $props();
 	let reviews = $state([]);
-
 	let ratings = $state([]);
-
 	let order_by = $state([]);
+	let has_purchased = $state(false);
+	let can_review = $state(false);
+
 	let open = $state(false);
 	let loading = $state(true);
 	let count = $derived.by(() => {
@@ -57,6 +58,9 @@
 			reviews = resp.reviews;
 			ratings = resp.ratings;
 			order_by = resp.order_by;
+			has_purchased = resp.has_purchased;
+			can_review = resp.can_review;
+			console.log(has_purchased, can_review);
 			if (reviews.length) open = true;
 		}
 
@@ -103,12 +107,36 @@
 </Card>
 
 <div class="button">
-	{#if app.login}
-		<Button icon="message-circle-plus" onclick={() => module.open(Add, { item, search: searchParams, update })}>
+	{#if !app.login}
+		<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
+	{:else if !has_purchased}
+		<Button
+			icon="message-circle-plus"
+			onclick={() =>
+				module.open(Dialogue, {
+					status: 200,
+					title: 'Purchase to Add review',
+					message: 'Purchase to Add review',
+					buttons: [
+						{
+							name: 'Ok',
+							icon: 'ok',
+							fn: () => {
+								module.close();
+							}
+						}
+					]
+				})}
+		>
 			Add review
 		</Button>
-	{:else}
-		<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
+	{:else if can_review}
+		<Button
+			icon="message-circle-plus"
+			onclick={() => module.open(Add, { item, search: searchParams, update })}
+		>
+			Add review
+		</Button>
 	{/if}
 </div>
 

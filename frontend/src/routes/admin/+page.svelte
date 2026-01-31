@@ -7,7 +7,7 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Admin Dashboard" description="This contains this website settings" />
+<Meta title="Admin Dashboard" />
 
 <Content>
 	<div class="page_title">Admin Dashboard</div>

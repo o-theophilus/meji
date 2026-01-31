@@ -31,7 +31,7 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Admin" description="Users with elevated Access" />
+<Meta title="All Admin" />
 
 <Content --content-height="auto">
 	<div class="line">

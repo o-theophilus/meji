@@ -32,7 +32,7 @@
 	};
 </script>
 
-<Meta title={user.name} />
+<Meta title="{user.name} profile" />
 <Log action={'viewed'} entity_key={user.key} entity_type={'user'} />
 
 <Content --content-background-color="var(--bg)">

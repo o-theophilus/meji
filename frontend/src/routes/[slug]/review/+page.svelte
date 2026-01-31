@@ -45,7 +45,7 @@
 <Log entity_type={'page'} />
 <Meta
 	title="Review"
-	description="This page showcases a collection of interesting blogs and projects that I have worked on"
+	description="Read honest reviews and ratings from verified customers to help you make confident buying decisions."
 />
 
 <Content --content-height="auto" --content-padding-bottom="0">

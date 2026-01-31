@@ -42,7 +42,7 @@
 <Log entity_type={'page'} />
 <Meta
 	title="Save"
-	description="This page showcases a collection of interesting blogs and projects that I have worked on"
+	description="Keep track of your favorite items and come back to them anytime you’re ready to shop."
 />
 
 <Content --content-height="auto">

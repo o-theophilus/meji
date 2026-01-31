@@ -33,10 +33,7 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta
-	title="Order"
-	description="This page showcases a collection of interesting blogs and projects that I have worked on"
-/>
+<Meta title="Order" />
 
 <Content --content-padding-top="1px">
 	<div class="line">

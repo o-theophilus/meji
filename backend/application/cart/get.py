@@ -60,8 +60,8 @@ def get_cart_items(cur=None):
             (o.timeline->>'delivered')::timestamptz DESC
         LIMIT 5;
     """, (user["key"],))
-    history = cur.fetchall()
-    history = [x['receiver'] for x in history]
+    previous_receivers = cur.fetchall()
+    previous_receivers = [x['receiver'] for x in previous_receivers]
 
     if close_conn:
         db_close(con, cur)
@@ -69,5 +69,5 @@ def get_cart_items(cur=None):
         "status": 200,
         "cart": cart,
         "items": items,
-        "history": history
+        "previous_receivers": previous_receivers
     })

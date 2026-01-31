@@ -61,7 +61,6 @@
 	};
 </script>
 
-<!-- TODO: who can add review -->
 <Form title="{parent ? 'Reply' : 'Add'} Review" error={error.error}>
 	{#if parent}
 		<div class="parent">

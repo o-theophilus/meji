@@ -60,17 +60,18 @@
 
 <Log entity_type={'page'} />
 <Meta
-	title="Save"
-	description="This page showcases a collection of interesting blogs and projects that I have worked on"
+	title="Cart"
+	description="Review your selected items, adjust quantities, and proceed securely to checkout."
 />
 
 <Content --content-padding-top="1px">
 	<div class="page_title">Cart</div>
 	{#if app.cart_items.length}
 		<Cart bind:ops></Cart>
-		<Receiver bind:ops history={data.history}></Receiver>
+		<Receiver bind:ops previous_receivers={data.previous_receivers}></Receiver>
 		<Coupons bind:ops></Coupons>
 
+		<!-- TODO check this box -->
 		<span class="terms">
 			By clicking the order button, you have accepred our
 			<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>

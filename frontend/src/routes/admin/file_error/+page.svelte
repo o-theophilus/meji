@@ -56,7 +56,7 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Manage Files" description="Here you will find missing or excess images" />
+<Meta title="Manage / Excess Files"  />
 
 <Content>
 	<div class="line">

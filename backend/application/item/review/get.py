@@ -76,6 +76,27 @@ def get_many(key, cur=None):
     """, (item["key"],))
     ratings = cur.fetchall()
 
+    cur.execute("""
+        WITH purchase_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM item_snap i
+                JOIN "order" o ON o.key = i.order_key
+                WHERE o.user_key = %s AND i.item_key = %s
+                    AND o.status = 'delivered'
+            ) AS has_purchased
+        )
+        SELECT
+            has_purchased,
+            has_purchased
+            AND NOT EXISTS (
+                SELECT 1 FROM review r
+                WHERE r.user_key = %s AND r.item_key = %s
+            ) AS can_review
+        FROM purchase_check;
+    """, (user["key"], item["key"], user["key"], item["key"]))
+    user_review_info = cur.fetchone()
+
     cur.execute(f"""
         WITH
         replies AS (
@@ -169,4 +190,6 @@ def get_many(key, cur=None):
         "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
+        "has_purchased": user_review_info["has_purchased"],
+        "can_review": user_review_info["can_review"],
     })

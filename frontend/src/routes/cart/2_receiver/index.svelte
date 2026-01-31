@@ -6,10 +6,10 @@
 	import { PageNote } from '$lib/info';
 	import { Icon } from '$lib/macro';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
-	import Edit from './form.edit.svelte';
-	import History from './form.history.svelte';
+	import EditForm from './form.edit.svelte';
+	import PrevForm from './form.prev.svelte';
 
-	let { ops = $bindable(), history } = $props();
+	let { ops = $bindable(), previous_receivers } = $props();
 	let name = 'Receiver';
 </script>
 
@@ -50,17 +50,17 @@
 			icon="square-pen"
 			onclick={() => {
 				ops.error = {};
-				module.open(Edit, { ops });
+				module.open(EditForm, { ops });
 			}}
 		>
 			Edit
 		</Button>
-		{#if history.length}
+		{#if previous_receivers.length}
 			<Button
 				icon="history"
 				onclick={() => {
 					ops.error = {};
-					module.open(History, { ops, history });
+					module.open(PrevForm, { ops, previous_receivers });
 				}}
 			>
 				history

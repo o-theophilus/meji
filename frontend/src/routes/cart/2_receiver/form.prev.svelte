@@ -7,8 +7,6 @@
 	import { Icon } from '$lib/macro';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
 
-	let history = module.value;
-
 	let form = $state({
 		name: '',
 		phone: '',
@@ -44,7 +42,7 @@
 </script>
 
 <Form title="Previous Receivers" error={error.error}>
-	{#each module.value.history as receiver}
+	{#each module.value.previous_receivers as receiver}
 		<div class="one">
 			<Receiver {receiver}>
 				{#snippet top_right()}
