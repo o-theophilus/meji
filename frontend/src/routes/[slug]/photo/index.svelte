@@ -28,6 +28,7 @@
 	</div>
 </div>
 
+<!-- TODO: improve carousel -->
 {#if item.files.length > 1}
 	<div class="line">
 		{#each item.files as x}

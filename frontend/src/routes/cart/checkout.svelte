@@ -36,8 +36,8 @@
 					module.open(Dialogue, {
 						status: 400,
 						title: 'Payment Canceled',
-						messages: `The payment process was canceled`,
-						button: [
+						message: `The payment process was canceled`,
+						buttons: [
 							{
 								name: 'Ok',
 								icon: 'ok',
@@ -122,8 +122,10 @@
 		<div class="checkout">
 			<Button
 				icon="cart"
-				--button-color="white"
 				--button-background-color="var(--cl1)"
+				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
+				--button-color="hsl(0, 0%, 95%)"
+				--button-color-hover="hsl(0, 0%, 95%)"
 				onclick={() => {
 					if (!app.login) {
 						module.open(Login);

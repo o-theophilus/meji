@@ -68,7 +68,7 @@
 	<div class="page_title">Cart</div>
 	{#if app.cart_items.length}
 		<Cart bind:ops></Cart>
-		<Receiver bind:ops></Receiver>
+		<Receiver bind:ops history={data.history}></Receiver>
 		<Coupons bind:ops></Coupons>
 
 		<span class="terms">

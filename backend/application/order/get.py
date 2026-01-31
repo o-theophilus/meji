@@ -42,7 +42,6 @@ def get(key):
         })
 
     # FEATURE:do the full journey of item snapshot,
-    # remove the comment
     # duplicate item on purchase
     # join item snapshot table on order view
     # get item snapshot on order item view
@@ -57,7 +56,6 @@ def get(key):
             order_item.variation, order_item.quantity
         FROM order_item
         LEFT JOIN "order" ON "order".key = order_item.order_key
-        --LEFT JOIN item ON order_item.item_key = item.key
         LEFT JOIN item_snap AS item ON order_item.item_key = item.item_key
         WHERE "order".key = %s
         ORDER BY order_item.date_created DESC
@@ -99,41 +97,54 @@ def get_many():
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created',
-        'cost_items ▼': 'cost_items',
-        'cost_items ▲': 'cost_items',
-        'cost_delivery ▼': 'cost_delivery',
-        'cost_delivery ▲': 'cost_delivery',
-        'pay_user ▼': 'pay_user',
-        'pay_user ▲': 'pay_user',
-        'delivery_date ▼': "timeline->>'delivery_date'",
-        'delivery_date ▲': "timeline->>'delivery_date'",
+        'latest': 'o.date_created',
+        'oldest': 'o.date_created',
+        'cost items ▼': 'o.cost_items',
+        'cost items ▲': 'o.cost_items',
+        'cost delivery ▼': 'o.cost_delivery',
+        'cost delivery ▲': 'o.cost_delivery',
+        'pay user ▼': 'o.pay_user',
+        'pay user ▲': 'o.pay_user',
+        'item count ▼': 'item_count',
+        'item count ▲': 'item_count',
+        'delivery date ▼': "o.timeline->>'delivery_date'",
+        'delivery date ▲': "o.timeline->>'delivery_date'",
     }
     order_dir = {
         'latest': 'DESC',
         'oldest': 'ASC',
-        'cost_items ▼': 'DESC',
-        'cost_items ▲': 'ASC',
-        'cost_delivery ▼': 'DESC',
-        'cost_delivery ▲': 'ASC',
-        'pay_user ▼': 'DESC',
-        'pay_user ▲': 'ASC',
-        'delivery_date ▼': 'DESC',
-        'delivery_date ▲': 'ASC',
+        'cost items ▼': 'DESC',
+        'cost items ▲': 'ASC',
+        'cost delivery ▼': 'DESC',
+        'cost delivery ▲': 'ASC',
+        'pay user ▼': 'DESC',
+        'pay user ▲': 'ASC',
+        'item count ▼': 'DESC',
+        'item count ▲': 'ASC',
+        'delivery date ▼': 'DESC',
+        'delivery date ▲': 'ASC',
     }
 
-    # TODO: emforce this access restriction in the frontend
     user_key = user["key"]
     if view == "all" and "order:view" in user["access"]:
         user_key = ""
 
     cur.execute(f"""
-        SELECT *, COUNT(*) OVER() AS _count
-        FROM "order"
-        WHERE (%s = 'all' OR status = %s)
-            AND (%s = '' OR user_key::TEXT = %s)
-            AND (%s = '' OR CONCAT_WS(', ', key) ILIKE %s)
+        SELECT
+            o.*,
+            u.name,
+            u.username,
+            COUNT(i.*) AS item_count,
+            COUNT(*) OVER() AS _count
+        FROM "order" o
+        LEFT JOIN "user" u ON o.user_key = u.key
+        LEFT JOIN item_snap i ON o.key = i.order_key
+        WHERE (%s = 'all' OR o.status = %s)
+        AND (%s = '' OR o.user_key::TEXT = %s)
+        AND (%s = '' OR o.key::TEXT ILIKE %s)
+        GROUP BY
+            o.key,
+            u.key
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
     """, (

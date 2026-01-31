@@ -14,9 +14,6 @@
 			<div class="close">
 				<RoundButton
 					icon="x"
-					--button-background-color_="darkred"
-					--button-background-color-hover_="red"
-					--button-outline-color-hover_="transparent"
 					onclick={() => {
 						module.close();
 					}}
@@ -53,6 +50,12 @@
 		--pos: -10px;
 		top: var(--pos);
 		right: var(--pos);
+
+		--button-color: hsl(0, 0%, 70%);
+		--button-color-hover_: hsl(0, 0%, 95%);
+		--button-background-color_: darkred;
+		--button-background-color-hover_: red;
+		--button-outline-color-hover_: transparent;
 	}
 
 	.block {

@@ -6,9 +6,10 @@
 	import { PageNote } from '$lib/info';
 	import { Icon } from '$lib/macro';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
-	import Form from './form.svelte';
+	import Edit from './form.edit.svelte';
+	import History from './form.history.svelte';
 
-	let { ops = $bindable() } = $props();
+	let { ops = $bindable(), history } = $props();
 	let name = 'Receiver';
 </script>
 
@@ -44,13 +45,28 @@
 	{/if}
 
 	<br />
-	<Button
-		icon="square-pen"
-		onclick={() => {
-			ops.error = {};
-			module.open(Form, ops);
-		}}>Edit</Button
-	>
+	<div class="line">
+		<Button
+			icon="square-pen"
+			onclick={() => {
+				ops.error = {};
+				module.open(Edit, { ops });
+			}}
+		>
+			Edit
+		</Button>
+		{#if history.length}
+			<Button
+				icon="history"
+				onclick={() => {
+					ops.error = {};
+					module.open(History, { ops, history });
+				}}
+			>
+				history
+			</Button>
+		{/if}
+	</div>
 
 	{#if ops.has_receiver()}
 		<div class="line space total">

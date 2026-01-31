@@ -190,7 +190,7 @@ def get_many(cur=None, _order="latest", _page_size=24):
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,  # TODO: Implement this frontend
+        "searchParams": searchParams,
         "_status": ['active', 'draft']
     })
 

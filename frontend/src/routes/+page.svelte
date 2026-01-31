@@ -49,7 +49,12 @@
 />
 
 <Hero />
+
+<!-- TODO: review all page title and description -->
+<!-- TODO: adjust all paddingd for mobile -->
+<!-- TODO: add advert carousel -->
 <!-- <Advert space="home_1" placeholder /> -->
+<!-- TODO: improve tags -->
 <Tags />
 
 <Content --content-width="1200px" --content-height="100%">

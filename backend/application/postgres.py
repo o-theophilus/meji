@@ -19,9 +19,6 @@ def db_close(con, cur):
     con.close()
 
 
-# TODO: if admin that block user is deleted
-# what happens to block
-
 # @bp.get("/fix")
 def create_tables():
     con, cur = db_open()

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	let { value = $bindable(), list = ['on', 'off'], onclick } = $props();
+
 	if (!value || !list.includes(value)) {
 		value = list[0];
 	}

@@ -48,49 +48,26 @@ def get_cart_items(cur=None):
         x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 
+    cur.execute("""
+        SELECT DISTINCT ON (o.receiver::jsonb)
+            o.receiver,
+            (o.timeline->>'delivered')::timestamptz AS last_delivered
+        FROM "order" o
+        WHERE o.user_key = %s
+        AND o.status = 'delivered'
+        ORDER BY
+            o.receiver::jsonb,
+            (o.timeline->>'delivered')::timestamptz DESC
+        LIMIT 5;
+    """, (user["key"],))
+    history = cur.fetchall()
+    history = [x['receiver'] for x in history]
+
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
         "cart": cart,
-        "items": items
-    })
-
-
-# TODO: previous_receivers
-@bp.get("/cart/previous_receivers")
-def previous_receivers():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT DISTINCT ON (o.receiver)
-            o.receiver,
-            MAX(log.date) as last_delivered
-        FROM "order" o
-        LEFT JOIN log
-            ON o.key = log.entity_key
-            AND log.entity_type = 'order'
-            AND log.action = 'changed_status'
-            AND (log.misc->>'to') = 'delivered'
-        WHERE
-            o.user_key = %s
-            AND o.status = 'delivered'
-            AND o.receiver IS NOT NULL
-        GROUP BY o.receiver
-        ORDER BY o.receiver, last_delivered DESC
-        LIMIT 5;
-    """, (user["key"],))
-    items = cur.fetchall()
-    items = [x['receiver'] for x in items]
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "items": items
+        "items": items,
+        "history": history
     })

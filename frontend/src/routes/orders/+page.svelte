@@ -23,8 +23,8 @@
 
 	onMount(() => {
 		const sp = page_state.searchParams;
+		setTimeout(() => replaceState(`?${new URLSearchParams(sp)}`));
 		if (Object.keys(sp).length) {
-			replaceState(`?${new URLSearchParams(sp)}`);
 			for (const key of Object.keys(searchParams)) {
 				if (sp[key]) searchParams[key] = sp[key];
 			}
@@ -50,7 +50,7 @@
 					--button-outline-color-hover="var(--ft1)"
 					list={['me', 'all']}
 					bind:value={searchParams.view}
-					ondone={(v) => {
+					onclick={(v) => {
 						searchParams.page_no = 1;
 						v = v == 'me' ? '' : v;
 						page_state.set({ view: v });

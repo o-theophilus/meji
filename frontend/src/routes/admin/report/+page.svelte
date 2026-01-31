@@ -23,7 +23,7 @@
 	onMount(() => {
 		const sp = page_state.searchParams;
 		if (Object.keys(sp).length) {
-			replaceState(`?${new URLSearchParams(sp)}`);
+			setTimeout(() => replaceState(`?${new URLSearchParams(sp)}`));
 			for (const key of Object.keys(searchParams)) {
 				if (sp[key]) searchParams[key] = sp[key];
 			}

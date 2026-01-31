@@ -15,6 +15,12 @@
 
 		if (!form.delivery_date) {
 			error.delivery_date = 'This field is required';
+		} else {
+			const delivery_date = new Date(form.delivery_date);
+			const now = new Date();
+			if (delivery_date < now) {
+				error.delivery_date = 'Cannot set delivery date in the past';
+			}
 		}
 
 		Object.keys(error).length === 0 && submit();

@@ -79,9 +79,6 @@ def order_check():
         })
 
     for x in items:
-        # TEST: check item availability
-        # TODO: match messaging to frontend message
-        # FIXME: HOW ABOUT IF ITEM IS DELETED?
         if (
             x["status"] != 'active'
             or x["quantity"] == 0
@@ -213,7 +210,10 @@ def cart_to_order():
         del row["order_quantity"]
 
         for x in row["files"]:
-            storage.copy(x, "item", "item_snap")
+            try:
+                storage.copy(x, "item", "item_snap")
+            except Exception:
+                pass
 
         columns = list(row.keys())
         values = []
@@ -267,8 +267,6 @@ def cart_to_order():
             name=user["name"],
             username=user["username"]
         )
-
-
     )
 
     db_close(con, cur)
@@ -305,7 +303,6 @@ def delivery_date(key):
         })
 
     error = {}
-    # TODO: prevent backdating in frontend also
     delivery_date = request.json.get("delivery_date", "").strip()
     if not delivery_date or type(delivery_date) is not str:
         error["delivery_date"] = "This field is required"
@@ -313,9 +310,11 @@ def delivery_date(key):
         error["delivery_date"] = "No changes were made"
     else:
         try:
-            datetime.strptime(delivery_date, "%Y-%m-%dT%H:%M:%S")
+            parsed_date = datetime.strptime(delivery_date, "%Y-%m-%dT%H:%M:%S")
+            if parsed_date < datetime.now():
+                error["delivery_date"] = "Cannot set delivery date in the past"
         except Exception:
-            error["error"] = "invalid request"
+            error["error"] = "Invalid date format"
 
     if error != {}:
         db_close(con, cur)

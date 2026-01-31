@@ -129,7 +129,6 @@ def edit(key):
         elif date_created == item["date_created"]:
             error["date_created"] = "No changes were made"
         else:
-            # TEST: this validation
             try:
                 datetime.strptime(date_created, "%Y-%m-%dT%H:%M:%S")
             except Exception:

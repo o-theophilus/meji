@@ -89,7 +89,11 @@
 
 	<IG>
 		{#snippet input()}
-			<Checkbox label="Remember me" value={form.remember}></Checkbox>
+			<Checkbox
+				label="Remember me"
+				value={form.remember}
+				onclick={() => (form.remember = !form.remember)}
+			></Checkbox>
 		{/snippet}
 	</IG>
 

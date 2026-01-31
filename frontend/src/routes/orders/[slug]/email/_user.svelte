@@ -24,4 +24,8 @@ Email: {receiver.email} <br />
 	Address: {receiver.address.address},
 	{receiver.address.state},
 	{receiver.address.country}
+	{#if receiver.address.postal_code}
+		<br />
+		Postal Code: {receiver.address.postal_code}
+	{/if}
 {/if}
