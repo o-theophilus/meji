@@ -10,7 +10,7 @@
 	import { BackButton } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Meta, Log, Icon } from '$lib/macro';
-	import One from '../users/one.svelte';
+	import One from '../users/_one.svelte';
 
 	let { data } = $props();
 	let users = $derived(data.users);

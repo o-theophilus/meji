@@ -10,7 +10,7 @@
 	import { Pagination, Dropdown, Search } from '$lib/input';
 	import { Meta, Log, Icon } from '$lib/macro';
 	import { PageNote } from '$lib/info';
-	import One from './one.svelte';
+	import One from './_one.svelte';
 
 	let { data } = $props();
 	let users = $derived(data.users);
