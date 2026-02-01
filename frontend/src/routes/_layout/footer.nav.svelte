@@ -25,9 +25,14 @@
 <style>
 	section {
 		display: flex;
-		justify-content: space-between;
 		gap: 40px;
 		flex-wrap: wrap;
+	}
+
+	@media screen and (min-width: 400px) {
+		section {
+			justify-content: space-between;
+		}
 	}
 
 	.block {

@@ -6,7 +6,9 @@
 <div class="block">
 	<div class="page_title">What are you waiting for?</div>
 	<div class="text">The best deals are just a click away.</div>
-	<Button href="/shop" --button-width="fit-content" --button-font-size="1.2rem">Shop Now</Button>
+	<Button icon2="arrow-right" href="/shop" --button-width="fit-content" --button-font-size="1.2rem">
+		Shop Now
+	</Button>
 </div>
 
 <style>

@@ -35,37 +35,40 @@
 		text-decoration: none;
 
 		transition: background-color 0.2s ease-in-out;
-	}
 
-	a:hover,
-	.active {
-		background-color: var(--bg1);
-	}
+		&.active {
+			background-color: var(--bg2);
 
-	.block {
-		position: relative;
+			& .block {
+				color: var(--ft1);
+				fill: var(--ft1);
+				font-weight: 600;
+			}
+		}
 
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 4px;
+		&:hover {
+			background-color: var(--bg1);
+		}
 
-		color: var(--ft2);
-		fill: var(--ft2);
-		font-size: 0.8rem;
-		line-height: 100%;
+		& .block {
+			position: relative;
 
-		transition:
-			color 0.2s ease-in-out,
-			fill 0.2s ease-in-out,
-			font-weight 0.2s ease-in-out;
-	}
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 4px;
 
-	.active .block {
-		color: var(--ft1);
-		fill: var(--ft1);
-		font-weight: 600;
+			color: var(--ft2);
+			fill: var(--ft2);
+			font-size: 0.8rem;
+			line-height: 100%;
+
+			transition:
+				color 0.2s ease-in-out,
+				fill 0.2s ease-in-out,
+				font-weight 0.2s ease-in-out;
+		}
 	}
 
 	.count {

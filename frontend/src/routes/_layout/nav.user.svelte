@@ -10,7 +10,6 @@
 {#if app.login}
 	<a class:active href="/@{app.user.username}" data-sveltekit-preload-data>
 		<Avatar name={app.user.name} photo={app.user.photo} size="24" --avatar-border-radius="40%" />
-		<!-- <Icon icon={!active ? "user" : "user_active"} size="24" /> -->
 		Profile
 	</a>
 {:else}
@@ -52,17 +51,16 @@
 			fill 0.2s ease-in-out,
 			font-weight 0.2s ease-in-out,
 			background-color 0.2s ease-in-out;
-	}
 
-	a:hover,
-	button:hover {
-		background-color: var(--bg1);
+		&:hover {
+			background-color: var(--bg1);
+		}
 	}
 
 	.active {
 		font-weight: 600;
 		color: var(--ft1);
 		fill: var(--ft1);
-		background-color: var(--bg1);
+		background-color: var(--bg2);
 	}
 </style>
