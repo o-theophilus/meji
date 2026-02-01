@@ -47,7 +47,7 @@
 		}
 
 		&:hover {
-			background-color: var(--bg1);
+			/* background-color: var(--bg1); */
 		}
 
 		& .block {
