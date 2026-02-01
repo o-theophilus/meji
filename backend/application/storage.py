@@ -138,7 +138,7 @@ def get_all_live(path=""):
     return [x["name"] for x in files]
 
 
-test = True
+test = False
 
 
 def get_path(path=""):
