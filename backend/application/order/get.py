@@ -140,6 +140,7 @@ def get_many():
         LEFT JOIN "user" u ON o.user_key = u.key
         LEFT JOIN item_snap i ON o.key = i.order_key
         WHERE (%s = 'all' OR o.status = %s)
+        AND o.status != 'cart'
         AND (%s = '' OR o.user_key::TEXT = %s)
         AND (%s = '' OR o.key::TEXT ILIKE %s)
         GROUP BY

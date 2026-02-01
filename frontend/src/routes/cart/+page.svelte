@@ -82,8 +82,8 @@
 				}}
 			></Checkbox>
 			<span>
-				By checking this box, you have accepred our
-				<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
+				By checking this box, you agree to our
+				<Link href="/terms">terms and conditions</Link>
 			</span>
 		</div>
 	{:else}
@@ -114,6 +114,8 @@
 		align-items: flex-start;
 		gap: 16px;
 		margin-top: 24px;
-		font-size: small;
+		font-size: 0.8rem;
+		--link-font-size: 0.8rem;
+		--link-font-weight: 400;
 	}
 </style>

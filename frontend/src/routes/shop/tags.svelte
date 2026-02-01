@@ -5,7 +5,7 @@
 
 	import { Toggle, Button, RoundButton } from '$lib/button';
 	import { Icon } from '$lib/macro';
-	import { IG } from '$lib/input';
+	import { IG, Checkbox } from '$lib/input';
 
 	let { value = $bindable(), ondone } = $props();
 
@@ -88,6 +88,17 @@
 				{#if app.tags.length}
 					{#each app.tags as x}
 						{#if x.toLowerCase().includes(filter.toLowerCase())}
+							<Checkbox
+								value={selected.includes(x)}
+								onclick={() => {
+									if (selected.includes(x)) {
+										selected = selected.filter((y) => y != x);
+									} else {
+										selected.push(x);
+									}
+								}}
+								label={x}
+							></Checkbox>
 							<button
 								class="custom-checkbox"
 								onclick={() => {
@@ -100,7 +111,7 @@
 							>
 								<div class="checkbox" class:active={selected.includes(x)}>
 									<div class="icon">
-										<!-- <Icon icon="check"></Icon> -->
+										<Icon icon="check"></Icon>
 									</div>
 								</div>
 								{x}

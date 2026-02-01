@@ -15,7 +15,7 @@
 
 <svelte:window
 	onclick={(e) => {
-		if (menu.contains(e.target)) return;
+		if (menu && menu.contains(e.target)) return;
 		if (open && !can_close) open = false;
 		can_close = false;
 	}}
