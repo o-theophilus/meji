@@ -72,7 +72,7 @@ def get_session(cur, login=False):
     if not token:
         return {"status": 404, "error": "invalid or expired token"}
 
-    cur.execute("""SELECT * FROM session WHERE key::TEXT = %s;""", (token,))
+    cur.execute("""SELECT * FROM session WHERE key = %s;""", (token,))
     session = cur.fetchone()
     if not session:
         return {"status": 404, "error": "invalid or expired token"}
