@@ -187,10 +187,16 @@
 
 	.floater {
 		position: sticky;
-		bottom: var(--headerHeight);
+		bottom: 56px;
 
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
+	}
+
+	@media screen and (min-width: 400px) {
+		.floater {
+			bottom: var(--headerHeight);
+		}
 	}
 
 	.floater_block {
