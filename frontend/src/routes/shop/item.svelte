@@ -120,7 +120,7 @@
 			outline: 1px solid red;
 			background-color: color-mix(in srgb, red, transparent 40%);
 			border-radius: 8px;
-			color: var(--ft1);
+			color: hsl(0, 0%, 95%);
 			transform: rotate(-25deg);
 		}
 

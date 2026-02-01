@@ -5,6 +5,7 @@
 	import { Content } from '$lib/layout';
 	import { PageNote } from '$lib/info';
 	import { Button, Link } from '$lib/button';
+	import { Checkbox } from '$lib/input';
 	import Cart from './1_cart/index.svelte';
 	import Receiver from './2_receiver/index.svelte';
 	import Coupons from './3_coupon/index.svelte';
@@ -19,6 +20,7 @@
 	let ops = $state({
 		status: 'Items',
 		cart: data.cart,
+		agree: false,
 		error: {},
 		item_ckeck() {
 			for (const item of app.cart_items) {
@@ -71,11 +73,19 @@
 		<Receiver bind:ops previous_receivers={data.previous_receivers}></Receiver>
 		<Coupons bind:ops></Coupons>
 
-		<!-- TODO check this box -->
-		<span class="terms">
-			By clicking the order button, you have accepred our
-			<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
-		</span>
+		<div class="terms" id="terms">
+			<Checkbox
+				value={ops.agree}
+				onclick={() => {
+					ops.agree = !ops.agree;
+					ops.error = {};
+				}}
+			></Checkbox>
+			<span>
+				By checking this box, you have accepred our
+				<Link href="/terms" --link-font-size="0.8rem">terms and conditions</Link>
+			</span>
+		</div>
 	{:else}
 		<PageNote>
 			No item in cart yet
@@ -100,6 +110,10 @@
 	}
 
 	.terms {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+		margin-top: 24px;
 		font-size: small;
 	}
 </style>

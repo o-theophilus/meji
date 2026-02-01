@@ -22,7 +22,7 @@
 		gap: 16px;
 		font-size: 0.8rem;
 		width: max-content;
-		
+
 		&:hover .checkbox {
 			outline-color: var(--ft1);
 		}
@@ -42,7 +42,6 @@
 		cursor: pointer;
 
 		transition: background-color 0.2s ease-in-out;
-
 
 		&.active {
 			background-color: var(--cl1);

@@ -49,6 +49,7 @@
 <style>
 	section {
 		text-align: center;
+		margin-top: 80px;
 	}
 	.title {
 		font-weight: 800;
@@ -65,11 +66,21 @@
 	}
 
 	.row_1 {
-		padding: 48px 16px;
+		padding: 0 16px;
 		color: var(--ft1);
+
+		& .text {
+			font-size: 1.2rem;
+			max-width: 740px;
+		}
 	}
 	.row_2 {
+		margin-top: 32px;
 		flex-direction: column;
+
+		& .text {
+			max-width: 450px;
+		}
 	}
 
 	.block {
@@ -84,13 +95,6 @@
 		fill: var(--cl1);
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
-	}
-	.row_1 .text {
-		font-size: 1.2rem;
-		max-width: 740px;
-	}
-	.row_2 .text {
-		max-width: 450px;
 	}
 
 	@media screen and (min-width: 800px) {

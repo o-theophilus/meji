@@ -41,6 +41,8 @@
 
 <Button
 	onclick={submit}
+	
+	--button-border-radius={small ? '40%' : ''}
 	--button-width={small ? '32px' : ''}
 	--button-height={small ? '32px' : ''}
 	--button-background-color={small ? 'white' : ''}

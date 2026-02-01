@@ -89,11 +89,13 @@
 
 	<IG>
 		{#snippet input()}
-			<Checkbox
-				label="Remember me"
-				value={form.remember}
-				onclick={() => (form.remember = !form.remember)}
-			></Checkbox>
+			<form onsubmit={(e) => e.preventDefault()} novalidate autocomplete="off">
+				<Checkbox
+					label="Remember me"
+					value={form.remember}
+					onclick={() => (form.remember = !form.remember)}
+				></Checkbox>
+			</form>
 		{/snippet}
 	</IG>
 

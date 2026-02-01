@@ -1,13 +1,14 @@
 <script>
 	import { page } from '$app/state';
 	import { app, module } from '$lib/store.svelte.js';
-
 	import { Icon } from '$lib/macro';
 	import { Login } from '$lib/auth';
+	import Menu from './header.menu.svelte';
 	import Link from './nav.btn.svelte';
-	import Theme from './header.theme.svelte';
+
 	import Notification from './header.notification.svelte';
-	import User from './header.user.svelte';
+	let name = app.user.name.split(' ')[0];
+	name = name.length > 20 ? `${name.slice(0, 20)}...` : name;
 </script>
 
 <section>
@@ -18,10 +19,12 @@
 		</a>
 		<div class="line">
 			<Notification />
-			<Theme />
 			{#if app.login}
-				<User />
+				<div class="name">
+					Hello, {name}
+				</div>
 			{/if}
+			<Menu></Menu>
 		</div>
 	</div>
 </section>
@@ -60,5 +63,9 @@
 
 	.line {
 		gap: 16px;
+	}
+
+	.name {
+		font-size: 0.8rem;
 	}
 </style>

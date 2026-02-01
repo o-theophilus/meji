@@ -137,6 +137,9 @@
 						ops.status = 'Receiver';
 						ops.error.error = 'Please provide receiver information before checkout';
 						scroll('#Receiver');
+					} else if (!ops.agree) {
+						ops.error.error = 'Please agree to the terms and conditions to proceed';
+						scroll('#terms');
 					} else {
 						make_payment();
 					}

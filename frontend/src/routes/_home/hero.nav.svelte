@@ -23,7 +23,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 16px;
+		gap: 4px 16px;
 
 		padding: 24px;
 		padding-top: calc(24px * 2);

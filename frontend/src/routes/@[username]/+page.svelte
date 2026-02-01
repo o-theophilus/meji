@@ -52,7 +52,7 @@
 	<br /><br /><br />
 
 	<div class="line center">
-		<Avatar name={user.name} photo={user.photo} size="120" --avatar-border-radius="50%" />
+		<Avatar name={user.name} photo={user.photo} size="120" --avatar-border-radius="40%" />
 
 		{#if edit_mode && user.key == app.user.key}
 			<RoundButton
@@ -144,22 +144,14 @@
 			{/if}
 		</div>
 	{/if}
-	<br /><br /><br />
-
-	<div class="pad">
-		<LinkArrow --link-font-size="0.8rem" href="/orders">Orders</LinkArrow>
+	<div class="center pad">
+		<LinkArrow
+			--link-font-size="0.8rem"
+			onclick={() => page_state.goto('log', { u_search: user.key })}
+		>
+			View Logs
+		</LinkArrow>
 	</div>
-	{#if app.user.access.includes('log:view')}
-		<hr />
-		<div class="pad">
-			<LinkArrow
-				--link-font-size="0.8rem"
-				onclick={() => page_state.goto('log', { u_search: user.key })}
-			>
-				View Logs
-			</LinkArrow>
-		</div>
-	{/if}
 </Content>
 
 <style>
@@ -173,8 +165,7 @@
 		justify-content: center;
 	}
 
-	.pad,
-	hr {
+	.pad {
 		margin: 16px 0;
 	}
 </style>

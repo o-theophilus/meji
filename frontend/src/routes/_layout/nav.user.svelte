@@ -9,7 +9,7 @@
 
 {#if app.login}
 	<a class:active href="/@{app.user.username}" data-sveltekit-preload-data>
-		<Avatar name={app.user.name} photo={app.user.photo} size="24" --avatar-border-radius="50%" />
+		<Avatar name={app.user.name} photo={app.user.photo} size="24" --avatar-border-radius="40%" />
 		<!-- <Icon icon={!active ? "user" : "user_active"} size="24" /> -->
 		Profile
 	</a>

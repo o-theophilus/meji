@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { Hero, Tags, ItemGroup, About, FAQ } from './_home';
+	import { Hero, Tags, ItemGroup, About, FAQ, Shop } from './_home';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
@@ -53,39 +53,37 @@
 <!-- TODO: adjust all paddingd for mobile -->
 <!-- TODO: add advert carousel -->
 <!-- <Advert space="home_1" placeholder /> -->
-<!-- TODO: improve tags -->
-<Tags />
 
 <Content --content-width="1200px" --content-height="100%">
+	<Tags />
+
+	<br />
+	<br />
+	<br />
+	<br />
 	<ItemGroup id="new_arrivals" items={new_arrivals}>
 		{#snippet _title()}
-			<div class="a">
-				New Arrivals
-				<LinkArrow
-					onclick={() => page_state.goto('shop', { order: 'latest' })}
-					--link-font-size="0.8rem">See All</LinkArrow
-				>
-			</div>
+			<div class="page_title">New Arrivals</div>
+			<LinkArrow
+				onclick={() => page_state.goto('shop', { order: 'latest' })}
+				--link-font-size="0.8rem">See All</LinkArrow
+			>
 		{/snippet}
 	</ItemGroup>
+	<br />
+	<br />
+	<br />
+	<br />
 	<ItemGroup id="discount" items={discount}>
 		{#snippet _title()}
-			<div class="a">
-				Discounted Items
-				<LinkArrow
-					onclick={() => page_state.goto('shop', { order: 'discount' })}
-					--link-font-size="0.8rem">See All</LinkArrow
-				>
-			</div>
+			<div class="page_title">Discounted Items</div>
+			<LinkArrow
+				onclick={() => page_state.goto('shop', { order: 'discount' })}
+				--link-font-size="0.8rem">See All</LinkArrow
+			>
 		{/snippet}
 	</ItemGroup>
 	<About></About>
 	<FAQ></FAQ>
+	<Shop></Shop>
 </Content>
-
-<style>
-	.a {
-		display: flex;
-		flex-direction: column;
-	}
-</style>

@@ -28,7 +28,13 @@
 
 {#if items.length > 0}
 	<div {id}></div>
-	<Card {open} onclick={() => (open = !open)}>
+	<Card
+		--card-content-padding="0"
+		--card-title-padding="0 0 16px 0"
+		--card-background-color="transparent"
+		{open}
+		onclick={() => (open = !open)}
+	>
 		{#snippet title()}
 			{#if _title}
 				{@render _title()}

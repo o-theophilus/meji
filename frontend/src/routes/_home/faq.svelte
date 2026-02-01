@@ -74,6 +74,8 @@
 
 		& .q {
 			font-weight: 800;
+			font-size: 0.8rem;
+			color: var(--ft1);
 			display: flex;
 			align-items: center;
 		}

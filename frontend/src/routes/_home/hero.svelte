@@ -8,12 +8,13 @@
 </script>
 
 <section>
-	<div class="nav">
-		<Nav />
-	</div>
-
+	
 	<div class="wave">
 		<Wave />
+	</div>
+	
+	<div class="nav">
+		<Nav />
 	</div>
 
 	<div class="block">
@@ -57,9 +58,8 @@
 
 	.nav {
 		position: relative;
-		z-index: 1;
 	}
-
+	
 	.wave {
 		display: flex;
 		justify-content: center;
