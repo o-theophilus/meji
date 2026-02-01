@@ -27,7 +27,13 @@
 		align-items: center;
 
 		max-width: var(--mobileWidth);
-		height: var(--headerHeight);
+		height: 56px;
 		margin: auto;
+	}
+
+	@media screen and (min-width: 400px) {
+		.block {
+			height: var(--headerHeight);
+		}
 	}
 </style>

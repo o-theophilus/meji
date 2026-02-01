@@ -9,7 +9,7 @@
 
 <a class:active {href} data-sveltekit-preload-data>
 	<div class="block">
-		<Icon icon={!active ? icon : `${icon}_active`} size="24" />
+		<Icon icon={!active ? icon : `${icon}_active`} size="16" />
 		{name}
 
 		{#if count > 0}
@@ -47,7 +47,7 @@
 		}
 
 		&:hover {
-			/* background-color: var(--bg1); */
+			background-color: var(--bg1);
 		}
 
 		& .block {
@@ -61,7 +61,7 @@
 
 			color: var(--ft2);
 			fill: var(--ft2);
-			font-size: 0.8rem;
+			font-size: 0.7rem;
 			line-height: 100%;
 
 			transition:
@@ -73,8 +73,8 @@
 
 	.count {
 		position: absolute;
-		top: 2px;
-		right: 0;
+		top: -3px;
+		right: -3px;
 
 		display: flex;
 		align-items: center;

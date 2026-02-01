@@ -54,7 +54,7 @@
 						name={app.user.name}
 						photo={app.user.photo}
 						size="32"
-						--avatar-border-radius="50%"
+						--avatar-border-radius="40%"
 					/>
 					<div class="details">
 						<div class="name">

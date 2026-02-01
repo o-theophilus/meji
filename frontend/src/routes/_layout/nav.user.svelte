@@ -9,12 +9,12 @@
 
 {#if app.login}
 	<a class:active href="/@{app.user.username}" data-sveltekit-preload-data>
-		<Avatar name={app.user.name} photo={app.user.photo} size="24" --avatar-border-radius="40%" />
+		<Avatar name={app.user.name} photo={app.user.photo} size="20" --avatar-border-radius="40%" />
 		Profile
 	</a>
 {:else}
 	<button onclick={() => module.open(Login)}>
-		<Icon icon="user" size="24" />
+		<Icon icon="user" size="16" />
 		Login
 	</button>
 {/if}
@@ -41,7 +41,7 @@
 
 		color: var(--ft2);
 		fill: var(--ft2);
-		font-size: 0.8rem;
+		font-size: 0.7rem;
 		text-decoration: none;
 		line-height: 100%;
 
@@ -53,7 +53,7 @@
 			background-color 0.2s ease-in-out;
 
 		&:hover {
-			/* background-color: var(--bg1); */
+			background-color: var(--bg1);
 		}
 	}
 
