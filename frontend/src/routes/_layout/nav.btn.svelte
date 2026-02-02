@@ -74,7 +74,7 @@
 	.count {
 		position: absolute;
 		top: -3px;
-		right: -3px;
+		right: -5px;
 
 		display: flex;
 		align-items: center;
