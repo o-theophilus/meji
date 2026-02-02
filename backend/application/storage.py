@@ -138,7 +138,7 @@ def get_all_live(path=""):
     return [x["name"] for x in files]
 
 
-test = True
+test = False
 
 
 def get_path(path=""):
@@ -190,7 +190,6 @@ class storage:
 def get_photo(filename, path="", thumbnail=False):
     try:
         file = storage.get(filename, path, thumbnail)
-        storage.copy(filename, path, "item_snap")
     except Exception as e:
         abort(400, description=str(e))
     return send_file(file, mimetype="image/jpg")

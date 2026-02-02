@@ -90,7 +90,10 @@ def get_session(cur, login=False):
 
     cur.execute("""
         UPDATE session SET date_updated = %s WHERE key = %s;
-    """, (datetime.now(timezone.utc), session["key"]))
+    """, (
+        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
+        session["key"])
+    )
 
     return {"status": 200, "user": user, "login": session["login"] != "false"}
 

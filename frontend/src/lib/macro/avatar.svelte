@@ -19,6 +19,8 @@
 		}
 		return no_photo;
 	});
+	console.log(photo);
+	
 </script>
 
 {#if src}

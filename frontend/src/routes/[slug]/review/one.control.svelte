@@ -47,7 +47,7 @@
 	};
 
 	let open_menu = $state(false);
-	let self = false;
+	let self = $state(false);
 </script>
 
 <svelte:window
@@ -165,11 +165,11 @@
 		transition:
 			color 0.2s ease-in-out,
 			background-color 0.2s ease-in-out;
-	}
 
-	.btn:hover {
-		background-color: var(--bg1);
-		color: var(--ft1);
+		&:hover {
+			background-color: var(--bg1);
+			color: var(--ft1);
+		}
 	}
 
 	.like {

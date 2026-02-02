@@ -116,6 +116,5 @@
 		margin-top: 24px;
 		font-size: 0.8rem;
 		--link-font-size: 0.8rem;
-		--link-font-weight: 400;
 	}
 </style>
