@@ -32,7 +32,7 @@
 	</div>
 
 	{#if open && !loading}
-		<div class="area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+		<div class="item_area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each group.items as item}
 				<div class="item">
 					<a
@@ -47,7 +47,7 @@
 					</a>
 					<div class="details">
 						<a
-							class="link"
+							class="name"
 							href="/{item.slug}"
 							onclick={() => {
 								prerender(item);
@@ -76,11 +76,13 @@
 		margin: 48px 0;
 	}
 
-	.area {
+	.item_area {
 		display: flex;
-		gap: 24px;
+		--gap: 24px;
+		gap: var(--gap);
 		/* margin: 48px 0; */
 		overflow-x: auto;
+		scroll-snap-type: x mandatory;
 
 		@media screen and (min-width: 600px) {
 			& {
@@ -92,12 +94,21 @@
 	.item {
 		display: flex;
 		gap: 16px;
-		flex: 0 0 200px;
+		flex: 0 0 calc((100% - var(--gap)) / 2);
+		scroll-snap-align: start;
 
-		& .link {
+		@media screen and (min-width: 600px) {
+			& {
+				flex: 0 0 calc((100% - var(--gap) * 2) / 3);
+			}
+		}
+
+		& .name {
 			text-decoration: none;
 			color: var(--ft1);
-			font-weight: 700;
+			/* font-weight: 700; */
+			font-size: 0.8rem;
+			/* line-height: 100%; */
 
 			transition: color 0.2s ease-in-out;
 
