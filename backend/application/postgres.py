@@ -124,6 +124,12 @@ def create_tables():
             quantity INT DEFAULT 10
         );
 
+        CREATE TABLE IF NOT EXISTS advert (
+            key UUID PRIMARY KEY  UUID REFERENCES item(key) ON DELETE CASCADE,
+            space TEXT[] DEFAULT '{}'::TEXT[],
+            photo JSONB DEFAULT '{}'::JSONB
+        );
+
         CREATE TABLE IF NOT EXISTS review (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),

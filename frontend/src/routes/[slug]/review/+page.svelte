@@ -19,14 +19,18 @@
 	let { item } = data;
 	let reviews = $derived(data.reviews);
 	let ratings = $derived(data.ratings);
+	let has_purchased = $derived(data.has_purchased);
+	let can_review = $derived(data.can_review);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
 	let searchParams = $state(data.searchParams);
 
-	const update = (a, b, c) => {
-		reviews = a;
-		ratings = b;
-		total_page = c;
+	const update = (rat, rev, hp, cr, tp) => {
+		reviews = rat;
+		ratings = rev;
+		has_purchased = hp;
+		can_review = cr;
+		total_page = tp;
 	};
 
 	onMount(() => {
@@ -87,18 +91,38 @@
 			}}
 		/>
 
-		<div class="button">
-			{#if app.login}
-				<Button
-					icon="message-circle-plus"
-					onclick={() => module.open(Add, { item, update, search: searchParams })}
-				>
-					Add review
-				</Button>
-			{:else}
-				<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
-			{/if}
-		</div>
+		{#if !app.login}
+			<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
+		{:else if !has_purchased}
+			<!-- TODO: also restrict users from review at the backend -->
+			<Button
+				icon="message-circle-plus"
+				onclick={() =>
+					module.open(Dialogue, {
+						status: 200,
+						title: 'Purchase to Add review',
+						message: 'Purchase to Add review',
+						buttons: [
+							{
+								name: 'Ok',
+								icon: 'ok',
+								fn: () => {
+									module.close();
+								}
+							}
+						]
+					})}
+			>
+				Add review
+			</Button>
+		{:else if can_review}
+			<Button
+				icon="message-circle-plus"
+				onclick={() => module.open(Add, { item, search: { page_size: 3 }, update })}
+			>
+				Add review
+			</Button>
+		{/if}
 	</div>
 </Content>
 

@@ -7,7 +7,7 @@ bp = Blueprint("review_get", __name__)
 
 
 @bp.get("/review/<key>")
-def get_many(key, cur=None):
+def get_many(key, _page_size=24, cur=None):
     close_conn = not cur
     if not cur:
         con, cur = db_open()
@@ -19,11 +19,12 @@ def get_many(key, cur=None):
         return jsonify(session)
     user = session["user"]
 
+    # FIXME: this endpoint is slow
     # PORTFOLIO upgrade on portfolio website
     searchParams = {
         "order": 'most relevant ▼',
         "page_no": 1,
-        "page_size": 24
+        "page_size": _page_size
     }
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))

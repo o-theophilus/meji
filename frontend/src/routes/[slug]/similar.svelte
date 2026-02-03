@@ -6,32 +6,18 @@
 	import { FoldButton, Link } from '$lib/button';
 	import { Spinner, Avatar } from '$lib/macro';
 
-	let { key, refresh } = $props();
-	let items = $state([]);
-	let open = $state(true);
-	let loading = $state(true);
-
-	export const load = async () => {
-		loading = true;
-
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/similar/${key}`);
-		resp = await resp.json();
-		loading = false;
-
-		if (resp.status == 200) {
-			items = resp.items;
-		}
-	};
+	let { group, refresh, loading } = $props();
+	let open = $derived(group.open);
 
 	const prerender = (x) => {
 		app.item = x;
 	};
 </script>
 
-{#if loading || items.length > 0}
+{#if loading || group.items.length > 0}
 	<div class="title line">
-		<div class="page_title line">
-			Similar Post{#if items.length > 1}s{/if}
+		<div class="line">
+			{group.name}
 			<Spinner active={loading} size="20" />
 		</div>
 
@@ -47,8 +33,8 @@
 
 	{#if open && !loading}
 		<div class="area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			{#each items as item}
-				<div class="post">
+			{#each group.items as item}
+				<div class="item">
 					<a
 						href="/{item.slug}"
 						onclick={() => {
@@ -72,12 +58,11 @@
 							{item.name}
 						</a>
 
-						{#if item.description}
-							<br />
-							<div class="desc">
-								{item.description}
-							</div>
-						{/if}
+						<div class="price">
+							{#if Number(item.price)}
+								₦{Number(item.price).toLocaleString()}
+							{/if}
+						</div>
 					</div>
 				</div>
 			{/each}
@@ -92,35 +77,33 @@
 	}
 
 	.area {
-		display: grid;
-		gap: 24px;
-		margin: 48px 0;
-	}
-
-	.post {
 		display: flex;
-		gap: 16px;
-	}
+		gap: 24px;
+		/* margin: 48px 0; */
+		overflow-x: auto;
 
-	.link {
-		text-decoration: none;
-		color: var(--ft1);
-		font-weight: 700;
-
-		transition: color 0.2s ease-in-out;
-	}
-
-	.link:hover {
-		color: var(--cl1);
-	}
-
-	@media screen and (min-width: 600px) {
-		.area {
-			grid-template-columns: 1fr 1fr;
+		@media screen and (min-width: 600px) {
+			& {
+				grid-template-columns: 1fr 1fr;
+			}
 		}
 	}
 
-	.desc {
-		font-size: 0.8rem;
+	.item {
+		display: flex;
+		gap: 16px;
+		flex: 0 0 200px;
+
+		& .link {
+			text-decoration: none;
+			color: var(--ft1);
+			font-weight: 700;
+
+			transition: color 0.2s ease-in-out;
+
+			&:hover {
+				color: var(--cl1);
+			}
+		}
 	}
 </style>

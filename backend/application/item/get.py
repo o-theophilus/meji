@@ -280,6 +280,7 @@ def like_page():
     })
 
 
+# TODO: remove this endpoint
 @bp.get("/item/similar/<key>")
 def similar_items(key):
     con, cur = db_open()

@@ -52,7 +52,13 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.reviews, resp.ratings, resp.total_page);
+			module.value.update(
+				resp.reviews,
+				resp.ratings,
+				resp.has_purchased,
+				resp.can_review,
+				resp.total_page
+			);
 			module.close();
 			notify.open('Review Added');
 		} else {

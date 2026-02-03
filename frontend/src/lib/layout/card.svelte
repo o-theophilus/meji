@@ -36,7 +36,7 @@
 
 <style>
 	.card {
-		margin: 8px 0;
+		margin-top: 8px;
 		background-color: var(--card-background-color, var(--bg));
 		border-radius: 8px;
 		outline: 1px solid var(--card-outline-color, transparent);
@@ -56,7 +56,7 @@
 		width: 100%;
 		pointer-events: none;
 	}
-	
+
 	.content {
 		padding: var(--card-content-padding, 0 24px 24px 24px);
 		border-top: 1px solid var(--card-content-top-border-color, transparent);

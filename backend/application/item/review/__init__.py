@@ -77,7 +77,7 @@ def create(key):
         misc={"item_key": item["key"]}
     )
 
-    reviews = get_many(item["key"], cur)
+    reviews = get_many(item["key"], cur=cur)
     db_close(con, cur)
     return reviews
 
@@ -117,11 +117,6 @@ def delete(key):
             "error": "Invalid request"
         })
 
-    cur.execute("""
-        DELETE FROM "like"
-        WHERE entity_type = 'review' AND entity_key = %s;
-    """, (review["key"],))
-
     cur.execute("""DELETE FROM review WHERE key = %s;""", (review["key"],))
 
     log(
@@ -133,6 +128,6 @@ def delete(key):
         misc={"item_key": review["item_key"]}
     )
 
-    reviews = get_many(review["item_key"], cur)
+    reviews = get_many(review["item_key"], cur=cur)
     db_close(con, cur)
     return reviews

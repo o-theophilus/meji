@@ -17,7 +17,7 @@
 		Price,
 		Information,
 		Quantity,
-		Feedback,
+		Review,
 		Variation
 	} from '.';
 	import Highlight from './highlight.svelte';
@@ -29,8 +29,27 @@
 
 	let { data } = $props();
 	let item = $derived(data.item);
+	let review = $state({});
+	let item_group = $state([]);
 	let edit_mode = $state(false);
-	let is_admin = $state(false);
+	let loading = $state(false);
+	let is_admin = app.user.access.some((x) =>
+		[
+			'item:add',
+			'item:edit_status',
+			'item:edit_file',
+			'item:edit_date',
+			'item:edit_name',
+			'item:edit_tag',
+			'item:edit_price',
+			'item:edit_information',
+			'item:edit_files',
+			'item:edit_variation',
+			'item:edit_quantity',
+			'item:edit_highlight',
+			'item:advert'
+		].includes(x)
+	);
 
 	const update = (data) => {
 		item = data;
@@ -40,41 +59,34 @@
 		page_state.clear('cart');
 	};
 
-	let comment = $state();
-	let similar = $state();
-
 	const refresh = async (data) => {
 		item = data;
-
-		edit_mode = false;
-		await comment.load();
-		await similar.load();
-	};
-
-	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/admin/access/item:edit`);
-		resp = await resp.json();
-		if (resp.status == 200) {
-			is_admin = app.user.access.some((x) => resp.access.includes(x));
-		}
+		loading = true;
 
 		if (page.url.searchParams.has('edit') && is_admin) {
 			page.url.searchParams.delete('edit');
 			edit_mode = true;
 			window.history.replaceState(history.state, '', page.url.href);
+		} else {
+			edit_mode = false;
 		}
 
-		refresh(item);
-	});
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item_group/${item.key}`, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: app.token
+			}
+		});
+		resp = await resp.json();
 
-	let edata = $state({
-		comment: 0,
-		like: 0,
-		dislike: 0,
-		share: 0,
-		view: 0,
-		user_like: null
-	});
+		if (resp.status == 200) {
+			review = resp.review;
+			item_group = resp.item_group;
+		}
+		loading = false;
+	};
+
+	onMount(async () => refresh(item));
 </script>
 
 {#key item.key}
@@ -89,7 +101,7 @@
 	image={item.photo}
 />
 
-<Content --content-background-color="var(--bg)">
+<Content --content-background-color="var(--bg)" --content-padding-bottom="0">
 	{#if is_admin}
 		<Toggle state_2="edit" active={edit_mode} onclick={() => (edit_mode = !edit_mode)} />
 		<br />
@@ -115,7 +127,7 @@
 			<Information {item} {edit_mode} {update} />
 			<Variation {item} {edit_mode} {update} />
 			<Quantity {item} {edit_mode} {update} />
-			<Feedback {item} bind:this={comment} />
+			<Review {item} {review} {loading} />
 		</div>
 	</div>
 </Content>
@@ -166,8 +178,10 @@
 	--content-padding-bottom="0"
 	--content-background-color="var(--bg)"
 >
-	<Similar key={item.key} bind:this={similar} {refresh} />
-	<ToTop />
+	{#each item_group as group}
+		<Similar {group} {refresh} {loading} />
+	{/each}
+	<!-- TODO: <ToTop /> -->
 </Content>
 
 <style>

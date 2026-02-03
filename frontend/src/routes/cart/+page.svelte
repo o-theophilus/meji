@@ -111,7 +111,6 @@
 
 	.terms {
 		display: flex;
-		align-items: flex-start;
 		gap: 16px;
 		margin-top: 24px;
 		font-size: 0.8rem;
