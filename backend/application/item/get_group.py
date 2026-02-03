@@ -12,19 +12,24 @@ bp = Blueprint("item_get_group", __name__)
 
 def recently_viewed(cur, user_key, item_key):
     cur.execute("""
-        SELECT DISTINCT ON (item.key)
-            item.*
-        FROM log
-        JOIN item ON item.key::TEXT = log.entity_key
-        WHERE
-            item.status = 'active'
-            AND log.user_key = %s
-            AND log.action = 'viewed'
-            AND log.entity_type = 'item'
-            AND log.entity_key != %s
-        ORDER BY
-            item.key,
-            log.date_created DESC
+        SELECT *
+        FROM (
+            SELECT DISTINCT ON (item.key)
+                item.*,
+                log.date_created AS viewed_at
+            FROM log
+            JOIN item ON item.key::TEXT = log.entity_key
+            WHERE
+                item.status = 'active'
+                AND log.user_key = %s
+                AND log.action = 'viewed'
+                AND log.entity_type = 'item'
+                AND log.entity_key != %s
+            ORDER BY
+                item.key,
+                log.date_created DESC
+        ) t
+        ORDER BY viewed_at DESC
         LIMIT 8;
     """, (user_key, item_key))
     items = cur.fetchall()
