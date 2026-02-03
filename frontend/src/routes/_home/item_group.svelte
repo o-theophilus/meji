@@ -55,7 +55,7 @@
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 16px;
+		gap: 8px;
 	}
 
 	@media screen and (min-width: 580px) {

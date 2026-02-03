@@ -152,7 +152,7 @@
 
 		justify-content: center;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: 8px;
 
 		margin: 16px 0;
 	}

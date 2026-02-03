@@ -45,7 +45,14 @@
 		max-width: var(--mobileWidth);
 		width: 100%;
 		margin: auto;
-		padding: 16px 24px;
+		padding: 16px;
+
+			@media screen and (min-width: 580px) {
+				& {
+					padding-left:  24px;
+					padding-right:  24px;
+				}
+		}
 	}
 
 	a {
