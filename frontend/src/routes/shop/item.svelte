@@ -46,7 +46,7 @@
 			<div class="new">New</div>
 		{/if}
 		<img
-			src="{item.files[0]}/500"
+			src="{item.files[0]}/256"
 			loading="lazy"
 			alt={item.name}
 			onerror={(e) => (e.target.src = '/no_photo.png')}
@@ -148,10 +148,8 @@
 
 		& img {
 			width: 100%;
-			object-fit: cover;
 			aspect-ratio: 1;
-			outline-offset: 2px;
-			transition: outline-color 0.2s ease-in-out;
+			object-fit: cover;
 			display: block;
 		}
 	}
@@ -174,7 +172,6 @@
 			& .price {
 				font-size: 1.1rem;
 				font-weight: 700;
-				color: var(--ac1);
 				color: var(--ft1);
 			}
 

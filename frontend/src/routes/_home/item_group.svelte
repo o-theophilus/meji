@@ -6,9 +6,8 @@
 	import { Button } from '$lib/button';
 	import { Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
-	import Item from '../shop/item.svelte';
+	import One from '../shop/item.svelte';
 
-	let width = $state();
 	let open = $state(true);
 	let { items = [], _title, id = '' } = $props();
 
@@ -23,8 +22,6 @@
 		}
 	});
 </script>
-
-<svelte:window bind:innerWidth={width} />
 
 {#if items.length > 0}
 	<div {id}></div>
@@ -42,9 +39,13 @@
 		{/snippet}
 
 		<div class="grid">
-			{#each items.slice(0, width < 940 ? 6 : 8) as item (item.key)}
-				<div animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}>
-					<Item {item}></Item>
+			{#each items as item, i (item.key)}
+				<div
+					class="item"
+					class:can_hide={i > 5}
+					animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}
+				>
+					<One {item}></One>
 				</div>
 			{/each}
 		</div>
@@ -67,6 +68,18 @@
 	@media screen and (min-width: 940px) {
 		.grid {
 			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	.item {
+		&.can_hide {
+			display: none;
+		}
+
+		@media screen and (min-width: 940px) {
+			&.can_hide {
+				display: block;
+			}
 		}
 	}
 </style>

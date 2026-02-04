@@ -30,7 +30,7 @@ def recently_viewed(cur, user_key, item_key):
                 log.date_created DESC
         ) t
         ORDER BY viewed_at DESC
-        LIMIT 8;
+        LIMIT 6;
     """, (user_key, item_key))
     items = cur.fetchall()
     return [item_schema(x) for x in items]
@@ -63,7 +63,7 @@ def customer_view(cur, user_key, item_key):
             AND item.status = 'active'
         GROUP BY item.key
         ORDER BY view_count DESC
-        LIMIT 8;
+        LIMIT 6;
     """, (user_key, item_key))
 
     items = cur.fetchall()
@@ -88,7 +88,7 @@ def likeness(cur, excluded_item_keys, keywords):
         FROM scored_items
         WHERE likeness > 0
         ORDER BY likeness DESC
-        LIMIT 8;
+        LIMIT 6;
     """, (keywords, excluded_item_keys))
 
     items = cur.fetchall()

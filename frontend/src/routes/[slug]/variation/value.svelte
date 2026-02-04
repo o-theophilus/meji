@@ -23,7 +23,7 @@
 		all: unset;
 
 		--size: 40px;
-		--pad: 8px;
+		--pad: 4px;
 
 		display: inline-flex;
 		align-items: center;
@@ -31,7 +31,7 @@
 
 		height: var(--size);
 		min-width: var(--size);
-		border-radius: 8px;
+		border-radius: 4px;
 		border: none;
 
 		background-color: transparent;
@@ -51,6 +51,7 @@
 
 		& .label {
 			line-height: 100%;
+			font-size: 0.8rem;
 		}
 
 		& .color {
@@ -61,8 +62,9 @@
 		}
 
 		&:has(.label) {
-			gap: 8px;
-			padding: 0 var(--pad);
+			gap: var(--pad);
+			padding-left: calc(var(--pad) * 1.5);
+			padding-right: var(--pad);
 
 			& .color {
 				height: calc(var(--size) - var(--pad) * 2);

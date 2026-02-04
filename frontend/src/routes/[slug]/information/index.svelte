@@ -10,12 +10,12 @@
 </script>
 
 {#if item.information}
+	<br />
 	<Card
 		{open}
 		onclick={() => (open = !open)}
-		--card-bottom-border-color="var(--bg1)"
-		--card-title-padding="16px 0"
-		--card-content-padding="0"
+		--card-title-padding="0"
+		--card-content-padding="16px 0"
 	>
 		{#snippet title()}
 			{#if app.user.access.includes('item:edit_information') && edit_mode}
@@ -28,7 +28,10 @@
 						})}>Edit information</Edit_Button
 				>
 			{/if}
-			<div class="title">Details & Specifications</div>
+			<div class="title">
+				Details & Specifications
+				<div class="hr"></div>
+			</div>
 		{/snippet}
 		<Marked content={item.information}></Marked>
 	</Card>
@@ -38,6 +41,17 @@
 
 <style>
 	.title {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+
 		font-weight: 800;
+		color: var(--ft1);
+
+		& .hr {
+			background-color: var(--ft1);
+			height: 2px;
+			flex-grow: 1;
+		}
 	}
 </style>

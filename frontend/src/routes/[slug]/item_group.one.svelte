@@ -1,79 +1,98 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
-	import {  Avatar } from '$lib/macro';
+	import { Avatar } from '$lib/macro';
 
-	let { item, refresh } = $props();
+	let { item, refresh, can_hide } = $props();
 
 	const prerender = (x) => {
 		app.item = x;
 	};
 </script>
 
-				<div class="item">
-					<a
-						href="/{item.slug}"
-						onclick={() => {
-							prerender(item);
-							refresh(item);
-						}}
-						onmouseenter={() => prerender(item)}
-					>
-						<Avatar size="58" photo={item.photo} no_photo="/no_photo.png" name={item.name}></Avatar>
-					</a>
-					<div class="details">
-						<a
-							class="name"
-							href="/{item.slug}"
-							onclick={() => {
-								prerender(item);
-								refresh(item);
-							}}
-							onmouseenter={() => prerender(item)}
-						>
-							{item.name}
-						</a>
+<a
+	class="name"
+	class:can_hide
+	href="/{item.slug}"
+	onclick={() => {
+		prerender(item);
+		refresh(item);
+	}}
+	onmouseenter={() => prerender(item)}
+>
+	<img
+		src="{item.files[0]}/64"
+		loading="lazy"
+		alt={item.name}
+		onerror={(e) => (e.target.src = '/no_photo.png')}
+	/>
+	<div class="details">
+		<div class="name">
+			{item.name}
+		</div>
 
-						<div class="price">
-							{#if Number(item.price)}
-								₦{Number(item.price).toLocaleString()}
-							{/if}
-						</div>
-					</div>
-				</div>
-		
+		<div class="price">
+			{#if Number(item.price)}
+				₦{Number(item.price).toLocaleString()}
+			{/if}
+		</div>
+	</div>
+</a>
 
 <style>
-	.title {
-		justify-content: space-between;
-		margin: 48px 0;
-		font-weight: 800;
-		color: var(--ft1);
-	}
-
-
-	.item {
+	a {
 		display: flex;
-		gap: 16px;
-		flex: 0 0 calc((100% - var(--gap)) / 2);
-		scroll-snap-align: start;
+		gap: 8px;
+
+		background-color: var(--bg3);
+		padding: 8px;
+		border-radius: 8px;
+		outline: 1px solid var(--ol);
+		outline-offset: -1px;
+		text-decoration: none;
+		color: var(--ft2);
+
+		transition: background-color 0.2s ease-in-out;
+
+		&:hover {
+			background-color: var(--bg2);
+		}
+
+		&.can_hide {
+			display: none;
+		}
 
 		@media screen and (min-width: 600px) {
-			& {
-				flex: 0 0 calc((100% - var(--gap) * 2) / 3);
+			&.can_hide {
+				display: flex;
 			}
 		}
 
-		& .name {
-			text-decoration: none;
-			color: var(--ft1);
-			/* font-weight: 700; */
-			font-size: 0.8rem;
-			/* line-height: 100%; */
+		& img {
+			width: 48px;
+			aspect-ratio: 1;
+			object-fit: cover;
+			display: block;
+			border-radius: 4px;
+		}
 
-			transition: color 0.2s ease-in-out;
+		& .details {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
 
-			&:hover {
-				color: var(--cl1);
+			& .name {
+				text-decoration: none;
+				color: var(--ft1);
+				font-size: 0.8rem;
+				line-height: 120%;
+
+				transition: color 0.2s ease-in-out;
+			}
+
+			& .price {
+				font-size: 0.9rem;
+				font-weight: 700;
+				color: var(--ft1);
 			}
 		}
 	}

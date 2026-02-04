@@ -15,9 +15,8 @@
 	<Card
 		{open}
 		onclick={() => (open = !open)}
-		--card-bottom-border-color="var(--bg1)"
-		--card-title-padding="16px 0"
-		--card-content-padding="0"
+		--card-title-padding="0"
+		--card-content-padding="16px 0"
 	>
 		{#snippet title()}
 			{#if app.user.access.includes('item:edit_variation') && edit_mode}
@@ -34,13 +33,14 @@
 			{/if}
 			<div class="title">
 				Variation{#if Object.keys(item.variation).length > 1}s{/if}
+				<div class="hr"></div>
 			</div>
 		{/snippet}
 
 		<div class="grid">
 			{#each Object.entries(item.variation) as [key, values]}
 				<div class="key">
-					{key}:
+					{key}
 				</div>
 
 				<div class="line">
@@ -57,7 +57,18 @@
 
 <style>
 	.title {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+
 		font-weight: 800;
+		color: var(--ft1);
+
+		& .hr {
+			background-color: var(--ft1);
+			height: 2px;
+			flex-grow: 1;
+		}
 	}
 
 	.grid {
@@ -65,11 +76,10 @@
 		grid-template-columns: auto 1fr;
 		gap: 16px;
 		align-items: center;
-
-		margin: 24px 0;
 	}
 
 	.key {
 		text-transform: capitalize;
+		font-size: 0.8rem;
 	}
 </style>

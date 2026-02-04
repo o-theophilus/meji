@@ -172,7 +172,7 @@
 	</div>
 </div>
 
-<Content --content-height>
+<Content --content-height --content-padding-top=1px>
 	{#each item_group as group}
 		<Similar {group} {refresh} {loading} />
 	{/each}
