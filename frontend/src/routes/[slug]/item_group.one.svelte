@@ -1,39 +1,14 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-
 	import { app } from '$lib/store.svelte.js';
-	import { FoldButton, Link } from '$lib/button';
-	import { Spinner, Avatar } from '$lib/macro';
+	import {  Avatar } from '$lib/macro';
 
-	let { group, refresh, loading } = $props();
-	let open = $derived(group.open);
+	let { item, refresh } = $props();
 
 	const prerender = (x) => {
 		app.item = x;
 	};
 </script>
 
-{#if loading || group.items.length > 0}
-	<div class="title line">
-		<div class="line">
-			{group.name}
-			<Spinner active={loading} size="20" />
-		</div>
-
-		{#if !loading}
-			<FoldButton
-				{open}
-				onclick={() => {
-					open = !open;
-				}}
-			/>
-		{/if}
-	</div>
-
-	{#if open && !loading}
-		<div class="item_area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			{#each group.items as item}
 				<div class="item">
 					<a
 						href="/{item.slug}"
@@ -65,10 +40,7 @@
 						</div>
 					</div>
 				</div>
-			{/each}
-		</div>
-	{/if}
-{/if}
+		
 
 <style>
 	.title {
@@ -78,20 +50,6 @@
 		color: var(--ft1);
 	}
 
-	.item_area {
-		display: flex;
-		--gap: 24px;
-		gap: var(--gap);
-		/* margin: 48px 0; */
-		overflow-x: auto;
-		scroll-snap-type: x mandatory;
-
-		@media screen and (min-width: 600px) {
-			& {
-				grid-template-columns: 1fr 1fr;
-			}
-		}
-	}
 
 	.item {
 		display: flex;

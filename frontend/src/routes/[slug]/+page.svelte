@@ -21,7 +21,7 @@
 		Variation
 	} from '.';
 	import Highlight from './highlight.svelte';
-	import Similar from './similar.svelte';
+	import Similar from './item_group.svelte';
 
 	import Like from '../shop/like.svelte';
 	import Share from './share.svelte';
