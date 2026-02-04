@@ -14,6 +14,7 @@
 </script>
 
 <Card
+	--card-background-color="var(--bg3_)"
 	open={ops.status == name}
 	onclick={() => {
 		ops.status = ops.status != name ? name : null;

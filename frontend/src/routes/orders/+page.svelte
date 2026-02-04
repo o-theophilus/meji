@@ -83,6 +83,7 @@
 		--select-font-size="0.8rem"
 		--select-background-color="transparent"
 		--select-background-color-hover="transparent"
+		--select-color="var(--ft2)"
 		--select-color-hover="var(--ft1)"
 		--select-outline-color="transparent"
 		list={order_by}
