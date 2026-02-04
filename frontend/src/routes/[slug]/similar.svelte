@@ -74,6 +74,8 @@
 	.title {
 		justify-content: space-between;
 		margin: 48px 0;
+		font-weight: 800;
+		color: var(--ft1);
 	}
 
 	.item_area {

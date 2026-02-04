@@ -42,7 +42,6 @@
 <Card
 	{open}
 	onclick={() => (open = !open)}
-	--card-bottom-border-color="var(--bg1)"
 	--card-title-padding="16px 0"
 	--card-content-padding="0"
 >

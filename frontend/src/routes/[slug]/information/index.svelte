@@ -6,7 +6,7 @@
 	import { Card } from '$lib/layout';
 
 	let { item, edit_mode, update } = $props();
-	let open = $state(false);
+	let open = $state(true);
 </script>
 
 {#if item.information}

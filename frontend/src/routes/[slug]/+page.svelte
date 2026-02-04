@@ -101,7 +101,7 @@
 	image={item.photo}
 />
 
-<Content --content-background-color="var(--bg)" --content-padding-bottom="0">
+<Content --content-background-color="var(--bg)">
 	{#if is_admin}
 		<Toggle state_2="edit" active={edit_mode} onclick={() => (edit_mode = !edit_mode)} />
 		<br />
@@ -172,12 +172,7 @@
 	</div>
 </div>
 
-<Content
-	--content-height
-	--content-padding-top="0"
-	--content-padding-bottom="0"
-	--content-background-color="var(--bg)"
->
+<Content --content-height>
 	{#each item_group as group}
 		<Similar {group} {refresh} {loading} />
 	{/each}
