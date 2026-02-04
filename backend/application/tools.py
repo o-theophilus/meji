@@ -151,20 +151,17 @@ def check_code(cur, user_key, email, n="code"):
 
 
 def send_mail(to, subject, body):
-
     if current_app.config["DEBUG"]:
         print(body)
     else:
         resend.api_key = os.environ["RESEND_API_KEY"]
-        params = {
-            "from": "Meji.ng <info@theophilus.website>",
-            "to": [to] if type(to) is not list else to,
-            "subject": subject,
-            "html": body,
-        }
-
         try:
-            email = resend.Emails.send(params)
+            email = resend.Emails.send({
+                "from": "Meji.ng <info@theophilus.website>",
+                "to": [to] if type(to) is not list else to,
+                "subject": subject,
+                "html": body,
+            })
             print("Email sent successfully", email)
         except Exception as e:
             print(f"Error sending email: {e}")

@@ -49,7 +49,7 @@
 		gap: 8px;
 	}
 	.total {
-		background-color: var(--bg);
+		background-color: var(--bg3_);
 		padding: 24px 16px;
 		border-radius: 8px;
 	}

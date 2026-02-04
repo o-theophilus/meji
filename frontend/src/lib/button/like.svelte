@@ -37,9 +37,9 @@
 		font-size: 0.7rem;
 
 		color: var(--like-color, var(--ft2));
-		background-color: var(--like-background-color, var(--bg1));
-		outline: 2px solid var(--like-outline-color, transparent);
-		outline-offset: -2px;
+		background-color: var(--like-background-color, var(--bg2));
+		outline: 1px solid var(--like-outline-color, transparent);
+		outline-offset: -1px;
 		border: none;
 		cursor: pointer;
 

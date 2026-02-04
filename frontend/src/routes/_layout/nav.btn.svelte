@@ -80,11 +80,11 @@
 		align-items: center;
 		justify-content: center;
 
-		width: 14px;
-		height: 14px;
+		width: 12px;
+		height: 12px;
 		border-radius: 50%;
 
-		font-size: 0.7rem;
+		font-size: 0.6rem;
 		background-color: var(--cl1);
 		color: white;
 	}

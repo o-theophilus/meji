@@ -19,9 +19,10 @@
 	--ft1: light-dark(hsl(0, 0%, 5%), hsl(0, 0%, 95%));
 	--ft2: light-dark(hsl(0, 0%, 30%), hsl(0, 0%, 70%));
 	--ol: light-dark(hsl(0, 0%, 85%), hsl(0, 0%, 25%));
+	--bg3_: light-dark(hsl(213, 43%, 96%), hsl(0, 0%, 5%));
 	--bg3: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 20%));
-	--bg2: light-dark(hsl(0, 0%, 95%), hsl(0, 0%, 15%));
-	--bg1: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 10%));
+	--bg2: light-dark(hsl(213, 43%, 96%), hsl(0, 0%, 15%));
+	--bg1: light-dark(hsl(210, 21%, 89%), hsl(0, 0%, 10%));
 	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
 	
 	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
