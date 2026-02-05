@@ -7,8 +7,11 @@
 	import Link from './nav.btn.svelte';
 
 	import Notification from './header.notification.svelte';
-	let name = app.user.name.split(' ')[0];
-	name = name.length > 20 ? `${name.slice(0, 20)}...` : name;
+
+	let trim = (name, length) => {
+		let temp = name.split(' ')[0];
+		return temp.length > length ? `${temp.slice(0, length - 3)}...` : temp;
+	};
 </script>
 
 <section>
@@ -21,7 +24,7 @@
 			<Notification />
 			{#if app.login}
 				<div class="name">
-					Hello, {name}
+					Hello, {trim(app.user.name, 20)}
 				</div>
 			{/if}
 			<Menu></Menu>
@@ -47,11 +50,11 @@
 		margin: auto;
 		padding: 16px;
 
-			@media screen and (min-width: 580px) {
-				& {
-					padding-left:  24px;
-					padding-right:  24px;
-				}
+		@media screen and (min-width: 580px) {
+			& {
+				padding-left: 24px;
+				padding-right: 24px;
+			}
 		}
 	}
 

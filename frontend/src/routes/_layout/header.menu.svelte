@@ -11,6 +11,11 @@
 	let menu = $state();
 	let open = $state(false);
 	let can_close = $state(false);
+
+	let trim = (name, length) => {
+		let temp = name.split(' ')[0];
+		return temp.length > length ? `${temp.slice(0, length - 3)}...` : temp;
+	};
 </script>
 
 <svelte:window
@@ -56,12 +61,12 @@
 						size="32"
 						--avatar-border-radius="40%"
 					/>
-					<div class="details">
+					<div class="details" title="{app.user.email}">
 						<div class="name">
-							{app.user.name.length > 20 ? `${app.user.name.slice(0, 20)}...` : app.user.name}
+							{trim(app.user.name, 20)}
 						</div>
 						<div class="email">
-							{app.user.email}
+							{trim(app.user.email, 40)}
 						</div>
 					</div>
 				</a>
