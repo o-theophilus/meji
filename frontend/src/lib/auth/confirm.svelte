@@ -57,7 +57,9 @@
 </script>
 
 <Form title="Confirm Email" error={error.error}>
-	<Note>To confirm your account, please check your email for the confirmation code.</Note>
+	<Note
+		>To confirm your account, please check your email: {form.email} for the confirmation code.</Note
+	>
 	<IG name="Code" error={error.code} bind:value={form.code} type="code"></IG>
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
