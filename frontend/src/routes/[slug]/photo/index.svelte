@@ -3,6 +3,7 @@
 
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
+	import Ads from './ads.form.svelte';
 
 	let { item, edit_mode, update } = $props();
 	let src = $derived(item.files[0] || '/no_photo.png');
@@ -12,18 +13,32 @@
 	<img {src} alt={item.name} onerror={() => (src = '/no_photo.png')} />
 	<div class="edit">
 		{#if app.user.access.includes('item:edit_file') && edit_mode}
-			<Edit_Button
-				onclick={() => {
-					module.open(Form, {
-						key: item.key,
-						name: item.name,
-						files: item.files,
-						update
-					});
-				}}
-			>
-				Edit Files
-			</Edit_Button>
+			<div class="line">
+				<Edit_Button
+					onclick={() => {
+						module.open(Form, {
+							key: item.key,
+							name: item.name,
+							files: item.files,
+							update
+						});
+					}}
+				>
+					Edit Files
+				</Edit_Button>
+
+				<Edit_Button
+					onclick={() => {
+						module.open(Ads, {
+							key: item.key,
+							name: item.name,
+							files: item.files
+						});
+					}}
+				>
+					Edit Ads
+				</Edit_Button>
+			</div>
 		{/if}
 	</div>
 </div>

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from .postgres import db_open, db_close
 from psycopg2.extras import Json
-import os
+# import os
 
 
 bp = Blueprint("fix", __name__)
@@ -1187,17 +1187,25 @@ data = [
 def quick_fix():
     con, cur = db_open()
 
+    # cur.execute("""
+    #     DROP TABLE IF EXISTS cart_item CASCADE;
+    # """)
     cur.execute("""
-        ALTER TABLE item
-        ALTER COLUMN quantity SET DEFAULT 10;
+        CREATE TABLE IF NOT EXISTS advert (
+            key UUID PRIMARY KEY REFERENCES item(key) ON DELETE CASCADE,
+            space TEXT[] DEFAULT '{}'::TEXT[],
+            photo JSONB DEFAULT '{}'::JSONB
+        );
     """)
-
+    # cur.execute("""
+    #     ALTER TABLE item
+    #     ALTER COLUMN quantity SET DEFAULT 10;
+    # """)
 
     # cur.execute("""
     #     ALTER TABLE item
     #     ADD COLUMN specification JSONB DEFAULT '{}'::JSONB;
     # """)
-
 
     # cur.execute("""
     #     UPDATE "user" SET access=%s WHERE email = %s;

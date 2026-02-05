@@ -23,15 +23,15 @@ def save_test(file, path=""):
     photo = Image.alpha_composite(white, photo).convert('RGB')
 
     filename = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
-    photo.save(f"{path}{filename}")
+    photo.save(f"static/{path}{filename}")
 
     return filename
 
 
 def copy_test(filename, from_path="", to_path=""):
     try:
-        photo = Image.open(f"{from_path}{filename}")
-        photo.save(f"{to_path}{filename}")
+        photo = Image.open(f"static/{from_path}{filename}")
+        photo.save(f"static/{to_path}{filename}")
     except Exception as e:
         abort(400, description=str(e))
 
@@ -40,14 +40,14 @@ def copy_test(filename, from_path="", to_path=""):
 
 def delete_test(filename, path=""):
     if os.path.exists(f"{path}{filename}"):
-        os.remove(f"{path}{filename}")
+        os.remove(f"static/{path}{filename}")
         return True
     return False
 
 
 def get_test(filename, path="", thumbnail=False):
     try:
-        photo = Image.open(f"{path}{filename}")
+        photo = Image.open(f"static/{path}{filename}")
     except Exception as e:
         abort(400, description=str(e))
 
@@ -62,7 +62,7 @@ def get_test(filename, path="", thumbnail=False):
 
 
 def get_all_test(path=""):
-    folder_path = Path(f"{os.getcwd()}/{path}")
+    folder_path = Path(f"{os.getcwd()}/static/{path}")
     file_names = [file.name for file in folder_path.iterdir()
                   if file.is_file()]
     return file_names
@@ -143,9 +143,7 @@ test = False
 
 def get_path(path=""):
     if test:
-        path = f"static/photo/{path}"
-        os.makedirs(f"{os.getcwd()}/{path}", exist_ok=True)
-
+        os.makedirs(f"{os.getcwd()}/static/{path}", exist_ok=True)
     return f"{path}/" if path and not path.endswith("/") else path
 
 

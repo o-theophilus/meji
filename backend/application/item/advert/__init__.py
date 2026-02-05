@@ -52,27 +52,27 @@ def add_photo(key):
         )
 
     error = ""
-    new_pick = []
+    picked_dimension = []
     files = []
 
     for x in request.files.getlist("files"):
         dim = Image.open(x).size
         dim = f"{dim[0]}x{dim[1]}"
-
         err = ""
+
         if x.content_type not in ['image/jpeg', 'image/png']:
             err = f"{x.filename} => invalid file"
         elif dim not in sizes:
             err = f"{x.filename} => invalid dimension"
         elif dim in advert["photo"]:
             err = f"{x.filename} => slot occupied"
-        elif dim in new_pick:
+        elif dim in picked_dimension:
             err = f"{x.filename} => slot picked"
 
         if err:
             error = f"{error}, {err}" if error else err
         else:
-            new_pick.append(dim)
+            picked_dimension.append(dim)
             files.append(x)
 
     if files == []:
@@ -107,15 +107,18 @@ def add_photo(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+
+    out = {
         "status": 200,
         "advert": advert_schema(advert),
-        "error": error
-    })
+    }
+    if error:
+        out["error"] = error
+    return jsonify(out)
 
 
-@bp.delete("/advert/photo/<key>")
-def delete_photo(key):
+@bp.put("/advert/<key>")
+def set_photo(key):
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -131,7 +134,8 @@ def delete_photo(key):
             "error": "unauthorized access"
         })
 
-    to_delete = request.json.get("to_delete")
+    photo_selected = request.json.get("photo_selected")
+    spaces_selected = request.json.get("spaces_selected")
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key, ))
     item = cur.fetchone()
@@ -141,8 +145,10 @@ def delete_photo(key):
     if (
         not item
         or not advert
-        or type(to_delete) is not list
-        or to_delete == []
+        or type(photo_selected) is not list
+        or type(spaces_selected) is not list
+        or not all(y in sizes for y in photo_selected)
+        or not all(y in spaces for y in spaces_selected)
     ):
         db_close(con, cur)
         return jsonify({
@@ -150,16 +156,19 @@ def delete_photo(key):
             "error": "invalid request"
         })
 
-    old_photo = advert["photo"]
-    for x in to_delete:
-        if x in advert["photo"]:
-            storage.delete(advert["photo"][x], "item_advert")
-            del advert["photo"][x]
+    new_advert_photo = {}
+    for key, val in advert["photo"].items():
+        if key not in photo_selected:
+            storage.delete(advert["photo"][key], "item_advert")
+        else:
+            new_advert_photo[key] = val
 
-    if advert["photo"] != {}:
+    if new_advert_photo != {}:
+        old_advert = advert
         cur.execute("""
-            UPDATE advert SET photo = %s WHERE key = %s RETURNING *;
-        """, (Json(advert["photo"]), advert["key"],))
+            UPDATE advert SET photo = %s, space = %s
+            WHERE key = %s RETURNING *;
+        """, (Json(new_advert_photo), spaces_selected, advert["key"],))
         advert = cur.fetchone()
 
         log(
@@ -168,12 +177,18 @@ def delete_photo(key):
             action="deleted photo",
             entity_key=advert["key"],
             entity_type="advert",
-            misc={"from": old_photo, "to": advert["photo"]}
+            misc={
+                "from photo": old_advert["photo"],
+                "to photo": advert["photo"],
+                "from space": old_advert["space"],
+                "to space": advert["space"],
+            }
         )
     else:
         cur.execute("""
             DELETE FROM advert WHERE WHERE key = %s;
         """, (advert["key"],))
+        advert = None
 
         log(
             cur=cur,
@@ -186,64 +201,5 @@ def delete_photo(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "advert": advert_schema(advert) if advert["photo"] != {} else None
-    })
-
-
-@bp.put("/advert/<key>")
-def ad_spaces(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    if "item:advert" not in user["access"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    space = request.json.get("space")
-
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
-    item = cur.fetchone()
-    cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
-    advert = cur.fetchone()
-
-    if (
-        not item
-        or not advert
-        or type(space) is not list
-        or not all(y in spaces for y in space)
-    ):
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    old_soace = advert["space"]
-    cur.execute("""
-        UPDATE advert SET space = %s
-        WHERE key = %s RETURNING *;
-    """, (space, advert["key"]))
-    advert = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed advert space",
-        entity_key=advert["key"],
-        entity_type="advert",
-        misc={"from": old_soace, "to": advert["space"]}
-    )
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "advert": advert_schema(advert)
+        "advert": advert_schema(advert) if advert else None
     })

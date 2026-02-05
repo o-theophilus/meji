@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { Hero, Tags, ItemGroup, About, FAQ, Shop } from './_home';
+	import { Hero, Advert, Tags, ItemGroup, About, FAQ, Shop } from './_home';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
@@ -50,14 +50,11 @@
 
 <Hero />
 
-<!-- TODO: adjust all paddingd for mobile -->
-<!-- TODO: add advert carousel -->
-<!-- <Advert space="home_1" placeholder /> -->
-
 <Content --content-width="1200px" --content-height="100%">
+	<Advert space="home_1" --advert-margin-bottom="80px" />
+
 	<Tags />
 
-	<br />
 	<br />
 	<br />
 	<br />
@@ -70,7 +67,6 @@
 			>
 		{/snippet}
 	</ItemGroup>
-	<br />
 	<br />
 	<br />
 	<br />

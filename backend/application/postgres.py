@@ -125,7 +125,7 @@ def create_tables():
         );
 
         CREATE TABLE IF NOT EXISTS advert (
-            key UUID PRIMARY KEY  UUID REFERENCES item(key) ON DELETE CASCADE,
+            key UUID PRIMARY KEY REFERENCES item(key) ON DELETE CASCADE,
             space TEXT[] DEFAULT '{}'::TEXT[],
             photo JSONB DEFAULT '{}'::JSONB
         );

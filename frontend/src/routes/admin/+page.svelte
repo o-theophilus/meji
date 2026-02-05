@@ -32,11 +32,14 @@
 		{#if app.user.access.includes('admin:manage_files')}
 			<Button href="/admin/file_error" size="wide">File Error</Button>
 		{/if}
-		{#if app.user.access.includes('log:view')}
-			<Button href="/log" size="wide">Log</Button>
+		{#if app.user.access.includes('item:advert')}
+			<Button href="/admin/advert" size="wide">Adverts</Button>
 		{/if}
 		{#if app.user.access.includes('order:view')}
 			<Button href="/orders" size="wide">Orders</Button>
+		{/if}
+		{#if app.user.access.includes('log:view')}
+			<Button href="/log" size="wide">Log</Button>
 		{/if}
 	</div>
 </Content>

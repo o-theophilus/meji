@@ -19,8 +19,8 @@
 
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		font-size: 0.8rem;
+		gap: var(--checkbox-gap, 16px);
+		font-size: var(--checkbox-font-size, 0.8rem);
 		width: max-content;
 
 		&:hover .checkbox {

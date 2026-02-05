@@ -5,7 +5,6 @@
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { app, page_state } from '$lib/store.svelte.js';
-
 	import { Content } from '$lib/layout';
 	import { BackButton, Radio } from '$lib/button';
 	import { Pagination, Dropdown, Search } from '$lib/input';
@@ -14,12 +13,12 @@
 	import One from './one.svelte';
 
 	let { data } = $props();
-
-	let orders = $derived(data.orders);
-	let total_page = $derived(data.total_page);
+	let adverts = $derived(data.adverts);
 	let { order_by } = data;
-	let { _status } = data;
+	let { spaces } = data;
+	let { sizes } = data;
 	let searchParams = $state(data.searchParams);
+	let total_page = $derived(data.total_page);
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -33,38 +32,25 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="All Orders" />
+<Meta title="Item Adverts" />
 
 <Content>
 	<div class="line space">
 		<div class="line">
 			<BackButton />
 			<div class="page_title">
-				Order{orders?.length > 1 ? 's' : ''}
+				Advert{adverts?.length > 1 ? 's' : ''}
 			</div>
 		</div>
 
 		<div class="line">
-			{#if app.user.access.includes('order:view')}
-				<Radio
-					--button-outline-color-hover="var(--ft1)"
-					list={['me', 'all']}
-					bind:value={searchParams.view}
-					onclick={(v) => {
-						searchParams.page_no = 1;
-						v = v == 'me' ? '' : v;
-						page_state.set({ view: v });
-					}}
-				></Radio>
-			{/if}
-
 			<Dropdown
 				icon2="chevron-down"
-				list={['all', ..._status]}
-				bind:value={searchParams.status}
+				list={['all', ...spaces]}
+				bind:value={searchParams.space}
 				onchange={(v) => {
 					v = v == 'created' ? '' : v;
-					page_state.set({ status: v });
+					page_state.set({ space: v });
 				}}
 			/>
 		</div>
@@ -92,7 +78,7 @@
 		bind:value={searchParams.order}
 		onchange={(v) => {
 			searchParams.page_no = 1;
-			v = v == 'latest' ? '' : v;
+			v = v == 'name (a-z)' ? '' : v;
 			page_state.set({ order: v });
 		}}
 	/>
@@ -100,9 +86,9 @@
 	<br />
 	<br />
 
-	{#each orders as order (order.key)}
+	{#each adverts as ads (ads.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {order} />
+			<One {ads} {spaces} {sizes} />
 		</div>
 	{:else}
 		<PageNote>

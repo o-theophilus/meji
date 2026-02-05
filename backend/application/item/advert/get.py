@@ -45,7 +45,7 @@ def get(key):
     })
 
 
-@bp.get("/advert")
+@bp.get("/adverts")
 @bp.get("/advert_display")
 def get_many(cur=None):
     close_conn = not cur
@@ -62,7 +62,7 @@ def get_many(cur=None):
     searchParams = {
         "search": "",
         "space": "all",
-        "order": "latest",
+        "order": "name (a-z)",
         "page_no": 1,
         "page_size": 24
     }
@@ -73,15 +73,11 @@ def get_many(cur=None):
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
-        'latest': 'log.date',
-        'oldest': 'log.date',
         'name (a-z)': 'item.name',
         'name (z-a)': 'item.name'
     }
 
     order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC',
         'name (a-z)': 'ASC',
         'name (z-a)': 'DESC'
     }
@@ -97,7 +93,7 @@ def get_many(cur=None):
         FROM advert
         LEFT JOIN item ON advert.key = item.key
         WHERE
-            (%s = 'all' OR %s = ANY(spaces))
+            (%s = 'all' OR %s = ANY(advert.space))
             AND (%s = '' OR item.name ILIKE %s)
             AND (%s = '' OR item.status = %s)
         ORDER BY advert.key, {order_by[order]} {order_dir[order]}
@@ -114,9 +110,10 @@ def get_many(cur=None):
     return jsonify({
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
+        "order_by": list(order_by.keys()),
         "spaces": spaces,
         "sizes": sizes,
-        "order_by": list(order_by.keys()),
+        "searchParams": searchParams,
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
     })

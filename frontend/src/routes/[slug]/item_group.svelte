@@ -10,7 +10,7 @@
 </script>
 
 {#if loading || group.items.length > 0}
-	<div class="title line">
+	<div class="title line nowrap">
 		<div class="line">
 			{group.name}
 			<Spinner active={loading} size="20" />
