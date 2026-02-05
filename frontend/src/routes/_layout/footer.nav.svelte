@@ -10,10 +10,10 @@
 		<Link --link-font-size="0.8rem" href="/contact">Contact Us</Link>
 	</div>
 	<div class="block">
-		<div class="title">Quick Links</div>
-		<Link --link-font-size="0.8rem" href="/">Home</Link>
-		<Link --link-font-size="0.8rem" href="/#about">About</Link>
-		<Link --link-font-size="0.8rem" href="/contact">Contact Us</Link>
+		<div class="title">Discover</div>
+		<Link --link-font-size="0.8rem" href="/">Blog</Link>
+		<Link --link-font-size="0.8rem" href="/">Blog</Link>
+		<Link --link-font-size="0.8rem" href="/">Blog</Link>
 	</div>
 	<div class="block">
 		<div class="title">Legal</div>

@@ -61,7 +61,7 @@
 						size="32"
 						--avatar-border-radius="40%"
 					/>
-					<div class="details" title="{app.user.email}">
+					<div class="details" title={app.user.email}>
 						<div class="name">
 							{trim(app.user.name, 20)}
 						</div>
@@ -78,14 +78,16 @@
 						can_close = false;
 					}}>Orders</a
 				>
-				<a
-					href="/admin"
-					class="menu_item"
-					onclick={() => {
-						open = false;
-						can_close = false;
-					}}>Admin</a
-				>
+				{#if app.user.access.length}
+					<a
+						href="/admin"
+						class="menu_item"
+						onclick={() => {
+							open = false;
+							can_close = false;
+						}}>Admin</a
+					>
+				{/if}
 				{#if app.user.access.includes('log:view')}
 					<a
 						href="/log"

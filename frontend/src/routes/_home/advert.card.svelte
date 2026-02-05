@@ -44,15 +44,13 @@
 	<section id="advert">
 		<div class="scroller" style:--pos={n} style:--time={time}>
 			{#each list as ads, i}
-				{#if ads.photo[size]}
-					<a href="/{ads.slug}">
-						<img
-							src={ads.photo[size] || '/no_photo.png'}
-							alt={ads.name}
-							onerror={(e) => (e.target.src = '/no_photo.png')}
-						/>
-					</a>
-				{/if}
+				<a href="/{ads.slug}">
+					<img
+						src={ads.photo[size] || '/no_photo.png'}
+						alt={ads.name}
+						onerror={(e) => (e.target.src = '/no_photo.png')}
+					/>
+				</a>
 			{/each}
 			{#if list[0].photo[size]}
 				<a href="/{list[0].slug}">

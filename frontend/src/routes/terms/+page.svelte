@@ -4,6 +4,7 @@
 </script>
 
 <!-- TODO: review text -->
+<!-- TODO: review all email template -->
 <Content --content-background-color="var(--bg)">
 	<div class="page_title">Terms and Conditions</div>
 	<Marked

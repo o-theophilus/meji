@@ -8,11 +8,10 @@
 </script>
 
 <section>
-	
 	<div class="wave">
 		<Wave />
 	</div>
-	
+
 	<div class="nav">
 		<Nav />
 	</div>
@@ -40,7 +39,14 @@
 			<img src="/image/hero_image.png" alt="hero" />
 			<div class="btn">
 				<br />
-				<Button icon2="arrow-right" href="/shop">Shop Now</Button>
+				<Button
+					icon2="arrow-right"
+					href="/shop"
+					--button-width="fit-content"
+					--button-font-size="1.2rem"
+				>
+					Shop Now
+				</Button>
 			</div>
 		</div>
 	</div>
@@ -48,18 +54,14 @@
 
 <style>
 	section {
-		--bgc: rgb(70, 70, 78);
 		position: relative;
 		overflow: hidden;
-
-		background: linear-gradient(var(--bgc) 50%, var(--bg1) 50%);
-		box-shadow: inset 0 7px 9px -7px rgba(0, 0, 0, 0.5);
 	}
 
 	.nav {
 		position: relative;
 	}
-	
+
 	.wave {
 		display: flex;
 		justify-content: center;
@@ -68,7 +70,8 @@
 		bottom: 0;
 
 		width: 100%;
-		fill: var(--bgc);
+		fill: var(--bg);
+		background: linear-gradient(var(--bg) 50%, var(--bg1) 50%);
 	}
 
 	.block {
@@ -101,8 +104,8 @@
 	}
 
 	.title {
-		font-size: large;
-		font-weight: 900;
+		font-size: 1.8rem;
+		font-weight: 800;
 
 		color: var(--cl1);
 	}

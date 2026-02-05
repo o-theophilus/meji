@@ -2,14 +2,18 @@
 	import { Icon } from '$lib/macro';
 	import { BackButton } from '$lib/button';
 
+	// TODO: get whatsapp
+	// get facebook username
+	// thread account
 	let platforms = [
 		{ icon: 'whatsapp', href: 'https://wa.me/2348067397793/?text=Hello%20Theophilus' },
-		{ icon: 'twitter', href: 'https://twitter.com/o__theophilus' },
-		{ icon: 'github', href: 'https://github.com/o-theophilus' },
+		{ icon: 'twitter', href: 'https://x.com/shop_meji_ng' },
+		// { icon: 'github', href: 'https://github.com/o-theophilus' },
 		// { icon: "discord", href: 'https://discord.com/users/theophilus#6682' },
-		{ icon: 'facebook', href: 'https://m.facebook.com/o.theophilus' },
-		// { icon: "instagram", href: 'https://www.instagram.com/o_theophilus_/' },
-		{ icon: 'linkedin', href: 'https://www.linkedin.com/in/o-theophilus/' }
+		{ icon: 'facebook', href: 'https://web.facebook.com/profile.php?id=61587524220060' },
+		{ icon: 'instagram', href: 'https://www.instagram.com/shop_meji_ng/' },
+		// { icon: 'linkedin', href: 'https://www.linkedin.com/in/o-theophilus/' },
+		{ icon: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng/' }
 	];
 </script>
 
@@ -38,14 +42,17 @@
 
 		background-color: var(--bg2);
 		fill: var(--ft2);
+		color: var(--ft2);
 
 		transition:
 			background-color 0.2s ease-in-out,
-			fill 0.2s ease-in-out;
+			fill 0.2s ease-in-out,
+			color 0.2s ease-in-out;
 	}
 
 	a:hover {
 		background-color: var(--cl1);
 		fill: white;
+		color: white;
 	}
 </style>

@@ -28,7 +28,7 @@
 		padding: 24px;
 		padding-top: calc(24px * 2);
 
-		font-weight: 700;
+		font-size: 0.8rem;
 		color: var(--ac2);
 	}
 
