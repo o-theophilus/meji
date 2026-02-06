@@ -11,8 +11,6 @@ from . import admin
 from .admin import block
 from .admin.block import get as block_get
 from .admin import file_error
-from .admin import highlight
-from .admin.highlight import get as highlight_get
 from . import report
 from .report import get as report_get
 from . import user
@@ -64,8 +62,6 @@ def create_app(conf=None):
     app.register_blueprint(block.bp)
     app.register_blueprint(block_get.bp)
     app.register_blueprint(file_error.bp)
-    app.register_blueprint(highlight.bp)
-    app.register_blueprint(highlight_get.bp)
     app.register_blueprint(report.bp)
     app.register_blueprint(report_get.bp)
     app.register_blueprint(user.bp)

@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { module, page_state } from '$lib/store.svelte.js';
 
-	import { Hero, Advert, Tags, ItemGroup, About, FAQ, Shop } from './_home';
+	import { Hero, Advert, Tags, ItemGroup, ItemGroup2, About, FAQ, Shop } from './_home';
 	import { Meta, Log } from '$lib/macro';
 	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
@@ -55,9 +55,6 @@
 
 	<Tags />
 
-	<br />
-	<br />
-	<br />
 	<ItemGroup id="new_arrivals" items={new_arrivals}>
 		{#snippet _title()}
 			<div class="page_title">New Arrivals</div>
@@ -67,10 +64,8 @@
 			>
 		{/snippet}
 	</ItemGroup>
-	<br />
-	<br />
-	<br />
-	<ItemGroup id="discount" items={discount}>
+
+	<ItemGroup2 id="discount" items={discount}>
 		{#snippet _title()}
 			<div class="page_title">Discounted Items</div>
 			<LinkArrow
@@ -78,7 +73,8 @@
 				--link-font-size="0.8rem">See All</LinkArrow
 			>
 		{/snippet}
-	</ItemGroup>
+	</ItemGroup2>
+
 	<About></About>
 	<FAQ></FAQ>
 	<Shop></Shop>

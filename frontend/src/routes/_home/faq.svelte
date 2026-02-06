@@ -49,12 +49,12 @@
 		flex-direction: column;
 		gap: 24px;
 
-		margin-top: 80px;
+		margin-top: 120px;
 		background-color: var(--bg);
 		padding: 24px;
 		border-radius: 8px;
 
-		@media screen and (min-width: 600px) {
+		@media screen and (min-width: 580px) {
 			& {
 				flex-direction: unset;
 			}
@@ -74,7 +74,7 @@
 
 		& .q {
 			font-weight: 800;
-			font-size: 0.8rem;
+			font-size: 0.9rem;
 			color: var(--ft1);
 			display: flex;
 			align-items: center;

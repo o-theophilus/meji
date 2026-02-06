@@ -13,7 +13,7 @@
 
 <style>
 	.block {
-		margin: 80px 0;
+		margin: 120px 0;
 
 		display: flex;
 		flex-direction: column;

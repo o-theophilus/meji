@@ -251,8 +251,6 @@ def signup():
     else:
         cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
         email_user = cur.fetchone()
-        # PORTFOLIO: fix this on portfolio : != "signedup"
-        # PORTFOLIO: test unblocking user"
         if email_user and email_user["status"] != "signedup":
             error["email"] = "Email already in use"
 

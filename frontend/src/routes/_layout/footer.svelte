@@ -3,7 +3,6 @@
 
 	import Nav from './footer.nav.svelte';
 	import Socials from './footer.socials.svelte';
-
 	import { Content } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 </script>
@@ -72,7 +71,7 @@
 
 	.copyright {
 		margin-top: 80px;
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 		text-align: center;
 	}
 </style>

@@ -1,31 +1,36 @@
 <script>
 	import { scale } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
-
 	import { loading } from '$lib/store.svelte.js';
-
 	import { Spinner } from '$lib/macro';
+	import { onMount, onDestroy } from 'svelte';
 
-	let typewriter = (node, { speed = 1 }) => {
+	const typewriter = (node, { speed = 1 }) => {
 		const text = node.textContent;
-		const duration = text.length / (speed * 0.01);
 
 		return {
-			duration,
+			duration: text.length / (speed * 0.01),
 			tick: (t) => {
-				const i = ~~(text.length * t);
+				const i = Math.floor(text.length * t);
 				node.textContent = text.slice(0, i);
 			}
 		};
 	};
 
-	const call = () => {
-		visible = !visible;
-		setTimeout(call, 3000);
-	};
-	setTimeout(call, 3000);
+	let visible = true;
+	let timer;
 
-	let visible = false;
+	onMount(() => {
+		if (loading.value) {
+			timer = setInterval(() => {
+				visible = !visible;
+			}, 3000);
+		}
+	});
+
+	onDestroy(() => {
+		clearInterval(timer);
+	});
 </script>
 
 {#if loading.value}

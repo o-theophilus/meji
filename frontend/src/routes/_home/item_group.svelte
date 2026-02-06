@@ -1,31 +1,14 @@
 <script>
-	import { flip } from 'svelte/animate';
-	import { cubicInOut } from 'svelte/easing';
-	import { onMount } from 'svelte';
-	import { app, module, page_state } from '$lib/store.svelte.js';
-	import { Button } from '$lib/button';
 	import { Card } from '$lib/layout';
-	import { Icon } from '$lib/macro';
 	import One from '../shop/item.svelte';
 
 	let open = $state(true);
 	let { items = [], _title, id = '' } = $props();
-
-	onMount(async () => {
-		if (!app.tags) {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-			resp = await resp.json();
-
-			if (resp.status == 200) {
-				app.tags = resp.tags;
-			}
-		}
-	});
 </script>
 
 {#if items.length > 0}
-	<div {id}></div>
 	<Card
+		--card-margin-top="120px"
 		--card-content-padding="0"
 		--card-title-padding="0 0 16px 0"
 		--card-background-color="transparent"
@@ -33,6 +16,7 @@
 		onclick={() => (open = !open)}
 	>
 		{#snippet title()}
+			<div {id}></div>
 			{#if _title}
 				{@render _title()}
 			{/if}
@@ -40,11 +24,7 @@
 
 		<div class="grid">
 			{#each items as item, i (item.key)}
-				<div
-					class="item"
-					class:can_hide={i > 5}
-					animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}
-				>
+				<div class="item" class:can_hide={i > 5}>
 					<One {item}></One>
 				</div>
 			{/each}

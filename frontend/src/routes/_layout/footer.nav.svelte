@@ -5,20 +5,19 @@
 <section>
 	<div class="block">
 		<div class="title">Quick Links</div>
-		<Link --link-font-size="0.8rem" href="/">Home</Link>
-		<Link --link-font-size="0.8rem" href="/#about">About</Link>
-		<Link --link-font-size="0.8rem" href="/contact">Contact Us</Link>
+		<Link href="/">Home</Link>
+		<Link href="/#about">About</Link>
+		<Link href="/contact">Contact Us</Link>
 	</div>
 	<div class="block">
 		<div class="title">Discover</div>
-		<Link --link-font-size="0.8rem" href="/">Blog</Link>
-		<Link --link-font-size="0.8rem" href="/">Blog</Link>
-		<Link --link-font-size="0.8rem" href="/">Blog</Link>
+		<Link href="/">Blog</Link>
+		<Link href="/">3D Hub</Link>
 	</div>
 	<div class="block">
 		<div class="title">Legal</div>
-		<Link --link-font-size="0.8rem" href="/terms">Terms</Link>
-		<Link --link-font-size="0.8rem" href="/privacy">Privacy Policy</Link>
+		<Link href="/terms">Terms</Link>
+		<Link href="/privacy">Privacy Policy</Link>
 	</div>
 </section>
 
@@ -29,24 +28,20 @@
 		flex-wrap: wrap;
 	}
 
-	@media screen and (min-width: 400px) {
-		section {
-			justify-content: space-between;
-		}
-	}
-
 	.block {
 		display: flex;
 		flex-direction: column;
+		gap: 4px;
 		width: fit-content;
 
+		--link-font-size: 0.8rem;
 		--link-color: var(--ft2);
 		--link-font-weight: 400;
 
 		& .title {
 			color: var(--ft1);
 			font-weight: 600;
-			margin-bottom: 12px;
+			margin-bottom: 8px;
 		}
 	}
 </style>

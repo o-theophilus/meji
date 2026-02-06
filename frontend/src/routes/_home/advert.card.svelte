@@ -1,4 +1,5 @@
 <script>
+	import { onMount, onDestroy } from 'svelte';
 	import { Icon } from '$lib/macro';
 
 	let { list, size } = $props();
@@ -7,23 +8,27 @@
 
 	const scroll = (dir) => {
 		if (dir == 'left') n -= 1;
-		if (dir == 'right') n += 1;
+		else if (dir == 'right') n += 1;
 		else if (typeof dir === 'number') n = dir;
 
 		if (n > list.length) {
+			time = '0s';
 			n = 0;
-			time = '0';
-			setTimeout(() => {
-				n = 1;
-				time = '0.2s';
-			}, 0);
+
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					time = '0.2s';
+					n = 1;
+				});
+			});
 		} else if (n < 0) {
+			time = '0s';
 			n = list.length;
-			time = '0';
-			setTimeout(() => {
-				n = list.length - 1;
+
+			requestAnimationFrame(() => {
 				time = '0.2s';
-			}, 0);
+				n = list.length - 1;
+			});
 		}
 		resetAutoScroll();
 	};
@@ -37,7 +42,13 @@
 		}, 6000);
 	};
 
-	resetAutoScroll();
+	onMount(() => {
+		if (list.length > 1) resetAutoScroll();
+	});
+
+	onDestroy(() => {
+		if (list.length > 1) clearTimeout(autoScroll);
+	});
 </script>
 
 {#if list.length}
@@ -52,37 +63,38 @@
 					/>
 				</a>
 			{/each}
-			{#if list[0].photo[size]}
-				<a href="/{list[0].slug}">
-					<img
-						src={list[0].photo[size] || '/no_photo.png'}
-						alt={list[0].name}
-						onerror={(e) => (e.target.src = '/no_photo.png')}
-					/>
-				</a>
-			{/if}
+
+			<a href="/{list[0].slug}">
+				<img
+					src={list[0].photo[size] || '/no_photo.png'}
+					alt={list[0].name}
+					onerror={(e) => (e.target.src = '/no_photo.png')}
+				/>
+			</a>
 		</div>
 
-		<div class="left">
-			<button onclick={() => scroll('left')}>
-				<Icon icon="arrow-left"></Icon>
-			</button>
-		</div>
-		<div class="right">
-			<button onclick={() => scroll('right')}>
-				<Icon icon="arrow-right"></Icon>
-			</button>
-		</div>
-
-		<div class="bottom">
-			<div class="points">
-				{#each Array(list.length) as _, i}
-					<button class:active={n == i || (i == 0 && n == list.length)} onclick={() => scroll(i)}>
-						<div>.</div>
-					</button>
-				{/each}
+		{#if list.length > 1}
+			<div class="left">
+				<button onclick={() => scroll('left')}>
+					<Icon icon="arrow-left"></Icon>
+				</button>
 			</div>
-		</div>
+			<div class="right">
+				<button onclick={() => scroll('right')}>
+					<Icon icon="arrow-right"></Icon>
+				</button>
+			</div>
+
+			<div class="bottom">
+				<div class="points">
+					{#each Array(list.length) as _, i}
+						<button class:active={n == i || (i == 0 && n == list.length)} onclick={() => scroll(i)}>
+							<div>.</div>
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</section>
 {/if}
 
@@ -97,7 +109,7 @@
 
 		& .scroller {
 			display: flex;
-			transform: translate(calc(var(--pos) * -100%));
+			transform: translateX(calc(var(--pos) * -100%));
 			transition: transform var(--time) ease-in-out;
 
 			& a {
@@ -193,6 +205,7 @@
 					height: 100%;
 
 					width: 0%;
+					transition: none;
 					background-color: hsla(0, 0%, 95%, 0.5);
 				}
 

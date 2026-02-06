@@ -45,6 +45,33 @@ def create(key):
                 "error": "Invalid request"
             })
 
+    cur.execute("""
+        WITH purchase_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM item_snap i
+                JOIN "order" o ON o.key = i.order_key
+                WHERE o.user_key = %s AND i.item_key = %s
+                    AND o.status = 'delivered'
+            ) AS has_purchased
+        )
+        SELECT
+            has_purchased,
+            has_purchased
+            AND NOT EXISTS (
+                SELECT 1 FROM review r
+                WHERE r.user_key = %s AND r.item_key = %s
+            ) AS can_review
+        FROM purchase_check;
+    """, (user["key"], item["key"], user["key"], item["key"]))
+    user_review_info = cur.fetchone()
+    # TEST: this validation
+    if not user_review_info["can_review"]:
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
     rating = request.json.get("rating", 0)
     comment = request.json.get("comment")
     error = {}

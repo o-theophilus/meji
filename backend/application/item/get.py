@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from math import ceil
-import re
 from ..postgres import db_open, db_close
 from ..tools import get_session
 

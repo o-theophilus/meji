@@ -36,7 +36,7 @@
 
 <style>
 	.card {
-		margin-top: 8px;
+		margin-top: var(--card-margin-top, 8px);
 		background-color: var(--card-background-color, var(--bg));
 		border-radius: 8px;
 		outline: 1px solid var(--card-outline-color, transparent);

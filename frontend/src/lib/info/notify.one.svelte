@@ -1,37 +1,39 @@
 <script>
 	import { notify } from '$lib/store.svelte.js';
-
 	import { Icon } from '$lib/macro';
+	import { onDestroy } from 'svelte';
 
-	let { item } = $props();
+	let { one } = $props();
 
 	let isDrawn = $state(false);
 	const radius = 50;
 	const circumference = 2 * Math.PI * radius;
 	const time = 5;
 
-	setTimeout(() => {
-		notify.close(item.key);
+	let closeTimer = setTimeout(() => {
+		notify.close(one.key);
 	}, time * 1000);
 
-	setTimeout(() => {
+	let drawTimer = setTimeout(() => {
 		isDrawn = true;
+	});
+
+	onDestroy(() => {
+		clearTimeout(closeTimer);
+		clearTimeout(drawTimer);
 	});
 </script>
 
-<div class="notify" class:bad={item.status == 400} class:caution={item.status == 201}>
-	<div class="line nowrap">
+<div class="notify" class:bad={one.status == 400} class:caution={one.status == 201}>
+	<div class="block">
 		<Icon
 			size="24"
-			icon={item.status == 201
-				? 'triangle-alert'
-				: item.status == 400
-					? 'circle-x'
-					: 'square-check'}
+			icon={one.status == 201 ? 'triangle-alert' : one.status == 400 ? 'circle-x' : 'square-check'}
 		/>
-		{item.message || 'no message'}
 
-		<button onclick={() => notify.close(item.key)}>
+		{one.message || 'no message'}
+
+		<button onclick={() => notify.close(one.key)}>
 			<Icon icon="x" size="16"></Icon>
 			<svg viewBox="0 0 120 120">
 				<circle
@@ -52,34 +54,36 @@
 		width: fit-content;
 		max-width: 300px;
 
-		display: flex;
-		flex-direction: column;
-		align-items: end;
-
 		border-radius: 4px;
 		fill: currentColor;
-		font-size: 0.8rem;
 
 		pointer-events: all;
 
 		color: green;
-		border-left: 8px solid green;
-		background-color: color-mix(in srgb, var(--bg), transparent 20%);
-	}
-	.line {
-		padding: 16px;
-		background-color: color-mix(in srgb, green, transparent 80%);
+		background-color: color-mix(in srgb, green, var(--bg) 90%);
+		outline: 1px solid color-mix(in srgb, green, transparent 70%);
+		outline-offset: -1px;
+
+		&.bad {
+			color: red;
+			background-color: color-mix(in srgb, red, var(--bg) 90%);
+			outline-color: color-mix(in srgb, red, transparent 70%);
+		}
+
+		&.caution {
+			color: var(--yellow);
+			background-color: color-mix(in srgb, var(--yellow), var(--bg) 90%);
+			outline-color: color-mix(in srgb, var(--yellow), transparent 70%);
+		}
 	}
 
-	.bad {
-		color: red;
-		border-color: red;
-		background-color: color-mix(in srgb, red, transparent 90%);
-	}
-	.caution {
-		color: var(--yellow);
-		border-color: var(--yellow);
-		background-color: color-mix(in srgb, var(--yellow), transparent 90%);
+	.block {
+		display: flex;
+		gap: 16px;
+		align-items: center;
+
+		padding: 16px;
+		font-size: 0.9rem;
 	}
 
 	button {
@@ -90,6 +94,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 
 		width: var(--size);
 		height: var(--size);
@@ -102,10 +107,11 @@
 		transition:
 			background-color 0.2s ease-in-out,
 			color 0.2s ease-in-out;
-	}
-	button:hover {
-		background-color: red;
-		color: white;
+
+		&:hover {
+			background-color: red;
+			color: white;
+		}
 	}
 
 	svg {

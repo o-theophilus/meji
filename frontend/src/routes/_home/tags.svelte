@@ -1,87 +1,76 @@
 <script>
-	import { app, module, page_state } from '$lib/store.svelte.js';
-
+	import { module, page_state } from '$lib/store.svelte.js';
 	import { LinkArrow, Button } from '$lib/button';
 	import { Content, Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 
-	import AllTags from './tags.all.svelte';
-
-	let tags = ['male', 'palm', 'female', 'sandals', 'sneakers', 'nike', 'timberland', 'cover shoe'];
+	tags = ['male', 'palm', 'female'];
 </script>
 
 {#if tags.length > 0}
-	<div class="page_title" id="tag">Categories</div>
-	<LinkArrow onclick={() => module.open(AllTags)} --link-font-size="0.8rem">See All</LinkArrow>
+	<section>
+		<div class="page_title">Shop devices, accessories and more from the Meji</div>
 
-	<div class="block">
-		{#each app.tags as tag}
-			<button onclick={() => page_state.goto('shop', { tag })}>
-				<div class="icon">
-					<!-- <Icon icon="logo"></Icon> -->
-					{tag}
-				</div>
-				<!-- {tag} -->
-			</button>
-		{/each}
-	</div>
+		<div class="block">
+			{#each tags as tag, i}
+				<a href="/shop?tag={tag}">
+					<img src="/image/item_{i + 1}.png" alt="" />
+					<div>
+						{tag}
+						<div class="shop">Shop Now</div>
+					</div>
+				</a>
+			{/each}
+		</div>
+	</section>
 {/if}
 
 <style>
-	.block {
-		display: grid;
-		grid-template-columns: repeat(4, auto);
-		gap: 0 8px;
-		grid-template-rows: auto;
-		grid-auto-rows: 0;
-		overflow: hidden;
-
+	section {
+		max-width: 720px;
+		margin: auto;
 		margin-top: 16px;
-	}
-
-	@media screen and (min-width: 600px) {
-		.block {
-			grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-		}
-	}
-
-	button {
-		all: unset;
-		cursor: pointer;
-
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		flex-shrink: 0;
-		
 		text-align: center;
-		line-height: 120%;
-		
-		font-size: 0.8rem;
-		text-transform: capitalize;
-		
-		overflow: hidden;
-		
-		&:hover .icon {
-			background-color: var(--bg2);
-		}
 	}
-	
-	.icon {
+	.block {
+		display: flex;
+		margin-top: 24px;
+		gap: 16px;
+	}
+
+	a {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		
-		background-color: var(--bg3);
-		
-		padding: 8px;
+		justify-content: space-between;
+
 		width: 100%;
 		aspect-ratio: 1;
-		border-radius: 40%;
-		line-height: 120%;
+		border-radius: 10%;
+		padding: 16px;
 
-		transition: background-color 0.2s ease-in-out;
+		background-color: var(--bg3);
+		text-decoration: none;
+		color: var(--ft2);
+
+		&:hover {
+			background-color: var(--bg2);
+
+			& img {
+				width: 70%;
+			}
+		}
+
+		& img {
+			width: 70%;
+			aspect-ratio: 1;
+			transition: width 0.2s ease-in-out;
+		}
+	}
+
+	.shop {
+		color: var(--cl1);
+		font-weight: 800;
+		font-size: 0.9rem;
 	}
 </style>

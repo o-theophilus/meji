@@ -36,7 +36,7 @@
 	onMount(() => {
 		const sp = page_state.searchParams;
 		if (Object.keys(sp).length) {
-			setTimeout(() => replaceState(`?${new URLSearchParams(sp)}`));
+			queueMicrotask(() => replaceState(`?${new URLSearchParams(sp)}`));
 			for (const key of Object.keys(searchParams)) {
 				if (sp[key]) searchParams[key] = sp[key];
 			}
@@ -95,7 +95,6 @@
 		{#if !app.login}
 			<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
 		{:else if !has_purchased}
-			<!-- TODO: also restrict users from review at the backend -->
 			<Button
 				icon="message-circle-plus"
 				onclick={() =>

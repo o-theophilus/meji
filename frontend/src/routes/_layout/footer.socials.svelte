@@ -44,15 +44,10 @@
 		fill: var(--ft2);
 		color: var(--ft2);
 
-		transition:
-			background-color 0.2s ease-in-out,
-			fill 0.2s ease-in-out,
-			color 0.2s ease-in-out;
+		transition: background-color 0.2s ease-in-out;
 	}
 
 	a:hover {
-		background-color: var(--cl1);
-		fill: white;
-		color: white;
+		background-color: var(--bg1);
 	}
 </style>

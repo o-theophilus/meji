@@ -46,7 +46,7 @@
 		}
 	}
 
-	@media screen and (min-width: 600px) {
+	@media screen and (min-width: 580px) {
 		.form_area {
 			flex-direction: unset;
 		}

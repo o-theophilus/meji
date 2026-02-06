@@ -33,7 +33,7 @@ def get_many(cur=None):
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"])
+    search = request.args.get("search", searchParams["search"]).strip()
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))

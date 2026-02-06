@@ -25,14 +25,14 @@ def get_many():
 
     searchParams = {
         "search": "",
-        "type": "",
+        "type": "all",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
     }
     search = request.args.get("search", searchParams["search"]).strip()
-    _type = request.args.get("type", searchParams["type"]).strip()
-    order = request.args.get("order", searchParams["order"]).strip()
+    _type = request.args.get("type", searchParams["type"])
+    order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
@@ -89,7 +89,7 @@ def get_many():
                 report.key, report.comment, report.tags, report.entity_key,
                 "user".key, "user".name, "user".username, "user".email
             ) ILIKE %s)
-            AND (%s = '' OR report.entity_type = %s)
+            AND (%s = 'all' OR report.entity_type = %s)
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
     """, (

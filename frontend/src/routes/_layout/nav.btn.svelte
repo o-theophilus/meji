@@ -64,6 +64,12 @@
 			font-size: 0.7rem;
 			line-height: 100%;
 
+			@media screen and (min-width: 580px) {
+				& {
+					font-size: 0.8rem;
+				}
+			}
+
 			transition:
 				color 0.2s ease-in-out,
 				fill 0.2s ease-in-out,

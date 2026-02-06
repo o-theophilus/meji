@@ -157,6 +157,12 @@
 	.details {
 		padding: 8px;
 
+		@media screen and (min-width: 580px) {
+			& {
+				padding: 8px 16px;
+			}
+		}
+
 		& .name {
 			font-size: 0.9rem;
 			line-height: 120%;

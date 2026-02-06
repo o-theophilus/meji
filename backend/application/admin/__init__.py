@@ -3,7 +3,7 @@ import os
 from ..postgres import db_open, db_close
 from ..log import log
 from uuid import uuid4
-from ..tools import get_session, user_schema, access_pass
+from ..tools import get_session, user_schema
 from werkzeug.security import check_password_hash
 
 
@@ -104,20 +104,6 @@ def perform_action(key):
     return jsonify({
         "status": 200,
         "user": user_schema(user)
-    })
-
-
-# TODO:do i need this?
-@bp.get("/admin/access")
-@bp.get("/admin/access/<search>")
-def get_access(search=None):
-    _all = [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
-    if search:
-        _all = [x for x in _all if x.find(search) != -1]
-
-    return jsonify({
-        "status": 200,
-        "access": _all
     })
 
 

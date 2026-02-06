@@ -25,7 +25,6 @@ def create_tables():
 
     cur.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
     cur.execute("""
-        DROP TABLE IF EXISTS app CASCADE;
         DROP TABLE IF EXISTS "user" CASCADE;
         DROP TABLE IF EXISTS session CASCADE;
         DROP TABLE IF EXISTS log CASCADE;
@@ -39,12 +38,6 @@ def create_tables():
         DROP TABLE IF EXISTS order_item CASCADE;
         DROP TABLE IF EXISTS item_snap CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
-
-        CREATE TABLE IF NOT EXISTS app (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            alias TEXT UNIQUE NOT NULL,
-            value JSONB DEFAULT '{}'::JSONB
-        );
 
         CREATE TABLE IF NOT EXISTS "user" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -243,7 +236,6 @@ def copy_db():
     to_con = psycopg2.connect(os.environ["LOCAL_DB"])
     to_cur = to_con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    copy_table(from_cur, to_cur, "app")
     copy_table(from_cur, to_cur, "user")
     copy_table(from_cur, to_cur, "post")
     copy_table(from_cur, to_cur, "comment")

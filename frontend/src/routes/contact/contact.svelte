@@ -28,6 +28,9 @@
 </div>
 
 <style>
+	.block {
+		--link-font-size: 0.9rem;
+	}
 	span {
 		display: flex;
 		gap: 8px;

@@ -154,10 +154,10 @@ def get_admins():
         "page_size": 24
     }
     entity_type = request.args.get(
-        "entity_type", searchParams["entity_type"]).strip()
-    action = request.args.get("action", searchParams["action"]).strip()
+        "entity_type", searchParams["entity_type"])
+    action = request.args.get("action", searchParams["action"])
     search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"]).strip()
+    order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
