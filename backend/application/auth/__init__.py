@@ -121,7 +121,7 @@ def user_like(cur, user_key):
 
 
 @bp.get("/admin/default")
-def default():
+def default_admin():
     con, cur = db_open()
     email = os.environ["MAIL_USERNAME"]
 
