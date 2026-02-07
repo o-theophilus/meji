@@ -32,10 +32,6 @@
 			error.email = 'This field cannot exceed 255 characters';
 		}
 
-		console.log(form.password);
-		console.log(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^\s]+$/.test(form.password));
-		console.log(form.password.length);
-
 		if (!form.password) {
 			error.password = 'This field is required';
 		} else if (
