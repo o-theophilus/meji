@@ -5,13 +5,12 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 
-	let form = $state({code: ''});
+	let form = $state({ code: '' });
 	let error = $state({});
 
 	const validate = () => {
 		error = {};
 
-		form.code = form.code.trim().replace(/\s+/g, ' ');
 		if (!form.code) {
 			error.code = 'This field is required';
 		} else if (form.code.length > 100) {

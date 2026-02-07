@@ -21,7 +21,7 @@
 		module.value.ops.error = {};
 		error = {};
 
-		form.name = form.name.trim().replace(/\s+/g, ' ');
+		if (form.name) if (form.name) form.name = form.name.trim().replace(/\s+/g, ' ');
 		if (!form.name) {
 			error.name = 'This field is required';
 		} else if (form.name.length > 100) {
@@ -35,7 +35,7 @@
 			error.phone = 'This field cannot exceed 20 characters';
 		}
 
-		form.email = form.email.trim();
+		if (form.email) if (form.email) form.email = form.email.trim();
 		if (!form.email) {
 			error.email = 'This field is required';
 		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {

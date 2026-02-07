@@ -257,7 +257,7 @@ def signup():
     if not password:
         error["password"] = "This field is required"
     elif (
-        not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$", password)
+        not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^\s]+$", password)
         or len(password) not in range(8, 19)
     ):
         error["password"] = """Password must include at least 1 lowercase

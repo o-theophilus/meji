@@ -10,7 +10,7 @@
 
 	const validate = () => {
 		error = {};
-		form.username = form.username.trim();
+		if (form.username) form.username = form.username.trim();
 		if (!form.username) {
 			error.username = 'This field is required';
 		} else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(form.username) || form.username.length > 20) {
