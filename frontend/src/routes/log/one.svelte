@@ -2,7 +2,7 @@
 	import { app, page_state } from '$lib/store.svelte.js';
 	import { Datetime, Icon } from '$lib/macro';
 
-	let { log, search = $bindable() } = $props();
+	let { log, searchParams = $bindable() } = $props();
 
 	let href = $state('');
 	if (log.entity.type == 'post') {
@@ -39,8 +39,8 @@
 	{#if log.user.key && app.user.access.includes('log:view')}
 		<button
 			onclick={() => {
-				search.page_no = 1;
-				search.u_search = log.user.key;
+				searchParams.page_no = 1;
+				searchParams.u_search = log.user.key;
 				page_state.set({ u_search: log.user.key });
 			}}
 		>
@@ -58,8 +58,8 @@
 
 		<button
 			onclick={() => {
-				search.page_no = 1;
-				search.e_search = log.entity.key;
+				searchParams.page_no = 1;
+				searchParams.e_search = log.entity.key;
 				page_state.set({ e_search: log.entity.key });
 			}}
 		>

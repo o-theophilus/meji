@@ -24,7 +24,6 @@
 	};
 </script>
 
-<!-- PORTFOLIO: UPDATE THEME COMPONENT -->
 {#if app.user}
 	<div class="radio">
 		<div class="hover"></div>

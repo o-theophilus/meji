@@ -18,6 +18,7 @@
 	let { spaces } = data;
 	let { sizes } = data;
 	let searchParams = $state(data.searchParams);
+	let defaultParams = $state(data.searchParams);
 	let total_page = $derived(data.total_page);
 
 	onMount(() => {
@@ -46,11 +47,11 @@
 		<div class="line">
 			<Dropdown
 				icon2="chevron-down"
-				list={['all', ...spaces]}
+				list={spaces}
 				bind:value={searchParams.space}
 				onchange={(v) => {
-					v = v == 'created' ? '' : v;
-					page_state.set({ space: v });
+					searchParams.page_no = 1;
+					page_state.set({ space: v == defaultParams.space ? '' : v });
 				}}
 			/>
 		</div>
@@ -59,6 +60,7 @@
 	<Search
 		bind:value={searchParams.search}
 		ondone={(v) => {
+			searchParams.page_no = 1;
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -78,8 +80,7 @@
 		bind:value={searchParams.order}
 		onchange={(v) => {
 			searchParams.page_no = 1;
-			v = v == 'name (a-z)' ? '' : v;
-			page_state.set({ order: v });
+			page_state.set({ order: v == defaultParams.order ? '' : v });
 		}}
 	/>
 

@@ -86,9 +86,10 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS report (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            entity_key UUID NOT NULL,
-            entity_type TEXT NOT NULL,
+            reporter_key UUID NOT NULL REFERENCES "user"(key)
+                ON DELETE CASCADE,
+            reported_key UUID REFERENCES user(key) ON DELETE CASCADE,
+            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
             comment TEXT NOT NULL,
             tags TEXT[] DEFAULT '{}'::TEXT[]
         );

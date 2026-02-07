@@ -111,7 +111,7 @@ def get_many(cur=None):
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
         "order_by": list(order_by.keys()),
-        "spaces": spaces,
+        "spaces": ["all", *spaces],
         "sizes": sizes,
         "searchParams": searchParams,
         "total_page": ceil(adverts[0][

@@ -20,7 +20,6 @@ def get_many(key, _page_size=24, cur=None):
     user = session["user"]
 
     # FIXME: this endpoint is slow
-    # PORTFOLIO upgrade on portfolio website
     searchParams = {
         "order": 'most relevant ▼',
         "page_no": 1,

@@ -84,7 +84,7 @@ def get_many():
     searchParams = {
         "search": "",
         "status": "created",
-        "view": "",
+        "view": "me",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
@@ -164,4 +164,5 @@ def get_many():
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "_status": order_status,
+        "view": ['me', 'all'],
     })

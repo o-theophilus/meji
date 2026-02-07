@@ -17,6 +17,7 @@
 	let total_page = $derived(data.total_page);
 	let search_query = $derived(data.search_query);
 	let searchParams = $state(data.searchParams);
+	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -56,10 +57,12 @@
 			list={Object.keys(search_query)}
 			bind:value={searchParams.entity_type}
 			onchange={(v) => {
-				v = v == 'all' ? '' : v;
-				searchParams.action = 'all';
 				searchParams.page_no = 1;
-				page_state.set({ entity_type: v, action: '' });
+				searchParams.action = 'all';
+				page_state.set({
+					entity_type: v == defaultParams.entity_type ? '' : v,
+					action: ''
+				});
 			}}
 			--select-width="100%"
 		/>
@@ -68,9 +71,8 @@
 			list={search_query[searchParams.entity_type]}
 			bind:value={searchParams.action}
 			onchange={(v) => {
-				v = v == 'all' ? '' : v;
 				searchParams.page_no = 1;
-				page_state.set({ action: v });
+				page_state.set({ action: v == defaultParams.action ? '' : v });
 			}}
 			--select-width="100%"
 		/>
@@ -89,7 +91,7 @@
 <Content --content-padding-top="1px">
 	{#each logs as log (log.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {log} bind:search={searchParams} />
+			<One {log} bind:searchParams />
 		</div>
 	{:else}
 		<PageNote>

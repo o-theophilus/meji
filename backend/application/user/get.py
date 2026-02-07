@@ -198,14 +198,14 @@ def get_admins():
     ))
     users = cur.fetchall()
 
-    _access = {
+    access = {
         "all": ['all']
     }
     for x in access_pass:
-        if x not in _access:
-            _access[x] = ["all"]
+        if x not in access:
+            access[x] = ["all"]
             for y in access_pass[x]:
-                _access[x].append(y[0])
+                access[x].append(y[0])
 
     db_close(con, cur)
     return jsonify({
@@ -214,5 +214,5 @@ def get_admins():
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-        "search_query": _access,
+        "access": access,
     })

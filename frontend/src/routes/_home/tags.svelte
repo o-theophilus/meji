@@ -4,7 +4,7 @@
 	import { Content, Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 
-	tags = ['male', 'palm', 'female'];
+	let tags = ['male', 'palm', 'female'];
 </script>
 
 {#if tags.length > 0}

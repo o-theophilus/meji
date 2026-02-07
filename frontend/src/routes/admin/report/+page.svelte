@@ -16,9 +16,9 @@
 	let items = $derived(data.items);
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
-	let { _type } = data;
-	let { _status } = data;
+	let { type } = data;
 	let searchParams = $state(data.searchParams);
+	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -55,13 +55,11 @@
 
 		<Dropdown
 			icon2="chevron-down"
-			list={['all', ..._type]}
+			list={type}
 			bind:value={searchParams.type}
 			onchange={(v) => {
-				v = v == 'all' ? '' : v;
-
 				searchParams.page_no = 1;
-				page_state.set({ type: v });
+				page_state.set({ type: v == defaultParams.type ? '' : v });
 			}}
 		/>
 	</div>
@@ -69,6 +67,7 @@
 	<Search
 		bind:value={searchParams.search}
 		ondone={(v) => {
+			searchParams.page_no = 1;
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -88,8 +87,7 @@
 		bind:value={searchParams.order}
 		onchange={(v) => {
 			searchParams.page_no = 1;
-			v = v == 'latest' ? '' : v;
-			page_state.set({ order: v });
+			page_state.set({ order: v == defaultParams.order ? '' : v });
 		}}
 	/>
 </Content>
@@ -97,7 +95,7 @@
 <Content --content-padding-top="1px">
 	{#each items as item (item.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} {update}  />
+			<Item {item} {update} />
 		</div>
 	{:else}
 		<PageNote>
@@ -106,12 +104,12 @@
 		</PageNote>
 	{/each}
 
-	<!-- <Pagination
+	<Pagination
 		{total_page}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });
 		}}
-	></Pagination> -->
+	></Pagination>
 </Content>

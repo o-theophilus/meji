@@ -15,9 +15,10 @@
 	let { data } = $props();
 	let users = $derived(data.users);
 	let total_page = $derived(data.total_page);
-	let { search_query } = data;
+	let { access } = data;
 	let { order_by } = data;
 	let searchParams = $state(data.searchParams);
+	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -45,24 +46,22 @@
 	<div class="line nowrap">
 		<Dropdown
 			icon2="chevron-down"
-			list={Object.keys(search_query)}
+			list={Object.keys(access)}
 			bind:value={searchParams.entity_type}
 			onchange={(v) => {
-				v = v == 'all' ? '' : v;
 				searchParams.action = 'all';
 				searchParams.page_no = 1;
-				page_state.set({ entity_type: v, action: '' });
+				page_state.set({ entity_type: v == defaultParams.entity_type ? '' : v });
 			}}
 			--select-width="100%"
 		/>
 		<Dropdown
 			icon2="chevron-down"
-			list={search_query[searchParams.entity_type]}
+			list={access[searchParams.entity_type]}
 			bind:value={searchParams.action}
 			onchange={(v) => {
-				v = v == 'all' ? '' : v;
 				searchParams.page_no = 1;
-				page_state.set({ action: v });
+				page_state.set({ action: v == defaultParams.action ? '' : v });
 			}}
 			--select-width="100%"
 		/>
@@ -71,6 +70,7 @@
 	<Search
 		bind:value={searchParams.search}
 		ondone={(v) => {
+			searchParams.page_no = 1;
 			page_state.set({ search: v });
 		}}
 	></Search>

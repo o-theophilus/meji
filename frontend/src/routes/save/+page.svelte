@@ -20,6 +20,7 @@
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
 	let searchParams = $state(data.searchParams);
+	let defaultParams = $state(data.searchParams);
 
 	const update = (a, b) => {
 		items = a;
@@ -71,8 +72,7 @@
 		bind:value={searchParams.order}
 		onchange={(v) => {
 			searchParams.page_no = 1;
-			v = v == 'latest' ? '' : v;
-			page_state.set({ order: v });
+			page_state.set({ order: v == defaultParams.order ? '' : v });
 		}}
 	/>
 
