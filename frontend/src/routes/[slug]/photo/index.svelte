@@ -1,6 +1,5 @@
 <script>
 	import { module, app } from '$lib/store.svelte.js';
-
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
 	import Ads from './ads.form.svelte';
@@ -11,39 +10,36 @@
 
 <div class="img">
 	<img {src} alt={item.name} onerror={() => (src = '/no_photo.png')} />
-	<div class="edit">
-		{#if app.user.access.includes('item:edit_file') && edit_mode}
-			<div class="line">
-				<Edit_Button
-					onclick={() => {
-						module.open(Form, {
-							key: item.key,
-							name: item.name,
-							files: item.files,
-							update
-						});
-					}}
-				>
-					Edit Files
-				</Edit_Button>
+	{#if app.user.access.includes('item:edit_file') && edit_mode}
+		<div class="edit line">
+			<Edit_Button
+				onclick={() => {
+					module.open(Form, {
+						key: item.key,
+						name: item.name,
+						files: item.files,
+						update
+					});
+				}}
+			>
+				Edit Files
+			</Edit_Button>
 
-				<Edit_Button
-					onclick={() => {
-						module.open(Ads, {
-							key: item.key,
-							name: item.name,
-							files: item.files
-						});
-					}}
-				>
-					Edit Ads
-				</Edit_Button>
-			</div>
-		{/if}
-	</div>
+			<Edit_Button
+				onclick={() => {
+					module.open(Ads, {
+						key: item.key,
+						name: item.name,
+						files: item.files
+					});
+				}}
+			>
+				Edit Ads
+			</Edit_Button>
+		</div>
+	{/if}
 </div>
 
-<!-- TODO: improve carousel -->
 {#if item.files.length > 1}
 	<div class="line">
 		{#each item.files as x}
@@ -62,24 +58,26 @@
 <style>
 	.img {
 		position: relative;
-	}
-
-	img {
-		display: block;
-
-		width: 100%;
-		border-radius: 8px;
-
 		background-color: var(--bg1);
-	}
-	.edit {
-		position: absolute;
-		bottom: 8px;
-		left: 8px;
+
+		& img {
+			display: block;
+
+			width: 100%;
+			border-radius: 8px;
+			aspect-ratio: 1;
+			object-fit: cover;
+		}
+
+		& .edit {
+			position: absolute;
+			bottom: 8px;
+			left: 8px;
+		}
 	}
 
 	.line {
-		--size: 50px;
+		--size: 40px;
 
 		display: flex;
 		justify-content: center;
@@ -87,27 +85,27 @@
 		gap: 8px;
 		flex-wrap: wrap;
 		margin-top: 16px;
-	}
 
-	.line img {
-		width: var(--size);
-		height: var(--size);
-		border-radius: 4px;
-		cursor: pointer;
+		& img {
+			width: var(--size);
+			height: var(--size);
+			border-radius: 4px;
+			cursor: pointer;
 
-		background-color: var(--bg1);
-		outline: 2px solid transparent;
-		transition:
-			outline-color 0.2s ease-in-out,
-			transform 0.2s ease-in-out;
-	}
+			background-color: var(--bg1);
+			outline: 2px solid transparent;
+			transition:
+				outline-color 0.2s ease-in-out,
+				transform 0.2s ease-in-out;
 
-	.line img:hover {
-		outline-color: var(--cl1);
-	}
+			&:hover {
+				outline-color: var(--cl1);
+			}
 
-	.line img.active {
-		outline-color: var(--cl1);
-		transform: scale(1.1);
+			&.active {
+				outline-color: var(--cl1);
+				transform: scale(1.1);
+			}
+		}
 	}
 </style>

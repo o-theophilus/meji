@@ -1,10 +1,9 @@
 <script>
 	import { module, app } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
-	import { Button } from '$lib/button';
+	import { Icon } from '$lib/macro';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
-
 	import Price from './price.svelte';
 	import Info from './info.svelte';
 
@@ -29,18 +28,9 @@
 	{/if}
 
 	<Price {item}>
-		<Button
-			icon="info"
-			--button-padding-x="0"
-			--button-width="18px"
-			--button-height="18px"
-			--button-border-radius="50%"
-			--button-color="var(--ft2)"
-			--button-background-color="var(--bg1)"
-			onclick={() => {
-				show_discount = !show_discount;
-			}}
-		></Button>
+		<button onclick={() => (show_discount = !show_discount)}>
+			<Icon icon="info"></Icon>
+		</button>
 	</Price>
 
 	{#if show_discount}
@@ -53,5 +43,17 @@
 <style>
 	.comp {
 		margin-top: 24px;
+	}
+
+	button {
+		all: unset;
+		cursor: pointer;
+
+		display: flex;
+		transition: color 0.2s ease-in-out;
+
+		&:hover {
+			color: var(--ft1);
+		}
 	}
 </style>

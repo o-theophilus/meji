@@ -22,7 +22,6 @@
 			{x}
 		</button>
 	{/each}
-	<div class="hover"></div>
 </div>
 
 <style>
@@ -33,64 +32,68 @@
 		display: flex;
 
 		width: min-content;
-		height: var(--button-height, 48px);
-		border-radius: var(--button-border-radius, 4px);
+		border-radius: var(--toggle-border-radius, 4px);
 		background-color: var(--bg);
 
-		border: 1px solid var(--button-border-color, var(--ol));
+		border: 1px solid var(--toggle-border-color, var(--ol));
 		padding: 2px;
 		overflow: hidden;
 		flex-shrink: 0;
 		transition: border-color 0.2s ease-in-out;
 
 		&:hover {
-			border-color: var(--button-border-color-hover, var(--ft1));
+			border-color: var(--toggle-border-color-hover, var(--ft1));
 		}
 	}
 
 	button {
 		all: unset;
+		cursor: pointer;
 
-		padding: 0 var(--button-padding-x, 16px);
+		height: var(--toggle-height, 42px);
+		padding: 0 var(--toggle-padding-x, 16px);
+		border-radius: var(--toggle-border-radius, 4px);
+		width: max-content;
+
 		background-color: transparent;
-		border-radius: var(--button-border-radius, 4px);
-		z-index: 1;
-		min-width: var(--button-height);
-		font-size: var(--button-font-size, 0.8rem);
+		font-size: var(--toggle-font-size, 1rem);
 
 		&:hover:not(.active) {
 			background-color: var(--bg1);
 		}
 		&.active {
 			color: white;
-			font-weight: 800;
 			anchor-name: --active;
 		}
 
 		&.empty {
 			padding: 0;
+			aspect-ratio: 1;
 		}
 
 		transition:
 			background-color 0.2s ease-in-out,
 			color 0.2s ease-in-out;
-	}
 
-	.hover {
-		position-anchor: --active;
-		position: absolute;
-		top: anchor(top);
-		bottom: anchor(bottom);
-		right: anchor(right);
-		left: anchor(left);
+		&::before {
+			content: '';
+			position-anchor: --active;
+			z-index: -1;
 
-		background-color: var(--cl1);
-		border-radius: var(--button-border-radius, 4px);
+			position: absolute;
+			top: anchor(top);
+			bottom: anchor(bottom);
+			right: anchor(right);
+			left: anchor(left);
 
-		transition:
-			top 0.2s ease-in-out,
-			bottom 0.2s ease-in-out,
-			right 0.2s ease-in-out,
-			left 0.2s ease-in-out;
+			background-color: var(--cl1);
+			border-radius: var(--toggle-border-radius, 4px);
+
+			transition:
+				top 0.2s ease-in-out,
+				bottom 0.2s ease-in-out,
+				right 0.2s ease-in-out,
+				left 0.2s ease-in-out;
+		}
 	}
 </style>

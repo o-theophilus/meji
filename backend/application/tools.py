@@ -36,7 +36,6 @@ access_pass = {
         ['edit_files', 2],
         ['edit_variation', 2],
         ['edit_quantity', 2],
-        ['edit_highlight', 2],
         ['advert', 2]
     ],
     "order": [

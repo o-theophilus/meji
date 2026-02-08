@@ -7,7 +7,7 @@
 	import { app, page_state } from '$lib/store.svelte.js';
 
 	import { Content } from '$lib/layout';
-	import { BackButton, Radio } from '$lib/button';
+	import { BackButton, Switch } from '$lib/button';
 	import { Pagination, Dropdown, Search } from '$lib/input';
 	import { Meta, Log, Icon } from '$lib/macro';
 	import { PageNote } from '$lib/info';
@@ -48,15 +48,14 @@
 
 		<div class="line">
 			{#if app.user.access.includes('order:view')}
-				<Radio
-					--button-outline-color-hover="var(--ft1)"
+				<Switch
 					list={view}
 					bind:value={searchParams.view}
 					onclick={(v) => {
 						searchParams.page_no = 1;
 						page_state.set({ view: v == defaultParams.view ? '' : v });
 					}}
-				></Radio>
+				/>
 			{/if}
 
 			<Dropdown

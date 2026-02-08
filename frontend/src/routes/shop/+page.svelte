@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Content } from '$lib/layout';
-	import { Button, Radio } from '$lib/button';
+	import { Button, Switch } from '$lib/button';
 	import { Dropdown, Search, Pagination } from '$lib/input';
 	import { PageNote } from '$lib/info';
 	import { Meta, Icon, Log } from '$lib/macro';
@@ -52,15 +52,15 @@
 		<div class="page_title">Shop</div>
 		{#if app.user.access.includes('item:add')}
 			<div class="line">
-				<Radio
-					--button-outline-color-hover="var(--ft1)"
+				<Switch
 					list={_status}
 					bind:value={searchParams.status}
 					onclick={(v) => {
 						searchParams.page_no = 1;
 						page_state.set({ status: v == defaultParams.status ? '' : v });
 					}}
-				></Radio>
+				></Switch>
+
 				<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>
 					Add New Item
 				</Button>

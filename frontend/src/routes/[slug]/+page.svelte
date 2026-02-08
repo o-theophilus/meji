@@ -4,7 +4,7 @@
 	import { module, app, page_state } from '$lib/store.svelte.js';
 
 	import { Content } from '$lib/layout';
-	import { Button, Toggle } from '$lib/button';
+	import { Button, Switch } from '$lib/button';
 	import { Meta, Log, ToTop } from '$lib/macro';
 	import Edit_Button from './edit_button.svelte';
 
@@ -20,7 +20,6 @@
 		Review,
 		Variation
 	} from '.';
-	import Highlight from './highlight.svelte';
 	import Similar from './item_group.svelte';
 
 	import Like from '../shop/like.svelte';
@@ -46,7 +45,6 @@
 			'item:edit_files',
 			'item:edit_variation',
 			'item:edit_quantity',
-			'item:edit_highlight',
 			'item:advert'
 		].includes(x)
 	);
@@ -103,14 +101,23 @@
 
 <Content --content-background-color="var(--bg)">
 	{#if is_admin}
-		<Toggle state_2="edit" active={edit_mode} onclick={() => (edit_mode = !edit_mode)} />
+		<Switch
+			--toggle-height="21px"
+			--toggle-font-size="0.8rem"
+			--toggle-padding-x="8px"
+			list={['', 'edit']}
+			value={!edit_mode ? '' : 'edit'}
+			onclick={() => {
+				edit_mode = !edit_mode;
+			}}
+		/>
+
 		<br />
 	{/if}
 
-	{#if edit_mode && (app.user.access.includes('item:edit_status') || app.user.access.includes('item:edit_highlight'))}
+	{#if edit_mode && app.user.access.includes('item:edit_status')}
 		<div class="line status">
 			<Status {item} {update}></Status>
-			<Highlight {item} />
 		</div>
 	{/if}
 
@@ -172,7 +179,7 @@
 	</div>
 </div>
 
-<Content --content-height --content-padding-top=1px>
+<Content --content-height --content-padding-top="1px">
 	{#each item_group as group}
 		<Similar {group} {refresh} {loading} />
 	{/each}
@@ -200,16 +207,16 @@
 
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
-	}
 
-	.floater_block {
-		display: flex;
-		gap: 4px;
-		flex-wrap: wrap;
+		& .floater_block {
+			display: flex;
+			gap: 4px;
+			flex-wrap: wrap;
 
-		padding: 8px 24px;
-		max-width: var(--mobileWidth);
-		margin: auto;
+			padding: 8px 24px;
+			width: fit-content;
+			margin: auto;
+		}
 	}
 
 	@media screen and (min-width: 800px) {

@@ -138,20 +138,18 @@ def get_many(cur=None, _order="latest", _page_size=24):
         'rating': 'DESC',
     }
 
-    multiply = False
-    if tag[-4:] == ":all":
-        multiply = True
-        tag = tag[:-4]
-    tags = tag.split(",")
-    tags = [] if not tags[0] else tags
-
-    # TEST check for sql injection
     params = [status, search, f"%{search}%"]
+
+    op = "&&"
     tag_query = ""
+    if tag[-4:] == ":all":
+        op = "@>"
+        tag = tag[:-4]
+    tags = tag.split(",") if tag else []
     if tags != []:
-        op = "@>" if multiply else "&&"
         tag_query = f"AND cardinality(item.tags) > 0 AND item.tags {op} %s"
         params.append(tags)
+
     params.append(page_size)
     params.append((page_no - 1) * page_size)
 
@@ -199,7 +197,7 @@ def home_page():
     con, cur = db_open()
 
     new_arrivals = get_many(cur, "latest", 8).json['items']
-    discount = get_many(cur, "discount", 8).json['items']
+    discount = get_many(cur, "discount", 16).json['items']
 
     db_close(con, cur)
     return jsonify({

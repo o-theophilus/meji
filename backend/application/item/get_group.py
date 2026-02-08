@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
 import re
-import time
 from ..tools import get_session
 from .get import item_schema
 from ..postgres import db_close, db_open
@@ -159,13 +158,10 @@ def get_group(item_key):
             "error": "invalid request"
         })
 
-    a = time.time()
-    print("start group")
     _recently_viewed = recently_viewed(cur, user["key"], item_key)
     _similar_items = similar_items(cur, item_key)
     _customer_view = customer_view(cur, user["key"], item_key)
     _recommended = recommended(cur, user["key"], item_key)
-    print("end group: ", time.time()-a)
 
     review = get_many(item_key, 3, cur).json
 
@@ -188,12 +184,12 @@ def get_group(item_key):
                 "name": "Customers who viewed this also viewed",
                 "items": _customer_view,
                 "style": "line",
-                "open": False
+                "open": True
             }, {
                 "name": "You may also like",
                 "items": _recommended,
                 "style": "line",
-                "open": False
+                "open": True
             }
         ]
     })

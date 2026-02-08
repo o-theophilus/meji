@@ -65,7 +65,7 @@ def create(key):
         FROM purchase_check;
     """, (user["key"], item["key"], user["key"], item["key"]))
     user_review_info = cur.fetchone()
-    # TEST: this validation
+
     if not user_review_info["can_review"]:
         return jsonify({
             "status": 400,

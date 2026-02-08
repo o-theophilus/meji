@@ -7,7 +7,7 @@
 	import { page } from '$app/state';
 
 	import { Content } from '$lib/layout';
-	import { Button, Radio } from '$lib/button';
+	import { Button } from '$lib/button';
 	import { Dropdown, Search, Pagination } from '$lib/input';
 	import { PageNote } from '$lib/info';
 	import { Meta, Icon, Log } from '$lib/macro';

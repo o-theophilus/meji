@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { app } from '$lib/store.svelte.js';
 
-	import { Toggle, Button, RoundButton } from '$lib/button';
+	import { Switch, Button, RoundButton } from '$lib/button';
 	import { Icon } from '$lib/macro';
 	import { IG, Checkbox } from '$lib/input';
 
@@ -122,13 +122,19 @@
 			</div>
 
 			<div class="multiply">
-				<Toggle
-					active={multiply}
-					state_1="any"
-					state_2="all"
-					onclick={() => (multiply = !multiply)}
+				<Switch
+					--toggle-height="21px"
+					--toggle-font-size="0.8rem"
+					--toggle-padding-x="8px"
+					list={['any', 'all']}
+					value={!multiply ? 'any' : 'all'}
+					onclick={() => {
+						multiply = !multiply;
+					}}
 					disabled={selected.length < 2}
-				></Toggle>
+				/>
+
+				<!-- TODO: include disabled state -->
 			</div>
 
 			<div class="buttons">

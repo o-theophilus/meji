@@ -7,30 +7,32 @@
 	let n = $state(0);
 
 	const scroll = (dir) => {
-		if (dir == 'left') n -= 1;
-		else if (dir == 'right') n += 1;
-		else if (typeof dir === 'number') n = dir;
+		if (list.length > 1) {
+			if (dir == 'left') n -= 1;
+			else if (dir == 'right') n += 1;
+			else if (typeof dir === 'number') n = dir;
 
-		if (n > list.length) {
-			time = '0s';
-			n = 0;
+			if (n > list.length) {
+				time = '0s';
+				n = 0;
 
-			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						time = '0.2s';
+						n = 1;
+					});
+				});
+			} else if (n < 0) {
+				time = '0s';
+				n = list.length;
+
 				requestAnimationFrame(() => {
 					time = '0.2s';
-					n = 1;
+					n = list.length - 1;
 				});
-			});
-		} else if (n < 0) {
-			time = '0s';
-			n = list.length;
-
-			requestAnimationFrame(() => {
-				time = '0.2s';
-				n = list.length - 1;
-			});
+			}
+			resetAutoScroll();
 		}
-		resetAutoScroll();
 	};
 
 	let autoScroll;
@@ -43,7 +45,7 @@
 	};
 
 	onMount(() => {
-		if (list.length > 1) resetAutoScroll();
+		resetAutoScroll();
 	});
 
 	onDestroy(() => {

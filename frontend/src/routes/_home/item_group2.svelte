@@ -23,13 +23,28 @@
 <style>
 	section {
 		position: relative;
+		z-index: 0;
 
 		margin-top: 120px;
-		background-color: var(--bg2);
+		/* background-color: var(--bg2); */
+		background-color: var(--bg);
 		border-radius: 24px;
+		overflow: hidden;
 		/* padding: 40px 0; */
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+
+			background-image: url('/image/bg.png');
+			background-position: center;
+
+			opacity: 0.2;
+			z-index: -1;
+		}
 	}
 
 	.title {

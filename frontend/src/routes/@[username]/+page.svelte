@@ -5,7 +5,7 @@
 
 	import { Content } from '$lib/layout';
 	import { Meta, Icon, Avatar, Log } from '$lib/macro';
-	import { RoundButton, Button, LinkArrow, Toggle } from '$lib/button';
+	import { RoundButton, Button, LinkArrow, Switch } from '$lib/button';
 
 	import Photo from './_photo.svelte';
 	import Name from './_name.svelte';
@@ -39,16 +39,18 @@
 	<div class="line">
 		<div class="page_title">Profile</div>
 		{#if app.login && user.status == 'active' && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'block:block', 'block:unblock'].includes(x) ))}
-			<Toggle
-				state_2="edit"
-				active={edit_mode}
+			<Switch
+				--toggle-height="21px"
+				--toggle-font-size="0.8rem"
+				--toggle-padding-x="8px"
+				list={['', 'edit']}
+				value={!edit_mode ? '' : 'edit'}
 				onclick={() => {
 					edit_mode = !edit_mode;
 				}}
 			/>
 		{/if}
 	</div>
-
 	<br /><br /><br />
 
 	<div class="line center">
@@ -74,7 +76,6 @@
 	<br />
 
 	<div class="line center">
-		<Icon icon="user" />
 		<div class="name">
 			{user.name}
 		</div>

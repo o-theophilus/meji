@@ -580,16 +580,14 @@ def deactivate():
             **error
         })
 
-    # TEST: if admin that block user is deleted
     cur.execute(
         """
-            UPDATE block b
-            SET admin_key = u.key
-            FROM "user" u
-            WHERE u.email = %s AND b.admin_key = %s;
+            UPDATE block
+            SET admin_key = (SELECT key FROM "user" WHERE email = %s)
+            WHERE admin_key = %s;
         """, (os.environ["MAIL_USERNAME"], user["key"]))
-
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
+
     storage.delete(user["photo"], "user")
     anon_user = anon(cur)
     token = create_session(cur, anon_user["key"])

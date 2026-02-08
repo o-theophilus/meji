@@ -19,7 +19,6 @@ def get_many(key, _page_size=24, cur=None):
         return jsonify(session)
     user = session["user"]
 
-    # FIXME: this endpoint is slow
     searchParams = {
         "order": 'most relevant ▼',
         "page_no": 1,
@@ -60,19 +59,125 @@ def get_many(key, _page_size=24, cur=None):
             "error": "Invalid request"
         })
 
-    cur.execute("""
-        WITH series AS (
-            SELECT generate_series(1, 5) as rating
-        )
+    cur.execute(f"""
+        SELECT
+            r.key, r.date_created, r.comment, r.rating,
+            u.key AS user_key, u.name, u.username, u.photo,
+            COALESCE(l.most_like, 0) AS most_like,
+            COALESCE(rc.reply_count, 0) AS reply_count
+        FROM review r
+        JOIN "user" u ON u.key = r.user_key
 
-        SELECT series.rating, COUNT(review.key) as count
-        FROM series
-        LEFT JOIN review ON
-            series.rating = review.rating
-            AND review.parent_key IS NULL
-            AND review.item_key = %s
-        GROUP BY series.rating
-        ORDER BY series.rating DESC;
+        LEFT JOIN (
+            SELECT
+                review_key,
+                COUNT(*) FILTER (WHERE reaction = 'like') -
+                COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
+            FROM "like"
+            GROUP BY review_key
+        ) l ON l.review_key = r.key
+
+        LEFT JOIN (
+            SELECT parent_key, COUNT(*) AS reply_count
+            FROM review
+            WHERE parent_key IS NOT NULL
+            GROUP BY parent_key
+        ) rc ON rc.parent_key = r.key
+
+        WHERE r.item_key = %s
+        AND r.parent_key IS NULL
+
+        ORDER BY {order_by[order]} {order_dir[order]}
+        LIMIT %s OFFSET %s
+    """, (
+        item["key"],
+        page_size,
+        (page_no - 1) * page_size
+    ))
+    reviews = cur.fetchall()
+    review_keys = [r["key"] for r in reviews]
+
+    if review_keys:
+        cur.execute("""
+            SELECT
+                r.key, r.date_created, r.comment, r.rating, r.parent_key,
+                u.key AS user_key, u.name, u.username, u.photo
+            FROM review r
+            JOIN "user" u ON u.key = r.user_key
+            WHERE r.parent_key::TEXT = ANY(%s)
+            ORDER BY r.date_created ASC
+        """, (review_keys,))
+        replies_raw = cur.fetchall()
+
+        cur.execute("""
+            SELECT
+                review_key,
+                COUNT(*) FILTER (WHERE reaction = 'like' AND user_key != %s)
+                    AS others_like,
+                COUNT(*) FILTER (WHERE reaction = 'dislike' AND user_key != %s)
+                    AS others_dislike,
+                MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
+            FROM "like"
+            WHERE review_key::TEXT = ANY(%s)
+            GROUP BY review_key
+        """, (user["key"], user["key"], user["key"], review_keys))
+        likes_raw = cur.fetchall()
+    else:
+        replies_raw = []
+        likes_raw = []
+
+    replies_map = {}
+    for x in replies_raw:
+        replies_map.setdefault(x["parent_key"], []).append({
+            "key": x["key"],
+            "date_created": x["date_created"],
+            "comment": x["comment"],
+            "rating": x["rating"],
+            "user": {
+                "key": x["user_key"],
+                "name": x["name"],
+                "username": x["username"],
+                "photo": f'{request.host_url}photo/user/{
+                    x["photo"]}' if x["photo"] else None
+            }
+        })
+
+    likes_map = {
+        x["review_key"]: {
+            "others_like": x["others_like"],
+            "others_dislike": x["others_dislike"],
+            "user_reaction": x["user_reaction"]
+        }
+        for x in likes_raw
+    }
+
+    final_reviews = []
+    for x in reviews:
+        final_reviews.append({
+            "key": x["key"],
+            "date_created": x["date_created"],
+            "comment": x["comment"],
+            "rating": x["rating"],
+            "user": {
+                "key": x["user_key"],
+                "name": x["name"],
+                "username": x["username"],
+                "photo": f'{request.host_url}photo/user/{
+                    x["photo"]}' if x["photo"] else None
+            },
+            "stats": likes_map.get(x["key"], {
+                "others_like": 0,
+                "others_dislike": 0,
+                "user_reaction": None
+            }),
+            "replies": replies_map.get(x["key"], [])
+        })
+
+    cur.execute("""
+        SELECT rating, COUNT(*) AS count FROM review
+        WHERE item_key = %s AND parent_key IS NULL
+        GROUP BY rating
+        ORDER BY rating DESC
     """, (item["key"],))
     ratings = cur.fetchall()
 
@@ -97,97 +202,20 @@ def get_many(key, _page_size=24, cur=None):
     """, (user["key"], item["key"], user["key"], item["key"]))
     user_review_info = cur.fetchone()
 
-    cur.execute(f"""
-        WITH
-        replies AS (
-            SELECT
-                review.parent_key,
-                jsonb_agg(jsonb_build_object(
-                    'key', review.key,
-                    'date_created', review.date_created,
-                    'comment', review.comment,
-                    'user', jsonb_build_object(
-                        'key', "user".key,
-                        'name', "user".name,
-                        'username', "user".username,
-                        'photo', "user".photo
-                    )
-                ) ORDER BY review.date_created ASC) AS replies_array,
-                COUNT(*) AS _count
-            FROM review
-            LEFT JOIN "user" ON review.user_key = "user".key
-            WHERE review.parent_key IS NOT NULL
-            GROUP BY review.parent_key
-        ),
-        like_info AS (
-            SELECT
-                review_key,
-                COUNT(CASE WHEN user_key != %s
-                    AND reaction = 'like' THEN 1 END) AS others_like,
-                COUNT(CASE WHEN user_key != %s
-                    AND reaction = 'dislike' THEN 1 END) AS others_dislike,
-                (COUNT(CASE WHEN reaction = 'like' THEN 1 END) - COUNT(
-                    CASE WHEN reaction = 'dislike' THEN 1 END)) AS most_like,
-                MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
-            FROM "like"
-            WHERE review_key IS NOT NULL
-            GROUP BY review_key
-        )
-
-        SELECT
-            review.key,
-            review.date_created,
-            review.comment,
-            review.rating,
-            COALESCE(replies.replies_array, '[]'::jsonb) AS replies,
-            jsonb_build_object(
-                'key', "user".key,
-                'name', "user".name,
-                'username', "user".username,
-                'photo', "user".photo
-            ) AS user,
-            jsonb_build_object(
-                'others_like', COALESCE(like_info.others_like, 0),
-                'others_dislike', COALESCE(like_info.others_dislike, 0),
-                'user_reaction', like_info.user_reaction
-            ) AS stats,
-            COUNT(*) OVER() AS _count,
-            COALESCE(replies._count, 0) AS reply_count,
-            COALESCE(like_info.most_like, 0) AS most_like
-        FROM review
-        LEFT JOIN "user" ON review.user_key = "user".key
-        LEFT JOIN replies ON review.key = replies.parent_key
-        LEFT JOIN like_info ON review.key = like_info.review_key
-        WHERE
-            review.item_key = %s
-            AND review.parent_key IS NULL
-        ORDER BY {order_by[order]} {order_dir[order]}
-        LIMIT %s OFFSET %s;
-    """, (
-        user["key"], user["key"], user["key"],
-        item['key'],
-        page_size, (page_no - 1) * page_size
-    ))
-
-    reviews = cur.fetchall()
-    for review in reviews:
-        if review["user"]["photo"]:
-            review["user"]["photo"] = f'{request.host_url}photo/user/{review[
-                "user"]["photo"]}'
-        if review.get("replies"):
-            for reply in review["replies"]:
-                if reply["user"]["photo"]:
-                    reply["user"]["photo"] = f'{request.host_url}photo/user/{
-                        reply["user"]["photo"]}'
+    cur.execute("""
+        SELECT COUNT(*) FROM review
+        WHERE item_key = %s AND parent_key IS NULL
+    """, (item["key"],))
+    total_page = cur.fetchone()["count"]
 
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
         "item": item,
-        "reviews": reviews,
+        "reviews": final_reviews,
         "ratings": ratings,
-        "total_page": ceil(reviews[0]["_count"] / page_size) if reviews else 0,
+        "total_page": ceil(total_page / page_size),
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "has_purchased": user_review_info["has_purchased"],
