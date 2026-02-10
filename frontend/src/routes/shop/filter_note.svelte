@@ -1,8 +1,6 @@
 <script>
-	import { page_state } from '$lib/store.svelte.js';
-
 	import { RoundButton } from '$lib/button';
-	import { Content } from '$lib/layout';
+	import { page_state } from '$lib/store.svelte.js';
 
 	let text = $derived.by(() => {
 		let text = '';

@@ -1,12 +1,11 @@
 <script>
-	import { module, loading, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button, Link } from '$lib/button';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import Login from './login.svelte';
-	import EmailTemplate from './confirm.template.svelte';
+	import { app, loading, module } from '$lib/store.svelte.js';
 	import Confirm from './confirm.svelte';
+	import EmailTemplate from './confirm.template.svelte';
+	import Login from './login.svelte';
 
 	let form = $state({ email: module.value.email });
 	let email_template;

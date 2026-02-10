@@ -101,7 +101,7 @@
 			outline-color 0.2s ease-in-out;
 	}
 	button:hover {
-		background-color: var(--select-background-color-hover, hsl(0, 0%,20%));
+		background-color: var(--select-background-color-hover, hsl(0, 0%, 20%));
 		color: var(--select-color-hover, hsl(0, 0%, 95%));
 		outline-color: var(--select-outline-color-hover, transparent);
 	}

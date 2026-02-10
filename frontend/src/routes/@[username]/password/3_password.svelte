@@ -1,9 +1,8 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	let form = $state({ ...module.value });
 	let error = $state({});

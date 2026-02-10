@@ -1,10 +1,9 @@
 <script>
-	import { onMount } from 'svelte';
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button, Tag } from '$lib/button';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
 
 	let error = $state({});
 	let init = module.value.tags;

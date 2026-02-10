@@ -1,12 +1,10 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
-	import { Note } from '$lib/info';
 	import { Button } from '$lib/button';
+	import { Note } from '$lib/info';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { Icon } from '$lib/macro';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	let form = $state({ comment: '', delete_comment: false });
 	let error = $state({});

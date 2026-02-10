@@ -1,5 +1,4 @@
 <script>
-	import { Icon } from '$lib/macro';
 	import { Button } from '$lib/button';
 	let { value = $bindable(), disabled } = $props();
 

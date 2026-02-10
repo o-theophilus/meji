@@ -1,11 +1,10 @@
 <script>
-	import { slide, scale } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-	import { module, app } from '$lib/store.svelte.js';
-
-	import { Datetime, Marked, Avatar, Icon } from '$lib/macro';
-	import { Link, RoundButton, Like } from '$lib/button';
+	import { Like, RoundButton } from '$lib/button';
 	import { Note } from '$lib/info';
+	import { Icon } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import Add from './_add.svelte';
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';

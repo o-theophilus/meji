@@ -1,10 +1,9 @@
 <script>
 	import { Button } from '$lib/button';
-	import { Icon } from '$lib/macro';
-	import Wave from './hero.wave.svelte';
-	import Nav from './hero.nav.svelte';
-	import Customer from './hero.customer.svelte';
 	import Bubble from './hero.bubble.svelte';
+	import Customer from './hero.customer.svelte';
+	import Nav from './hero.nav.svelte';
+	import Wave from './hero.wave.svelte';
 </script>
 
 <section>

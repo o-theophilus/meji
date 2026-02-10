@@ -1,9 +1,9 @@
 <script>
-	import { module, app } from '$lib/store.svelte.js';
+	import { Card } from '$lib/layout';
+	import { Marked } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
-	import { Marked } from '$lib/macro';
-	import { Card } from '$lib/layout';
 
 	let { item, edit_mode, update } = $props();
 	let open = $state(true);

@@ -1,8 +1,7 @@
 <script>
-	import { module } from '$lib/store.svelte.js';
-
-	import { Icon } from '$lib/macro';
 	import { Button } from '$lib/button';
+	import { Icon } from '$lib/macro';
+	import { module } from '$lib/store.svelte.js';
 
 	let title = module.value.title || 'Done';
 	let status = module.value.status || 200;

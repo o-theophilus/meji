@@ -1,7 +1,5 @@
 <script>
 	import { Icon } from '$lib/macro';
-	// import Bar from './rating.bar.svelte';
-
 	let { ratings } = $props();
 	let info = $derived.by(() => {
 		let _count = 0;

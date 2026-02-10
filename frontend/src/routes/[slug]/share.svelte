@@ -1,10 +1,9 @@
 <script>
 	import { page } from '$app/state';
-	import { module, app } from '$lib/store.svelte.js';
-
 	import { Button } from '$lib/button';
-	import { Icon } from '$lib/macro';
 	import { Form } from '$lib/layout';
+	import { Icon } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 
 	let title = `Check Out: ${module.value.title}`;
 

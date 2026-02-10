@@ -1,8 +1,8 @@
 <script>
-	import { module } from '$lib/store.svelte.js';
 	import { Button } from '$lib/button';
-	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
+	import { Form } from '$lib/layout';
+	import { module } from '$lib/store.svelte.js';
 	import Confirm from './confirm.svelte';
 </script>
 

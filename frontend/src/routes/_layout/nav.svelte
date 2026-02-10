@@ -1,7 +1,5 @@
 <script>
-	import { app, module } from '$lib/store.svelte.js';
-
-	import { Icon } from '$lib/macro';
+	import { app } from '$lib/store.svelte.js';
 	import Button from './nav.btn.svelte';
 	import User from './nav.user.svelte';
 </script>

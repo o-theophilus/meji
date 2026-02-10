@@ -1,6 +1,6 @@
 <script>
-	import { app, page_state } from '$lib/store.svelte.js';
 	import { Datetime, Icon } from '$lib/macro';
+	import { app, page_state } from '$lib/store.svelte.js';
 
 	let { log, searchParams = $bindable() } = $props();
 

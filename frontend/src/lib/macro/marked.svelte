@@ -1,8 +1,8 @@
 <script>
 	import markdownIt from 'markdown-it';
 	import highlightjs from 'markdown-it-highlightjs';
-	import video from 'markdown-it-video';
 	import linkAttributes from 'markdown-it-link-attributes';
+	import video from 'markdown-it-video';
 	import './marked.css';
 
 	const md = markdownIt({

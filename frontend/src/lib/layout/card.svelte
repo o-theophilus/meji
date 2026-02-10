@@ -1,8 +1,7 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-
 	import { FoldButton } from '$lib/button';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
 	let { open = true, onclick, children, title } = $props();
 </script>

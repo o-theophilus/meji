@@ -1,10 +1,7 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
-	import { Icon } from '$lib/macro';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
 
 	let form = $state({

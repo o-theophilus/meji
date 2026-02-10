@@ -1,11 +1,10 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { onMount } from 'svelte';
-	import { app } from '$lib/store.svelte.js';
-
-	import { Switch, Button, RoundButton } from '$lib/button';
+	import { Button, RoundButton, Switch } from '$lib/button';
+	import { Checkbox, IG } from '$lib/input';
 	import { Icon } from '$lib/macro';
-	import { IG, Checkbox } from '$lib/input';
+	import { app } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 
 	let { value = $bindable(), ondone } = $props();
 

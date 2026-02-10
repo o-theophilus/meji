@@ -1,10 +1,10 @@
-import resend
-from flask import request, current_app
 import os
 import random
-from datetime import datetime, timezone, timedelta
-from psycopg2.extras import Json
+from datetime import datetime, timedelta, timezone
 
+import resend
+from flask import current_app, request
+from psycopg2.extras import Json
 
 reserved_words = [
     "meji", "app", "home", "shop", "save", "cart", "profile", "orders",
@@ -37,6 +37,13 @@ access_pass = {
         ['edit_variation', 2],
         ['edit_quantity', 2],
         ['advert', 2]
+    ],
+    "coupon": [
+        ['view', 2],
+        ['view_code', 3],
+        ['add', 3],
+        ['edit_validity', 3],
+        ['delete', 3],
     ],
     "order": [
         ['view', 1],

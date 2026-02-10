@@ -1,6 +1,6 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
-	import { formatDate, formatTimeAgo, formatFullDateTime, needsLiveUpdates } from './datetime';
+	import { onDestroy, onMount } from 'svelte';
+	import { formatDate, formatFullDateTime, formatTimeAgo, needsLiveUpdates } from './datetime';
 
 	let { datetime, type = 'date_medium' } = $props();
 
@@ -40,7 +40,7 @@
 {/if}
 
 <style>
-	time{
+	time {
 		line-height: 100%;
 	}
 </style>

@@ -1,6 +1,5 @@
 import { error } from '@sveltejs/kit';
 
-
 export const load = async ({ parent, fetch }) => {
     await fetch(`${import.meta.env.VITE_BACKEND}/admin/default`);
 

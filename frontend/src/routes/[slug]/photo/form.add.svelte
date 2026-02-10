@@ -1,5 +1,5 @@
 <script>
-	import { loading, notify, module, app } from '$lib/store.svelte.js';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	let { ops } = $props();
 	let input;

@@ -1,6 +1,5 @@
 <script>
 	import { Icon } from '$lib/macro';
-	import { BackButton } from '$lib/button';
 
 	// TODO: get whatsapp
 	// get facebook username

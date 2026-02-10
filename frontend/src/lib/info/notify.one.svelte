@@ -1,6 +1,6 @@
 <script>
-	import { notify } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
+	import { notify } from '$lib/store.svelte.js';
 	import { onDestroy } from 'svelte';
 
 	let { one } = $props();

@@ -1,7 +1,6 @@
 <script>
-	import { app } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
-	import { onMount } from 'svelte';
+	import { app } from '$lib/store.svelte.js';
 
 	const submit = async (theme) => {
 		if (app.user.theme == theme) return;

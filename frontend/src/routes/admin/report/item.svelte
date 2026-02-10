@@ -1,8 +1,7 @@
 <script>
-	import { module, app } from '$lib/store.svelte.js';
-	import { Avatar } from '$lib/macro';
-	import { Datetime } from '$lib/macro';
-	import { FoldButton, Button, Link } from '$lib/button';
+	import { Button, FoldButton, Link } from '$lib/button';
+	import { Avatar, Datetime } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
 	import Form from './_form.svelte';
 

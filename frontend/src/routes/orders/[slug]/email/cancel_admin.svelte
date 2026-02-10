@@ -3,7 +3,7 @@
 	import { EmailTemplate } from '$lib/layout';
 	import Table from './_items_table.svelte';
 
-	let { order,  items } = $props();
+	let { order, items } = $props();
 </script>
 
 <EmailTemplate>

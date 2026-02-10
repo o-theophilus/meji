@@ -1,14 +1,11 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-	import { flip } from 'svelte/animate';
-
-	import { loading, notify, app } from '$lib/store.svelte.js';
-
-	import { Content, Card } from '$lib/layout';
-	import { FoldButton, Button, BackButton } from '$lib/button';
-	import { Meta, Log, Icon } from '$lib/macro';
+	import { BackButton, Button } from '$lib/button';
 	import { Note, PageNote } from '$lib/info';
+	import { Card, Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import { app, loading, notify } from '$lib/store.svelte.js';
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 
 	let { data } = $props();
 	let { users, items } = data;
@@ -56,7 +53,7 @@
 </script>
 
 <Log entity_type={'page'} />
-<Meta title="Manage / Excess Files"  />
+<Meta title="Manage / Excess Files" />
 
 <Content>
 	<div class="line">

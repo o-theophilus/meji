@@ -1,10 +1,9 @@
 <script>
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { loading, notify, module, app } from '$lib/store.svelte.js';
 
 	import { Button, RoundButton } from '$lib/button';
-	import { Icon } from '$lib/macro';
 
 	let { ops } = $props();
 	let files = $derived(ops.files);

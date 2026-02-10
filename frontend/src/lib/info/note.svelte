@@ -1,6 +1,6 @@
 <script>
-	import { slide } from 'svelte/transition';
 	import { Icon } from '$lib/macro';
+	import { slide } from 'svelte/transition';
 
 	let { status, note, children } = $props();
 </script>

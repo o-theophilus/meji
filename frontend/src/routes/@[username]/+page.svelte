@@ -1,23 +1,18 @@
 <script>
-	import { page } from '$app/state';
-
-	import { app, module, page_state } from '$lib/store.svelte.js';
-
+	import { Button, LinkArrow, RoundButton, Switch } from '$lib/button';
 	import { Content } from '$lib/layout';
-	import { Meta, Icon, Avatar, Log } from '$lib/macro';
-	import { RoundButton, Button, LinkArrow, Switch } from '$lib/button';
-
-	import Photo from './_photo.svelte';
-	import Name from './_name.svelte';
-	import Phone from './_phone.svelte';
-	import Username from './_username.svelte';
-	import Email from './email/1_email.svelte';
-	import Password from './password/1_email.svelte';
-	import Delete from './delete/form.svelte';
-	import Access from './access/form.svelte';
+	import { Avatar, Icon, Log, Meta } from '$lib/macro';
+	import { app, module, page_state } from '$lib/store.svelte.js';
 	import Action from './_admin_action.svelte';
 	import Block from './_block.svelte';
-	import { onMount } from 'svelte';
+	import Name from './_name.svelte';
+	import Phone from './_phone.svelte';
+	import Photo from './_photo.svelte';
+	import Username from './_username.svelte';
+	import Access from './access/form.svelte';
+	import Delete from './delete/form.svelte';
+	import Email from './email/1_email.svelte';
+	import Password from './password/1_email.svelte';
 
 	let { data } = $props();
 	let user = $derived(data.user);

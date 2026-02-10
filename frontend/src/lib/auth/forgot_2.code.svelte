@@ -1,11 +1,9 @@
 <script>
-	import { module, loading, app } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
-	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-
+	import { IG } from '$lib/input';
+	import { Form } from '$lib/layout';
+	import { app, loading, module } from '$lib/store.svelte.js';
 	import Password from './forgot_3.password.svelte';
 
 	let form = $state({ ...module.value });

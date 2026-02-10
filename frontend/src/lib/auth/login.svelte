@@ -1,16 +1,13 @@
 <script>
 	import { page } from '$app/state';
-
-	import { module, loading, app } from '$lib/store.svelte.js';
-
-	import { IG, Checkbox } from '$lib/input';
 	import { Button, Link } from '$lib/button';
+	import { Checkbox, IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { Icon } from '$lib/macro';
-	import Signup from './signup.svelte';
-	import Forgot from './forgot_1.email.svelte';
-	import EmailTemplate from './confirm.template.svelte';
+	import { app, loading, module } from '$lib/store.svelte.js';
 	import Confirm from './confirm.svelte';
+	import EmailTemplate from './confirm.template.svelte';
+	import Forgot from './forgot_1.email.svelte';
+	import Signup from './signup.svelte';
 
 	let email_template;
 

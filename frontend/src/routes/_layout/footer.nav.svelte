@@ -16,8 +16,8 @@
 	</div>
 	<div class="block">
 		<div class="title">Legal</div>
-		<Link href="/terms">Terms</Link>
-		<Link href="/privacy">Privacy Policy</Link>
+		<Link href="/legal/terms">Terms</Link>
+		<Link href="/legal/privacy">Privacy Policy</Link>
 	</div>
 </section>
 

@@ -1,5 +1,5 @@
+import { loading, page_state } from "$lib/store.svelte.js";
 import { error } from '@sveltejs/kit';
-import { loading, page_state } from "$lib/store.svelte.js"
 
 export const load = async ({ fetch, url, parent, depends }) => {
 	depends(true)

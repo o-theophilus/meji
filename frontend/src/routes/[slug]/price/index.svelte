@@ -1,11 +1,11 @@
 <script>
-	import { module, app } from '$lib/store.svelte.js';
-	import { slide } from 'svelte/transition';
 	import { Icon } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
+	import { slide } from 'svelte/transition';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
-	import Price from './price.svelte';
 	import Info from './info.svelte';
+	import Price from './price.svelte';
 
 	let { item, edit_mode, update } = $props();
 

@@ -1,12 +1,11 @@
 <script>
 	import { page } from '$app/state';
-	import { loading, module, app } from '$lib/store.svelte.js';
-
-	import { template } from './form.template.js';
 	import { Button } from '$lib/button';
-	import { EmailTemplate, Form } from '$lib/layout';
 	import { Dialogue } from '$lib/info';
-	import { IG, Dropdown } from '$lib/input';
+	import { Dropdown, IG } from '$lib/input';
+	import { EmailTemplate, Form } from '$lib/layout';
+	import { app, loading, module } from '$lib/store.svelte.js';
+	import { template } from './form.template.js';
 
 	let email_template;
 	let form = $state({});

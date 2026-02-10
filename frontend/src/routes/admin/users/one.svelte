@@ -1,6 +1,6 @@
 <script>
-	import { Avatar } from '$lib/macro';
 	import { Tag } from '$lib/button';
+	import { Avatar } from '$lib/macro';
 	let { user, all = false } = $props();
 </script>
 

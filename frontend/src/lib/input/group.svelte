@@ -1,9 +1,9 @@
 <script>
-	import Input from './input.svelte';
 	import { Icon } from '$lib/macro';
+	import { slide } from 'svelte/transition';
+	import Input from './input.svelte';
 	import Check from './password.checker.svelte';
 	import Show from './password.show.svelte';
-	import { slide } from 'svelte/transition';
 
 	let {
 		value = $bindable(),

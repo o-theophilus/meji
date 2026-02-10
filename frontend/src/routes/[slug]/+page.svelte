@@ -1,30 +1,26 @@
 <script>
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
-	import { module, app, page_state } from '$lib/store.svelte.js';
-
-	import { Content } from '$lib/layout';
 	import { Button, Switch } from '$lib/button';
-	import { Meta, Log, ToTop } from '$lib/macro';
-	import Edit_Button from './edit_button.svelte';
-
+	import { Content } from '$lib/layout';
+	import { Log, Meta } from '$lib/macro';
+	import { app, module, page_state } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
 	import {
-		Status,
-		Photo,
 		Date,
-		Name,
-		Tags,
-		Price,
 		Information,
+		Name,
+		Photo,
+		Price,
 		Quantity,
 		Review,
+		Status,
+		Tags,
 		Variation
 	} from '.';
-	import Similar from './item_group.svelte';
-
-	import Like from '../shop/like.svelte';
-	import Share from './share.svelte';
 	import AddCart from '../cart/add_to_cart.svelte';
+	import Like from '../shop/like.svelte';
+	import Similar from './item_group.svelte';
+	import Share from './share.svelte';
 
 	let { data } = $props();
 	let item = $derived(data.item);

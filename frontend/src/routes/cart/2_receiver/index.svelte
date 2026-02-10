@@ -1,10 +1,10 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { module } from '$lib/store.svelte.js';
 	import { Button } from '$lib/button';
-	import { Card } from '$lib/layout';
 	import { PageNote } from '$lib/info';
+	import { Card } from '$lib/layout';
 	import { Icon } from '$lib/macro';
+	import { module } from '$lib/store.svelte.js';
+	import { slide } from 'svelte/transition';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
 	import EditForm from './form.edit.svelte';
 	import PrevForm from './form.prev.svelte';

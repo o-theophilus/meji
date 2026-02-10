@@ -1,9 +1,4 @@
 <script>
-	import { module, page_state } from '$lib/store.svelte.js';
-	import { LinkArrow, Button } from '$lib/button';
-	import { Content, Card } from '$lib/layout';
-	import { Icon } from '$lib/macro';
-
 	let tags = ['male', 'palm', 'female'];
 </script>
 

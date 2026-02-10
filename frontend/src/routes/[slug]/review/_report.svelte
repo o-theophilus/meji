@@ -1,11 +1,9 @@
 <script>
-	import { loading, module, notify, app, page_state } from '$lib/store.svelte.js';
-
 	import { Button, Tag } from '$lib/button';
+	import { Dropdown, IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { IG, Dropdown } from '$lib/input';
-	import { Avatar } from '$lib/macro';
-	import { template, tags } from './_report.template.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
+	import { tags, template } from './_report.template.js';
 	import One from './one.details.svelte';
 
 	let item = { ...module.value.item };

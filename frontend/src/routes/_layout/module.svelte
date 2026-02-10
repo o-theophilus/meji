@@ -1,9 +1,8 @@
 <script>
-	import { scale } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
-
-	import { module } from '$lib/store.svelte.js';
 	import { RoundButton } from '$lib/button';
+	import { module } from '$lib/store.svelte.js';
+	import { backInOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 </script>
 
 {#if module.module}

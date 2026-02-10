@@ -1,5 +1,5 @@
+import { app } from "$lib/store.svelte.js";
 import { error } from '@sveltejs/kit';
-import { app } from "$lib/store.svelte.js"
 
 export const load = async ({ fetch, params, parent }) => {
     if (app.item.slug == params.slug) return { item: app.item }

@@ -1,14 +1,13 @@
 <script>
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
-	import { module, page_state } from '$lib/store.svelte.js';
-
-	import { Hero, Advert, Tags, ItemGroup, ItemGroup2, About, FAQ, Shop } from './_home';
-	import { Meta, Log } from '$lib/macro';
-	import { Dialogue } from '$lib/info';
 	import { Login } from '$lib/auth';
-	import { Content } from '$lib/layout';
 	import { LinkArrow } from '$lib/button';
+	import { Dialogue } from '$lib/info';
+	import { Content } from '$lib/layout';
+	import { Log, Meta } from '$lib/macro';
+	import { module, page_state } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
+	import { About, Advert, FAQ, Hero, ItemGroup, ItemGroup2, Shop, Tags } from './_home';
 
 	let { data } = $props();
 	let new_arrivals = $derived(data.new_arrivals);

@@ -1,10 +1,9 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
-	import Delete from './delete.svelte';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
+	import Delete from './delete.svelte';
 
 	let item = {
 		key: module.value.key,

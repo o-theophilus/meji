@@ -1,6 +1,5 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
-	import { Avatar } from '$lib/macro';
 
 	let { item, refresh, can_hide } = $props();
 

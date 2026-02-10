@@ -1,6 +1,6 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
 	import { Icon } from '$lib/macro';
+	import { onDestroy, onMount } from 'svelte';
 
 	let { list, size } = $props();
 	let time = $state('0.2s');

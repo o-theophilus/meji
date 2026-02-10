@@ -1,9 +1,9 @@
 <script>
 	import { page } from '$app/state';
 	import { EmailTemplate } from '$lib/layout';
+	import Date from './_date.svelte';
 	import Table from './_items_table.svelte';
 	import User from './_user.svelte';
-	import Date from './_date.svelte';
 
 	let { order, datetime, items } = $props();
 </script>

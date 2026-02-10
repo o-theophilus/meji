@@ -1,8 +1,8 @@
 <script>
-	import './_layout/main.css';
-	import { app } from '$lib/store.svelte.js';
-	import { Header, Nav, Footer, Module, Loading } from './_layout/index.js';
 	import { Notify } from '$lib/info';
+	import { app } from '$lib/store.svelte.js';
+	import { Footer, Header, Loading, Module, Nav } from './_layout/index.js';
+	import './_layout/main.css';
 
 	let { data, children } = $props();
 	app.user = data.locals.user;

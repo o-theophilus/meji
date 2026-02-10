@@ -1,9 +1,9 @@
 <script>
-	import { scale } from 'svelte/transition';
-	import { backInOut } from 'svelte/easing';
-	import { loading } from '$lib/store.svelte.js';
 	import { Spinner } from '$lib/macro';
-	import { onMount, onDestroy } from 'svelte';
+	import { loading } from '$lib/store.svelte.js';
+	import { onDestroy, onMount } from 'svelte';
+	import { backInOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 
 	const typewriter = (node, { speed = 1 }) => {
 		const text = node.textContent;

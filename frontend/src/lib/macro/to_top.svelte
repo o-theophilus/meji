@@ -1,7 +1,6 @@
 <script>
-	import { scroll } from '$lib/store.svelte.js';
-
 	import { Icon } from '$lib/macro';
+	import { scroll } from '$lib/store.svelte.js';
 
 	let percent = $state(0);
 	let scrollTop = $state(0);

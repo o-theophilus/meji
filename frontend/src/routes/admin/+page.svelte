@@ -1,9 +1,8 @@
 <script>
-	import { app } from '$lib/store.svelte.js';
-
-	import { Meta, Log } from '$lib/macro';
-	import { Content } from '$lib/layout';
 	import { Button } from '$lib/button';
+	import { Content } from '$lib/layout';
+	import { Log, Meta } from '$lib/macro';
+	import { app } from '$lib/store.svelte.js';
 </script>
 
 <Log entity_type={'page'} />
@@ -34,6 +33,9 @@
 		{/if}
 		{#if app.user.access.includes('item:advert')}
 			<Button href="/admin/advert" size="wide">Adverts</Button>
+		{/if}
+		{#if app.user.access.includes('coupon:view')}
+			<Button href="/admin/coupons" size="wide">Coupons</Button>
 		{/if}
 		{#if app.user.access.includes('order:view')}
 			<Button href="/orders" size="wide">Orders</Button>

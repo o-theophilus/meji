@@ -1,6 +1,6 @@
 <script>
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
+	import { IG } from '$lib/input';
 
 	let { ops = $bindable() } = $props();
 	let value = $derived(

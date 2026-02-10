@@ -193,12 +193,12 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS coupon (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            date_updated TIMESTAMPTZ DEFAULT now(),
+            order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION,
             status TEXT NOT NULL DEFAULT 'created',
-            pin TEXT NOT NULL,
-            value JSONB DEFAULT '{}'::JSONB,
-            validity TIMESTAMPTZ,
-            order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION
+            valid_from TIMESTAMPTZ,
+            valid_until TIMESTAMPTZ,
+            code TEXT UNIQUE NOT NULL,
+            benefit JSONB DEFAULT '{}'::JSONB
         );
     """)
 

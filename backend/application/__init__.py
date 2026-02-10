@@ -31,6 +31,8 @@ from .item import advert
 from .item.advert import get as advert_get
 from . import cart
 from .cart import get as cart_get
+from . import coupon
+from .coupon import get as coupon_get
 from . import order
 from .order import get as order_get
 from . import api
@@ -82,6 +84,8 @@ def create_app(conf=None):
     app.register_blueprint(advert_get.bp)
     app.register_blueprint(cart.bp)
     app.register_blueprint(cart_get.bp)
+    app.register_blueprint(coupon.bp)
+    app.register_blueprint(coupon_get.bp)
     app.register_blueprint(order.bp)
     app.register_blueprint(order_get.bp)
     app.register_blueprint(api.bp)

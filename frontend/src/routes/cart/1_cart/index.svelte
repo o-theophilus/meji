@@ -1,9 +1,9 @@
 <script>
-	import { slide } from 'svelte/transition';
+	import { FoldButton } from '$lib/button';
+	import { app } from '$lib/store.svelte.js';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { app } from '$lib/store.svelte.js';
-	import { FoldButton } from '$lib/button';
+	import { slide } from 'svelte/transition';
 	import One from './one.svelte';
 
 	let { ops = $bindable() } = $props();

@@ -1,9 +1,8 @@
 <script>
-	import { loading, notify, module, app } from '$lib/store.svelte.js';
-
 	import { Button } from '$lib/button';
-	import { Icon } from '$lib/macro';
 	import { Form } from '$lib/layout';
+	import { Icon } from '$lib/macro';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	let item = $state({ ...module.value });
 	let has_photo = $state(item.photo ? true : false);

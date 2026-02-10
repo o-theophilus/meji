@@ -1,6 +1,6 @@
 <script>
-	import { Icon } from '$lib/macro';
 	import { Link } from '$lib/button';
+	import { Icon } from '$lib/macro';
 	let { children, ...props } = $props();
 </script>
 
@@ -21,11 +21,11 @@
 
 		gap: 4px;
 		width: fit-content;
-		
-		&:hover .arrow{
+
+		&:hover .arrow {
 			transform: translateX(8px);
 		}
-		
+
 		& .arrow {
 			display: flex;
 			justify-content: center;

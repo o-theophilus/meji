@@ -1,17 +1,13 @@
 <script>
-	import { onMount } from 'svelte';
-
-	import { app, module } from '$lib/store.svelte.js';
-	import { Meta, Log } from '$lib/macro';
-
-	import { Content } from '$lib/layout';
 	import { Button, RoundButton } from '$lib/button';
-	import { Datetime } from '$lib/macro';
+	import { Content } from '$lib/layout';
+	import { Datetime, Log, Meta } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
+	import Table from './_items_table.svelte';
+	import Receiver from './_receiver.svelte';
+	import CancelForm from './form.cancel.svelte';
 	import DateForm from './form.date.svelte';
 	import StatusForm from './form.status.svelte';
-	import CancelForm from './form.cancel.svelte';
-	import Receiver from './_receiver.svelte';
-	import Table from './_items_table.svelte';
 	import StatusView from './status_view.svelte';
 
 	let { data } = $props();

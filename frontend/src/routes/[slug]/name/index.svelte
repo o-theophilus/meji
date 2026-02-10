@@ -1,5 +1,5 @@
 <script>
-	import { module, app } from '$lib/store.svelte.js';
+	import { app, module } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
 

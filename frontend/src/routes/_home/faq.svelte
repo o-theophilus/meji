@@ -1,7 +1,6 @@
 <script>
-	import { faqs } from './faq';
 	import { Card } from '$lib/layout';
-	import { Icon } from '$lib/macro';
+	import { faqs } from './faq';
 
 	let status = $state(null);
 </script>

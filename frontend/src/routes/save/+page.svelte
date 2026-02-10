@@ -1,19 +1,15 @@
 <script>
 	import { replaceState } from '$app/navigation';
+	import { PageNote } from '$lib/info';
+	import { Dropdown, Pagination, Search } from '$lib/input';
+	import { Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import { app, page_state } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { module, app, page_state } from '$lib/store.svelte.js';
-	import { onMount } from 'svelte';
-	import { page } from '$app/state';
-
-	import { Content } from '$lib/layout';
-	import { Button } from '$lib/button';
-	import { Dropdown, Search, Pagination } from '$lib/input';
-	import { PageNote } from '$lib/info';
-	import { Meta, Icon, Log } from '$lib/macro';
-
-	import Item from '../shop/item.svelte';
 	import FilterNote from '../shop/filter_note.svelte';
+	import Item from '../shop/item.svelte';
 
 	let { data } = $props();
 	let items = $derived(data.items.filter((x) => app.likes.includes(x.key)));

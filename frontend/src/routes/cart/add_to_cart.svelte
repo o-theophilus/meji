@@ -1,9 +1,8 @@
 <script>
-	import { module, loading, notify, app, page_state } from '$lib/store.svelte.js';
-
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 	import Value from '../[slug]/variation/value.svelte';
 
 	let item = { ...module.value };

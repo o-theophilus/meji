@@ -1,11 +1,11 @@
 <script>
-	import { onMount } from 'svelte';
-	import { app } from '$lib/store.svelte.js';
-	import { Meta, Log, Icon } from '$lib/macro';
-	import { Content } from '$lib/layout';
-	import { PageNote } from '$lib/info';
 	import { Button, Link } from '$lib/button';
+	import { PageNote } from '$lib/info';
 	import { Checkbox } from '$lib/input';
+	import { Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import { app } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
 	import Cart from './1_cart/index.svelte';
 	import Receiver from './2_receiver/index.svelte';
 	import Coupons from './3_coupon/index.svelte';
@@ -83,7 +83,7 @@
 			></Checkbox>
 			<span>
 				By checking this box, you agree to our
-				<Link href="/terms">terms and conditions</Link>
+				<Link href="/legal/terms">terms and conditions</Link>
 			</span>
 		</div>
 	{:else}

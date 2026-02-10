@@ -1,16 +1,14 @@
 <script>
 	import { replaceState } from '$app/navigation';
+	import { BackButton, Switch } from '$lib/button';
+	import { PageNote } from '$lib/info';
+	import { Dropdown, Pagination, Search } from '$lib/input';
+	import { Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import { app, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { app, page_state } from '$lib/store.svelte.js';
-
-	import { Content } from '$lib/layout';
-	import { BackButton, Switch } from '$lib/button';
-	import { Pagination, Dropdown, Search } from '$lib/input';
-	import { Meta, Log, Icon } from '$lib/macro';
-	import { PageNote } from '$lib/info';
 	import One from './one.svelte';
 
 	let { data } = $props();

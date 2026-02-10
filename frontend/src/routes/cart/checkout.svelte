@@ -1,10 +1,9 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { app, loading, scroll, module } from '$lib/store.svelte.js';
+	import { Login } from '$lib/auth';
 	import { Button } from '$lib/button';
 	import { Dialogue, Note } from '$lib/info';
-	import { Login } from '$lib/auth';
-
+	import { app, loading, module, scroll } from '$lib/store.svelte.js';
 	import Email_Admin from '../orders/[slug]/email/create_admin.svelte';
 	import Email_User from '../orders/[slug]/email/create_user.svelte';
 	let email_template_admin;

@@ -1,10 +1,9 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-	import { module } from '$lib/store.svelte.js';
 	import { page } from '$app/state';
-
 	import { Button, FoldButton, Switch } from '$lib/button';
+	import { module } from '$lib/store.svelte.js';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import Confirm from './confirm.svelte';
 
 	let user = module.value.user;

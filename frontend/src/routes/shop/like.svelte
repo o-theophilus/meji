@@ -1,9 +1,9 @@
 <script>
-	import { quadIn, quadInOut } from 'svelte/easing';
-	import { scale } from 'svelte/transition';
-	import { app, page_state } from '$lib/store.svelte.js';
 	import { Button } from '$lib/button';
 	import { Icon } from '$lib/macro';
+	import { app, page_state } from '$lib/store.svelte.js';
+	import { quadInOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 
 	let { item, small = false } = $props();
 
@@ -41,7 +41,6 @@
 
 <Button
 	onclick={submit}
-	
 	--button-border-radius={small ? '40%' : ''}
 	--button-width={small ? '32px' : ''}
 	--button-height={small ? '32px' : ''}

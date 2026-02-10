@@ -1,7 +1,5 @@
 <script>
-	import { module, app } from '$lib/store.svelte.js';
-	import { slide } from 'svelte/transition';
-	import { Button } from '$lib/button';
+	import { app, module } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
 
@@ -23,4 +21,3 @@
 		{item.quantity}
 	</div>
 {/if}
-

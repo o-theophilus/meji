@@ -1,5 +1,4 @@
 <script>
-	import { IG } from '$lib/input';
 	import { RoundButton } from '$lib/button';
 	import Value from './value.svelte';
 

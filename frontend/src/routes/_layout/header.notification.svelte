@@ -1,11 +1,9 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-
-	import { app } from '$lib/store.svelte.js';
 	import { Icon } from '$lib/macro';
-	import { Button } from '$lib/button';
+	import { app } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
 	let nots = $state([]);
 

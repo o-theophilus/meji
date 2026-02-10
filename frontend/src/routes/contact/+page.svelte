@@ -1,8 +1,7 @@
 <script>
-	import Form from './form.svelte';
-	import Contact from './contact.svelte';
 	import { Content } from '$lib/layout';
-	import { Button } from '$lib/button';
+	import Contact from './contact.svelte';
+	import Form from './form.svelte';
 </script>
 
 <Content>

@@ -1,10 +1,9 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
-	import { IG, Checkbox } from '$lib/input';
 	import { Button } from '$lib/button';
-	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
+	import { Checkbox, IG } from '$lib/input';
+	import { Form } from '$lib/layout';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	let form = $state({ actions: [] });
 	let error = $state({});

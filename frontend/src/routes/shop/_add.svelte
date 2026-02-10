@@ -1,13 +1,11 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { module, loading, app } from '$lib/store.svelte.js';
 	import { page } from '$app/state';
-
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
 	import { Dialogue } from '$lib/info';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-
+	import { app, loading, module } from '$lib/store.svelte.js';
 	let form = $state({});
 	let error = $state({});
 

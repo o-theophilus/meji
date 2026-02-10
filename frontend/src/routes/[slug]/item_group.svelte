@@ -1,8 +1,8 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 	import { FoldButton } from '$lib/button';
 	import { Spinner } from '$lib/macro';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import One from './item_group.one.svelte';
 
 	let { group, refresh, loading } = $props();

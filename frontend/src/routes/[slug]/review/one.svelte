@@ -1,9 +1,9 @@
 <script>
-	import Details from './one.details.svelte';
-	import Control from './one.control.svelte';
 	import { RoundButton } from '$lib/button';
+	import { app, module } from '$lib/store.svelte.js';
 	import Delete from './_delete.svelte';
-	import { module, app } from '$lib/store.svelte.js';
+	import Control from './one.control.svelte';
+	import Details from './one.details.svelte';
 
 	let { item, review, search, update } = $props();
 </script>

@@ -1,9 +1,7 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
-	import { Icon } from '$lib/macro';
-
-	import Like from './like.svelte';
 	import Rating from '../[slug]/review/rating.svelte';
+	import Like from './like.svelte';
 
 	let { item } = $props();
 

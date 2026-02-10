@@ -1,14 +1,12 @@
 <script>
-	import { slide } from 'svelte/transition';
+	import { Login } from '$lib/auth';
+	import { Button, LinkArrow } from '$lib/button';
+	import { Dialogue, PageNote } from '$lib/info';
+	import { Card } from '$lib/layout';
+	import { Icon, Spinner } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { module, app } from '$lib/store.svelte.js';
-	import { Button, FoldButton, LinkArrow } from '$lib/button';
-	import { Login } from '$lib/auth';
-	import { Icon, Spinner } from '$lib/macro';
-	import { Dropdown } from '$lib/input';
-	import { PageNote, Dialogue } from '$lib/info';
-	import { Card } from '$lib/layout';
 	import Add from './_add.svelte';
 	import One from './one.svelte';
 

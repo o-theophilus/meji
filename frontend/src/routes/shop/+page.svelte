@@ -1,19 +1,18 @@
 <script>
 	import { replaceState } from '$app/navigation';
+	import { Button, Switch } from '$lib/button';
+	import { PageNote } from '$lib/info';
+	import { Dropdown, Pagination, Search } from '$lib/input';
+	import { Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import { app, module, page_state } from '$lib/store.svelte.js';
+	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import { module, app, page_state } from '$lib/store.svelte.js';
-	import { onMount } from 'svelte';
-	import { page } from '$app/state';
-	import { Content } from '$lib/layout';
-	import { Button, Switch } from '$lib/button';
-	import { Dropdown, Search, Pagination } from '$lib/input';
-	import { PageNote } from '$lib/info';
-	import { Meta, Icon, Log } from '$lib/macro';
-	import Item from './item.svelte';
 	import Add from './_add.svelte';
-	import Tags from './tags.svelte';
 	import FilterNote from './filter_note.svelte';
+	import Item from './item.svelte';
+	import Tags from './tags.svelte';
 
 	let { data } = $props();
 	let items = $derived(data.items);
@@ -50,6 +49,7 @@
 <Content --content-height="auto">
 	<div class="line space">
 		<div class="page_title">Shop</div>
+
 		{#if app.user.access.includes('item:add')}
 			<div class="line">
 				<Switch

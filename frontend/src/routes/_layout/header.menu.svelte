@@ -1,11 +1,10 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
-	import { page } from '$app/state';
-	import { app, module } from '$lib/store.svelte.js';
+	import { Login, Logout } from '$lib/auth';
+	import { Button, Hamburger } from '$lib/button';
 	import { Avatar } from '$lib/macro';
-	import { Logout, Login } from '$lib/auth';
-	import { Hamburger, Button } from '$lib/button';
+	import { app, module } from '$lib/store.svelte.js';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import Theme from './header.menu.theme.svelte';
 
 	let menu = $state();

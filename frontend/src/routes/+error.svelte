@@ -1,8 +1,8 @@
 <script>
 	import { page } from '$app/state';
+	import { Button } from '$lib/button';
 	import { Content } from '$lib/layout';
 	import { Meta } from '$lib/macro';
-	import { Button } from '$lib/button';
 
 	let error = page.error.message;
 </script>

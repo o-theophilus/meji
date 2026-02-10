@@ -1,10 +1,8 @@
 <script>
-	import { module, app, page_state } from '$lib/store.svelte.js';
-	import { goto } from '$app/navigation';
-
+	import { Card } from '$lib/layout';
+	import { app, module } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
-	import { Card } from '$lib/layout';
 	import Value from './value.svelte';
 
 	let { item, edit_mode, update } = $props();

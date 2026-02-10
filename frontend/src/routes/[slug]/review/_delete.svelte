@@ -1,9 +1,8 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
-
 	import { Button } from '$lib/button';
-	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
+	import { Form } from '$lib/layout';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import One from './one.details.svelte';
 
 	let review = { ...module.value.review };

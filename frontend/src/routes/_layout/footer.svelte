@@ -1,10 +1,9 @@
 <script>
 	import { page } from '$app/state';
-
-	import Nav from './footer.nav.svelte';
-	import Socials from './footer.socials.svelte';
 	import { Content } from '$lib/layout';
 	import { Icon } from '$lib/macro';
+	import Nav from './footer.nav.svelte';
+	import Socials from './footer.socials.svelte';
 </script>
 
 {#if page.url.pathname != '/shop'}

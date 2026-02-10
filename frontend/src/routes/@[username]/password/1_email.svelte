@@ -1,10 +1,8 @@
 <script>
-	import { module, loading, app } from '$lib/store.svelte.js';
-
 	import { Button } from '$lib/button';
-	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-
+	import { Form } from '$lib/layout';
+	import { app, loading, module } from '$lib/store.svelte.js';
 	import Code from './2_code.svelte';
 	import EmailTemplate from './email_template.svelte';
 

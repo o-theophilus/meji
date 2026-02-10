@@ -1,8 +1,8 @@
 <script>
 	import { notify } from '$lib/store.svelte.js';
-	import { fade } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
 
 	import Item from './notify.one.svelte';
 </script>

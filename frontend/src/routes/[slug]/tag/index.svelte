@@ -1,8 +1,6 @@
 <script>
-	import { module, app, page_state } from '$lib/store.svelte.js';
-	import { goto } from '$app/navigation';
-
 	import { Tag } from '$lib/button';
+	import { app, module, page_state } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import Form from './form.svelte';
 

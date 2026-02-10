@@ -1,8 +1,8 @@
 <script>
 	import { page } from '$app/state';
-	import { app, module } from '$lib/store.svelte.js';
-	import { Icon, Avatar } from '$lib/macro';
 	import { Login } from '$lib/auth';
+	import { Avatar, Icon } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 
 	let active = $derived(`@${app.user.username}` == page.url.pathname.split('/')[1]);
 </script>

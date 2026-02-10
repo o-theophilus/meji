@@ -1,5 +1,4 @@
 <script>
-	import { page } from '$app/state';
 	import { EmailTemplate } from '$lib/layout';
 </script>
 

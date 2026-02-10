@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { goto, invalidate } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { page } from '$app/state';
 
 export const app = $state({

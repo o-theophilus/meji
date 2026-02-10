@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { scroll } from '$lib/store.svelte.js';
 </script>
