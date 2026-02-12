@@ -4,7 +4,7 @@
 	import { Note } from '$lib/info';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { app, loading, module, notify } from '$lib/store.svelte.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 
 	let form = $state({ comment: '' });
 	let error = $state({});
@@ -35,16 +35,17 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.close();
+			page_state.clear('coupons');
 			notify.open('Coupon Deleted');
-			goto('/shop');
+			module.close();
+			goto('/admin/coupons');
 		} else {
 			error = resp;
 		}
 	};
 </script>
 
-<Form title="Cancel Order" error={error.error}>
+<Form title="Delete Coupon" error={error.error}>
 	<Note status="201" note="Are you sure you want to delete this coupon?">
 		Please give reason why you are deleting this coupon
 	</Note>
@@ -56,5 +57,11 @@
 		bind:value={form.comment}
 	/>
 
-	<Button icon="x" onclick={validate}>Close</Button>
+	<Button
+		--button-background-color="darkred"
+		--button-background-color-hover="red"
+		--button-color-hover="hsl(0, 0%, 95%)"
+		icon="trash-2"
+		onclick={validate}>Delete</Button
+	>
 </Form>

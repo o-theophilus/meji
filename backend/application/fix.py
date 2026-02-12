@@ -17,6 +17,7 @@ def quick_fix():
     #     DROP TABLE IF EXISTS cart_item CASCADE;
     # """)
     cur.execute("""
+        ALTER TABLE "order" DROP COLUMN coupons;
         DROP TABLE IF EXISTS app CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
         CREATE TABLE IF NOT EXISTS coupon (
@@ -30,9 +31,7 @@ def quick_fix():
             benefit JSONB DEFAULT '{}'::JSONB
         );
     """)
-    cur.execute("""
-        ALTER TABLE "order" DROP COLUMN coupons;
-    """)
+
     # cur.execute("""
     #     ALTER TABLE item
     #     ALTER COLUMN quantity SET DEFAULT 10;

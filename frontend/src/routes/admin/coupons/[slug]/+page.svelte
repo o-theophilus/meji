@@ -1,5 +1,5 @@
 <script>
-	import { BackButton, Button, Tag } from '$lib/button';
+	import { BackButton, Button, RoundButton, Tag } from '$lib/button';
 	import { Content } from '$lib/layout';
 	import { Datetime, Log, Meta } from '$lib/macro';
 	import { app, module } from '$lib/store.svelte.js';
@@ -11,6 +11,8 @@
 	const update = (data) => {
 		coupon = data;
 	};
+
+	let show_code = $state(false);
 </script>
 
 <Meta title="Coupon" />
@@ -31,7 +33,7 @@
 </Content>
 
 <Content --content-padding-top="1px">
-	<div class="one">
+	<div class="block">
 		<div class="row_1">
 			<span>
 				sn: {coupon.key.slice(-11, coupon.key.length)}
@@ -42,49 +44,34 @@
 			</span>
 		</div>
 
-		<div class="benefit">
-			<span class="offer">
-				{#if coupon.benefit.value_unit == 'percent'}
-					{coupon.benefit.value}% discount
-				{:else if coupon.benefit.value_unit == 'flat'}
-					₦{Number(coupon.benefit.value).toLocaleString()}
-					off
-				{/if}
-				on
-				{#if coupon.benefit.for == 'delivery'}
-					{coupon.benefit.for} fee
-				{:else if coupon.benefit.for == 'order'}
-					{coupon.benefit.for}
-				{/if}
-			</span>
+		<div class="coupon_note">
+			{@html coupon.note}
+		</div>
 
-			{#if coupon.benefit.threshold_unit && coupon.benefit.threshold}
-				<br />
-				for {coupon.benefit.threshold_unit}s above ₦{Number(
-					coupon.benefit.threshold
-				).toLocaleString()}
+		<div class="code">
+			{#if show_code}
+				{coupon.code.toUpperCase()}
+			{:else}
+				**********
 			{/if}
 
-			<br />
+			{#if app.user.access.includes('coupon:view_code')}
+				<RoundButton icon={show_code ? 'eye' : 'eye-off'} onclick={() => (show_code = !show_code)}
+				></RoundButton>
+			{/if}
+		</div>
 
-			<div class="code">
-				{coupon.code.toUpperCase()}
-			</div>
-
-			<div class="validity">
-				Validity:
-				{#if coupon.valid_from}
-					<Datetime datetime={coupon.valid_from} type="date_numeric" />
-					<!-- <Datetime datetime={coupon.valid_from} type="time_12h" /> -->
-					{#if coupon.valid_until}
-						-
-						<Datetime datetime={coupon.valid_until} type="date_numeric" />
-						<!-- <Datetime datetime={coupon.valid_until} type="time_12h" /> -->
-					{/if}
-				{:else}
-					Unset
+		<div class="validity">
+			Validity:
+			{#if coupon.valid_from}
+				<Datetime datetime={coupon.valid_from} type="date_numeric" />
+				{#if coupon.valid_until}
+					-
+					<Datetime datetime={coupon.valid_until} type="date_numeric" />
 				{/if}
-			</div>
+			{:else}
+				Unset
+			{/if}
 		</div>
 	</div>
 
@@ -94,25 +81,44 @@
 				<Button onclick={() => module.open(Validity, { update, coupon })}>Validity</Button>
 			{/if}
 			{#if app.user.access.includes('coupon:delete')}
-				<Button icon="trash-2" onclick={() => module.open(Delete, { coupon })}>Delete</Button>
+				<Button
+					icon="trash-2"
+					--button-background-color="darkred"
+					--button-background-color-hover="red"
+					--button-color-hover="hsl(0, 0%, 95%)"
+					onclick={() => module.open(Delete, { coupon })}>Delete</Button
+				>
 			{/if}
 		</div>
 	{/if}
 </Content>
 
 <style>
+	.coupon_note {
+		margin-top: 24px;
+		text-align: center;
+	}
+
+	:global(.block .coupon_note .line_1) {
+		line-height: 100%;
+		font-weight: 800;
+		color: var(--ft1);
+		font-size: 2rem;
+
+		& .bold {
+			line-height: 100%;
+		}
+	}
+
 	.line {
 		--tag-font-size: 0.7rem;
 	}
 
-	.one {
+	.block {
 		padding: 16px;
 		background-color: var(--bg3);
 		border-radius: 8px;
 
-		text-decoration: none;
-		color: var(--ft2);
-		text-decoration: none;
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 
@@ -124,27 +130,22 @@
 			font-size: 0.7em;
 		}
 
-		.benefit {
+		& .code {
+			display: flex;
+			gap: 8px;
+			justify-content: center;
+			align-items: center;
+
 			margin-top: 24px;
 			text-align: center;
+			text-align: center;
+			font-size: 1.2rem;
+		}
 
-			& .offer {
-				line-height: 100%;
-				font-weight: 800;
-				color: var(--ft1);
-				font-size: 2rem;
-			}
-
-			& .code {
-				margin-top: 24px;
-				text-align: center;
-				font-size: 1.2rem;
-			}
-
-			& .validity {
-				margin-top: 12px;
-				font-size: 0.7em;
-			}
+		& .validity {
+			text-align: center;
+			margin-top: 12px;
+			font-size: 0.7em;
 		}
 	}
 	.btns {

@@ -25,7 +25,6 @@
 
 {#if app.user}
 	<div class="radio">
-		<div class="hover"></div>
 		<button onclick={() => submit('system')} class:active={app.user.theme == 'system'}>
 			<Icon icon="laptop" />
 		</button>
@@ -59,8 +58,6 @@
 		all: unset;
 		cursor: pointer;
 
-		z-index: 1;
-
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -69,38 +66,31 @@
 		aspect-ratio: 1;
 		border-radius: 50%;
 		background-color: transparent;
-		color: var(--ft2);
 
-		transition:
-			color 0.2s ease-in-out,
-			background-color 0.2s ease-in-out;
+		&::before {
+			content: '';
+			position-anchor: --active;
+			z-index: -1;
 
-		&:hover {
-			color: hsl(0, 0%, 100%);
-			background-color: var(--cl1);
+			position: absolute;
+			top: anchor(top);
+			bottom: anchor(bottom);
+			right: anchor(right);
+			left: anchor(left);
+
+			background-color: hsl(0, 0%, 5%);
+			border-radius: 50%;
+
+			transition:
+				top 0.2s ease-in-out,
+				bottom 0.2s ease-in-out,
+				right 0.2s ease-in-out,
+				left 0.2s ease-in-out;
 		}
 
 		&.active {
 			color: hsl(0, 0%, 95%);
 			anchor-name: --active;
 		}
-	}
-
-	.hover {
-		position-anchor: --active;
-		position: absolute;
-		top: anchor(top);
-		bottom: anchor(bottom);
-		right: anchor(right);
-		left: anchor(left);
-
-		background-color: hsl(0, 0%, 5%);
-		border-radius: 50%;
-
-		transition:
-			top 0.2s ease-in-out,
-			bottom 0.2s ease-in-out,
-			right 0.2s ease-in-out,
-			left 0.2s ease-in-out;
 	}
 </style>

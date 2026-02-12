@@ -59,12 +59,13 @@
 	.img {
 		position: relative;
 		background-color: var(--bg1);
+		border-radius: 8px;
+		overflow: hidden;
 
 		& img {
 			display: block;
 
 			width: 100%;
-			border-radius: 8px;
 			aspect-ratio: 1;
 			object-fit: cover;
 		}

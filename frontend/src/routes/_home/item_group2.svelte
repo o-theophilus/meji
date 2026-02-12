@@ -1,6 +1,15 @@
 <script>
+	import { RoundButton } from '$lib/button';
 	import One from '../shop/item.svelte';
 	let { items = [], _title, id = '' } = $props();
+
+	let scroller = $state();
+	function scroll(pixels = 400) {
+		scroller.scrollBy({
+			left: pixels,
+			behavior: 'smooth'
+		});
+	}
 </script>
 
 {#if items.length > 0}
@@ -10,12 +19,17 @@
 			{@render _title?.()}
 		</div>
 
-		<div class="scroller">
+		<div class="scroller" bind:this={scroller}>
 			{#each items as item}
 				<div class="item">
 					<One {item}></One>
 				</div>
 			{/each}
+		</div>
+
+		<div class="bottom">
+			<RoundButton icon="arrow-left" onclick={() => scroll(-400)}></RoundButton>
+			<RoundButton icon="arrow-right" onclick={() => scroll()}></RoundButton>
 		</div>
 	</section>
 {/if}
@@ -26,11 +40,9 @@
 		z-index: 0;
 
 		margin-top: 120px;
-		/* background-color: var(--bg2); */
 		background-color: var(--bg);
 		border-radius: 24px;
 		overflow: hidden;
-		/* padding: 40px 0; */
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 
@@ -59,6 +71,18 @@
 		pointer-events: none;
 	}
 
+	.bottom {
+		position: absolute;
+		bottom: 16px;
+		left: 0;
+		right: 0;
+
+		display: flex;
+		gap: 16px;
+		justify-content: center;
+		pointer-events: none;
+	}
+
 	.scroller {
 		display: flex;
 		gap: 8px;
@@ -68,6 +92,8 @@
 		padding-left: 16px;
 		padding-right: 16px;
 		overflow-x: auto;
+
+		scroll-snap-type: x mandatory;
 
 		@media screen and (min-width: 580px) {
 			& {
@@ -83,6 +109,7 @@
 
 	.item {
 		flex: 0 0 50%;
+		scroll-snap-align: center;
 
 		@media screen and (min-width: 580px) {
 			& {

@@ -43,8 +43,9 @@
 		{#if date_created >= oneWeekAgo}
 			<div class="new">New</div>
 		{/if}
+		<!-- TODO: this image requests item if src is undefined -->
 		<img
-			src="{item.files[0]}/256"
+			src="{item.files[0] || 'null'}/256"
 			loading="lazy"
 			alt={item.name}
 			onerror={(e) => (e.target.src = '/no_photo.png')}

@@ -16,29 +16,9 @@
 	</div>
 
 	<div class="row_2">
-		<span>
-			<span class="bold">
-				{#if coupon.benefit.value_unit == 'percent'}
-					{coupon.benefit.value}%
-				{:else if coupon.benefit.value_unit == 'flat'}
-					₦{Number(coupon.benefit.value).toLocaleString()}
-				{/if}
-			</span>
-			discount on
-			<span class="bold">
-				{#if coupon.benefit.for == 'delivery'}
-					{coupon.benefit.for} fee
-				{:else if coupon.benefit.for == 'order'}
-					{coupon.benefit.for}
-				{/if}
-			</span>
-
-			{#if coupon.benefit.threshold_unit && coupon.benefit.threshold}
-				for {coupon.benefit.threshold_unit} above ₦{Number(
-					coupon.benefit.threshold
-				).toLocaleString()}
-			{/if}
-		</span>
+		<div class="coupon_note">
+			{@html coupon.note}
+		</div>
 
 		{#if coupon.status == 'used'}
 			<Tag href="/orders/{coupon.order_key}" --tag-background-color="rgb(202, 202, 255)"
@@ -99,14 +79,14 @@
 			gap: 16px;
 
 			--tag-font-size: 0.7rem;
-
-			& .bold {
-				font-weight: 800;
-				color: var(--ft1);
-			}
 		}
 		& .row_3 {
 			font-size: 0.7em;
 		}
+	}
+
+	:global(.one .coupon_note .bold) {
+		font-weight: 800;
+		color: var(--ft1);
 	}
 </style>

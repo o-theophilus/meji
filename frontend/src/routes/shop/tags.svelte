@@ -1,7 +1,6 @@
 <script>
 	import { Button, RoundButton, Switch } from '$lib/button';
-	import { Checkbox, IG } from '$lib/input';
-	import { Icon } from '$lib/macro';
+	import { Checkbox, Input } from '$lib/input';
 	import { app } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -69,24 +68,27 @@
 
 	{#if open}
 		<div class="popup" transition:slide>
-			<IG type="text" placeholder="filter" bind:value={filter} no_pad>
-				{#snippet right()}
-					{#if filter}
-						<div class="close">
-							<RoundButton
-								--button-background-color-hover="red"
-								icon="x"
-								onclick={() => (filter = '')}
-							></RoundButton>
-						</div>
-					{/if}
-				{/snippet}
-			</IG>
+			<div class="search">
+				<Input placeholder="filter" bind:value={filter}>
+					{#snippet right()}
+						{#if filter}
+							<div class="clear">
+								<RoundButton
+									--button-background-color-hover="red"
+									icon="x"
+									onclick={() => (filter = '')}
+								></RoundButton>
+							</div>
+						{/if}
+					{/snippet}
+				</Input>
+			</div>
 
 			<div class="tags">
 				{#if app.tags.length}
 					{#each app.tags as x}
 						{#if x.toLowerCase().includes(filter.toLowerCase())}
+							<!-- TODO: why is this slow -->
 							<Checkbox
 								value={selected.includes(x)}
 								onclick={() => {
@@ -98,23 +100,6 @@
 								}}
 								label={x}
 							></Checkbox>
-							<button
-								class="custom-checkbox"
-								onclick={() => {
-									if (selected.includes(x)) {
-										selected = selected.filter((y) => y != x);
-									} else {
-										selected.push(x);
-									}
-								}}
-							>
-								<div class="checkbox" class:active={selected.includes(x)}>
-									<div class="icon">
-										<Icon icon="check"></Icon>
-									</div>
-								</div>
-								{x}
-							</button>
 						{/if}
 					{/each}
 				{/if}
@@ -185,7 +170,11 @@
 		outline: 2px solid var(--bg1);
 	}
 
-	.close {
+	.search {
+		margin: 8px 0;
+	}
+
+	.clear {
 		margin-right: 8px;
 	}
 
@@ -196,60 +185,6 @@
 
 		outline: 2px solid var(--bg1);
 		outline-offset: -2px;
-	}
-
-	.custom-checkbox {
-		all: unset;
-
-		display: flex;
-		align-items: center;
-		gap: 16px;
-
-		width: 100%;
-		margin: 4px 0;
-
-		font-size: 0.8rem;
-		line-height: 100%;
-	}
-
-	.checkbox {
-		--size: 20px;
-		position: relative;
-
-		flex-shrink: 0;
-
-		width: var(--size);
-		height: var(--size);
-		border-radius: 4px;
-		outline: 2px solid var(--input);
-		outline-offset: -2px;
-
-		background-color: var(--input);
-		cursor: pointer;
-
-		transition: background-color 0.2s ease-in-out;
-	}
-
-	.checkbox:hover {
-		outline-color: var(--ft1);
-	}
-	.active {
-		background-color: var(--cl1);
-	}
-
-	.icon {
-		position: absolute;
-		inset: 0;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: transparent;
-
-		transition: color 0.2s ease-in-out;
-	}
-	.active .icon {
-		color: white;
 	}
 
 	.multiply {

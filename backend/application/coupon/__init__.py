@@ -82,7 +82,7 @@ def add():
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "coupon": coupon_schema(coupon),
+        "coupon": coupon_schema(coupon, user["access"]),
         "coupons": coupons.json["coupons"],
         "total_page": coupons.json["total_page"]
     })
@@ -169,7 +169,7 @@ def edit(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "coupon": coupon_schema(coupon)
+        "coupon": coupon_schema(coupon, user["access"])
     })
 
 
@@ -194,9 +194,11 @@ def delete(key):
 
     error = {}
 
-    note = coupon["note"]
-    if not note:
+    comment = request.json.get("comment")
+    if not comment:
         error["note"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
 
     if error != {}:
         db_close(con, cur)
@@ -215,7 +217,7 @@ def delete(key):
         action="deleted coupon",
         entity_key=coupon["key"],
         entity_type="coupon",
-        misc={"note": note}
+        misc={"comment": comment}
     )
 
     db_close(con, cur)

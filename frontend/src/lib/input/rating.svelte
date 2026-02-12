@@ -24,6 +24,7 @@
 		--icon-stroke: var(--ft2);
 
 		cursor: pointer;
+		line-height: 0;
 	}
 	.active {
 		--icon-fill: goldenrod;
