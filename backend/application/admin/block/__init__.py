@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, request
-from ...tools import get_session, user_schema
-from ...postgres import db_close, db_open
-from ...log import log
-from .get import get_many
 import os
+
+from flask import Blueprint, jsonify, request
+
+from ...log import log
+from ...postgres import db_close, db_open
+from ...tools import get_session, user_schema
+from .get import get_many
 
 bp = Blueprint("block", __name__)
 
@@ -47,7 +49,7 @@ def block(key):
         error["comment"] = "This field is required"
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -129,7 +131,7 @@ def unblock(key):
         error["comment"] = "This field is required"
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

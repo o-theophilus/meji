@@ -20,6 +20,7 @@
 	let ops = $state({
 		status: 'Items',
 		cart: data.cart,
+		coupon: data.coupon,
 		agree: false,
 		error: {},
 		item_ckeck() {
@@ -47,11 +48,6 @@
 			}
 			return total;
 		},
-		coupons: [
-			{ code: 'SAVE10', entity: 'items', type: 'number', value: 10 },
-			{ code: 'SAVE20', entity: 'delivery', type: 'number', value: 20 },
-			{ code: 'SAVE30', entity: 'delivery', type: 'percent', value: 100 }
-		],
 		get delivery_date() {
 			const today = new Date();
 			const nextWeek = new Date(today);

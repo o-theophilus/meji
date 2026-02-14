@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, request
-import re
 import os
-from ..tools import send_mail
-from ..postgres import db_open, db_close
-from ..log import log
-from ..storage import storage
+import re
 
+from flask import Blueprint, jsonify, request
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import send_mail
 
 bp = Blueprint("api", __name__)
 
@@ -13,6 +14,11 @@ bp = Blueprint("api", __name__)
 @bp.get("/cron")
 def cron():
     con, cur = db_open()
+
+    cur.execute("""
+        SELECT key FROM "user" WHERE email = %s;
+    """, (os.environ["MAIL_USERNAME"],))
+    user = cur.fetchone()
 
     cur.execute("""
         DELETE FROM session
@@ -23,28 +29,19 @@ def cron():
                 remember = TRUE
                 AND date_updated <= NOW() - INTERVAL '14 days'
             )
-        RETURNING *;
+        RETURNING key;
     """)
     sessions = cur.fetchall()
-    session_keys = [x["key"] for x in sessions]
 
     cur.execute("""
-        SELECT * FROM "user"
+        DELETE FROM "user"
         WHERE status = 'anonymous'
-            AND date_created <= NOW() - INTERVAL '30 days';
+            AND date_created <= NOW() - INTERVAL '30 days'
+        RETURNING key, photo;
     """)
     users = cur.fetchall()
-
-    for user in users:
-        cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
-        storage.delete(user["photo"], "user")
-
-    user_keys = [x["key"] for x in users]
-
-    cur.execute("""
-        SELECT * FROM "user" WHERE email = %s;
-    """, (os.environ["MAIL_USERNAME"],))
-    user = cur.fetchone()
+    for x in users:
+        storage.delete(x["photo"], "user")
 
     log(
         cur=cur,
@@ -53,16 +50,25 @@ def cron():
         entity_key="app",
         entity_type="app",
         misc={
-            "deleted_sessions": session_keys,
-            "deleted_users": user_keys,
+            "deleted_sessions": [x["key"] for x in sessions],
+            "deleted_users": [x["key"] for x in users],
         }
     )
 
+    cur.execute("""
+        WITH expired AS (
+            UPDATE coupon SET status = 'expired'
+            WHERE valid_until < NOW() AND status = 'active'
+            RETURNING key
+        )
+        INSERT INTO log (user_key, action, entity_key, entity_type)
+        SELECT %s, 'expired coupon', key, 'coupon'
+        FROM expired;
+    """, (user["key"],))
+
     db_close(con, cur)
     return jsonify({
-        "status": 200,
-        "deleted_sessions": session_keys,
-        "deleted_users": user_keys,
+        "status": 200
     })
 
 
@@ -95,7 +101,7 @@ def footer_send_email():
 
     if not message:
         error["message"] = "This field is required"
-    if error != {}:
+    if error:
         return jsonify({
             "status": 400,
             **error

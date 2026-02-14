@@ -17,14 +17,12 @@ def quick_fix():
     #     DROP TABLE IF EXISTS cart_item CASCADE;
     # """)
     cur.execute("""
-        ALTER TABLE "order" DROP COLUMN coupons;
-        DROP TABLE IF EXISTS app CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
         CREATE TABLE IF NOT EXISTS coupon (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION,
-            status TEXT NOT NULL DEFAULT 'created',
+            status TEXT NOT NULL DEFAULT 'inactive',
             valid_from TIMESTAMPTZ,
             valid_until TIMESTAMPTZ,
             code TEXT UNIQUE NOT NULL,

@@ -1,26 +1,26 @@
 // lib/date.js
 
 // ---- formatters (created once) ----
-const timeFormatter = new Intl.DateTimeFormat('en-US', {
+const timeFormatter = new Intl.DateTimeFormat('en-GB', {
 	hour: 'numeric',
 	minute: '2-digit',
 	hour12: true
 });
 
-const weekdayShort = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
-const weekdayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long' });
-const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short' });
-const monthLong = new Intl.DateTimeFormat('en-US', { month: 'long' });
+const weekdayShort = new Intl.DateTimeFormat('en-GB', { weekday: 'short' });
+const weekdayLong = new Intl.DateTimeFormat('en-GB', { weekday: 'long' });
+const monthShort = new Intl.DateTimeFormat('en-GB', { month: 'short' });
+const monthLong = new Intl.DateTimeFormat('en-GB', { month: 'long' });
 
-const fullDate = new Intl.DateTimeFormat('en-US', {
-	month: 'numeric',
+const fullDate = new Intl.DateTimeFormat('en-GB', {
 	day: 'numeric',
+	month: 'numeric',
 	year: 'numeric'
 });
 
-const fullDateTime = new Intl.DateTimeFormat('en-US', {
-	month: 'numeric',
+const fullDateTime = new Intl.DateTimeFormat('en-GB', {
 	day: 'numeric',
+	month: 'numeric',
 	year: 'numeric',
 	hour: 'numeric',
 	minute: '2-digit',

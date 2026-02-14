@@ -1,12 +1,13 @@
 <script>
 	import { Button } from '$lib/button';
 	import { Card } from '$lib/layout';
-	import { Datetime } from '$lib/macro';
 	import { module } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
-	import Form from './form.svelte';
+	import Add from './_add.svelte';
+	import Remove from './_remove.svelte';
 
 	let { ops = $bindable() } = $props();
+	console.log(ops.coupon?.benefit);
 
 	let name = 'Coupons';
 </script>
@@ -32,45 +33,37 @@
 		</div>
 	{/snippet}
 
-	<span class="label bold"> Delivery Date: </span>
-	<span class="label">
-		<Datetime datetime={ops.delivery_date} type="date_numeric" />
-	</span>
-	<!-- {ops.cart.delivery_date} -->
-
-	<br />
-	<br />
-
-	<div>
-		{#each ops.coupons as cop}
-			<div class="line space">
-				<div class="a">
-					{cop.code} -
-					{#if cop.type == 'number'}₦{/if}{cop.value}{#if cop.type == 'percent'}%{/if}
-					off {cop.entity}
-				</div>
-
-				<div class="b">
-					{#if cop.entity == 'items'}
-						{#if cop.type == 'number'}
-							₦{cop.value.toLocaleString()}
-						{:else if cop.type == 'percent'}
-							₦{((ops.total_items() * cop.value) / 100).toLocaleString()}
-						{/if}
-					{:else if cop.entity == 'delivery'}
-						{#if cop.type == 'number'}
-							₦{cop.value.toLocaleString()}
-						{:else if cop.type == 'percent'}
-							₦{((Number(ops.cart.cost_delivery) * cop.value) / 100).toLocaleString()}
-						{/if}
-					{/if}
-				</div>
+	{#if ops.coupon}
+		<div class="line space">
+			<div class="a">
+				{@html ops.coupon.note}
 			</div>
-		{/each}
-	</div>
+
+			<div class="b">
+				{#if ops.coupon.entity == 'items'}
+					{#if ops.coupon.type == 'number'}
+						₦{ops.coupon.value.toLocaleString()}
+					{:else if ops.coupon.type == 'percent'}
+						₦{((ops.total_items() * ops.coupon.value) / 100).toLocaleString()}
+					{/if}
+				{:else if ops.coupon.entity == 'delivery'}
+					{#if ops.coupon.type == 'number'}
+						₦{ops.coupon.value.toLocaleString()}
+					{:else if ops.coupon.type == 'percent'}
+						₦{((Number(ops.cart.cost_delivery) * ops.coupon.value) / 100).toLocaleString()}
+					{/if}
+				{/if}
+			</div>
+		</div>
+	{/if}
 
 	<br />
-	<Button icon="square-pen" onclick={() => module.open(Form, ops)}>Add Coupon</Button>
+
+	{#if ops.coupon}
+		<Button icon="trash-2" onclick={() => module.open(Remove, { ops })}>Remove Coupon</Button>
+	{:else}
+		<Button icon="square-pen" onclick={() => module.open(Add, { ops })}>Add Coupon</Button>
+	{/if}
 
 	<div class="line space total">
 		<span class="a">Total Discount</span>
@@ -102,12 +95,5 @@
 		margin-top: 16px;
 		padding-top: 16px;
 		border-top: 1px solid var(--bg1);
-	}
-
-	.label {
-		font-size: 0.8rem;
-	}
-	.bold {
-		font-weight: 800;
 	}
 </style>

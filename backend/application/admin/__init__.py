@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, request
 import os
-from ..postgres import db_open, db_close
-from ..log import log
 from uuid import uuid4
-from ..tools import get_session, user_schema
+
+from flask import Blueprint, jsonify, request
 from werkzeug.security import check_password_hash
 
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import get_session, user_schema
 
 bp = Blueprint("admin", __name__)
 
@@ -42,7 +43,7 @@ def perform_action(key):
         error["actions"] = "select action"
     if not note:
         error["note"] = "This field is required"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request
 import re
-from ..postgres import db_open, db_close
-from ..tools import get_session, user_schema,  reserved_words
-from ..log import log
 
+from flask import Blueprint, jsonify, request
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import get_session, reserved_words, user_schema
 
 bp = Blueprint("user", __name__)
 
@@ -104,7 +105,7 @@ def edit_user():
         elif len(phone) > 20:
             error["phone"] = "This field cannot exceed 20 characters"
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

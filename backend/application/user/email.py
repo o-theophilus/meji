@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, request
-import re
 import os
-from ..postgres import db_open, db_close
-from ..tools import (
-    get_session, user_schema, send_mail, generate_code, check_code)
-from ..log import log
+import re
 
+from flask import Blueprint, jsonify, request
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import (check_code, generate_code, get_session, send_mail,
+                     user_schema)
 
 bp = Blueprint("user_email", __name__)
 
@@ -113,8 +114,7 @@ def email_3_new_email():
             "email": "please use a different email form your current email"
         })
 
-    cur.execute('SELECT * FROM "user" WHERE email = %s;',
-                (email,))
+    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
         db_close(con, cur)

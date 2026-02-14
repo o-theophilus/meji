@@ -2,7 +2,7 @@
 	import { Button } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Card } from '$lib/layout';
-	import { Icon } from '$lib/macro';
+	import { Datetime, Icon } from '$lib/macro';
 	import { module } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
 	import Receiver from '../../orders/[slug]/_receiver.svelte';
@@ -42,6 +42,12 @@
 	{:else}
 		<div class="card">
 			<Receiver receiver={ops.cart.receiver} />
+		</div>
+
+		<br />
+		<div class="delivery">
+			<span class="bold"> Estimated Delivery Date: </span>
+			<Datetime datetime={ops.delivery_date} type="date_numeric" />
 		</div>
 	{/if}
 
@@ -101,5 +107,12 @@
 		margin-top: 16px;
 		padding-top: 16px;
 		border-top: 1px solid var(--bg1);
+	}
+
+	.delivery {
+		font-size: 0.8rem;
+		& .bold {
+			font-weight: 800;
+		}
 	}
 </style>

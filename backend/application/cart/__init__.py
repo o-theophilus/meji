@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, request
-from ..tools import get_session
-from ..postgres import db_open, db_close
-from psycopg2.extras import Json
-from ..log import log
 import re
+
+from flask import Blueprint, jsonify, request
+from psycopg2.extras import Json
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import get_session
 from .get import get_cart_items
 
 bp = Blueprint("cart", __name__)
@@ -43,7 +45,7 @@ def add_to_cart():
         error["error"] = "This item is not currently available"
     elif item["quantity"] == 0:
         error["error"] = "Sorry, this item is currently out of stock"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -65,7 +67,7 @@ def add_to_cart():
         if x not in variation or variation[x] not in val:
             error[x] = f"Please select a {x}"
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -255,7 +257,7 @@ def receiver():
     if postal_code and len(postal_code) > 10:
         error["postal_code"] = "This field cannot exceed 10 characters"
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -337,90 +339,6 @@ def receiver_clear():
     cur.execute("""
         UPDATE "order" SET receiver = %s WHERE key = %s RETURNING *;
     """, (Json({}), cart["key"]))
-    cart = cur.fetchone()
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": cart
-    })
-
-
-@bp.put("/cart/coupon")
-def coupon():
-    # FEATURE: coupon
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute("""
-       SELECT
-            SUM(item.price * order_item.quantity) AS total
-        FROM item
-        LEFT JOIN order_item ON item.key = order_item.item_key
-        WHERE
-            order_item.order_key = %s
-            AND item.status = 'live';
-    """, (cart["key"],))
-    cost_items = cur.fetchone()[0]
-
-    error = None
-    if "amount" not in request.json:
-        error = "invalid request"
-    elif (
-        type(request.json["amount"]) not in [int, float]
-        or request.json["amount"] < 0
-    ):
-        error = "Please enter a valid amount"
-    elif request.json["amount"] > user["account_balance"]:
-        error = "amount larger than available balance"
-    elif request.json["amount"] > cost_items + cart["cost_delivery"]:
-        error = "amount larger than total cost"
-    if error:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "amount": error
-        })
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed_amount",
-        entity_key=cart["key"],
-        entity_type="cart",
-        misc={
-            "from": cart["pay_account"],
-            "to": request.json["amount"]
-        }
-    )
-
-    cur.execute("""
-        UPDATE "order"
-        SET pay_account = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        request.json["amount"],
-        cart["key"]
-    ))
     cart = cur.fetchone()
 
     db_close(con, cur)

@@ -1,5 +1,4 @@
 export async function handle({ event, resolve }) {
-    // TODO: why is this calling more than once per refresh
     let resp = await fetch(`${import.meta.env.VITE_BACKEND}/init`, {
         method: 'post',
         headers: {

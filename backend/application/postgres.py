@@ -194,7 +194,7 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION,
-            status TEXT NOT NULL DEFAULT 'created',
+            status TEXT NOT NULL DEFAULT 'inactive',
             valid_from TIMESTAMPTZ,
             valid_until TIMESTAMPTZ,
             code TEXT UNIQUE NOT NULL,
@@ -228,7 +228,7 @@ def copy_db():
             values_list.append(tuple(values))
 
         to_cur.executemany(f"""
-            INSERT INTO "{table_name}"({', '.join(columns)})
+            INSERT INTO "{table_name}" ({', '.join(columns)})
             VALUES ({', '.join(['%s'] * len(columns))});
         """, values_list)
 

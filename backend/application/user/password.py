@@ -1,10 +1,11 @@
-from flask import Blueprint, jsonify, request
 import re
-from werkzeug.security import generate_password_hash, check_password_hash
-from ..postgres import db_open, db_close
-from ..tools import get_session, send_mail, generate_code, check_code
-from ..log import log
 
+from flask import Blueprint, jsonify, request
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import check_code, generate_code, get_session, send_mail
 
 bp = Blueprint("user_password", __name__)
 
@@ -107,7 +108,7 @@ def password_3_password():
     elif password and confirm_password != password:
         error["confirm_password"] = """Password and confirm_password password
          does not match"""
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

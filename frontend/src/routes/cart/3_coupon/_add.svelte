@@ -12,17 +12,17 @@
 
 		if (!form.code) {
 			error.code = 'This field is required';
-		} else if (form.code.length > 100) {
-			error.code = 'This field cannot exceed 100 characters';
+		} else if (form.code.length != 10) {
+			error.code = 'This field must be 10 characters';
 		}
 
 		Object.keys(error).length === 0 && submit();
 	};
 
 	const submit = async () => {
-		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
-			method: 'post',
+		loading.open('Adding Coupon . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupon/cart/add`, {
+			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
@@ -33,30 +33,8 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			notify.open('Receiver Information Saved');
-			module.value.cart = resp.cart;
-			module.close();
-		} else {
-			error = resp;
-		}
-	};
-
-	const clear = async () => {
-		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver_clear`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
-		resp = await resp.json();
-		loading.close();
-
-		if (resp.status == 200) {
-			notify.open('Receiver Information Saved');
-			module.value.cart = resp.cart;
+			notify.open('Coupon Added');
+			module.value.ops.coupon = resp.coupon;
 			module.close();
 		} else {
 			error = resp;

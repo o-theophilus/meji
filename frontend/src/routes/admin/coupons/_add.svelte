@@ -7,8 +7,6 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module } from '$lib/store.svelte.js';
 
-	console.log(page.data.for);
-
 	let form = $state({
 		value: 0,
 		threshold: 0
@@ -88,7 +86,7 @@
 				--select-background-color-hover="var(--input)"
 				--select-outline-color="var(--input)"
 				--select-outline-color-hover="var(--ft1)"
-				list={['order', 'delivery']}
+				list={page.data.for}
 				icon2="chevron-down"
 				bind:value={form.for}
 			/>
@@ -108,7 +106,7 @@
 					--select-background-color-hover="var(--input)"
 					--select-outline-color="var(--input)"
 					--select-outline-color-hover="var(--ft1)"
-					list={['flat', 'percent']}
+					list={page.data.value_unit}
 					icon2="chevron-down"
 					bind:value={form.value_unit}
 				/>
@@ -129,7 +127,7 @@
 					--select-background-color-hover="var(--input)"
 					--select-outline-color="var(--input)"
 					--select-outline-color-hover="var(--ft1)"
-					list={['order']}
+					list={page.data.threshold_unit}
 					icon2="chevron-down"
 					bind:value={form.threshold_unit}
 				/>

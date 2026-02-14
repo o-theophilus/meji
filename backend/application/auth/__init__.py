@@ -1,16 +1,17 @@
-from flask import Blueprint, jsonify, request
-from uuid import uuid4
-import re
 import os
-from werkzeug.security import generate_password_hash, check_password_hash
-from ..tools import (
-    get_session, user_schema, send_mail, generate_code,
-    reserved_words, check_code, access_pass)
-from ..postgres import db_open, db_close
-from ..log import log
-from ..storage import storage
+import re
+from uuid import uuid4
+
+from flask import Blueprint, jsonify, request
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from ..cart.get import get_cart_items
 from ..item.get import get_tags
+from ..log import log
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import (access_pass, check_code, generate_code, get_session,
+                     reserved_words, send_mail, user_schema)
 
 bp = Blueprint("auth", __name__)
 
@@ -270,7 +271,7 @@ def signup():
         error["confirm_password"] = """Password and confirm password does not
         match"""
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -406,7 +407,7 @@ def login():
         error["email"] = "This field is required"
     if not password:
         error["password"] = "This field is required"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -573,7 +574,7 @@ def deactivate():
         error["password"] = "This field is required"
     elif not check_password_hash(user["password"], password):
         error["password"] = "Incorrect password"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

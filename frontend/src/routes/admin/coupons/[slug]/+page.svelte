@@ -63,21 +63,23 @@
 
 		<div class="validity">
 			Validity:
-			{#if coupon.valid_from}
-				<Datetime datetime={coupon.valid_from} type="date_numeric" />
-				{#if coupon.valid_until}
-					-
-					<Datetime datetime={coupon.valid_until} type="date_numeric" />
+			{#key `${coupon.valid_from} ${coupon.valid_until}`}
+				{#if coupon.valid_from}
+					<Datetime datetime={coupon.valid_from} type="date_numeric" />
+					{#if coupon.valid_until}
+						-
+						<Datetime datetime={coupon.valid_until} type="date_numeric" />
+					{/if}
+				{:else}
+					Unset
 				{/if}
-			{:else}
-				Unset
-			{/if}
+			{/key}
 		</div>
 	</div>
 
 	{#if app.user.access.includes('coupon:edit_validity') || app.user.access.includes('coupon:delete')}
 		<div class="line btns">
-			{#if app.user.access.includes('coupon:edit_validity')}
+			{#if app.user.access.includes('coupon:edit_validity') && coupon.status != 'used'}
 				<Button onclick={() => module.open(Validity, { update, coupon })}>Validity</Button>
 			{/if}
 			{#if app.user.access.includes('coupon:delete')}

@@ -10,10 +10,15 @@ bp = Blueprint("coupon_get", __name__)
 
 for_list = ['order', 'delivery']
 value_unit_list = ['flat', 'percent']
-threshold_unit_list = ['order']
+threshold_unit_list = ['total item']
 
 
-def coupon_schema(x, access):
+def coupon_schema(x, access=[]):
+    x["valid_from"] = x["valid_from"].strftime(
+        "%Y-%m-%d") if x["valid_from"] else None
+    x["valid_until"] = x["valid_until"].strftime(
+        "%Y-%m-%d") if x["valid_until"] else None
+
     x["note"] = ""
 
     if x["benefit"]["value_unit"] == 'percent':
@@ -98,7 +103,7 @@ def get_many(cur=None):
 
     searchParams = {
         "search": "",
-        "status": "created",
+        "status": "inactive",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
@@ -109,7 +114,6 @@ def get_many(cur=None):
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
-    # TODO:
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
@@ -138,12 +142,12 @@ def get_many(cur=None):
         db_close(con, cur)
     return jsonify({
         "status": 200,
-        "coupons": [coupon_schema(x, user["access"]) for x in coupons],
+        "coupons": [coupon_schema(x) for x in coupons],
         "total_page": ceil(total_page / page_size),
         "order_by": list(order_by.keys()),
         "for": for_list,
         "value_unit": value_unit_list,
         "threshold_unit": threshold_unit_list,
         "searchParams": searchParams,
-        "_status": ['created', 'used', 'expired']
+        "_status": ['inactive', 'active', 'used', 'expired']
     })

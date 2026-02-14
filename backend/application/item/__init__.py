@@ -1,15 +1,17 @@
-from flask import Blueprint, jsonify, request
 import re
-from uuid import uuid4
-from werkzeug.security import check_password_hash
-from ..tools import reserved_words, get_session
-from ..postgres import db_open, db_close
-from ..storage import storage
-from ..log import log
-from .get import get_many, item_schema
-from psycopg2.extras import Json
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
+from uuid import uuid4
+
+from flask import Blueprint, jsonify, request
+from psycopg2.extras import Json
+from werkzeug.security import check_password_hash
+
+from ..log import log
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import get_session, reserved_words
+from .get import get_many, item_schema
 
 bp = Blueprint("item", __name__)
 
@@ -38,7 +40,7 @@ def add():
         error["name"] = "This field is required"
     elif len(name) > 100:
         error["name"] = "This field cannot exceed 100 characters"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -205,7 +207,7 @@ def edit(key):
         if not isinstance(quantity, int) or quantity < 0:
             error["quantity"] = "Please enter a valid number"
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

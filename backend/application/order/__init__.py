@@ -1,14 +1,16 @@
-from flask import Blueprint, jsonify, request
-from ..tools import get_session, send_mail
-from ..postgres import db_open, db_close
-from ..storage import storage
-from ..log import log
 import os
+from datetime import datetime, timedelta, timezone
+
 import requests
-from ..cart.get import get_cart_items
-from .get import order_status
-from datetime import datetime, timezone, timedelta
+from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
+
+from ..cart.get import get_cart_items
+from ..log import log
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import get_session, send_mail
+from .get import order_status
 
 bp = Blueprint("order", __name__)
 
@@ -311,12 +313,12 @@ def delivery_date(key):
     else:
         try:
             parsed_date = datetime.strptime(delivery_date, "%Y-%m-%dT%H:%M:%S")
-            if parsed_date < datetime.now():
+            if parsed_date < datetime.now(timezone.utc):
                 error["delivery_date"] = "Cannot set delivery date in the past"
         except Exception:
             error["error"] = "Invalid date format"
 
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -408,7 +410,7 @@ def cancel(key):
         error["comment"] = "This field is required"
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -515,7 +517,7 @@ def status(key):
         error["comment"] = "This field is required"
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
-    if error != {}:
+    if error:
         db_close(con, cur)
         return jsonify({
             "status": 400,

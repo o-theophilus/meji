@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
-from ..tools import get_session
-from ..postgres import db_open, db_close
 
+from ..coupon.get import coupon_schema
+from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("cart_get_items", __name__)
 
@@ -63,11 +64,17 @@ def get_cart_items(cur=None):
     previous_receivers = cur.fetchall()
     previous_receivers = [x['receiver'] for x in previous_receivers]
 
+    cur.execute("""
+        SELECT * FROM coupon WHERE order_key = %s;
+    """, (cart["key"],))
+    coupon = cur.fetchone()
+
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
         "cart": cart,
         "items": items,
-        "previous_receivers": previous_receivers
+        "previous_receivers": previous_receivers,
+        "coupon": coupon_schema(coupon) if coupon else None
     })
