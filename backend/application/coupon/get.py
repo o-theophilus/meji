@@ -8,9 +8,9 @@ from ..tools import get_session
 bp = Blueprint("coupon_get", __name__)
 
 
-for_list = ['order', 'delivery']
-value_unit_list = ['flat', 'percent']
-threshold_unit_list = ['total item']
+coupon_applies_to = ['total order', 'delivery fee']
+coupon_value_unit = ['flat', 'percent']
+coupon_condition_unit = ['total order']
 
 
 def coupon_schema(x, access=[]):
@@ -19,31 +19,28 @@ def coupon_schema(x, access=[]):
     x["valid_until"] = x["valid_until"].strftime(
         "%Y-%m-%d") if x["valid_until"] else None
 
-    x["note"] = ""
-
-    if x["benefit"]["value_unit"] == 'percent':
-        x["note"] += f'<span class="bold">{x["benefit"]["value"]}%</span>'
-    elif x["benefit"]["value_unit"] == 'flat':
-        x["note"] += f'<span class="bold">₦{x[
-            "benefit"]["value"]:,}</span>'
-
-    x["note"] += " discount on"
-
-    if x["benefit"]["for"] == 'delivery':
-        x["note"] += f' <span class="bold">{x[
-            "benefit"]["for"]} fee</span>'
-    elif x["benefit"]["for"] == 'order':
-        x["note"] += f' <span class="bold">{x[
-            "benefit"]["for"]}</span>'
-
-    x["note"] = f'<span class="line_1">{x["note"]}</span>'
-
-    if x["benefit"]["threshold"] > 0:
-        x["note"] += f'<br/> for {x["benefit"]["threshold_unit"]} above ₦{x[
-            "benefit"]["threshold"]:,}'
-
     if "coupon:view_code" not in access:
         x["code"] = "**********"
+
+    discount = ""
+    if x["benefit"]["value_unit"] == 'percent':
+        discount = f'<span class="bold">{x["benefit"]["value"]}%</span>'
+    elif x["benefit"]["value_unit"] == 'flat':
+        discount = f'<span class="bold">₦{x[
+            "benefit"]["value"]:,}</span>'
+
+    applies_to = ""
+    if x["benefit"]["applies_to"] in ['delivery fee', 'total order']:
+        applies_to = f' <span class="bold">{x[
+            "benefit"]["applies_to"]}</span>'
+
+    condition = ""
+    if x["benefit"]["condition"] > 0:
+        condition = f'<br/> for {x["benefit"]["condition_unit"]} above ₦{x[
+            "benefit"]["condition"]:,}'
+
+    x["note"] = f"<span class='line_1'>{discount}"
+    x["note"] += f" discount on {applies_to}</span> {condition}"
 
     return x
 
@@ -103,7 +100,7 @@ def get_many(cur=None):
 
     searchParams = {
         "search": "",
-        "status": "inactive",
+        "status": "active",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
@@ -129,10 +126,16 @@ def get_many(cur=None):
 
     cur.execute(f"""
         SELECT * FROM coupon
-        WHERE status = %s AND (%s = '' OR key::TEXT ILIKE %s)
+        WHERE
+            (%s = 'all' OR status = %s)
+            AND (%s = '' OR key::TEXT ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}
         LIMIT %s OFFSET %s;
-    """, (status, search, f"%{search}%", page_size, (page_no - 1) * page_size))
+    """, (
+        status, status,
+        search, f"%{search}%",
+        page_size, (page_no - 1) * page_size
+    ))
     coupons = cur.fetchall()
 
     cur.execute("SELECT COUNT(*) FROM coupon")
@@ -145,9 +148,9 @@ def get_many(cur=None):
         "coupons": [coupon_schema(x) for x in coupons],
         "total_page": ceil(total_page / page_size),
         "order_by": list(order_by.keys()),
-        "for": for_list,
-        "value_unit": value_unit_list,
-        "threshold_unit": threshold_unit_list,
+        "applies_to": coupon_applies_to,
+        "value_unit": coupon_value_unit,
+        "condition_unit": coupon_condition_unit,
         "searchParams": searchParams,
-        "_status": ['inactive', 'active', 'used', 'expired']
+        "_status": ['all', 'inactive', 'active', 'used', 'expired']
     })

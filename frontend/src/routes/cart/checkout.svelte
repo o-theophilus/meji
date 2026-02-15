@@ -96,12 +96,16 @@
 		}
 	};
 
-	let total = $derived.by(() => {
-		let sum = ops.total_items() - (Number(ops.cart.discount_amount) || 0);
-		if (ops.has_receiver()) {
-			sum += Number(ops.cart.cost_delivery || 0);
+	let pay = $derived.by(() => {
+		let sum = ops.total_order;
+		if (ops.has_receiver) {
+			sum += Number(ops.cart.delivery_cost);
 		}
-		return sum;
+		if (ops.coupon && ops.discount_condition_met) {
+			sum -= ops.discount;
+		}
+
+		return Math.max(sum, 0);
 	});
 </script>
 
@@ -114,7 +118,7 @@
 		<div class="line space">
 			<div class="total">Total Amount</div>
 			<div class="cost">
-				₦{total.toLocaleString()}
+				₦{pay.toLocaleString()}
 			</div>
 		</div>
 
@@ -128,11 +132,11 @@
 				onclick={() => {
 					if (!app.login) {
 						module.open(Login);
-					} else if (!ops.item_ckeck()) {
+					} else if (!ops.item_ckeck) {
 						ops.status = 'Items';
 						ops.error.error = 'Kindly check the items for error';
 						scroll('#Items');
-					} else if (!ops.has_receiver()) {
+					} else if (!ops.has_receiver) {
 						ops.status = 'Receiver';
 						ops.error.error = 'Please provide receiver information before checkout';
 						scroll('#Receiver');

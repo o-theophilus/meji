@@ -64,9 +64,9 @@ def order_check():
     cur.execute("""
         SELECT
             item.price,
-            item.quantity AS available_quantity,
+            item.quantity,
             item.status,
-            order_item.quantity
+            order_item.quantity AS order_quantity
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE
@@ -83,19 +83,46 @@ def order_check():
     for x in items:
         if (
             x["status"] != 'active'
-            or x["quantity"] == 0
-            or x["quantity"] > x["available_quantity"]
+            or x["order_quantity"] == 0
+            or x["order_quantity"] > x["quantity"]
         ):
             return jsonify({
                 "status": 400,
                 "error": "Some items in your cart are no longer available"
             })
 
-    pay = order["cost_delivery"]
-    for x in items:
-        pay += x["price"] * x["quantity"]
+    total_order = sum(x["price"] * x["order_quantity"] for x in items)
+    discount = 0
 
-    # FEATURE: check Coupons here
+    cur.execute("""
+        SELECT * FROM coupon WHERE order_key = %s;
+    """, (order["key"],))
+    coupon = cur.fetchone()
+    if coupon and coupon["status"] == "active":
+        condition_met = True
+        if coupon["benefit"]["condition"] > 0:
+            if coupon["benefit"]["condition_unit"] == 'total order':
+                condition_met = total_order >= coupon["benefit"]["condition"]
+            else:
+                condition_met = False
+
+        if condition_met:
+            applies_to = 0
+            if coupon["benefit"]["applies_to"] == 'total order':
+                applies_to = total_order
+            elif coupon["benefit"]["applies_to"] == 'delivery fee':
+                applies_to = order["delivery_cost"]
+
+            if coupon["benefit"]["value_unit"] == 'flat':
+                discount = coupon["benefit"]["value"]
+            elif coupon["benefit"]["value_unit"] == 'percent':
+                discount = (applies_to * coupon["benefit"]["value"]) / 100
+                discount = round(discount, 2)
+
+            discount = min(discount, applies_to)
+
+    pay = total_order + order["delivery_cost"] - discount
+    pay = max(pay, 0)
 
     db_close(con, cur)
     return jsonify({
@@ -161,14 +188,41 @@ def cart_to_order():
             "error": "invalid request"
         })
 
-    pay = order["cost_delivery"]
-    for x in items:
-        pay += x["price"] * x["order_quantity"]
+    total_order = sum(x["price"] * x["order_quantity"] for x in items)
+    discount = 0
 
-    # FEATURE: spend / use Coupons here
+    cur.execute("""
+        SELECT * FROM coupon WHERE order_key = %s;
+    """, (order["key"],))
+    coupon = cur.fetchone()
+    if coupon and coupon["status"] == "active":
+        condition_met = True
+        if coupon["benefit"]["condition"] > 0:
+            if coupon["benefit"]["condition_unit"] == 'total order':
+                condition_met = total_order >= coupon["benefit"]["condition"]
+            else:
+                condition_met = False
+
+        if condition_met:
+            applies_to = 0
+            if coupon["benefit"]["applies_to"] == 'total order':
+                applies_to = total_order
+            elif coupon["benefit"]["applies_to"] == 'delivery fee':
+                applies_to = order["delivery_cost"]
+
+            if coupon["benefit"]["value_unit"] == 'flat':
+                discount = coupon["benefit"]["value"]
+            elif coupon["benefit"]["value_unit"] == 'percent':
+                discount = (applies_to * coupon["benefit"]["value"]) / 100
+                discount = round(discount, 2)
+
+            discount = min(discount, applies_to)
+
+    pay = total_order + order["delivery_cost"] - discount
+    pay = max(pay, 0)
 
     cur.execute(
-        """SELECT * FROM "order" WHERE pay_reference = %s;""",
+        """SELECT * FROM "order" WHERE payment_reference = %s;""",
         (reference,))
     if cur.fetchone():
         db_close(con, cur)
@@ -238,11 +292,11 @@ def cart_to_order():
         UPDATE "order"
         SET
             status = 'created',
-            cost_items = %s, timeline = %s,
-            pay_user = %s,  pay_reference = %s
+            order_cost = %s, timeline = %s,
+            payment = %s,  payment_reference = %s
         WHERE key = %s RETURNING *;
     """, (
-        pay, Json(order["timeline"]),
+        total_order, Json(order["timeline"]),
         pay, reference,
         order["key"]
     ))
@@ -256,6 +310,20 @@ def cart_to_order():
         entity_key=order["key"],
         entity_type="order"
     )
+
+    if discount > 0:
+        cur.execute("""
+            UPDATE coupon SET status = 'used'
+            WHERE key = %s RETURNING *;
+        """, (coupon["key"],))
+        log(
+            cur=cur,
+            user_key=user["key"],
+            action="used coupon",
+            entity_key=coupon["key"],
+            entity_type="coupon",
+            misc={"order_key": order["key"]}
+        )
 
     send_mail(
         user["email"],

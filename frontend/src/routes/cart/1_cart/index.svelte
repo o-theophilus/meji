@@ -32,9 +32,9 @@
 
 		<div class="line d">
 			<div class="c">
-				<div class="a">Total Amount</div>
+				<div class="a">Total Order</div>
 				<div class="b">
-					₦{ops.total_items().toLocaleString()}
+					₦{ops.total_order.toLocaleString()}
 				</div>
 			</div>
 			<FoldButton open={ops.status == name} onclick={() => {}} />

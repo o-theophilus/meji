@@ -89,7 +89,7 @@
 
 <Meta
 	title={item.name}
-	description={item.information.length > 100
+	description={item.information && item.information.length > 100
 		? item.information.slice(0, 100) + '...'
 		: item.information}
 	image={item.photo}
@@ -149,8 +149,8 @@
 		{:else}
 			<Button
 				--button-background-color="color-mix(in srgb, red, transparent 80%)"
-				--button-outline-color="red"
-				--button-color="hsl(0, 0%, 95%)"
+				--button-outline-color="color-mix(in srgb, red, transparent 70%)"
+				--button-color="red"
 			>
 				{#if item.status != 'active'}
 					Unavailable
@@ -179,7 +179,6 @@
 	{#each item_group as group}
 		<Similar {group} {refresh} {loading} />
 	{/each}
-	<!-- TODO: <ToTop /> -->
 </Content>
 
 <style>

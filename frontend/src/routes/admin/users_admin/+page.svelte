@@ -16,7 +16,7 @@
 	let total_page = $derived(data.total_page);
 	let { access } = data;
 	let { order_by } = data;
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {

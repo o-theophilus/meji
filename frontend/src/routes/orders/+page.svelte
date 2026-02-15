@@ -18,7 +18,7 @@
 	let { order_by } = data;
 	let { _status } = data;
 	let { view } = data;
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {

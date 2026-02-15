@@ -15,6 +15,29 @@
 
 	let items = data.items;
 	let status = data._status;
+	let coupon = data.coupon;
+
+	let discount = $derived.by(() => {
+		let applies_to = 0;
+		let _discount = 0;
+		if (coupon) {
+			if (coupon.benefit.applies_to == 'total order') {
+				applies_to = order.order_cost;
+			} else if (coupon.benefit.applies_to == 'delivery fee') {
+				applies_to = order.delivery_cost;
+			}
+
+			if (coupon.benefit.value_unit == 'flat') {
+				_discount = coupon.benefit.value;
+			} else if (coupon.benefit.value_unit == 'percent') {
+				_discount = (applies_to * coupon.benefit.value) / 100;
+				_discount = Math.round(_discount * 100) / 100;
+			}
+
+			_discount = Math.min(_discount, applies_to);
+		}
+		return _discount;
+	});
 
 	let move = $derived.by(() => {
 		let i = status.indexOf(order.status);
@@ -53,9 +76,30 @@
 		<Table {items} />
 		<br />
 		<div class="line space">
-			<span class="label bold"> Total Item Cost: </span>
+			<span class="label bold"> Total order: </span>
 			<span class="cost">
-				₦{Number(order.cost_items).toLocaleString()}
+				₦{Number(order.order_cost).toLocaleString()}
+			</span>
+		</div>
+		<div class="line space">
+			<span class="label bold"> Delivery fee: </span>
+			<span class="cost">
+				₦{Number(order.delivery_cost).toLocaleString()}
+			</span>
+		</div>
+
+		<hr class="hr" />
+
+		<div class="line space">
+			<span class="label bold"> Discount: </span>
+			<span class="cost">
+				₦{Number(discount).toLocaleString()}
+			</span>
+		</div>
+		<div class="line space">
+			<span class="label bold"> User paid: </span>
+			<span class="cost">
+				₦{Number(order.payment).toLocaleString()}
 			</span>
 		</div>
 
@@ -86,14 +130,6 @@
 			<br />
 			<Button onclick={() => module.open(DateForm, { ...order, update })}>Edit</Button>
 		{/if}
-
-		<hr class="hr" />
-		<div class="line space">
-			<span class="label bold"> Delivery fee: </span>
-			<span class="cost">
-				₦{Number(order.cost_delivery).toLocaleString()}
-			</span>
-		</div>
 	</div>
 
 	{#if !['delivered', 'canceled'].includes(order.status)}

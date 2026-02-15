@@ -45,7 +45,9 @@
 	{/if}
 
 	{#if input}
-		{@render input(id)}
+		<div class="input">
+			{@render input(id)}
+		</div>
 	{:else}
 		<div class="input">
 			<Input bind:value bind:show_password {id} {...props} />

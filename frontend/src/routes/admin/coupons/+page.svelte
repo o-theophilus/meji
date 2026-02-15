@@ -1,6 +1,6 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { BackButton, Button } from '$lib/button';
+	import { Button, RoundButton } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Dropdown, Pagination, Search } from '$lib/input';
 	import { Content } from '$lib/layout';
@@ -17,7 +17,7 @@
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
 	let { _status } = data;
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	const update = (a, b) => {
@@ -42,7 +42,7 @@
 <Content --content-height="auto">
 	<div class="line space">
 		<div class="line">
-			<BackButton />
+			<RoundButton icon="arrow-left" href="/admin"></RoundButton>
 			<div class="page_title">
 				Coupon{coupons?.length > 1 ? 's' : ''}
 			</div>

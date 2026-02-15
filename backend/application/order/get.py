@@ -1,8 +1,10 @@
-from flask import Blueprint, request, jsonify
 from math import ceil
-from ..tools import get_session
-from ..postgres import db_close, db_open
 
+from flask import Blueprint, jsonify, request
+
+from ..coupon.get import coupon_schema
+from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("order_get", __name__)
 
@@ -62,12 +64,18 @@ def get(key):
     ;""", (order["key"],))
     items = cur.fetchall()
 
+    cur.execute("""
+        SELECT * FROM coupon WHERE order_key = %s;
+    """, (order["key"],))
+    coupon = cur.fetchone()
+
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "order": order,
         "items": items,
         "_status": order_status,
+        "coupon": coupon_schema(coupon) if coupon else None
     })
 
 
@@ -99,12 +107,12 @@ def get_many():
     order_by = {
         'latest': 'o.date_created',
         'oldest': 'o.date_created',
-        'cost items ▼': 'o.cost_items',
-        'cost items ▲': 'o.cost_items',
-        'cost delivery ▼': 'o.cost_delivery',
-        'cost delivery ▲': 'o.cost_delivery',
-        'pay user ▼': 'o.pay_user',
-        'pay user ▲': 'o.pay_user',
+        'cost items ▼': 'o.order_cost',
+        'cost items ▲': 'o.order_cost',
+        'cost delivery ▼': 'o.delivery_cost',
+        'cost delivery ▲': 'o.delivery_cost',
+        'pay user ▼': 'o.payment',
+        'pay user ▲': 'o.payment',
         'item count ▼': 'item_count',
         'item count ▲': 'item_count',
         'delivery date ▼': "o.timeline->>'delivery_date'",

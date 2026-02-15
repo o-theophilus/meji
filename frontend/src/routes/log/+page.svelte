@@ -15,7 +15,7 @@
 	let logs = $derived(data.logs);
 	let total_page = $derived(data.total_page);
 	let search_query = $derived(data.search_query);
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	onMount(() => {

@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="total">
-			₦{Number(order.pay_user).toLocaleString()}
+			₦{Number(order.payment).toLocaleString()}
 		</div>
 	</div>
 </a>

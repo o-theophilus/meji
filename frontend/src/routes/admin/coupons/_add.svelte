@@ -3,21 +3,21 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/button';
 	import { Dialogue } from '$lib/info';
-	import { Dropdown, IG, Number as Num } from '$lib/input';
+	import { Dropdown, IG, Input } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module } from '$lib/store.svelte.js';
 
 	let form = $state({
-		value: 0,
-		threshold: 0
+		value: 1,
+		condition: 0
 	});
 	let error = $state({});
 
 	const validate = () => {
 		error = {};
 
-		if (!form.for) {
-			error.for = 'This field is required';
+		if (!form.applies_to) {
+			error.applies_to = 'This field is required';
 		}
 
 		form.value = Number(form.value);
@@ -28,12 +28,12 @@
 			error.value_unit = 'This field is required';
 		}
 
-		form.threshold = Number(form.threshold);
-		if (form.threshold && (!Number.isInteger(form.threshold) || form.threshold < 0)) {
-			error.threshold = 'Please enter a valid number';
+		form.condition = Number(form.condition);
+		if (form.condition && (!Number.isInteger(form.condition) || form.condition < 0)) {
+			error.condition = 'Please enter a valid number';
 		}
-		if (!form.threshold_unit) {
-			error.threshold_unit = 'This field is required';
+		if (!form.condition_unit) {
+			error.condition_unit = 'This field is required';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -51,7 +51,6 @@
 			body: JSON.stringify(form)
 		});
 		resp = await resp.json();
-
 		loading.close();
 
 		if (resp.status == 200) {
@@ -76,7 +75,7 @@
 </script>
 
 <Form title="Add Coupon" error={error.error}>
-	<IG name="For" error={error.for}>
+	<IG name="Applies to" error={error.applies_to}>
 		{#snippet input()}
 			<Dropdown
 				--select-font-size="0.8rem"
@@ -86,9 +85,9 @@
 				--select-background-color-hover="var(--input)"
 				--select-outline-color="var(--input)"
 				--select-outline-color-hover="var(--ft1)"
-				list={page.data.for}
+				list={page.data.applies_to}
 				icon2="chevron-down"
-				bind:value={form.for}
+				bind:value={form.applies_to}
 			/>
 		{/snippet}
 	</IG>
@@ -96,7 +95,12 @@
 	<IG name="Value" error={error.value || error.value_unit}>
 		{#snippet input()}
 			<div class="line">
-				<Num bind:value={form.value}></Num>
+				<Input
+					min="1"
+					max={form.value_unit == 'percent' ? 100 : undefined}
+					type="number"
+					bind:value={form.value}
+				></Input>
 
 				<Dropdown
 					--select-font-size="0.8rem"
@@ -109,15 +113,20 @@
 					list={page.data.value_unit}
 					icon2="chevron-down"
 					bind:value={form.value_unit}
+					onchange={(e) => {
+						if (e == 'percent' && form.value > 100) {
+							form.value = 100;
+						}
+					}}
 				/>
 			</div>
 		{/snippet}
 	</IG>
 
-	<IG name="Threshold" error={error.threshold || error.threshold_unit}>
+	<IG name="condition" error={error.condition || error.condition_unit}>
 		{#snippet input()}
 			<div class="line">
-				<Num bind:value={form.threshold}></Num>
+				<Input type="number" bind:value={form.condition}></Input>
 
 				<Dropdown
 					--select-font-size="0.8rem"
@@ -127,9 +136,9 @@
 					--select-background-color-hover="var(--input)"
 					--select-outline-color="var(--input)"
 					--select-outline-color-hover="var(--ft1)"
-					list={page.data.threshold_unit}
+					list={page.data.condition_unit}
 					icon2="chevron-down"
-					bind:value={form.threshold_unit}
+					bind:value={form.condition_unit}
 				/>
 			</div>
 		{/snippet}

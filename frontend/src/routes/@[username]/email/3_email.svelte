@@ -63,17 +63,19 @@
 		placeholder="Email here"
 	/>
 
-	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
-	<Button
-		--button-background-color="darkred"
-		--button-background-color-hover="red"
-		icon="x"
-		onclick={() => {
-			module.close();
-		}}
-	>
-		Cancel
-	</Button>
+	<div class="line">
+		<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
+		<Button
+			--button-background-color="darkred"
+			--button-background-color-hover="red"
+			icon="x"
+			onclick={() => {
+				module.close();
+			}}
+		>
+			Cancel
+		</Button>
+	</div>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

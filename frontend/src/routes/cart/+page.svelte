@@ -23,15 +23,7 @@
 		coupon: data.coupon,
 		agree: false,
 		error: {},
-		item_ckeck() {
-			for (const item of app.cart_items) {
-				if (item.status != 'active' || item.quantity > item.available_quantity) {
-					return false;
-				}
-			}
-			return true;
-		},
-		has_receiver() {
+		get has_receiver() {
 			return !!(
 				this.cart.receiver?.name &&
 				this.cart.receiver?.phone &&
@@ -41,17 +33,58 @@
 				this.cart.receiver?.address?.country
 			);
 		},
-		total_items() {
+		get delivery_date() {
+			const nextWeek = new Date();
+			nextWeek.setDate(nextWeek.getDate() + 7);
+			return nextWeek;
+		},
+		get total_order() {
 			let total = 0;
 			for (const i of app.cart_items) {
 				total += i.price * i.quantity;
 			}
 			return total;
 		},
-		get delivery_date() {
-			const today = new Date();
-			const nextWeek = new Date(today);
-			return nextWeek.setDate(today.getDate() + 7);
+		get discount() {
+			let _discount = 0;
+			if (this.coupon) {
+				let applies_to = 0;
+				if (this.coupon.benefit.applies_to == 'total order') {
+					applies_to = this.total_order;
+				} else if (this.coupon.benefit.applies_to == 'delivery fee') {
+					applies_to = this.has_receiver ? ops.cart.delivery_cost : 0;
+				}
+
+				if (this.coupon.benefit.value_unit == 'flat') {
+					_discount = this.coupon.benefit.value;
+				} else if (this.coupon.benefit.value_unit == 'percent') {
+					_discount = (applies_to * this.coupon.benefit.value) / 100;
+					_discount = Math.round(_discount * 100) / 100;
+				}
+
+				_discount = Math.min(_discount, applies_to);
+			}
+			return _discount;
+		},
+		get discount_condition_met() {
+			let condition_met = true;
+			if (this.coupon && this.coupon.benefit.condition > 0) {
+				if (this.coupon.benefit.condition_unit == 'total order') {
+					condition_met = this.total_order >= this.coupon.benefit.condition;
+				} else {
+					condition_met = false;
+				}
+			}
+
+			return condition_met;
+		},
+		get item_ckeck() {
+			for (const item of app.cart_items) {
+				if (item.status != 'active' || item.quantity > item.available_quantity) {
+					return false;
+				}
+			}
+			return true;
 		}
 	});
 </script>

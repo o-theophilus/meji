@@ -1,7 +1,7 @@
 <script>
 	import { Button } from '$lib/button';
 	import { onMount } from 'svelte';
-	let { value = $bindable(), disabled, min = 0, max } = $props();
+	let { value = $bindable(), disabled, min = 0, max = undefined } = $props();
 
 	const set = (val) => {
 		if (val === 'increase') {

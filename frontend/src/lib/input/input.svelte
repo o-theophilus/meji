@@ -81,7 +81,7 @@
 		color: var(--ft2);
 		fill: currentColor;
 
-		background-color: var(--group-background-color, transparent);
+		background-color: var(--group-background-color, var(--input));
 		transition: outline-color 0.2s ease-in-out;
 
 		&:hover:not(.disabled),
@@ -141,7 +141,7 @@
 
 		font-size: var(--input-font-size, 1rem);
 		background-color: var(--input-background-color, transparent);
-		color: var(--input-color, hsl(0, 0%, 0%));
+		color: var(--input-color, var(--ft1));
 	}
 	input {
 		padding: 0 var(--input-padding-x, 16px);

@@ -2,7 +2,7 @@
 	import { Button } from '$lib/button';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { app, loading, module, notify } from '$lib/store.svelte.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 
 	const get_date = (days = 0) => {
 		const d = new Date();
@@ -63,6 +63,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
+			page_state.clear('coupons');
 			module.value.update(resp.coupon);
 			module.close();
 			notify.open('Validity Updated');

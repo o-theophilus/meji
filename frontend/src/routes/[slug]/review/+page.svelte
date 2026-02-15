@@ -22,7 +22,7 @@
 	let can_review = $derived(data.can_review);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	const update = (rat, rev, hp, cr, tp) => {

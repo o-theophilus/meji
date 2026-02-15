@@ -7,8 +7,8 @@ from psycopg2.extras import Json
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session
-from .get import (coupon_schema, for_list, get_many, threshold_unit_list,
-                  value_unit_list)
+from .get import (coupon_applies_to, coupon_condition_unit, coupon_schema,
+                  coupon_value_unit, get_many)
 
 bp = Blueprint("coupon", __name__)
 
@@ -30,23 +30,23 @@ def add():
             "error": "unauthorized access"
         })
 
-    _for = request.json.get("for")
+    applies_to = request.json.get("applies_to")
     value = request.json.get("value")
     value_unit = request.json.get("value_unit")
-    threshold = request.json.get("threshold")
-    threshold_unit = request.json.get("threshold_unit")
+    condition = request.json.get("condition")
+    condition_unit = request.json.get("condition_unit")
 
     error = {}
-    if not _for or _for not in for_list:
-        error["for"] = "This field is required"
+    if not applies_to or applies_to not in coupon_applies_to:
+        error["applies_to"] = "This field is required"
     if not isinstance(value, int) or value < 1:
         error["value"] = "Please enter a valid number"
-    if not value_unit or value_unit not in value_unit_list:
+    if not value_unit or value_unit not in coupon_value_unit:
         error["value_unit"] = "This field is required"
-    if not isinstance(threshold, int) or threshold < 0:
-        error["threshold"] = "Please enter a valid number"
-    if not threshold_unit or threshold_unit not in threshold_unit_list:
-        error["threshold_unit"] = "This field is required"
+    if not isinstance(condition, int) or condition < 0:
+        error["condition"] = "Please enter a valid number"
+    if not condition_unit or condition_unit not in coupon_condition_unit:
+        error["condition_unit"] = "This field is required"
     if error:
         db_close(con, cur)
         return jsonify({
@@ -59,11 +59,11 @@ def add():
     """, (
         uuid4().hex[-10:],
         Json({
-            "for": _for,
+            "applies_to": applies_to,
             "value": value,
             "value_unit": value_unit,
-            "threshold": threshold,
-            "threshold_unit": threshold_unit,
+            "condition": condition,
+            "condition_unit": condition_unit,
 
         })
     ))
@@ -100,7 +100,7 @@ def delete(key):
 
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
-    if not coupon:
+    if not coupon or coupon["status"] == "used":
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -239,7 +239,6 @@ def set_validity(key):
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
     })
-# TODO: clear validity
 
 
 @bp.put("/coupon/validity/clear/<key>")
@@ -330,12 +329,11 @@ def add_coupon_to_cart():
             'SELECT * FROM coupon WHERE LOWER(code) = %s;',
             (code.lower(),))
         coupon = cur.fetchone()
-        print(coupon)
         if not coupon:
             error = "Invalid coupon code"
         elif coupon["status"] == "inactive":
             error = "this coupon is inactive"
-        elif coupon["status"] == "user":
+        elif coupon["status"] == "used":
             error = "This coupon has been used"
         elif coupon["status"] == "expired":
             error = "This coupon has expired"

@@ -17,7 +17,7 @@
 	let { data } = $props();
 	let items = $derived(data.items);
 	let total_page = $derived(data.total_page);
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 	let { order_by } = data;
 	let { _status } = data;

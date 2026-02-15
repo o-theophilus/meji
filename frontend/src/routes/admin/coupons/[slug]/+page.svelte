@@ -1,5 +1,5 @@
 <script>
-	import { BackButton, Button, RoundButton, Tag } from '$lib/button';
+	import { Button, RoundButton } from '$lib/button';
 	import { Content } from '$lib/layout';
 	import { Datetime, Log, Meta } from '$lib/macro';
 	import { app, module } from '$lib/store.svelte.js';
@@ -19,32 +19,23 @@
 <Log action={'viewed'} entity_key={coupon.key} entity_type={'user'} />
 
 <Content --content-height="auto">
-	<div class="line space">
-		<div class="line">
-			<BackButton />
-			<div class="page_title">Coupon</div>
-		</div>
-		{#if coupon.status == 'used'}
-			<Tag --tag-background-color="rgb(202, 202, 255)">{coupon.status}</Tag>
-		{:else}
-			<Tag>{coupon.status}</Tag>
-		{/if}
+	<div class="line">
+		<RoundButton icon="arrow-left" href="/admin/coupons"></RoundButton>
+		<div class="page_title">Coupon</div>
 	</div>
 </Content>
 
 <Content --content-padding-top="1px">
-	<div class="block">
-		<div class="row_1">
-			<span>
-				sn: {coupon.key.slice(-11, coupon.key.length)}
-			</span>
+	<div class="coupon">
+		<span class="id_date">
+			id: {coupon.key.slice(-11, coupon.key.length)}
 			<span>
 				<Datetime datetime={coupon.date_created} type="date_numeric" />
 				<Datetime datetime={coupon.date_created} type="time_12h" />
 			</span>
-		</div>
+		</span>
 
-		<div class="coupon_note">
+		<div class="coupon_page">
 			{@html coupon.note}
 		</div>
 
@@ -56,30 +47,34 @@
 			{/if}
 
 			{#if app.user.access.includes('coupon:view_code')}
-				<RoundButton icon={show_code ? 'eye' : 'eye-off'} onclick={() => (show_code = !show_code)}
+				<RoundButton
+					icon={show_code ? 'eye' : 'eye-off'}
+					icon_size="12"
+					--button-width_="24px"
+					--button-height_="24px"
+					onclick={() => (show_code = !show_code)}
 				></RoundButton>
 			{/if}
 		</div>
 
-		<div class="validity">
+		<span class="validity">
 			Validity:
-			{#key `${coupon.valid_from} ${coupon.valid_until}`}
-				{#if coupon.valid_from}
-					<Datetime datetime={coupon.valid_from} type="date_numeric" />
-					{#if coupon.valid_until}
-						-
-						<Datetime datetime={coupon.valid_until} type="date_numeric" />
-					{/if}
-				{:else}
-					Unset
-				{/if}
-			{/key}
-		</div>
+			{#if coupon.valid_from && coupon.valid_until}
+				<Datetime datetime={coupon.valid_from} type="date_numeric" />
+				-
+				<Datetime datetime={coupon.valid_until} type="date_numeric" />
+			{/if}
+
+			&nbsp;
+			<span class="status" class:active={coupon.status == 'active'}>
+				{coupon.status}
+			</span>
+		</span>
 	</div>
 
-	{#if app.user.access.includes('coupon:edit_validity') || app.user.access.includes('coupon:delete')}
+	{#if (app.user.access.includes('coupon:edit_validity') || app.user.access.includes('coupon:delete')) && coupon.status != 'used'}
 		<div class="line btns">
-			{#if app.user.access.includes('coupon:edit_validity') && coupon.status != 'used'}
+			{#if app.user.access.includes('coupon:edit_validity')}
 				<Button onclick={() => module.open(Validity, { update, coupon })}>Validity</Button>
 			{/if}
 			{#if app.user.access.includes('coupon:delete')}
@@ -96,40 +91,27 @@
 </Content>
 
 <style>
-	.coupon_note {
-		margin-top: 24px;
-		text-align: center;
-	}
-
-	:global(.block .coupon_note .line_1) {
-		line-height: 100%;
-		font-weight: 800;
-		color: var(--ft1);
-		font-size: 2rem;
-
-		& .bold {
-			line-height: 100%;
-		}
-	}
-
-	.line {
-		--tag-font-size: 0.7rem;
-	}
-
-	.block {
-		padding: 16px;
+	.coupon {
+		padding: 24px;
 		background-color: var(--bg3);
 		border-radius: 8px;
 
 		outline: 1px solid var(--ol);
+		align-items: center;
 		outline-offset: -1px;
+		text-align: center;
 
-		& .row_1 {
+		& .id_date {
 			display: flex;
 			justify-content: space-between;
-			gap: 16px;
+			flex-wrap: wrap;
+			gap: 0 16px;
 
 			font-size: 0.7em;
+		}
+
+		& .coupon_page {
+			margin: 12px 0;
 		}
 
 		& .code {
@@ -138,18 +120,41 @@
 			justify-content: center;
 			align-items: center;
 
-			margin-top: 24px;
-			text-align: center;
-			text-align: center;
 			font-size: 1.2rem;
+			margin: 12px 0;
+			padding: 8px 8px 8px 16px;
+			outline: 1px solid var(--ol);
+			border-radius: 8px;
+			background-color: var(--bg2);
 		}
 
 		& .validity {
-			text-align: center;
-			margin-top: 12px;
 			font-size: 0.7em;
+
+			& .status {
+				outline: 1px solid color-mix(in srgb, red, transparent 70%);
+				background-color: color-mix(in srgb, red, transparent 90%);
+				color: red;
+				padding: 2px 4px;
+				border-radius: 10px;
+
+				&.active {
+					outline: 1px solid color-mix(in srgb, green, transparent 70%);
+					background-color: color-mix(in srgb, green, transparent 90%);
+					color: green;
+				}
+			}
 		}
 	}
+
+	:global(.coupon_page) {
+		& .line_1 {
+			font-weight: 800;
+			color: var(--ft1);
+			font-size: 1.2rem;
+		}
+	}
+
 	.btns {
 		margin-top: 16px;
 	}

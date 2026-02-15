@@ -20,7 +20,7 @@
 	class:show={scrollTop > 160}
 	role="presentation"
 	onclick={() => {
-		scroll('#top_nav');
+		scroll('#page_top');
 	}}
 >
 	<svg viewBox="0 0 120 120">
@@ -45,7 +45,7 @@
 		--stroke_width: 10px;
 
 		position: fixed;
-		bottom: 24px;
+		bottom: 64px;
 		right: 24px;
 		z-index: 1;
 

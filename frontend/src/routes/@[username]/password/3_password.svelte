@@ -73,15 +73,17 @@
 		bind:show_password
 	/>
 
-	<Button primary onclick={validate}>Change Password</Button>
-	<Button
-		--button-background-color="darkred"
-		--button-background-color-hover="red"
-		icon="x"
-		onclick={() => {
-			module.close();
-		}}
-	>
-		Cancel
-	</Button>
+	<div class="line">
+		<Button primary onclick={validate}>Change Password</Button>
+		<Button
+			--button-background-color="darkred"
+			--button-background-color-hover="red"
+			icon="x"
+			onclick={() => {
+				module.close();
+			}}
+		>
+			Cancel
+		</Button>
+	</div>
 </Form>

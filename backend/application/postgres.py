@@ -1,8 +1,8 @@
-from flask import Blueprint, jsonify
 import os
-import psycopg2
-from psycopg2.extras import Json, RealDictCursor
 
+import psycopg2
+from flask import Blueprint, jsonify
+from psycopg2.extras import Json, RealDictCursor
 
 bp = Blueprint("postgres", __name__)
 
@@ -153,11 +153,10 @@ def create_tables():
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             receiver JSONB DEFAULT '{}'::JSONB,
-            cost_items DECIMAL DEFAULT 0,
-            cost_delivery DECIMAL DEFAULT 1500,
-            pay_user DECIMAL DEFAULT 0,
-            pay_reference TEXT,
-            coupons TEXT[] DEFAULT '{}'::TEXT[],
+            order_cost DECIMAL DEFAULT 0,
+            delivery_cost DECIMAL DEFAULT 0,
+            payment DECIMAL DEFAULT 0,
+            payment_reference TEXT,
             timeline JSONB DEFAULT '{}'::JSONB
         );
 

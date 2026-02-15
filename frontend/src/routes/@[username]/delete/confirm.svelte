@@ -69,22 +69,24 @@
 		placeholder="Password here"
 	></IG>
 
-	<Button
-		--button-background-color="darkred"
-		--button-background-color-hover="red"
-		icon="trash-2"
-		onclick={validate}
-	>
-		Delete Account
-	</Button>
-	<Button
-		icon="x"
-		onclick={() => {
-			module.close();
-		}}
-	>
-		Cancel
-	</Button>
+	<div class="line">
+		<Button
+			--button-background-color="darkred"
+			--button-background-color-hover="red"
+			icon="trash-2"
+			onclick={validate}
+		>
+			Delete Account
+		</Button>
+		<Button
+			icon="x"
+			onclick={() => {
+				module.close();
+			}}
+		>
+			Cancel
+		</Button>
+	</div>
 </Form>
 
 <div bind:this={email_template} style="display: none;">

@@ -23,18 +23,18 @@
 	{#snippet title()}
 		<div class="line space" id={name}>
 			<div class="title">{name}</div>
-			{#if ops.status != name && ops.has_receiver()}
+			{#if ops.status != name && ops.has_receiver}
 				<div class="c">
 					<div class="a">Delivery Fee</div>
 					<div class="b" transition:slide>
-						₦{Number(ops.cart.cost_delivery).toLocaleString()}
+						₦{Number(ops.cart.delivery_cost).toLocaleString()}
 					</div>
 				</div>
 			{/if}
 		</div>
 	{/snippet}
 
-	{#if !ops.has_receiver()}
+	{#if !ops.has_receiver}
 		<PageNote>
 			<Icon icon="User" size="50" />
 			No receiver
@@ -75,11 +75,11 @@
 		{/if}
 	</div>
 
-	{#if ops.has_receiver()}
+	{#if ops.has_receiver}
 		<div class="line space total">
 			<span class="a">Delivery Fee</span>
 			<div class="b">
-				₦{Number(ops.cart.cost_delivery).toLocaleString()}
+				₦{Number(ops.cart.delivery_cost).toLocaleString()}
 			</div>
 		</div>
 	{/if}

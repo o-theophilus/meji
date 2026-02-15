@@ -134,14 +134,15 @@
 		width: fit-content;
 		border-radius: 4px;
 
-		outline: 1px solid var(--pagination-outline-color, transparent);
+		background-color: var(--input);
+		outline: 1px solid var(--pagination-outline-color, var(--input));
 		outline-offset: -1px;
 
 		transition: outline-color 0.2s ease-in-out;
 
 		&:hover,
 		&:has(input:focus) {
-			outline-color: var(--pagination-outline-color-hover, transparent);
+			outline-color: var(--pagination-outline-color-hover, var(--ft1));
 		}
 	}
 

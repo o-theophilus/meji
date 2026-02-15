@@ -1,11 +1,10 @@
 <script>
-	import { module, loading, notify, app, page_state } from '$lib/store.svelte.js';
-	import { Icon } from '$lib/macro';
 	import { Button, RoundButton } from '$lib/button';
 	import { Note } from '$lib/info';
-	import Value from './variation_value.svelte';
-	import Form from './form.svelte';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
+	import Form from './form.svelte';
+	import Value from './variation_value.svelte';
 
 	let { item, ops } = $props();
 	let open_menu = $state(false);
@@ -97,8 +96,10 @@
 					></RoundButton>
 					{#if open_menu}
 						<div class="menu" transition:slide={{ axis: 'x' }}>
-							<Button icon="hash" icon_size=12 onclick={() => module.open(Form, { item, ops })}>Quantity</Button>
-							<Button icon="trash2" icon_size=12 onclick={remove}>Remove</Button>
+							<Button icon="hash" icon_size="12" onclick={() => module.open(Form, { item, ops })}
+								>Quantity</Button
+							>
+							<Button icon="trash2" icon_size="12" onclick={remove}>Remove</Button>
 						</div>
 					{/if}
 				</div>

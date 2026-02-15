@@ -16,7 +16,7 @@
 	let { order_by } = data;
 	let { spaces } = data;
 	let { sizes } = data;
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 	let total_page = $derived(data.total_page);
 

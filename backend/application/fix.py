@@ -16,24 +16,13 @@ def quick_fix():
     # cur.execute("""
     #     DROP TABLE IF EXISTS cart_item CASCADE;
     # """)
-    cur.execute("""
-        DROP TABLE IF EXISTS coupon CASCADE;
-        CREATE TABLE IF NOT EXISTS coupon (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            date_created TIMESTAMPTZ DEFAULT now(),
-            order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION,
-            status TEXT NOT NULL DEFAULT 'inactive',
-            valid_from TIMESTAMPTZ,
-            valid_until TIMESTAMPTZ,
-            code TEXT UNIQUE NOT NULL,
-            benefit JSONB DEFAULT '{}'::JSONB
-        );
-    """)
 
-    # cur.execute("""
-    #     ALTER TABLE item
-    #     ALTER COLUMN quantity SET DEFAULT 10;
-    # """)
+    cur.execute("""
+        ALTER TABLE "order" RENAME COLUMN cost_items TO order_cost;
+        ALTER TABLE "order" RENAME COLUMN cost_delivery TO delivery_cost;
+        ALTER TABLE "order" RENAME COLUMN pay_user TO payment;
+        ALTER TABLE "order" RENAME COLUMN pay_reference TO payment_reference;
+    """)
 
     # cur.execute("""
     #     UPDATE "user" SET access=%s WHERE email = %s;

@@ -15,7 +15,7 @@
 	let items = $derived(data.items.filter((x) => app.likes.includes(x.key)));
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let searchParams = $state(data.searchParams);
+	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	const update = (a, b) => {

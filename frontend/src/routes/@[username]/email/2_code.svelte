@@ -48,15 +48,17 @@
 	</Note>
 	<IG name="Code" error={error.code_1} bind:value={form.code_1} type="code"></IG>
 
-	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
-	<Button
-		--button-background-color="darkred"
-		--button-background-color-hover="red"
-		icon="x"
-		onclick={() => {
-			module.close();
-		}}
-	>
-		Cancel
-	</Button>
+	<div class="line">
+		<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
+		<Button
+			--button-background-color="darkred"
+			--button-background-color-hover="red"
+			icon="x"
+			onclick={() => {
+				module.close();
+			}}
+		>
+			Cancel
+		</Button>
+	</div>
 </Form>

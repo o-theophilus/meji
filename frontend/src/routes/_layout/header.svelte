@@ -11,7 +11,7 @@
 	};
 </script>
 
-<section>
+<section id="page_top">
 	<div class="block">
 		<a href="/">
 			<Icon icon="logo" size="32" />

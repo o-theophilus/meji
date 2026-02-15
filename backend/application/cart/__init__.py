@@ -337,7 +337,9 @@ def receiver_clear():
     )
 
     cur.execute("""
-        UPDATE "order" SET receiver = %s WHERE key = %s RETURNING *;
+        UPDATE "order"
+        SET receiver = %s
+        WHERE key = %s RETURNING *;
     """, (Json({}), cart["key"]))
     cart = cur.fetchone()
 

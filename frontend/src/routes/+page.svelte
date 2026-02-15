@@ -4,7 +4,7 @@
 	import { LinkArrow } from '$lib/button';
 	import { Dialogue } from '$lib/info';
 	import { Content } from '$lib/layout';
-	import { Log, Meta } from '$lib/macro';
+	import { Log, Meta, ToTop } from '$lib/macro';
 	import { module, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import { About, Advert, FAQ, Hero, ItemGroup, ItemGroup2, Shop, Tags } from './_home';
@@ -77,4 +77,5 @@
 	<About></About>
 	<FAQ></FAQ>
 	<Shop></Shop>
+	<ToTop />
 </Content>

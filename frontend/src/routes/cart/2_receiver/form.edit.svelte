@@ -188,7 +188,7 @@
 		--button-background-color="darkred"
 		--button-background-color-hover="red"
 		--button-color-hover="white"
-		disabled={!module.value.ops.has_receiver()}
+		disabled={!module.value.ops.has_receiver}
 		onclick={clear}
 	>
 		Clear

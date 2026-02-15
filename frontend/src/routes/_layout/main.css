@@ -41,17 +41,6 @@
 	}
 }
 
-main{
-	/* TODO: discard this */
-	--input-color:var(--ft1);
-	--group-background-color:var(--input);
-	
-	--pagination-background-color:var(--input);
-	--pagination-outline-color:var(--input);
-	--pagination-outline-color-hover:var(--ft1);
-}
-
-
 :root,
 textarea,
 select,
