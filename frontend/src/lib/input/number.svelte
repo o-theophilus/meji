@@ -35,6 +35,7 @@
 <div class="block">
 	<form onsubmit={(e) => e.preventDefault()}>
 		<Button
+			disabled
 			--button-height="44px"
 			--button-width="44px"
 			icon="minus"
@@ -94,6 +95,7 @@
 
 	<form onsubmit={(e) => e.preventDefault()}>
 		<Button
+			disabled
 			--button-height="44px"
 			--button-width="44px"
 			icon="plus"

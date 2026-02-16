@@ -11,23 +11,23 @@
 </script>
 
 {#if type == 'textarea'}
-	<div class="input">
+	<div class="input" class:disabled={props.disabled}>
 		<textarea bind:value {...props}></textarea>
 	</div>
 {:else if type == 'code'}
-	<div class="input">
+	<div class="input" class:disabled={props.disabled}>
 		<Code bind:value {...props}></Code>
 	</div>
 {:else if type == 'number'}
-	<div class="input number">
+	<div class="input number" class:disabled={props.disabled}>
 		<Number bind:value {...props}></Number>
 	</div>
 {:else if type == 'rating'}
-	<div class="input rating">
-		<Rating bind:value></Rating>
+	<div class="input rating" class:disabled={props.disabled}>
+		<Rating bind:value {...props}></Rating>
 	</div>
 {:else if type?.startsWith('password')}
-	<div class="input">
+	<div class="input" class:disabled={props.disabled}>
 		{#if icon}
 			<div class="icon">
 				<Icon {icon}></Icon>
@@ -55,7 +55,7 @@
 		</div>
 	{/if}
 {:else}
-	<div class="input">
+	<div class="input" class:disabled={props.disabled}>
 		{#if icon}
 			<div class="icon">
 				<Icon {icon}></Icon>

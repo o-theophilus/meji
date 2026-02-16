@@ -1,12 +1,12 @@
 <script>
-	let { value = $bindable(), list = ['on', 'off'], onclick } = $props();
+	let { value = $bindable(), list = ['on', 'off'], disabled = false, onclick } = $props();
 
 	if (!value || !list.includes(value)) {
 		value = list[0];
 	}
 </script>
 
-<div class="radio">
+<div class="switch" class:disabled>
 	{#each list as x}
 		<button
 			class:empty={x == ''}
@@ -23,7 +23,7 @@
 </div>
 
 <style>
-	.radio {
+	.switch {
 		position: relative;
 		z-index: 0;
 
@@ -41,6 +41,11 @@
 
 		&:hover {
 			border-color: var(--toggle-border-color-hover, var(--ft1));
+		}
+
+		&.disabled {
+			pointer-events: none;
+			opacity: 0.6;
 		}
 	}
 

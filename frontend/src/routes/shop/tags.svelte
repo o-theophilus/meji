@@ -10,7 +10,6 @@
 	let selected = $state([]);
 	let multiply = $state(false);
 	let filter = $state('');
-	let open = $state(false);
 
 	let _selected = $state([]);
 	let _multiply = $state(false);
@@ -45,14 +44,28 @@
 		clear();
 		if (_selected.length) submit();
 		open = false;
+		can_close = false;
 	};
 
 	const ok = () => {
 		filter = '';
 		submit();
 		open = false;
+		can_close = false;
 	};
+
+	let menu = $state();
+	let open = $state(false);
+	let can_close = $state(false);
 </script>
+
+<svelte:window
+	onclick={(e) => {
+		if (menu && menu.contains(e.target)) return;
+		if (open && !can_close) open = false;
+		can_close = false;
+	}}
+/>
 
 <div class="filter">
 	<Button
@@ -62,12 +75,15 @@
 		--button-height="48px"
 		onclick={() => {
 			open = !open;
+			can_close = true;
 			filter = '';
+			selected = [..._selected];
+			multiply = _multiply;
 		}}
 	></Button>
 
 	{#if open}
-		<div class="popup" transition:slide>
+		<div class="popup" transition:slide bind:this={menu}>
 			<div class="search">
 				<Input placeholder="filter" bind:value={filter}>
 					{#snippet right()}
@@ -88,7 +104,6 @@
 				{#if app.tags.length}
 					{#each app.tags as x}
 						{#if x.toLowerCase().includes(filter.toLowerCase())}
-							<!-- TODO: why is this slow -->
 							<Checkbox
 								value={selected.includes(x)}
 								onclick={() => {
@@ -117,8 +132,6 @@
 					}}
 					disabled={selected.length < 2}
 				/>
-
-				<!-- TODO: include disabled state -->
 			</div>
 
 			<div class="buttons">

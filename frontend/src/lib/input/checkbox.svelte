@@ -1,14 +1,9 @@
 <script>
-	import { Icon } from '$lib/macro';
 	let { label, value = $bindable(), onclick } = $props();
 </script>
 
 <button {onclick}>
-	<div class="checkbox" class:active={value}>
-		<div class="icon">
-			<Icon icon="check"></Icon>
-		</div>
-	</div>
+	<div class="checkbox" class:active={value}>&#10004;</div>
 	{label}
 </button>
 
@@ -30,7 +25,13 @@
 
 	.checkbox {
 		--size: 20px;
-		position: relative;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: transparent;
+		line-height: 0;
+		font-weight: 800;
 
 		width: var(--size);
 		height: var(--size);
@@ -41,25 +42,13 @@
 		background-color: var(--input);
 		cursor: pointer;
 
-		transition: background-color 0.2s ease-in-out;
+		transition:
+			color 0.2s ease-in-out,
+			background-color 0.2s ease-in-out;
 
 		&.active {
 			background-color: var(--cl1);
+			color: white;
 		}
-	}
-
-	.icon {
-		position: absolute;
-		inset: 0;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: transparent;
-
-		transition: color 0.2s ease-in-out;
-	}
-	.active .icon {
-		color: white;
 	}
 </style>

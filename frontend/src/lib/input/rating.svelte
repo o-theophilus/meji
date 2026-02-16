@@ -1,10 +1,11 @@
 <script>
 	import { Icon } from '$lib/macro';
 
-	let { value = $bindable() } = $props();
+	let { value = $bindable(), disabled } = $props();
+	console.log(disabled);
 </script>
 
-<div class="stars">
+<div class="stars" class:disabled>
 	{#each Array(5) as _, i}
 		<button class="star" class:active={i < value} onclick={() => (value = i + 1)}>
 			<Icon icon="Star" size="28"></Icon>
@@ -15,6 +16,11 @@
 <style>
 	.stars {
 		display: flex;
+
+		&.disabled {
+			pointer-events: none;
+			opacity: 0.6;
+		}
 	}
 
 	.star {
@@ -25,13 +31,14 @@
 
 		cursor: pointer;
 		line-height: 0;
-	}
-	.active {
-		--icon-fill: goldenrod;
-		--icon-stroke: goldenrod;
-	}
-	.star:hover {
-		--icon-fill: gold;
-		--icon-stroke: gold;
+
+		&.active {
+			--icon-fill: goldenrod;
+			--icon-stroke: goldenrod;
+		}
+		&:hover {
+			--icon-fill: gold;
+			--icon-stroke: gold;
+		}
 	}
 </style>
