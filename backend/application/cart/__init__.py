@@ -24,16 +24,17 @@ def add_to_cart():
     item_key = request.json.get("key")
     quantity = request.json.get("quantity", 1)
     variation = request.json.get("variation", {})
-    operation = request.json.get("operation", "replace")
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
     item = cur.fetchone()
 
-    if (
-        not item
-        or type(variation) is not dict
-        or operation not in ["add", "replace"]
-    ):
+    cur.execute("""
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
+
+    if not item or not cart or type(variation) is not dict:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -75,18 +76,6 @@ def add_to_cart():
         })
 
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute("""
         SELECT * FROM order_item
         WHERE order_key = %s AND item_key = %s AND variation = %s;
     """, (cart["key"], item_key, Json(variation)))
@@ -97,8 +86,7 @@ def add_to_cart():
             UPDATE order_item SET quantity = %s WHERE key = %s
             RETURNING *
         ;""", (
-            order_item["quantity"] +
-            quantity if operation == "add" else quantity,
+            order_item["quantity"] + quantity,
             order_item["key"]
         ))
     else:
@@ -181,6 +169,86 @@ def remove_from_cart():
                 "variation": variation
             }
         )
+
+    items = get_cart_items(cur)
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "items": items.json["items"]
+    })
+
+
+@bp.post("/cart/quantity")
+def quantity():
+    con, cur = db_open()
+
+    session = get_session(cur)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    item_key = request.json.get("key")
+    quantity = request.json.get("quantity", 1)
+    variation = request.json.get("variation", {})
+
+    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
+    item = cur.fetchone()
+
+    cur.execute("""
+        SELECT * FROM "order"
+        WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
+
+    cur.execute("""
+        SELECT * FROM order_item
+        WHERE order_key = %s AND item_key = %s AND variation = %s;
+    """, (cart["key"], item["key"], Json(variation)))
+    order_item = cur.fetchone()
+
+    if not item or not cart or not order_item or type(variation) is not dict:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    error = None
+    if item["status"] != "active":
+        error = "This item is not currently available"
+    elif item["quantity"] == 0:
+        error = "Sorry, this item is currently out of stock"
+    elif not isinstance(quantity, int) or quantity < 1:
+        error = "Please enter a valid number"
+    elif quantity > item["quantity"]:
+        s = "s" if item['quantity'] > 1 else ""
+        error = f"Only {item['quantity']} item{s} available in stock"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": error
+        })
+
+    cur.execute("""
+        UPDATE order_item SET quantity = %s WHERE key = %s
+    ;""", (quantity, order_item["key"]))
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="updated cart item quantity",
+        entity_key=cart["key"],
+        entity_type="cart",
+        misc={
+            "key": order_item["item_key"],
+            "variation": order_item["variation"],
+            "from_quantity": order_item["quantity"],
+            "to_quantity": quantity
+        }
+    )
 
     items = get_cart_items(cur)
 

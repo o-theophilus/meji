@@ -1,7 +1,9 @@
 <script>
 	import { Button } from '$lib/button';
 	import { onMount } from 'svelte';
-	let { value = $bindable(), disabled, min = 0, max = undefined } = $props();
+	let { value = $bindable(), disabled, min = 0, max = undefined, ondone } = $props();
+
+	let ready = false;
 
 	const set = (val) => {
 		if (val === 'increase') {
@@ -28,20 +30,16 @@
 		if (!Number.isNaN(minNum) && value < minNum) {
 			value = minNum;
 		}
+
+		if (ready) ondone?.(value);
+		ready = true;
 	};
 	onMount(() => set(value));
 </script>
 
 <div class="block">
 	<form onsubmit={(e) => e.preventDefault()}>
-		<Button
-			disabled
-			--button-height="44px"
-			--button-width="44px"
-			icon="minus"
-			tabindex={-1}
-			onclick={() => set('decrease')}
-		></Button>
+		<Button {disabled} icon="minus" tabindex={-1} onclick={() => set('decrease')}></Button>
 	</form>
 
 	<input
@@ -94,14 +92,7 @@
 	</div>
 
 	<form onsubmit={(e) => e.preventDefault()}>
-		<Button
-			disabled
-			--button-height="44px"
-			--button-width="44px"
-			icon="plus"
-			tabindex={-1}
-			onclick={() => set('increase')}
-		></Button>
+		<Button {disabled} icon="plus" tabindex={-1} onclick={() => set('increase')}></Button>
 	</form>
 </div>
 
@@ -114,20 +105,23 @@
 		padding: 2px;
 
 		width: fit-content;
+
+		--button-height: var(--number-height, 44px);
+		--button-width: var(--number-width, 44px);
 	}
 
 	.width_helper {
 		visibility: hidden;
-		padding: 0 16px;
-		min-width: 60px;
+		padding: 0 var(--number-pading-x, 16px);
+		min-width: var(--input-min-width, 60px);
 	}
 
 	input {
 		position: absolute;
 		top: 0;
 		bottom: 0;
-		right: 48px;
-		left: 48px;
+		right: var(--button-width);
+		left: var(--button-width);
 
 		border: none;
 
@@ -140,5 +134,9 @@
 	input[type='number']::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
+	}
+
+	form {
+		line-height: 0;
 	}
 </style>

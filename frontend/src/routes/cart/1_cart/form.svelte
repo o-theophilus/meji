@@ -1,8 +1,8 @@
 <script>
-	import { module, loading, notify, app, page_state } from '$lib/store.svelte.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 
 	let item = { ...module.value.item };
@@ -64,15 +64,7 @@
 	description="Available Quantity ({item.available_quantity})"
 	error={error.error}
 >
-	<IG
-		name="Quantity"
-		error={error.quantity}
-		type="number"
-		bind:value={form.quantity}
-	/>
+	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
 
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
-
-<style>
-</style>

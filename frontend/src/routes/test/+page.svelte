@@ -1,4 +1,5 @@
 <script>
+	import { Switch } from '$lib/button';
 	import { IG, Input } from '$lib/input';
 	import Pagination from '$lib/input/pagination.svelte';
 	import { Content } from '$lib/layout';
@@ -7,10 +8,12 @@
 </script>
 
 <Content>
+	<Switch list={['one', 'two', 'three']}></Switch>
+	<Switch list={['one', 'two', 'three']}></Switch>
 	<IG disabled name="hello 1" error="hello" type="text" icon="heart" placeholder="hello"></IG>
 	<IG disabled name="hello 2" type="textarea" placeholder="hello"></IG>
 	<IG disabled name="hello 3" type="code" placeholder="hello"></IG>
-	<IG disabled name="hello 4" value="6" type="number"></IG>
+	<IG  name="hello 4" value="6" type="number"></IG>
 
 	<Pagination value="3" total_page="5"></Pagination>
 	<IG disabled name="hello 5" type="rating" placeholder="hello"></IG>

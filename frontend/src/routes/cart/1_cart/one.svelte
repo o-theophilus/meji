@@ -1,32 +1,34 @@
 <script>
 	import { Button, RoundButton } from '$lib/button';
 	import { Note } from '$lib/info';
-	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
+	import { Input } from '$lib/input';
+	import { app, notify, page_state } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
-	import Form from './form.svelte';
 	import Value from './variation_value.svelte';
 
 	let { item, ops } = $props();
 	let open_menu = $state(false);
 	let self = $state(false);
+	let error = $state({});
 
-	let error = $derived.by(() => {
+	let error_note = $derived.by(() => {
 		if (item.status != 'active') {
 			return 'This item is not currently available';
 		} else if (item.available_quantity == 0) {
 			return 'Sorry, this item is currently out of stock';
-		} else if (item.quantity > item.available_quantity) {
+		} else if (item.quantity >= item.available_quantity) {
 			return `Only ${item.available_quantity} item${item.available_quantity > 1 ? 's' : ''} available in stock`;
 		}
 		return null;
 	});
 
 	const remove = async () => {
+		ops.error = {};
+
 		app.cart_items = app.cart_items.filter(
 			(x) => !(x.key == item.key && JSON.stringify(x.variation) == JSON.stringify(item.variation))
 		);
 
-		loading.open('Removing item from cart . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'delete',
 			headers: {
@@ -36,7 +38,6 @@
 			body: JSON.stringify({ key: item.key, variation: item.variation })
 		});
 		resp = await resp.json();
-		loading.close();
 
 		if (resp.status == 200) {
 			app.cart_items = resp.items;
@@ -45,6 +46,46 @@
 		} else {
 			error = resp;
 		}
+	};
+
+	const validate = () => {
+		ops.error = {};
+		error = {};
+
+		if (item.quantity && (!Number.isInteger(item.quantity) || item.quantity < 1)) {
+			error.quantity = 'Please enter a valid number';
+		} else if (item.quantity > item.available_quantity) {
+			error.quantity = `Only ${item.available_quantity} items available in stock`;
+		}
+
+		Object.keys(error).length === 0 && submit();
+	};
+
+	let timeout;
+	const submit = () => {
+		clearTimeout(timeout);
+		timeout = setTimeout(async () => {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify({
+					key: item.key,
+					quantity: item.quantity,
+					variation: item.variation
+				})
+			});
+			resp = await resp.json();
+
+			if (resp.status == 200) {
+				app.cart_items = resp.items;
+				page_state.clear('cart');
+			} else {
+				error = resp;
+			}
+		}, 1000);
 	};
 </script>
 
@@ -96,9 +137,6 @@
 					></RoundButton>
 					{#if open_menu}
 						<div class="menu" transition:slide={{ axis: 'x' }}>
-							<Button icon="hash" icon_size="12" onclick={() => module.open(Form, { item, ops })}
-								>Quantity</Button
-							>
 							<Button icon="trash2" icon_size="12" onclick={remove}>Remove</Button>
 						</div>
 					{/if}
@@ -106,14 +144,37 @@
 			</div>
 
 			<div class="line space">
-				<span>
+				<div class="line">
 					<span class="price">
 						{#if item.price}
 							₦{Number(item.price).toLocaleString()}
 						{/if}
 					</span>
-					x {item.quantity}
-				</span>
+					x
+					<Input
+						--number-height="24px"
+						--number-width="24px"
+						--button-padding-x="0"
+						--number-pading-x="0"
+						--input-min-width="40px"
+						type="number"
+						value={item.quantity}
+						min={1}
+						max={item.available_quantity}
+						ondone={(e) => {
+							app.cart_items = app.cart_items.map((x) => {
+								if (
+									x.key == item.key &&
+									JSON.stringify(x.variation) == JSON.stringify(item.variation)
+								) {
+									return { ...x, quantity: e };
+								}
+								return x;
+							});
+							item.quantity != e && validate();
+						}}
+					></Input>
+				</div>
 
 				<div class="total">
 					₦{(item.price * item.quantity).toLocaleString()}
@@ -121,7 +182,13 @@
 			</div>
 		</div>
 	</div>
-	<Note note={error} status="100" --note-margin-top="16px" --note-margin-bottom="0"></Note>
+
+	{#if error.error}
+		<div class="error">
+			{error.error}
+		</div>
+	{/if}
+	<Note note={error_note} status="100" --note-margin-top="16px" --note-margin-bottom="0"></Note>
 </div>
 
 <style>
@@ -208,5 +275,11 @@
 			--button-width: 100%;
 			--button-padding-x: 12px;
 		}
+	}
+
+	.error {
+		margin-top: 8px;
+		color: red;
+		font-size: 0.8rem;
 	}
 </style>

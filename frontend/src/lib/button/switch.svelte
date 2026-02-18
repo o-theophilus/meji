@@ -93,8 +93,6 @@
 			border-radius: var(--toggle-border-radius, 4px);
 
 			transition:
-				top 0.2s ease-in-out,
-				bottom 0.2s ease-in-out,
 				right 0.2s ease-in-out,
 				left 0.2s ease-in-out;
 		}
