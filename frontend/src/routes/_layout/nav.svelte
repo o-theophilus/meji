@@ -12,6 +12,8 @@
 		{ name: 'Save', icon: 'bookmark', href: '/save', count: app.likes.length },
 		{ name: 'Cart', icon: 'cart', href: '/cart', count: app.cart_items.length }
 	]);
+
+	let active2 = $derived(page.url.pathname.split('/')[1]);
 </script>
 
 <div class="bottom_nav">
@@ -22,6 +24,8 @@
 				<div class="center">
 					<Icon icon={!active ? x.icon : `${x.icon}_active`} size="16" />
 					{x.name}
+					{active}
+					{active2}
 
 					{#if x.count > 0}
 						{#key x.count}
