@@ -1,6 +1,6 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { Button, RoundButton } from '$lib/button';
+	import { Button } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Dropdown, Pagination, Search } from '$lib/input';
 	import { Content } from '$lib/layout';
@@ -41,11 +41,8 @@
 
 <Content --content-height="auto">
 	<div class="line space">
-		<div class="line">
-			<RoundButton icon="arrow-left" href="/admin"></RoundButton>
-			<div class="page_title">
-				Coupon{coupons?.length > 1 ? 's' : ''}
-			</div>
+		<div class="page_title">
+			Coupon{coupons?.length > 1 ? 's' : ''}
 		</div>
 
 		<div class="line">

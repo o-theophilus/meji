@@ -1,6 +1,5 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { BackButton } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Dropdown, Pagination, Search } from '$lib/input';
 	import { Content } from '$lib/layout';
@@ -36,11 +35,8 @@
 
 <Content>
 	<div class="line space">
-		<div class="line">
-			<BackButton />
-			<div class="page_title">
-				Advert{adverts?.length > 1 ? 's' : ''}
-			</div>
+		<div class="page_title">
+			Advert{adverts?.length > 1 ? 's' : ''}
 		</div>
 
 		<div class="line">

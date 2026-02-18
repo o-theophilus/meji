@@ -1,5 +1,5 @@
 <script>
-	import { BackButton, Button } from '$lib/button';
+	import { Button } from '$lib/button';
 	import { Note, PageNote } from '$lib/info';
 	import { Card, Content } from '$lib/layout';
 	import { Icon, Log, Meta } from '$lib/macro';
@@ -56,10 +56,7 @@
 <Meta title="Manage / Excess Files" />
 
 <Content>
-	<div class="line">
-		<BackButton />
-		<div class="page_title">Photo Error</div>
-	</div>
+	<div class="page_title">Photo Error</div>
 
 	<br />
 

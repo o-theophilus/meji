@@ -22,7 +22,8 @@ access_pass = {
         ['set_access', 3]
     ],
     "admin": [
-        ['manage_files', 3]
+        ['manage_files', 3],
+        ['maintenance', 3]
     ],
     "item": [
         ['add', 2],

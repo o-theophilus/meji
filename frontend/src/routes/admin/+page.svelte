@@ -43,6 +43,9 @@
 		{#if app.user.access.includes('log:view')}
 			<Button href="/log" size="wide">Log</Button>
 		{/if}
+		{#if app.user.access.includes('admin:maintenance')}
+			<Button href="/admin/maintenance" size="wide">Maintenance</Button>
+		{/if}
 	</div>
 </Content>
 

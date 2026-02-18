@@ -2,24 +2,29 @@
 	import { Icon } from '$lib/macro';
 	import { app } from '$lib/store.svelte.js';
 
+	let timeout;
 	const submit = async (theme) => {
 		if (app.user.theme == theme) return;
 		app.user.theme = theme;
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/theme`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify({ theme })
-		});
-		resp = await resp.json();
 
-		if (resp.status == 200) {
-			app.user = resp.user;
-		} else {
-			throw new Error('invalid request');
-		}
+		clearTimeout(timeout);
+		timeout = setTimeout(async () => {
+			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/theme`, {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify({ theme })
+			});
+			resp = await resp.json();
+
+			if (resp.status == 200) {
+				app.user = resp.user;
+			} else {
+				throw new Error('invalid request');
+			}
+		}, 2000);
 	};
 </script>
 
