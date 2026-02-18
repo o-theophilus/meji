@@ -126,9 +126,9 @@
 			}
 		}
 
-		&:hover {
-			background-color: var(--bg1);
-		}
+		/* &:hover { */
+			/* background-color: var(--bg1); */
+		/* } */
 
 		& .center {
 			position: relative;
