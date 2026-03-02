@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Login } from '$lib/auth';
 	import { LinkArrow } from '$lib/button';
@@ -36,7 +37,7 @@
 
 		if (_module) {
 			module.open(_module, value);
-			window.history.replaceState(history.state, '', '/');
+			replaceState('/');
 		}
 	});
 </script>

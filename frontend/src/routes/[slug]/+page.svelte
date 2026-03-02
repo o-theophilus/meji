@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button, Switch } from '$lib/button';
 	import { Content } from '$lib/layout';
@@ -60,7 +61,7 @@
 		if (page.url.searchParams.has('edit') && is_admin) {
 			page.url.searchParams.delete('edit');
 			edit_mode = true;
-			window.history.replaceState(history.state, '', page.url.href);
+			replaceState(page.url.href);
 		} else {
 			edit_mode = false;
 		}
@@ -83,6 +84,7 @@
 	onMount(async () => refresh(item));
 </script>
 
+<!-- TODO: add google analytics -->
 {#key item.key}
 	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
 {/key}

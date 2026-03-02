@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { Button } from '$lib/button';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
@@ -33,7 +34,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			window.history.replaceState(history.state, '', `/${resp.item.slug}`);
+			replaceState(`/${resp.item.slug}`);
 			module.value.update(resp.item);
 			notify.open('Name Saved');
 			module.close();

@@ -19,7 +19,6 @@ def db_close(con, cur):
     con.close()
 
 
-# @bp.get("/fix")
 def create_tables():
     con, cur = db_open()
 
@@ -85,20 +84,24 @@ def create_tables():
 
         CREATE TABLE IF NOT EXISTS report (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'active',
             date_created TIMESTAMPTZ DEFAULT now(),
-            reporter_key UUID NOT NULL REFERENCES "user"(key)
-                ON DELETE CASCADE,
-            reported_key UUID REFERENCES user(key) ON DELETE CASCADE,
-            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
-            comment TEXT NOT NULL,
-            tags TEXT[] DEFAULT '{}'::TEXT[]
+            reporter_key UUID NOT NULL REFERENCES "user"(key),
+            reporter_comment TEXT NOT NULL,
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            date_resolved TIMESTAMPTZ,
+            resolver_key UUID REFERENCES "user"(key),
+            resolver_comment TEXT,
+            reported_user_key UUID REFERENCES "user"(key) ON DELETE CASCADE,
+            reported_comment_key UUID REFERENCES comment(key) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS block (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             admin_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            user_key UUID UNIQUE NOT NULL REFERENCES "user"(key)
+                ON DELETE CASCADE,
             comment TEXT NOT NULL
         );
 

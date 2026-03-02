@@ -26,10 +26,6 @@
 	--bg1: light-dark(hsl(210, 21%, 89%), hsl(0, 0%, 10%));
 	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
 	
-	--button-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
-	--select-outline-color: light-dark(transparent, hsl(0, 0%, 30%));
-	
-	
 	--mobileWidth: 800px;
 	--headerHeight: 80px;
 	--headerHeight2: 56px;

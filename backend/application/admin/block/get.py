@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
 from math import ceil
-from ...tools import get_session
+
+from flask import Blueprint, jsonify, request
+
 from ...postgres import db_close, db_open
+from ...tools import get_session
 
 bp = Blueprint("block_get", __name__)
 
@@ -27,6 +29,15 @@ def get_many(cur=None):
             "error": "unauthorized access"
         })
 
+    order_by = {
+        'latest': 'date_created',
+        'oldest': 'date_created'
+    }
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC'
+    }
+
     searchParams = {
         "search": "",
         "order": "latest",
@@ -37,15 +48,7 @@ def get_many(cur=None):
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
-    order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created'
-    }
-    order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC'
-    }
+    page_size = min(page_size, 100)
 
     cur.execute(f"""
         SELECT
@@ -79,7 +82,7 @@ def get_many(cur=None):
                 "user".key, "user".name, "user".email,
                 admin.key, admin.name, admin.email
             ) ILIKE %s)
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, block.key DESC
         LIMIT %s OFFSET %s;
     """, (
         search, f"%{search}%",
@@ -89,11 +92,11 @@ def get_many(cur=None):
 
     for x in blocks:
         x["admin"]["photo"] = (
-            f"{request.host_url}file/{x['admin']['photo']}"
+            f"{request.host_url}photo/user/{x['admin']['photo']}"
             if x["admin"]["photo"] else None
         )
         x["user"]["photo"] = (
-            f"{request.host_url}file/{x['user']['photo']}"
+            f"{request.host_url}photo/user/{x['user']['photo']}"
             if x["user"]["photo"] else None
         )
 

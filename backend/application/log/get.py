@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
 from math import ceil
-from ..tools import get_session
+
+from flask import Blueprint, jsonify, request
+
 from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("log_get", __name__)
 
@@ -46,8 +48,16 @@ def get_many():
     e_search = request.args.get("e_search", searchParams["e_search"]).strip()
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
 
     if "log:view" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    if "log:view_others" not in user["access"]:
         u_search = user["key"]
 
     cur.execute("""

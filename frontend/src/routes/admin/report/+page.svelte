@@ -1,20 +1,22 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { PageNote } from '$lib/info';
-	import { Dropdown, Pagination, Search } from '$lib/input';
-	import { Content } from '$lib/layout';
-	import { Icon, Log, Meta } from '$lib/macro';
 	import { page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
-	import Item from './item.svelte';
+
+	import { PageNote } from '$lib/info';
+	import { Dropdown, Pagination, Search } from '$lib/input';
+	import { Content } from '$lib/layout';
+	import { Icon, Log, Meta } from '$lib/macro';
+	import One from './one.svelte';
 
 	let { data } = $props();
-	let items = $derived(data.items);
+	let reports = $derived(data.reports);
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
 	let { type } = data;
+	let { _status } = data;
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
@@ -28,14 +30,9 @@
 		}
 	});
 
-	const update = (key) => {
-		let temp = [];
-		for (const x of items) {
-			if (x.user.key == key) continue;
-			temp.push(x);
-		}
-		items = temp;
-		page_state.refresh();
+	const update = (a, b) => {
+		reports = a;
+		total_page = b;
 	};
 </script>
 
@@ -45,18 +42,29 @@
 <Content --content-height="auto">
 	<div class="line space">
 		<div class="page_title">
-			Report{items.length > 1 ? 's' : ''}
+			Report{reports.length > 1 ? 's' : ''}
 		</div>
 
-		<Dropdown
-			icon2="chevron-down"
-			list={type}
-			bind:value={searchParams.type}
-			onchange={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ type: v == defaultParams.type ? '' : v });
-			}}
-		/>
+		<div class="line">
+			<Dropdown
+				icon2="chevron-down"
+				list={type}
+				bind:value={searchParams.type}
+				onchange={(v) => {
+					searchParams.page_no = 1;
+					page_state.set({ type: v == defaultParams.type ? '' : v });
+				}}
+			/>
+			<Dropdown
+				icon2="chevron-down"
+				list={_status}
+				bind:value={searchParams.status}
+				onchange={(v) => {
+					searchParams.page_no = 1;
+					page_state.set({ status: v == defaultParams.status ? '' : v });
+				}}
+			/>
+		</div>
 	</div>
 
 	<Search
@@ -73,7 +81,6 @@
 		--select-font-size="0.8rem"
 		--select-background-color="transparent"
 		--select-background-color-hover="transparent"
-		--select-color="var(--ft2)"
 		--select-color-hover="var(--ft1)"
 		--select-outline-color="transparent"
 		list={order_by}
@@ -88,9 +95,9 @@
 </Content>
 
 <Content --content-padding-top="1px">
-	{#each items as item (item.key)}
+	{#each reports as report (report.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<Item {item} {update} />
+			<One {report} {update} {searchParams} />
 		</div>
 	{:else}
 		<PageNote>

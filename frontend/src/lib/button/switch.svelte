@@ -24,9 +24,6 @@
 
 <style>
 	.switch {
-		position: relative;
-		z-index: 0;
-
 		display: flex;
 
 		width: min-content;
@@ -38,6 +35,28 @@
 		overflow: hidden;
 		flex-shrink: 0;
 		transition: border-color 0.2s ease-in-out;
+
+		position: relative;
+		z-index: 0;
+
+		&::before {
+			content: '';
+			position-anchor: --active;
+			z-index: -1;
+
+			position: absolute;
+			top: anchor(top);
+			bottom: anchor(bottom);
+			right: anchor(right);
+			left: anchor(left);
+
+			background-color: var(--cl1);
+			border-radius: var(--toggle-border-radius, 4px);
+
+			transition:
+				right 0.2s ease-in-out,
+				left 0.2s ease-in-out;
+		}
 
 		&:hover {
 			border-color: var(--toggle-border-color-hover, var(--ft1));
@@ -77,24 +96,5 @@
 		transition:
 			background-color 0.2s ease-in-out,
 			color 0.2s ease-in-out;
-
-		&::before {
-			content: '';
-			position-anchor: --active;
-			z-index: -1;
-
-			position: absolute;
-			top: anchor(top);
-			bottom: anchor(bottom);
-			right: anchor(right);
-			left: anchor(left);
-
-			background-color: var(--cl1);
-			border-radius: var(--toggle-border-radius, 4px);
-
-			transition:
-				right 0.2s ease-in-out,
-				left 0.2s ease-in-out;
-		}
 	}
 </style>

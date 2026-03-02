@@ -89,21 +89,6 @@ def get_many():
         return jsonify(session)
     user = session["user"]
 
-    searchParams = {
-        "search": "",
-        "status": "created",
-        "view": "me",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    view = request.args.get("view", searchParams["view"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
     order_by = {
         'latest': 'o.date_created',
         'oldest': 'o.date_created',
@@ -133,6 +118,22 @@ def get_many():
         'delivery date ▲': 'ASC',
     }
 
+    searchParams = {
+        "search": "",
+        "status": "created",
+        "view": "me",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    view = request.args.get("view", searchParams["view"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
+
     user_key = user["key"]
     if view == "all" and "order:view" in user["access"]:
         user_key = ""
@@ -154,7 +155,7 @@ def get_many():
         GROUP BY
             o.key,
             u.key
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, o.key DESC
         LIMIT %s OFFSET %s;
     """, (
         status, status,

@@ -5,21 +5,12 @@ from flask import Blueprint, jsonify, request
 
 from ..log import log
 from ..postgres import db_close, db_open
-from ..storage import storage
-from ..tools import send_mail
+from ..tools import get_session, send_mail
 
 bp = Blueprint("api", __name__)
 
 
-@bp.get("/cron")
-def cron():
-    con, cur = db_open()
-
-    cur.execute("""
-        SELECT key FROM "user" WHERE email = %s;
-    """, (os.environ["MAIL_USERNAME"],))
-    user = cur.fetchone()
-
+def delete_session(cur, user_key):
     cur.execute("""
         DELETE FROM session
         WHERE (
@@ -32,39 +23,141 @@ def cron():
         RETURNING key;
     """)
     sessions = cur.fetchall()
+    log(
+        cur=cur,
+        user_key=user_key,
+        action="cleaned up expired sessions",
+        entity_key="maintenance",
+        entity_type="app",
+        misc={
+            "deleted_sessions": [x["key"] for x in sessions],
+        }
+    )
 
+
+def delete_anonymous(cur, user_key):
     cur.execute("""
         DELETE FROM "user"
         WHERE status = 'anonymous'
             AND date_created <= NOW() - INTERVAL '30 days'
-        RETURNING key, photo;
+        RETURNING key;
     """)
     users = cur.fetchall()
-    for x in users:
-        storage.delete(x["photo"], "user")
-
     log(
         cur=cur,
-        user_key=user["key"],
-        action="app maintenance",
-        entity_key="app",
+        user_key=user_key,
+        action="cleaned up anonymous users",
+        entity_key="maintenance",
         entity_type="app",
         misc={
-            "deleted_sessions": [x["key"] for x in sessions],
             "deleted_users": [x["key"] for x in users],
         }
     )
 
+
+def expire_coupon(cur, user_key):
     cur.execute("""
-        WITH expired AS (
-            UPDATE coupon SET status = 'expired'
-            WHERE valid_until < NOW() AND status = 'active'
-            RETURNING key
+        UPDATE coupon SET status = 'expired'
+        WHERE valid_until < NOW() AND status = 'active'
+        RETURNING key;
+    """)
+    for coupon in cur.fetchall():
+        log(
+            cur=cur,
+            user_key=user_key,
+            action="expired coupon",
+            entity_key=coupon["key"],
+            entity_type="coupon"
         )
-        INSERT INTO log (user_key, action, entity_key, entity_type)
-        SELECT %s, 'expired coupon', key, 'coupon'
-        FROM expired;
-    """, (user["key"],))
+
+
+@bp.post("/maintenance/session")
+def user_delete_session():
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "maintenance:session" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    delete_session(cur, user["key"])
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.post("/maintenance/anonymous")
+def user_delete_anonymous():
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "maintenance:anonymous" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    delete_session(cur, user["key"])
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.post("/maintenance/coupon")
+def user_expire_coupon():
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "maintenance:coupon" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "unauthorized access"
+        })
+
+    expire_coupon(cur, user["key"])
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
+    })
+
+
+@bp.get("/cron")
+def cron():
+    con, cur = db_open()
+
+    cur.execute("""
+        SELECT key FROM "user" WHERE email = %s;
+    """, (os.environ["MAIL_USERNAME"],))
+    user = cur.fetchone()
+
+    delete_session(cur, user["key"])
+    delete_anonymous(cur, user["key"])
+    expire_coupon(cur, user["key"])
 
     db_close(con, cur)
     return jsonify({

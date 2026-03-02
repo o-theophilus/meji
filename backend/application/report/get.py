@@ -1,30 +1,47 @@
-from flask import Blueprint, jsonify, request
 from math import ceil
-from ..tools import get_session
+
+from flask import Blueprint, jsonify, request
+
 from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("report_get", __name__)
 
 
 @bp.get("/reports")
-def get_many():
-    con, cur = db_open()
+def get_many(cur=None):
+    close_conn = not cur
+    if not cur:
+        con, cur = db_open()
 
     session = get_session(cur, True)
     if session["status"] != 200:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify(session)
     user = session["user"]
 
     if "report:view" not in user["access"]:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
 
+    order_by = {
+        'latest': 'report.date_created',
+        'oldest': 'report.date_created'
+    }
+
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC'
+    }
+
     searchParams = {
         "search": "",
+        "status": "active",
         "type": "all",
         "order": "latest",
         "page_no": 1,
@@ -32,90 +49,147 @@ def get_many():
     }
     search = request.args.get("search", searchParams["search"]).strip()
     _type = request.args.get("type", searchParams["type"])
+    status = request.args.get("status", searchParams["status"])
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
-    order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created'
-    }
-    order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC'
-    }
+    page_size = min(page_size, 100)
 
     cur.execute(f"""
         SELECT
             report.key,
-            report.date_created,
-            report.comment,
-            report.tags,
-            report.entity_type,
-            report.entity_key,
+            report.status,
+            report.resolver_key,
+            report.reported_user_key,
+            report.reported_review_key,
 
             jsonb_build_object(
-                'name', "user".name,
-                'username', "user".username,
-                'photo', "user".photo
+                'date_created', report.date_created,
+                'comment', report.reporter_comment,
+                'tags', report.tags,
+                'user', jsonb_build_object(
+                    'name', reporter.name,
+                    'username', reporter.username,
+                    'photo', reporter.photo
+                )
             ) AS reporter,
 
             jsonb_build_object(
-                'name', COALESCE(user_1.name, user_2.name),
-                'username', COALESCE(user_1.username, user_2.username),
-                'photo', COALESCE(user_1.photo, user_2.photo)
-            ) AS "user",
+                'date_created', report.date_resolved,
+                'comment', report.resolver_comment,
+                'user', jsonb_build_object(
+                    'name', resolver.name,
+                    'username', resolver.username,
+                    'photo', resolver.photo
+                )
+            ) AS resolver,
 
             jsonb_build_object(
-                'date_created', review.date_created,
-                'comment', review.comment,
-                'item_key', review.item_key
-            ) AS user_comment,
+                'user', jsonb_build_object(
+                    'name', ru.name,
+                    'username', ru.username,
+                    'photo', ru.photo
+                )
+            ) AS reported_user,
 
-            COUNT(*) OVER() AS _count
+            jsonb_build_object(
+                'date_created', rr.date_created,
+                'comment', rr.comment,
+                'user', jsonb_build_object(
+                    'name', rr_user.name,
+                    'username', rr_user.username,
+                    'photo', rr_user.photo
+                )
+            ) AS reported_review
 
         FROM report
-        LEFT JOIN "user" ON report.user_key = "user".key
-        LEFT JOIN "user" user_1 ON report.entity_key = user_1.key
-            AND report.entity_type = 'user'
-
-        LEFT JOIN review ON report.entity_key = review.key
-            AND report.entity_type = 'comment'
-        LEFT JOIN "user" user_2 ON review.user_key = user_2.key
-            AND report.entity_type = 'comment'
+        LEFT JOIN "user" reporter ON report.reporter_key = reporter.key
+        LEFT JOIN "user" resolver ON report.resolver_key = resolver.key
+        LEFT JOIN "user" ru ON report.reported_user_key = ru.key
+        LEFT JOIN review rr ON report.reported_review_key = rr.key
+        LEFT JOIN "user" rr_user ON rr.user_key = rr_user.key
 
         WHERE
-            (%s = '' OR CONCAT_WS(', ',
-                report.key, report.comment, report.tags, report.entity_key,
-                "user".key, "user".name, "user".username, "user".email
+            report.status = %s
+            AND (
+                %s = 'all'
+                OR (%s = 'user' AND report.reported_user_key IS NOT NULL)
+                OR (%s = 'review' AND report.reported_review_key IS NOT NULL)
+            )
+            AND (%s = '' OR CONCAT_WS(', ',
+                report.key, report.reporter_comment, report.tags::text,
+                report.reporter_key, report.reported_user_key,
+                report.reported_review_key
             ) ILIKE %s)
-            AND (%s = 'all' OR report.entity_type = %s)
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, report.key DESC
         LIMIT %s OFFSET %s;
     """, (
+        status,
+        _type, _type, _type,
         search, f"%{search}%",
-        _type, _type,
         page_size, (page_no - 1) * page_size
     ))
-    items = cur.fetchall()
+    reports = cur.fetchall()
 
-    for x in items:
-        x["reporter"]["photo"] = (
-            f"{request.host_url}file/{x['reporter']['photo']}"
-            if x["reporter"]["photo"] else None
-        )
-        x["user"]["photo"] = (
-            f"{request.host_url}file/{x['user']['photo']}"
-            if x["user"]["photo"] else None
-        )
+    url = f"{request.host_url}photo/user/"
+    for x in reports:
+        if x["reporter"]["user"]["photo"]:
+            x["reporter"]["user"]["photo"] = f"{url}{x[
+                'reporter']['user']['photo']}"
 
-    db_close(con, cur)
+        if x["resolver_key"]:
+            if x["resolver"]["user"]["photo"]:
+                x["resolver"]["user"]["photo"] = f"{url}{x[
+                    'resolver']['user']['photo']}"
+        else:
+            del x["resolver_key"]
+            del x["resolver"]
+
+        if x["reported_user_key"]:
+            if x["reported_user"]["user"]["photo"]:
+                x["reported_user"]["user"]["photo"] = f"{url}{x[
+                    'reported_user']['user']['photo']}"
+        else:
+            del x["reported_user_key"]
+            del x["reported_user"]
+
+        if x["reported_review_key"]:
+            if x["reported_review"]["user"]["photo"]:
+                x["reported_review"]["user"]["photo"] = f"{url}{x[
+                    'reported_review']['user']['photo']}"
+        else:
+            del x["reported_review_key"]
+            del x["reported_review"]
+
+    cur.execute("""
+        SELECT COUNT(*) FROM report
+        WHERE
+            report.status = %s
+            AND (
+                %s = 'all'
+                OR (%s = 'user' AND report.reported_user_key IS NOT NULL)
+                OR (%s = 'review' AND report.reported_review_key IS NOT NULL)
+            )
+            AND (%s = '' OR CONCAT_WS(', ',
+                report.key, report.reporter_comment, report.tags::text,
+                report.reporter_key, report.reported_user_key,
+                report.reported_review_key
+            ) ILIKE %s);
+    """, (
+        status,
+        _type, _type, _type,
+        search, f"%{search}%",
+    ))
+    total_page = cur.fetchone()["count"]
+
+    if close_conn:
+        db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": items,
+        "reports": reports,
         "order_by": list(order_by.keys()),
-        "type": ["all", "user", "comment"],
-        "searchParams": searchParams,
-        "total_page": ceil(items[0]["_count"] / page_size
-                           ) if items else 0
+        "_status": ["active", "resolved", "dismissed"],
+        "type": ["all", "user", "review"],
+        "total_page": ceil(total_page / page_size),
+        "searchParams": searchParams
     })

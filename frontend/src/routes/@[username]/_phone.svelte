@@ -4,7 +4,7 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
-	let form = $state({ phone: app.user.phone });
+	let form = $state({ phone: app.user.phone || '' });
 	let error = $state({});
 
 	const validate = () => {

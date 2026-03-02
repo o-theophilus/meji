@@ -97,13 +97,15 @@
 		</div>
 	{/if}
 
-	{#if edit_mode && user.key == app.user.key}
-		<div class="line center">
-			<Icon icon="at-sign" />
-			{user.username}
+	<div class="line center">
+		<Icon icon="at-sign" />
+		{user.username}
+		{#if edit_mode && user.key == app.user.key}
 			<RoundButton icon="square-pen" onclick={() => module.open(Username, { update })} />
-		</div>
+		{/if}
+	</div>
 
+	{#if edit_mode && user.key == app.user.key}
 		<div class="line center">
 			<Icon icon="key-round" />
 			********
@@ -125,7 +127,7 @@
 				{/if}
 
 				{#if app.user.access.some( (x) => ['user:reset_name', 'user:reset_username', 'user:reset_photo'].includes(x) )}
-					<Button onclick={() => module.open(Action, { ...user, update })}>Reset</Button>
+					<Button onclick={() => module.open(Action, { user, update })}>Reset</Button>
 				{/if}
 
 				{#if app.user.access.includes('block:block')}
@@ -140,14 +142,17 @@
 			{/if}
 		</div>
 	{/if}
-	<div class="center pad">
-		<LinkArrow
-			--link-font-size="0.8rem"
-			onclick={() => page_state.goto('log', { u_search: user.key })}
-		>
-			View Logs
-		</LinkArrow>
-	</div>
+
+	{#if app.user.access.includes('log:view')}
+		<div class="center pad">
+			<LinkArrow
+				--link-font-size="0.8rem"
+				onclick={() => page_state.goto('log', { u_search: user.key })}
+			>
+				View Logs
+			</LinkArrow>
+		</div>
+	{/if}
 </Content>
 
 <style>

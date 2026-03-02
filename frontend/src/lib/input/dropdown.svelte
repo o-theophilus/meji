@@ -92,7 +92,7 @@
 		font-weight: var(--select-font-weight, 400);
 		background-color: var(--select-background-color, hsl(0, 0%, 5%));
 		color: var(--select-color, hsl(0, 0%, 70%));
-		outline: 1px solid var(--select-outline-color, transparent);
+		outline: 1px solid var(--select-outline-color, light-dark(transparent, hsl(0, 0%, 30%)));
 		outline-offset: -1px;
 
 		transition:

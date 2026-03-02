@@ -1,7 +1,9 @@
+from math import ceil
+
 from flask import Blueprint, jsonify, request
+
 from ...postgres import db_close, db_open
 from ...tools import get_session
-from math import ceil
 
 bp = Blueprint("review_get", __name__)
 
@@ -19,6 +21,25 @@ def get_many(key, _page_size=24, cur=None):
         return jsonify(session)
     user = session["user"]
 
+    order_by = {
+        'latest': 'date_created',
+        'oldest': 'date_created',
+        'reply': 'reply_count',
+        'most relevant ▼': 'most_like',
+        'least relevant ▲': 'most_like',
+        'rating ▼': 'rating',
+        'rating ▲': 'rating',
+    }
+    order_dir = {
+        'latest': 'DESC',
+        'oldest': 'ASC',
+        'reply': 'DESC',
+        'most relevant ▼': 'DESC',
+        'least relevant ▲': 'ASC',
+        'rating ▼': 'DESC',
+        'rating ▲': 'ASC',
+    }
+
     searchParams = {
         "order": 'most relevant ▼',
         "page_no": 1,
@@ -27,25 +48,7 @@ def get_many(key, _page_size=24, cur=None):
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
-    order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created',
-        'most relevant ▼': 'most_like',
-        'least relevant ▲': 'most_like',
-        'reply': 'reply_count',
-        'rating ▼': 'rating',
-        'rating ▲': 'rating',
-    }
-    order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC',
-        'most relevant ▼': 'DESC',
-        'least relevant ▲': 'ASC',
-        'reply': 'DESC',
-        'rating ▼': 'DESC',
-        'rating ▲': 'ASC',
-    }
+    page_size = min(page_size, 100)
 
     cur.execute("""
         SELECT * FROM item WHERE slug = %s OR key::TEXT = %s;
@@ -63,10 +66,17 @@ def get_many(key, _page_size=24, cur=None):
         SELECT
             r.key, r.date_created, r.comment, r.rating,
             u.key AS user_key, u.name, u.username, u.photo,
-            COALESCE(l.most_like, 0) AS most_like,
-            COALESCE(rc.reply_count, 0) AS reply_count
+            COALESCE(sub_r.reply_count, 0) AS reply_count,
+            COALESCE(l.most_like, 0) AS most_like
         FROM review r
         JOIN "user" u ON u.key = r.user_key
+
+        LEFT JOIN (
+            SELECT parent_key, COUNT(*) AS reply_count
+            FROM review
+            WHERE parent_key IS NOT NULL
+            GROUP BY parent_key
+        ) sub_r ON sub_r.parent_key = r.key
 
         LEFT JOIN (
             SELECT
@@ -77,17 +87,8 @@ def get_many(key, _page_size=24, cur=None):
             GROUP BY review_key
         ) l ON l.review_key = r.key
 
-        LEFT JOIN (
-            SELECT parent_key, COUNT(*) AS reply_count
-            FROM review
-            WHERE parent_key IS NOT NULL
-            GROUP BY parent_key
-        ) rc ON rc.parent_key = r.key
-
-        WHERE r.item_key = %s
-        AND r.parent_key IS NULL
-
-        ORDER BY {order_by[order]} {order_dir[order]}
+        WHERE r.item_key = %s AND r.parent_key IS NULL
+        ORDER BY {order_by[order]} {order_dir[order]}, r.key DESC
         LIMIT %s OFFSET %s
     """, (
         item["key"],
@@ -137,8 +138,8 @@ def get_many(key, _page_size=24, cur=None):
                 "key": x["user_key"],
                 "name": x["name"],
                 "username": x["username"],
-                "photo": f'{request.host_url}photo/user/{
-                    x["photo"]}' if x["photo"] else None
+                "photo": f'{request.host_url}photo/user/{x["photo"]}' if x[
+                    "photo"] else None
             }
         })
 

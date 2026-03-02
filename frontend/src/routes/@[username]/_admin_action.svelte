@@ -1,18 +1,21 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { Button } from '$lib/button';
 	import { Note } from '$lib/info';
 	import { Checkbox, IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
-	let form = $state({ actions: [] });
+	let form = $state({ comment: '', actions: [] });
 	let error = $state({});
 
 	const validate = () => {
 		error = {};
 
-		if (!form.note) {
-			error.note = 'This field is required';
+		if (!form.comment) {
+			error.comment = 'This field is required';
+		} else if (form.comment.length > 500) {
+			error.comment = 'This field cannot exceed 500 characters';
 		}
 
 		if (form.actions.length == 0) {
@@ -27,7 +30,7 @@
 
 		loading.open(`Taking action${form.actions.length > 1 ? 's' : ''} . . .`);
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/admin/user/actions/${module.value.key}`,
+			`${import.meta.env.VITE_BACKEND}/admin/user/actions/${module.value.user.key}`,
 			{
 				method: 'put',
 				headers: {
@@ -41,6 +44,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
+			replaceState(`/@${resp.user.username}`);
 			module.value.update(resp.user);
 			module.close();
 			notify.open('Done');
@@ -97,11 +101,11 @@
 	</IG>
 
 	<IG
-		name="Note"
-		error={error.note}
+		name="Comment ({500 - form.comment.length})"
+		error={error.comment}
 		type="textarea"
-		placeholder="Note here"
-		bind:value={form.note}
+		placeholder="Comment here"
+		bind:value={form.comment}
 	/>
 
 	<Button icon2="send-Horizontal" onclick={validate}>Submit</Button>

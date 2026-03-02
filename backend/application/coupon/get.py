@@ -92,24 +92,12 @@ def get_many(cur=None):
     user = session["user"]
 
     if "coupon:view" not in user["access"]:
-        db_close(con, cur)
+        if close_conn:
+            db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "unauthorized access"
         })
-
-    searchParams = {
-        "search": "",
-        "status": "active",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
 
     order_by = {
         'latest': 'date_created',
@@ -124,12 +112,26 @@ def get_many(cur=None):
         'costly': 'DESC',
     }
 
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
+
     cur.execute(f"""
         SELECT * FROM coupon
         WHERE
             (%s = 'all' OR status = %s)
             AND (%s = '' OR key::TEXT ILIKE %s)
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, key DESC
         LIMIT %s OFFSET %s;
     """, (
         status, status,

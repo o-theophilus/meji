@@ -8,9 +8,7 @@
 	let nots = $state([]);
 
 	const format = (x) => {
-		if (x.type == 'unused_files') {
-			x.type = `${x.count} unused file${x.count > 1 ? 's' : ''}`;
-		}
+		x.type = `${x.count} ${x.type}`;
 		return x;
 	};
 

@@ -104,21 +104,6 @@ def get_many(cur=None, _order="latest", _page_size=24):
     ):
         status = "active"
 
-    searchParams = {
-        "search": "",
-        "status": "active",
-        "tag": "",
-        "order": _order,
-        "page_no": 1,
-        "page_size": _page_size
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    tag = request.args.get("tag", searchParams["tag"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
@@ -139,6 +124,22 @@ def get_many(cur=None, _order="latest", _page_size=24):
         'discount': 'DESC',
         'rating': 'DESC',
     }
+
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "tag": "",
+        "order": _order,
+        "page_no": 1,
+        "page_size": _page_size
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    tag = request.args.get("tag", searchParams["tag"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
 
     params = [status, search, f"%{search}%"]
 
@@ -177,7 +178,7 @@ def get_many(cur=None, _order="latest", _page_size=24):
         WHERE
             item.status = %s
             AND (%s = '' OR item.name ILIKE %s) {tag_query}
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, item.key DESC
         LIMIT %s OFFSET %s;
     """, params)
     items = cur.fetchall()
@@ -219,17 +220,6 @@ def like_page():
         return jsonify(session)
     user = session["user"]
 
-    searchParams = {
-        "search": "",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
@@ -248,6 +238,18 @@ def like_page():
         'costly': 'DESC'
     }
 
+    searchParams = {
+        "search": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
+
     cur.execute(f"""
         SELECT
             item.*,
@@ -260,7 +262,7 @@ def like_page():
             AND "like".user_key = %s
             AND "like".reaction = 'like'
             AND (%s = '' OR item.name ILIKE %s)
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, item.key DESC
         LIMIT %s OFFSET %s;
     """, (
         user["key"],

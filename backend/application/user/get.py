@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify
 from math import ceil
-from ..tools import get_session, user_schema, access_pass
-from ..postgres import db_close, db_open
 
+from flask import Blueprint, jsonify, request
+
+from ..postgres import db_close, db_open
+from ..tools import access_pass, get_session, user_schema
 
 bp = Blueprint("user_get", __name__)
 
@@ -67,19 +68,6 @@ def get_many():
             "error": "unauthorized access"
         })
 
-    searchParams = {
-        "search": "",
-        "status": "active",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
@@ -92,6 +80,20 @@ def get_many():
         'name (a-z)': 'ASC',
         'name (z-a)': 'DESC'
     }
+
+    searchParams = {
+        "search": "",
+        "status": "active",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    search = request.args.get("search", searchParams["search"]).strip()
+    status = request.args.get("status", searchParams["status"])
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
 
     cur.execute(f"""
         SELECT
@@ -108,7 +110,7 @@ def get_many():
                 OR CONCAT_WS(', ', "user".key, "user".name, "user".email
             ) ILIKE %s
         )
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, "user".key DESC
         LIMIT %s OFFSET %s;
     """, (
         status, status,
@@ -145,22 +147,6 @@ def get_admins():
             "error": "unauthorized access"
         })
 
-    searchParams = {
-        "entity_type": "all",
-        "action": "all",
-        "search": "",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    entity_type = request.args.get(
-        "entity_type", searchParams["entity_type"])
-    action = request.args.get("action", searchParams["action"])
-    search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
     order_by = {
         'latest': '"user".date_created',
         'oldest': '"user".date_created',
@@ -173,6 +159,22 @@ def get_admins():
         'name (a-z)': 'ASC',
         'name (z-a)': 'DESC'
     }
+
+    searchParams = {
+        "entity_type": "all",
+        "action": "all",
+        "search": "",
+        "order": "latest",
+        "page_no": 1,
+        "page_size": 24
+    }
+    entity_type = request.args.get("entity_type", searchParams["entity_type"])
+    action = request.args.get("action", searchParams["action"])
+    search = request.args.get("search", searchParams["search"]).strip()
+    order = request.args.get("order", searchParams["order"])
+    page_no = int(request.args.get("page_no", searchParams["page_no"]))
+    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    page_size = min(page_size, 100)
 
     cur.execute(f"""
         SELECT
@@ -188,7 +190,7 @@ def get_admins():
                 ', ', "user".key, "user".name, "user".email) ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING("user".access, ',') ILIKE %s)
             AND (%s = 'all' OR ARRAY_TO_STRING("user".access, ',') ILIKE %s)
-        ORDER BY {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, "user".key DESC
         LIMIT %s OFFSET %s;
     """, (
         search, f"%{search}%",

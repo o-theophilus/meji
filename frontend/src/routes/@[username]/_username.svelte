@@ -1,4 +1,5 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { Button } from '$lib/button';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
@@ -36,7 +37,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			window.history.replaceState(history.state, '', `/@${resp.user.username}`);
+			replaceState(`/@${resp.user.username}`);
 			module.value.update(resp.user);
 			notify.open('Name Changed');
 			module.close();

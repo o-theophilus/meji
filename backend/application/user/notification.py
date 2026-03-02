@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify
 from ..tools import get_session
 from ..postgres import db_open, db_close
 from ..storage import storage
+from ..admin.file_error import get_file_error
 
 
 bp = Blueprint("notification", __name__)
@@ -17,35 +18,39 @@ def notification():
         return jsonify(session)
     user = session["user"]
 
-    if "admin:manage_files" not in user["access"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-
-    cur.execute("""SELECT photo FROM "user";""")
-    users_photo = cur.fetchall()
-    users_photo = [x["photo"] for x in users_photo if x["photo"]]
-
-    cur.execute("""SELECT files FROM item;""")
-    temp = cur.fetchall()
-    items_files = []
-    for x in temp:
-        items_files += x["files"]
-
-    all_used_files = users_photo + items_files
-    all_stored_files = storage.get_all()
-
-    unused_photos = [x for x in all_stored_files if x not in all_used_files]
-
     nots = []
-    if unused_photos != []:
-        nots.append({
-            "type": 'unused_files',
-            "count": len(unused_photos),
-            "slug": "/admin/file_error"
-        })
+    if "admin:manage_files" in user["access"]:
+        file_error = get_file_error(cur).json
+
+        if "unused_item_photo" in file_error and file_error[
+                "unused_item_photo"]:
+            nots.append({
+                "type": 'unused item photo',
+                "count": len(file_error["unused_item_photo"]),
+                "slug": "/admin/file_error"
+            })
+
+        if "unused_user_photo" in file_error and file_error[
+                "unused_user_photo"]:
+            nots.append({
+                "type": 'unused user photo',
+                "count": len(file_error["unused_user_photo"]),
+                "slug": "/admin/file_error"
+            })
+
+        if "items" in file_error and file_error["items"]:
+            nots.append({
+                "type": 'missing item photo',
+                "count": len(file_error["items"]),
+                "slug": "/admin/file_error"
+            })
+
+        if "users" in file_error and file_error["users"]:
+            nots.append({
+                "type": 'missing user photo',
+                "count": len(file_error["users"]),
+                "slug": "/admin/file_error"
+            })
 
     db_close(con, cur)
     return jsonify({

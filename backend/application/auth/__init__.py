@@ -160,7 +160,7 @@ def default_admin():
         log(
             cur=cur,
             user_key=user["key"],
-            action="actived account",
+            action="activated account",
             entity_key="auth",
             entity_type="account",
         )

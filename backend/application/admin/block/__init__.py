@@ -38,6 +38,7 @@ def block(key):
         or user["status"] != "active"
         or user["email"] == os.environ["MAIL_USERNAME"]
     ):
+
         db_close(con, cur)
         return jsonify({
             "status": 400,

@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
 from math import ceil
+
+from flask import Blueprint, jsonify, request
+
+from ...postgres import db_close, db_open
 from ...tools import get_session
-from ...postgres import db_open, db_close
 
 bp = Blueprint("advert_get", __name__)
 
@@ -59,6 +61,16 @@ def get_many(cur=None):
         return jsonify(session)
     user = session["user"]
 
+    order_by = {
+        'name (a-z)': 'item.name',
+        'name (z-a)': 'item.name'
+    }
+
+    order_dir = {
+        'name (a-z)': 'ASC',
+        'name (z-a)': 'DESC'
+    }
+
     searchParams = {
         "search": "",
         "space": "all",
@@ -71,16 +83,7 @@ def get_many(cur=None):
     order = request.args.get("order", searchParams["order"])
     page_no = int(request.args.get("page_no", searchParams["page_no"]))
     page_size = int(request.args.get("page_size", searchParams["page_size"]))
-
-    order_by = {
-        'name (a-z)': 'item.name',
-        'name (z-a)': 'item.name'
-    }
-
-    order_dir = {
-        'name (a-z)': 'ASC',
-        'name (z-a)': 'DESC'
-    }
+    page_size = min(page_size, 100)
 
     status = "active"
     if request.path == "/advert" and "item:advert" in user["access"]:
@@ -96,7 +99,7 @@ def get_many(cur=None):
             (%s = 'all' OR %s = ANY(advert.space))
             AND (%s = '' OR item.name ILIKE %s)
             AND (%s = '' OR item.status = %s)
-        ORDER BY advert.key, {order_by[order]} {order_dir[order]}
+        ORDER BY {order_by[order]} {order_dir[order]}, advert.key DESC
         LIMIT %s OFFSET %s;
     """, (
         space, space,
@@ -106,7 +109,8 @@ def get_many(cur=None):
     ))
     adverts = cur.fetchall()
 
-    db_close(con, cur)
+    if close_conn:
+        db_close(con, cur)
     return jsonify({
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
