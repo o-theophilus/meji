@@ -1,6 +1,6 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { Button, Switch } from '$lib/button';
+	import { Button } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Dropdown, Pagination, Search } from '$lib/input';
 	import { Content } from '$lib/layout';
@@ -51,20 +51,9 @@
 		<div class="page_title">Shop</div>
 
 		{#if app.user.access.includes('item:add')}
-			<div class="line">
-				<Switch
-					list={_status}
-					bind:value={searchParams.status}
-					onclick={(v) => {
-						searchParams.page_no = 1;
-						page_state.set({ status: v == defaultParams.status ? '' : v });
-					}}
-				></Switch>
-
-				<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>
-					Add New Item
-				</Button>
-			</div>
+			<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>
+				Add New Item
+			</Button>
 		{/if}
 	</div>
 
@@ -87,24 +76,39 @@
 		/>
 	</div>
 
-	<Dropdown
-		--select-height="10"
-		--select-padding-x="0"
-		--select-font-size="0.8rem"
-		--select-background-color="transparent"
-		--select-background-color-hover="transparent"
-		--select-color="var(--ft2)"
-		--select-color-hover="var(--ft1)"
-		--select-outline-color="transparent"
-		list={order_by}
-		icon="arrow-down-narrow-wide"
-		icon2="chevron-down"
-		bind:value={searchParams.order}
-		onchange={(v) => {
-			searchParams.page_no = 1;
-			page_state.set({ order: v == defaultParams.order ? '' : v });
-		}}
-	/>
+	<div class="line">
+		{#if app.user.access.includes('item:add')}
+			<Dropdown
+				--select-height="32px"
+				--select-padding-x="8px"
+				--select-font-size="0.8rem"
+				label="Filter: {searchParams.status}"
+				list={_status}
+				icon="list-filter"
+				icon2="chevron-down"
+				bind:value={searchParams.status}
+				onchange={(v) => {
+					searchParams.page_no = 1;
+					page_state.set({ status: v == defaultParams.status ? '' : v });
+				}}
+			/>
+		{/if}
+
+		<Dropdown
+			--select-height="32px"
+			--select-padding-x="8px"
+			--select-font-size="0.8rem"
+			label="Sort: {searchParams.order}"
+			list={order_by}
+			icon="arrow-down-up"
+			icon2="chevron-down"
+			bind:value={searchParams.order}
+			onchange={(v) => {
+				searchParams.page_no = 1;
+				page_state.set({ order: v == defaultParams.order ? '' : v });
+			}}
+		/>
+	</div>
 
 	<FilterNote
 		onclick={() => {
@@ -154,9 +158,10 @@
 
 		margin: 16px 0;
 	}
-
+	
 	@media screen and (min-width: 580px) {
 		.items {
+			gap: 24px;
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}

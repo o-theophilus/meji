@@ -54,16 +54,12 @@
 	></Search>
 
 	<Dropdown
-		--select-height="10"
-		--select-padding-x="0"
+		--select-height="32px"
+		--select-padding-x="8px"
 		--select-font-size="0.8rem"
-		--select-background-color="transparent"
-		--select-background-color-hover="transparent"
-		--select-color="var(--ft2)"
-		--select-color-hover="var(--ft1)"
-		--select-outline-color="transparent"
+		label="Sort: {searchParams.order}"
 		list={order_by}
-		icon="arrow-down-narrow-wide"
+		icon="arrow-down-up"
 		icon2="chevron-down"
 		bind:value={searchParams.order}
 		onchange={(v) => {
@@ -71,7 +67,6 @@
 			page_state.set({ order: v == defaultParams.order ? '' : v });
 		}}
 	/>
-
 	<FilterNote
 		onclick={() => {
 			searchParams.page_no = 1;
@@ -115,12 +110,13 @@
 		justify-content: center;
 		flex-wrap: wrap;
 		gap: 8px;
-
+		
 		margin: 16px 0;
 	}
-
+	
 	@media screen and (min-width: 580px) {
 		.items {
+			gap: 24px;
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}

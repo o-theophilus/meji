@@ -33,20 +33,8 @@
 <Meta title="All Users" />
 
 <Content --content-height="auto">
-	<div class="line space">
-		<div class="page_title">
-			User{users?.length > 1 ? 's' : ''}
-		</div>
-
-		<Dropdown
-			icon2="chevron-down"
-			list={_status}
-			bind:value={searchParams.status}
-			onchange={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ status: v == defaultParams.status ? '' : v });
-			}}
-		/>
+	<div class="page_title">
+		User{users?.length > 1 ? 's' : ''}
 	</div>
 
 	<Search
@@ -57,24 +45,36 @@
 		}}
 	></Search>
 
-	<Dropdown
-		--select-height="10"
-		--select-padding-x="0"
-		--select-font-size="0.8rem"
-		--select-background-color="transparent"
-		--select-background-color-hover="transparent"
-		--select-color="var(--ft2)"
-		--select-color-hover="var(--ft1)"
-		--select-outline-color="transparent"
-		list={order_by}
-		icon="arrow-down-narrow-wide"
-		icon2="chevron-down"
-		bind:value={searchParams.order}
-		onchange={(v) => {
-			searchParams.page_no = 1;
-			page_state.set({ status: v == defaultParams.status ? '' : v });
-		}}
-	/>
+	<div class="line">
+		<Dropdown
+			--select-height="32px"
+			--select-padding-x="8px"
+			--select-font-size="0.8rem"
+			label="Status: {searchParams.status}"
+			icon="list-filter"
+			icon2="chevron-down"
+			list={_status}
+			bind:value={searchParams.status}
+			onchange={(v) => {
+				searchParams.page_no = 1;
+				page_state.set({ status: v == defaultParams.status ? '' : v });
+			}}
+		/>
+		<Dropdown
+			--select-height="32px"
+			--select-padding-x="8px"
+			--select-font-size="0.8rem"
+			label="Sort: {searchParams.order}"
+			list={order_by}
+			icon="arrow-down-up"
+			icon2="chevron-down"
+			bind:value={searchParams.order}
+			onchange={(v) => {
+				searchParams.page_no = 1;
+				page_state.set({ status: v == defaultParams.status ? '' : v });
+			}}
+		/>
+	</div>
 </Content>
 
 <Content --content-padding-top="1px">

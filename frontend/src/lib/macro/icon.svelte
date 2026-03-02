@@ -2,6 +2,7 @@
 	import {
 		ArrowDown,
 		ArrowDownNarrowWide,
+		ArrowDownUp,
 		ArrowLeft,
 		ArrowRight,
 		ArrowUp,
@@ -83,6 +84,7 @@
 	onMount(() => {
 		createIcons({
 			icons: {
+				ArrowDownUp,
 				PanelLeftClose,
 				PanelLeftOpen,
 				ArrowUpRight,

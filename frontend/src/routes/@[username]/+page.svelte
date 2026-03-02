@@ -8,6 +8,7 @@
 	import Name from './_name.svelte';
 	import Phone from './_phone.svelte';
 	import Photo from './_photo.svelte';
+	import Report from './_report.svelte';
 	import Username from './_username.svelte';
 	import Access from './access/form.svelte';
 	import Delete from './delete/form.svelte';
@@ -140,6 +141,20 @@
 					</Button>
 				{/if}
 			{/if}
+		</div>
+	{/if}
+
+	{#if user.key != app.user.key}
+		<div class="center">
+			<br />
+			<Button
+				icon="lock-keyhole"
+				--button-font-size="0.8rem"
+				disabled={user.blocked}
+				onclick={() => module.open(Report, { user })}
+			>
+				Report user
+			</Button>
 		</div>
 	{/if}
 

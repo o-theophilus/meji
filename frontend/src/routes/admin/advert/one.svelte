@@ -10,7 +10,7 @@
 	</div>
 
 	<div class="one">
-		photos
+		Photos
 		<div class="row">
 			{#each sizes as x}
 				<Tag
@@ -25,7 +25,7 @@
 	</div>
 
 	<div class="one">
-		sizes
+		Spaces
 		<div class="row">
 			{#each spaces as x}
 				<Tag

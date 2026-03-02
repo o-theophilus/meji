@@ -38,9 +38,10 @@
 		grid-template-columns: repeat(2, 1fr);
 		gap: 8px;
 	}
-
+	
 	@media screen and (min-width: 580px) {
 		.grid {
+			gap: 24px;
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}

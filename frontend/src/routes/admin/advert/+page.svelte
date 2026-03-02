@@ -33,23 +33,9 @@
 <Log entity_type={'page'} />
 <Meta title="Item Adverts" />
 
-<Content>
-	<div class="line space">
-		<div class="page_title">
-			Advert{adverts?.length > 1 ? 's' : ''}
-		</div>
-
-		<div class="line">
-			<Dropdown
-				icon2="chevron-down"
-				list={spaces}
-				bind:value={searchParams.space}
-				onchange={(v) => {
-					searchParams.page_no = 1;
-					page_state.set({ space: v == defaultParams.space ? '' : v });
-				}}
-			/>
-		</div>
+<Content --content-height="auto">
+	<div class="page_title">
+		Advert{adverts?.length > 1 ? 's' : ''}
 	</div>
 
 	<Search
@@ -60,28 +46,39 @@
 		}}
 	></Search>
 
-	<Dropdown
-		--select-height="10"
-		--select-padding-x="0"
-		--select-font-size="0.8rem"
-		--select-background-color="transparent"
-		--select-background-color-hover="transparent"
-		--select-color="var(--ft2)"
-		--select-color-hover="var(--ft1)"
-		--select-outline-color="transparent"
-		list={order_by}
-		icon="arrow-down-narrow-wide"
-		icon2="chevron-down"
-		bind:value={searchParams.order}
-		onchange={(v) => {
-			searchParams.page_no = 1;
-			page_state.set({ order: v == defaultParams.order ? '' : v });
-		}}
-	/>
+	<div class="line">
+		<Dropdown
+			--select-height="32px"
+			--select-padding-x="8px"
+			--select-font-size="0.8rem"
+			icon="list-filter"
+			icon2="chevron-down"
+			label="FIlter: {searchParams.space}"
+			list={spaces}
+			bind:value={searchParams.space}
+			onchange={(v) => {
+				searchParams.page_no = 1;
+				page_state.set({ space: v == defaultParams.space ? '' : v });
+			}}
+		/>
+		<Dropdown
+			--select-height="32px"
+			--select-padding-x="8px"
+			--select-font-size="0.8rem"
+			list={order_by}
+			icon="arrow-down-up"
+			icon2="chevron-down"
+			label="Sort: {searchParams.order}"
+			bind:value={searchParams.order}
+			onchange={(v) => {
+				searchParams.page_no = 1;
+				page_state.set({ order: v == defaultParams.order ? '' : v });
+			}}
+		/>
+	</div>
+</Content>
 
-	<br />
-	<br />
-
+<Content --content-padding-top="1px">
 	{#each adverts as ads (ads.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<One {ads} {spaces} {sizes} />
