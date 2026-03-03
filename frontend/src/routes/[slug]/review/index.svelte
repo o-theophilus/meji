@@ -9,7 +9,6 @@
 	import { cubicInOut } from 'svelte/easing';
 	import Add from './_add.svelte';
 	import One from './one.svelte';
-
 	let { item, review, loading } = $props();
 
 	let ratings = $derived(review.ratings);
@@ -56,8 +55,8 @@
 
 	{#if open && !loading}
 		{#each reviews as review (review.key)}
-			<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<One {item} {review} search={{ page_size: 3 }} {update}></One>
+			<div class="review" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+				<One {item} {review} searchParams={{ page_size: 3 }} {update}></One>
 			</div>
 		{:else}
 			<PageNote>
@@ -120,11 +119,12 @@
 		}
 	}
 
-	.item {
+	.review {
 		margin-top: 8px;
-	}
-	.item:first-child {
-		margin-top: 0;
+
+		&:first-child {
+			margin-top: 0;
+		}
 	}
 
 	.bottom {

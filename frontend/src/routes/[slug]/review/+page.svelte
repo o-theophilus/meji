@@ -2,7 +2,7 @@
 	import { replaceState } from '$app/navigation';
 	import { Login } from '$lib/auth';
 	import { BackButton, Button } from '$lib/button';
-	import { PageNote } from '$lib/info';
+	import { Dialogue, PageNote } from '$lib/info';
 	import { Dropdown, Pagination } from '$lib/input';
 	import { Content } from '$lib/layout';
 	import { Icon, Log, Meta } from '$lib/macro';
@@ -112,7 +112,7 @@
 		{:else if can_review}
 			<Button
 				icon="message-circle-plus"
-				onclick={() => module.open(Add, { item, search: { page_size: 3 }, update })}
+				onclick={() => module.open(Add, { item, searchParams, update })}
 			>
 				Add review
 			</Button>
@@ -122,8 +122,8 @@
 
 <Content>
 	{#each reviews as review (review.key)}
-		<div class="item" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {item} {review} search={searchParams} {update}></One>
+		<div class="review" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<One {item} {review} {searchParams} {update}></One>
 		</div>
 	{:else}
 		<PageNote>
@@ -147,10 +147,11 @@
 		align-items: flex-end;
 	}
 
-	.item {
+	.review {
 		margin-top: 8px;
-	}
-	.item:first-child {
-		margin-top: 0;
+
+		&:first-child {
+			margin-top: 0;
+		}
 	}
 </style>

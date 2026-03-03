@@ -27,7 +27,7 @@ def create():
         not entity_key
         or entity_key == user["key"]
         or not entity_type
-        or entity_type not in ["user", "comment"]
+        or entity_type not in ["user", "review"]
         or type(tags) is not list
     ):
         db_close(con, cur)
@@ -60,8 +60,8 @@ def create():
 
     if entity_type == "user":
         column = "reported_user_key"
-    if entity_type == "comment":
-        column = "reported_comment_key"
+    if entity_type == "review":
+        column = "reported_review_key"
 
     cur.execute(f"""
         INSERT INTO report (reporter_key, {column}, reporter_comment, tags)
@@ -133,9 +133,9 @@ def resolve(key):
         WHERE key = %s;
     """, (user["key"], comment, key))
 
-    if report["reported_comment_key"]:
-        entity_type = "comment"
-        entity_key = report["reported_comment_key"]
+    if report["reported_review_key"]:
+        entity_type = "review"
+        entity_key = report["reported_review_key"]
     elif report["reported_user_key"]:
         entity_type = "user"
         entity_key = report["reported_user_key"]
@@ -152,10 +152,10 @@ def resolve(key):
         }
     )
 
-    if report["reported_comment_key"] and delete_comment:
+    if report["reported_review_key"] and delete_comment:
         cur.execute(
             "DELETE FROM comment WHERE key = %s RETURNING *;",
-            (report["reported_comment_key"],))
+            (report["reported_review_key"],))
         comment = cur.fetchone()
 
         log(
@@ -217,9 +217,9 @@ def dismiss(key):
         WHERE key = %s;
     """, (user["key"], comment, key))
 
-    if report["reported_comment_key"]:
-        entity_type = "comment"
-        entity_key = report["reported_comment_key"]
+    if report["reported_review_key"]:
+        entity_type = "review"
+        entity_key = report["reported_review_key"]
     elif report["reported_user_key"]:
         entity_type = "user"
         entity_key = report["reported_user_key"]

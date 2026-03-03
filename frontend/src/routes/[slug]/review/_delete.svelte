@@ -3,7 +3,7 @@
 	import { Note } from '$lib/info';
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
-	import One from './one.details.svelte';
+	import One from './details.svelte';
 
 	let review = { ...module.value.review };
 	let error = $state({});
@@ -13,7 +13,7 @@
 		loading.open(`Deleting comment . . .`);
 		let resp = await fetch(
 			`${import.meta.env.VITE_BACKEND}/review/${review.key}?${new URLSearchParams(
-				module.value.search
+				module.value.searchParams
 			).toString()}`,
 			{
 				method: 'delete',

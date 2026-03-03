@@ -7,4 +7,5 @@ export { default as Meta } from "./meta.svelte"
 export { default as Observe } from "./observe.svelte"
 export { default as Spinner } from "./spinner.svelte"
 export { default as ToTop } from "./to_top.svelte"
+export { default as User } from "./user.svelte"
 

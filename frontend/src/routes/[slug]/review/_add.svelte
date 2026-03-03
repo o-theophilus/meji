@@ -6,7 +6,7 @@
 	import { Marked } from '$lib/macro';
 	import { Form } from '$lib/layout';
 	import { Note } from '$lib/info';
-	import One from './one.details.svelte';
+	import One from './details.svelte';
 
 	let item = module.value.item;
 	let parent = module.value.parent;
@@ -37,7 +37,7 @@
 		loading.open('Adding Review . . .');
 		let resp = await fetch(
 			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(
-				module.value.search
+				module.value.searchParams
 			).toString()}`,
 			{
 				method: 'post',

@@ -4,13 +4,13 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 	import { tags, template } from './_report.template.js';
-	import One from './one.details.svelte';
+	import Details from './details.svelte';
 
-	let item = { ...module.value.item };
+	let review = { ...module.value.review };
 
 	let form = $state({
-		entity_key: item.key,
-		entity_type: 'comment',
+		entity_key: review.key,
+		entity_type: 'review',
 		comment: '',
 		tags: []
 	});
@@ -53,7 +53,9 @@
 </script>
 
 <Form title="Report" error={error.error}>
-	<One {item}></One>
+	<div class="review">
+		<Details {review}></Details>
+	</div>
 
 	<IG
 		bind:value={form.comment}
@@ -115,5 +117,12 @@
 		margin-top: 8px;
 		margin-bottom: 16px;
 		gap: 4px;
+	}
+
+	.review {
+		padding: 16px;
+		border-radius: 8px;
+		outline: 1px solid var(--one-outline-color, var(--ol));
+		outline-offset: -1px;
 	}
 </style>

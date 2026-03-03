@@ -1,8 +1,8 @@
 <script>
 	import { Button, FoldButton } from '$lib/button';
+	import { Datetime, User } from '$lib/macro';
 	import { app, module } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
-	import Comment from '../../[slug]/review/one.svelte';
 	import Dismiss from './one.dismiss.svelte';
 	import Resolve from './one.resolve.svelte';
 
@@ -13,20 +13,38 @@
 </script>
 
 <div class="one">
-	<div class="reported">
-		{#if report.reported_user}
-			<Comment comment={report.reported_user}></Comment>
-		{:else if report.reported_comment}
-			<Comment comment={report.reported_comment}></Comment>
-		{/if}
-
-		<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
-	</div>
+	{#if report.reported_user}
+		<div class="reported_user">
+			<div class="user_date">
+				<User user={report.reported_user.user}></User>
+				<div class="right">
+					<Datetime datetime={report.reporter.date_created} type="ago" />
+					<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
+				</div>
+			</div>
+		</div>
+	{:else if report.reported_review}
+		<div class="reported_review">
+			<div class="user_date">
+				<User user={report.reported_review.user}></User>
+				<div class="right">
+					<Datetime datetime={report.reported_review.date_created} type="ago" />
+					<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
+				</div>
+			</div>
+			<div class="comment">
+				{report.reported_review.comment}
+			</div>
+		</div>
+	{/if}
 
 	{#if open}
 		<div transition:slide>
 			<div class="reporter">
-				<Comment comment={report.reporter}></Comment>
+				<User user={report.reporter.user}></User>
+				<div class="comment">
+					{report.reporter.comment}
+				</div>
 			</div>
 
 			{#if report.status == 'active' && app.user.access.includes('report:resolve')}
@@ -50,7 +68,13 @@
 				</div>
 			{:else if report.resolver}
 				<div class="resolver">
-					<Comment comment={report.resolver}></Comment>
+					<div class="user_date">
+						<User user={report.resolver.user}></User>
+						<Datetime datetime={report.resolver.date_created} type="ago" />
+					</div>
+					<div class="comment">
+						{report.resolver.comment}
+					</div>
 				</div>
 			{/if}
 		</div>
@@ -65,29 +89,39 @@
 		margin-top: 8px;
 	}
 
-	.reported {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		gap: 16px;
-
+	.reported_user,
+	.reported_review {
 		padding: 16px;
 	}
 
-	.reporter {
+	.right {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+	}
+
+	.reporter,
+	.resolver {
 		padding: 16px;
 		border-top: 1px solid var(--ol);
+	}
+
+	.user_date {
+		display: flex;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 16px;
+
+		font-size: 0.7rem;
+	}
+	.comment {
+		margin-top: 8px;
 	}
 
 	.btns {
 		display: flex;
 		gap: 8px;
 
-		padding: 16px;
-		border-top: 1px solid var(--ol);
-	}
-	
-	.resolver {
 		padding: 16px;
 		border-top: 1px solid var(--ol);
 	}

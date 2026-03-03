@@ -5,11 +5,10 @@
 	import { app, module } from '$lib/store.svelte.js';
 	import { cubicInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
-	import Add from './_add.svelte';
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
 
-	let { item, review, update, search } = $props();
+	let { item, review, update, searchParams, children } = $props();
 	let error = $state({});
 
 	let others_like = $state(review.stats.others_like);
@@ -89,12 +88,7 @@
 					<!-- dislike={all_dislike} -->
 				</div>
 
-				{#if app.user.access.includes('review:reply')}
-					<RoundButton
-						icon="reply"
-						onclick={() => module.open(Add, { item, search, update, parent: review })}
-					/>
-				{/if}
+				{@render children?.()}
 			</div>
 
 			<div class="menu_area">
@@ -108,9 +102,9 @@
 
 				{#if open_menu}
 					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-						{#if review.user.key == app.user.key || app.user.access.includes('review:delete_other_review')}
+						{#if review.user.key == app.user.key}
 							{@render button('Delete', 'trash-2', () =>
-								module.open(Delete, { review, update, search })
+								module.open(Delete, { review, update, searchParams })
 							)}
 						{:else}
 							{@render button('Report', 'flag-triangle-right', () => {
@@ -126,8 +120,7 @@
 
 <style>
 	section {
-		padding: 16px;
-		padding-top: 0;
+		margin-top: 16px;
 	}
 
 	.menu_area {

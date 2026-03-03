@@ -59,7 +59,7 @@
 			--select-font-size="0.8rem"
 			icon="list-filter"
 			icon2="chevron-down"
-			label="Entity: {searchParams.type}"
+			label="Type: {searchParams.type}"
 			list={type}
 			bind:value={searchParams.type}
 			onchange={(v) => {
