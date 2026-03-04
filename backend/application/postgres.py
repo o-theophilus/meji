@@ -32,7 +32,8 @@ def create_tables():
         DROP TABLE IF EXISTS block CASCADE;
         DROP TABLE IF EXISTS item CASCADE;
         DROP TABLE IF EXISTS review CASCADE;
-        DROP TABLE IF EXISTS "like" CASCADE;
+        DROP TABLE IF EXISTS item_like CASCADE;
+        DROP TABLE IF EXISTS review_like CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
         DROP TABLE IF EXISTS item_snap CASCADE;
@@ -137,17 +138,19 @@ def create_tables():
             rating INT DEFAULT 0
         );
 
-        CREATE TABLE IF NOT EXISTS "like" (
+        CREATE TABLE IF NOT EXISTS item_like (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS review_like (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             review_key UUID REFERENCES review(key) ON DELETE CASCADE,
-            reaction TEXT NOT NULL,
-            CHECK (
-                (item_key IS NOT NULL AND review_key IS NULL) OR
-                (item_key IS NULL AND review_key IS NOT NULL)
-            )
+            reaction TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS "order" (
@@ -244,7 +247,8 @@ def copy_db():
     copy_table(from_cur, to_cur, "comment")
     copy_table(from_cur, to_cur, "report")
     copy_table(from_cur, to_cur, "block")
-    copy_table(from_cur, to_cur, "like")
+    copy_table(from_cur, to_cur, "item_like")
+    copy_table(from_cur, to_cur, "review_like")
     copy_table(from_cur, to_cur, "code")
     copy_table(from_cur, to_cur, "log")
     copy_table(from_cur, to_cur, "session")

@@ -218,3 +218,9 @@ def get_admins():
         "searchParams": searchParams,
         "access": access,
     })
+
+
+def get_user_like(cur, user_key):
+    cur.execute("""SELECT item_key FROM item_like WHERE user_key = %s;""", (user_key,))
+    likes = cur.fetchall()
+    return [x["item_key"] for x in likes]

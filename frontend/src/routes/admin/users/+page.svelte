@@ -45,7 +45,7 @@
 		}}
 	></Search>
 
-	<div class="line">
+	<div class="line space">
 		<Dropdown
 			--select-height="32px"
 			--select-padding-x="8px"
@@ -61,9 +61,14 @@
 			}}
 		/>
 		<Dropdown
-			--select-height="32px"
-			--select-padding-x="8px"
+			--select-height="1"
+			--select-padding-x="0"
 			--select-font-size="0.8rem"
+			--select-background-color="transparent"
+			--select-background-color-hover="transparent"
+			--select-color="var(--ft2)"
+			--select-color-hover="var(--ft1)"
+			--select-outline-color="transparent"
 			label="Sort: {searchParams.order}"
 			list={order_by}
 			icon="arrow-down-up"

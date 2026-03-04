@@ -77,7 +77,7 @@
 		font-size: var(--button-font-size, 1rem);
 		font-weight: var(--button-font-weight, 700);
 		background-color: var(--button-background-color, hsl(0, 0%, 5%));
-		color: var(--button-color, hsl(0, 0%, 60%));
+		color: var(--button-color, hsl(0, 0%, 70%));
 		outline: 1px solid var(--button-outline-color, light-dark(transparent, hsl(0, 0%, 30%)));
 		outline-offset: -1px;
 		fill: currentColor;

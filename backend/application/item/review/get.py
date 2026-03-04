@@ -83,7 +83,7 @@ def get_many(key, _page_size=24, cur=None):
                 review_key,
                 COUNT(*) FILTER (WHERE reaction = 'like') -
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
-            FROM "like"
+            FROM review_like
             GROUP BY review_key
         ) l ON l.review_key = r.key
 
@@ -118,7 +118,7 @@ def get_many(key, _page_size=24, cur=None):
                 COUNT(*) FILTER (WHERE reaction = 'dislike' AND user_key != %s)
                     AS others_dislike,
                 MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
-            FROM "like"
+            FROM review_like
             WHERE review_key::TEXT = ANY(%s)
             GROUP BY review_key
         """, (user["key"], user["key"], user["key"], review_keys))

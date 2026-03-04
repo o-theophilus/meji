@@ -251,16 +251,25 @@ def like_page():
     page_size = min(page_size, 100)
 
     cur.execute(f"""
+        WITH rating AS (
+            SELECT
+                review.item_key AS key,
+                AVG(review.rating) as rating
+            FROM review
+            WHERE review.parent_key IS NULL
+            GROUP BY review.item_key
+        )
+
         SELECT
             item.*,
+            COALESCE(rating.rating, 0) AS rating,
             COUNT(*) OVER() AS _count
         FROM item
-        LEFT JOIN "like" ON
-            item.key = "like".item_key
+        LEFT JOIN item_like ON item.key = item_like.item_key
+        LEFT JOIN rating ON item.key = rating.key
         WHERE
             item.status = 'active'
-            AND "like".user_key = %s
-            AND "like".reaction = 'like'
+            AND item_like.user_key = %s
             AND (%s = '' OR item.name ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}, item.key DESC
         LIMIT %s OFFSET %s;

@@ -4,41 +4,35 @@ from flask import Blueprint, jsonify
 
 from .postgres import db_close, db_open
 from .tools import access_pass
+from psycopg2.extras import Json
 
 bp = Blueprint("fix", __name__)
 
 
-# @bp.get("/fix")
+@bp.get("/fix")
 def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DROP TABLE IF EXISTS report CASCADE;
-        DROP TABLE IF EXISTS block CASCADE;
+        DROP TABLE IF EXISTS ""like"";
 
-        CREATE TABLE IF NOT EXISTS report (
+        CREATE TABLE IF NOT EXISTS item_like (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            status TEXT NOT NULL DEFAULT 'active',
             date_created TIMESTAMPTZ DEFAULT now(),
-            reporter_key UUID NOT NULL REFERENCES "user"(key),
-            reporter_comment TEXT NOT NULL,
-            tags TEXT[] DEFAULT '{}'::TEXT[],
-            date_resolved TIMESTAMPTZ,
-            resolver_key UUID REFERENCES "user"(key),
-            resolver_comment TEXT,
-            reported_user_key UUID REFERENCES "user"(key) ON DELETE CASCADE,
-            reported_review_key UUID REFERENCES review(key) ON DELETE CASCADE
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS block (
+        CREATE TABLE IF NOT EXISTS review_like (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            admin_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            user_key UUID UNIQUE NOT NULL REFERENCES "user"(key)
-                ON DELETE CASCADE,
-            comment TEXT NOT NULL
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
+            reaction TEXT NOT NULL
         );
     """)
+
+
 
     db_close(con, cur)
     return jsonify({

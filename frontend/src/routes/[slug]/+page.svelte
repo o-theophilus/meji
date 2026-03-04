@@ -84,7 +84,6 @@
 	onMount(async () => refresh(item));
 </script>
 
-<!-- TODO: add google analytics -->
 {#key item.key}
 	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
 {/key}
@@ -128,7 +127,12 @@
 			<Date {item} {edit_mode} {update} />
 			<Name {item} {edit_mode} {update} />
 			<Tags {item} {edit_mode} {update} />
-			<Price {item} {edit_mode} {update} />
+			<Price {item} {edit_mode} {update}>
+				<div class="line">
+					<Like {item} />
+					<Button icon="share-2" onclick={() => module.open(Share, item)}></Button>
+				</div>
+			</Price>
 			<Information {item} {edit_mode} {update} />
 			<Variation {item} {edit_mode} {update} />
 			<Quantity {item} {edit_mode} {update} />
@@ -170,10 +174,6 @@
 		>
 			Chat
 		</Button>
-
-		<Like {item} />
-
-		<Button icon="share-2" onclick={() => module.open(Share, item)}></Button>
 	</div>
 </div>
 

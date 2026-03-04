@@ -42,20 +42,19 @@
 <Button
 	onclick={submit}
 	--button-border-radius={small ? '40%' : ''}
-	--button-width={small ? '32px' : ''}
-	--button-height={small ? '32px' : ''}
+	--button-width={small ? '32px' : '48px'}
+	--button-height={small ? '32px' : '48px'}
 	--button-background-color={small ? 'white' : ''}
 	--button-background-color-hover={small ? 'hsl(0, 0%, 85%)' : ''}
 	--button-outline-color={small ? 'transparent' : ''}
 >
 	<div class="block">
-		<Icon icon="heart" --icon-stroke="none" />
 		{#key like}
-			<div class="count" transition:scale={{ easing: quadInOut }}>
+			<div transition:scale={{ easing: quadInOut }}>
 				<Icon
 					icon="heart"
 					--icon-fill={like ? 'red' : 'none'}
-					--icon-stroke={like ? 'none' : 'var(--ft2)'}
+					--icon-stroke={like ? 'none' : 'hsl(0, 0%, 60%)'}
 				/>
 			</div>
 		{/key}
@@ -71,9 +70,9 @@
 
 	.block {
 		position: relative;
-	}
 
-	.block div {
-		position: absolute;
+		div {
+			position: absolute;
+		}
 	}
 </style>

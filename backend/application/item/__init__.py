@@ -12,6 +12,7 @@ from ..postgres import db_close, db_open
 from ..storage import storage
 from ..tools import get_session, reserved_words
 from .get import get_many, item_schema
+from ..user.get import get_user_like
 
 bp = Blueprint("item", __name__)
 
@@ -320,18 +321,18 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like"
+        SELECT * FROM item_like
         WHERE user_key = %s AND item_key = %s;
     """, (user["key"], item["key"]))
     user_reaction = cur.fetchone()
 
     if not user_reaction:
         cur.execute("""
-            INSERT INTO "like" (user_key, item_key, reaction)
-            VALUES (%s, %s, 'like');
+            INSERT INTO item_like (user_key, item_key)
+            VALUES (%s, %s);
         """, (user["key"], item["key"]))
     else:
-        cur.execute("""DELETE FROM "like" WHERE key = %s;""", (
+        cur.execute("""DELETE FROM item_like WHERE key = %s;""", (
             user_reaction["key"],))
 
     log(
@@ -342,19 +343,10 @@ def like(key):
         entity_type="item"
     )
 
-    cur.execute("""
-        SELECT "like".item_key
-        FROM "like"
-        LEFT JOIN item ON "like".item_key = item.key
-        WHERE
-            "like".user_key = %s
-            AND "like".item_key IS NOT NULL
-            AND item.status = 'active'
-    ;""", (user["key"],))
-    likes = cur.fetchall()
+    likes = get_user_like(cur, user["key"])
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "likes": [x["item_key"] for x in likes]
+        "likes": likes
     })

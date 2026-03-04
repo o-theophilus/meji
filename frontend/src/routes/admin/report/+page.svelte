@@ -52,40 +52,47 @@
 		}}
 	></Search>
 
-	<div class="line">
-		<Dropdown
-			--select-height="32px"
-			--select-padding-x="8px"
-			--select-font-size="0.8rem"
-			icon="list-filter"
-			icon2="chevron-down"
-			label="Type: {searchParams.type}"
-			list={type}
-			bind:value={searchParams.type}
-			onchange={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ type: v == defaultParams.type ? '' : v });
-			}}
-		/>
-		<Dropdown
-			--select-height="32px"
-			--select-padding-x="8px"
-			--select-font-size="0.8rem"
-			icon="list-filter"
-			icon2="chevron-down"
-			label="Status: {searchParams.status}"
-			list={_status}
-			bind:value={searchParams.status}
-			onchange={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ status: v == defaultParams.status ? '' : v });
-			}}
-		/>
+	<div class="line space">
+		<div class="line">
+			<Dropdown
+				--select-height="32px"
+				--select-padding-x="8px"
+				--select-font-size="0.8rem"
+				icon="list-filter"
+				icon2="chevron-down"
+				label="Type: {searchParams.type}"
+				list={type}
+				bind:value={searchParams.type}
+				onchange={(v) => {
+					searchParams.page_no = 1;
+					page_state.set({ type: v == defaultParams.type ? '' : v });
+				}}
+			/>
+			<Dropdown
+				--select-height="32px"
+				--select-padding-x="8px"
+				--select-font-size="0.8rem"
+				icon="list-filter"
+				icon2="chevron-down"
+				label="Status: {searchParams.status}"
+				list={_status}
+				bind:value={searchParams.status}
+				onchange={(v) => {
+					searchParams.page_no = 1;
+					page_state.set({ status: v == defaultParams.status ? '' : v });
+				}}
+			/>
+		</div>
 
 		<Dropdown
-			--select-height="32px"
-			--select-padding-x="8px"
+			--select-height="1"
+			--select-padding-x="0"
 			--select-font-size="0.8rem"
+			--select-background-color="transparent"
+			--select-background-color-hover="transparent"
+			--select-color="var(--ft2)"
+			--select-color-hover="var(--ft1)"
+			--select-outline-color="transparent"
 			label="Sort: {searchParams.order}"
 			icon="arrow-down-up"
 			icon2="chevron-down"

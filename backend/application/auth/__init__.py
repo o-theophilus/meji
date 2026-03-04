@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..cart.get import get_cart_items
 from ..item.get import get_tags
+from ..user.get import get_user_like
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
@@ -41,23 +42,21 @@ def create_session(cur, user_key, login=False, remember=False):
 
 def copy_like_n_cart(cur, in_key, out_key):
     cur.execute("""
-        SELECT * FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL;
+        SELECT key FROM item_like WHERE user_key = %s;
     """, (in_key,))
     in_likes = cur.fetchall()
     in_likes = [x["item_key"] for x in in_likes]
 
     cur.execute("""
-        SELECT * FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL;
+        SELECT key FROM item_like WHERE user_key = %s;
     """, (out_key,))
     out_likes = cur.fetchall()
     out_likes = [x["item_key"] for x in out_likes if x not in in_likes]
 
     for _in in out_likes:
         cur.execute("""
-            INSERT INTO "like" (user_key, item_key, reaction)
-            VALUES (%s, %s, 'like');
+            INSERT INTO item_like (user_key, item_key)
+            VALUES (%s, %s);
         """, (in_key, _in))
 
     cur.execute("""
@@ -105,20 +104,6 @@ def copy_like_n_cart(cur, in_key, out_key):
             cur.execute("""
                 UPDATE order_item SET order_key = %s WHERE key = %s
             ;""", (in_cart["key"], _out["key"]))
-
-
-def user_like(cur, user_key):
-    cur.execute("""
-        SELECT "like".item_key
-        FROM "like"
-        LEFT JOIN item ON "like".item_key = item.key
-        WHERE
-            "like".user_key = %s
-            AND "like".item_key IS NOT NULL
-            AND item.status = 'active'
-    ;""", (user_key,))
-    likes = cur.fetchall()
-    return [x["item_key"] for x in likes]
 
 
 @bp.get("/admin/default")
@@ -197,7 +182,7 @@ def init():
             entity_type="account",
         )
 
-    likes = user_like(cur, user["key"])
+    likes = get_user_like(cur, user["key"])
     tags = get_tags(cur).json["tags"]
 
     db_close(con, cur)

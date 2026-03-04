@@ -131,10 +131,7 @@ def delete(key):
             "error": "Invalid request"
         })
 
-    if (
-        review["user_key"] != user["key"]
-        and "review:delete_other_review" not in user["access"]
-    ):
+    if review["user_key"] != user["key"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -185,7 +182,7 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like"
+        SELECT * FROM review_like
         WHERE user_key = %s AND review_key = %s;
     """, (user["key"], review["key"]))
     user_reaction = cur.fetchone()
@@ -193,16 +190,16 @@ def like(key):
     un = ""
     if not user_reaction:
         cur.execute("""
-            INSERT INTO "like" (user_key, review_key, reaction)
+            INSERT INTO review_like (user_key, review_key, reaction)
             VALUES (%s, %s, %s);
         """, (user["key"], review["key"], reaction))
     elif user_reaction["reaction"] == reaction:
         un = "un"
-        cur.execute("""DELETE FROM "like" WHERE key = %s;""",
+        cur.execute("""DELETE FROM review_like WHERE key = %s;""",
                     (user_reaction["key"],))
     else:
         cur.execute("""
-            UPDATE "like"
+            UPDATE review_like
             SET date_created = %s, reaction = %s WHERE key = %s;
         """, (datetime.now(timezone.utc), reaction, user_reaction["key"]))
 
@@ -222,7 +219,7 @@ def like(key):
             COUNT(CASE WHEN user_key != %s
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
-        FROM "like"
+        FROM review_like
         WHERE review_key = %s
     """, (user["key"], user["key"], user["key"], review["key"]))
     reactions = cur.fetchone()

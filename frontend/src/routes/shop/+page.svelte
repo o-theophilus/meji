@@ -57,47 +57,51 @@
 		{/if}
 	</div>
 
-	<div class="line nowrap">
-		<Search
-			bind:value={searchParams.search}
-			ondone={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ search: v });
-			}}
-		></Search>
+	<Search
+		bind:value={searchParams.search}
+		ondone={(v) => {
+			searchParams.page_no = 1;
+			page_state.set({ search: v });
+		}}
+	></Search>
 
-		<Tags
-			bind:this={tags}
-			bind:value={searchParams.tag}
-			ondone={(v) => {
-				searchParams.page_no = 1;
-				page_state.set({ tag: v });
-			}}
-		/>
-	</div>
-
-	<div class="line">
-		{#if app.user.access.includes('item:add')}
-			<Dropdown
-				--select-height="32px"
-				--select-padding-x="8px"
-				--select-font-size="0.8rem"
-				label="Filter: {searchParams.status}"
-				list={_status}
-				icon="list-filter"
-				icon2="chevron-down"
-				bind:value={searchParams.status}
-				onchange={(v) => {
+	<div class="line space">
+		<div class="line">
+			{#if app.user.access.includes('item:add')}
+				<Dropdown
+					--select-height="32px"
+					--select-padding-x="8px"
+					--select-font-size="0.8rem"
+					label="Status: {searchParams.status}"
+					list={_status}
+					icon="list-filter"
+					icon2="chevron-down"
+					bind:value={searchParams.status}
+					onchange={(v) => {
+						searchParams.page_no = 1;
+						page_state.set({ status: v == defaultParams.status ? '' : v });
+					}}
+				/>
+			{/if}
+			<Tags
+				bind:this={tags}
+				bind:value={searchParams.tag}
+				ondone={(v) => {
 					searchParams.page_no = 1;
-					page_state.set({ status: v == defaultParams.status ? '' : v });
+					page_state.set({ tag: v });
 				}}
 			/>
-		{/if}
+		</div>
 
 		<Dropdown
-			--select-height="32px"
-			--select-padding-x="8px"
+			--select-height="1"
+			--select-padding-x="0"
 			--select-font-size="0.8rem"
+			--select-background-color="transparent"
+			--select-background-color-hover="transparent"
+			--select-color="var(--ft2)"
+			--select-color-hover="var(--ft1)"
+			--select-outline-color="transparent"
 			label="Sort: {searchParams.order}"
 			list={order_by}
 			icon="arrow-down-up"
@@ -158,7 +162,7 @@
 
 		margin: 16px 0;
 	}
-	
+
 	@media screen and (min-width: 580px) {
 		.items {
 			gap: 24px;
