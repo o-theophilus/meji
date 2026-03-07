@@ -14,10 +14,6 @@ def item_schema(x):
 
 
 def get_tags(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
     cur.execute("SELECT tags FROM item WHERE status = 'active';")
     temp = cur.fetchall()
 
@@ -36,13 +32,7 @@ def get_tags(cur=None):
             })
 
     tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
-
-    if close_conn:
-        db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "tags": [x["tag"] for x in tags_count]
-    })
+    return [x["tag"] for x in tags_count]
 
 
 @bp.get("/item/<key>")

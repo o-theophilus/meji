@@ -173,7 +173,7 @@ def init():
         )
 
     likes = get_user_like(cur, user["key"])
-    tags = get_tags(cur).json["tags"]
+    tags = get_tags(cur)
 
     db_close(con, cur)
     return jsonify({
