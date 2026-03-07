@@ -88,7 +88,8 @@ def get_many(cur=None):
                 'user', jsonb_build_object(
                     'name', ru.name,
                     'username', ru.username,
-                    'photo', ru.photo
+                    'photo', ru.photo,
+                    'blocked', block.user_key IS NOT NULL
                 )
             ) AS reported_user,
 
@@ -106,6 +107,7 @@ def get_many(cur=None):
         LEFT JOIN "user" reporter ON report.reporter_key = reporter.key
         LEFT JOIN "user" resolver ON report.resolver_key = resolver.key
         LEFT JOIN "user" ru ON report.reported_user_key = ru.key
+        LEFT JOIN block ON ru.key = block.user_key
         LEFT JOIN review rr ON report.reported_review_key = rr.key
         LEFT JOIN "user" rr_user ON rr.user_key = rr_user.key
 

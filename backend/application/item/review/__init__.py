@@ -135,16 +135,8 @@ def delete(key):
 
     misc = {"item_key": review["item_key"]}
 
-    is_review = review["parent_key"] is None
     if review["user_key"] != user["key"]:
-        if is_review and "review:delete_other_review" not in user["access"]:
-            db_close(con, cur)
-            return jsonify({
-                "status": 403,
-                "error": "unauthorized access"
-            })
-
-        if not is_review and "review:delete_other_reply" not in user["access"]:
+        if "review:delete_others" not in user["access"]:
             db_close(con, cur)
             return jsonify({
                 "status": 403,
@@ -170,7 +162,7 @@ def delete(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted item review",
+        action="deleted review",
         entity_key=review["key"],
         entity_type="review",
         misc=misc

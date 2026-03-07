@@ -56,8 +56,7 @@ access_pass = {
         ['email_order_delivered', 3]
     ],
     "review": [
-        ['delete_other_review', 3],  # TODO: rethink this flow
-        ['delete_other_reply', 3],  # TODO: rethink this flow
+        ['delete_others', 3],
         ['reply', 3]
     ],
     "report": [
@@ -66,7 +65,6 @@ access_pass = {
     ],
     "block": [
         ['view', 1],
-        ['block', 3],
         ['unblock', 3]
     ],
     "log": [

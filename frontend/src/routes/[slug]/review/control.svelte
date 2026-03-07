@@ -102,7 +102,7 @@
 
 				{#if open_menu}
 					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-						{#if review.user.key == app.user.key || app.user.access.includes('review:delete_other_review')}
+						{#if review.user.key == app.user.key || app.user.access.includes('review:delete_others')}
 							{@render button('Delete', 'trash-2', () =>
 								module.open(Delete, { review, update, searchParams })
 							)}

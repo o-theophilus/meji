@@ -39,7 +39,7 @@ def resolve(key):
         })
 
     comment = request.json.get("comment", "").strip()
-    delete_comment = request.json.get("delete_comment", False)
+    handle = request.json.get("handle", False)
 
     error = {}
     if not comment:
@@ -73,20 +73,49 @@ def resolve(key):
         }
     )
 
-    if report["reported_review_key"] and delete_comment:
-        cur.execute(
-            "DELETE FROM comment WHERE key = %s RETURNING *;",
-            (report["reported_review_key"],))
-        comment = cur.fetchone()
+    if handle:
+        if (
+            report["reported_user_key"]
+            and "user:block" not in user["access"]
+        ):
+            cur.execute("""
+                INSERT INTO block (admin_key, user_key, comment)
+                VALUES (%s, %s, %s);
+            """, (user["key"], report["reported_user_key"], comment))
 
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="deleted comment",
-            entity_key=comment["key"],
-            entity_type="comment",
-            misc={"post_key": comment["post_key"]}
-        )
+            cur.execute("""
+                DELETE FROM session WHERE user_key = %s;
+            """, (user["key"],))
+
+            log(
+                cur=cur,
+                user_key=user["key"],
+                action="blocked",
+                entity_key=report["reported_user_key"],
+                entity_type="user",
+                misc={"comment":  comment}
+            )
+
+        elif (
+            report["reported_review_key"]
+            and "review:delete_others" in user["access"]
+        ):
+            cur.execute(
+                "DELETE FROM review WHERE key = %s RETURNING *;",
+                (report["reported_review_key"],))
+            review = cur.fetchone()
+
+            log(
+                cur=cur,
+                user_key=user["key"],
+                action="deleted review",
+                entity_key=review["key"],
+                entity_type="review",
+                misc={
+                    "item_key": review["item_key"],
+                    "comment": comment
+                }
+            )
 
     reports = get_many(cur)
     db_close(con, cur)

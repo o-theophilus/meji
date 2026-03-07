@@ -34,7 +34,7 @@
 <Content --content-background-color="var(--bg)">
 	<div class="line">
 		<div class="page_title">Profile</div>
-		{#if app.login && user.status == 'active' && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'block:block', 'block:unblock'].includes(x) ))}
+		{#if app.login && user.status == 'active' && (user.key == app.user.key || app.user.access.some( (x) => ['user:set_access', 'user:reset_name', 'user:reset_username', 'user:reset_photo', 'user:block'].includes(x) ))}
 			<Switch
 				--toggle-height="21px"
 				--toggle-font-size="0.8rem"

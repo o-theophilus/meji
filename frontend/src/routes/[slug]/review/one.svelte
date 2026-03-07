@@ -31,7 +31,7 @@
 	{#each review.replies as reply}
 		<div class="reply">
 			<Details review={reply} is_admin></Details>
-			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review:delete_other_reply'))}
+			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review:delete_others'))}
 				<div class="control">
 					<RoundButton
 						icon="trash-2"
