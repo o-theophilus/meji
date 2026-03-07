@@ -46,7 +46,12 @@
 		</div>
 
 		{#if app.user.access.includes('coupon:add')}
-			<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>Add</Button>
+			<Button
+				--button-height="32px"
+				--button-font-size="0.8rem"
+				icon="plus"
+				onclick={() => module.open(Add, { update })}>Add</Button
+			>
 		{/if}
 	</div>
 

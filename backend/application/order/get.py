@@ -39,7 +39,7 @@ def get(key):
     ):
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

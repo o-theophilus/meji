@@ -26,7 +26,7 @@ def add():
     if "coupon:add" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -109,7 +109,7 @@ def delete(key):
 
     error = {}
 
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
     if not comment:
         error["note"] = "This field is required"
     elif len(comment) > 500:
@@ -154,7 +154,7 @@ def set_validity(key):
     if "coupon:edit_validity" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -254,7 +254,7 @@ def clear_validity(key):
     if "coupon:edit_validity" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

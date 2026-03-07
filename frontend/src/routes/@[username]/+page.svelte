@@ -144,11 +144,11 @@
 		</div>
 	{/if}
 
-	{#if user.key != app.user.key}
+	{#if app.login && user.key != app.user.key}
 		<div class="center">
 			<br />
 			<Button
-				icon="lock-keyhole"
+				icon="flag-triangle-right"
 				--button-font-size="0.8rem"
 				disabled={user.blocked}
 				onclick={() => module.open(Report, { user })}

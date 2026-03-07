@@ -175,10 +175,16 @@ def get_many(key, _page_size=24, cur=None):
         })
 
     cur.execute("""
-        SELECT rating, COUNT(*) AS count FROM review
-        WHERE item_key = %s AND parent_key IS NULL
-        GROUP BY rating
-        ORDER BY rating DESC
+        SELECT
+            r.rating,
+            COUNT(review.rating) AS count
+        FROM generate_series(1, 5) AS r(rating)
+        LEFT JOIN review
+            ON review.rating = r.rating
+            AND review.item_key = %s
+            AND review.parent_key IS NULL
+        GROUP BY r.rating
+        ORDER BY r.rating DESC
     """, (item["key"],))
     ratings = cur.fetchall()
 

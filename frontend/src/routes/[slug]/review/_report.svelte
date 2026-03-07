@@ -4,13 +4,8 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 	import { tags, template } from './_report.template.js';
-	import Details from './details.svelte';
-
-	let review = { ...module.value.review };
 
 	let form = $state({
-		entity_key: review.key,
-		entity_type: 'review',
 		comment: '',
 		tags: []
 	});
@@ -31,14 +26,17 @@
 	const submit = async () => {
 		loading.open('Sending Report . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/report`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: app.token
-			},
-			body: JSON.stringify(form)
-		});
+		let resp = await fetch(
+			`${import.meta.env.VITE_BACKEND}/report/review/${module.value.review.key}`,
+			{
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: app.token
+				},
+				body: JSON.stringify(form)
+			}
+		);
 		resp = await resp.json();
 		loading.close();
 
@@ -52,11 +50,7 @@
 	};
 </script>
 
-<Form title="Report" error={error.error}>
-	<div class="review">
-		<Details {review}></Details>
-	</div>
-
+<Form title="Report Review" error={error.error}>
 	<IG
 		bind:value={form.comment}
 		error={error.comment}
@@ -117,12 +111,5 @@
 		margin-top: 8px;
 		margin-bottom: 16px;
 		gap: 4px;
-	}
-
-	.review {
-		padding: 16px;
-		border-radius: 8px;
-		outline: 1px solid var(--one-outline-color, var(--ol));
-		outline-offset: -1px;
 	}
 </style>

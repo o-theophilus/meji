@@ -2,6 +2,7 @@
 	import { RoundButton } from '$lib/button';
 	import { app, module } from '$lib/store.svelte.js';
 	import Add from './_add.svelte';
+	import Delete from './_delete.svelte';
 	import Control from './control.svelte';
 	import Details from './details.svelte';
 
@@ -69,8 +70,6 @@
 			.control {
 				display: flex;
 				justify-content: flex-end;
-				padding: 16px;
-				padding-top: 0;
 
 				--button-color_: white;
 				--button-background-color-hover: red;

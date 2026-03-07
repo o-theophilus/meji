@@ -27,7 +27,7 @@
 			name: 'Reports',
 			href: '/admin/report',
 			access: 'report:view',
-			icon: 'bar-chart-3'
+			icon: 'flag-triangle-right'
 		},
 		{
 			name: 'Blocked Users',
@@ -139,7 +139,7 @@
 <style>
 	.nav {
 		position: sticky;
-		top:0;
+		top: 0;
 		bottom: var(--headerHeight2);
 
 		padding: 8px;
@@ -159,61 +159,59 @@
 
 		position: relative;
 
-		
 		&::before {
 			content: '';
 			position-anchor: --active;
-			
+
 			position: absolute;
 			top: anchor(top);
 			right: anchor(right);
 			bottom: anchor(bottom);
 			width: 4px;
-			
+
 			background-color: var(--cl1);
 			border-radius: var(--toggle-border-radius, 4px);
-			
+
 			transition:
-			top 0.2s ease-in-out,
-			bottom 0.2s ease-in-out;
+				top 0.2s ease-in-out,
+				bottom 0.2s ease-in-out;
 		}
-		
+
 		&.small {
 			& a,
 			& button {
 				padding: 0;
 				width: 40px;
-				
+
 				& .name {
 					display: none;
 				}
 			}
 		}
-		
+
 		& button {
 			all: unset;
 			cursor: pointer;
 			box-sizing: border-box;
 		}
-		
+
 		& a,
 		& button {
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 16px;
-			
+
 			height: 40px;
 			padding: 0 16px;
 			border-radius: 8px;
 			width: 180px;
-			
+
 			color: var(--ft2);
 			fill: currentColor;
 			text-decoration: none;
 			font-size: 0.8rem;
-			
-			
+
 			& .name {
 				display: flex;
 				align-items: center;

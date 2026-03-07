@@ -20,12 +20,12 @@ def block(key):
         return jsonify(session)
     me = session["user"]
 
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
 
     if "block:block" not in me["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -103,12 +103,12 @@ def unblock(key):
         return jsonify(session)
     me = session["user"]
 
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
 
     if "block:unblock" not in me["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

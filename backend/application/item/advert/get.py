@@ -31,7 +31,7 @@ def get(key):
     if "item:advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

@@ -36,7 +36,7 @@ def create(key):
         if "review:reply" not in user["access"]:
             db_close(con, cur)
             return jsonify({
-                "status": 400,
+                "status": 403,
                 "error": "unauthorized access"
             })
 
@@ -76,7 +76,7 @@ def create(key):
         })
 
     rating = request.json.get("rating", 0)
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
     error = {}
     if rating not in [1, 2, 3, 4, 5]:
         error["rating"] = "This field is required"
@@ -131,20 +131,41 @@ def delete(key):
             "error": "Invalid request"
         })
 
-    if review["user_key"] != user["key"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "unauthorized access"
-        })
-    elif review["user_key"] != user["key"]:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "Invalid request"
-        })
+    comment = request.json.get("comment", "").strip()
 
-    cur.execute("""DELETE FROM review WHERE key = %s;""", (review["key"],))
+    misc = {"item_key": review["item_key"]}
+
+    is_review = review["parent_key"] is None
+    if review["user_key"] != user["key"]:
+        if is_review and "review:delete_other_review" not in user["access"]:
+            db_close(con, cur)
+            return jsonify({
+                "status": 403,
+                "error": "unauthorized access"
+            })
+
+        if not is_review and "review:delete_other_reply" not in user["access"]:
+            db_close(con, cur)
+            return jsonify({
+                "status": 403,
+                "error": "unauthorized access"
+            })
+
+        error = {}
+        if not comment:
+            error["comment"] = "This field is required"
+        elif len(comment) > 500:
+            error["comment"] = "This field cannot exceed 500 characters"
+        if error:
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                **error
+            })
+
+        misc["comment"] = comment
+
+    cur.execute("DELETE FROM review WHERE key = %s;", (review["key"],))
 
     log(
         cur=cur,
@@ -152,7 +173,7 @@ def delete(key):
         action="deleted item review",
         entity_key=review["key"],
         entity_type="review",
-        misc={"item_key": review["item_key"]}
+        misc=misc
     )
 
     reviews = get_many(review["item_key"], cur=cur)
@@ -228,4 +249,66 @@ def like(key):
     return jsonify({
         "status": 200,
         **reactions
+    })
+
+
+@bp.post("/report/review/<key>")
+def report(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    comment = request.json.get("comment", "").strip()
+    tags = request.json.get("tags")
+
+    if type(tags) is not list:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    cur.execute("""SELECT * FROM review WHERE key = %s;""", (key,))
+    reported_review = cur.fetchone()
+    if not reported_review:
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    cur.execute("""
+        INSERT INTO report (reporter_key, reported_review_key,
+            reporter_comment, tags)
+        VALUES (%s, %s, %s, %s) RETURNING *;
+    """, (user["key"], reported_review["key"], comment, tags))
+    report = cur.fetchone()
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="reported review",
+        entity_key=report["key"],
+        entity_type="report",
+        misc={"key": reported_review["key"]}
+    )
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200
     })

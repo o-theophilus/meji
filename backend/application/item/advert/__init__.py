@@ -23,7 +23,7 @@ def add_photo(key):
     if "item:advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -130,7 +130,7 @@ def set_photo(key):
     if "item:advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

@@ -7,12 +7,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..cart.get import get_cart_items
 from ..item.get import get_tags
-from ..user.get import get_user_like
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
 from ..tools import (access_pass, check_code, generate_code, get_session,
                      reserved_words, send_mail, user_schema)
+from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
 
@@ -40,70 +40,60 @@ def create_session(cur, user_key, login=False, remember=False):
     return cur.fetchone()["key"]
 
 
-def copy_like_n_cart(cur, in_key, out_key):
+def copy_like_n_cart(cur, user_key, anon_key):
     cur.execute("""
-        SELECT key FROM item_like WHERE user_key = %s;
-    """, (in_key,))
-    in_likes = cur.fetchall()
-    in_likes = [x["item_key"] for x in in_likes]
-
+        INSERT INTO item_like (user_key, item_key)
+        SELECT %s, item_key
+        FROM item_like
+        WHERE user_key = %s
+        ON CONFLICT DO NOTHING;
+    """, (user_key, anon_key))
     cur.execute("""
-        SELECT key FROM item_like WHERE user_key = %s;
-    """, (out_key,))
-    out_likes = cur.fetchall()
-    out_likes = [x["item_key"] for x in out_likes if x not in in_likes]
-
-    for _in in out_likes:
-        cur.execute("""
-            INSERT INTO item_like (user_key, item_key)
-            VALUES (%s, %s);
-        """, (in_key, _in))
+        DELETE FROM item_like
+        WHERE user_key = %s;
+    """, (anon_key,))
 
     cur.execute("""
         SELECT * FROM "order"
         WHERE user_key = %s AND status = 'cart';
-    """, (in_key,))
+    """, (user_key,))
     in_cart = cur.fetchone()
     if not in_cart:
         cur.execute("""
             INSERT INTO "order" (user_key) VALUES (%s) RETURNING *
-        ;""", (in_key,))
+        ;""", (user_key,))
         in_cart = cur.fetchone()
 
     cur.execute("""
-        SELECT order_item.*
-        FROM order_item
-        LEFT JOIN "order" ON "order".key = order_item.order_key
-        WHERE "order".user_key = %s AND "order".status = 'cart';
-    """, (in_key,))
-    in_item = cur.fetchall()
-
+        UPDATE order_item u
+        SET quantity = a.quantity
+        FROM order_item a
+        JOIN "order" ao ON ao.key = a.order_key
+        WHERE ao.user_key = %s
+        AND ao.status = 'cart'
+        AND u.order_key = %s
+        AND u.item_key = a.item_key
+        AND u.variation = a.variation
+    """, (anon_key, in_cart["key"]))
     cur.execute("""
-        SELECT order_item.*
-        FROM order_item
-        LEFT JOIN "order" ON "order".key = order_item.order_key
-        WHERE "order".user_key = %s AND "order".status = 'cart';
-    """, (out_key,))
-    out_item = cur.fetchall()
-
-    for _out in out_item:
-        exist = False
-        for _in in in_item:
-            if (
-                _out["item_key"] == _in["item_key"]
-                and _out["variation"] == _in["variation"]
-            ):
-                exist = _in["key"]
-                break
-
-        if exist:
-            cur.execute("""
-                UPDATE order_item SET quantity = %s WHERE key = %s
-            ;""", (_out["quantity"], exist))
-        else:
-            cur.execute("""
-                UPDATE order_item SET order_key = %s WHERE key = %s
-            ;""", (in_cart["key"], _out["key"]))
+        UPDATE order_item a
+        SET order_key = %s
+        FROM "order" ao
+        WHERE ao.key = a.order_key
+        AND ao.user_key = %s
+        AND ao.status = 'cart'
+        AND NOT EXISTS (
+            SELECT 1
+            FROM order_item u
+            WHERE u.order_key = %s
+            AND u.item_key = a.item_key
+            AND u.variation = a.variation
+        )
+    """, (in_cart["key"], anon_key, in_cart["key"]))
+    cur.execute("""
+        DELETE FROM "order"
+        WHERE user_key = %s AND status = 'cart'
+    """, (anon_key,))
 
 
 @bp.get("/admin/default")
@@ -283,9 +273,7 @@ def signup():
         WHERE key = %s
         RETURNING *;
     """, (
-        name,
-        username,
-        email,
+        name, username, email,
         generate_password_hash(password, method="scrypt"),
         user["key"]
     ))
@@ -373,7 +361,7 @@ def login():
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
-    out_user = session["user"]
+    anon_user = session["user"]
 
     email_template = request.json.get("email_template")
     if session["login"] or not email_template:
@@ -399,19 +387,19 @@ def login():
             **error
         })
 
-    in_user = None
-    if out_user["email"] == email:
-        in_user = out_user
+    user = None
+    if anon_user["email"] == email or anon_user["username"] == email:
+        user = anon_user
     else:
         cur.execute("""
             SELECT * FROM "user" WHERE email = %s OR username = %s;
         """, (email, email))
-        in_user = cur.fetchone()
+        user = cur.fetchone()
 
     if (
-        not in_user
-        or in_user["status"] not in ['signedup', 'active']
-        or not check_password_hash(in_user["password"], password)
+        not user
+        or user["status"] not in ['signedup', 'active']
+        or not check_password_hash(user["password"], password)
     ):
         db_close(con, cur)
         return jsonify({
@@ -419,7 +407,7 @@ def login():
             "error": "your email or password is incorrect"
         })
 
-    cur.execute("SELECT * FROM block WHERE user_key = %s;", (in_user["key"],))
+    cur.execute("SELECT * FROM block WHERE user_key = %s;", (user["key"],))
     if cur.fetchone():
         db_close(con, cur)
         return jsonify({
@@ -427,15 +415,15 @@ def login():
             "error": "account blocked"
         })
 
-    if in_user["status"] == "signedup":
+    if user["status"] == "signedup":
         send_mail(
-            in_user["email"],
+            user["email"],
             "Welcome to my portfolio website! \
             Complete your signup with this Code",
             email_template.format(
-                name=in_user["name"],
+                name=user["name"],
                 code=generate_code(
-                    cur, in_user["key"], in_user["email"], "login")
+                    cur, user["key"], user["email"], "login")
             )
         )
         db_close(con, cur)
@@ -446,35 +434,35 @@ def login():
 
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
-    """, (out_user["key"],))
+    """, (anon_user["key"],))
 
-    if out_user["status"] == "anonymous":
-        copy_like_n_cart(cur, in_user["key"], out_user["key"])
+    if anon_user["status"] == "anonymous":
+        copy_like_n_cart(cur, user["key"], anon_user["key"])
         cur.execute("""DELETE FROM "user" WHERE key = %s;""",
-                    (out_user["key"],))
+                    (anon_user["key"],))
 
-    token = create_session(cur, in_user["key"], True, remember)
+    token = create_session(cur, user["key"], True, remember)
 
     log(
         cur=cur,
-        user_key=in_user["key"],
+        user_key=user["key"],
         action="logged in",
         entity_key="auth",
         entity_type="account",
         misc={
-            "from": out_user["key"],
-            "name": out_user["name"]
+            "from": anon_user["key"],
+            "name": anon_user["name"]
         }
     )
     log(
         cur=cur,
-        user_key=out_user["key"],
+        user_key=anon_user["key"],
         action="logged out",
         entity_key="auth",
         entity_type="account",
         misc={
-            "to": in_user["key"],
-            "name": in_user["name"]
+            "to": user["key"],
+            "name": user["name"]
         }
     )
 

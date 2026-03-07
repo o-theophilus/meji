@@ -51,8 +51,13 @@
 		<div class="page_title">Shop</div>
 
 		{#if app.user.access.includes('item:add')}
-			<Button icon="plus" extra="outline" onclick={() => module.open(Add, { update })}>
-				Add New Item
+			<Button
+				--button-height="32px"
+				--button-font-size="0.8rem"
+				icon="plus"
+				onclick={() => module.open(Add, { update })}
+			>
+				Add Item
 			</Button>
 		{/if}
 	</div>

@@ -73,7 +73,7 @@ def perform_action(key):
     if error:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": error
         })
 
@@ -121,7 +121,7 @@ def set_access(key):
     if "user:set_access" not in me["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

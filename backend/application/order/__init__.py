@@ -359,7 +359,7 @@ def delivery_date(key):
     if "order:edit_delivery_date" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -442,7 +442,7 @@ def cancel(key):
     if "order:cancel" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -456,7 +456,7 @@ def cancel(key):
     """)
     admins = cur.fetchall()
 
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
@@ -537,7 +537,7 @@ def status(key):
     if "order:edit_status" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -561,7 +561,7 @@ def status(key):
     admins = cur.fetchall()
 
     status = request.json.get("status")
-    comment = request.json.get("comment")
+    comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 

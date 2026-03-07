@@ -64,7 +64,7 @@ def get_many():
     if "user:view" not in session["user"]["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -143,7 +143,7 @@ def get_admins():
     if "user:set_access" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -221,6 +221,7 @@ def get_admins():
 
 
 def get_user_like(cur, user_key):
-    cur.execute("""SELECT item_key FROM item_like WHERE user_key = %s;""", (user_key,))
+    cur.execute(
+        """SELECT item_key FROM item_like WHERE user_key = %s;""", (user_key,))
     likes = cur.fetchall()
     return [x["item_key"] for x in likes]

@@ -94,7 +94,7 @@ def create_tables():
             resolver_key UUID REFERENCES "user"(key),
             resolver_comment TEXT,
             reported_user_key UUID REFERENCES "user"(key) ON DELETE CASCADE,
-            reported_comment_key UUID REFERENCES comment(key) ON DELETE CASCADE
+            reported_review_key UUID REFERENCES review(key) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS block (
@@ -142,14 +142,16 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            item_key UUID REFERENCES item(key) ON DELETE CASCADE
+            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
+            UNIQUE (user_key, item_key)
         );
 
         CREATE TABLE IF NOT EXISTS review_like (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            review_key UUID REFERENCES review(key) ON DELETE CASCADE,
+            review_key UUID NOT NULL REFERENCES review(key) ON DELETE CASCADE,
+            UNIQUE (user_key, review_key),
             reaction TEXT NOT NULL
         );
 
@@ -173,7 +175,8 @@ def create_tables():
             item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
-            price DECIMAL DEFAULT 0
+            price DECIMAL DEFAULT 0,
+            UNIQUE (order_key, item_key, variation)
         );
 
         CREATE TABLE IF NOT EXISTS item_snap (
@@ -191,19 +194,20 @@ def create_tables():
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
 
-            item_key UUID NOT NULL REFERENCES item(key) ON DELETE NO ACTION,
+            item_key UUID NOT NULL REFERENCES item(key) ON DELETE SET NULL,
             order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS coupon (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            order_key UUID REFERENCES "order"(key) ON DELETE NO ACTION,
+            order_key UUID REFERENCES "order"(key) ON DELETE SET NULL,
             status TEXT NOT NULL DEFAULT 'inactive',
             valid_from TIMESTAMPTZ,
             valid_until TIMESTAMPTZ,
             code TEXT UNIQUE NOT NULL,
-            benefit JSONB DEFAULT '{}'::JSONB
+            benefit JSONB DEFAULT '{}'::JSONB,
+            UNIQUE (order_key)
         );
     """)
 

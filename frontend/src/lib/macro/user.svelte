@@ -1,6 +1,6 @@
 <script>
 	import { Avatar } from '$lib/macro';
-	let { user } = $props();
+	let { user, children } = $props();
 </script>
 
 <div class="comp">
@@ -11,9 +11,7 @@
 	<div class="name_username">
 		<a href="/@{user.username}" class="name">{user.name}</a>
 		<br />
-		<a href="/@{user.username}" class="username">
-			@{user.username}
-		</a>
+		{@render children?.()}
 	</div>
 </div>
 

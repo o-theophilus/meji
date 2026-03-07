@@ -102,11 +102,13 @@
 
 				{#if open_menu}
 					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-						{#if review.user.key == app.user.key}
+						{#if review.user.key == app.user.key || app.user.access.includes('review:delete_other_review')}
 							{@render button('Delete', 'trash-2', () =>
 								module.open(Delete, { review, update, searchParams })
 							)}
-						{:else}
+						{/if}
+
+						{#if review.user.key != app.user.key}
 							{@render button('Report', 'flag-triangle-right', () => {
 								module.open(Report, { review });
 							})}

@@ -67,7 +67,7 @@ def get(key):
     if "coupon:view" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -95,7 +95,7 @@ def get_many(cur=None):
         if close_conn:
             db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

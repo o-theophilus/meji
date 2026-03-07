@@ -1,18 +1,34 @@
 <script>
 	import { Button } from '$lib/button';
 	import { Note } from '$lib/info';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
-	import One from './details.svelte';
 
-	let review = { ...module.value.review };
+	let form = $state({
+		comment: ''
+	});
 	let error = $state({});
+
+	const validate = () => {
+		error = {};
+
+		if (app.user.key != module.value.review.user.key) {
+			if (!form.comment) {
+				error.comment = 'This field is required';
+			} else if (form.comment.length > 500) {
+				error.comment = 'This field cannot exceed 500 characters';
+			}
+		}
+
+		Object.keys(error).length === 0 && submit();
+	};
 
 	const submit = async () => {
 		error = {};
 		loading.open(`Deleting comment . . .`);
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/review/${review.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/review/${module.value.review.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{
@@ -20,7 +36,8 @@
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: app.token
-				}
+				},
+				body: JSON.stringify(form)
 			}
 		);
 		loading.close();
@@ -42,13 +59,19 @@
 	};
 </script>
 
-<Form title="Delete Comment" error={error.error}>
-	<div class="details">
-		<One {review}></One>
-	</div>
-
-	<Note --note-margin-top="16px" status="400" note="Are you sure you want to delete this comment"
+<Form title="Delete Review" error={error.error}>
+	<Note --note-margin-top="16px" status="400" note="Are you sure you want to delete this review"
 	></Note>
+
+	{#if module.value.review.user.key != app.user.key}
+		<IG
+			name="Comment ({500 - form.comment.length})"
+			error={error.comment}
+			type="textarea"
+			placeholder="Reason for deleting review"
+			bind:value={form.comment}
+		></IG>
+	{/if}
 
 	<div class="line">
 		<Button icon="x" onclick={() => module.close()}>Close</Button>
@@ -57,16 +80,9 @@
 			--button-background-color="darkred"
 			--button-background-color-hover="red"
 			--button-color="white"
-			onclick={submit}>Delete</Button
+			onclick={validate}
 		>
+			Delete
+		</Button>
 	</div>
 </Form>
-
-<style>
-	.details {
-		border-radius: 8px;
-		background-color: var(--bg2);
-		outline: 1px solid var(--bg1);
-		outline-offset: -1px;
-	}
-</style>

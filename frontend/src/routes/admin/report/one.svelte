@@ -7,7 +7,6 @@
 	import Resolve from './one.resolve.svelte';
 
 	let { report, update, searchParams } = $props();
-	console.log(report);
 
 	let open = $state(false);
 </script>
@@ -44,6 +43,9 @@
 				<User user={report.reporter.user}></User>
 				<div class="comment">
 					{report.reporter.comment}
+					{#each report.reporter.tags as tag}
+						#{tag}
+					{/each}
 				</div>
 			</div>
 

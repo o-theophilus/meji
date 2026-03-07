@@ -11,8 +11,8 @@ from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
 from ..tools import get_session, reserved_words
-from .get import get_many, item_schema
 from ..user.get import get_user_like
+from .get import get_many, item_schema
 
 bp = Blueprint("item", __name__)
 
@@ -30,7 +30,7 @@ def add():
     if "item:add" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 
@@ -182,7 +182,7 @@ def edit(key):
             error["price_old"] = "This must be greater than current price"
 
     if "information" in request.json:
-        information = request.json.get("information")
+        information = request.json.get("information", "").strip()
         if "item:edit_information" not in user["access"]:
             error["information"] = "unauthorized access"
         elif information == item["information"]:

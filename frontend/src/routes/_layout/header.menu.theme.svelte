@@ -56,7 +56,7 @@
 
 		outline: 1px solid var(--ol);
 		outline-offset: 1px;
-		border-radius: 12px;
+		border-radius: 4px;
 	}
 
 	button {
@@ -84,7 +84,7 @@
 			left: anchor(left);
 
 			background-color: hsl(0, 0%, 5%);
-			border-radius: 50%;
+			border-radius: 4px;
 
 			transition:
 				top 0.2s ease-in-out,

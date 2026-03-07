@@ -53,7 +53,7 @@ def get_many():
     if "log:view" not in user["access"]:
         db_close(con, cur)
         return jsonify({
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
         })
 

@@ -14,18 +14,18 @@
 </script>
 
 <div class="user_date">
-	<User user={review.user}></User>
+	<User user={review.user}>
+		{#if !is_admin}
+			<div class="rating">
+				<Rating value={review.rating}></Rating>
+			</div>
+		{/if}
+	</User>
 
 	<div class="date"><Datetime datetime={review.date_created} type="ago" /></div>
 </div>
 
 <div class="comment">
-	{#if !is_admin}
-		<div class="rating">
-			<Rating value={review.rating}></Rating>
-		</div>
-	{/if}
-
 	{review.comment}
 
 	{#if !is_admin && review.stats?.others_like}

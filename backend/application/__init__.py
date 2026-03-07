@@ -10,9 +10,9 @@ from .auth import forgot
 from . import admin
 from .admin import block
 from .admin.block import get as block_get
+from .admin import report
+from .admin.report import get as report_get
 from .admin import file_error
-from . import report
-from .report import get as report_get
 from . import user
 from .user import get as user_get
 from .user import email
