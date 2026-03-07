@@ -22,10 +22,9 @@
 			outline-color: var(--ft1);
 		}
 
-		/* TODO: component update */
 		&:disabled {
 			cursor: unset;
-			opacity: 0.5;
+			opacity: 0.6;
 
 			.checkbox {
 				cursor: unset;
