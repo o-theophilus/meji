@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
 from PIL import Image
 from psycopg2.extras import Json
-from ...tools import get_session
-from ...storage import storage
-from ...postgres import db_open, db_close
+
 from ...log import log
+from ...postgres import db_close, db_open
+from ...storage import storage
+from ...tools import get_session
 from .get import advert_schema, sizes, spaces
 
 bp = Blueprint("advert", __name__)

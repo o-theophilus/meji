@@ -6,7 +6,7 @@ from ..postgres import db_close, db_open
 bp = Blueprint("log", __name__)
 
 
-@bp.post("/log")
+@bp.post("/logs")
 def log(
     cur=None,
     user_key=None,

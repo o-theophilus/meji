@@ -21,8 +21,8 @@
 
 	const submit = async () => {
 		loading.open('Adding Coupon . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupon/cart/add`, {
-			method: 'put',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
+			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token

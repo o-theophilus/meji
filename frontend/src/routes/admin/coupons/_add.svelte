@@ -42,7 +42,7 @@
 	const submit = async () => {
 		loading.open('Creating Coupon . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupon${page.url.search}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupons${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

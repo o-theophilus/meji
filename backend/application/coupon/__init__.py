@@ -13,7 +13,7 @@ from .get import (coupon_applies_to, coupon_condition_unit, coupon_schema,
 bp = Blueprint("coupon", __name__)
 
 
-@bp.post("/coupon")
+@bp.post("/coupons")
 def add():
     con, cur = db_open()
 
@@ -88,7 +88,7 @@ def add():
     })
 
 
-@bp.delete("/coupon/<key>")
+@bp.delete("/coupons/<key>")
 def delete(key):
     con, cur = db_open()
 
@@ -141,7 +141,7 @@ def delete(key):
     })
 
 
-@bp.put("/coupon/validity/set/<key>")
+@bp.put("/coupons/<key>/validity")
 def set_validity(key):
     con, cur = db_open()
 
@@ -241,7 +241,7 @@ def set_validity(key):
     })
 
 
-@bp.put("/coupon/validity/clear/<key>")
+@bp.delete("/coupons/<key>/validity")
 def clear_validity(key):
     con, cur = db_open()
 
@@ -291,129 +291,4 @@ def clear_validity(key):
     return jsonify({
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
-    })
-
-
-@bp.put("/coupon/cart/add")
-def add_coupon_to_cart():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    code = request.json.get("code", "").strip()
-
-    error = None
-    coupon = None
-    if not code:
-        error = "This field is required"
-    elif len(code) != 10:
-        error = "This must be 10 characters"
-    if not error:
-        cur.execute(
-            'SELECT * FROM coupon WHERE LOWER(code) = %s;',
-            (code.lower(),))
-        coupon = cur.fetchone()
-        if not coupon:
-            error = "Invalid coupon code"
-        elif coupon["status"] == "inactive":
-            error = "this coupon is inactive"
-        elif coupon["status"] == "used":
-            error = "This coupon has been used"
-        elif coupon["status"] == "expired":
-            error = "This coupon has expired"
-    if error:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "code": error
-        })
-
-    cur.execute("""
-        UPDATE coupon SET order_key = %s WHERE key = %s
-        RETURNING *;
-    """, (cart["key"], coupon["key"]))
-    coupon = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added coupon to cart",
-        entity_key=coupon["key"],
-        entity_type="coupon",
-        misc={"cart_key": cart["key"]}
-    )
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "coupon": coupon_schema(coupon, user["access"])
-    })
-
-
-@bp.put("/coupon/cart/remove")
-def remove_coupon_from_cart():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute(
-        'SELECT * FROM coupon WHERE order_key = %s;',
-        (cart["key"],))
-    coupon = cur.fetchone()
-    if not coupon:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    cur.execute("""
-        UPDATE coupon SET order_key = NULL WHERE key = %s;
-    """, (coupon["key"],))
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="removed coupon to cart",
-        entity_key=coupon["key"],
-        entity_type="coupon",
-        misc={"cart_key": cart["key"]}
-    )
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "coupon": None
     })

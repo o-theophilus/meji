@@ -19,7 +19,7 @@ export const load = async ({ fetch, url, parent, depends, params }) => {
 	}
 
 
-	let backend = new URL(`${import.meta.env.VITE_BACKEND}/review/${params.slug}`)
+	let backend = new URL(`${import.meta.env.VITE_BACKEND}/items/${params.slug}/reviews`)
 	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
 	let a = await parent();
 	let resp = await fetch(backend.href, {

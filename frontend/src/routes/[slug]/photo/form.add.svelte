@@ -35,7 +35,7 @@
 		}
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/file/${ops.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token

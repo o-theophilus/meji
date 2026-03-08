@@ -36,7 +36,7 @@
 	const submit = async () => {
 		loading.open('Adding Review . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/review/${item.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/items/${item.key}/reviews?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{

@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 
 export const load = async ({ fetch, parent, params }) => {
 	let a = await parent();
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/${params.slug}`, {
+	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/orders/${params.slug}`, {
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: a.locals.token

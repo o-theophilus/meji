@@ -28,7 +28,7 @@
 		error = {};
 		loading.open(`Deleting comment . . .`);
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/review/${module.value.review.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/reviews/${module.value.review.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{

@@ -25,7 +25,7 @@
 			user_reaction = reaction;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/review/like/${review.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/reviews/${review.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

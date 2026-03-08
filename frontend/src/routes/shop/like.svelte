@@ -17,7 +17,7 @@
 			app.likes.push(item.key);
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/like/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

@@ -26,7 +26,7 @@
 
 	const submit = async (status) => {
 		loading.open('Saving Item . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

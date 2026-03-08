@@ -45,7 +45,7 @@ def coupon_schema(x, access=[]):
     return x
 
 
-@bp.get("/coupon/<key>")
+@bp.get("/coupons/<key>")
 def get(key):
     con, cur = db_open()
 

@@ -2,8 +2,8 @@ from math import ceil
 
 from flask import Blueprint, jsonify, request
 
-from ...postgres import db_close, db_open
-from ...tools import get_session
+from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("report_get", __name__)
 

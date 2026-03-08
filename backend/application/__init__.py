@@ -1,40 +1,23 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-from . import storage
-from . import postgres
-from . import log
-from .log import get as log_get
-from . import auth
+from . import (api, auth, cart, coupon, fix, item, log, order, postgres,
+               report, storage, user)
+from .api import file_error
 from .auth import forgot
-from . import admin
-from .admin import block
-from .admin.block import get as block_get
-from .admin import report
-from .admin.report import get as report_get
-from .admin import file_error
-from . import user
-from .user import get as user_get
-from .user import email
-from .user import password
-from .user import photo as user_photo
-from .user import notification
-from . import item
-from .item import get as item_get
-from .item import get_group as item_get_group
-from .item import file
-from .item import review
-from .item.review import get as review_get
-from .item import advert
-from .item.advert import get as advert_get
-from . import cart
 from .cart import get as cart_get
-from . import coupon
 from .coupon import get as coupon_get
-from . import order
+from .item import advert, file
+from .item import get as item_get
+from .item import review
+from .item.advert import get as advert_get
+from .log import get as log_get
 from .order import get as order_get
-from . import api
-from . import fix
+from .report import get as report_get
+from .user import email
+from .user import get as user_get
+from .user import notification, password
+from .user import photo as user_photo
 
 
 def create_app(conf=None):
@@ -58,9 +41,6 @@ def create_app(conf=None):
     app.register_blueprint(log_get.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(forgot.bp)
-    app.register_blueprint(admin.bp)
-    app.register_blueprint(block.bp)
-    app.register_blueprint(block_get.bp)
     app.register_blueprint(file_error.bp)
     app.register_blueprint(report.bp)
     app.register_blueprint(report_get.bp)
@@ -72,10 +52,8 @@ def create_app(conf=None):
     app.register_blueprint(notification.bp)
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
-    app.register_blueprint(item_get_group.bp)
     app.register_blueprint(file.bp)
     app.register_blueprint(review.bp)
-    app.register_blueprint(review_get.bp)
     app.register_blueprint(advert.bp)
     app.register_blueprint(advert_get.bp)
     app.register_blueprint(cart.bp)

@@ -10,15 +10,15 @@ from werkzeug.security import check_password_hash
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session, reserved_words
+from ..tools import get_session, item_schema, reserved_words
 from ..user.get import get_user_like
-from .get import get_many, item_schema
+from .get import get_items, get_reviews
 
 bp = Blueprint("item", __name__)
 
 
-@bp.post("/item")
-def add():
+@bp.post("/items")
+def add_item():
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -69,7 +69,7 @@ def add():
         entity_type="item"
     )
 
-    items = get_many(cur)
+    items = get_items(cur)
 
     db_close(con, cur)
     return jsonify({
@@ -80,7 +80,7 @@ def add():
     })
 
 
-@bp.put("/item/<key>")
+@bp.put("/items/<key>")
 def edit(key):
     con, cur = db_open()
 
@@ -245,7 +245,7 @@ def edit(key):
     })
 
 
-@bp.delete("/item/<key>")
+@bp.delete("/items/<key>")
 def delete(key):
     con, cur = db_open()
 
@@ -301,7 +301,7 @@ def delete(key):
     })
 
 
-@bp.post("/item/like/<key>")
+@bp.post("/items/<key>/like")
 def like(key):
     con, cur = db_open()
 
@@ -350,3 +350,105 @@ def like(key):
         "status": 200,
         "likes": likes
     })
+
+
+@bp.post("/items/<key>/reviews")
+def add_review(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    cur.execute("""
+        SELECT * FROM item WHERE slug = %s OR key = %s;
+    """, (key, key))
+    item = cur.fetchone()
+    if not item:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    parent_key = request.json.get("parent_key")
+    if parent_key:
+        if "review:reply" not in user["access"]:
+            db_close(con, cur)
+            return jsonify({
+                "status": 403,
+                "error": "unauthorized access"
+            })
+
+        cur.execute("SELECT * FROM review WHERE key = %s;", (parent_key,))
+        if not cur.fetchone():
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                "error": "Invalid request"
+            })
+
+    cur.execute("""
+        WITH purchase_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM item_snap i
+                JOIN "order" o ON o.key = i.order_key
+                WHERE o.user_key = %s AND i.item_key = %s
+                    AND o.status = 'delivered'
+            ) AS has_purchased
+        )
+        SELECT
+            has_purchased,
+            has_purchased
+            AND NOT EXISTS (
+                SELECT 1 FROM review r
+                WHERE r.user_key = %s AND r.item_key = %s
+            ) AS can_review
+        FROM purchase_check;
+    """, (user["key"], item["key"], user["key"], item["key"]))
+    user_review_info = cur.fetchone()
+
+    if not user_review_info["can_review"]:
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    rating = request.json.get("rating", 0)
+    comment = request.json.get("comment", "").strip()
+    error = {}
+    if rating not in [1, 2, 3, 4, 5]:
+        error["rating"] = "This field is required"
+
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    cur.execute("""
+        INSERT INTO review (user_key, item_key, rating, comment, parent_key)
+        VALUES (%s, %s, %s, %s, %s) RETURNING *;
+    """, (user["key"], item["key"], rating, comment, parent_key))
+    comment = cur.fetchone()
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="added item review",
+        entity_key=comment["key"],
+        entity_type="review",
+        misc={"item_key": item["key"]}
+    )
+
+    reviews = get_reviews(item["key"], cur=cur)
+    db_close(con, cur)
+    return reviews

@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
-from ..tools import get_session
-from ..postgres import db_open, db_close
-from ..storage import storage
+
 from ..log import log
-from .get import item_schema
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import get_session, item_schema
 
 bp = Blueprint("item_file", __name__)
 
 
-@bp.post("/item/file/<key>")
+@bp.post("/items/<key>/file")
 def add_file(key):
     con, cur = db_open()
 
@@ -92,7 +92,7 @@ def add_file(key):
     })
 
 
-@bp.put("/item/file/<key>")
+@bp.put("/items/<key>/file")
 def order_delete_file(key):
     con, cur = db_open()
 

@@ -32,7 +32,7 @@
 
 		loading.open('Loading . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/order/status/${module.value.order.key}`,
+			`${import.meta.env.VITE_BACKEND}/orders/${module.value.order.key}/status`,
 			{
 				method: 'put',
 				headers: {

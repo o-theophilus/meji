@@ -185,3 +185,8 @@ def user_schema(user):
         if user["photo"] else None
     )
     return user
+
+
+def item_schema(x):
+    x["files"] = [f"{request.host_url}photo/item/{x}" for x in x["files"]]
+    return x

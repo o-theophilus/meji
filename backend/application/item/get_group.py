@@ -1,12 +1,6 @@
-from flask import Blueprint, jsonify
 import re
-from ..tools import get_session
-from .get import item_schema
-from ..postgres import db_close, db_open
-from .review import get_many
 
-
-bp = Blueprint("item_get_group", __name__)
+from ..tools import item_schema
 
 
 def recently_viewed(cur, user_key, item_key):
@@ -138,58 +132,3 @@ def recommended(cur, user_key, item_key=None):
         return []
 
     return likeness(cur, list(set(excluded_keys)), list(set(keywords)))
-
-
-@bp.get("/item_group/<item_key>")
-def get_group(item_key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
-    if not cur.fetchone():
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    _recently_viewed = recently_viewed(cur, user["key"], item_key)
-    _similar_items = similar_items(cur, item_key)
-    _customer_view = customer_view(cur, user["key"], item_key)
-    _recommended = recommended(cur, user["key"], item_key)
-
-    review = get_many(item_key, 3, cur).json
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "review": review,
-        "item_group": [
-            {
-                "name": "Similar Items",
-                "items": _similar_items,
-                "style": "grid",
-                "open": True
-            }, {
-                "name": "Recently Viewed",
-                "items": _recently_viewed,
-                "style": "line",
-                "open": True
-            }, {
-                "name": "Customers who viewed this also viewed",
-                "items": _customer_view,
-                "style": "line",
-                "open": True
-            }, {
-                "name": "You may also like",
-                "items": _recommended,
-                "style": "line",
-                "open": True
-            }
-        ]
-    })

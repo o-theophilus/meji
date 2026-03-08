@@ -23,7 +23,7 @@
 
 	const submit = async () => {
 		loading.open('Deleteing Coupon . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupon/${module.value.coupon.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',

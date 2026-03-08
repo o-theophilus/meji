@@ -32,9 +32,9 @@
 
 		loading.open('Canceling Order . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/order/cancel/${module.value.order.key}`,
+			`${import.meta.env.VITE_BACKEND}/order/${module.value.order.key}/status`,
 			{
-				method: 'put',
+				method: 'delete',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: app.token

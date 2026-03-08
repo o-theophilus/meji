@@ -66,7 +66,7 @@
 			edit_mode = false;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item_group/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/group`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token

@@ -30,7 +30,7 @@
 
 		loading.open(`Taking action${form.actions.length > 1 ? 's' : ''} . . .`);
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/admin/user/actions/${module.value.user.key}`,
+			`${import.meta.env.VITE_BACKEND}/users/${module.value.user.key}/action`,
 			{
 				method: 'put',
 				headers: {

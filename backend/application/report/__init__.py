@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 
-from ...log import log
-from ...postgres import db_close, db_open
-from ...tools import get_session
+from ..log import log
+from ..postgres import db_close, db_open
+from ..tools import get_session
 from .get import get_many
 
 bp = Blueprint("report", __name__)
 
 
-@bp.put("/report/resolve/<key>")
+@bp.put("/reports/<key>")
 def resolve(key):
     con, cur = db_open()
 
@@ -122,7 +122,7 @@ def resolve(key):
     return reports
 
 
-@bp.put("/report/dismiss/<key>")
+@bp.delete("/reports/<key>")
 def dismiss(key):
     con, cur = db_open()
 

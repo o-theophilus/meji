@@ -3,7 +3,7 @@
 	import { Content } from '$lib/layout';
 	import { Avatar, Icon, Log, Meta } from '$lib/macro';
 	import { app, module, page_state } from '$lib/store.svelte.js';
-	import Action from './_admin_action.svelte';
+	import Action from './_profile_action.svelte';
 	import Block from './_block.svelte';
 	import Name from './_name.svelte';
 	import Phone from './_phone.svelte';

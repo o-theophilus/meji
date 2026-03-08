@@ -13,7 +13,7 @@ order_status = ['created', 'processing', 'enroute', 'delivered',
                 'canceled']
 
 
-@bp.get("/order/<key>")
+@bp.get("/orders/<key>")
 def get(key):
     con, cur = db_open()
 

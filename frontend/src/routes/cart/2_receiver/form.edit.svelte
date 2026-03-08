@@ -92,8 +92,8 @@
 
 	const clear = async () => {
 		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver_clear`, {
-			method: 'post',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token

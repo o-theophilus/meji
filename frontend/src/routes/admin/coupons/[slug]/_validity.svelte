@@ -49,7 +49,7 @@
 	const submit = async () => {
 		loading.open('Updating Validity . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/coupon/validity/set/${module.value.coupon.key}`,
+			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
 				method: 'put',
 				headers: {
@@ -75,9 +75,9 @@
 	const clear = async () => {
 		loading.open('Removing Validity . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/coupon/validity/clear/${module.value.coupon.key}`,
+			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
-				method: 'put',
+				method: 'delete',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: app.token

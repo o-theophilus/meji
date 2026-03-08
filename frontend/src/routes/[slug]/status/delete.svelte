@@ -25,7 +25,7 @@
 		error = {};
 
 		loading.open('Deleting Item . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/item/${module.value.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',

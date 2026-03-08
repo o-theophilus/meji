@@ -7,8 +7,8 @@
 
 	const submit = async () => {
 		loading.open('Removing Coupon . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupon/cart/remove`, {
-			method: 'put',
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
+			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
