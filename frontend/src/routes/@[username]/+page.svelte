@@ -3,11 +3,11 @@
 	import { Content } from '$lib/layout';
 	import { Avatar, Icon, Log, Meta } from '$lib/macro';
 	import { app, module, page_state } from '$lib/store.svelte.js';
-	import Action from './_profile_action.svelte';
 	import Block from './_block.svelte';
 	import Name from './_name.svelte';
 	import Phone from './_phone.svelte';
 	import Photo from './_photo.svelte';
+	import Action from './_profile_action.svelte';
 	import Report from './_report.svelte';
 	import Username from './_username.svelte';
 	import Access from './access/form.svelte';
@@ -150,7 +150,6 @@
 			<Button
 				icon="flag-triangle-right"
 				--button-font-size="0.8rem"
-				disabled={user.blocked}
 				onclick={() => module.open(Report, { user })}
 			>
 				Report user

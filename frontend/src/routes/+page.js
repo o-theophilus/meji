@@ -15,7 +15,7 @@ export const load = async ({ fetch, url, parent }) => {
 	}
 
 	let a = await parent();
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/home`, {
+	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/home`, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ def resolve(key):
     report = cur.fetchone()
     if (
         not report
-        or report["reported_user_key"] == user["key"]
+        or report["entity_key"] == user["key"]
         or report["status"] != "active"
     ):
         db_close(con, cur)
@@ -54,13 +54,6 @@ def resolve(key):
         WHERE key = %s;
     """, (user["key"], comment, key))
 
-    if report["reported_review_key"]:
-        entity_type = "review"
-        entity_key = report["reported_review_key"]
-    elif report["reported_user_key"]:
-        entity_type = "user"
-        entity_key = report["reported_user_key"]
-
     log(
         cur=cur,
         user_key=user["key"],
@@ -68,20 +61,20 @@ def resolve(key):
         entity_key=report["key"],
         entity_type="report",
         misc={
-            "entity_key": entity_key,
-            "entity_type": entity_type,
+            "entity_key": report["entity_key"],
+            "entity_type": report["entity_type"],
         }
     )
 
     if handle:
         if (
-            report["reported_user_key"]
-            and "user:block" not in user["access"]
+            report["entity_type"] == "user"
+            and "user:block" in user["access"]
         ):
             cur.execute("""
                 INSERT INTO block (admin_key, user_key, comment)
                 VALUES (%s, %s, %s);
-            """, (user["key"], report["reported_user_key"], comment))
+            """, (user["key"], report["entity_key"], comment))
 
             cur.execute("""
                 DELETE FROM session WHERE user_key = %s;
@@ -91,18 +84,18 @@ def resolve(key):
                 cur=cur,
                 user_key=user["key"],
                 action="blocked",
-                entity_key=report["reported_user_key"],
+                entity_key=report["entity_key"],
                 entity_type="user",
                 misc={"comment":  comment}
             )
 
         elif (
-            report["reported_review_key"]
+            report["entity_type"] == "review"
             and "review:delete_others" in user["access"]
         ):
             cur.execute(
                 "DELETE FROM review WHERE key = %s RETURNING *;",
-                (report["reported_review_key"],))
+                (report["entity_key"],))
             review = cur.fetchone()
 
             log(
@@ -143,7 +136,7 @@ def dismiss(key):
     report = cur.fetchone()
     if (
         not report
-        or report["reported_user_key"] == user["key"]
+        or report["entity_key"] == user["key"]
         or report["status"] != "active"
     ):
         db_close(con, cur)
@@ -167,13 +160,6 @@ def dismiss(key):
         WHERE key = %s;
     """, (user["key"], comment, key))
 
-    if report["reported_review_key"]:
-        entity_type = "review"
-        entity_key = report["reported_review_key"]
-    elif report["reported_user_key"]:
-        entity_type = "user"
-        entity_key = report["reported_user_key"]
-
     log(
         cur=cur,
         user_key=user["key"],
@@ -181,8 +167,8 @@ def dismiss(key):
         entity_key=report["key"],
         entity_type="report",
         misc={
-            "entity_key": entity_key,
-            "entity_type": entity_type,
+            "entity_key": report["entity_key"],
+            "entity_type": report["entity_type"],
         }
     )
 

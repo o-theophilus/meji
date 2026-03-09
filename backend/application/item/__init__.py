@@ -321,18 +321,18 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM item_like
-        WHERE user_key = %s AND item_key = %s;
+        SELECT * FROM "like"
+        WHERE user_key = %s AND entity_key = %s AND entity_type = 'item';
     """, (user["key"], item["key"]))
     user_reaction = cur.fetchone()
 
     if not user_reaction:
         cur.execute("""
-            INSERT INTO item_like (user_key, item_key)
-            VALUES (%s, %s);
+            INSERT INTO "like" (user_key, entity_key, entity_type)
+            VALUES (%s, %s, 'item');
         """, (user["key"], item["key"]))
     else:
-        cur.execute("""DELETE FROM item_like WHERE key = %s;""", (
+        cur.execute("""DELETE FROM "like" WHERE key = %s;""", (
             user_reaction["key"],))
 
     log(

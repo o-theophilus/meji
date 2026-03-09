@@ -60,8 +60,8 @@ def get_many(cur=None):
             report.key,
             report.status,
             report.resolver_key,
-            report.reported_user_key,
-            report.reported_review_key,
+            report.entity_key,
+            report.entity_type,
 
             jsonb_build_object(
                 'date_created', report.date_created,
@@ -106,28 +106,27 @@ def get_many(cur=None):
         FROM report
         LEFT JOIN "user" reporter ON report.reporter_key = reporter.key
         LEFT JOIN "user" resolver ON report.resolver_key = resolver.key
-        LEFT JOIN "user" ru ON report.reported_user_key = ru.key
+        LEFT JOIN "user" ru ON report.entity_key = ru.key
+            AND report.entity_type = 'user'
         LEFT JOIN block ON ru.key = block.user_key
-        LEFT JOIN review rr ON report.reported_review_key = rr.key
+        LEFT JOIN review rr ON report.entity_key = rr.key
+            AND report.entity_type = 'review'
         LEFT JOIN "user" rr_user ON rr.user_key = rr_user.key
 
         WHERE
             report.status = %s
             AND (
-                %s = 'all'
-                OR (%s = 'user' AND report.reported_user_key IS NOT NULL)
-                OR (%s = 'review' AND report.reported_review_key IS NOT NULL)
+                %s = 'all' OR %s = report.entity_type
             )
             AND (%s = '' OR CONCAT_WS(', ',
                 report.key, report.reporter_comment, report.tags::text,
-                report.reporter_key, report.reported_user_key,
-                report.reported_review_key
+                report.reporter_key, report.entity_key
             ) ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}, report.key DESC
         LIMIT %s OFFSET %s;
     """, (
         status,
-        _type, _type, _type,
+        _type, _type,
         search, f"%{search}%",
         page_size, (page_no - 1) * page_size
     ))
@@ -147,20 +146,18 @@ def get_many(cur=None):
             del x["resolver_key"]
             del x["resolver"]
 
-        if x["reported_user_key"]:
+        if x["entity_type"] == "user":
             if x["reported_user"]["user"]["photo"]:
                 x["reported_user"]["user"]["photo"] = f"{url}{x[
                     'reported_user']['user']['photo']}"
         else:
-            del x["reported_user_key"]
             del x["reported_user"]
 
-        if x["reported_review_key"]:
+        if x["entity_type"] == "review":
             if x["reported_review"]["user"]["photo"]:
                 x["reported_review"]["user"]["photo"] = f"{url}{x[
                     'reported_review']['user']['photo']}"
         else:
-            del x["reported_review_key"]
             del x["reported_review"]
 
     cur.execute("""
@@ -168,18 +165,15 @@ def get_many(cur=None):
         WHERE
             report.status = %s
             AND (
-                %s = 'all'
-                OR (%s = 'user' AND report.reported_user_key IS NOT NULL)
-                OR (%s = 'review' AND report.reported_review_key IS NOT NULL)
+                %s = 'all' OR %s = report.entity_type
             )
             AND (%s = '' OR CONCAT_WS(', ',
                 report.key, report.reporter_comment, report.tags::text,
-                report.reporter_key, report.reported_user_key,
-                report.reported_review_key
+                report.reporter_key, report.entity_key
             ) ILIKE %s);
     """, (
         status,
-        _type, _type, _type,
+        _type, _type,
         search, f"%{search}%",
     ))
     total_page = cur.fetchone()["count"]

@@ -107,8 +107,8 @@ def similar_items(cur, item_key):
 def recommended(cur, user_key, item_key=None):
     cur.execute("""
         SELECT item.* FROM item
-        JOIN item_like ON item.key = item_like.item_key
-        WHERE item_like.user_key = %s;
+        JOIN "like" ON item.key = "like".entity_key
+        WHERE "like".user_key = %s AND "like".entity_type = 'item';
     """, (user_key,))
     liked_items = cur.fetchall()
 

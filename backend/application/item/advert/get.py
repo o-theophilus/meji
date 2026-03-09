@@ -18,7 +18,7 @@ def advert_schema(advert):
     return advert
 
 
-@bp.get("/advert/<key>")
+@bp.get("/items/<key>/advert")
 def get(key):
     con, cur = db_open()
 

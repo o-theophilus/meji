@@ -32,8 +32,7 @@ def create_tables():
         DROP TABLE IF EXISTS block CASCADE;
         DROP TABLE IF EXISTS item CASCADE;
         DROP TABLE IF EXISTS review CASCADE;
-        DROP TABLE IF EXISTS item_like CASCADE;
-        DROP TABLE IF EXISTS review_like CASCADE;
+        DROP TABLE IF EXISTS "like" CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
         DROP TABLE IF EXISTS item_snap CASCADE;
@@ -93,8 +92,8 @@ def create_tables():
             date_resolved TIMESTAMPTZ,
             resolver_key UUID REFERENCES "user"(key),
             resolver_comment TEXT,
-            reported_user_key UUID REFERENCES "user"(key) ON DELETE CASCADE,
-            reported_review_key UUID REFERENCES review(key) ON DELETE CASCADE
+            entity_type TEXT NOT NULL, -- user, review
+            entity_key UUID NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS block (
@@ -138,21 +137,14 @@ def create_tables():
             rating INT DEFAULT 0
         );
 
-        CREATE TABLE IF NOT EXISTS item_like (
+        CREATE TABLE IF NOT EXISTS "like" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
-            UNIQUE (user_key, item_key)
-        );
-
-        CREATE TABLE IF NOT EXISTS review_like (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            date_created TIMESTAMPTZ DEFAULT now(),
-            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            review_key UUID NOT NULL REFERENCES review(key) ON DELETE CASCADE,
-            UNIQUE (user_key, review_key),
-            reaction TEXT NOT NULL
+            reaction TEXT NOT NULL DEFAULT 'like',
+            entity_type TEXT NOT NULL, -- item, review
+            entity_key UUID NOT NULL,
+            UNIQUE (user_key, entity_key)
         );
 
         CREATE TABLE IF NOT EXISTS "order" (
@@ -251,8 +243,7 @@ def copy_db():
     copy_table(from_cur, to_cur, "comment")
     copy_table(from_cur, to_cur, "report")
     copy_table(from_cur, to_cur, "block")
-    copy_table(from_cur, to_cur, "item_like")
-    copy_table(from_cur, to_cur, "review_like")
+    copy_table(from_cur, to_cur, "like")
     copy_table(from_cur, to_cur, "code")
     copy_table(from_cur, to_cur, "log")
     copy_table(from_cur, to_cur, "session")

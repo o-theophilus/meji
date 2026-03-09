@@ -11,7 +11,7 @@ from .get import advert_schema, sizes, spaces
 bp = Blueprint("advert", __name__)
 
 
-@bp.post("/advert/<key>")
+@bp.post("/items/<key>/advert")
 def add_photo(key):
     con, cur = db_open()
 
@@ -118,7 +118,7 @@ def add_photo(key):
     return jsonify(out)
 
 
-@bp.put("/advert/<key>")
+@bp.put("/items/<key>/advert")
 def set_photo(key):
     con, cur = db_open()
 

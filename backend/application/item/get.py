@@ -309,12 +309,13 @@ def get_reviews(key, _page_size=24, cur=None):
 
         LEFT JOIN (
             SELECT
-                review_key,
+                entity_key,
                 COUNT(*) FILTER (WHERE reaction = 'like') -
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
-            FROM review_like
-            GROUP BY review_key
-        ) l ON l.review_key = r.key
+            FROM "like"
+            WHERE entity_type = 'review'
+            GROUP BY entity_key
+        ) l ON l.entity_key = r.key
 
         WHERE r.item_key = %s AND r.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}, r.key DESC
@@ -341,15 +342,15 @@ def get_reviews(key, _page_size=24, cur=None):
 
         cur.execute("""
             SELECT
-                review_key,
+                entity_key,
                 COUNT(*) FILTER (WHERE reaction = 'like' AND user_key != %s)
                     AS others_like,
                 COUNT(*) FILTER (WHERE reaction = 'dislike' AND user_key != %s)
                     AS others_dislike,
                 MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
-            FROM review_like
-            WHERE review_key::TEXT = ANY(%s)
-            GROUP BY review_key
+            FROM "like"
+            WHERE entity_key::TEXT = ANY(%s) AND "like".entity_type = 'review'
+            GROUP BY entity_key
         """, (user["key"], user["key"], user["key"], review_keys))
         likes_raw = cur.fetchall()
     else:
@@ -373,7 +374,7 @@ def get_reviews(key, _page_size=24, cur=None):
         })
 
     likes_map = {
-        x["review_key"]: {
+        x["entity_key"]: {
             "others_like": x["others_like"],
             "others_dislike": x["others_dislike"],
             "user_reaction": x["user_reaction"]
@@ -459,7 +460,7 @@ def get_reviews(key, _page_size=24, cur=None):
     })
 
 
-@bp.get("/home")
+@bp.get("/items/home")
 def home_page():
     con, cur = db_open()
 
@@ -474,7 +475,7 @@ def home_page():
     })
 
 
-@bp.get("/like")
+@bp.get("/items/like")
 def like_page():
     con, cur = db_open()
 
@@ -529,11 +530,12 @@ def like_page():
             COALESCE(rating.rating, 0) AS rating,
             COUNT(*) OVER() AS _count
         FROM item
-        LEFT JOIN item_like ON item.key = item_like.item_key
+        LEFT JOIN "like" ON item.key = "like".entity_key
         LEFT JOIN rating ON item.key = rating.key
         WHERE
             item.status = 'active'
-            AND item_like.user_key = %s
+            AND "like".user_key = %s
+            AND "like".entity_type = 'item'
             AND (%s = '' OR item.name ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}, item.key DESC
         LIMIT %s OFFSET %s;

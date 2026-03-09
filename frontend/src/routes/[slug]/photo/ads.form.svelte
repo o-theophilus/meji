@@ -89,7 +89,7 @@
 		}
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
@@ -116,7 +116,7 @@
 
 	const save = async () => {
 		loading.open('Saving . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -148,7 +148,7 @@
 	onMount(async () => {
 		loading.open('uploading . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/advert/${item.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
