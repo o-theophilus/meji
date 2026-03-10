@@ -7,7 +7,7 @@
 	let { item, edit_mode, update } = $props();
 </script>
 
-{#if app.user.access.includes('item:edit_date') && edit_mode}
+{#if app.user.access.includes('item.edit_date') && edit_mode}
 	<Edit_Button
 		onclick={() =>
 			module.open(Edit, {

@@ -50,7 +50,7 @@
 	<div class="line space">
 		<div class="page_title">Shop</div>
 
-		{#if app.user.access.includes('item:add')}
+		{#if app.user.access.includes('item.add')}
 			<Button
 				--button-height="32px"
 				--button-font-size="0.8rem"
@@ -72,7 +72,7 @@
 
 	<div class="line space">
 		<div class="line">
-			{#if app.user.access.includes('item:add')}
+			{#if app.user.access.includes('item.add')}
 				<Dropdown
 					--select-height="32px"
 					--select-padding-x="8px"

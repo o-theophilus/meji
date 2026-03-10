@@ -17,7 +17,7 @@
 		--card-content-padding="16px 0"
 	>
 		{#snippet title()}
-			{#if app.user.access.includes('item:edit_variation') && edit_mode}
+			{#if app.user.access.includes('item.edit_variation') && edit_mode}
 				<Edit_Button
 					onclick={() =>
 						module.open(Form, {

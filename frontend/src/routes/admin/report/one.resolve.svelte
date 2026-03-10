@@ -60,7 +60,7 @@
 		bind:value={form.comment}
 	/>
 
-	{#if module.value.report.reported_user && app.user.access.includes('user:block')}
+	{#if module.value.report.reported_user && app.user.access.includes('user.block')}
 		<Note>
 			Resolving this report will not block the user. If you want to block the user, please check the
 			box below.
@@ -76,7 +76,7 @@
 				></Checkbox>
 			{/snippet}
 		</IG>
-	{:else if module.value.report.reported_review && app.user.access.includes('review:delete_others')}
+	{:else if module.value.report.reported_review && app.user.access.includes('review.delete_others')}
 		<Note>
 			Resolving this report will not delete the review. If you want to delete the review, please
 			check the box below.

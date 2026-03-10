@@ -49,7 +49,7 @@
 
 	<div class="line space">
 		<div class="line">
-			{#if app.user.access.includes('order:view')}
+			{#if app.user.access.includes('order.view')}
 				<Dropdown
 					--select-height="32px"
 					--select-padding-x="8px"

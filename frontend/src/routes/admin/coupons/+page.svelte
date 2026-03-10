@@ -45,7 +45,7 @@
 			Coupon{coupons?.length > 1 ? 's' : ''}
 		</div>
 
-		{#if app.user.access.includes('coupon:add')}
+		{#if app.user.access.includes('coupon.add')}
 			<Button
 				--button-height="32px"
 				--button-font-size="0.8rem"

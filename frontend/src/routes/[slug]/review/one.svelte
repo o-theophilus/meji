@@ -13,7 +13,7 @@
 	<div class="parent">
 		<Details {review}></Details>
 		<Control {item} {review} {searchParams} {update}>
-			{#if app.user.access.includes('review:reply')}
+			{#if app.user.access.includes('review.reply')}
 				<RoundButton
 					icon="reply"
 					onclick={() =>
@@ -31,7 +31,7 @@
 	{#each review.replies as reply}
 		<div class="reply">
 			<Details review={reply} is_admin></Details>
-			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review:delete_others'))}
+			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review.delete_others'))}
 				<div class="control">
 					<RoundButton
 						icon="trash-2"

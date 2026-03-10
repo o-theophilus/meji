@@ -21,7 +21,7 @@ def add_photo(key):
         return jsonify(session)
     user = session["user"]
 
-    if "item:advert" not in user["access"]:
+    if "item.advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -128,7 +128,7 @@ def set_photo(key):
         return jsonify(session)
     user = session["user"]
 
-    if "item:advert" not in user["access"]:
+    if "item.advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

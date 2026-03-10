@@ -32,7 +32,7 @@ def delete(key):
     misc = {"item_key": review["item_key"]}
 
     if review["user_key"] != user["key"]:
-        if "review:delete_others" not in user["access"]:
+        if "review.delete_others" not in user["access"]:
             db_close(con, cur)
             return jsonify({
                 "status": 403,

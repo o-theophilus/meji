@@ -23,7 +23,7 @@ def add():
         return jsonify(session)
     user = session["user"]
 
-    if "coupon:add" not in user["access"]:
+    if "coupon.add" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -151,7 +151,7 @@ def set_validity(key):
         return jsonify(session)
     user = session["user"]
 
-    if "coupon:edit_validity" not in user["access"]:
+    if "coupon.edit_validity" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -251,7 +251,7 @@ def clear_validity(key):
         return jsonify(session)
     user = session["user"]
 
-    if "coupon:edit_validity" not in user["access"]:
+    if "coupon.edit_validity" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

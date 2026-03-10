@@ -64,7 +64,7 @@ def get(key):
             "error": "Oops! The item you're looking for doesn't exist"
         })
 
-    if "coupon:view" not in user["access"]:
+    if "coupon.view" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -91,7 +91,7 @@ def get_many(cur=None):
         return jsonify(session)
     user = session["user"]
 
-    if "coupon:view" not in user["access"]:
+    if "coupon.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
         return jsonify({

@@ -81,7 +81,7 @@ def user_delete_session():
         return jsonify(session)
     user = session["user"]
 
-    if "maintenance:session" not in user["access"]:
+    if "maintenance.session" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -106,7 +106,7 @@ def user_delete_anonymous():
         return jsonify(session)
     user = session["user"]
 
-    if "maintenance:anonymous" not in user["access"]:
+    if "maintenance.anonymous" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -131,7 +131,7 @@ def user_expire_coupon():
         return jsonify(session)
     user = session["user"]
 
-    if "maintenance:coupon" not in user["access"]:
+    if "maintenance.coupon" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

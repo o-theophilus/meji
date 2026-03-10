@@ -31,18 +31,18 @@
 	let loading = $state(false);
 	let is_admin = app.user.access.some((x) =>
 		[
-			'item:add',
-			'item:edit_status',
-			'item:edit_file',
-			'item:edit_date',
-			'item:edit_name',
-			'item:edit_tag',
-			'item:edit_price',
-			'item:edit_information',
-			'item:edit_files',
-			'item:edit_variation',
-			'item:edit_quantity',
-			'item:advert'
+			'item.add',
+			'item.edit_status',
+			'item.edit_file',
+			'item.edit_date',
+			'item.edit_name',
+			'item.edit_tag',
+			'item.edit_price',
+			'item.edit_information',
+			'item.edit_files',
+			'item.edit_variation',
+			'item.edit_quantity',
+			'item.advert'
 		].includes(x)
 	);
 
@@ -112,7 +112,7 @@
 		<br />
 	{/if}
 
-	{#if edit_mode && app.user.access.includes('item:edit_status')}
+	{#if edit_mode && app.user.access.includes('item.edit_status')}
 		<div class="line status">
 			<Status {item} {update}></Status>
 		</div>

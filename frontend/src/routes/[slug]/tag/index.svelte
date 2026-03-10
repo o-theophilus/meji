@@ -7,11 +7,11 @@
 	let { item, edit_mode, update } = $props();
 </script>
 
-<!-- {#if item.tags.length > 0 || (app.user.access.includes('item:edit_tag') && edit_mode)}
+<!-- {#if item.tags.length > 0 || (app.user.access.includes('item.edit_tag') && edit_mode)}
 	<hr />
 {/if} -->
 
-{#if app.user.access.includes('item:edit_tag') && edit_mode}
+{#if app.user.access.includes('item.edit_tag') && edit_mode}
 	<Edit_Button
 		onclick={() =>
 			module.open(Form, {

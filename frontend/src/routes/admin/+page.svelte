@@ -1,8 +1,7 @@
 <script>
-	import { Button } from '$lib/button';
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
-	import { app } from '$lib/store.svelte.js';
+	import Card from './card.svelte';
 </script>
 
 <Log entity_type={'page'} />
@@ -10,52 +9,104 @@
 
 <Content>
 	<div class="page_title">Admin Dashboard</div>
+	<Card title="Sales Today"></Card>
+	<Card title="Orders Today"></Card>
+	<Card title="New Users Today"></Card>
 
-	<div class="btns">
-		{#if app.user.access.includes('user:set_access')}
-			<Button href="/admin/users_admin" size="wide">Admins</Button>
-		{/if}
-
-		{#if app.user.access.includes('user:view')}
-			<Button href="/admin/users" size="wide">Users</Button>
-		{/if}
-
-		{#if app.user.access.includes('report:view')}
-			<Button href="/admin/report" size="wide">Reports</Button>
-		{/if}
-
-		{#if app.user.access.includes('block:view')}
-			<Button href="/admin/block" size="wide">Blocked Users</Button>
-		{/if}
-
-		{#if app.user.access.includes('admin:manage_files')}
-			<Button href="/admin/file_error" size="wide">File Error</Button>
-		{/if}
-		{#if app.user.access.includes('item:advert')}
-			<Button href="/admin/advert" size="wide">Adverts</Button>
-		{/if}
-		{#if app.user.access.includes('coupon:view')}
-			<Button href="/admin/coupons" size="wide">Coupons</Button>
-		{/if}
-		{#if app.user.access.includes('order:view')}
-			<Button href="/orders" size="wide">Orders</Button>
-		{/if}
-		{#if app.user.access.includes('log:view')}
-			<Button href="/log" size="wide">Log</Button>
-		{/if}
-		{#if app.user.access.includes('admin:maintenance')}
-			<Button href="/admin/maintenance" size="wide">Maintenance</Button>
-		{/if}
-	</div>
+	<br />
+	<Card title="Conversion Rate"></Card>
+	<Card title="Revenue Today">
+		$4,520
+		<br />
+		↑ 12% from yesterday
+	</Card>
+	<br />
+	<Card title="SALES CHART">
+		Display: line | bar chart
+		<br />
+		Filter: (Today , 7 days, 30 days, 12 months)
+	</Card>
+	<Card title="ORDERS STATUS">
+		Display: Columns
+		<br />
+		<br />
+		Pending: 12
+		<br />
+		Processing: 8
+		<br />
+		Shipped: 24
+		<br />
+		Returns: 2
+	</Card>
+	<Card title="TOP PRODUCTS">
+		Display: Columns
+		<br />
+		filter: Most sold products | Highest revenue products
+		<br />
+		<br />
+		Product | Units Sold | Revenue
+		<br />
+		Product A | 120 sold
+	</Card>
+	<Card title="TOP Customers">
+		Display: Columns
+		<br />
+		filter: spending | quantity
+		<br />
+		<br />
+		Product | Units Sold | Revenue
+		<br />
+		Product A | 120 sold
+	</Card>
+	<Card title="RECENT ORDERS">
+		Display: Columns
+		<br />
+		<br />
+		Order ID | Customer | Total | Status
+		<br />
+		#ORD-1024 | $120 | Paid
+	</Card>
+	<Card title="ACTIVITY FEED">
+		Display: Columns
+		<br />
+		<br />
+		New order placed | time
+		<br />
+		Product updated | time
+		<br />
+		Customer registered | time
+	</Card>
+	<Card title="Low Stock">
+		Display: Columns
+		<br />
+		<br />
+		Black Hoodie | (3 left)
+		<br />
+		Nike Air Max | (3 left)
+	</Card>
+	<Card title="Cart analytics">
+		Display: Columns
+		<br />
+		<br />
+		Abandoned | 3
+		<br />
+		Checkout | 3
+	</Card>
+	<Card title="Coupon Usage">
+		Display: Columns
+		<br />
+		<br />
+		Count | 3
+		<br />
+		Value | 3
+	</Card>
+	<Card title="Traffic / Analytics">
+		Display: Columns
+		<br />
+		<br />
+		page | 3
+	</Card>
 </Content>
 
 <style>
-	.btns {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-
-		margin: 16px 0;
-		max-width: 400px;
-	}
 </style>

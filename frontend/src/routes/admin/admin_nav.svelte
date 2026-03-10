@@ -14,49 +14,49 @@
 		{
 			name: 'Admin',
 			href: '/admin/users_admin',
-			access: 'user:set_access',
+			access: 'user.set_access',
 			icon: 'shield-check'
 		},
 		{
 			name: 'Users',
 			href: '/admin/users',
-			access: 'user:view',
+			access: 'user.view',
 			icon: 'users'
 		},
 		{
 			name: 'Reports',
 			href: '/admin/report',
-			access: 'report:view',
+			access: 'report.view',
 			icon: 'flag-triangle-right'
 		},
 		{
 			name: 'Blocked Users',
 			href: '/admin/block',
-			access: 'block:view',
+			access: 'block.view',
 			icon: 'user-x'
 		},
 		{
 			name: 'File Error',
 			href: '/admin/file_error',
-			access: 'admin:manage_files',
+			access: 'admin.manage_files',
 			icon: 'file-warning'
 		},
 		{
 			name: 'Adverts',
 			href: '/admin/advert',
-			access: 'item:advert',
+			access: 'item.advert',
 			icon: 'megaphone'
 		},
 		{
 			name: 'Coupons',
 			href: '/admin/coupons',
-			access: 'coupon:view',
+			access: 'coupon.view',
 			icon: 'ticket-percent'
 		},
 		{
 			name: 'Maintenance',
 			href: '/admin/maintenance',
-			access: 'admin:maintenance',
+			access: 'admin.maintenance',
 			icon: 'wrench'
 		}
 	];
@@ -65,14 +65,14 @@
 		{
 			name: 'Orders',
 			href: '/orders',
-			access: 'order:view',
+			access: 'order.view',
 			icon: 'shopping-cart',
 			icon2: 'arrow-up-right'
 		},
 		{
 			name: 'Log',
 			href: '/log',
-			access: 'log:view',
+			access: 'log.view',
 			icon: 'clipboard-list',
 			icon2: 'arrow-up-right'
 		},

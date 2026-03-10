@@ -28,7 +28,7 @@ def get(key):
         return jsonify(session)
     user = session["user"]
 
-    if "item:advert" not in user["access"]:
+    if "item.advert" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -86,7 +86,7 @@ def get_many(cur=None):
     page_size = min(page_size, 100)
 
     status = "active"
-    if request.path == "/advert" and "item:advert" in user["access"]:
+    if request.path == "/advert" and "item.advert" in user["access"]:
         status = ""
 
     cur.execute(f"""

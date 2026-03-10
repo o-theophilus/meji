@@ -27,7 +27,7 @@ def add_item():
         return jsonify(session)
     user = session["user"]
 
-    if "item:add" not in user["access"]:
+    if "item.add" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -114,7 +114,7 @@ def edit(key):
 
     if "status" in request.json:
         status = request.json.get("status")
-        if "item:edit_status" not in user["access"]:
+        if "item.edit_status" not in user["access"]:
             error["status"] = "unauthorized access"
         elif not status or status not in ['active', 'draft']:
             error["status"] = "Invalid request"
@@ -125,7 +125,7 @@ def edit(key):
 
     if "date_created" in request.json:
         date_created = request.json.get("date_created")
-        if "item:edit_date" not in user["access"]:
+        if "item.edit_date" not in user["access"]:
             error["date_created"] = "unauthorized access"
         elif not date_created:
             error["date_created"] = "This field is required"
@@ -139,7 +139,7 @@ def edit(key):
 
     if "name" in request.json:
         name = ' '.join(request.json.get("name", "").strip().split())
-        if "item:edit_name" not in user["access"]:
+        if "item.edit_name" not in user["access"]:
             error["name"] = "unauthorized access"
         elif not name:
             error["name"] = "This field is required"
@@ -158,7 +158,7 @@ def edit(key):
 
     if "tags" in request.json:
         tags = request.json.get("tags")
-        if "item:edit_tag" not in user["access"]:
+        if "item.edit_tag" not in user["access"]:
             error["tags"] = "unauthorized access"
         elif type(tags) is not list:
             error["tags"] = "This field is required"
@@ -170,7 +170,7 @@ def edit(key):
         price_old = 0 if price == 0 else request.json.get(
             "price_old", price_old)
 
-        if "item:edit_price" not in user["access"]:
+        if "item.edit_price" not in user["access"]:
             error["error"] = "unauthorized access"
         elif price == item["price"] and price_old == item["price_old"]:
             error["error"] = "No changes were made"
@@ -183,7 +183,7 @@ def edit(key):
 
     if "information" in request.json:
         information = request.json.get("information", "").strip()
-        if "item:edit_information" not in user["access"]:
+        if "item.edit_information" not in user["access"]:
             error["information"] = "unauthorized access"
         elif information == item["information"]:
             error["information"] = "No changes were made"
@@ -192,7 +192,7 @@ def edit(key):
 
     if "variation" in request.json:
         variation = request.json.get("variation")
-        if "item:edit_variation" not in user["access"]:
+        if "item.edit_variation" not in user["access"]:
             error["variation"] = "unauthorized access"
         elif type(variation) is not dict:
             error["variation"] = "This field is required"
@@ -201,7 +201,7 @@ def edit(key):
 
     if "quantity" in request.json:
         quantity = request.json.get("quantity")
-        if "item:edit_quantity" not in user["access"]:
+        if "item.edit_quantity" not in user["access"]:
             error["error"] = "unauthorized access"
         elif quantity == item["quantity"]:
             error["error"] = "No changes were made"
@@ -258,7 +258,7 @@ def delete(key):
     password = request.json.get("password")
 
     error = None
-    if "item:edit_status" not in user["access"]:
+    if "item.edit_status" not in user["access"]:
         error = "unauthorized access"
     elif not password:
         error = "This field is required"
@@ -375,7 +375,7 @@ def add_review(key):
 
     parent_key = request.json.get("parent_key")
     if parent_key:
-        if "review:reply" not in user["access"]:
+        if "review.reply" not in user["access"]:
             db_close(con, cur)
             return jsonify({
                 "status": 403,

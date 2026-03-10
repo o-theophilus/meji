@@ -46,7 +46,7 @@
 				**********
 			{/if}
 
-			{#if app.user.access.includes('coupon:view_code')}
+			{#if app.user.access.includes('coupon.view_code')}
 				<RoundButton
 					icon={show_code ? 'eye' : 'eye-off'}
 					icon_size="12"
@@ -72,12 +72,12 @@
 		</span>
 	</div>
 
-	{#if (app.user.access.includes('coupon:edit_validity') || app.user.access.includes('coupon:delete')) && coupon.status != 'used'}
+	{#if (app.user.access.includes('coupon.edit_validity') || app.user.access.includes('coupon.delete')) && coupon.status != 'used'}
 		<div class="line btns">
-			{#if app.user.access.includes('coupon:edit_validity')}
+			{#if app.user.access.includes('coupon.edit_validity')}
 				<Button onclick={() => module.open(Validity, { update, coupon })}>Validity</Button>
 			{/if}
-			{#if app.user.access.includes('coupon:delete')}
+			{#if app.user.access.includes('coupon.delete')}
 				<Button
 					icon="trash-2"
 					--button-background-color="darkred"

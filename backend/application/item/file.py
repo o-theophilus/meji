@@ -18,7 +18,7 @@ def add_file(key):
         return jsonify(session)
     user = session["user"]
 
-    if "item:edit_file" not in user["access"]:
+    if "item.edit_file" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -102,7 +102,7 @@ def order_delete_file(key):
         return jsonify(session)
     user = session["user"]
 
-    if "item:edit_file" not in user["access"]:
+    if "item.edit_file" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

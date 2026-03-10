@@ -35,7 +35,7 @@ def get(key):
 
     if (
         order["user_key"] != session["user"]["key"]
-        and "order:view" not in session["user"]["access"]
+        and "order.view" not in session["user"]["access"]
     ):
         db_close(con, cur)
         return jsonify({
@@ -135,7 +135,7 @@ def get_many():
     page_size = min(page_size, 100)
 
     user_key = user["key"]
-    if view == "all" and "order:view" in user["access"]:
+    if view == "all" and "order.view" in user["access"]:
         user_key = ""
 
     cur.execute(f"""

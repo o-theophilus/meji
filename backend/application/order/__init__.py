@@ -356,7 +356,7 @@ def delivery_date(key):
         return jsonify(session)
     user = session["user"]
 
-    if "order:edit_delivery_date" not in user["access"]:
+    if "order.edit_delivery_date" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -430,7 +430,7 @@ def status(key):
         return jsonify(session)
     user = session["user"]
 
-    if "order:edit_status" not in user["access"]:
+    if "order.edit_status" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -566,7 +566,7 @@ def cancel(key):
             "error": "invalid request"
         })
 
-    if "order:cancel" not in user["access"]:
+    if "order.cancel" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

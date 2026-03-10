@@ -21,7 +21,7 @@ def get_many(cur=None):
         return jsonify(session)
     user = session["user"]
 
-    if "report:view" not in user["access"]:
+    if "report.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
         return jsonify({
@@ -116,7 +116,7 @@ def get_many(cur=None):
         WHERE
             report.status = %s
             AND (
-                %s = 'all' OR %s = report.entity_type
+                %s = 'all' OR report.entity_type = %s
             )
             AND (%s = '' OR CONCAT_WS(', ',
                 report.key, report.reporter_comment, report.tags::text,
@@ -165,7 +165,7 @@ def get_many(cur=None):
         WHERE
             report.status = %s
             AND (
-                %s = 'all' OR %s = report.entity_type
+                %s = 'all' OR report.entity_type = %s
             )
             AND (%s = '' OR CONCAT_WS(', ',
                 report.key, report.reporter_comment, report.tags::text,

@@ -70,7 +70,7 @@ def get_users():
         db_close(con, cur)
         return jsonify(session)
 
-    if "user:view" not in session["user"]["access"]:
+    if "user.view" not in session["user"]["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -149,7 +149,7 @@ def get_admins():
         return jsonify(session)
     user = session["user"]
 
-    if "user:set_access" not in user["access"]:
+    if "user.set_access" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -242,7 +242,7 @@ def get_blocked(cur=None):
         return jsonify(session)
     user = session["user"]
 
-    if "block:view" not in user["access"]:
+    if "block.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
         return jsonify({

@@ -21,7 +21,7 @@ def get_file_error(cur=None):
         return jsonify(session)
     user = session["user"]
 
-    if "admin:manage_files" not in user["access"]:
+    if "admin.manage_files" not in user["access"]:
         if close_conn:
             db_close(con, cur)
         return jsonify({
@@ -78,7 +78,7 @@ def delete_file():
         return jsonify(session)
     user = session["user"]
 
-    if "admin:manage_files" not in user["access"]:
+    if "admin.manage_files" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,

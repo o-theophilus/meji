@@ -54,6 +54,7 @@
 <Log entity_type={'page'} />
 <Meta title="Order" />
 
+<!-- TODO: implement refund -->
 <Content --content-padding-top="1px">
 	<div class="line">
 		<RoundButton icon="arrow-left" href="/orders"></RoundButton>
@@ -126,7 +127,7 @@
 			</span>.
 		</div>
 
-		{#if order.status == 'created' && app.user.access.includes('order:edit_delivery_date')}
+		{#if order.status == 'created' && app.user.access.includes('order.edit_delivery_date')}
 			<br />
 			<Button onclick={() => module.open(DateForm, { ...order, update })}>Edit</Button>
 		{/if}
@@ -135,7 +136,7 @@
 	{#if !['delivered', 'canceled'].includes(order.status)}
 		<br />
 		<div class="line">
-			{#if app.user.access.includes('order:edit_status')}
+			{#if app.user.access.includes('order.edit_status')}
 				{#if move.prev}
 					<Button
 						icon="arrow-left"
@@ -153,7 +154,7 @@
 					</Button>
 				{/if}
 			{/if}
-			{#if app.user.access.includes('order:cancel')}
+			{#if app.user.access.includes('order.cancel')}
 				<Button
 					icon="trash-2"
 					--button-background-color="darkred"

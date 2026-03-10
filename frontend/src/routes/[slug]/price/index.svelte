@@ -11,7 +11,7 @@
 </script>
 
 <div class="comp">
-	{#if app.user.access.includes('item:edit_price') && edit_mode}
+	{#if app.user.access.includes('item.edit_price') && edit_mode}
 		<Edit_Button
 			onclick={() =>
 				module.open(Form, {

@@ -56,8 +56,8 @@ def get(key):
 
     if (
         item["status"] != "active"
-        and "item:add" not in user["access"]
-        and "item:edit_status" not in user["access"]
+        and "item.add" not in user["access"]
+        and "item.edit_status" not in user["access"]
     ):
         db_close(con, cur)
         return jsonify({
@@ -86,8 +86,8 @@ def get_items(cur=None, _order="latest", _page_size=24):
     user = session["user"]
 
     if (
-        "item:edit_status" not in user["access"]
-        or "item:add" not in user["access"]
+        "item.edit_status" not in user["access"]
+        or "item.add" not in user["access"]
     ):
         status = "active"
 

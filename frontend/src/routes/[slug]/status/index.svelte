@@ -6,7 +6,7 @@
 	let { item, update } = $props();
 </script>
 
-{#if app.user.access.includes('item:edit_status')}
+{#if app.user.access.includes('item.edit_status')}
 	<Edit_Button
 		onclick={() =>
 			module.open(Form, {

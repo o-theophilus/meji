@@ -87,7 +87,7 @@
 						}}>Admin</a
 					>
 				{/if}
-				{#if app.user.access.includes('log:view')}
+				{#if app.user.access.includes('log.view')}
 					<a
 						href="/log"
 						class="menu_item"

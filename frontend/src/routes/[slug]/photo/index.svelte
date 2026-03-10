@@ -10,7 +10,7 @@
 
 <div class="img">
 	<img {src} alt={item.name} onerror={() => (src = '/no_photo.png')} />
-	{#if app.user.access.includes('item:edit_file') && edit_mode}
+	{#if app.user.access.includes('item.edit_file') && edit_mode}
 		<div class="edit line">
 			<Edit_Button
 				onclick={() => {
