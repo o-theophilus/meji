@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from . import (api, auth, cart, coupon, fix, item, log, order, postgres,
-               report, storage, user)
+               report, storage, user, dashboard)
 from .api import file_error
 from .auth import forgot
 from .cart import get as cart_get
@@ -37,6 +37,7 @@ def create_app(conf=None):
 
     app.register_blueprint(storage.bp)
     app.register_blueprint(postgres.bp)
+    app.register_blueprint(dashboard.bp)
     app.register_blueprint(log.bp)
     app.register_blueprint(log_get.bp)
     app.register_blueprint(auth.bp)

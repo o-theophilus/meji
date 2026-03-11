@@ -1,24 +1,65 @@
 <script>
-	let { title, data = [], children } = $props();
+	let { data, headers } = $props();
 </script>
 
-<div class="card">
-	<div class="title">
-		{title}
-	</div>
+<div class="table-wrapper">
+	<table>
+		<thead>
+			<tr>
+				{#each headers as head}
+					<th>{head}</th>
+				{/each}
+			</tr>
+		</thead>
 
-	{@render children?.()}
+		<tbody>
+			{#each data as row}
+				<tr>
+					{#each headers as head}
+						<td>{row[head]}</td>
+					{/each}
+				</tr>
+			{/each}
+		</tbody>
+	</table>
 </div>
 
 <style>
-	.card {
-		margin-top: 8px;
-		background-color: var(--bg3);
-		padding: 16px;
-		border-radius: 8px;
+	.table-wrapper {
+		width: 100%;
+		overflow-x: auto;
 	}
 
-	.title {
-		font-weight: 800;
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.7rem;
+	}
+
+	thead {
+		background-color: var(--bg2);
+
+		th {
+			text-align: left;
+			padding: 4px 8px;
+			font-weight: 800;
+			text-transform: capitalize;
+		}
+	}
+
+	tbody {
+		tr:hover {
+			background-color: var(--bg2);
+		}
+		td {
+			padding: 2px 8px;
+		}
+	}
+
+	tr {
+		border-bottom: 1px solid var(--ol);
+		&:last-child {
+			border-bottom: none;
+		}
 	}
 </style>

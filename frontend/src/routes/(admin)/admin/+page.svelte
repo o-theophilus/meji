@@ -1,8 +1,15 @@
 <script>
+	import { page } from '$app/state';
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
 	import Card from './card.svelte';
+	import HChart from './chart_h_bar.svelte';
+	import Table from './table.svelte';
 </script>
+
+<svelte:head>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</svelte:head>
 
 <Log entity_type={'page'} />
 <Meta title="Admin Dashboard" />
@@ -27,17 +34,11 @@
 		Filter: (Today , 7 days, 30 days, 12 months)
 	</Card>
 	<Card title="ORDERS STATUS">
-		Display: Columns
-		<br />
-		<br />
-		Pending: 12
-		<br />
-		Processing: 8
-		<br />
-		Shipped: 24
-		<br />
-		Returns: 2
+		<Table data={page.data.orders} headers={['status', 'count']}></Table>
 	</Card>
+	<!-- <Card title="ORDERS STATUS">
+		<HChart data={page.data.orders}></HChart>
+	</Card> -->
 	<Card title="TOP PRODUCTS">
 		Display: Columns
 		<br />

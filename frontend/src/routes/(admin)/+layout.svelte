@@ -79,6 +79,7 @@
 		right: 0;
 		z-index: 1;
 
+		border-top: 1px solid var(--ol);
 		height: 300px;
 		transition: bottom 0.2s ease-in-out;
 
