@@ -58,11 +58,11 @@ def resolve(key):
         cur=cur,
         user_key=user["key"],
         action="resolved report",
-        entity_key=report["key"],
         entity_type="report",
+        entity_key=report["key"],
         misc={
-            "entity_key": report["entity_key"],
             "entity_type": report["entity_type"],
+            "entity_key": report["entity_key"],
         }
     )
 
@@ -83,9 +83,9 @@ def resolve(key):
             log(
                 cur=cur,
                 user_key=user["key"],
-                action="blocked",
-                entity_key=report["entity_key"],
+                action="blocked user",
                 entity_type="user",
+                entity_key=report["entity_key"],
                 misc={"comment":  comment}
             )
 
@@ -102,10 +102,11 @@ def resolve(key):
                 cur=cur,
                 user_key=user["key"],
                 action="deleted review",
-                entity_key=review["key"],
                 entity_type="review",
+                entity_key=review["key"],
                 misc={
-                    "item_key": review["item_key"],
+                    "entity_type": "review",
+                    "entity_key": review["item_key"],
                     "comment": comment
                 }
             )
@@ -164,11 +165,11 @@ def dismiss(key):
         cur=cur,
         user_key=user["key"],
         action="dismissed report",
-        entity_key=report["key"],
         entity_type="report",
+        entity_key=report["key"],
         misc={
-            "entity_key": report["entity_key"],
             "entity_type": report["entity_type"],
+            "entity_key": report["entity_key"],
         }
     )
 

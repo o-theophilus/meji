@@ -307,8 +307,8 @@ def cart_to_order():
         cur=cur,
         user_key=user["key"],
         action="created order",
+        entity_type="order",
         entity_key=order["key"],
-        entity_type="order"
     )
 
     if discount > 0:
@@ -320,9 +320,12 @@ def cart_to_order():
             cur=cur,
             user_key=user["key"],
             action="used coupon",
-            entity_key=coupon["key"],
-            entity_type="coupon",
-            misc={"order_key": order["key"]}
+            entity_type="order",
+            entity_key=order["key"],
+            misc={
+                "entity_type": "coupon",
+                "entity_key": coupon["key"]
+            }
         )
 
     send_mail(
@@ -397,8 +400,8 @@ def delivery_date(key):
         cur=cur,
         user_key=user["key"],
         action="changed order delivery date",
-        entity_key=order["key"],
         entity_type="order",
+        entity_key=order["key"],
         misc={
             "from": f"{order["timeline"]['delivery_date']}",
             "to": delivery_date
@@ -501,8 +504,8 @@ def status(key):
         cur=cur,
         user_key=user["key"],
         action="changed order status",
-        entity_key=order["key"],
         entity_type="order",
+        entity_key=order["key"],
         misc={
             "from": order['status'],
             "to": status,
@@ -616,8 +619,8 @@ def cancel(key):
         cur=cur,
         user_key=user["key"],
         action="canceled order",
-        entity_key=order["key"],
         entity_type="order",
+        entity_key=order["key"],
         misc={"comment": comment}
     )
 

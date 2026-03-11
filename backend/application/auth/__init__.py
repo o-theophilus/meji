@@ -121,23 +121,23 @@ def default_admin():
         log(
             cur=cur,
             user_key=user["key"],
-            action="created anonymous account",
-            entity_key="auth",
-            entity_type="account",
+            action="created",
+            entity_type="user",
+            entity_key=user["key"]
         )
         log(
             cur=cur,
             user_key=user["key"],
-            action="signedup account",
-            entity_key="auth",
-            entity_type="account",
+            action="signedup",
+            entity_type="user",
+            entity_key=user["key"]
         )
         log(
             cur=cur,
             user_key=user["key"],
             action="activated account",
-            entity_key="auth",
-            entity_type="account",
+            entity_type="user",
+            entity_key=user["key"]
         )
 
     db_close(con, cur)
@@ -167,9 +167,9 @@ def init():
         log(
             cur=cur,
             user_key=user["key"],
-            action="created anonymous account",
-            entity_key="auth",
-            entity_type="account",
+            action="created",
+            entity_type="user",
+            entity_key=user["key"]
         )
 
     likes = get_user_like(cur, user["key"])
@@ -282,9 +282,9 @@ def signup():
     log(
         cur=cur,
         user_key=user["key"],
-        action="signedup account",
-        entity_key="auth",
-        entity_type="account",
+        action="signedup",
+        entity_type="user",
+        entity_key=user["key"]
     )
 
     send_mail(
@@ -341,8 +341,8 @@ def confirm():
         cur=cur,
         user_key=user["key"],
         action="activated account",
-        entity_key="auth",
-        entity_type="account",
+        entity_type="user",
+        entity_key=user["key"]
     )
 
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
@@ -447,22 +447,22 @@ def login():
         cur=cur,
         user_key=user["key"],
         action="logged in",
-        entity_key="auth",
-        entity_type="account",
+        entity_type="user",
+        entity_key=user["key"],
         misc={
-            "from": anon_user["key"],
-            "name": anon_user["name"]
+            "type": "user",
+            "key": anon_user["key"]
         }
     )
     log(
         cur=cur,
         user_key=anon_user["key"],
         action="logged out",
-        entity_key="auth",
-        entity_type="account",
+        entity_type="user",
+        entity_key=anon_user["key"],
         misc={
-            "to": user["key"],
-            "name": user["name"]
+            "entity_type": "user",
+            "entity_key": user["key"],
         }
     )
 
@@ -494,22 +494,22 @@ def logout():
         cur=cur,
         user_key=user["key"],
         action="logged out",
-        entity_key="auth",
-        entity_type="account",
+        entity_type="user",
+        entity_key=user["key"],
         misc={
-            "to": anon_user["key"],
-            "name": anon_user["name"]
+            "entity_type": "user",
+            "entity_key": anon_user["key"],
         }
     )
     log(
         cur=cur,
         user_key=anon_user["key"],
-        action="created account",
-        entity_key="auth",
-        entity_type="account",
+        action="created",
+        entity_type="user",
+        entity_key=anon_user["key"],
         misc={
-            "from": user["key"],
-            "name": user["name"]
+            "entity_type": "user",
+            "entity_key": user["key"],
         }
     )
 
@@ -532,7 +532,7 @@ def deactivate():
     user = session["user"]
 
     password = request.json.get("password")
-    note = request.json.get("note")
+    comment = request.json.get("comment")
     email_template = request.json.get("email_template")
 
     if not email_template:
@@ -570,19 +570,19 @@ def deactivate():
         cur=cur,
         user_key=user["key"],
         action="deleted account",
-        entity_key="auth",
-        entity_type="account",
-        misc={"note": note} if note else {}
+        entity_type="user",
+        entity_key=user["key"],
+        misc={"comment": comment} if comment else {}
     )
     log(
         cur=cur,
         user_key=anon_user["key"],
-        action="created account",
-        entity_key="auth",
-        entity_type="account",
+        action="created",
+        entity_type="user",
+        entity_key=anon_user["key"],
         misc={
-            "from": user["key"],
-            "name": user["name"]
+            "entity_type": "user",
+            "entity_key": user["key"],
         }
     )
 

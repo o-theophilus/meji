@@ -65,8 +65,8 @@ def add_item():
         cur=cur,
         user_key=user["key"],
         action="created item",
+        entity_type="item",
         entity_key=item["key"],
-        entity_type="item"
     )
 
     items = get_items(cur)
@@ -233,8 +233,8 @@ def edit(key):
         cur=cur,
         user_key=user["key"],
         action="edited item",
-        entity_key=item["key"],
         entity_type="item",
+        entity_key=item["key"],
         misc=request.json
     )
 
@@ -291,8 +291,8 @@ def delete(key):
         cur=cur,
         user_key=user["key"],
         action="deleted item",
+        entity_type="item",
         entity_key=item["key"],
-        entity_type="item"
     )
 
     db_close(con, cur)
@@ -339,8 +339,8 @@ def like(key):
         cur=cur,
         user_key=user["key"],
         action=f"{'un' if user_reaction else ''}like item",
+        entity_type="item",
         entity_key=item["key"],
-        entity_type="item"
     )
 
     likes = get_user_like(cur, user["key"])
@@ -438,15 +438,18 @@ def add_review(key):
         INSERT INTO review (user_key, item_key, rating, comment, parent_key)
         VALUES (%s, %s, %s, %s, %s) RETURNING *;
     """, (user["key"], item["key"], rating, comment, parent_key))
-    comment = cur.fetchone()
+    review = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="added item review",
-        entity_key=comment["key"],
-        entity_type="review",
-        misc={"item_key": item["key"]}
+        action="added review",
+        entity_type="item",
+        entity_key=item["key"],
+        misc={
+            "entity_type": "review",
+            "entity_key": review["key"]
+        }
     )
 
     reviews = get_reviews(item["key"], cur=cur)

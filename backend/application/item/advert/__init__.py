@@ -47,9 +47,9 @@ def add_photo(key):
         log(
             cur=cur,
             user_key=user["key"],
-            action="created",
+            action="created item advert",
+            entity_type="item",
             entity_key=advert["key"],
-            entity_type="advert"
         )
 
     error = ""
@@ -101,9 +101,9 @@ def add_photo(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action=f"added advert photo{'s' if files != [] else ''}",
+        action=f"added item advert photo{'s' if files != [] else ''}",
+        entity_type="item",
         entity_key=advert["key"],
-        entity_type="advert",
         misc={"from": old_photo, "to": advert["photo"]}
     )
 
@@ -175,9 +175,9 @@ def set_photo(key):
         log(
             cur=cur,
             user_key=user["key"],
-            action="deleted photo",
+            action="edited item advert",
+            entity_type="item",
             entity_key=advert["key"],
-            entity_type="advert",
             misc={
                 "from photo": old_advert["photo"],
                 "to photo": advert["photo"],
@@ -194,9 +194,9 @@ def set_photo(key):
         log(
             cur=cur,
             user_key=user["key"],
-            action="deleted advert",
+            action="deleted item advert",
+            entity_type="item",
             entity_key=advert["key"],
-            entity_type="advert"
         )
 
     db_close(con, cur)

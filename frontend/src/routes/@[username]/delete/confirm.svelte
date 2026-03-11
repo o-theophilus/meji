@@ -54,9 +54,9 @@
 
 	<IG
 		name="Please give reason"
-		error={error.note}
+		error={error.comment}
 		type="textarea"
-		bind:value={form.note}
+		bind:value={form.comment}
 		placeholder="Reason"
 	/>
 

@@ -29,7 +29,10 @@ def delete(key):
 
     comment = request.json.get("comment", "").strip()
 
-    misc = {"item_key": review["item_key"]}
+    misc = {
+        "item_key": "item",
+        "entity_key": review["item_key"]
+    }
 
     if review["user_key"] != user["key"]:
         if "review.delete_others" not in user["access"]:
@@ -59,8 +62,8 @@ def delete(key):
         cur=cur,
         user_key=user["key"],
         action="deleted review",
-        entity_key=review["key"],
         entity_type="review",
+        entity_key=review["key"],
         misc=misc
     )
 
@@ -116,9 +119,12 @@ def like(key):
         cur=cur,
         user_key=user["key"],
         action=f"{un}{reaction} review",
-        entity_key=review["key"],
         entity_type="review",
-        misc={"item_key": review["item_key"]}
+        entity_key=review["key"],
+        misc={
+            "item_key": "item",
+            "entity_key": review["item_key"]
+        }
     )
 
     cur.execute("""
@@ -191,9 +197,12 @@ def report(key):
         cur=cur,
         user_key=user["key"],
         action="reported review",
-        entity_key=report["key"],
-        entity_type="report",
-        misc={"key": reported_review["key"]}
+        entity_type="review",
+        entity_key=reported_review["key"],
+        misc={
+            "entity_type": "report",
+            "entity_key": report["key"]
+        }
     )
 
     db_close(con, cur)

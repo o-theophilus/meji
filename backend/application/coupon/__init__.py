@@ -73,8 +73,8 @@ def add():
         cur=cur,
         user_key=user["key"],
         action="created coupon",
+        entity_type="coupon",
         entity_key=coupon["key"],
-        entity_type="coupon"
     )
 
     coupons = get_many(cur)
@@ -130,8 +130,8 @@ def delete(key):
         cur=cur,
         user_key=user["key"],
         action="deleted coupon",
-        entity_key=coupon["key"],
         entity_type="coupon",
+        entity_key=coupon["key"],
         misc={"comment": comment}
     )
 
@@ -225,8 +225,8 @@ def set_validity(key):
         cur=cur,
         user_key=user["key"],
         action="changed coupon validity",
-        entity_key=coupon["key"],
         entity_type="coupon",
+        entity_key=coupon["key"],
         misc={
             "from": f'{old_coupon[
                 "valid_from"]} - {old_coupon["valid_until"]}',
@@ -279,8 +279,8 @@ def clear_validity(key):
         cur=cur,
         user_key=user["key"],
         action="cleared coupon validity",
-        entity_key=coupon["key"],
         entity_type="coupon",
+        entity_key=coupon["key"],
         misc={
             "from": f'{old_coupon[
                 "valid_from"]} - {old_coupon["valid_until"]}',

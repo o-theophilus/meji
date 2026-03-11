@@ -27,8 +27,8 @@ def delete_session(cur, user_key):
         cur=cur,
         user_key=user_key,
         action="cleaned up expired sessions",
-        entity_key="maintenance",
         entity_type="app",
+        entity_key="maintenance",
         misc={
             "deleted_sessions": [x["key"] for x in sessions],
         }
@@ -47,8 +47,8 @@ def delete_anonymous(cur, user_key):
         cur=cur,
         user_key=user_key,
         action="cleaned up anonymous users",
-        entity_key="maintenance",
         entity_type="app",
+        entity_key="maintenance",
         misc={
             "deleted_users": [x["key"] for x in users],
         }

@@ -76,8 +76,8 @@ def add_file(key):
         cur=cur,
         user_key=user["key"],
         action="added photo to item",
-        entity_key=item["key"],
         entity_type="item",
+        entity_key=item["key"],
         misc={
             "added": ", ".join(file_names),
             "error": error
@@ -138,8 +138,8 @@ def order_delete_file(key):
         cur=cur,
         user_key=user["key"],
         action="edited item photo",
-        entity_key=item["key"],
         entity_type="item",
+        entity_key=item["key"],
         misc={
             "from": item["files"],
             "to": files

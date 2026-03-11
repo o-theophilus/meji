@@ -103,10 +103,11 @@ def add_to_cart():
         cur=cur,
         user_key=user["key"],
         action="added item to cart",
-        entity_key=cart["key"],
         entity_type="cart",
+        entity_key=cart["key"],
         misc={
-            "key": order_item["item_key"],
+            "entity_type": "item",
+            "entity_key": order_item["item_key"],
             "variation": order_item["variation"],
             "quantity": order_item["quantity"]
         }
@@ -163,10 +164,11 @@ def remove_from_cart():
             cur=cur,
             user_key=user["key"],
             action="removed item from cart",
-            entity_key=cart["key"],
             entity_type="cart",
+            entity_key=cart["key"],
             misc={
-                "key": item_key,
+                "entity_type": "item",
+                "entity_key": item_key,
                 "variation": variation
             }
         )
@@ -241,10 +243,11 @@ def quantity():
         cur=cur,
         user_key=user["key"],
         action="updated cart item quantity",
-        entity_key=cart["key"],
         entity_type="cart",
+        entity_key=cart["key"],
         misc={
-            "key": order_item["item_key"],
+            "entity_type": "item",
+            "entity_key": order_item["item_key"],
             "variation": order_item["variation"],
             "from_quantity": order_item["quantity"],
             "to_quantity": quantity
@@ -260,6 +263,7 @@ def quantity():
     })
 
 
+@bp.delete("/cart/receiver")
 @bp.post("/cart/receiver")
 def receiver():
     con, cur = db_open()
@@ -282,77 +286,79 @@ def receiver():
             "error": "invalid request"
         })
 
-    error = {}
-    name = ' '.join(request.json.get("name", "").strip().split())
-    phone = request.json.get("phone", "").replace(" ", "")
-    email = request.json.get("email", "").strip()
-    address = request.json.get("address")
-    state = request.json.get("state")
-    country = request.json.get("country")
-    postal_code = request.json.get("postal_code")
+    if request.method == "POST":
+        error = {}
+        name = ' '.join(request.json.get("name", "").strip().split())
+        phone = request.json.get("phone", "").replace(" ", "")
+        email = request.json.get("email", "").strip()
+        address = request.json.get("address")
+        state = request.json.get("state")
+        country = request.json.get("country")
+        postal_code = request.json.get("postal_code")
 
-    if not name:
-        error["name"] = "This field is required"
-    elif len(name) > 100:
-        error["name"] = "This field cannot exceed 100 characters"
+        if not name:
+            error["name"] = "This field is required"
+        elif len(name) > 100:
+            error["name"] = "This field cannot exceed 100 characters"
 
-    if not name:
-        error['phone'] = "This field is required"
-    elif len(phone) > 20:
-        error["phone"] = "This field cannot exceed 20 characters"
+        if not name:
+            error['phone'] = "This field is required"
+        elif len(phone) > 20:
+            error["phone"] = "This field cannot exceed 20 characters"
 
-    if not email:
-        error["email"] = "This field is required"
-    elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
-        error["email"] = "Invalid email address"
-    elif len(email) > 255:
-        error["email"] = "This field cannot exceed 255 characters"
+        if not email:
+            error["email"] = "This field is required"
+        elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+            error["email"] = "Invalid email address"
+        elif len(email) > 255:
+            error["email"] = "This field cannot exceed 255 characters"
 
-    if not address:
-        error["address"] = "This field is required"
-    elif len(address) > 255:
-        error["address"] = "This field cannot exceed 255 characters"
+        if not address:
+            error["address"] = "This field is required"
+        elif len(address) > 255:
+            error["address"] = "This field cannot exceed 255 characters"
 
-    if not state:
-        error["state"] = "This field is required"
-    elif len(state) > 20:
-        error["state"] = "This field cannot exceed 20 characters"
+        if not state:
+            error["state"] = "This field is required"
+        elif len(state) > 20:
+            error["state"] = "This field cannot exceed 20 characters"
 
-    if not country:
-        error["country"] = "This field is required"
-    elif len(country) > 20:
-        error["country"] = "This field cannot exceed 20 characters"
+        if not country:
+            error["country"] = "This field is required"
+        elif len(country) > 20:
+            error["country"] = "This field cannot exceed 20 characters"
 
-    if postal_code and len(postal_code) > 10:
-        error["postal_code"] = "This field cannot exceed 10 characters"
+        if postal_code and len(postal_code) > 10:
+            error["postal_code"] = "This field cannot exceed 10 characters"
 
-    if error:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            **error
-        })
+        if error:
+            db_close(con, cur)
+            return jsonify({
+                "status": 400,
+                **error
+            })
 
-    # coordinates = [0, 1]
-
-    receiver = {
-        "name": name,
-        "phone": phone,
-        "email": email,
-        "address": {
-            "address": address,
-            "state": state,
-            "country": country,
-            "postal_code": postal_code
+        receiver = {
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "address": {
+                "address": address,
+                "state": state,
+                "country": country,
+                "postal_code": postal_code
+            }
         }
-    }
+
+    else:
+        receiver = {}
 
     log(
         cur=cur,
         user_key=user["key"],
         action="edited cart receiver",
-        entity_key=cart["key"],
         entity_type="cart",
+        entity_key=cart["key"],
         misc={
             "from": cart["receiver"],
             "to": receiver
@@ -362,54 +368,6 @@ def receiver():
     cur.execute("""
         UPDATE "order" SET receiver = %s WHERE key = %s RETURNING *;
     """, (Json(receiver), cart["key"]))
-    cart = cur.fetchone()
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": cart
-    })
-
-
-@bp.delete("/cart/receiver")
-def receiver_clear():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited cart receiver",
-        entity_key=cart["key"],
-        entity_type="cart",
-        misc={
-            "from": cart["receiver"],
-            "to": {}
-        }
-    )
-
-    cur.execute("""
-        UPDATE "order"
-        SET receiver = %s
-        WHERE key = %s RETURNING *;
-    """, (Json({}), cart["key"]))
     cart = cur.fetchone()
 
     db_close(con, cur)
@@ -479,9 +437,12 @@ def add_coupon():
         cur=cur,
         user_key=user["key"],
         action="added coupon to cart",
-        entity_key=coupon["key"],
-        entity_type="coupon",
-        misc={"cart_key": cart["key"]}
+        entity_type="cart",
+        entity_key=cart["key"],
+        misc={
+            "entity_type": "coupon",
+            "entity_key": coupon["key"]
+        }
     )
 
     db_close(con, cur)
@@ -531,10 +492,13 @@ def remove_coupon():
     log(
         cur=cur,
         user_key=user["key"],
-        action="removed coupon to cart",
-        entity_key=coupon["key"],
-        entity_type="coupon",
-        misc={"cart_key": cart["key"]}
+        action="removed coupon from cart",
+        entity_type="cart",
+        entity_key=cart["key"],
+        misc={
+            "entity_type": "coupon",
+            "entity_key": coupon["key"]
+        }
     )
 
     db_close(con, cur)
