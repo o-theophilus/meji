@@ -2,8 +2,9 @@
 	import { page } from '$app/state';
 	import { Icon } from '$lib/macro';
 	import { app } from '$lib/store.svelte.js';
+	import { slide } from 'svelte/transition';
 
-	let { ops = $bindable() } = $props();
+	let { ops = $bindable(), side_bar, wide } = $props();
 	const buttons = [
 		{
 			name: 'Dashboard',
@@ -80,21 +81,43 @@
 			name: 'Collapse',
 			onclick: () => (ops.open = !ops.open),
 			access: null,
-			icon: 'clipboard-list'
+			icon: 'panel-left-open'
 		}
 	];
 </script>
 
-<div class="nav">
-	<div class="block" class:small={!ops.open}>
-		<div class="top">
-			{#each buttons as x}
-				{@const a = x.href.split('/')}
-				{@const b = page.url.pathname.split('/')}
-				{@const active = a[a.length - 1] == b[b.length - 1]}
+<div class="block" class:side_bar class:wide>
+	<div class="top">
+		{#each buttons as x}
+			{@const a = x.href.split('/')}
+			{@const b = page.url.pathname.split('/')}
+			{@const active = a[a.length - 1] == b[b.length - 1]}
 
-				{#if app.user.access.includes(x.access) || x.access === null}
-					<a class:active href={x.href} data-sveltekit-preload-data>
+			{#if app.user.access.includes(x.access) || x.access === null}
+				<a
+					class:active
+					href={x.href}
+					data-sveltekit-preload-data
+					onclick={() => (ops.open = false)}
+				>
+					<Icon icon={x.icon}></Icon>
+					<div class="name" in:slide={{ delay: 200 }}>
+						{x.name}
+
+						{#if x.icon2}
+							<Icon icon={x.icon2}></Icon>
+						{/if}
+					</div>
+				</a>
+			{/if}
+		{/each}
+	</div>
+
+	<div class="bottom">
+		{#each buttons2 as x}
+			{#if app.user.access.includes(x.access) || x.access === null}
+				{#if x.href}
+					<a href={x.href} data-sveltekit-preload-data>
 						<Icon icon={x.icon}></Icon>
 						<div class="name">
 							{x.name}
@@ -105,48 +128,12 @@
 						</div>
 					</a>
 				{/if}
-			{/each}
-		</div>
-
-		<div class="bottom">
-			{#each buttons2 as x}
-				{#if app.user.access.includes(x.access) || x.access === null}
-					{#if x.href}
-						<a href={x.href} data-sveltekit-preload-data>
-							<Icon icon={x.icon}></Icon>
-							<div class="name">
-								{x.name}
-
-								{#if x.icon2}
-									<Icon icon={x.icon2}></Icon>
-								{/if}
-							</div>
-						</a>
-					{:else}
-						<button onclick={() => (ops.open = !ops.open)}>
-							{#key ops.open}
-								<Icon icon={ops.open ? 'panel-left-close' : 'panel-left-open'}></Icon>
-							{/key}
-							<div class="name">Collapse</div>
-						</button>
-					{/if}
-				{/if}
-			{/each}
-		</div>
+			{/if}
+		{/each}
 	</div>
 </div>
 
 <style>
-	.nav {
-		position: sticky;
-		top: 0;
-		bottom: var(--headerHeight2);
-
-		padding: 8px;
-		align-self: flex-start;
-		height: calc(100vh - var(--headerHeight) - var(--headerHeight2));
-	}
-
 	.block {
 		display: flex;
 		flex-direction: column;
@@ -154,6 +141,8 @@
 		flex-shrink: 0;
 		padding: 8px;
 		height: 100%;
+		overflow-y: auto;
+
 		background-color: var(--bg);
 		border-radius: 8px;
 
@@ -177,35 +166,16 @@
 				bottom 0.2s ease-in-out;
 		}
 
-		&.small {
-			& a,
-			& button {
-				padding: 0;
-				width: 40px;
-
-				& .name {
-					display: none;
-				}
-			}
-		}
-
-		& button {
-			all: unset;
-			cursor: pointer;
-			box-sizing: border-box;
-		}
-
-		& a,
-		& button {
+		& a {
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 16px;
 
+			width: 100%;
 			height: 40px;
 			padding: 0 16px;
 			border-radius: 8px;
-			width: 180px;
 
 			color: var(--ft2);
 			fill: currentColor;
@@ -216,13 +186,18 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
+
 				width: 100%;
+				overflow: hidden;
 			}
 
 			transition:
 				background-color 0.2s ease-in-out,
 				color 0.2s ease-in-out,
-				font-weight 0.2s ease-in-out;
+				font-weight 0.2s ease-in-out,
+				gap 0.2s ease-in-out,
+				width 0.2s ease-in-out,
+				padding 0.2s ease-in-out;
 
 			&.active {
 				anchor-name: --active;
@@ -233,6 +208,34 @@
 
 			&:hover {
 				background-color: var(--bg1);
+			}
+		}
+	}
+
+	@media screen and (min-width: 600px) {
+		.side_bar {
+			& a {
+				width: 40px;
+				padding: 0;
+				gap: 0;
+
+				& .name {
+					width: 0;
+				}
+			}
+		}
+	}
+
+	@media screen and (min-width: 700px) {
+		.side_bar {
+			& a {
+				width: 100%;
+				padding: 0 16px;
+				gap: 16px;
+
+				& .name {
+					width: 100%;
+				}
 			}
 		}
 	}
