@@ -150,9 +150,9 @@ def cart_to_order():
 
     cur.execute("""
         SELECT email FROM "user"
-        WHERE 'order:email_order_created' = ANY(access);
+        WHERE 'order.email_order_created' = ANY(access);
     """)
-    admins = cur.fetchall()
+    admins_to_notify = cur.fetchall()
 
     reference = request.json.get("reference")
     email_template_admin = request.json.get("email_template_admin")
@@ -160,7 +160,7 @@ def cart_to_order():
 
     if (
         not order
-        or admins == []
+        or admins_to_notify == []
         or not reference
         or not email_template_admin
         or not email_template_user
@@ -334,7 +334,7 @@ def cart_to_order():
         email_template_user.format(name=user["name"])
     )
     send_mail(
-        [x["email"] for x in admins],
+        [x["email"] for x in admins_to_notify],
         "New Order",
         email_template_admin.format(
             name=user["name"],
