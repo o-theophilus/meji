@@ -12,6 +12,8 @@
 	import Checkout from './checkout.svelte';
 
 	let { data } = $props();
+	console.log(data);
+	
 
 	onMount(() => {
 		app.cart_items = data.items;

@@ -423,7 +423,7 @@ def delivery_date(key):
     })
 
 
-@bp.put("/order/<key>/status")
+@bp.put("/orders/<key>/status")
 def status(key):
     con, cur = db_open()
 
@@ -455,7 +455,7 @@ def status(key):
     order_user = cur.fetchone()
     cur.execute("""
         SELECT email FROM "user"
-        WHERE 'order:email_order_delivered' = ANY(access);
+        WHERE 'order.email_order_delivered' = ANY(access);
     """)
     admins = cur.fetchall()
 
@@ -550,7 +550,7 @@ def status(key):
     })
 
 
-@bp.delete("/order/<key>/status")
+@bp.delete("/orders/<key>/status")
 def cancel(key):
     con, cur = db_open()
 

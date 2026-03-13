@@ -350,8 +350,10 @@ def receiver():
             }
         }
 
+        delivery_cost = 1500
     else:
         receiver = {}
+        delivery_cost = 0
 
     log(
         cur=cur,
@@ -366,8 +368,9 @@ def receiver():
     )
 
     cur.execute("""
-        UPDATE "order" SET receiver = %s WHERE key = %s RETURNING *;
-    """, (Json(receiver), cart["key"]))
+        UPDATE "order" SET receiver = %s, delivery_cost = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(receiver), delivery_cost, cart["key"]))
     cart = cur.fetchone()
 
     db_close(con, cur)

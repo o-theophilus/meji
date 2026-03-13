@@ -91,22 +91,16 @@
 	<Switch list={['Today', '1 day', '7 days', '1 month']}></Switch>
 
 	<div class="container">
-		<div class="summary_container margin">
-			<div class="summary">
-				<Card>
-					<Summary title="Sales Today" data={sales_today} money icon="banknote"></Summary>
-				</Card>
-				<Card>
-					<Summary title="Orders Today" data={orders_today} icon="receipt-text"></Summary>
-				</Card>
-				<Card>
-					<Summary title="New Users Today" data={orders_today} icon="User"></Summary>
-				</Card>
-
-				<Card title="Conversion Rate">
-					<HChart data={cartData}></HChart>
-				</Card>
-			</div>
+		<div class="four margin">
+			<Card>
+				<Summary title="Sales Today" data={sales_today} money icon="banknote"></Summary>
+			</Card>
+			<Card>
+				<Summary title="Orders Today" data={orders_today} icon="receipt-text"></Summary>
+			</Card>
+			<Card>
+				<Summary title="New Users Today" data={orders_today} icon="User"></Summary>
+			</Card>
 		</div>
 
 		<div class="margin">
@@ -133,7 +127,7 @@
 			</Card>
 		</div>
 
-		<div class="top_entities margin">
+		<div class="two margin">
 			<Card title="TOP PRODUCTS">
 				<Table data={top_products} headers={['name', 'units', 'revenue']}></Table>
 			</Card>
@@ -142,7 +136,31 @@
 			</Card>
 		</div>
 
+		<div class="margin three">
+			<Card title="Conversion Rate">
+				<HChart data={cartData}></HChart>
+				50%
+			</Card>
+
+			<Card title="Coupon Usage">
+				Display: Columns
+				<br />
+				<br />
+				Count | 3
+				<br />
+				Value | 3
+			</Card>
+
+			<Card title="Traffic / Analytics">
+				Display: Columns
+				<br />
+				<br />
+				page | 3
+			</Card>
+		</div>
+
 		<br />
+
 		<Card title="ACTIVITY FEED">
 			Display: Columns
 			<br />
@@ -153,21 +171,6 @@
 			<br />
 			Customer registered | time
 		</Card>
-
-		<Card title="Coupon Usage">
-			Display: Columns
-			<br />
-			<br />
-			Count | 3
-			<br />
-			Value | 3
-		</Card>
-		<Card title="Traffic / Analytics">
-			Display: Columns
-			<br />
-			<br />
-			page | 3
-		</Card>
 	</div>
 </Content>
 
@@ -175,21 +178,8 @@
 	.container {
 		container-type: inline-size;
 	}
-	.summary_container {
-		.summary {
-			display: grid;
-			gap: 16px;
-			grid-template-columns: repeat(2, 1fr);
 
-			@container (min-width: 600px) {
-				& {
-					grid-template-columns: repeat(4, 1fr);
-				}
-			}
-		}
-	}
-
-	.top_entities {
+	.two {
 		display: grid;
 		gap: 16px;
 		grid-template-columns: repeat(1, 1fr);
@@ -200,6 +190,31 @@
 			}
 		}
 	}
+	
+	.three {
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(1, 1fr);
+
+		@container (min-width: 600px) {
+			& {
+				grid-template-columns: repeat(3, 1fr);
+			}
+		}
+	}
+
+	.four {
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(2, 1fr);
+
+		@container (min-width: 600px) {
+			& {
+				grid-template-columns: repeat(4, 1fr);
+			}
+		}
+	}
+
 
 	.margin {
 		margin-top: 16px;

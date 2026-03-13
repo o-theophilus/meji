@@ -69,14 +69,6 @@
 						</div>
 					</div>
 				</a>
-				<a
-					href="/orders"
-					class="menu_item"
-					onclick={() => {
-						open = false;
-						can_close = false;
-					}}>Orders</a
-				>
 				{#if app.user.access.length}
 					<a
 						href="/admin"
@@ -87,6 +79,14 @@
 						}}>Admin</a
 					>
 				{/if}
+				<a
+					href="/orders"
+					class="menu_item"
+					onclick={() => {
+						open = false;
+						can_close = false;
+					}}>Orders</a
+				>
 				{#if app.user.access.includes('log.view')}
 					<a
 						href="/log"

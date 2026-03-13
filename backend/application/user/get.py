@@ -203,8 +203,8 @@ def get_admins():
         LIMIT %s OFFSET %s;
     """, (
         search, f"%{search}%",
-        entity_type, f"%{entity_type}:%",
-        action, f"%{entity_type}:{action}%",
+        entity_type, f"%{entity_type}.%",
+        action, f"%{entity_type}.{action}%",
         page_size, (page_no - 1) * page_size
     ))
     users = cur.fetchall()
