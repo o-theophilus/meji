@@ -1,9 +1,7 @@
 <script>
 	import { Icon } from '$lib/macro';
 
-	let { title, data, money, icon } = $props();
-	let change = $derived(((data.value - data.prev_value) * 100) / data.value);
-	let up = data.value > data.prev_value;
+	let { title, data, money, icon, interval } = $props();
 </script>
 
 <div class="icon_tv">
@@ -22,28 +20,44 @@
 			{#if money}
 				₦{Number(data.value).toLocaleString()}
 			{:else}
-				{data.value}
+				{data?.value}
 			{/if}
 		</div>
 	</div>
 </div>
 
-<div class="change" class:down={!up}>
-	{#if up}
-		<Icon icon="trending-up"></Icon>
-	{:else}
-		<Icon icon="trending-down"></Icon>
-	{/if}
-	{change.toFixed(0)}%
+{#if data?.change}
+	<div class="change" class:down={data.change < 0}>
+		{#if data.change > 0}
+			<Icon icon="trending-up"></Icon>
+		{:else if data.change < 0}
+			<Icon icon="trending-down"></Icon>
+		{/if}
 
-	{#if up}
-		increase
-	{:else}
-		decrease
-	{/if}
+		{#if data.change != 0}
+			{data.change}%
 
-	from yesterday
-</div>
+			{#if data.change > 0}
+				increase
+			{:else}
+				decrease
+			{/if}
+			from
+		{:else}
+			same as
+		{/if}
+
+		{#if interval == 'today'}
+			yesterday
+		{:else if interval == '24 hours'}
+			the last 24 hours
+		{:else if interval == '7 days'}
+			last week
+		{:else if interval == '1 month'}
+			last month
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.icon_tv {

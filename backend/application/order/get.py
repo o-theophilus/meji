@@ -11,6 +11,7 @@ bp = Blueprint("order_get", __name__)
 
 order_status = ['created', 'processing', 'enroute', 'delivered',
                 'canceled']
+# TODO: returned
 
 
 @bp.get("/orders/<key>")
@@ -53,15 +54,14 @@ def get(key):
     #       then suggest to see the latest version
     cur.execute("""
         SELECT
-            item.key, item.slug, item.name, item.price, item.status,
-            COALESCE(item.files[1], NULL) as photo,
+            i.key, i.slug, i.name, i.price, i.status,
+            COALESCE(i.files[1], NULL) as photo,
             order_item.variation, order_item.quantity
         FROM order_item
-        LEFT JOIN "order" ON "order".key = order_item.order_key
-        LEFT JOIN item_snap AS item ON order_item.item_key = item.item_key
-        WHERE "order".key = %s
+        LEFT JOIN item_version i ON order_item.item_version_key = i.key
+        WHERE order_item.order_key = %s
         ORDER BY order_item.date_created DESC
-    ;""", (order["key"],))
+    ;""", (order["key"], ))
     items = cur.fetchall()
 
     cur.execute("""
@@ -143,11 +143,12 @@ def get_many():
             o.*,
             u.name,
             u.username,
-            COUNT(i.*) AS item_count,
+            COUNT(order_item.*) AS item_count,
             COUNT(*) OVER() AS _count
         FROM "order" o
         LEFT JOIN "user" u ON o.user_key = u.key
-        LEFT JOIN item_snap i ON o.key = i.order_key
+        LEFT JOIN order_item ON o.key = order_item.order_key
+        LEFT JOIN item_version item ON order_item.item_key = item.key
         WHERE (%s = 'all' OR o.status = %s)
         AND o.status != 'cart'
         AND (%s = '' OR o.user_key::TEXT = %s)

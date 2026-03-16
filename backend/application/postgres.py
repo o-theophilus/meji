@@ -35,7 +35,7 @@ def create_tables():
         DROP TABLE IF EXISTS "like" CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
-        DROP TABLE IF EXISTS item_snap CASCADE;
+        DROP TABLE IF EXISTS item_version CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
 
         CREATE TABLE IF NOT EXISTS "user" (
@@ -121,6 +121,23 @@ def create_tables():
             quantity INT DEFAULT 10
         );
 
+        CREATE TABLE IF NOT EXISTS item_version (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            slug TEXT NOT NULL,
+            name TEXT NOT NULL,
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            price DECIMAL DEFAULT 0,
+            price_old DECIMAL DEFAULT 0,
+            information TEXT,
+            specification JSONB DEFAULT '{}'::JSONB,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0,
+            item_key UUID REFERENCES item(key) ON DELETE SET NULL
+        );
+
         CREATE TABLE IF NOT EXISTS advert (
             key UUID PRIMARY KEY REFERENCES item(key) ON DELETE CASCADE,
             space TEXT[] DEFAULT '{}'::TEXT[],
@@ -164,30 +181,12 @@ def create_tables():
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE,
-            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
+            item_version_key UUID REFERENCES item_version(key)
+                ON DELETE CASCADE,
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
-            price DECIMAL DEFAULT 0,
             UNIQUE (order_key, item_key, variation)
-        );
-
-        CREATE TABLE IF NOT EXISTS item_snap (
-            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            status TEXT NOT NULL DEFAULT 'draft',
-            date_created TIMESTAMPTZ DEFAULT now(),
-            slug TEXT NOT NULL,
-            name TEXT NOT NULL,
-            tags TEXT[] DEFAULT '{}'::TEXT[],
-            price DECIMAL DEFAULT 0,
-            price_old DECIMAL DEFAULT 0,
-            information TEXT,
-            specification JSONB DEFAULT '{}'::JSONB,
-            files TEXT[] DEFAULT '{}'::TEXT[],
-            variation JSONB DEFAULT '{}'::JSONB,
-            quantity INT DEFAULT 0,
-
-            item_key UUID NOT NULL REFERENCES item(key) ON DELETE SET NULL,
-            order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS coupon (
@@ -228,7 +227,7 @@ def copy_db():
                 values.append(row[column])
             values_list.append(tuple(values))
 
-        to_cur.executemany(f"""
+        to_cur.execute(f"""
             INSERT INTO "{table_name}" ({', '.join(columns)})
             VALUES ({', '.join(['%s'] * len(columns))});
         """, values_list)

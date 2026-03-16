@@ -7,8 +7,8 @@
 	let chart;
 
 	onMount(() => {
-		const labels = data.map((x) => x.month);
-		const sales = data.map((x) => x.sales);
+		const labels = data.map((x) => x.label);
+		const values = data.map((x) => x.value);
 
 		chart = new Chart(canvas, {
 			type: 'line',
@@ -17,7 +17,7 @@
 				datasets: [
 					{
 						label: 'Sales',
-						data: sales,
+						data: values,
 						borderColor: '#3b82f6',
 						backgroundColor: 'rgba(59,130,246,0.15)',
 						fill: true,

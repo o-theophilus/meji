@@ -14,6 +14,7 @@
 	let order = $state(data.order);
 
 	let items = data.items;
+	console.log(items[0]);
 	let status = data._status;
 	let coupon = data.coupon;
 

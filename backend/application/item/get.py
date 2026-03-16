@@ -422,9 +422,10 @@ def get_reviews(key, _page_size=24, cur=None):
         WITH purchase_check AS (
             SELECT EXISTS (
                 SELECT 1
-                FROM item_snap i
-                JOIN "order" o ON o.key = i.order_key
-                WHERE o.user_key = %s AND i.item_key = %s
+                FROM item_version item
+                JOIN order_item ON item.key = order_item.item_key
+                JOIN "order" o ON order_item.order_key = o.key
+                WHERE o.user_key = %s AND item.key = %s
                     AND o.status = 'delivered'
             ) AS has_purchased
         )

@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash
 
 from ..log import log
 from ..postgres import db_close, db_open
-from ..storage import storage
+# from ..storage import storage
 from ..tools import get_session, item_schema, reserved_words
 from ..user.get import get_user_like
 from .get import get_items, get_reviews
@@ -284,8 +284,8 @@ def delete(key):
         DELETE FROM item WHERE key = %s;
     """, (item["key"],))
 
-    for x in item["files"]:
-        storage.delete(x, "item")
+    # for x in item["files"]:
+    #     storage.delete(x, "item")
 
     log(
         cur=cur,
@@ -394,7 +394,7 @@ def add_review(key):
         WITH purchase_check AS (
             SELECT EXISTS (
                 SELECT 1
-                FROM item_snap i
+                FROM item_version i
                 JOIN "order" o ON o.key = i.order_key
                 WHERE o.user_key = %s AND i.item_key = %s
                     AND o.status = 'delivered'

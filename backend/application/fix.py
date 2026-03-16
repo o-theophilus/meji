@@ -10,35 +10,55 @@ bp = Blueprint("fix", __name__)
 
 @bp.get("/fix")
 def quick_fix():
+    # TODO: live
     con, cur = db_open()
 
     cur.execute("""
-        DROP TABLE IF EXISTS item_like;
-        DROP TABLE IF EXISTS review_like;
-        DROP TABLE IF EXISTS report;
+        DROP TABLE IF EXISTS item_version CASCADE;
+        DROP TABLE IF EXISTS item_snap CASCADE;
+        DROP TABLE IF EXISTS order_item CASCADE;
+        DROP TABLE IF EXISTS "order" CASCADE;
 
-        CREATE TABLE IF NOT EXISTS "like" (
+        CREATE TABLE IF NOT EXISTS "order" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'cart',
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            reaction TEXT NOT NULL DEFAULT 'like',
-            entity_type TEXT NOT NULL, -- item, review
-            entity_key UUID NOT NULL,
-            UNIQUE (user_key, entity_key)
+            receiver JSONB DEFAULT '{}'::JSONB,
+            order_cost DECIMAL DEFAULT 0,
+            delivery_cost DECIMAL DEFAULT 0,
+            payment DECIMAL DEFAULT 0,
+            payment_reference TEXT,
+            timeline JSONB DEFAULT '{}'::JSONB
         );
 
-        CREATE TABLE IF NOT EXISTS report (
+        CREATE TABLE IF NOT EXISTS item_version (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            status TEXT NOT NULL DEFAULT 'active',
+            status TEXT NOT NULL DEFAULT 'draft',
             date_created TIMESTAMPTZ DEFAULT now(),
-            reporter_key UUID NOT NULL REFERENCES "user"(key),
-            reporter_comment TEXT NOT NULL,
+            slug TEXT NOT NULL,
+            name TEXT NOT NULL,
             tags TEXT[] DEFAULT '{}'::TEXT[],
-            date_resolved TIMESTAMPTZ,
-            resolver_key UUID REFERENCES "user"(key),
-            resolver_comment TEXT,
-            entity_type TEXT NOT NULL, -- user, review
-            entity_key UUID NOT NULL
+            price DECIMAL DEFAULT 0,
+            price_old DECIMAL DEFAULT 0,
+            information TEXT,
+            specification JSONB DEFAULT '{}'::JSONB,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0,
+            item_key UUID REFERENCES item(key) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS order_item (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            order_key UUID NOT NULL REFERENCES "order"(key) ON DELETE CASCADE,
+            item_key UUID REFERENCES item(key) ON DELETE CASCADE,
+            item_version_key UUID REFERENCES item_version(key)
+                ON DELETE CASCADE,
+            variation JSONB DEFAULT '{}'::JSONB,
+            quantity INT DEFAULT 0,
+            UNIQUE (order_key, item_key, variation)
         );
     """)
 

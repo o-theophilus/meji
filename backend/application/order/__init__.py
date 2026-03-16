@@ -8,7 +8,7 @@ from psycopg2.extras import Json
 from ..cart.get import get_cart_items
 from ..log import log
 from ..postgres import db_close, db_open
-from ..storage import storage
+# from ..storage import storage
 from ..tools import get_session, send_mail
 from .get import order_status
 
@@ -258,31 +258,60 @@ def cart_to_order():
             "error": "invalid transaction"
         })
 
-    values_list = []
-    for row in items:
-        row["item_key"] = row["key"]
-        row["order_key"] = order["key"]
-        del row["key"]
-        del row["order_quantity"]
+    cur.execute("""
+        INSERT INTO item_version(
+            item_key, status, date_created, slug, name,
+            tags, price, price_old, information, specification,
+            files, variation, quantity
+        )
+        SELECT
+            i.key, i.status, i.date_created, i.slug, i.name,
+            i.tags, i.price, i.price_old, i.information, i.specification,
+            i.files, i.variation, i.quantity
+        FROM order_item oi
+        JOIN item i ON i.key = oi.item_key
+        WHERE oi.order_key = %s
+        AND NOT EXISTS (
+            SELECT 1
+            FROM item_version v
+            WHERE v.item_key = i.key
+            AND v.status = i.status
+            AND v.slug = i.slug
+            AND v.name = i.name
+            AND v.price = i.price
+            AND v.information = i.information
+            AND v.specification = i.specification
+            AND v.files = i.files
+            AND v.variation = i.variation
+        );
+    """, (order["key"],))
 
-        for x in row["files"]:
-            try:
-                storage.copy(x, "item", "item_snap")
-            except Exception:
-                pass
+    cur.execute("""
+        UPDATE order_item oi
+        SET item_key = NULL,  item_version_key = v.key
+        FROM item i
+        JOIN item_version v ON v.item_key = i.key
+        WHERE oi.order_key = %s
+        AND oi.item_key = i.key
+        AND v.status = i.status
+        AND v.slug = i.slug
+        AND v.name = i.name
+        AND v.price = i.price
+        AND v.information = i.information
+        AND v.specification = i.specification
+        AND v.files = i.files
+        AND v.variation = i.variation --RETURNING v.*;
+    """, (order["key"],))
+    # new_versions = cur.fetchall()
 
-        columns = list(row.keys())
-        values = []
-        for column in columns:
-            if type(row[column]) is dict:
-                row[column] = Json(row[column])
-            values.append(row[column])
-        values_list.append(tuple(values))
-
-    cur.executemany(f"""
-        INSERT INTO item_snap({', '.join(columns)})
-        VALUES ({', '.join(['%s'] * len(columns))});
-    """, values_list)
+    # files = set()
+    # for v in new_versions:
+    #     files.update(v["files"])
+    # for f in files:
+    #     try:
+    #         storage.copy(f, "item", "item_version")
+    #     except Exception:
+    #         pass
 
     order["timeline"]["created"] = f"{datetime.now(timezone.utc)}"
     order["timeline"]["delivery_date"

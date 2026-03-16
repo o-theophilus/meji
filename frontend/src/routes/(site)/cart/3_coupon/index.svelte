@@ -40,22 +40,32 @@
 	{#snippet title()}
 		<div class="line space">
 			<div class="title">{name}</div>
-			{#if ops.status != name}
-				<div class="c">
-					<div class="a">Discount</div>
-					<div class="b" transition:slide>
-						{#if ops.discount_condition_met}
-							{#if ops.discount}
-								-
-							{/if}
 
-							₦{Number(ops.discount).toLocaleString()}
-						{:else}
-							0
-						{/if}
+			<div class="line">
+				{#if !ops.coupon}
+					<Button
+						--button-height="42px"
+						--button-font-size="0.8rem"
+						icon="plus"
+						onclick={() => module.open(Add, { ops })}>Add</Button
+					>
+				{:else if ops.status != name}
+					<div class="c">
+						<div class="a">Discount</div>
+						<div class="b" transition:slide>
+							{#if ops.discount_condition_met}
+								{#if ops.discount}
+									-
+								{/if}
+
+								₦{Number(ops.discount).toLocaleString()}
+							{:else}
+								0
+							{/if}
+						</div>
 					</div>
-				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
 	{/snippet}
 
@@ -97,8 +107,8 @@
 		{/if}
 
 		<Button icon="trash-2" onclick={() => module.open(Remove, { ops })}>Remove Coupon</Button>
-	{:else}
-		<Button icon="square-pen" onclick={() => module.open(Add, { ops })}>Add Coupon</Button>
+		<!-- {:else} -->
+		<!-- <Button icon="square-pen" onclick={() => module.open(Add, { ops })}>Add Coupon</Button> -->
 	{/if}
 
 	<div class="line space total">
@@ -135,7 +145,7 @@
 		color: var(--ft1);
 	}
 	.total {
-		margin-top: 16px;
+		/* margin-top: 16px; */
 		padding-top: 16px;
 		border-top: 1px solid var(--bg1);
 	}

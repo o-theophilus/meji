@@ -130,9 +130,9 @@ def order_delete_file(key):
             "error": "Invalid request"
         })
 
-    for x in item["files"]:
-        if x not in files:
-            storage.delete(x, "item")
+    # for x in item["files"]:
+    #     if x not in files:
+    #         storage.delete(x, "item")
 
     log(
         cur=cur,
