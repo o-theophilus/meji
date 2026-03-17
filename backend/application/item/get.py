@@ -42,10 +42,24 @@ def get(key):
         return jsonify(session)
     user = session["user"]
 
-    cur.execute("""
-        SELECT * FROM item WHERE slug = %s OR key::TEXT = %s
-    """, (key, key))
-    item = cur.fetchone()
+    if "v" in request.args:
+        cur.execute("""
+            SELECT item_version.*, item.slug AS item_slug,
+                to_jsonb(item) AS latest
+            FROM item_version
+            LEFT JOIN item on item_version.item_key = item.key
+            WHERE item_version.key::TEXT = %s;
+        """, (key,))
+        item = cur.fetchone()
+        if item and item["item_slug"]:
+            item["latest"] = item_schema(item["latest"])
+            del item["item_key"]
+
+    else:
+        cur.execute("""
+            SELECT * FROM item WHERE slug = %s OR key::TEXT = %s;
+        """, (key, key))
+        item = cur.fetchone()
 
     if not item:
         db_close(con, cur)

@@ -30,7 +30,13 @@
 	.block {
 		display: flex;
 		margin-top: 24px;
-		gap: 16px;
+		gap: 8px;
+
+		@media screen and (min-width: 580px) {
+			& {
+				gap: 16px;
+			}
+		}
 	}
 
 	a {

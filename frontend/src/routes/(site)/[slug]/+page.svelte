@@ -1,7 +1,8 @@
 <script>
-	import { replaceState } from '$app/navigation';
+	import { afterNavigate, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button, Switch } from '$lib/button';
+	import { Note } from '$lib/info';
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
 	import { app, module, page_state } from '$lib/store.svelte.js';
@@ -54,8 +55,7 @@
 		page_state.clear('cart');
 	};
 
-	const refresh = async (data) => {
-		item = data;
+	afterNavigate(async () => {
 		loading = true;
 
 		if (page.url.searchParams.has('edit') && is_admin) {
@@ -74,14 +74,22 @@
 		});
 		resp = await resp.json();
 
+		review = {};
+		item_group = [];
 		if (resp.status == 200) {
 			review = resp.review;
 			item_group = resp.item_group;
 		}
 		loading = false;
-	};
+	});
 
-	onMount(async () => refresh(item));
+	onMount(async () => {
+		if (page.url.searchParams.has('edit') && is_admin) {
+			page.url.searchParams.delete('edit');
+			edit_mode = true;
+			replaceState(page.url.href);
+		}
+	});
 </script>
 
 {#key item.key}
@@ -97,7 +105,11 @@
 />
 
 <Content --content-background-color="var(--bg)">
-	{#if is_admin}
+	{#if item.item_slug}
+		<Note status="201" note="Item Updated"
+			>This item has been updated since your order. You are viewing the purchased version.
+		</Note>
+	{:else if is_admin}
 		<Switch
 			--toggle-height="21px"
 			--toggle-font-size="0.8rem"
@@ -128,10 +140,12 @@
 			<Name {item} {edit_mode} {update} />
 			<Tags {item} {edit_mode} {update} />
 			<Price {item} {edit_mode} {update}>
-				<div class="line">
-					<Like {item} />
-					<Button icon="share-2" onclick={() => module.open(Share, item)}></Button>
-				</div>
+				{#if !item.item_slug}
+					<div class="line">
+						<Like {item} />
+						<Button icon="share-2" onclick={() => module.open(Share, item)}></Button>
+					</div>
+				{/if}
 			</Price>
 			<Information {item} {edit_mode} {update} />
 			<Variation {item} {edit_mode} {update} />
@@ -143,7 +157,18 @@
 
 <div class="floater">
 	<div class="floater_block">
-		{#if item.status == 'active' && item.quantity > 0}
+		{#if item.item_slug}
+			<Button
+				--button-background-color="color-mix(in srgb, var(--yellow), transparent 80%)"
+				--button-outline-color="color-mix(in srgb, var(--yellow), transparent 70%)"
+				--button-color="var(--yellow)"
+				href="/{item.item_slug}"
+				onclick={() => (app.item = item.latest)}
+				onmouseenter={() => (app.item = item.latest)}
+			>
+				View latest version
+			</Button>
+		{:else if item.status == 'active' && item.quantity > 0}
 			<Button
 				--button-background-color="var(--cl1)"
 				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
@@ -177,11 +202,13 @@
 	</div>
 </div>
 
-<Content --content-height --content-padding-top="1px">
-	{#each item_group as group}
-		<Similar {group} {refresh} {loading} />
-	{/each}
-</Content>
+{#if item_group.length}
+	<Content --content-height --content-padding-top="1px">
+		{#each item_group as group}
+			<Similar {group} {loading} />
+		{/each}
+	</Content>
+{/if}
 
 <style>
 	.photo_info {

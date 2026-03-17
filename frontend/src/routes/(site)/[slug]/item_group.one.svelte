@@ -1,7 +1,7 @@
 <script>
 	import { app } from '$lib/store.svelte.js';
 
-	let { item, refresh, can_hide } = $props();
+	let { item, can_hide } = $props();
 
 	const prerender = (x) => {
 		app.item = x;
@@ -12,10 +12,7 @@
 	class="name"
 	class:can_hide
 	href="/{item.slug}"
-	onclick={() => {
-		prerender(item);
-		refresh(item);
-	}}
+	onclick={() => prerender(item)}
 	onmouseenter={() => prerender(item)}
 >
 	<img

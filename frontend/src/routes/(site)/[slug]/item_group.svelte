@@ -5,7 +5,7 @@
 	import { slide } from 'svelte/transition';
 	import One from './item_group.one.svelte';
 
-	let { group, refresh, loading } = $props();
+	let { group, loading } = $props();
 	let open = $derived(group.open);
 </script>
 
@@ -29,7 +29,7 @@
 	{#if open && !loading}
 		<div class="item_area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
 			{#each group.items as item, i}
-				<One {item} {refresh} can_hide={i > 3}></One>
+				<One {item} can_hide={i > 3}></One>
 			{/each}
 		</div>
 	{/if}

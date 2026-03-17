@@ -66,7 +66,7 @@
 		{/each}
 
 		<div class="bottom">
-			{#if !app.login}
+			{#if item.item_slug}{:else if !app.login}
 				<Button icon="log-in" onclick={() => module.open(Login)}>Login to add review</Button>
 			{:else if !has_purchased}
 				<Button

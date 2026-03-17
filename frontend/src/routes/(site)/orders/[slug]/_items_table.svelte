@@ -11,11 +11,13 @@
 	<div class="th">Cost</div>
 
 	{#each items as item, i}
+		{@const href = item.changed ? `/${item.key}?v` : `/${item.slug}`}
+
 		<div>
 			{i + 1}
 		</div>
 		<span class="left">
-			<a href="/{item.slug}">
+			<a {href}>
 				{item.name}
 			</a>
 			{#if Object.keys(item.variation).length > 0}

@@ -44,21 +44,26 @@ def get(key):
             "error": "unauthorized access"
         })
 
-    # FEATURE:do the full journey of item snapshot,
-    # duplicate item on purchase
-    # join item snapshot table on order view
-    # get item snapshot on order item view
-    # check if snapshot item is unchanged
-    # if unchanged get the original item
-    # if changed get the snapshot item
-    #       then suggest to see the latest version
     cur.execute("""
         SELECT
-            i.key, i.slug, i.name, i.price, i.status,
-            COALESCE(i.files[1], NULL) as photo,
-            order_item.variation, order_item.quantity
+            v.key, v.slug, v.name, v.price, v.status,
+            COALESCE(v.files[1], NULL) as photo,
+            order_item.variation, order_item.quantity,
+            CASE
+                WHEN v.status = v.status
+                AND v.slug = v.slug
+                AND v.name = v.name
+                AND v.price = v.price
+                AND v.information = v.information
+                AND v.specification = v.specification
+                AND v.files = v.files
+                AND v.variation = v.variation
+                THEN false
+                ELSE true
+            END AS changed
         FROM order_item
-        LEFT JOIN item_version i ON order_item.item_version_key = i.key
+        LEFT JOIN item_version v ON order_item.item_version_key = v.key
+        LEFT JOIN item i ON v.item_key = i.key
         WHERE order_item.order_key = %s
         ORDER BY order_item.date_created DESC
     ;""", (order["key"], ))
