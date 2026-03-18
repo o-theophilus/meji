@@ -36,6 +36,7 @@
 	};
 </script>
 
+<div class="hr"></div>
 <Card
 	{open}
 	onclick={() => (open = !open)}
@@ -49,7 +50,6 @@
 			{/if}
 			Rating{#if count > 1}s{/if} & review{#if count > 1}s{/if}
 			<Spinner active={loading} size="20" />
-			<div class="hr"></div>
 		</div>
 	{/snippet}
 
@@ -106,17 +106,17 @@
 </Card>
 
 <style>
+	.hr {
+		margin-top: 16px;
+		background-color: var(--ft1);
+		height: 1px;
+	}
+
 	.title {
 		display: flex;
 		gap: 16px;
 		font-weight: 800;
 		color: var(--ft1);
-
-		& .hr {
-			background-color: var(--ft1);
-			height: 2px;
-			flex-grow: 1;
-		}
 	}
 
 	.review {

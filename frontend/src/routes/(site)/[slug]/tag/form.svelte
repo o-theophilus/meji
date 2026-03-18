@@ -87,10 +87,10 @@
 		error={error.tags}
 		type="textarea"
 		placeholder="Tags here"
-		onblur={clean_value}
+		onblur={() => clean_value()}
 	/>
 
-	<div class="line">
+	<div class="tags">
 		{#each unused_tags as x}
 			<Tag
 				onclick={() => {
@@ -104,8 +104,18 @@
 </Form>
 
 <style>
-	.line {
-		margin: 16px 0;
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
 		gap: 4px;
+
+		height: 200px;
+		padding: 8px;
+		overflow: auto;
+		margin: 16px 0;
+
+		outline: 1px solid var(--ol);
+		outline-offset: -1px;
+		border-radius: 4px;
 	}
 </style>

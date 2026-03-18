@@ -43,7 +43,7 @@
 						name: 'OK',
 						icon: 'check',
 						fn: () => {
-							goto(`/${resp.item.slug}?edit=true`);
+							goto(`/${resp.item.slug}?edit`);
 							module.close();
 						}
 					}

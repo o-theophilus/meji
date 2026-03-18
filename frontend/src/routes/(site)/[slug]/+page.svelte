@@ -6,19 +6,7 @@
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
 	import { app, module, page_state } from '$lib/store.svelte.js';
-	import { onMount } from 'svelte';
-	import {
-		Date,
-		Information,
-		Name,
-		Photo,
-		Price,
-		Quantity,
-		Review,
-		Status,
-		Tags,
-		Variation
-	} from '.';
+	import { Date, Information, Name, Photo, Price, Quantity, Review, Status, Variation } from '.';
 	import AddCart from '../cart/add_to_cart.svelte';
 	import Like from '../shop/like.svelte';
 	import Similar from './item_group.svelte';
@@ -61,7 +49,7 @@
 		if (page.url.searchParams.has('edit') && is_admin) {
 			page.url.searchParams.delete('edit');
 			edit_mode = true;
-			replaceState(page.url.href);
+			queueMicrotask(() => replaceState(page.url.href));
 		} else {
 			edit_mode = false;
 		}
@@ -81,14 +69,6 @@
 			item_group = resp.item_group;
 		}
 		loading = false;
-	});
-
-	onMount(async () => {
-		if (page.url.searchParams.has('edit') && is_admin) {
-			page.url.searchParams.delete('edit');
-			edit_mode = true;
-			replaceState(page.url.href);
-		}
 	});
 </script>
 
@@ -138,7 +118,6 @@
 		<div class="info">
 			<Date {item} {edit_mode} {update} />
 			<Name {item} {edit_mode} {update} />
-			<Tags {item} {edit_mode} {update} />
 			<Price {item} {edit_mode} {update}>
 				{#if !item.item_slug}
 					<div class="line">
@@ -216,9 +195,6 @@
 		flex-direction: column;
 		gap: 24px;
 	}
-	.info {
-		margin-top: 24px;
-	}
 
 	.photo,
 	.info {
@@ -254,10 +230,6 @@
 			top: 16px;
 
 			align-self: flex-start;
-		}
-
-		.info {
-			margin: 0;
 		}
 	}
 

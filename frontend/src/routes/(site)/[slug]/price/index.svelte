@@ -6,62 +6,59 @@
 	import Info from './info.svelte';
 
 	let { item, edit_mode, update, children } = $props();
-
-	let show_discount = $state(false);
+	let edit = $derived(app.user.access.includes('item.edit_price') && edit_mode);
 </script>
 
-<div class="comp">
-	{#if app.user.access.includes('item.edit_price') && edit_mode}
-		<Edit_Button
-			onclick={() =>
-				module.open(Form, {
-					key: item.key,
-					price: item.price,
-					price_old: item.price_old,
-					update
-				})}
-		>
-			Edit Price
-		</Edit_Button>
-	{/if}
+<div class="line space">
+	<div class="area" class:edit>
+		{#if edit}
+			<Edit_Button
+				onclick={() =>
+					module.open(Form, {
+						key: item.key,
+						price: item.price,
+						price_old: item.price_old,
+						update
+					})}
+			>
+				Edit Price
+			</Edit_Button>
+		{/if}
 
-	<div class="line space">
-		<div>
-			<div class="price">
-				{#if Number(item.price)}
-					₦{Number(item.price).toLocaleString()}
-				{:else}
-					<span> Nil </span>
-				{/if}
-			</div>
-
-			{#if Number(item.price_old)}
-				<div class="line">
-					<span class="old_price">
-						₦{Number(item.price_old).toLocaleString()}
-						<div class="strike"></div>
-					</span>
-
-					<button onclick={() => module.open(Info, { item })}>
-						<Icon icon="info"></Icon>
-					</button>
-				</div>
+		<div class="price">
+			{#if Number(item.price)}
+				₦{Number(item.price).toLocaleString()}
+			{:else}
+				<span> Nil </span>
 			{/if}
 		</div>
 
-		{@render children?.()}
+		{#if Number(item.price_old)}
+			<div class="line">
+				<span class="old_price">
+					₦{Number(item.price_old).toLocaleString()}
+					<div class="strike"></div>
+				</span>
+
+				<button onclick={() => module.open(Info, { item })}>
+					<Icon icon="info"></Icon>
+				</button>
+			</div>
+		{/if}
 	</div>
 
-	<!-- {#if show_discount}
-		<div transition:slide>
-			<Info {item}></Info>
-		</div>
-	{/if} -->
+	{@render children?.()}
 </div>
 
 <style>
-	.comp {
-		margin-top: 24px;
+	.area {
+		margin-top: 8px;
+		&.edit {
+			padding: 8px;
+			border-radius: 4px;
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+		}
 	}
 
 	.price {

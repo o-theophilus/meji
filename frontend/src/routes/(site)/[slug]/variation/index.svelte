@@ -7,9 +7,11 @@
 
 	let { item, edit_mode, update } = $props();
 	let open = $state(true);
+	let edit = $derived(app.user.access.includes('item.edit_variation') && edit_mode);
 </script>
 
-{#if Object.keys(item.variation).length != 0}
+{#if Object.keys(item.variation).length || edit}
+	<div class="hr"></div>
 	<Card
 		{open}
 		onclick={() => (open = !open)}
@@ -17,7 +19,7 @@
 		--card-content-padding="16px 0"
 	>
 		{#snippet title()}
-			{#if app.user.access.includes('item.edit_variation') && edit_mode}
+			{#if edit}
 				<Edit_Button
 					onclick={() =>
 						module.open(Form, {
@@ -31,29 +33,36 @@
 			{/if}
 			<div class="title">
 				Variation{#if Object.keys(item.variation).length > 1}s{/if}
-				<div class="hr"></div>
 			</div>
 		{/snippet}
 
-		<div class="grid">
-			{#each Object.entries(item.variation) as [key, values]}
-				<div class="key">
-					{key}
-				</div>
+		{#if Object.keys(item.variation).length}
+			<div class="grid">
+				{#each Object.entries(item.variation) as [key, values]}
+					<div class="key">
+						{key}
+					</div>
 
-				<div class="line">
-					{#each values as value}
-						<Value {value}></Value>
-					{/each}
-				</div>
-			{/each}
-		</div>
+					<div class="line">
+						{#each values as value}
+							<Value {value}></Value>
+						{/each}
+					</div>
+				{/each}
+			</div>
+		{:else}
+			No Variation
+		{/if}
 	</Card>
-{:else if edit_mode}
-	No Variation
 {/if}
 
 <style>
+	.hr {
+		margin-top: 16px;
+		background-color: var(--ft1);
+		height: 1px;
+	}
+
 	.title {
 		display: flex;
 		align-items: center;
@@ -61,12 +70,6 @@
 
 		font-weight: 800;
 		color: var(--ft1);
-
-		& .hr {
-			background-color: var(--ft1);
-			height: 2px;
-			flex-grow: 1;
-		}
 	}
 
 	.grid {

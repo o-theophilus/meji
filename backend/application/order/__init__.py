@@ -313,6 +313,8 @@ def cart_to_order():
     #     except Exception:
     #         pass
 
+    # TODO: subtract from item quantity
+
     order["timeline"]["created"] = f"{datetime.now(timezone.utc)}"
     order["timeline"]["delivery_date"
                       ] = f"{datetime.now(timezone.utc) + timedelta(days=7)}"

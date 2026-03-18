@@ -6,5 +6,5 @@ export { default as Price } from "./price/index.svelte"
 export { default as Quantity } from "./quantity/index.svelte"
 export { default as Review } from "./review/index.svelte"
 export { default as Status } from "./status/index.svelte"
-export { default as Tags } from "./tag/index.svelte"
 export { default as Variation } from "./variation/index.svelte"
+
