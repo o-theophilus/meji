@@ -5,31 +5,36 @@
 	import Socials from './footer.socials.svelte';
 </script>
 
-<Content
-	--content-height="100%"
-	--content-padding-top="56px"
-	--content-padding-bottom="40px"
-	--content-background-color="var(--bg)"
->
-	<footer id="footer">
-		<div class="left">
-			<div class="logo">
-				<a href="/">
-					<Icon icon="logo" size="32" />
-					Meji
-				</a>
-				<span class="tiny"> Your best online shopping experince </span>
+<div class="a">
+	<Content
+		--content-height="100%"
+		--content-padding-top="56px"
+		--content-padding-bottom="40px"
+		--content-background-color="var(--bg)"
+	>
+		<footer id="footer">
+			<div class="left">
+				<div class="logo">
+					<a href="/">
+						<Icon icon="logo" size="32" />
+						Meji
+					</a>
+					<span class="tiny"> Your best online shopping experince </span>
+				</div>
+				<Socials />
 			</div>
-			<Socials />
-		</div>
 
-		<Nav />
-	</footer>
+			<Nav />
+		</footer>
 
-	<div class="copyright tiny">&copy 2026 | Meji.ng</div>
-</Content>
+		<div class="copyright tiny">&copy 2026 | Meji.ng</div>
+	</Content>
+</div>
 
 <style>
+	.a {
+		border-top: 1px solid var(--ol);
+	}
 	footer {
 		display: flex;
 		flex-direction: column;

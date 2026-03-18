@@ -101,8 +101,8 @@
 	.area {
 		margin-top: 16px;
 		display: flex;
-		outline: 1px solid var(--ol);
-		outline-offset: -1px;
+		/* outline: 1px solid var(--ol); */
+		/* outline-offset: -1px; */
 		border-radius: 8px;
 
 		> div {
@@ -111,16 +111,14 @@
 
 		.img {
 			background-color: var(--bg);
+			display: none;
+			@media screen and (min-width: 580px) {
+				display: block;
+			}
 		}
 		.form {
 			background-color: var(--bg);
 			padding: 16px;
 		}
-	}
-
-	@media screen and (min-width: 580px) {
-		/* .form_area {
-			flex-direction: unset;
-		} */
 	}
 </style>
