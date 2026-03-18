@@ -5,7 +5,7 @@
 
 <!-- TODO: review text -->
 
-<Content --content-background-color="var(--bg)">
+<Content>
 	<div class="page_title">Privacy Policy</div>
 	<Marked
 		content={`

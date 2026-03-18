@@ -1,19 +1,14 @@
 <script>
-	import { page } from '$app/state';
 	import { Content } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 	import Nav from './footer.nav.svelte';
 	import Socials from './footer.socials.svelte';
 </script>
 
-{#if page.url.pathname != '/shop'}
-	<hr />
-{/if}
-
 <Content
 	--content-height="100%"
 	--content-padding-top="56px"
-	--content-padding-bottom="56px"
+	--content-padding-bottom="40px"
 	--content-background-color="var(--bg)"
 >
 	<footer id="footer">
@@ -23,7 +18,7 @@
 					<Icon icon="logo" size="32" />
 					Meji
 				</a>
-				<span class="copyright"> Your best online shopping experince </span>
+				<span class="tiny"> Your best online shopping experince </span>
 			</div>
 			<Socials />
 		</div>
@@ -31,7 +26,7 @@
 		<Nav />
 	</footer>
 
-	<div class="copyright">&copy 2026 | Meji.ng</div>
+	<div class="copyright tiny">&copy 2026 | Meji.ng</div>
 </Content>
 
 <style>
@@ -68,9 +63,14 @@
 		}
 	}
 
-	.copyright {
-		margin-top: 80px;
+	.tiny {
 		font-size: 0.8rem;
 		text-align: center;
+	}
+
+	.copyright {
+		border-top: 1px solid var(--ol);
+		margin-top: 40px;
+		padding-top: 40px;
 	}
 </style>

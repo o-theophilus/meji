@@ -5,13 +5,13 @@
 
 <!-- TODO: review text -->
 <!-- TODO: review all email template -->
-<Content --content-background-color="var(--bg)">
+<Content>
 	<div class="page_title">Terms and Conditions</div>
 	<Marked
 		content={`
 **Last Updated:** [Insert Date]
 
-## 1. Introduction
+## 1. Introductions
 
 Welcome to Meji! These Terms and Conditions govern your use of the Meji platform (the "Site") and our services for buying and selling unique, artisanal, and locally sourced products. By accessing or using our Site, you agree to be bound by these Terms.
 
