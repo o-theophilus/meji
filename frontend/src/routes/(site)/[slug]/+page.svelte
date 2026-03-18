@@ -126,8 +126,8 @@
 					</div>
 				{/if}
 			</Price>
-			<Information {item} {edit_mode} {update} />
 			<Variation {item} {edit_mode} {update} />
+			<Information {item} {edit_mode} {update} />
 			<Quantity {item} {edit_mode} {update} />
 			<Review {item} {review} {loading} />
 		</div>

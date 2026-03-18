@@ -214,10 +214,42 @@ def get_group(key):
             "error": "invalid request"
         })
 
-    _recently_viewed = recently_viewed(cur, user["key"], key)
+    item_group = []
     _similar_items = similar_items(cur, key)
+    if _similar_items:
+        item_group.append({
+            "name": "Similar Items",
+            "items": _similar_items,
+            "style": "grid",
+            "open": True
+        })
+
+    _recently_viewed = recently_viewed(cur, user["key"], key)
+    if _recently_viewed:
+        item_group.append({
+            "name": "Recently Viewed",
+            "items": _recently_viewed,
+            "style": "line",
+            "open": True
+        })
+
     _customer_view = customer_view(cur, user["key"], key)
+    if _customer_view:
+        item_group.append({
+            "name": "Customers who viewed this also viewed",
+            "items": _customer_view,
+            "style": "line",
+            "open": True
+        })
+
     _recommended = recommended(cur, user["key"], key)
+    if _recommended:
+        item_group.append({
+            "name": "You may also like",
+            "items": _recommended,
+            "style": "line",
+            "open": True
+        })
 
     review = get_reviews(key, 3, cur).json
 
@@ -225,29 +257,7 @@ def get_group(key):
     return jsonify({
         "status": 200,
         "review": review,
-        "item_group": [
-            {
-                "name": "Similar Items",
-                "items": _similar_items,
-                "style": "grid",
-                "open": True
-            }, {
-                "name": "Recently Viewed",
-                "items": _recently_viewed,
-                "style": "line",
-                "open": True
-            }, {
-                "name": "Customers who viewed this also viewed",
-                "items": _customer_view,
-                "style": "line",
-                "open": True
-            }, {
-                "name": "You may also like",
-                "items": _recommended,
-                "style": "line",
-                "open": True
-            }
-        ]
+        "item_group": item_group
     })
 
 
