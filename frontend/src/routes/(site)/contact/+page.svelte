@@ -1,29 +1,31 @@
 <script>
-	import { Content } from '$lib/layout';
+	import { Content, PageTitle } from '$lib/layout';
 	import { Icon } from '$lib/macro';
 	import Form from './form.svelte';
 </script>
 
+<PageTitle>
+	{#snippet title()}
+		How Can We Help You Today?
+	{/snippet}
+	{#snippet copy()}
+		Get support for your orders, payments, and inquiries — fast, simple, and reliable.
+	{/snippet}
+</PageTitle>
+
 <Content>
-	<div class="page_title">Get In Touch</div>
-	<br />
-	Got a question or proposal, or just want to say hello? Please go ahead.
-
-	<br />
-	<br />
-	<br />
-
 	<div class="contact">
 		<a href="tel:+2348067397793" class="card">
 			<div class="icon">
-				<Icon icon="phone"></Icon>
+				<Icon icon="phone" size="24"></Icon>
 			</div>
 			<div class="label">Call</div>
 			<div class="value">+234 806 739 7793</div>
 		</a>
 		<a href="mailto:shop.meji.ng@gmail.com" class="card">
+			<!-- TODO: replace gmail with zoho -->
 			<div class="icon">
-				<Icon icon="mail"></Icon>
+				<Icon icon="mail" size="24"></Icon>
 			</div>
 			<div class="label">Email</div>
 			<div class="value">shop.meji.ng&#8203;@gmail.com</div>
@@ -34,7 +36,7 @@
 			class="card"
 		>
 			<div class="icon">
-				<Icon icon="map-pin"></Icon>
+				<Icon icon="map-pin" size="24"></Icon>
 			</div>
 			<div class="label">Location</div>
 			<div class="value">Lagos, Nigeria.</div>
@@ -42,7 +44,9 @@
 	</div>
 
 	<div class="area">
-		<div class="img"></div>
+		<div class="img">
+			<img src="/image/contact.jpg" alt="contact us" />
+		</div>
 		<div class="form">
 			<Form></Form>
 		</div>
@@ -52,7 +56,12 @@
 <style>
 	.contact {
 		display: flex;
+		flex-direction: column;
 		gap: 8px;
+
+		@media screen and (min-width: 380px) {
+			flex-direction: row;
+		}
 
 		.card {
 			display: flex;
@@ -78,10 +87,10 @@
 				justify-content: center;
 				align-items: center;
 
-				width: 40px;
+				width: 48px;
 				aspect-ratio: 1;
 				border-radius: 40%;
-				background-color: var(--bg2);
+				background-color: var(--bg1);
 			}
 
 			.label {
@@ -101,24 +110,35 @@
 	.area {
 		margin-top: 16px;
 		display: flex;
-		/* outline: 1px solid var(--ol); */
-		/* outline-offset: -1px; */
-		border-radius: 8px;
+		flex-direction: column;
 
-		> div {
+		overflow: hidden;
+		border-radius: 8px;
+		background-color: var(--bg);
+
+		.form {
 			width: 100%;
+			padding: 24px;
 		}
 
 		.img {
-			background-color: var(--bg);
-			display: none;
-			@media screen and (min-width: 580px) {
-				display: block;
+			width: 100%;
+			height: 300px;
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-position: top;
+				object-fit: cover;
 			}
 		}
-		.form {
-			background-color: var(--bg);
-			padding: 16px;
+
+		@media screen and (min-width: 580px) {
+			flex-direction: row-reverse;
+
+			.img {
+				height: unset;
+			}
 		}
 	}
 </style>

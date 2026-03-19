@@ -1,28 +1,44 @@
-export let template =
-{
-	'Networking': `Hi Theo,
+export let template = {
+  "hidden": "",
+  'Order Issue': `Hello,
 
-I came across your profile and I'm impressed with your experience in the industry.
-Let's connect and explore potential opportunities.`,
+I'm having an issue with my order.
 
-	'Asking for advice': `Hi Theo,
+Order ID: ______
 
-I'm facing a challenge with _____ and I was hoping you could share your expertise and give me some advice.`,
+Issue: ______
 
-	'Proposal': `Hi Theo,
+Please assist. Thank you.`,
 
-I have a proposal for you regarding a project that I believe you would be interested in.
-Please let me know if you're available for a chat.`,
+  'Payment Problem': `Hello,
 
-	'Feedback': `Hi Theo,
+I experienced a problem while making a payment.
 
-I really enjoyed your recent work on _____, but I have a couple of suggestions for improvement.`,
+Order ID (if any): ______
 
-	'Compliment & collaboration': `Hi Theo,
+Details: ______`,
 
-Your work is exceptional and I admire your talent.
-I was wondering if you'd be interested in collaborating on a project together?`
+  'Track Order': `Hello,
+
+I would like to check the status of my order.
+
+Order ID: ______
+
+Thank you.`,
+
+  'Return / Refund': `Hello,
+
+I would like to request a return/refund.
+
+Order ID: ______
+
+Reason: ______`,
+
+  'Product Inquiry': `Hello,
+
+I have a question about a product.
+
+Product name: ______
+
+Question: ______`
 }
-
-
-

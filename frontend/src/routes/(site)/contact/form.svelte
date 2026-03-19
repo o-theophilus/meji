@@ -80,9 +80,17 @@
 	};
 </script>
 
-<Form error={error.error} --form-padding="0">
+<Form
+	title="Get In Touch"
+	description="Need help tracking an order, resolving an issue, or making a purchase decision? Our team is ready to assist you.
+	<br/>
+	<br/>
+"
+	error={error.error}
+	--form-padding="0"
+>
 	<IG
-		name="Full name"
+		name="Full Name"
 		icon="user"
 		bind:value={form.name}
 		error={error.name}
@@ -98,11 +106,10 @@
 		placeholder="Email here"
 	/>
 	<IG
-		name="Message"
 		bind:value={form.message}
 		error={error.message}
 		type="textarea"
-		placeholder="Message here"
+		placeholder="Tell us what you need help with (e.g. order issue, payment problem, product question). Include your Order ID if available."
 	>
 		{#snippet label()}
 			<Dropdown
@@ -114,7 +121,8 @@
 				--select-background-color="transparent"
 				--select-background-color-hover="transparent"
 				--select-outline-color="transparent"
-				label="Message"
+				label="How can we help?"
+				value="hidden"
 				list={Object.keys(template)}
 				icon2="chevron-down"
 				onchange={(e) => {
@@ -124,7 +132,13 @@
 		{/snippet}
 	</IG>
 
-	<Button icon2="send-horizontal" onclick={validate}>Send</Button>
+	<Button
+	--button-background-color="var(--cl1)"
+	--button-outline-color="transparent"
+	--button-color="var(--ft1)"
+	 icon2="send-horizontal" onclick={validate}>Contact Support</Button>
+
+	<div class="note">We typically respond within a few hours.</div>
 </Form>
 
 <div bind:this={email_template} style="display: none;">
@@ -136,3 +150,10 @@
 		{'{'}message{'}'}
 	</EmailTemplate>
 </div>
+
+<style>
+	.note {
+		margin-top: 16px;
+		font-size: 0.8rem;
+	}
+</style>

@@ -2,7 +2,7 @@
 	import { Tag } from '$lib/button';
 	import { Card } from '$lib/layout';
 	import { Marked } from '$lib/macro';
-	import { app, module } from '$lib/store.svelte.js';
+	import { app, module, page_state } from '$lib/store.svelte.js';
 	import Edit_Button from '../edit_button.svelte';
 	import FormTag from '../tag/form.svelte';
 	import FormInfo from './form.svelte';

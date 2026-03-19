@@ -1,4 +1,5 @@
 <script>
+	import { page_state } from '$lib/store.svelte.js';
 	let tags = ['male', 'palm', 'female'];
 </script>
 
@@ -8,13 +9,13 @@
 
 		<div class="block">
 			{#each tags as tag, i}
-				<a href="/shop?tag={tag}">
+				<button onclick={() => page_state.goto('shop', { tag })}>
 					<img src="/image/item_{i + 1}.png" alt="" />
 					<div>
 						{tag}
 						<div class="shop">Shop Now</div>
 					</div>
-				</a>
+				</button>
 			{/each}
 		</div>
 	</section>
@@ -39,7 +40,10 @@
 		}
 	}
 
-	a {
+	button {
+		all: unset;
+		cursor: pointer;
+
 		display: flex;
 		flex-direction: column;
 		align-items: center;
