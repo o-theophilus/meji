@@ -4,7 +4,7 @@
 	import { app } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
 
-	let { ops = $bindable(), side_bar, wide } = $props();
+	let { onclick } = $props();
 	const buttons = [
 		{
 			name: 'Dashboard',
@@ -76,17 +76,11 @@
 			access: 'log.view',
 			icon: 'clipboard-list',
 			icon2: 'arrow-up-right'
-		},
-		{
-			name: 'Collapse',
-			onclick: () => (ops.open = !ops.open),
-			access: null,
-			icon: 'panel-left-open'
 		}
 	];
 </script>
 
-<div class="block" class:side_bar class:wide>
+<div class="container">
 	<div class="top">
 		{#each buttons as x}
 			{@const a = x.href.split('/')}
@@ -94,12 +88,7 @@
 			{@const active = a[a.length - 1] == b[b.length - 1]}
 
 			{#if app.user.access.includes(x.access) || x.access === null}
-				<a
-					class:active
-					href={x.href}
-					data-sveltekit-preload-data
-					onclick={() => (ops.open = false)}
-				>
+				<a class:active href={x.href} data-sveltekit-preload-data {onclick}>
 					<Icon icon={x.icon}></Icon>
 					<div class="name" in:slide={{ delay: 200 }}>
 						{x.name}
@@ -116,37 +105,36 @@
 	<div class="bottom">
 		{#each buttons2 as x}
 			{#if app.user.access.includes(x.access) || x.access === null}
-				{#if x.href}
-					<a href={x.href} data-sveltekit-preload-data>
-						<Icon icon={x.icon}></Icon>
-						<div class="name">
-							{x.name}
+				<a href={x.href} data-sveltekit-preload-data>
+					<Icon icon={x.icon}></Icon>
+					<div class="name">
+						{x.name}
 
-							{#if x.icon2}
-								<Icon icon={x.icon2}></Icon>
-							{/if}
-						</div>
-					</a>
-				{/if}
+						{#if x.icon2}
+							<Icon icon={x.icon2}></Icon>
+						{/if}
+					</div>
+				</a>
 			{/if}
 		{/each}
 	</div>
 </div>
 
 <style>
-	.block {
+	.container {
+		position: relative;
+		container-type: inline-size;
+
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 		flex-shrink: 0;
+
 		padding: 8px;
 		height: 100%;
 		overflow-y: auto;
-
 		background-color: var(--bg);
 		border-radius: 8px;
-
-		position: relative;
 
 		&::before {
 			content: '';
@@ -172,7 +160,6 @@
 			justify-content: center;
 			gap: 16px;
 
-			width: 100%;
 			height: 40px;
 			padding: 0 16px;
 			border-radius: 8px;
@@ -182,13 +169,17 @@
 			text-decoration: none;
 			font-size: 0.8rem;
 
-			& .name {
-				display: flex;
+			.name {
+				display: none;
 				align-items: center;
 				justify-content: space-between;
 
 				width: 100%;
 				overflow: hidden;
+
+				@container (min-width: 100px) {
+					display: flex;
+				}
 			}
 
 			transition:
@@ -208,34 +199,6 @@
 
 			&:hover {
 				background-color: var(--bg1);
-			}
-		}
-	}
-
-	@media screen and (min-width: 600px) {
-		.side_bar {
-			& a {
-				width: 40px;
-				padding: 0;
-				gap: 0;
-
-				& .name {
-					width: 0;
-				}
-			}
-		}
-	}
-
-	@media screen and (min-width: 700px) {
-		.side_bar {
-			& a {
-				width: 100%;
-				padding: 0 16px;
-				gap: 16px;
-
-				& .name {
-					width: 100%;
-				}
 			}
 		}
 	}

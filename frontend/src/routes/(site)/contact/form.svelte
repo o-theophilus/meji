@@ -80,15 +80,11 @@
 	};
 </script>
 
-<Form
-	title="Get In Touch"
-	description="Need help tracking an order, resolving an issue, or making a purchase decision? Our team is ready to assist you.
+<!-- description="Need help tracking an order, resolving an issue, or making a purchase decision? Our team is ready to assist you.
 	<br/>
 	<br/>
-"
-	error={error.error}
-	--form-padding="0"
->
+" -->
+<Form title="Get In Touch" error={error.error} --form-padding="0">
 	<IG
 		name="Full Name"
 		icon="user"
@@ -133,10 +129,12 @@
 	</IG>
 
 	<Button
-	--button-background-color="var(--cl1)"
-	--button-outline-color="transparent"
-	--button-color="var(--ft1)"
-	 icon2="send-horizontal" onclick={validate}>Contact Support</Button>
+		--button-background-color="var(--cl1)"
+		--button-outline-color="transparent"
+		--button-color="hsl(0, 0%, 95%)"
+		icon2="send-horizontal"
+		onclick={validate}>Contact Support</Button
+	>
 
 	<div class="note">We typically respond within a few hours.</div>
 </Form>

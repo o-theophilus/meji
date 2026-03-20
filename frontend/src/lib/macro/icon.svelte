@@ -20,6 +20,7 @@
 		ChevronUp,
 		CircleX,
 		ClipboardList,
+		Cookie,
 		CornerRightDown,
 		createIcons,
 		Ellipsis,
@@ -29,6 +30,7 @@
 		FileWarning,
 		FlagTriangleRight,
 		Hash,
+		Headset,
 		Heart,
 		History,
 		House,
@@ -49,8 +51,10 @@
 		MessageCircle,
 		MessageCircleOff,
 		MessageCirclePlus,
+		MessageCircleQuestionMark,
 		Minus,
 		Moon,
+		NotebookText,
 		PanelLeftClose,
 		PanelLeftOpen,
 		PencilRuler,
@@ -63,6 +67,7 @@
 		SendHorizontal,
 		Share2,
 		ShieldCheck,
+		ShieldUser,
 		ShoppingCart,
 		SquareCheck,
 		SquareChevronUp,
@@ -109,7 +114,12 @@
 				Banknote,
 				ReceiptText,
 				Box,
+				MessageCircleQuestionMark,
+				Headset,
 				ArrowDown,
+				NotebookText,
+				Cookie,
+				ShieldUser,
 				ArrowDownNarrowWide,
 				ArrowLeft,
 				ArrowRight,
@@ -332,7 +342,7 @@
 		/>
 	</svg>
 {:else}
-	<svg class="lucide" data-lucide={icon} style:--size="{size}px"></svg>
+	<svg class="lucide" data-lucide={icon} width="{size}px" height="{size}px"></svg>
 {/if}
 
 <style>
@@ -341,14 +351,12 @@
 	}
 
 	.lucide {
-		width: var(--size);
-		height: var(--size);
-
 		stroke: var(--icon-stroke, currentColor);
 		fill: var(--icon-fill, none);
 		stroke-width: var(--icon-stroke-width, 2.5);
 
-		transition: fill 0.2s ease-in-out;
-		transition: stroke 0.2s ease-in-out;
+		transition:
+			fill 0.2s ease-in-out,
+			stroke 0.2s ease-in-out;
 	}
 </style>

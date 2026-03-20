@@ -1,5 +1,6 @@
 <script>
 	import markdownIt from 'markdown-it';
+	import Anchor from 'markdown-it-anchor';
 	import highlightjs from 'markdown-it-highlightjs';
 	import linkAttributes from 'markdown-it-link-attributes';
 	import video from 'markdown-it-video';
@@ -19,8 +20,8 @@
 			attrs: {
 				target: '_blank'
 			}
-		});
-
+		})
+		.use(Anchor);
 	// https://markdown-it.github.io/
 
 	let { content = '' } = $props();

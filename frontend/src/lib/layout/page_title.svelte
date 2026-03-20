@@ -15,6 +15,7 @@
 
 <style>
 	section {
+		padding-top: 24px;
 		background-color: var(--title-background-color, var(--bg1));
 	}
 	.block {
@@ -39,5 +40,13 @@
 		font-size: 2rem;
 		font-weight: 800;
 		color: var(--ft1);
+		margin: auto;
+		max-width: 600px;
+	}
+	
+	.copy {
+		margin: auto;
+		font-size: 1.2rem;
+		max-width: 580px;
 	}
 </style>

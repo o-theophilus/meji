@@ -1,3 +1,6 @@
+/* .markdown {
+	font-size: 0.9rem;
+} */
 .markdown img {
 	width: 100%;
 	/* margin: 20px auto; */
@@ -24,7 +27,7 @@ blockquote {
 
 .markdown a {
 	color: var(--cl1);
-	font-weight: 800;
+	transition: color 0.2s ease-in-out;
 }
 
 .markdown a:hover {
@@ -51,37 +54,6 @@ blockquote {
 	background-color: color-mix(in srgb, var(--cl1), black 30%)
 }
 
-/* .markdown .embed {
-	position: relative;
-	line-height: 0;
-}
-.markdown .embed embed {
-	border-radius: 8px;
-}
-.markdown .embed a {
-	--size: 40px;
-
-	position: absolute;
-	top: 16px;
-	right: 16px;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	width: var(--size);
-	height: var(--size);
-	border-radius: 8px;
-
-	fill: var(--ft2);
-	background-color: var(--button);
-	
-	transition: fill 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-.markdown .embed a:hover {
-	background-color: var(--cl1);
-	fill: white;
-} */
 
 h1,
 h2,
@@ -94,27 +66,27 @@ h6 {
 }
 
 h1 {
-	font-size: 1.5rem;
+	font-size: 2rem;
 }
 
 h2 {
-	font-size: 1.4rem;
+	font-size: 1.7rem;
 }
 
 h3 {
-	font-size: 1.34rem;
+	font-size: 1.58rem;
 }
 
 h4 {
-	font-size: 1.28rem;
+	font-size: 1.46rem;
 }
 
 h5 {
-	font-size: 1.22rem;
+	font-size: 1.32rem;
 }
 
 h6 {
-	font-size: 1.16rem;
+	font-size: 1.2rem;
 }
 
 p,

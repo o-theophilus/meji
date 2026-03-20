@@ -14,13 +14,13 @@
 		<div class="title">Discover</div>
 		<Link href="/">Blog</Link>
 		<Link href="/">3D Hub</Link>
-		<Link href="/">FAQ</Link>
+		<Link href="/faq">FAQ</Link>
 	</div>
 	<div class="block">
 		<div class="title">Legal</div>
-		<Link href="/legal/terms">Terms of Service</Link>
+		<Link href="/legal/terms">Terms & Conditions</Link>
 		<Link href="/legal/policy">Privacy Policy</Link>
-		<Link href="/legal/policy#cookies">Cookie Policy</Link>
+		<Link href="/legal/policy#cookiesPolicy">Cookie Policy</Link>
 	</div>
 </section>
 
