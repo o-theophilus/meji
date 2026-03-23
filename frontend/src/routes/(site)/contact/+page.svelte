@@ -1,8 +1,14 @@
 <script>
 	import { Content, PageTitle } from '$lib/layout';
-	import { Icon } from '$lib/macro';
+	import { Icon, Log, Meta } from '$lib/macro';
 	import Form from './form.svelte';
 </script>
+
+<Log entity_type={'page'} />
+<Meta
+	title="Contact Us"
+	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
+/>
 
 <PageTitle>
 	{#snippet title()}

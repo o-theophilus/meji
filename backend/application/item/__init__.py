@@ -382,7 +382,7 @@ def add_review(key):
                 "error": "unauthorized access"
             })
 
-        cur.execute("SELECT * FROM review WHERE key = %s;", (parent_key,))
+        cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
         if not cur.fetchone():
             db_close(con, cur)
             return jsonify({
@@ -435,8 +435,9 @@ def add_review(key):
         })
 
     cur.execute("""
-        INSERT INTO review (user_key, item_key, rating, comment, parent_key)
-        VALUES (%s, %s, %s, %s, %s) RETURNING *;
+        INSERT INTO comment (user_key, entity_key, entity_type, rating,
+            comment, parent_key)
+        VALUES (%s, %s, 'item', %s, %s, %s) RETURNING *;
     """, (user["key"], item["key"], rating, comment, parent_key))
     review = cur.fetchone()
 

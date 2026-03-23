@@ -1,15 +1,20 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-from . import (api, auth, cart, coupon, fix, item, log, order, postgres,
-               report, storage, user, dashboard)
+from . import (api, auth, blog, cart, coupon, dashboard, fix, item, log, order,
+               postgres, report, storage, user)
 from .api import file_error
 from .auth import forgot
+from .blog import comment
+from .blog import file as blog_file
+from .blog import get as blog_get
+from .blog import photo as blog_photo
 from .cart import get as cart_get
 from .coupon import get as coupon_get
-from .item import advert, file
+from .item import advert
+from .item import file as item_file
 from .item import get as item_get
-from .item import review
+from .item import review as item_review
 from .item.advert import get as advert_get
 from .log import get as log_get
 from .order import get as order_get
@@ -53,8 +58,13 @@ def create_app(conf=None):
     app.register_blueprint(notification.bp)
     app.register_blueprint(item.bp)
     app.register_blueprint(item_get.bp)
-    app.register_blueprint(file.bp)
-    app.register_blueprint(review.bp)
+    app.register_blueprint(blog.bp)
+    app.register_blueprint(comment.bp)
+    app.register_blueprint(blog_file.bp)
+    app.register_blueprint(blog_get.bp)
+    app.register_blueprint(blog_photo.bp)
+    app.register_blueprint(item_file.bp)
+    app.register_blueprint(item_review.bp)
     app.register_blueprint(advert.bp)
     app.register_blueprint(advert_get.bp)
     app.register_blueprint(cart.bp)

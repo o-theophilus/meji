@@ -22,6 +22,7 @@ def db_close(con, cur):
 def create_tables():
     con, cur = db_open()
 
+    # TODO: manually do ON DELETE for entiity_key
     cur.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
     cur.execute("""
         DROP TABLE IF EXISTS "user" CASCADE;
@@ -92,7 +93,7 @@ def create_tables():
             date_resolved TIMESTAMPTZ,
             resolver_key UUID REFERENCES "user"(key),
             resolver_comment TEXT,
-            entity_type TEXT NOT NULL, -- user, review
+            entity_type TEXT NOT NULL, -- user, comment
             entity_key UUID NOT NULL
         );
 
@@ -144,12 +145,13 @@ def create_tables():
             photo JSONB DEFAULT '{}'::JSONB
         );
 
-        CREATE TABLE IF NOT EXISTS review (
+        CREATE TABLE IF NOT EXISTS comment (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            item_key UUID NOT NULL REFERENCES item(key) ON DELETE CASCADE,
-            parent_key UUID REFERENCES review(key) ON DELETE CASCADE,
+            entity_type TEXT NOT NULL, -- blog, item
+            entity_key UUID NOT NULL,
+            parent_key UUID REFERENCES comment(key) ON DELETE CASCADE,
             comment TEXT NOT NULL,
             rating INT DEFAULT 0
         );
@@ -159,7 +161,7 @@ def create_tables():
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
             reaction TEXT NOT NULL DEFAULT 'like',
-            entity_type TEXT NOT NULL, -- item, review
+            entity_type TEXT NOT NULL, -- item, blog, comment
             entity_key UUID NOT NULL,
             UNIQUE (user_key, entity_key)
         );
@@ -199,6 +201,32 @@ def create_tables():
             code TEXT UNIQUE NOT NULL,
             benefit JSONB DEFAULT '{}'::JSONB,
             UNIQUE (order_key)
+        );
+
+        CREATE TABLE IF NOT EXISTS blog (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            author_key UUID NOT NULL REFERENCES "user"(key),
+            title TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            content TEXT,
+            description TEXT,
+            photo TEXT,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            featured INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS model (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            slug TEXT UNIQUE NOT NULL,
+            url TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            information TEXT,
+            photo TEXT
         );
     """)
 

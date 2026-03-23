@@ -1,12 +1,14 @@
 <script>
 	import { Content, PageTitle, TOC, TOCList } from '$lib/layout';
-	import { Datetime, Icon, Marked, SideMenu } from '$lib/macro';
+	import { Datetime, Icon, Log, Marked, Meta, SideMenu } from '$lib/macro';
 	import Contact from '../../contact/contact.svelte';
 	import { cookiesPolicy, privacyPolicy } from './text';
-	let menu = $state();
 </script>
 
 <!-- TODO: review text -->
+
+<Log entity_type={'page'} />
+<Meta title="Policy" description="How we collect, use, and protect your information." />
 
 <PageTitle>
 	{#snippet title()}

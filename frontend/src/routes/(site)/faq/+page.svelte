@@ -1,10 +1,17 @@
 <script>
 	import { Card, Content, PageTitle } from '$lib/layout';
+	import { Log, Meta } from '$lib/macro';
 	import Contact from '../contact/contact.svelte';
 	import { faqs } from './faq';
 
 	let status = $state(null);
 </script>
+
+<Log entity_type={'page'} />
+<Meta
+	title="FAQ"
+	description="Need quick answers? Find solutions to common questions below."
+/>
 
 <PageTitle>
 	{#snippet title()}

@@ -12,7 +12,7 @@
 	</div>
 	<div class="block">
 		<div class="title">Discover</div>
-		<Link href="/">Blog</Link>
+		<Link href="/blog">Blog</Link>
 		<Link href="/">3D Hub</Link>
 		<Link href="/faq">FAQ</Link>
 	</div>

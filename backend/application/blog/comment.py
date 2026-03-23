@@ -3,12 +3,12 @@ from flask import Blueprint, jsonify, request
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session
-from .get import get_reviews
+from .get import get_comments
 
-bp = Blueprint("review", __name__)
+bp = Blueprint("comment", __name__)
 
 
-@bp.delete("/reviews/<key>")
+@bp.delete("/comments/<key>")
 def delete(key):
     con, cur = db_open()
 
@@ -18,65 +18,42 @@ def delete(key):
         return jsonify(session)
     user = session["user"]
 
-    cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
-    review = cur.fetchone()
-    if not review:
+    cur.execute("""
+        SELECT * FROM comment
+        WHERE user_key = %s AND entity_key = %s AND entity_type = 'blog';
+    """, (user["key"]), key)
+    comment = cur.fetchone()
+    if not comment:
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "Invalid request"
         })
 
-    comment = request.json.get("comment", "").strip()
-
-    misc = {
-        "item_key": "item",
-        "entity_key": review["item_key"]
-    }
-
-    if review["user_key"] != user["key"]:
-        if "review.delete_others" not in user["access"]:
-            db_close(con, cur)
-            return jsonify({
-                "status": 403,
-                "error": "unauthorized access"
-            })
-
-        error = {}
-        if not comment:
-            error["comment"] = "This field is required"
-        elif len(comment) > 500:
-            error["comment"] = "This field cannot exceed 500 characters"
-        if error:
-            db_close(con, cur)
-            return jsonify({
-                "status": 400,
-                **error
-            })
-
-        misc["comment"] = comment
-
-    cur.execute("DELETE FROM review WHERE key = %s;", (review["key"],))
+    cur.execute("""DELETE FROM comment WHERE key = %s;""", (comment["key"],))
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="deleted review",
-        entity_type="review",
-        entity_key=review["key"],
-        misc=misc
+        action="deleted comment",
+        entity_type="comment",
+        entity_key=comment["key"],
+        misc={
+            "entity_type": comment["entity_type"],
+            "entity_key": comment["entity_key"],
+        }
     )
 
-    reviews = get_reviews(review["item_key"], cur=cur)
+    comment_resp = get_comments(comment["entity_key"], cur)
     db_close(con, cur)
-    return reviews
+    return comment_resp
 
 
-@bp.post("/reviews/<key>/like")
+@bp.post("/comments/<key>/like")
 def like(key):
     con, cur = db_open()
 
-    session = get_session(cur)
+    session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
@@ -84,9 +61,17 @@ def like(key):
 
     reaction = request.json.get("reaction")
 
-    cur.execute("""SELECT * FROM review WHERE key = %s;""", (key,))
-    review = cur.fetchone()
-    if (not review or reaction not in ["like", "dislike"]):
+    if reaction not in ["like", "dislike"]:
+        return jsonify({
+            "status": 400,
+            "error": "Invalid request"
+        })
+
+    cur.execute("""
+        SELECT * FROM comment
+        WHERE user_key = %s AND entity_key = %s AND entity_type = 'blog';
+    """, (user["key"]), key)
+    if not cur.fetchone():
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -95,16 +80,16 @@ def like(key):
 
     cur.execute("""
         SELECT * FROM "like"
-        WHERE user_key = %s AND entity_key = %s AND entity_type = 'review';
-    """, (user["key"], review["key"]))
+        WHERE user_key = %s AND entity_key = %s AND entity_type = 'comment';
+    """, (user["key"], key))
     user_reaction = cur.fetchone()
 
     un = ""
     if not user_reaction:
         cur.execute("""
             INSERT INTO "like" (user_key, reaction, entity_key, entity_type)
-            VALUES (%s, %s, %s, 'review');
-        """, (user["key"], reaction, review["key"]))
+            VALUES (%s, %s, %s, 'comment');
+        """, (user["key"], reaction, key))
     elif user_reaction["reaction"] == reaction:
         un = "un"
         cur.execute("""DELETE FROM "like" WHERE key = %s;""",
@@ -118,13 +103,9 @@ def like(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action=f"{un}{reaction} review",
-        entity_type="review",
-        entity_key=review["key"],
-        misc={
-            "item_key": "item",
-            "entity_key": review["item_key"]
-        }
+        action=f"{un}{reaction} comment",
+        entity_type="comment",
+        entity_key=key,
     )
 
     cur.execute("""
@@ -135,8 +116,8 @@ def like(key):
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
-        WHERE entity_key = %s AND entity_type = 'review'
-    """, (user["key"], user["key"], user["key"], review["key"]))
+        WHERE entity_key = %s AND entity_type = 'comment'
+    """, (user["key"], user["key"], user["key"], key))
     reactions = cur.fetchone()
 
     db_close(con, cur)
@@ -146,7 +127,7 @@ def like(key):
     })
 
 
-@bp.post("/reviews/<key>/report")
+@bp.post("/comments/<key>/report")
 def report(key):
     con, cur = db_open()
 
@@ -178,9 +159,9 @@ def report(key):
             **error
         })
 
-    cur.execute("""SELECT * FROM review WHERE key = %s;""", (key,))
-    reported_review = cur.fetchone()
-    if not reported_review:
+    cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
+    reported_comment = cur.fetchone()
+    if not reported_comment:
         return jsonify({
             "status": 400,
             "error": "Invalid request"
@@ -189,20 +170,17 @@ def report(key):
     cur.execute("""
         INSERT INTO report (reporter_key, reporter_comment,
             tags, entity_key, entity_type)
-        VALUES (%s, %s, %s, %s, 'review') RETURNING *;
-    """, (user["key"], comment, tags, reported_review["key"]))
+        VALUES (%s, %s, %s, %s, 'comment') RETURNING *;
+    """, (user["key"], comment, tags, reported_comment["key"]))
     report = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="reported review",
-        entity_type="review",
-        entity_key=reported_review["key"],
-        misc={
-            "entity_type": "report",
-            "entity_key": report["key"]
-        }
+        action="reported comment",
+        entity_type="comment",
+        entity_key=reported_comment["key"],
+        misc={"report_key": report["key"]}
     )
 
     db_close(con, cur)

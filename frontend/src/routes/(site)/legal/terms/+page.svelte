@@ -1,6 +1,6 @@
 <script>
 	import { Content, PageTitle, TOC, TOCList } from '$lib/layout';
-	import { Datetime, Marked, SideMenu } from '$lib/macro';
+	import { Datetime, Log, Marked, Meta, SideMenu } from '$lib/macro';
 	import Contact from '../../contact/contact.svelte';
 	import { content } from './text';
 
@@ -9,6 +9,9 @@
 
 <!-- TODO: review text -->
 <!-- TODO: review all email template -->
+
+<Log entity_type={'page'} />
+<Meta title="Terms & Conditions" description="The rules and guidelines for using Meji." />
 
 <PageTitle>
 	{#snippet title()}

@@ -321,12 +321,12 @@ def get_reviews(key, _page_size=24, cur=None):
             u.key AS user_key, u.name, u.username, u.photo,
             COALESCE(sub_r.reply_count, 0) AS reply_count,
             COALESCE(l.most_like, 0) AS most_like
-        FROM review r
+        FROM comment r
         JOIN "user" u ON u.key = r.user_key
 
         LEFT JOIN (
             SELECT parent_key, COUNT(*) AS reply_count
-            FROM review
+            FROM comment
             WHERE parent_key IS NOT NULL
             GROUP BY parent_key
         ) sub_r ON sub_r.parent_key = r.key
@@ -337,11 +337,12 @@ def get_reviews(key, _page_size=24, cur=None):
                 COUNT(*) FILTER (WHERE reaction = 'like') -
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
             FROM "like"
-            WHERE entity_type = 'review'
+            WHERE entity_type = 'comment'
             GROUP BY entity_key
         ) l ON l.entity_key = r.key
 
-        WHERE r.item_key = %s AND r.parent_key IS NULL
+        WHERE r.entity_key = %s AND r.entity_type = 'item'
+            AND r.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}, r.key DESC
         LIMIT %s OFFSET %s
     """, (

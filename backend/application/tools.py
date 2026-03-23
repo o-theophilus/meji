@@ -39,6 +39,26 @@ access_pass = {
         ['edit_quantity', 2],
         ['advert', 2]
     ],
+    "review": [
+        ['delete_others', 3],
+        ['reply', 3]
+    ],
+    "blog": [
+        ['add', 2],
+        ['edit_photo', 2],
+        ['edit_title', 2],
+        ['edit_date', 2],
+        ['edit_description', 2],
+        ['edit_content', 2],
+        ['edit_files', 2],
+        ['edit_tags', 2],
+        ['edit_status', 2],
+        ['edit_author', 2],
+        ['edit_featured', 2]
+    ],
+    "comment": [
+        ['delete_others', 3]
+    ],
     "coupon": [
         ['view', 2],
         ['view_code', 3],
@@ -54,10 +74,6 @@ access_pass = {
         ['email_order_created', 3],
         ['email_order_canceled', 3],
         ['email_order_delivered', 3]
-    ],
-    "review": [
-        ['delete_others', 3],
-        ['reply', 3]
     ],
     "report": [
         ['view', 1],

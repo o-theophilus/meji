@@ -13,7 +13,44 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DELETE FROM item;
+        DROP TABLE IF EXISTS review CASCADE;
+
+        CREATE TABLE IF NOT EXISTS comment (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            entity_type TEXT NOT NULL, -- blog, item
+            entity_key UUID NOT NULL,
+            parent_key UUID REFERENCES comment(key) ON DELETE CASCADE,
+            comment TEXT NOT NULL,
+            rating INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS blog (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            author_key UUID NOT NULL REFERENCES "user"(key),
+            title TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            content TEXT,
+            description TEXT,
+            photo TEXT,
+            files TEXT[] DEFAULT '{}'::TEXT[],
+            tags TEXT[] DEFAULT '{}'::TEXT[],
+            featured INT DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS model (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status TEXT NOT NULL DEFAULT 'draft',
+            date_created TIMESTAMPTZ DEFAULT now(),
+            slug TEXT UNIQUE NOT NULL,
+            url TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            information TEXT,
+            photo TEXT
+        );
     """)
 
     db_close(con, cur)
