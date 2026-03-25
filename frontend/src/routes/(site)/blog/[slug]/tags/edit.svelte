@@ -50,9 +50,9 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.item);
+			module.value.update(resp.blog);
 			module.close();
-			notify.open(`Tag${resp.item.tags.length > 1 ? 's' : ''} Saved`);
+			notify.open(`Tag${resp.blog.tags.length > 1 ? 's' : ''} Saved`);
 		} else {
 			error = resp;
 		}
@@ -77,7 +77,7 @@
 		error={error.tags}
 		type="textarea"
 		placeholder="Tags here"
-		onblur={clean_value}
+		onblur={() => clean_value()}
 	/>
 
 	<div class="line">

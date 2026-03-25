@@ -52,7 +52,7 @@
 	};
 </script>
 
-<div class="line space" id="comment_section">
+<div class="line space comment_section">
 	<div class="line">
 		<span class="page_title">
 			{#if total_comment > 0}
@@ -74,25 +74,33 @@
 </div>
 
 {#if open && !loading}
-	<div class="margin" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+	<div
+		class="comment_area"
+		transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}
+	>
 		{#if comments?.length > 1}
-			<Dropdown
-				--select-height="10"
-				--select-padding-x="0"
-				--select-font-size="0.8rem"
-				--select-background-color="transparent"
-				--select-background-color-hover="transparent"
-				--select-color-hover="var(--ft1)"
-				--select-outline-color="transparent"
-				list={order_by}
-				icon="arrow-down-narrow-wide"
-				icon2="chevron-down"
-				bind:value={searchParams.order}
-				onchange={(v) => {
-					searchParams.page_no = 1;
-					load();
-				}}
-			/>
+			<div class="line space">
+				<div></div>
+				<Dropdown
+					--select-height="1"
+					--select-padding-x="0"
+					--select-font-size="0.8rem"
+					--select-background-color="transparent"
+					--select-background-color-hover="transparent"
+					--select-color="var(--ft2)"
+					--select-color-hover="var(--ft1)"
+					--select-outline-color="transparent"
+					label="Sort: {searchParams.order}"
+					list={order_by}
+					icon="arrow-down-up"
+					icon2="chevron-down"
+					bind:value={searchParams.order}
+					onchange={(v) => {
+						searchParams.page_no = 1;
+						load();
+					}}
+				/>
+			</div>
 		{/if}
 
 		{#each comments as comment (comment.key)}
@@ -146,6 +154,16 @@
 </div>
 
 <style>
+	.comment_section {
+		margin-top: 24px;
+		border-top: 1px solid var(--ft1);
+		padding-top: 24px;
+	}
+
+	.comment_area {
+		margin-top: 16px;
+	}
+
 	.comment {
 		margin-top: 8px;
 
@@ -166,6 +184,6 @@
 	}
 
 	.button {
-		margin: 16px 0;
+		margin-top: 16px;
 	}
 </style>

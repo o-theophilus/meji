@@ -13,7 +13,6 @@
 
 	let { data } = $props();
 	console.log(data);
-	
 
 	onMount(() => {
 		app.cart_items = data.items;
@@ -123,7 +122,7 @@
 			<div class="icon">
 				<Icon icon="cart" size="50" />
 			</div>
-			<Button href="/shop">Shop now</Button>
+			<Button icon="shop" href="/shop">Shop now</Button>
 		</PageNote>
 	{/if}
 </Content>

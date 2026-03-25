@@ -109,7 +109,7 @@ def get_many(cur=None):
         LEFT JOIN "user" ru ON report.entity_key = ru.key
             AND report.entity_type = 'user'
         LEFT JOIN block ON ru.key = block.user_key
-        LEFT JOIN comment rr ON report.entity_key = rc.key
+        LEFT JOIN comment rc ON report.entity_key = rc.key
             AND report.entity_type = 'comment'
         LEFT JOIN "user" rc_user ON rc.user_key = rc_user.key
 

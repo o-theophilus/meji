@@ -15,21 +15,21 @@
 	let open_menu = $state(false);
 	let self = false;
 
-	let engagement = $derived(comment.engagement);
+	let stats = $derived(comment.stats);
 	let like = $derived.by(() => {
-		if (engagement.user_reaction == 'like') return engagement.others_like + 1;
-		return engagement.others_like;
+		if (stats.user_reaction == 'like') return stats.others_like + 1;
+		return stats.others_like;
 	});
 	let dislike = $derived.by(() => {
-		if (engagement.user_reaction == 'dislike') return engagement.others_dislike + 1;
-		return engagement.others_dislike;
+		if (stats.user_reaction == 'dislike') return stats.others_dislike + 1;
+		return stats.others_dislike;
 	});
 
 	const submit = async (reaction) => {
-		if (reaction == engagement.user_reaction) {
-			engagement.user_reaction = null;
+		if (reaction == stats.user_reaction) {
+			stats.user_reaction = null;
 		} else {
-			engagement.user_reaction = reaction;
+			stats.user_reaction = reaction;
 		}
 
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/comments/${comment.key}/like`, {
@@ -43,7 +43,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			engagement = {
+			stats = {
 				others_like: resp.others_like,
 				others_dislike: resp.others_dislike,
 				user_reaction: resp.user_reaction
@@ -72,7 +72,7 @@
 				--like-height="32px"
 				{like}
 				{dislike}
-				active={engagement.user_reaction}
+				active={stats.user_reaction}
 				onlike={() => submit('like')}
 				ondislike={() => submit('dislike')}
 			/>

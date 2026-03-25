@@ -252,7 +252,7 @@ def get_comments(key, _page_size=24, cur=None):
 
     cur.execute(f"""
         SELECT
-            r.key, r.date_created, c.comment, c.rating,
+            c.key, c.date_created, c.comment, c.rating,
             u.key AS user_key, u.name, u.username, u.photo,
             COALESCE(sub_c.reply_count, 0) AS reply_count,
             COALESCE(l.most_like, 0) AS most_like
@@ -380,7 +380,8 @@ def get_comments(key, _page_size=24, cur=None):
         FROM generate_series(1, 5) AS r(rating)
         LEFT JOIN comment
             ON comment.rating = r.rating
-            AND comment.item_key = %s
+            AND comment.entity_key = %s
+            AND comment.entity_type = 'item'
             AND comment.parent_key IS NULL
         GROUP BY r.rating
         ORDER BY r.rating DESC
@@ -402,8 +403,10 @@ def get_comments(key, _page_size=24, cur=None):
             has_purchased,
             has_purchased
             AND NOT EXISTS (
-                SELECT 1 FROM comment r
-                WHERE r.user_key = %s AND r.item_key = %s
+                SELECT 1 FROM comment
+                WHERE comment.user_key = %s
+                    AND comment.entity_type = 'item'
+                    AND comment.entity_key = %s
             ) AS can_comment
         FROM purchase_check;
     """, (user["key"], item["key"], user["key"], item["key"]))

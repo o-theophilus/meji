@@ -5,12 +5,14 @@
 	import './_layout/main.css';
 
 	let { data, children } = $props();
+
 	app.user = data.locals.user;
 	app.token = data.locals.token;
 	app.login = data.locals.login;
 	app.likes = data.locals.likes;
 	app.cart_items = data.locals.cart_items;
-	app.item_tags = data.locals.tags;
+	app.item_tags = data.locals.item_tags;
+	app.blog_tags = data.locals.blog_tags;
 </script>
 
 <main class="{app.user.theme}_theme">

@@ -1,54 +1,44 @@
 <script>
 	import { app, module } from '$lib/store.svelte.js';
 
-	import { Link } from '$lib/button';
-	import { Avatar, Spinner } from '$lib/macro';
+	import { Spinner, User } from '$lib/macro';
 	import Button from '../button.svelte';
 	import Form from './edit.svelte';
 
 	let { author, blog, edit_mode, loading, update } = $props();
+	let edit = $derived(app.user.access.includes('blog.edit_author') && edit_mode);
 </script>
 
 {#if loading || author.username}
-	<hr />
-	{#if app.user.access.includes('blog.edit_author') && edit_mode}
-		<Button onclick={() => module.open(Form, { key: blog.key, update })}>Edit Author</Button>
-	{/if}
+	<div class="area" class:edit>
+		{#if edit}
+			<Button onclick={() => module.open(Form, { key: blog.key, update })}>Edit Author</Button>
+		{/if}
 
-	<div class="line">
 		{#if loading}
-			<Spinner active={loading} size="20" />
-			<span class="small"> | </span>
-			<span class="small"> Author </span>
-		{:else}
-			<Link href="/@{author.username}">
-				<Avatar name={author.name} photo={author.photo} --avatar-border-radius="50%" />
-			</Link>
-			<div class="details">
-				<div class="line">
-					<Link href="/@{author.username}" --link-font-size="0.8rem">
-						{author.name}
-					</Link>
-					<span class="small"> | </span>
-					<span class="small"> Author </span>
-				</div>
-				<div class="username">
-					@{author.username}
-				</div>
+			<div class="line">
+				<Spinner active={loading} size="20" />
 			</div>
+		{:else}
+			<User user={author}>(Author)</User>
 		{/if}
 	</div>
 {/if}
 
 <style>
-	.line {
-		gap: 16px;
+	.area {
+		margin-top: 32px;
+		border-top: 1px solid var(--ft1);
+		padding-top: 16px;
+		&.edit {
+			padding: 8px;
+			border-radius: 4px;
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+		}
 	}
 
-	.small {
-		font-size: 0.8rem;
-	}
-	.username {
-		font-size: 0.7rem;
+	.line {
+		gap: 16px;
 	}
 </style>

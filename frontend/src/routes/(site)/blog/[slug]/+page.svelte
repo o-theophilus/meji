@@ -119,20 +119,11 @@
 		<Share {blog} />
 	</div>
 
-	<hr />
-
 	<Comment {blog} {comment_resp} {loading} />
-</Content>
-
-<Content
-	--content-background-color="var(--bg2)"
-	--content-height="auto"
-	--content-padding-top="1px"
-	--content-padding-bottom="1px"
->
-	<Similar {similar} {loading} />
 	<ToTop />
 </Content>
+
+<Similar {similar} {loading} />
 
 <style>
 	.line.date {

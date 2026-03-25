@@ -4,10 +4,11 @@
 	import Edit from './edit.svelte';
 
 	let { blog, edit_mode, update } = $props();
+	let edit = $derived(app.user.access.includes('blog.edit_title') && edit_mode);
 </script>
 
-<div class="comp">
-	{#if app.user.access.includes('blog.edit_title') && edit_mode}
+<div class="area" class:edit>
+	{#if edit}
 		<Button
 			onclick={() =>
 				module.open(Edit, {
@@ -19,13 +20,20 @@
 			Edit Title
 		</Button>
 	{/if}
+
 	<div class="page_title">
 		{blog.title}
 	</div>
 </div>
 
 <style>
-	.comp {
-		margin-top: 24px;
+	.area {
+		margin-top: 16px;
+		&.edit {
+			padding: 8px;
+			border-radius: 4px;
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+		}
 	}
 </style>

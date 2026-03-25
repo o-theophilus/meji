@@ -6,10 +6,11 @@
 	import Edit from './edit.svelte';
 
 	let { blog, edit_mode, update } = $props();
+	let edit = $derived(app.user.access.includes('blog.edit_date') && edit_mode);
 </script>
 
-<div class="kkk">
-	{#if app.user.access.includes('blog.edit_date') && edit_mode}
+<div class="area" class:edit>
+	{#if edit}
 		<Button
 			onclick={() =>
 				module.open(Edit, {
@@ -21,14 +22,21 @@
 			Edit Date
 		</Button>
 	{/if}
+
 	<div class="date">
 		<Datetime datetime={blog.date_created} />
 	</div>
 </div>
 
 <style>
-	.kkk {
-		align-self: flex-end;
+	.area {
+		margin-top: 8px;
+		&.edit {
+			padding: 8px;
+			border-radius: 4px;
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+		}
 	}
 	.date {
 		font-size: 0.8rem;

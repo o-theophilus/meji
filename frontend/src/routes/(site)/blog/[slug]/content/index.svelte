@@ -32,24 +32,39 @@
 	};
 </script>
 
-<hr />
+<div class="area" class:edit={edit_mode}>
+	{#if edit_mode}
+		<div class="line">
+			{#if app.user.access.includes('blog.edit_content')}
+				<Button onclick={() => module.open(Edit, { blog, update, process })}>Edit Content</Button>
+			{/if}
 
-{#if edit_mode}
-	<div class="line">
-		{#if app.user.access.includes('blog.edit_content')}
-			<Button onclick={() => module.open(Edit, { blog, update, process })}>Edit Content</Button>
-		{/if}
+			{#if app.user.access.includes('blog.edit_files') && blog.content && blog.content.includes('@[file]')}
+				<Button icon="image" onclick={() => module.open(File, { blog, update })}
+					>Manage Files</Button
+				>
+			{/if}
+		</div>
+	{/if}
 
-		{#if app.user.access.includes('blog.edit_files') && blog.content && blog.content.includes('@[file]')}
-			<Button icon="image" onclick={() => module.open(File, { blog, update })}>Manage Files</Button>
-		{/if}
-	</div>
-{/if}
+	{#if blog.content}
+		<br />
+		<Marked content={process(blog)} />
+	{:else}
+		<PageNote>No content</PageNote>
+	{/if}
+</div>
 
-{#if blog.content}
-	<br />
-	<Marked content={process(blog)} />
-	<br />
-{:else if edit_mode}
-	<PageNote>No content</PageNote>
-{/if}
+<style>
+	.area {
+		margin-top: 16px;
+		border-top: 1px solid var(--ft1);
+
+		&.edit {
+			padding: 8px;
+			border-radius: 4px;
+			outline: 1px solid var(--ol);
+			outline-offset: -1px;
+		}
+	}
+</style>
