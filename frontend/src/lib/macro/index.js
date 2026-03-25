@@ -9,4 +9,5 @@ export { default as SideMenu } from "./side_menu.svelte"
 export { default as Spinner } from "./spinner.svelte"
 export { default as ToTop } from "./to_top.svelte"
 export { default as User } from "./user.svelte"
+export { default as Share } from "./share.svelte"
 

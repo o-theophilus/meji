@@ -32,7 +32,7 @@ def create_tables():
         DROP TABLE IF EXISTS report CASCADE;
         DROP TABLE IF EXISTS block CASCADE;
         DROP TABLE IF EXISTS item CASCADE;
-        DROP TABLE IF EXISTS review CASCADE;
+        DROP TABLE IF EXISTS comment CASCADE;
         DROP TABLE IF EXISTS "like" CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
@@ -194,13 +194,12 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS coupon (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             date_created TIMESTAMPTZ DEFAULT now(),
-            order_key UUID REFERENCES "order"(key) ON DELETE SET NULL,
+            order_key UUID UNIQUE REFERENCES "order"(key) ON DELETE SET NULL,
             status TEXT NOT NULL DEFAULT 'inactive',
             valid_from TIMESTAMPTZ,
             valid_until TIMESTAMPTZ,
             code TEXT UNIQUE NOT NULL,
-            benefit JSONB DEFAULT '{}'::JSONB,
-            UNIQUE (order_key)
+            benefit JSONB DEFAULT '{}'::JSONB
         );
 
         CREATE TABLE IF NOT EXISTS blog (

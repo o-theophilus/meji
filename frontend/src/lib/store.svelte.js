@@ -6,10 +6,13 @@ export const app = $state({
 	user: {},
 	login: false,
 	highlight: null,
-	tags: [],
 	likes: [],
 	cart_items: [],
+
 	item: {},
+	blog: {},
+	item_tags: [],
+	blog_tags: [],
 
 	token_name: 'token',
 	get token() {

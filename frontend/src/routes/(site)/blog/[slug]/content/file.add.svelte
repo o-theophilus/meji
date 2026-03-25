@@ -37,7 +37,7 @@
 		}
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${ops.key}/file`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${ops.key}/file`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
@@ -49,8 +49,8 @@
 		input.value = '';
 
 		if (resp.status == 200) {
-			ops.files = resp.post.files;
-			module.value.update(resp.post);
+			ops.files = resp.blog.files;
+			module.value.update(resp.blog);
 			notify.open('Photo added');
 
 			if (resp.error) ops.error = resp;

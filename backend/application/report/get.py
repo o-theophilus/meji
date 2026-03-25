@@ -94,14 +94,14 @@ def get_many(cur=None):
             ) AS reported_user,
 
             jsonb_build_object(
-                'date_created', rr.date_created,
-                'comment', rr.comment,
+                'date_created', rc.date_created,
+                'comment', rc.comment,
                 'user', jsonb_build_object(
-                    'name', rr_user.name,
-                    'username', rr_user.username,
-                    'photo', rr_user.photo
+                    'name', rc_user.name,
+                    'username', rc_user.username,
+                    'photo', rc_user.photo
                 )
-            ) AS reported_review
+            ) AS reported_comment
 
         FROM report
         LEFT JOIN "user" reporter ON report.reporter_key = reporter.key
@@ -109,9 +109,9 @@ def get_many(cur=None):
         LEFT JOIN "user" ru ON report.entity_key = ru.key
             AND report.entity_type = 'user'
         LEFT JOIN block ON ru.key = block.user_key
-        LEFT JOIN review rr ON report.entity_key = rr.key
-            AND report.entity_type = 'review'
-        LEFT JOIN "user" rr_user ON rr.user_key = rr_user.key
+        LEFT JOIN comment rr ON report.entity_key = rc.key
+            AND report.entity_type = 'comment'
+        LEFT JOIN "user" rc_user ON rc.user_key = rc_user.key
 
         WHERE
             report.status = %s
@@ -153,12 +153,12 @@ def get_many(cur=None):
         else:
             del x["reported_user"]
 
-        if x["entity_type"] == "review":
-            if x["reported_review"]["user"]["photo"]:
-                x["reported_review"]["user"]["photo"] = f"{url}{x[
-                    'reported_review']['user']['photo']}"
+        if x["entity_type"] == "comment":
+            if x["reported_comment"]["user"]["photo"]:
+                x["reported_comment"]["user"]["photo"] = f"{url}{x[
+                    'reported_comment']['user']['photo']}"
         else:
-            del x["reported_review"]
+            del x["reported_comment"]
 
     cur.execute("""
         SELECT COUNT(*) FROM report
@@ -185,7 +185,7 @@ def get_many(cur=None):
         "reports": reports,
         "order_by": list(order_by.keys()),
         "_status": ["active", "resolved", "dismissed"],
-        "type": ["all", "user", "review"],
+        "type": ["all", "user", "comment"],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
     })

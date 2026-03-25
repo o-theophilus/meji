@@ -18,7 +18,7 @@ def blog_schema(i):
     return i
 
 
-def get_tags(cur):
+def get_blog_tags(cur):
     cur.execute("SELECT tags FROM blog WHERE status = 'active';")
     temp = cur.fetchall()
 
@@ -294,13 +294,13 @@ def get_comments(key, cur=None):
         ORDER BY {order_by[order]} {order_dir[order]}, c.key DESC
         LIMIT %s OFFSET %s;
     """, (key, key, page_size, (page_no - 1) * page_size))
-    comments = cur.fetchall()
+    _comments = cur.fetchall()
+    comment_keys = [r["key"] for r in _comments]
+
     replies = []
     likes = []
 
-    if comments:
-        comment_keys = [r["key"] for r in comments]
-
+    if comment_keys:
         cur.execute("""
             SELECT
                 c.key, c.date_created, c.comment, c.parent_key,
@@ -351,16 +351,16 @@ def get_comments(key, cur=None):
                 "photo": f'{request.host_url}photo/user/{x["photo"]}' if x[
                     "photo"] else None
             },
-            "engagement": likes_map.get(x["key"], {
+            "stats": likes_map.get(x["key"], {
                 "others_like": 0,
                 "others_dislike": 0,
                 "user_reaction": None
             }),
         })
 
-    final_comments = []
-    for x in comments:
-        final_comments.append({
+    comments = []
+    for x in _comments:
+        comments.append({
             "key": x["key"],
             "date_created": x["date_created"],
             "comment": x["comment"],
@@ -371,7 +371,7 @@ def get_comments(key, cur=None):
                 "photo": f'{request.host_url}photo/user/{x["photo"]}' if x[
                     "photo"] else None
             },
-            "engagement": likes_map.get(x["key"], {
+            "stats": likes_map.get(x["key"], {
                 "others_like": 0,
                 "others_dislike": 0,
                 "user_reaction": None
@@ -381,22 +381,22 @@ def get_comments(key, cur=None):
 
     cur.execute("""
         SELECT
-            COUNT(*) AS total,
+            COUNT(*) AS total_comment,
             COUNT(*) FILTER (WHERE parent_key IS NULL) AS total_parent
         FROM comment
         WHERE entity_key = %s AND entity_type = 'blog';
     """, (key,))
-    row = cur.fetchone()
-    total = row["total"]
-    total_parent = row["total_parent"]
+    total = cur.fetchone()
+    total_comment = total["total_comment"]
+    total_parent = total["total_parent"]
 
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
-        "comments": final_comments,
+        "comments": comments,
         "order_by": list(order_by.keys()),
-        "total_comment": total,
+        "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
         "searchParams": searchParams,
     })

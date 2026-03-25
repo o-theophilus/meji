@@ -3,23 +3,23 @@
 	import Button from '../button.svelte';
 	import Edit from './edit.svelte';
 
-	let { post, edit_mode, update } = $props();
+	let { blog, edit_mode, update } = $props();
 </script>
 
 <div class="margin">
-	{#if app.user.access.includes('post.edit_description') && edit_mode}
+	{#if app.user.access.includes('blog.edit_description') && edit_mode}
 		<Button
 			onclick={() =>
 				module.open(Edit, {
-					key: post.key,
-					description: post.description,
+					key: blog.key,
+					description: blog.description,
 					update
 				})}>Edit Description</Button
 		>
 	{/if}
 
-	{#if post.description}
-		{post.description}
+	{#if blog.description}
+		{blog.description}
 	{:else if edit_mode}
 		No description
 	{/if}

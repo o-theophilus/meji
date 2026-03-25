@@ -1,5 +1,5 @@
 <script>
-	import { app, module,scroll } from '$lib/store.svelte.js';
+	import { app, module, scroll } from '$lib/store.svelte.js';
 	import { flip } from 'svelte/animate';
 	import { cubicInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
@@ -13,7 +13,7 @@
 	import Control from './one.control.svelte';
 	import One from './one.svelte';
 
-	let { post, comment_resp, loading } = $props();
+	let { blog, comment_resp, loading } = $props();
 
 	let comments = $derived(comment_resp.comments);
 	let total_comment = $derived(comment_resp.total_comment);
@@ -33,7 +33,7 @@
 		loading = true;
 
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/posts/${post.key}/comments?${new URLSearchParams(searchParams).toString()}`,
+			`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/comments?${new URLSearchParams(searchParams).toString()}`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
@@ -48,7 +48,7 @@
 		}
 
 		loading = false;
-		scroll("#comment_section")
+		scroll('#comment_section');
 	};
 </script>
 
@@ -99,11 +99,11 @@
 			<div class="comment" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 				<div class="main">
 					<One {comment}></One>
-					<Control {comment} {post} {searchParams} {update}>
+					<Control {comment} {blog} {searchParams} {update}>
 						{#snippet reply()}
 							<RoundButton
 								icon="reply"
-								onclick={() => module.open(Add, { comment, post, searchParams, update })}
+								onclick={() => module.open(Add, { comment, blog, searchParams, update })}
 							/>
 						{/snippet}
 					</Control>
@@ -111,7 +111,7 @@
 				{#each comment.replies as reply (reply.key)}
 					<div class="reply" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 						<One comment={reply}></One>
-						<Control comment={reply} {post} {searchParams} {update}></Control>
+						<Control comment={reply} {blog} {searchParams} {update}></Control>
 					</div>
 				{/each}
 			</div>
@@ -136,7 +136,7 @@
 	{#if app.login}
 		<Button
 			icon="message-circle-plus"
-			onclick={() => module.open(Add, { post, update, searchParams })}
+			onclick={() => module.open(Add, { blog, update, searchParams })}
 		>
 			Add comment
 		</Button>

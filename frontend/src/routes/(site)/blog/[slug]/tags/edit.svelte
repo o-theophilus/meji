@@ -20,8 +20,8 @@
 			.filter((v, i, arr) => arr.indexOf(v) === i)
 	);
 	let unused_tags = $derived.by(() => {
-		if (!app.tags) return [];
-		return app.tags.filter((i) => !tags.includes(i));
+		if (!app.blog_tags) return [];
+		return app.blog_tags.filter((i) => !tags.includes(i));
 	});
 
 	const validate = () => {
@@ -37,8 +37,8 @@
 	const submit = async () => {
 		error = {};
 
-		loading.open('Saving Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${module.value.key}`, {
+		loading.open('Saving Blog . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

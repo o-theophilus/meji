@@ -14,6 +14,7 @@ def quick_fix():
 
     cur.execute("""
         DROP TABLE IF EXISTS review CASCADE;
+        DROP TABLE IF EXISTS coupon CASCADE;
 
         CREATE TABLE IF NOT EXISTS comment (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,6 +51,17 @@ def quick_fix():
             name TEXT NOT NULL,
             information TEXT,
             photo TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS coupon (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            order_key UUID UNIQUE REFERENCES "order"(key) ON DELETE SET NULL,
+            status TEXT NOT NULL DEFAULT 'inactive',
+            valid_from TIMESTAMPTZ,
+            valid_until TIMESTAMPTZ,
+            code TEXT UNIQUE NOT NULL,
+            benefit JSONB DEFAULT '{}'::JSONB
         );
     """)
 

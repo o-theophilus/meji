@@ -9,12 +9,12 @@
 	import { cubicInOut } from 'svelte/easing';
 	import Add from './_add.svelte';
 	import One from './one.svelte';
-	let { item, review, loading } = $props();
+	let { item, comments: comms, loading } = $props();
 
-	let ratings = $derived(review.ratings);
-	let reviews = $derived(review.reviews);
-	let has_purchased = $derived(review.has_purchased);
-	let can_review = $derived(review.can_review);
+	let ratings = $derived(comms.ratings);
+	let comments = $derived(comms.comments);
+	let has_purchased = $derived(comms.has_purchased);
+	let can_comment = $derived(comms.can_comment);
 
 	let count = $derived.by(() => {
 		let _temp = 0;
@@ -28,10 +28,10 @@
 	let open = $derived(count > 1);
 
 	const update = (rat, rev, hp, cr, tp) => {
-		reviews = rat;
+		comments = rat;
 		ratings = rev;
 		has_purchased = hp;
-		can_review = cr;
+		can_comment = cr;
 		open = true;
 	};
 </script>
@@ -54,9 +54,9 @@
 	{/snippet}
 
 	{#if open && !loading}
-		{#each reviews as review (review.key)}
-			<div class="review" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<One {item} {review} searchParams={{ page_size: 3 }} {update}></One>
+		{#each comments as comment (comment.key)}
+			<div class="comment" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+				<One {item} {comment} searchParams={{ page_size: 3 }} {update}></One>
 			</div>
 		{:else}
 			<PageNote>
@@ -89,7 +89,7 @@
 				>
 					Add review
 				</Button>
-			{:else if can_review}
+			{:else if can_comment}
 				<Button
 					icon="message-circle-plus"
 					onclick={() => module.open(Add, { item, search: { page_size: 3 }, update })}
@@ -119,7 +119,7 @@
 		color: var(--ft1);
 	}
 
-	.review {
+	.comment {
 		margin-top: 8px;
 
 		&:first-child {

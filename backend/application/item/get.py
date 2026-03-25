@@ -10,7 +10,7 @@ from .get_group import (customer_view, recently_viewed, recommended,
 bp = Blueprint("item_get", __name__)
 
 
-def get_tags(cur=None):
+def get_item_tags(cur=None):
     cur.execute("SELECT tags FROM item WHERE status = 'active';")
     temp = cur.fetchall()
 
@@ -160,11 +160,11 @@ def get_items(cur=None, _order="latest", _page_size=24):
     cur.execute(f"""
         WITH rating AS (
             SELECT
-                review.item_key AS key,
-                AVG(review.rating) as rating
-            FROM review
-            WHERE review.parent_key IS NULL
-            GROUP BY review.item_key
+                comment.entity_key AS key,
+                AVG(comment.rating) as rating
+            FROM comment
+            WHERE comment.entity_type = 'item' AND comment.parent_key IS NULL
+            GROUP BY comment.entity_key
         )
 
         SELECT item.*,
@@ -196,73 +196,8 @@ def get_items(cur=None, _order="latest", _page_size=24):
     })
 
 
-@bp.get("/items/<key>/group")
-def get_group(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return jsonify(session)
-    user = session["user"]
-
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
-    if not cur.fetchone():
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    item_group = []
-    _similar_items = similar_items(cur, key)
-    if _similar_items:
-        item_group.append({
-            "name": "Similar Items",
-            "items": _similar_items,
-            "style": "grid",
-            "open": True
-        })
-
-    _recently_viewed = recently_viewed(cur, user["key"], key)
-    if _recently_viewed:
-        item_group.append({
-            "name": "Recently Viewed",
-            "items": _recently_viewed,
-            "style": "line",
-            "open": True
-        })
-
-    _customer_view = customer_view(cur, user["key"], key)
-    if _customer_view:
-        item_group.append({
-            "name": "Customers who viewed this also viewed",
-            "items": _customer_view,
-            "style": "line",
-            "open": True
-        })
-
-    _recommended = recommended(cur, user["key"], key)
-    if _recommended:
-        item_group.append({
-            "name": "You may also like",
-            "items": _recommended,
-            "style": "line",
-            "open": True
-        })
-
-    review = get_reviews(key, 3, cur).json
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "review": review,
-        "item_group": item_group
-    })
-
-
-@bp.get("/items/<key>/reviews")
-def get_reviews(key, _page_size=24, cur=None):
+@bp.get("/items/<key>/comments")
+def get_comments(key, _page_size=24, cur=None):
     close_conn = not cur
     if not cur:
         con, cur = db_open()
@@ -317,19 +252,20 @@ def get_reviews(key, _page_size=24, cur=None):
 
     cur.execute(f"""
         SELECT
-            r.key, r.date_created, r.comment, r.rating,
+            r.key, r.date_created, c.comment, c.rating,
             u.key AS user_key, u.name, u.username, u.photo,
-            COALESCE(sub_r.reply_count, 0) AS reply_count,
+            COALESCE(sub_c.reply_count, 0) AS reply_count,
             COALESCE(l.most_like, 0) AS most_like
-        FROM comment r
-        JOIN "user" u ON u.key = r.user_key
+
+        FROM comment c
+        JOIN "user" u ON u.key = c.user_key
 
         LEFT JOIN (
             SELECT parent_key, COUNT(*) AS reply_count
             FROM comment
             WHERE parent_key IS NOT NULL
             GROUP BY parent_key
-        ) sub_r ON sub_r.parent_key = r.key
+        ) sub_c ON sub_c.parent_key = c.key
 
         LEFT JOIN (
             SELECT
@@ -339,31 +275,37 @@ def get_reviews(key, _page_size=24, cur=None):
             FROM "like"
             WHERE entity_type = 'comment'
             GROUP BY entity_key
-        ) l ON l.entity_key = r.key
+        ) l ON l.entity_key = c.key
 
-        WHERE r.entity_key = %s AND r.entity_type = 'item'
-            AND r.parent_key IS NULL
-        ORDER BY {order_by[order]} {order_dir[order]}, r.key DESC
+        WHERE c.entity_key = %s AND c.entity_type = 'item'
+            AND c.parent_key IS NULL
+        ORDER BY {order_by[order]} {order_dir[order]}, c.key DESC
         LIMIT %s OFFSET %s
     """, (
         item["key"],
         page_size,
         (page_no - 1) * page_size
     ))
-    reviews = cur.fetchall()
-    review_keys = [r["key"] for r in reviews]
+    _comments = cur.fetchall()
+    comment_keys = [r["key"] for r in _comments]
 
-    if review_keys:
+    replies = []
+    likes = []
+
+    if comment_keys:
         cur.execute("""
             SELECT
-                r.key, r.date_created, r.comment, r.rating, r.parent_key,
+                c.key, c.date_created, c.comment, c.rating, c.parent_key,
                 u.key AS user_key, u.name, u.username, u.photo
-            FROM review r
-            JOIN "user" u ON u.key = r.user_key
-            WHERE r.parent_key::TEXT = ANY(%s)
-            ORDER BY r.date_created ASC
-        """, (review_keys,))
-        replies_raw = cur.fetchall()
+            FROM comment c
+            JOIN "user" u ON u.key = c.user_key
+            WHERE c.parent_key::TEXT = ANY(%s)
+            ORDER BY c.date_created ASC
+        """, (comment_keys,))
+        replies = cur.fetchall()
+
+        for x in replies:
+            comment_keys.append(x["key"])
 
         cur.execute("""
             SELECT
@@ -374,16 +316,22 @@ def get_reviews(key, _page_size=24, cur=None):
                     AS others_dislike,
                 MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
             FROM "like"
-            WHERE entity_key::TEXT = ANY(%s) AND "like".entity_type = 'review'
+            WHERE entity_key::TEXT = ANY(%s) AND "like".entity_type = 'comment'
             GROUP BY entity_key
-        """, (user["key"], user["key"], user["key"], review_keys))
-        likes_raw = cur.fetchall()
-    else:
-        replies_raw = []
-        likes_raw = []
+        """, (user["key"], user["key"], user["key"], comment_keys))
+        likes = cur.fetchall()
+
+    likes_map = {
+        x["entity_key"]: {
+            "others_like": x["others_like"],
+            "others_dislike": x["others_dislike"],
+            "user_reaction": x["user_reaction"]
+        }
+        for x in likes
+    }
 
     replies_map = {}
-    for x in replies_raw:
+    for x in replies:
         replies_map.setdefault(x["parent_key"], []).append({
             "key": x["key"],
             "date_created": x["date_created"],
@@ -395,21 +343,17 @@ def get_reviews(key, _page_size=24, cur=None):
                 "username": x["username"],
                 "photo": f'{request.host_url}photo/user/{x["photo"]}' if x[
                     "photo"] else None
-            }
+            },
+            "stats": likes_map.get(x["key"], {
+                "others_like": 0,
+                "others_dislike": 0,
+                "user_reaction": None
+            }),
         })
 
-    likes_map = {
-        x["entity_key"]: {
-            "others_like": x["others_like"],
-            "others_dislike": x["others_dislike"],
-            "user_reaction": x["user_reaction"]
-        }
-        for x in likes_raw
-    }
-
-    final_reviews = []
-    for x in reviews:
-        final_reviews.append({
+    comments = []
+    for x in _comments:
+        comments.append({
             "key": x["key"],
             "date_created": x["date_created"],
             "comment": x["comment"],
@@ -418,8 +362,8 @@ def get_reviews(key, _page_size=24, cur=None):
                 "key": x["user_key"],
                 "name": x["name"],
                 "username": x["username"],
-                "photo": f'{request.host_url}photo/user/{
-                    x["photo"]}' if x["photo"] else None
+                "photo": f'{request.host_url}photo/user/{x["photo"]}' if x[
+                    "photo"] else None
             },
             "stats": likes_map.get(x["key"], {
                 "others_like": 0,
@@ -432,12 +376,12 @@ def get_reviews(key, _page_size=24, cur=None):
     cur.execute("""
         SELECT
             r.rating,
-            COUNT(review.rating) AS count
+            COUNT(comment.rating) AS count
         FROM generate_series(1, 5) AS r(rating)
-        LEFT JOIN review
-            ON review.rating = r.rating
-            AND review.item_key = %s
-            AND review.parent_key IS NULL
+        LEFT JOIN comment
+            ON comment.rating = r.rating
+            AND comment.item_key = %s
+            AND comment.parent_key IS NULL
         GROUP BY r.rating
         ORDER BY r.rating DESC
     """, (item["key"],))
@@ -458,31 +402,102 @@ def get_reviews(key, _page_size=24, cur=None):
             has_purchased,
             has_purchased
             AND NOT EXISTS (
-                SELECT 1 FROM review r
+                SELECT 1 FROM comment r
                 WHERE r.user_key = %s AND r.item_key = %s
-            ) AS can_review
+            ) AS can_comment
         FROM purchase_check;
     """, (user["key"], item["key"], user["key"], item["key"]))
-    user_review_info = cur.fetchone()
+    user_comment_info = cur.fetchone()
 
     cur.execute("""
-        SELECT COUNT(*) FROM review
-        WHERE item_key = %s AND parent_key IS NULL
-    """, (item["key"],))
-    total_page = cur.fetchone()["count"]
+        SELECT
+            COUNT(*) AS total_comment,
+            COUNT(*) FILTER (WHERE parent_key IS NULL) AS total_parent
+        FROM comment
+        WHERE entity_key = %s AND entity_type = 'item';
+    """, (key,))
+    total = cur.fetchone()
+    total_comment = total["total_comment"]
+    total_parent = total["total_parent"]
 
     if close_conn:
         db_close(con, cur)
     return jsonify({
         "status": 200,
         "item": item,
-        "reviews": final_reviews,
+        "comments": comments,
         "ratings": ratings,
-        "total_page": ceil(total_page / page_size),
+        "total_comment": total_comment,
+        "total_page": ceil(total_parent / page_size),
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-        "has_purchased": user_review_info["has_purchased"],
-        "can_review": user_review_info["can_review"],
+        "has_purchased": user_comment_info["has_purchased"],
+        "can_comment": user_comment_info["can_comment"],
+    })
+
+
+@bp.get("/items/<key>/after")
+def after_get(key):
+    con, cur = db_open()
+
+    session = get_session(cur)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
+    if not cur.fetchone():
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    item_group = []
+    _similar_items = similar_items(cur, key)
+    if _similar_items:
+        item_group.append({
+            "name": "Similar Items",
+            "items": _similar_items,
+            "style": "grid",
+            "open": True
+        })
+
+    _recently_viewed = recently_viewed(cur, user["key"], key)
+    if _recently_viewed:
+        item_group.append({
+            "name": "Recently Viewed",
+            "items": _recently_viewed,
+            "style": "line",
+            "open": True
+        })
+
+    _customer_view = customer_view(cur, user["key"], key)
+    if _customer_view:
+        item_group.append({
+            "name": "Customers who viewed this also viewed",
+            "items": _customer_view,
+            "style": "line",
+            "open": True
+        })
+
+    _recommended = recommended(cur, user["key"], key)
+    if _recommended:
+        item_group.append({
+            "name": "You may also like",
+            "items": _recommended,
+            "style": "line",
+            "open": True
+        })
+
+    comments = get_comments(key, 3, cur).json
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "comments": comments,
+        "item_group": item_group
     })
 
 
@@ -544,11 +559,11 @@ def like_page():
     cur.execute(f"""
         WITH rating AS (
             SELECT
-                review.item_key AS key,
-                AVG(review.rating) as rating
-            FROM review
-            WHERE review.parent_key IS NULL
-            GROUP BY review.item_key
+                comment.entity_key AS key,
+                AVG(comment.rating) as rating
+            FROM comment
+            WHERE comment.entity_type = 'item' AND comment.parent_key IS NULL
+            GROUP BY comment.entity_key
         )
 
         SELECT

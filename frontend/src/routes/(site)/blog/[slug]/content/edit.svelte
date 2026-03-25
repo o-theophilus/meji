@@ -6,8 +6,8 @@
 	import { Form } from '$lib/layout';
 	import { Marked } from '$lib/macro';
 
-	let post = module.value.post;
-	let content = $state(post.content);
+	let blog = module.value.blog;
+	let content = $state(blog.content);
 	let error = $state({});
 
 	const validate = () => {
@@ -15,7 +15,7 @@
 
 		if (!content) {
 			error.content = 'This field is required';
-		} else if (content == post.content) {
+		} else if (content == blog.content) {
 			error.content = 'No changes were made';
 		} else if (content > 5000) {
 			error.content = 'This field cannot exceed 5000 characters';
@@ -25,8 +25,8 @@
 	};
 
 	const submit = async () => {
-		loading.open('Saving Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${post.key}`, {
+		loading.open('Saving Blog . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -38,7 +38,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.post);
+			module.value.update(resp.blog);
 			module.close();
 			notify.open('Content Saved');
 		} else {
@@ -49,7 +49,7 @@
 
 <Form title="Edit Content" error={error.error}>
 	<div class="marked">
-		<Marked content={module.value.process({ ...post, content })} />
+		<Marked content={module.value.process({ ...blog, content })} />
 	</div>
 
 	<IG

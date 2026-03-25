@@ -1,29 +1,29 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
-	import Delete from './delete.svelte';
 	import { slide } from 'svelte/transition';
+	import Delete from './delete.svelte';
 
-	let post = {
+	let blog = {
 		key: module.value.key,
 		status: module.value.status,
 		photo: module.value.photo
 	};
-	let _status = post.status;
+	let _status = blog.status;
 
 	let error = $state({});
 
 	const submit = async (status) => {
-		if (!post.photo) {
+		if (!blog.photo) {
 			error.error = 'no title photo';
 			return;
 		}
 		error = {};
 
-		loading.open('Saving Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${post.key}`, {
+		loading.open('Saving Blog . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -35,7 +35,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.post);
+			module.value.update(resp.blog);
 			module.close();
 			notify.open('Status Changed');
 		} else {

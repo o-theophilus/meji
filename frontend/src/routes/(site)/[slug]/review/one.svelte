@@ -6,14 +6,14 @@
 	import Control from './control.svelte';
 	import Details from './details.svelte';
 
-	let { item, review, searchParams, update } = $props();
+	let { item, comment, searchParams, update } = $props();
 </script>
 
-<div class="review">
+<div class="comment">
 	<div class="parent">
-		<Details {review}></Details>
-		<Control {item} {review} {searchParams} {update}>
-			{#if app.user.access.includes('review.reply')}
+		<Details {comment}></Details>
+		<Control {item} {comment} {searchParams} {update}>
+			{#if app.user.access.includes('comment.reply')}
 				<RoundButton
 					icon="reply"
 					onclick={() =>
@@ -21,23 +21,23 @@
 							item,
 							searchParams,
 							update,
-							parent: review
+							parent: comment
 						})}
 				/>
 			{/if}
 		</Control>
 	</div>
 
-	{#each review.replies as reply}
+	{#each comment.replies as reply}
 		<div class="reply">
-			<Details review={reply} is_admin></Details>
-			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('review.delete_others'))}
+			<Details comment={reply} is_admin></Details>
+			{#if app.login && (reply.user.key == app.user.key || app.user.access.includes('comment.delete_others'))}
 				<div class="control">
 					<RoundButton
 						icon="trash-2"
 						onclick={() =>
 							module.open(Delete, {
-								review: reply,
+								comment: reply,
 								searchParams,
 								update
 							})}
@@ -49,7 +49,7 @@
 </div>
 
 <style>
-	.review {
+	.comment {
 		border-radius: 8px;
 		outline: 1px solid var(--one-outline-color, var(--ol));
 		outline-offset: -1px;

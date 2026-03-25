@@ -4,17 +4,16 @@
 	import { Button, Switch } from '$lib/button';
 	import { Note } from '$lib/info';
 	import { Content } from '$lib/layout';
-	import { Log, Meta } from '$lib/macro';
+	import { Log, Meta, Share } from '$lib/macro';
 	import { app, module, page_state } from '$lib/store.svelte.js';
-	import { Date, Information, Name, Photo, Price, Quantity, Review, Status, Variation } from '.';
+	import { Comment, Date, Information, Name, Photo, Price, Quantity, Status, Variation } from '.';
 	import AddCart from '../cart/add_to_cart.svelte';
 	import Like from '../shop/like.svelte';
 	import Similar from './item_group.svelte';
-	import Share from './share.svelte';
 
 	let { data } = $props();
 	let item = $derived(data.item);
-	let review = $state({});
+	let comments = $state({});
 	let item_group = $state([]);
 	let edit_mode = $state(false);
 	let loading = $state(false);
@@ -54,7 +53,7 @@
 			edit_mode = false;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/group`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/after`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
@@ -62,10 +61,10 @@
 		});
 		resp = await resp.json();
 
-		review = {};
+		comments = {};
 		item_group = [];
 		if (resp.status == 200) {
-			review = resp.review;
+			comments = resp.comments;
 			item_group = resp.item_group;
 		}
 		loading = false;
@@ -122,14 +121,15 @@
 				{#if !item.item_slug}
 					<div class="line">
 						<Like {item} />
-						<Button icon="share-2" onclick={() => module.open(Share, item)}></Button>
+						<Button icon="share-2" onclick={() => module.open(Share, { ...item, type: 'item' })}
+						></Button>
 					</div>
 				{/if}
 			</Price>
 			<Variation {item} {edit_mode} {update} />
 			<Information {item} {edit_mode} {update} />
 			<Quantity {item} {edit_mode} {update} />
-			<Review {item} {review} {loading} />
+			<Comment {item} {comments} {loading} />
 		</div>
 	</div>
 </Content>

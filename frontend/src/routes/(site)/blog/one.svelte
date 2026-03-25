@@ -3,46 +3,46 @@
 
 	import { Datetime, Icon } from '$lib/macro';
 
-	let { post } = $props();
+	let { blog } = $props();
 
 	const prerender = () => {
-		app.post = post;
+		app.post = blog;
 	};
-	let src = $state(post.photo ? `${post.photo}/500` : '/no_photo.png');
+	let src = $state(blog.photo ? `${blog.photo}/500` : '/no_photo.png');
 </script>
 
-<a href="/{post.slug}" onclick={prerender} onmouseenter={prerender}>
-	<img {src} loading="lazy" alt={post.title} onerror={() => (src = '/file_error.png')} />
+<a href="/blog/{blog.slug}" onclick={prerender} onmouseenter={prerender}>
+	<img {src} loading="lazy" alt={blog.title} onerror={() => (src = '/file_error.png')} />
 
 	<div class="details">
 		<div class="title">
-			{post.title}
+			{blog.title}
 		</div>
 
-		{#if post.description}
+		{#if blog.description}
 			<div class="description">
 				<div>
-					{post.description}
+					{blog.description}
 				</div>
 			</div>
 		{/if}
 
 		<div class="bottom line">
-			<Datetime datetime={post.date_created} type="ago" />
+			<Datetime datetime={blog.date_created} type="ago" />
 			<div class="line info">
 				<div class="line">
 					<Icon icon="eye" size="12" />
-					{post.engagement.view}
+					{blog.engagement.view}
 				</div>
 
 				<div class="line">
 					<Icon icon="message-circle" size="12" />
-					{post.engagement.comment}
+					{blog.engagement.comment}
 				</div>
 
 				<div class="line">
 					<Icon icon="thumbs-up" size="12" />
-					{post.engagement.like}
+					{blog.engagement.like}
 				</div>
 			</div>
 		</div>

@@ -6,7 +6,8 @@ from flask import Blueprint, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..cart.get import get_cart_items
-from ..item.get import get_tags
+from ..item.get import get_item_tags
+from ..blog.get import get_blog_tags
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
@@ -173,7 +174,8 @@ def init():
         )
 
     likes = get_user_like(cur, user["key"])
-    tags = get_tags(cur)
+    item_tags = get_item_tags(cur)
+    blog_tags = get_blog_tags(cur)
 
     db_close(con, cur)
     return jsonify({
@@ -183,7 +185,8 @@ def init():
         "login": login,
         "likes": likes,
         "cart_items": cart_items,
-        "tags": tags
+        "item_tags": item_tags,
+        "blog_tags": blog_tags
     })
 
 
@@ -561,6 +564,7 @@ def deactivate():
             WHERE admin_key = %s;
         """, (os.environ["MAIL_USERNAME"], user["key"]))
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
+    # TODO: delete comments -> likes / reports
 
     storage.delete(user["photo"], "user")
     anon_user = anon(cur)

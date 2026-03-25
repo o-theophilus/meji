@@ -23,9 +23,9 @@
 	};
 
 	const submit = async () => {
-		loading.open('Creating Post . . .');
+		loading.open('Creating Blog . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts${page.url.search}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -37,15 +37,15 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.posts, resp.total_page);
+			module.value.update(resp.blogs, resp.total_page);
 			module.open(Dialogue, {
-				message: 'Post Created',
+				message: 'Blog Created',
 				buttons: [
 					{
 						name: 'OK',
 						icon: 'check',
 						fn: () => {
-							goto(`/${resp.post.slug}?edit=true`);
+							goto(`/blog/${resp.blog.slug}?edit=true`);
 							module.close();
 						}
 					}
@@ -57,7 +57,7 @@
 	};
 </script>
 
-<Form title="Add Post" error={error.error}>
+<Form title="Add Blog" error={error.error}>
 	<IG
 		name="Title"
 		icon="square-pen"

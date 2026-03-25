@@ -5,15 +5,15 @@
 	import Add from './file.add.svelte';
 	import Mod from './file.mod.svelte';
 
-	let post = $state(module.value.post);
+	let blog = $state(module.value.blog);
 
 	let ops = $state({
-		key: post.key,
-		files: post.files,
-		title: post.title,
+		key: blog.key,
+		files: blog.files,
+		title: blog.title,
 
-		count: post.content.split('@[file]').length - 1,
-		active: post.files[0] || '/no_photo.png',
+		count: blog.content.split('@[file]').length - 1,
+		active: blog.files[0] || '/no_photo.png',
 		error: {}
 	});
 

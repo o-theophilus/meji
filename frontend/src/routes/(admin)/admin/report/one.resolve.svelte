@@ -76,16 +76,16 @@
 				></Checkbox>
 			{/snippet}
 		</IG>
-	{:else if module.value.report.reported_review && app.user.access.includes('review.delete_others')}
+	{:else if module.value.report.reported_comment && app.user.access.includes('comment.delete_others')}
 		<Note>
-			Resolving this report will not delete the review. If you want to delete the review, please
+			Resolving this report will not delete the comment. If you want to delete the comment, please
 			check the box below.
 		</Note>
 
 		<IG>
 			{#snippet input()}
 				<Checkbox
-					label="Delete Review"
+					label="Delete Comment"
 					value={form.handle}
 					onclick={() => (form.handle = !form.handle)}
 				></Checkbox>

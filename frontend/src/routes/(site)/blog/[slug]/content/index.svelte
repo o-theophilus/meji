@@ -7,7 +7,7 @@
 	import Edit from './edit.svelte';
 	import File from './file.svelte';
 
-	let { post, edit_mode, update } = $props();
+	let { blog, edit_mode, update } = $props();
 
 	const process = (x) => {
 		let temp = x.content;
@@ -36,19 +36,19 @@
 
 {#if edit_mode}
 	<div class="line">
-		{#if app.user.access.includes('post.edit_content')}
-			<Button onclick={() => module.open(Edit, { post, update, process })}>Edit Content</Button>
+		{#if app.user.access.includes('blog.edit_content')}
+			<Button onclick={() => module.open(Edit, { blog, update, process })}>Edit Content</Button>
 		{/if}
 
-		{#if app.user.access.includes('post.edit_files') && post.content && post.content.includes('@[file]')}
-			<Button icon="image" onclick={() => module.open(File, { post, update })}>Manage Files</Button>
+		{#if app.user.access.includes('blog.edit_files') && blog.content && blog.content.includes('@[file]')}
+			<Button icon="image" onclick={() => module.open(File, { blog, update })}>Manage Files</Button>
 		{/if}
 	</div>
 {/if}
 
-{#if post.content}
+{#if blog.content}
 	<br />
-	<Marked content={process(post)} />
+	<Marked content={process(blog)} />
 	<br />
 {:else if edit_mode}
 	<PageNote>No content</PageNote>

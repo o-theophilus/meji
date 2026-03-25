@@ -19,8 +19,8 @@
 			.filter((v, i, arr) => arr.indexOf(v) === i)
 	);
 	let unused_tags = $derived.by(() => {
-		if (!app.tags) return [];
-		return app.tags.filter((i) => !tags.includes(i));
+		if (!app.item_tags) return [];
+		return app.item_tags.filter((i) => !tags.includes(i));
 	});
 
 	const validate = () => {
@@ -36,7 +36,7 @@
 	const submit = async () => {
 		error = {};
 
-		loading.open('Saving Post . . .');
+		loading.open('Saving Item . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
 			method: 'put',
 			headers: {
@@ -68,12 +68,12 @@
 			tags_string = module.value.name.split(' ').join(', ');
 		}
 
-		if (!app.tags) {
+		if (!app.item_tags) {
 			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
 			resp = await resp.json();
 
 			if (resp.status == 200) {
-				app.tags = resp.tags;
+				app.item_tags = resp.tags;
 			}
 		}
 		_loading = false;

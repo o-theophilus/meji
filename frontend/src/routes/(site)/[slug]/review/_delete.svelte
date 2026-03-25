@@ -13,7 +13,7 @@
 	const validate = () => {
 		error = {};
 
-		if (app.user.key != module.value.review.user.key) {
+		if (app.user.key != module.value.comment.user.key) {
 			if (!form.comment) {
 				error.comment = 'This field is required';
 			} else if (form.comment.length > 500) {
@@ -28,7 +28,7 @@
 		error = {};
 		loading.open(`Deleting comment . . .`);
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/reviews/${module.value.review.key}?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/comments/${module.value.comment.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{
@@ -45,10 +45,10 @@
 
 		if (resp.status == 200) {
 			module.value.update(
-				resp.reviews,
+				resp.comments,
 				resp.ratings,
 				resp.has_purchased,
-				resp.can_review,
+				resp.can_comment,
 				resp.total_page
 			);
 			module.close();
@@ -63,7 +63,7 @@
 	<Note --note-margin-top="16px" status="400" note="Are you sure you want to delete this review"
 	></Note>
 
-	{#if module.value.review.user.key != app.user.key}
+	{#if module.value.comment.user.key != app.user.key}
 		<IG
 			name="Comment ({500 - form.comment.length})"
 			error={error.comment}

@@ -4,34 +4,34 @@
 	import { scroll } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 	import Rating from './rating.svelte';
-	let { review, is_admin = false } = $props();
+	let { comment, is_admin = false } = $props();
 
 	onMount(() => {
-		if (page.url.hash == `#${review.key}`) {
-			scroll(`#${review.key}`);
+		if (page.url.hash == `#${comment.key}`) {
+			scroll(`#${comment.key}`);
 		}
 	});
 </script>
 
 <div class="user_date">
-	<User user={review.user}>
+	<User user={comment.user}>
 		{#if !is_admin}
 			<div class="rating">
-				<Rating value={review.rating}></Rating>
+				<Rating value={comment.rating}></Rating>
 			</div>
 		{/if}
 	</User>
 
-	<div class="date"><Datetime datetime={review.date_created} type="ago" /></div>
+	<div class="date"><Datetime datetime={comment.date_created} type="ago" /></div>
 </div>
 
 <div class="comment">
-	{review.comment}
+	{comment.comment}
 
-	{#if !is_admin && review.stats?.others_like}
+	{#if !is_admin && comment.stats?.others_like}
 		<div class="note">
-			{review.stats.others_like.toLocaleString()}
-			{review.stats.others_like > 1 ? 'people' : 'person'} found this helpful
+			{comment.stats.others_like.toLocaleString()}
+			{comment.stats.others_like > 1 ? 'people' : 'person'} found this helpful
 		</div>
 	{/if}
 </div>

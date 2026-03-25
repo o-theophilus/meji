@@ -22,7 +22,7 @@
 
 	const submit = async (id = 'default') => {
 		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${module.value.key}`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -34,7 +34,7 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			module.value.update(resp.post);
+			module.value.update(resp.blog);
 			module.close();
 			notify.open('Author Saved');
 		} else {

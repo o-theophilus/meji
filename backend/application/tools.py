@@ -39,10 +39,6 @@ access_pass = {
         ['edit_quantity', 2],
         ['advert', 2]
     ],
-    "review": [
-        ['delete_others', 3],
-        ['reply', 3]
-    ],
     "blog": [
         ['add', 2],
         ['edit_photo', 2],
@@ -57,7 +53,8 @@ access_pass = {
         ['edit_featured', 2]
     ],
     "comment": [
-        ['delete_others', 3]
+        ['delete_others', 3],
+        ['reply', 3]
     ],
     "coupon": [
         ['view', 2],

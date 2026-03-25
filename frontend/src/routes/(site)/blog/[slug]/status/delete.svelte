@@ -24,8 +24,8 @@
 	const submit = async () => {
 		error = {};
 
-		loading.open('Deleting Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${module.value.key}`, {
+		loading.open('Deleting Blog . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -38,8 +38,8 @@
 
 		if (resp.status == 200) {
 			module.close();
-			notify.open('Post Deleted');
-			goto('/post');
+			notify.open('Blog Deleted');
+			goto('/blog');
 		} else {
 			error = resp;
 		}
@@ -47,7 +47,7 @@
 </script>
 
 <Form title="Delete" error={error.error}>
-	<Note status="400" note="Are you sure you want to delete this post"></Note>
+	<Note status="400" note="Are you sure you want to delete this blog"></Note>
 
 	<IG
 		name="Password"

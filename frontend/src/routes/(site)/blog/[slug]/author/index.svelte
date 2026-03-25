@@ -6,13 +6,13 @@
 	import Button from '../button.svelte';
 	import Form from './edit.svelte';
 
-	let { author, post, edit_mode, loading, update } = $props();
+	let { author, blog, edit_mode, loading, update } = $props();
 </script>
 
 {#if loading || author.username}
 	<hr />
-	{#if app.user.access.includes('post.edit_author') && edit_mode}
-		<Button onclick={() => module.open(Form, { key: post.key, update })}>Edit Author</Button>
+	{#if app.user.access.includes('blog.edit_author') && edit_mode}
+		<Button onclick={() => module.open(Form, { key: blog.key, update })}>Edit Author</Button>
 	{/if}
 
 	<div class="line">

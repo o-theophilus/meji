@@ -273,6 +273,7 @@ def delete(key):
     cur.execute("""
         DELETE FROM blog WHERE key = %s;
     """, (blog["key"],))
+    # TODO: delete comments -> likes / reports
 
     storage.delete(blog["photo"], "blog")
     for x in blog["files"]:
@@ -304,14 +305,9 @@ def like(key):
 
     reaction = request.json.get("reaction")
 
-    if reaction not in ["like", "dislike"]:
-        return jsonify({
-            "status": 400,
-            "error": "Invalid request"
-        })
-
     cur.execute("""SELECT * FROM blog WHERE key = %s;""", (key,))
-    if not cur.fetchone():
+    blog = cur.fetchone()
+    if not blog or reaction not in ["like", "dislike"]:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -319,9 +315,8 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like"
-        WHERE user_key = %s AND entity_key = %s AND entity_type = 'blog';
-    """, (user["key"], key))
+        SELECT * FROM "like" WHERE user_key = %s AND entity_key = %s;
+    """, (user["key"], blog["key"]))
     user_reaction = cur.fetchone()
 
     un = ""
@@ -345,7 +340,7 @@ def like(key):
         user_key=user["key"],
         action=f"{un}{reaction} blog",
         entity_type="blog",
-        entity_key=key,
+        entity_key=blog["key"],
     )
 
     cur.execute("""
@@ -356,8 +351,8 @@ def like(key):
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
-        WHERE entity_key = %s AND entity_type = 'blog'
-    """, (user["key"], user["key"], user["key"], key))
+        WHERE entity_key = %s;
+    """, (user["key"], user["key"], user["key"], blog["key"]))
     reactions = cur.fetchone()
 
     db_close(con, cur)
@@ -367,7 +362,7 @@ def like(key):
     })
 
 
-@bp.post("/blogs/<key>/comment")
+@bp.post("/blogs/<key>/comments")
 def add_comment(key):
     con, cur = db_open()
 
@@ -426,11 +421,10 @@ def add_comment(key):
         entity_type="blog",
         entity_key=blog["key"],
         misc={
-            "entity_type": "comment",
-            "entity_key": comment["key"]
+            "comment_key": comment["key"]
         }
     )
 
-    comment_resp = get_comments(blog["key"], cur)
+    comments = get_comments(blog["key"], cur)
     db_close(con, cur)
-    return comment_resp
+    return comments

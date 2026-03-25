@@ -9,10 +9,9 @@ from werkzeug.security import check_password_hash
 
 from ..log import log
 from ..postgres import db_close, db_open
-# from ..storage import storage
 from ..tools import get_session, item_schema, reserved_words
 from ..user.get import get_user_like
-from .get import get_items, get_reviews
+from .get import get_comments, get_items
 
 bp = Blueprint("item", __name__)
 
@@ -283,9 +282,7 @@ def delete(key):
     cur.execute("""
         DELETE FROM item WHERE key = %s;
     """, (item["key"],))
-
-    # for x in item["files"]:
-    #     storage.delete(x, "item")
+    # TODO: delete comments -> likes / reports
 
     log(
         cur=cur,
@@ -321,8 +318,7 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like"
-        WHERE user_key = %s AND entity_key = %s AND entity_type = 'item';
+        SELECT * FROM "like" WHERE user_key = %s AND entity_key = %s;
     """, (user["key"], item["key"]))
     user_reaction = cur.fetchone()
 
@@ -352,8 +348,8 @@ def like(key):
     })
 
 
-@bp.post("/items/<key>/reviews")
-def add_review(key):
+@bp.post("/items/<key>/comments")
+def add_comment(key):
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -375,7 +371,7 @@ def add_review(key):
 
     parent_key = request.json.get("parent_key")
     if parent_key:
-        if "review.reply" not in user["access"]:
+        if "comment.reply" not in user["access"]:
             db_close(con, cur)
             return jsonify({
                 "status": 403,
@@ -404,14 +400,14 @@ def add_review(key):
             has_purchased,
             has_purchased
             AND NOT EXISTS (
-                SELECT 1 FROM review r
-                WHERE r.user_key = %s AND r.item_key = %s
-            ) AS can_review
+                SELECT 1 FROM comment
+                WHERE comment.user_key = %s AND comment.item_key = %s
+            ) AS can_comment
         FROM purchase_check;
     """, (user["key"], item["key"], user["key"], item["key"]))
-    user_review_info = cur.fetchone()
+    user_comment_info = cur.fetchone()
 
-    if not user_review_info["can_review"]:
+    if not user_comment_info["can_comment"]:
         return jsonify({
             "status": 400,
             "error": "Invalid request"
@@ -435,24 +431,23 @@ def add_review(key):
         })
 
     cur.execute("""
-        INSERT INTO comment (user_key, entity_key, entity_type, rating,
+        INSERT INTO comment (user_key, entity_type, entity_key, rating,
             comment, parent_key)
-        VALUES (%s, %s, 'item', %s, %s, %s) RETURNING *;
+        VALUES (%s, 'item', %s, %s, %s, %s) RETURNING *;
     """, (user["key"], item["key"], rating, comment, parent_key))
-    review = cur.fetchone()
+    comment = cur.fetchone()
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="added review",
+        action="added comment",
         entity_type="item",
         entity_key=item["key"],
         misc={
-            "entity_type": "review",
-            "entity_key": review["key"]
+            "comment_key": comment["key"]
         }
     )
 
-    reviews = get_reviews(item["key"], cur=cur)
+    comments = get_comments(item["key"], cur=cur)
     db_close(con, cur)
-    return reviews
+    return comments

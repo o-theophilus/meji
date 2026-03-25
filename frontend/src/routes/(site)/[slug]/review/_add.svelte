@@ -1,11 +1,9 @@
 <script>
-	import { module, loading, notify, app } from '$lib/store.svelte.js';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
-	import { IG } from '$lib/input';
 	import { Button } from '$lib/button';
-	import { Marked } from '$lib/macro';
+	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { Note } from '$lib/info';
 	import One from './details.svelte';
 
 	let item = module.value.item;
@@ -36,7 +34,7 @@
 	const submit = async () => {
 		loading.open('Adding Review . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/items/${item.key}/reviews?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/items/${item.key}/comments?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{
@@ -53,10 +51,10 @@
 
 		if (resp.status == 200) {
 			module.value.update(
-				resp.reviews,
+				resp.comments,
 				resp.ratings,
 				resp.has_purchased,
-				resp.can_review,
+				resp.can_comment,
 				resp.total_page
 			);
 			module.close();
@@ -70,7 +68,7 @@
 <Form title="{parent ? 'Reply' : 'Add'} Review" error={error.error}>
 	{#if parent}
 		<div class="parent">
-			<One review={parent}></One>
+			<One comment={parent}></One>
 		</div>
 	{:else}
 		<IG name="Rating" error={error.rating} type="rating" bind:value={form.rating} />

@@ -26,7 +26,7 @@
 	};
 
 	const submit = async () => {
-		loading.open('Saving Post . . .');
+		loading.open('Saving Order . . .');
 		let resp = await fetch(
 			`${import.meta.env.VITE_BACKEND}/orders/${module.value.key}/delivery_date`,
 			{

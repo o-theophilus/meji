@@ -12,26 +12,25 @@
 	import Engagement from './engage/engagement.svelte';
 	import Like from './engage/like.svelte';
 	import Share from './engage/share.svelte';
-	import Feature from './feature.svelte';
 	import Similar from './similar.svelte';
 	import ToTop from './to_top.svelte';
 
 	let { data } = $props();
-	let post = $derived(data.post);
+	let blog = $derived(data.blog);
 	let edit_mode = $state(false);
 	let is_admin = app.user.access.some((x) =>
 		[
-			'post.add',
-			'post.edit_photo',
-			'post.edit_title',
-			'post.edit_date',
-			'post.edit_description',
-			'post.edit_content',
-			'post.edit_files',
-			'post.edit_tags',
-			'post.edit_status',
-			'post.edit_author',
-			'post.edit_featured'
+			'blog.add',
+			'blog.edit_photo',
+			'blog.edit_title',
+			'blog.edit_date',
+			'blog.edit_description',
+			'blog.edit_content',
+			'blog.edit_files',
+			'blog.edit_tags',
+			'blog.edit_status',
+			'blog.edit_author',
+			'blog.edit_featured'
 		].includes(x)
 	);
 
@@ -42,15 +41,15 @@
 	let similar = $state([]);
 
 	const update = async (data) => {
-		post = data;
+		blog = data;
 	};
 
 	const hard_update = async (data) => {
-		post = data;
+		blog = data;
 		edit_mode = false;
 		loading = true;
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${post.key}/after`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/after`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
@@ -76,14 +75,14 @@
 		}
 	});
 
-	afterNavigate(() => hard_update(post));
+	afterNavigate(() => hard_update(blog));
 	// TODO: test
 </script>
 
-{#key post.key}
-	<Log action={'viewed'} entity_key={post.key} entity_type={'post'} />
+{#key blog.key}
+	<Log action={'viewed'} entity_key={blog.key} entity_type={'blog'} />
 {/key}
-<Meta title={post.title} description={post.description} image={post.photo} />
+<Meta title={blog.title} description={blog.description} image={blog.photo} />
 
 <Content --content-background-color="var(--bg)">
 	{#if is_admin}
@@ -101,33 +100,28 @@
 		<br />
 	{/if}
 
-	{#if edit_mode && (app.user.access.includes('post.edit_status') || app.user.access.includes('post.edit_featured'))}
-		<div class="line status">
-			<Status {post} {update}></Status>
-			<Feature {post} {update} />
-		</div>
-	{/if}
-	<Photo bind:post {edit_mode} {update} />
-	<Title {post} {edit_mode} {update} />
-	<Description {post} {edit_mode} {update} />
+	<Status {blog} {edit_mode} {update}></Status>
+	<Photo bind:blog {edit_mode} {update} />
+	<Title {blog} {edit_mode} {update} />
+	<Description {blog} {edit_mode} {update} />
 	<div class="line space date">
-		<Date {post} {edit_mode} {update}></Date>
+		<Date {blog} {edit_mode} {update}></Date>
 		<Engagement {engagement} {loading}></Engagement>
 	</div>
-	<Content_ {post} {edit_mode} {update}></Content_>
-	<Tags {post} {edit_mode} {update}></Tags>
-	<Author {author} {post} {edit_mode} {loading} update={hard_update} />
+	<Content_ {blog} {edit_mode} {update}></Content_>
+	<Tags {blog} {edit_mode} {update}></Tags>
+	<Author {author} {blog} {edit_mode} {loading} update={hard_update} />
 </Content>
 
 <Content --content-height>
 	<div class="line engage">
-		<Like {post} bind:engagement />
-		<Share {post} />
+		<Like {blog} bind:engagement />
+		<Share {blog} />
 	</div>
 
 	<hr />
 
-	<Comment {post} {comment_resp} {loading} />
+	<Comment {blog} {comment_resp} {loading} />
 </Content>
 
 <Content
@@ -141,9 +135,6 @@
 </Content>
 
 <style>
-	.line.status {
-		margin-bottom: 8px;
-	}
 	.line.date {
 		align-items: flex-end;
 	}

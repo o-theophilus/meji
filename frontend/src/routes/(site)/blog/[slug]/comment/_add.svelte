@@ -6,7 +6,7 @@
 	import { Form } from '$lib/layout';
 	import One from './one.svelte';
 
-	let post = module.value.post;
+	let blog = module.value.blog;
 	let parent = module.value.comment;
 
 	let form = $state({
@@ -30,7 +30,7 @@
 	const submit = async () => {
 		loading.open('Adding Comment . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/posts/${post.key}/comment?${new URLSearchParams(
+			`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/comments?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
 			{

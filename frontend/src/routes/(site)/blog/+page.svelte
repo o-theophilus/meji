@@ -58,7 +58,7 @@
 <Content --content-height="auto">
 	<div class="line space">
 		<div></div>
-		{#if app.user.access.includes('post.add')}
+		{#if app.user.access.includes('blog.add')}
 			<Button
 				icon="plus"
 				--button-height="32px"
@@ -139,9 +139,9 @@
 <Content --content-padding-top="1px" --content-width="1500px">
 	{#if blogs.length}
 		<section class="items">
-			{#each blogs as post (post.key)}
+			{#each blogs as blog (blog.key)}
 				<div animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}>
-					<One {post} />
+					<One {blog} />
 				</div>
 			{/each}
 		</section>

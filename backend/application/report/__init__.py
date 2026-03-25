@@ -38,13 +38,13 @@ def resolve(key):
             "error": "Invalid request"
         })
 
-    comment = request.json.get("comment", "").strip()
+    _comment = request.json.get("comment", "").strip()
     handle = request.json.get("handle", False)
 
     error = {}
-    if not comment:
+    if not _comment:
         error["comment"] = "This field is required"
-    elif len(comment) > 500:
+    elif len(_comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
 
     cur.execute("""
@@ -52,7 +52,7 @@ def resolve(key):
         SET status = 'resolved', date_resolved = now(),
         resolver_key = %s, resolver_comment = %s
         WHERE key = %s;
-    """, (user["key"], comment, key))
+    """, (user["key"], _comment, key))
 
     log(
         cur=cur,
@@ -74,7 +74,7 @@ def resolve(key):
             cur.execute("""
                 INSERT INTO block (admin_key, user_key, comment)
                 VALUES (%s, %s, %s);
-            """, (user["key"], report["entity_key"], comment))
+            """, (user["key"], report["entity_key"], _comment))
 
             cur.execute("""
                 DELETE FROM session WHERE user_key = %s;
@@ -86,28 +86,28 @@ def resolve(key):
                 action="blocked user",
                 entity_type="user",
                 entity_key=report["entity_key"],
-                misc={"comment":  comment}
+                misc={"comment":  _comment}
             )
 
         elif (
-            report["entity_type"] == "review"
-            and "review.delete_others" in user["access"]
+            report["entity_type"] == "comment"
+            and "comment.delete_others" in user["access"]
         ):
             cur.execute(
-                "DELETE FROM review WHERE key = %s RETURNING *;",
+                "DELETE FROM comment WHERE key = %s RETURNING *;",
                 (report["entity_key"],))
-            review = cur.fetchone()
+            comment = cur.fetchone()
 
             log(
                 cur=cur,
                 user_key=user["key"],
-                action="deleted review",
-                entity_type="review",
-                entity_key=review["key"],
+                action="deleted comment",
+                entity_type="comment",
+                entity_key=comment["key"],
                 misc={
-                    "entity_type": "review",
-                    "entity_key": review["item_key"],
-                    "comment": comment
+                    "entity_type": "comment",
+                    "entity_key": comment["item_key"],
+                    "comment": _comment
                 }
             )
 

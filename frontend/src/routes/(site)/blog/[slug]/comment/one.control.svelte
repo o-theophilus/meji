@@ -9,7 +9,7 @@
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
 
-	let { comment, post, searchParams, update, reply } = $props();
+	let { comment, blog, searchParams, update, reply } = $props();
 
 	let error = $state({});
 	let open_menu = $state(false);

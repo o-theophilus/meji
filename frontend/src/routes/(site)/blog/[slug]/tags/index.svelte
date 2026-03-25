@@ -5,29 +5,29 @@
 	import Button from '../button.svelte';
 	import Edit from './edit.svelte';
 
-	let { post, edit_mode, update } = $props();
+	let { blog, edit_mode, update } = $props();
 </script>
 
-{#if post.tags.length > 0 || (app.user.access.includes('post.edit_tags') && edit_mode)}
+{#if blog.tags.length > 0 || (app.user.access.includes('blog.edit_tags') && edit_mode)}
 	<hr />
 {/if}
 
-{#if app.user.access.includes('post.edit_tags') && edit_mode}
+{#if app.user.access.includes('blog.edit_tags') && edit_mode}
 	<Button
 		onclick={() =>
 			module.open(Edit, {
-				key: post.key,
-				title: post.title,
-				tags: post.tags,
+				key: blog.key,
+				title: blog.title,
+				tags: blog.tags,
 				update
 			})}>Edit Tags</Button
 	>
 {/if}
 
-{#if post.tags.length > 0}
+{#if blog.tags.length > 0}
 	<div class="line">
-		{#each post.tags as x}
-			<Tag onclick={() => page_state.goto('post', { tag: x })}>
+		{#each blog.tags as x}
+			<Tag onclick={() => page_state.goto('blog', { tag: x })}>
 				{x}
 			</Tag>
 		{/each}

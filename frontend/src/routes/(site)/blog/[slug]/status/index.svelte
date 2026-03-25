@@ -4,24 +4,29 @@
 	import Button from '../button.svelte';
 	import Edit from './edit.svelte';
 
-	let { post, update } = $props();
+	let { blog, edit_mode, update } = $props();
 </script>
 
-{#if app.user.access.includes('post.edit_status')}
-	<Button
-		onclick={() =>
-			module.open(Edit, {
-				key: post.key,
-				status: post.status,
-				photo: post.photo,
-				update
-			})}
-	>
-		Edit Status: <span class="status {post.status}">{post.status}</span>
-	</Button>
+{#if edit_mode && app.user.access.includes('blog.edit_status')}
+	<div class="block">
+		<Button
+			onclick={() =>
+				module.open(Edit, {
+					key: blog.key,
+					status: blog.status,
+					photo: blog.photo,
+					update
+				})}
+		>
+			Edit Status: <span class="status {blog.status}">{blog.status}</span>
+		</Button>
+	</div>
 {/if}
 
 <style>
+	.block {
+		margin-bottom: 8px;
+	}
 	.status {
 		font-weight: 800;
 	}

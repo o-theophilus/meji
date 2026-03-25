@@ -8,12 +8,12 @@
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
 
-	let { item, review, update, searchParams, children } = $props();
+	let { item, comment, update, searchParams, children } = $props();
 	let error = $state({});
 
-	let others_like = $state(review.stats.others_like);
-	let others_dislike = $state(review.stats.others_dislike);
-	let user_reaction = $state(review.stats.user_reaction);
+	let others_like = $state(comment.stats.others_like);
+	let others_dislike = $state(comment.stats.others_dislike);
+	let user_reaction = $state(comment.stats.user_reaction);
 
 	let all_like = $derived(user_reaction == 'like' ? others_like + 1 : others_like);
 	let all_dislike = $derived(user_reaction == 'dislike' ? others_dislike + 1 : others_dislike);
@@ -25,7 +25,7 @@
 			user_reaction = reaction;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/reviews/${review.key}/like`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/comments/${comment.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -102,15 +102,15 @@
 
 				{#if open_menu}
 					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
-						{#if review.user.key == app.user.key || app.user.access.includes('review.delete_others')}
+						{#if comment.user.key == app.user.key || app.user.access.includes('comment.delete_others')}
 							{@render button('Delete', 'trash-2', () =>
-								module.open(Delete, { review, update, searchParams })
+								module.open(Delete, { comment, update, searchParams })
 							)}
 						{/if}
 
-						{#if review.user.key != app.user.key}
+						{#if comment.user.key != app.user.key}
 							{@render button('Report', 'flag-triangle-right', () => {
-								module.open(Report, { review });
+								module.open(Report, { comment });
 							})}
 						{/if}
 					</div>

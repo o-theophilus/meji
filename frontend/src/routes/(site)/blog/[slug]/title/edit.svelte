@@ -21,8 +21,8 @@
 	};
 
 	const submit = async () => {
-		loading.open('Saving Post . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${module.value.key}`, {
+		loading.open('Saving Blog . . .');
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',

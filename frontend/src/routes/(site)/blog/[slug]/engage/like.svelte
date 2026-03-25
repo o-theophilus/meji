@@ -2,7 +2,7 @@
 	import { Like } from '$lib/button';
 	import { app } from '$lib/store.svelte.js';
 
-	let { post, engagement = $bindable() } = $props();
+	let { blog, engagement = $bindable() } = $props();
 
 	let like = $derived.by(() => {
 		if (engagement.user_reaction == 'like') return engagement.others_like + 1;
@@ -20,7 +20,7 @@
 			engagement.user_reaction = reaction;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${post.key}/like`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',

@@ -24,7 +24,7 @@
 	};
 
 	const submit = async () => {
-		loading.open('Saving Post . . .');
+		loading.open('Saving User . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user`, {
 			method: 'put',
 			headers: {

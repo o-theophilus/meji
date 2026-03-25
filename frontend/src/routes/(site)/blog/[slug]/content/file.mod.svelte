@@ -45,7 +45,7 @@
 		ops.error = {};
 
 		loading.open('Saving . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/posts/${ops.key}/file`, {
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${ops.key}/file`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -57,8 +57,8 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			ops.files = resp.post.files;
-			module.value.update(resp.post);
+			ops.files = resp.blog.files;
+			module.value.update(resp.blog);
 			notify.open('Order Saved');
 		} else {
 			ops.error = resp;

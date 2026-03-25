@@ -2,7 +2,7 @@ import { app } from "$lib/store.svelte.js";
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ fetch, params, parent }) => {
-    if (app.post.slug == params.slug) return { post: app.post }
+    if (app.blog.slug == params.slug) return { blog: app.blog }
 
     let a = await parent();
     let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${params.slug}`, {

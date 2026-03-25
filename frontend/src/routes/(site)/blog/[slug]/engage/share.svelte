@@ -1,14 +1,12 @@
 <script>
 	import { Button } from '$lib/button';
-	import { Icon } from '$lib/macro';
+	import { Icon, Share } from '$lib/macro';
 	import { module } from '$lib/store.svelte.js';
-
-	import Form from './share_form.svelte';
 
 	let { post } = $props();
 </script>
 
-<Button onclick={() => module.open(Form, post)}>
+<Button onclick={() => module.open(Share, { ...post, type: 'blog' })}>
 	<Icon icon="share-2" />
 	Share
 </Button>

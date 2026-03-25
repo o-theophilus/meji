@@ -24,7 +24,7 @@
 			return;
 		}
 
-		loading.open('Saving Post . . .');
+		loading.open('Saving Item . . .');
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
 			method: 'put',
 			headers: {

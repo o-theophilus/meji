@@ -22,17 +22,17 @@
 				</div>
 			</div>
 		</div>
-	{:else if report.reported_review}
-		<div class="reported_review">
+	{:else if report.reported_comment}
+		<div class="reported_comment">
 			<div class="user_date">
-				<User user={report.reported_review.user}></User>
+				<User user={report.reported_comment.user}></User>
 				<div class="right">
-					<Datetime datetime={report.reported_review.date_created} type="ago" />
+					<Datetime datetime={report.reported_comment.date_created} type="ago" />
 					<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
 				</div>
 			</div>
 			<div class="comment">
-				{report.reported_review.comment}
+				{report.reported_comment.comment}
 			</div>
 		</div>
 	{/if}
@@ -92,7 +92,7 @@
 	}
 
 	.reported_user,
-	.reported_review {
+	.reported_comment {
 		padding: 16px;
 	}
 

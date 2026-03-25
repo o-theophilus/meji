@@ -5,16 +5,16 @@
 	import Button from '../button.svelte';
 	import Edit from './edit.svelte';
 
-	let { post, edit_mode, update } = $props();
+	let { blog, edit_mode, update } = $props();
 </script>
 
 <div class="kkk">
-	{#if app.user.access.includes('post.edit_date') && edit_mode}
+	{#if app.user.access.includes('blog.edit_date') && edit_mode}
 		<Button
 			onclick={() =>
 				module.open(Edit, {
-					key: post.key,
-					date_created: post.date_created,
+					key: blog.key,
+					date_created: blog.date_created,
 					update
 				})}
 		>
@@ -22,7 +22,7 @@
 		</Button>
 	{/if}
 	<div class="date">
-		<Datetime datetime={post.date_created} />
+		<Datetime datetime={blog.date_created} />
 	</div>
 </div>
 

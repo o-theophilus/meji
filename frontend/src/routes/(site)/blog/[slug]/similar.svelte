@@ -9,15 +9,15 @@
 	let { similar = [], loading } = $props();
 	let open = $state(true);
 
-	const prerender = (post) => {
-		app.post = post;
+	const prerender = (blog) => {
+		app.blog = blog;
 	};
 </script>
 
 {#if loading || similar.length}
 	<div class="title line">
 		<div class="page_title line">
-			Similar Post{#if similar.length > 1}s{/if}
+			Similar Blog{#if similar.length > 1}s{/if}
 			<Spinner active={loading} size="20" />
 		</div>
 
@@ -32,34 +32,34 @@
 	</div>
 
 	{#if open && !loading}
-		<div class="post_area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
-			{#each similar as post}
-				<div class="post">
+		<div class="area" transition:slide|local={{ delay: 0, duration: 200, easing: cubicInOut }}>
+			{#each similar as blog}
+				<div class="one">
 					<a
-						href="/{post.slug}"
-						onclick={() => prerender(post)}
-						onmouseenter={() => prerender(post)}
+						href="/blog/{blog.slug}"
+						onclick={() => prerender(blog)}
+						onmouseenter={() => prerender(blog)}
 					>
-						<Avatar size="58" photo={post.photo} no_photo="/no_photo.png" name={post.title}
+						<Avatar size="58" photo={blog.photo} no_photo="/no_photo.png" name={blog.title}
 						></Avatar>
 					</a>
 					<div class="details">
 						<a
 							class="link"
-							href="/{post.slug}"
+							href="/{blog.slug}"
 							onclick={() => {
-								prerender(post);
-								update(post);
+								prerender(blog);
+								update(blog);
 							}}
-							onmouseenter={() => prerender(post)}
+							onmouseenter={() => prerender(blog)}
 						>
-							{post.title}
+							{blog.title}
 						</a>
 
-						{#if post.description}
+						{#if blog.description}
 							<br />
 							<div class="desc">
-								{post.description}
+								{blog.description}
 							</div>
 						{/if}
 					</div>
@@ -75,7 +75,7 @@
 		margin: 48px 0;
 	}
 
-	.post_area {
+	.area {
 		display: grid;
 		gap: 24px;
 		margin: 48px 0;
@@ -87,7 +87,7 @@
 		}
 	}
 
-	.post {
+	.one {
 		display: flex;
 		gap: 16px;
 

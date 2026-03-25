@@ -16,20 +16,20 @@
 
 	let { data } = $props();
 	let { item } = data;
-	let reviews = $derived(data.reviews);
+	let comments = $derived(data.comments);
 	let ratings = $derived(data.ratings);
 	let has_purchased = $derived(data.has_purchased);
-	let can_review = $derived(data.can_review);
+	let can_comment = $derived(data.can_comment);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
 	const update = (rat, rev, hp, cr, tp) => {
-		reviews = rat;
+		comments = rat;
 		ratings = rev;
 		has_purchased = hp;
-		can_review = cr;
+		can_comment = cr;
 		total_page = tp;
 	};
 
@@ -56,7 +56,7 @@
 	<div class="line">
 		<BackButton href="/{item.slug}" />
 		<div class="page_title">
-			Rating{reviews.length ? 's' : ''} and review{reviews.length ? 's' : ''}
+			Rating{comments.length ? 's' : ''} and review{comments.length ? 's' : ''}
 		</div>
 	</div>
 
@@ -109,7 +109,7 @@
 			>
 				Add review
 			</Button>
-		{:else if can_review}
+		{:else if can_comment}
 			<Button
 				icon="message-circle-plus"
 				onclick={() => module.open(Add, { item, searchParams, update })}
@@ -121,9 +121,9 @@
 </Content>
 
 <Content>
-	{#each reviews as review (review.key)}
-		<div class="review" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {item} {review} {searchParams} {update}></One>
+	{#each comments as comment (comment.key)}
+		<div class="comment" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
+			<One {item} {comment} {searchParams} {update}></One>
 		</div>
 	{:else}
 		<PageNote>
@@ -147,7 +147,7 @@
 		align-items: flex-end;
 	}
 
-	.review {
+	.comment {
 		margin-top: 8px;
 
 		&:first-child {

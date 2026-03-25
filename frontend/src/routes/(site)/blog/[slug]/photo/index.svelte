@@ -4,22 +4,22 @@
 	import Button from '../button.svelte';
 	import Edit from './edit.svelte';
 
-	let { post, edit_mode, update } = $props();
-	let src = $derived(post.photo || '/no_photo.png');
+	let { blog, edit_mode, update } = $props();
+	let src = $derived(blog.photo || '/no_photo.png');
 </script>
 
 <div class="img">
-	<img {src} alt={post.title} onerror={() => (src = '/file_error.png')} />
+	<img {src} alt={blog.title} onerror={() => (src = '/file_error.png')} />
 	<div class="line">
-		{#if app.user.access.includes('post.edit_photo') && edit_mode}
+		{#if app.user.access.includes('blog.edit_photo') && edit_mode}
 			<Button
 				onclick={() => {
 					module.open(Edit, {
-						key: post.key,
-						name: post.title,
-						photo: post.photo,
-						type: 'post',
-						slug: `/posts/${post.key}/photo`,
+						key: blog.key,
+						name: blog.title,
+						photo: blog.photo,
+						type: 'blog',
+						slug: `/blogs/${blog.key}/photo`,
 						update
 					});
 				}}
