@@ -107,7 +107,7 @@
 			{#if app.user.access.includes(x.access) || x.access === null}
 				<a href={x.href} data-sveltekit-preload-data>
 					<Icon icon={x.icon}></Icon>
-					<div class="name">
+					<div class="name" in:slide={{ delay: 200 }}>
 						{x.name}
 
 						{#if x.icon2}

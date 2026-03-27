@@ -1,7 +1,6 @@
 <script>
 	import { Footer, Header, Nav } from '../_layout/index.js';
-
-	let { data, children } = $props();
+	let { children } = $props();
 </script>
 
 <Header />

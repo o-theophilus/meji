@@ -21,7 +21,7 @@
 		</Edit_Button>
 	{/if}
 
-	<div class="page_title">
+	<div class="name">
 		{item.name}
 	</div>
 </div>
@@ -35,5 +35,10 @@
 			outline: 1px solid var(--ol);
 			outline-offset: -1px;
 		}
+	}
+
+	.name {
+		font-weight: 800;
+		color: var(--ft1);
 	}
 </style>

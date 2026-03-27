@@ -63,8 +63,8 @@
 
 	.price {
 		font-weight: 700;
-		font-size: xx-large;
-		color: var(--ac1);
+		font-size: 1.8rem;
+		color: var(--ft1);
 
 		span {
 			color: red;

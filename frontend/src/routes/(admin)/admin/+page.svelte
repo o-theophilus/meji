@@ -2,16 +2,12 @@
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { LinkArrow } from '$lib/button/';
+	import { Card, Doughnut, LineChart, Summary, Table } from '$lib/dashboard';
 	import { Dropdown } from '$lib/input';
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
 	import { page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
-	import Card from './card.svelte';
-	import Donut from './chart_h_bar.svelte';
-	import LineChart from './chart_line.svelte';
-	import Summary from './summary.svelte';
-	import Table from './table.svelte';
 	let { data } = $props();
 	let { filters } = data;
 	let searchParams = $state({ ...data.searchParams });
@@ -129,7 +125,7 @@
 
 		<div class="margin">
 			<Card title="ORDERS STATUS">
-				<Donut data={page.data.order_summary}></Donut>
+				<Doughnut data={page.data.order_summary}></Doughnut>
 			</Card>
 		</div>
 
@@ -150,7 +146,7 @@
 
 		<div class="margin three">
 			<Card title="Conversion Rate (50%)">
-				<Donut data={cartData}></Donut>
+				<Doughnut data={cartData}></Doughnut>
 			</Card>
 
 			<Card title="Coupon Usage">
