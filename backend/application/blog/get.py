@@ -160,20 +160,18 @@ def get_blogs(cur=None):
         FROM blog
 
         LEFT JOIN (
-            SELECT entity_key, COUNT(*) AS _count
+            SELECT blog_key, COUNT(*) AS _count
             FROM comment
-            WHERE entity_type = 'blog'
-            GROUP BY entity_key
-        ) c ON c.entity_key = blog.key
+            GROUP BY blog_key
+        ) c ON c.blog_key = blog.key
 
         LEFT JOIN (
-            SELECT entity_key,
+            SELECT blog_key,
                 COUNT(*) FILTER (WHERE reaction = 'like') AS "like",
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS dislike
             FROM "like"
-            WHERE entity_type = 'blog'
-            GROUP BY entity_key
-        ) l ON l.entity_key = blog.key
+            GROUP BY blog_key
+        ) l ON l.blog_key = blog.key
 
         LEFT JOIN (
             SELECT entity_key, COUNT(DISTINCT user_key) AS _count
@@ -275,22 +273,20 @@ def get_comments(key, cur=None):
         LEFT JOIN (
             SELECT parent_key, COUNT(*) AS reply_count
             FROM comment
-            WHERE parent_key IS NOT NULL
-                AND entity_key = %s AND entity_type = 'blog'
+            WHERE parent_key IS NOT NULL AND blog_key = %s
             GROUP BY parent_key
         ) sub_c ON sub_c.parent_key = c.key
 
         LEFT JOIN (
-            SELECT entity_key,
+            SELECT comment_key,
                 COUNT(*) FILTER (WHERE reaction = 'like') AS "like",
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS dislike
             FROM "like"
-            WHERE entity_type = 'comment'
-            GROUP BY entity_key
-        ) l ON l.entity_key = c.key
+            WHERE comment_key IS NOT NULL
+            GROUP BY comment_key
+        ) l ON l.comment_key = c.key
 
-        WHERE c.entity_key = %s AND  c.entity_type = 'blog'
-            AND c.parent_key IS NULL
+        WHERE c.blog_key = %s AND c.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}, c.key DESC
         LIMIT %s OFFSET %s;
     """, (key, key, page_size, (page_no - 1) * page_size))
@@ -317,20 +313,20 @@ def get_comments(key, cur=None):
 
         cur.execute("""
             SELECT
-                entity_key,
+                comment_key,
                 COUNT(*) FILTER (WHERE reaction = 'like' AND user_key != %s)
                     AS others_like,
                 COUNT(*) FILTER (WHERE reaction = 'dislike' AND user_key != %s)
                     AS others_dislike,
                 MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
             FROM "like"
-            WHERE entity_key::TEXT = ANY(%s) AND entity_type = 'comment'
-            GROUP BY entity_key
+            WHERE comment_key::TEXT = ANY(%s)
+            GROUP BY comment_key
         """, (user["key"], user["key"], user["key"], comment_keys))
         likes = cur.fetchall()
 
     likes_map = {
-        x["entity_key"]: {
+        x["comment_key"]: {
             "others_like": x["others_like"],
             "others_dislike": x["others_dislike"],
             "user_reaction": x["user_reaction"]
@@ -384,7 +380,7 @@ def get_comments(key, cur=None):
             COUNT(*) AS total_comment,
             COUNT(*) FILTER (WHERE parent_key IS NULL) AS total_parent
         FROM comment
-        WHERE entity_key = %s AND entity_type = 'blog';
+        WHERE blog_key = %s;
     """, (key,))
     total = cur.fetchone()
     total_comment = total["total_comment"]
@@ -411,25 +407,25 @@ def get_engagement(cur, key, user_key):
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
-        WHERE entity_key = %s AND entity_type = 'comment'
+        WHERE blog_key = %s;
     """, (user_key, user_key, user_key, key))
     reactions = cur.fetchone()
 
     cur.execute("""
         SELECT COUNT(*) FROM comment
-        WHERE entity_key = %s AND entity_type = 'blog';
+        WHERE blog_key = %s;
     """, (key,))
     comment_count = cur.fetchone()["count"]
 
     cur.execute("""
         SELECT COUNT(DISTINCT user_key) FROM log
-        WHERE entity_type = 'blog' AND action = 'viewed' AND entity_key = %s
+        WHERE entity_type = 'blog' AND action = 'viewed' AND entity_key = %s;
     """, (key,))
     view_count = cur.fetchone()["count"]
 
     cur.execute("""
         SELECT COUNT(*) FROM log
-        WHERE entity_type = 'blog' AND action = 'shared' AND entity_key = %s
+        WHERE entity_type = 'blog' AND action = 'shared' AND entity_key = %s;
     """, (key,))
     share_count = cur.fetchone()["count"]
 

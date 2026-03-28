@@ -160,11 +160,11 @@ def get_items(cur=None, _order="latest", _page_size=24):
     cur.execute(f"""
         WITH rating AS (
             SELECT
-                comment.entity_key AS key,
+                comment.item_key AS key,
                 AVG(comment.rating) as rating
             FROM comment
-            WHERE comment.entity_type = 'item' AND comment.parent_key IS NULL
-            GROUP BY comment.entity_key
+            WHERE comment.item_key IS NOT NULL AND comment.parent_key IS NULL
+            GROUP BY comment.item_key
         )
 
         SELECT item.*,
@@ -269,16 +269,15 @@ def get_comments(key, _page_size=24, cur=None):
 
         LEFT JOIN (
             SELECT
-                entity_key,
+                comment_key,
                 COUNT(*) FILTER (WHERE reaction = 'like') -
                 COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
             FROM "like"
-            WHERE entity_type = 'comment'
-            GROUP BY entity_key
-        ) l ON l.entity_key = c.key
+            WHERE comment_key IS NOT NULL
+            GROUP BY comment_key
+        ) l ON l.comment_key = c.key
 
-        WHERE c.entity_key = %s AND c.entity_type = 'item'
-            AND c.parent_key IS NULL
+        WHERE c.item_key = %s AND c.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}, c.key DESC
         LIMIT %s OFFSET %s
     """, (
@@ -309,20 +308,20 @@ def get_comments(key, _page_size=24, cur=None):
 
         cur.execute("""
             SELECT
-                entity_key,
+                comment_key,
                 COUNT(*) FILTER (WHERE reaction = 'like' AND user_key != %s)
                     AS others_like,
                 COUNT(*) FILTER (WHERE reaction = 'dislike' AND user_key != %s)
                     AS others_dislike,
                 MAX(reaction) FILTER (WHERE user_key = %s) AS user_reaction
             FROM "like"
-            WHERE entity_key::TEXT = ANY(%s) AND "like".entity_type = 'comment'
-            GROUP BY entity_key
+            WHERE comment_key::TEXT = ANY(%s)
+            GROUP BY comment_key
         """, (user["key"], user["key"], user["key"], comment_keys))
         likes = cur.fetchall()
 
     likes_map = {
-        x["entity_key"]: {
+        x["comment_key"]: {
             "others_like": x["others_like"],
             "others_dislike": x["others_dislike"],
             "user_reaction": x["user_reaction"]
@@ -380,8 +379,7 @@ def get_comments(key, _page_size=24, cur=None):
         FROM generate_series(1, 5) AS r(rating)
         LEFT JOIN comment
             ON comment.rating = r.rating
-            AND comment.entity_key = %s
-            AND comment.entity_type = 'item'
+            AND comment.item_key = %s
             AND comment.parent_key IS NULL
         GROUP BY r.rating
         ORDER BY r.rating DESC
@@ -405,8 +403,7 @@ def get_comments(key, _page_size=24, cur=None):
             AND NOT EXISTS (
                 SELECT 1 FROM comment
                 WHERE comment.user_key = %s
-                    AND comment.entity_type = 'item'
-                    AND comment.entity_key = %s
+                    AND comment.item_key = %s
             ) AS can_comment
         FROM purchase_check;
     """, (user["key"], item["key"], user["key"], item["key"]))
@@ -417,7 +414,7 @@ def get_comments(key, _page_size=24, cur=None):
             COUNT(*) AS total_comment,
             COUNT(*) FILTER (WHERE parent_key IS NULL) AS total_parent
         FROM comment
-        WHERE entity_key = %s AND entity_type = 'item';
+        WHERE item_key = %s;
     """, (key,))
     total = cur.fetchone()
     total_comment = total["total_comment"]
@@ -562,11 +559,11 @@ def like_page():
     cur.execute(f"""
         WITH rating AS (
             SELECT
-                comment.entity_key AS key,
+                comment.item_key AS key,
                 AVG(comment.rating) as rating
             FROM comment
-            WHERE comment.entity_type = 'item' AND comment.parent_key IS NULL
-            GROUP BY comment.entity_key
+            WHERE comment.item_key IS NOT NULL AND comment.parent_key IS NULL
+            GROUP BY comment.item_key
         )
 
         SELECT
@@ -574,12 +571,12 @@ def like_page():
             COALESCE(rating.rating, 0) AS rating,
             COUNT(*) OVER() AS _count
         FROM item
-        LEFT JOIN "like" ON item.key = "like".entity_key
+        LEFT JOIN "like" ON item.key = "like".item_key
         LEFT JOIN rating ON item.key = rating.key
         WHERE
             item.status = 'active'
             AND "like".user_key = %s
-            AND "like".entity_type = 'item'
+            AND "like".item_key IS NOT NULL
             AND (%s = '' OR item.name ILIKE %s)
         ORDER BY {order_by[order]} {order_dir[order]}, item.key DESC
         LIMIT %s OFFSET %s;

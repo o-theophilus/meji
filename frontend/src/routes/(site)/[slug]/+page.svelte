@@ -121,7 +121,9 @@
 				{#if !item.item_slug}
 					<div class="line">
 						<Like {item} />
-						<Button icon="share-2" onclick={() => module.open(Share, { ...item, type: 'item' })}
+						<Button
+							icon="share-2"
+							onclick={() => module.open(Share, { ...item, entity_type: 'item' })}
 						></Button>
 					</div>
 				{/if}

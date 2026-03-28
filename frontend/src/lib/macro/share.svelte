@@ -1,9 +1,10 @@
 <script>
 	import { page } from '$app/state';
+	import { app, module } from '$lib/store.svelte.js';
+
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 	import { Icon } from '$lib/macro';
-	import { app, module } from '$lib/store.svelte.js';
 
 	let title = `Check Out: ${module.value.title}`;
 
@@ -27,7 +28,7 @@
 	];
 
 	const click = (platform) => {
-		fetch(`${import.meta.env.VITE_BACKEND}/log`, {
+		fetch(`${import.meta.env.VITE_BACKEND}/logs`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -35,7 +36,7 @@
 			},
 			body: JSON.stringify({
 				action: 'shared',
-				entity_type: module.value.type,
+				entity_type: module.value.entity_type,
 				entity_key: module.value.key,
 				misc: { platform }
 			})
@@ -51,6 +52,7 @@
 				title={x.name}
 				onclick={() => {
 					click(x.name);
+					module.close();
 				}}
 				href={x.href}
 			>

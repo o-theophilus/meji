@@ -273,7 +273,6 @@ def delete(key):
     cur.execute("""
         DELETE FROM blog WHERE key = %s;
     """, (blog["key"],))
-    # TODO: delete comments -> likes / reports
 
     storage.delete(blog["photo"], "blog")
     for x in blog["files"]:
@@ -315,15 +314,15 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like" WHERE user_key = %s AND entity_key = %s;
+        SELECT * FROM "like" WHERE user_key = %s AND blog_key = %s;
     """, (user["key"], blog["key"]))
     user_reaction = cur.fetchone()
 
     un = ""
     if not user_reaction:
         cur.execute("""
-            INSERT INTO "like" (user_key, reaction, entity_key, entity_type)
-            VALUES (%s, %s, %s, 'blog');
+            INSERT INTO "like" (user_key, reaction, blog_key)
+            VALUES (%s, %s, %s);
         """, (user["key"], reaction, key))
     elif user_reaction["reaction"] == reaction:
         un = "un"
@@ -351,7 +350,7 @@ def like(key):
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
-        WHERE entity_key = %s;
+        WHERE blog_key = %s;
     """, (user["key"], user["key"], user["key"], blog["key"]))
     reactions = cur.fetchone()
 
@@ -408,9 +407,8 @@ def add_comment(key):
         })
 
     cur.execute("""
-        INSERT INTO comment (user_key, entity_type, entity_key, comment,
-            parent_key)
-        VALUES (%s, 'blog', %s, %s, %s) RETURNING *;
+        INSERT INTO comment (user_key, blog_key, comment, parent_key)
+        VALUES (%s, %s, %s, %s) RETURNING *;
     """, (user["key"], blog["key"], comment, parent_key))
     comment = cur.fetchone()
 

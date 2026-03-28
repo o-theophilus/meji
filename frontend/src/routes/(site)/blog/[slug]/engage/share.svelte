@@ -6,7 +6,7 @@
 	let { post } = $props();
 </script>
 
-<Button onclick={() => module.open(Share, { ...post, type: 'blog' })}>
+<Button onclick={() => module.open(Share, { ...post, entity_type: 'blog' })}>
 	<Icon icon="share-2" />
 	Share
 </Button>

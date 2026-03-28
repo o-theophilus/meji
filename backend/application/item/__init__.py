@@ -282,7 +282,6 @@ def delete(key):
     cur.execute("""
         DELETE FROM item WHERE key = %s;
     """, (item["key"],))
-    # TODO: delete comments -> likes / reports
 
     log(
         cur=cur,
@@ -318,14 +317,14 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like" WHERE user_key = %s AND entity_key = %s;
+        SELECT * FROM "like" WHERE user_key = %s AND item_key = %s;
     """, (user["key"], item["key"]))
     user_reaction = cur.fetchone()
 
     if not user_reaction:
         cur.execute("""
-            INSERT INTO "like" (user_key, entity_key, entity_type)
-            VALUES (%s, %s, 'item');
+            INSERT INTO "like" (user_key, item_key)
+            VALUES (%s, %s);
         """, (user["key"], item["key"]))
     else:
         cur.execute("""DELETE FROM "like" WHERE key = %s;""", (
@@ -431,9 +430,9 @@ def add_comment(key):
         })
 
     cur.execute("""
-        INSERT INTO comment (user_key, entity_type, entity_key, rating,
+        INSERT INTO comment (user_key, item_key, rating,
             comment, parent_key)
-        VALUES (%s, 'item', %s, %s, %s, %s) RETURNING *;
+        VALUES (%s, %s, %s, %s, %s) RETURNING *;
     """, (user["key"], item["key"], rating, comment, parent_key))
     comment = cur.fetchone()
 

@@ -181,8 +181,8 @@ def report(key):
 
     cur.execute("""
         INSERT INTO report (reporter_key, reporter_comment,
-            tags, entity_key, entity_type)
-        VALUES (%s, %s, %s, %s, 'user') RETURNING *;
+            tags, reported_key)
+        VALUES (%s, %s, %s, %s) RETURNING *;
     """, (user["key"], comment, tags, reported_user["key"]))
     report = cur.fetchone()
 
@@ -190,11 +190,10 @@ def report(key):
         cur=cur,
         user_key=user["key"],
         action="reported user",
+        entity_type="user",
         entity_key=reported_user["key"],
-        entity_type="report",
         misc={
-            "entity_type": "report",
-            "entity_key": report["key"]
+            "report_key": report["key"]
         }
     )
 

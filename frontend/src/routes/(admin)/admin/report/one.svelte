@@ -7,32 +7,30 @@
 	import Resolve from './one.resolve.svelte';
 
 	let { report, update, searchParams } = $props();
+	console.log(report);
 
 	let open = $state(false);
 </script>
 
 <div class="one">
-	{#if report.reported_user}
-		<div class="reported_user">
-			<div class="user_date">
-				<User user={report.reported_user.user}></User>
-				<div class="right">
-					<Datetime datetime={report.reporter.date_created} type="ago" />
-					<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
-				</div>
+	<div class="reported_user">
+		<div class="user_date">
+			<User user={report.reported.user}></User>
+			<div class="right">
+				<Datetime datetime={report.reporter.date_created} type="ago" />
+				<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
 			</div>
 		</div>
-	{:else if report.reported_comment}
+	</div>
+
+	{#if report.reported.comment_key}
 		<div class="reported_comment">
 			<div class="user_date">
-				<User user={report.reported_comment.user}></User>
-				<div class="right">
-					<Datetime datetime={report.reported_comment.date_created} type="ago" />
-					<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
-				</div>
+				<Datetime datetime={report.reported.date_created} type="ago" />
+				<FoldButton {open} onclick={() => (open = !open)}></FoldButton>
 			</div>
 			<div class="comment">
-				{report.reported_comment.comment}
+				{report.reported.comment}
 			</div>
 		</div>
 	{/if}

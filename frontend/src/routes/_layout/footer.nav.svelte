@@ -8,12 +8,11 @@
 		<Link href="/">Home</Link>
 		<Link href="/#about">About</Link>
 		<Link href="/contact">Contact Us</Link>
-		<Link href="/contact">Partner</Link>
 	</div>
 	<div class="block">
 		<div class="title">Discover</div>
 		<Link href="/blog">Blog</Link>
-		<Link href="/">3D Hub</Link>
+		<Link href="/contact">Partner</Link>
 		<Link href="/faq">FAQ</Link>
 	</div>
 	<div class="block">

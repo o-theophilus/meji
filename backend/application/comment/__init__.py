@@ -55,7 +55,6 @@ def delete(key):
         misc["comment"] = _comment
 
     cur.execute("DELETE FROM comment WHERE key = %s;", (comment["key"],))
-    # TODO: delete likes / reports
 
     log(
         cur=cur,
@@ -96,15 +95,15 @@ def like(key):
         })
 
     cur.execute("""
-        SELECT * FROM "like" WHERE user_key = %s AND entity_key = %s;
+        SELECT * FROM "like" WHERE user_key = %s AND comment_key = %s;
     """, (user["key"], comment["key"]))
     user_reaction = cur.fetchone()
 
     un = ""
     if not user_reaction:
         cur.execute("""
-            INSERT INTO "like" (user_key, reaction, entity_key, entity_type)
-            VALUES (%s, %s, %s, 'comment');
+            INSERT INTO "like" (user_key, reaction, comment_key)
+            VALUES (%s, %s, %s);
         """, (user["key"], reaction, comment["key"]))
     elif user_reaction["reaction"] == reaction:
         un = "un"
@@ -132,7 +131,7 @@ def like(key):
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
-        WHERE entity_key = %s;
+        WHERE comment_key = %s;
     """, (user["key"], user["key"], user["key"], comment["key"]))
     reactions = cur.fetchone()
 
@@ -184,10 +183,13 @@ def report(key):
         })
 
     cur.execute("""
-        INSERT INTO report (reporter_key, reporter_comment,
-            tags, entity_key, entity_type)
-        VALUES (%s, %s, %s, %s, 'comment') RETURNING *;
-    """, (user["key"], comment, tags, reported_comment["key"]))
+        INSERT INTO report (reporter_key, reporter_comment, tags,
+            reported_key, reported_comment_key)
+        VALUES (%s, %s, %s, %s, %s) RETURNING *;
+    """, (
+        user["key"], comment, tags,
+        reported_comment["user_key"], reported_comment["key"])
+    )
     report = cur.fetchone()
 
     log(
@@ -197,8 +199,7 @@ def report(key):
         entity_type="comment",
         entity_key=reported_comment["key"],
         misc={
-            "entity_type": "report",
-            "entity_key": report["key"]
+            "report_key": report["key"]
         }
     )
 

@@ -558,18 +558,17 @@ def deactivate():
         })
 
     cur.execute("""
+        UPDATE blog
+        SET author_key = (SELECT key FROM "user" WHERE email = %s)
+        WHERE author_key = %s;
+    """, (os.environ["MAIL_USERNAME"], user["key"]))
+    cur.execute("""
         UPDATE block
         SET admin_key = (SELECT key FROM "user" WHERE email = %s)
         WHERE admin_key = %s;
     """, (os.environ["MAIL_USERNAME"], user["key"]))
 
-    cur.execute("""
-        DELETE FROM report
-        WHERE entity_key = %s AND entity_type = 'user';
-    """, (user["key"],))
-
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
-    # TODO: delete comments -> likes / reports
 
     storage.delete(user["photo"], "user")
     anon_user = anon(cur)

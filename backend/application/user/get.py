@@ -9,12 +9,11 @@ bp = Blueprint("user_get", __name__)
 
 
 def get_user_like(cur, user_key):
-    cur.execute(
-        """SELECT entity_key FROM "like"
-        WHERE user_key = %s AND entity_type = 'item'
-    ;""", (user_key,))
+    cur.execute("""
+        SELECT item_key FROM "like" WHERE user_key = %s;
+    """, (user_key,))
     likes = cur.fetchall()
-    return [x["entity_key"] for x in likes]
+    return [x["item_key"] for x in likes]
 
 
 @bp.get("/users/<key>")
