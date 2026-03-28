@@ -5,9 +5,9 @@ from uuid import uuid4
 from flask import Blueprint, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from ..blog.get import get_blog_tags
 from ..cart.get import get_cart_items
 from ..item.get import get_item_tags
-from ..blog.get import get_blog_tags
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
@@ -557,12 +557,17 @@ def deactivate():
             **error
         })
 
-    cur.execute(
-        """
-            UPDATE block
-            SET admin_key = (SELECT key FROM "user" WHERE email = %s)
-            WHERE admin_key = %s;
-        """, (os.environ["MAIL_USERNAME"], user["key"]))
+    cur.execute("""
+        UPDATE block
+        SET admin_key = (SELECT key FROM "user" WHERE email = %s)
+        WHERE admin_key = %s;
+    """, (os.environ["MAIL_USERNAME"], user["key"]))
+
+    cur.execute("""
+        DELETE FROM report
+        WHERE entity_key = %s AND entity_type = 'user';
+    """, (user["key"],))
+
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
     # TODO: delete comments -> likes / reports
 

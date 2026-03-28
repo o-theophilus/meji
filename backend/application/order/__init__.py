@@ -300,20 +300,20 @@ def cart_to_order():
         AND v.information = i.information
         AND v.specification = i.specification
         AND v.files = i.files
-        AND v.variation = i.variation --RETURNING v.*;
+        AND v.variation = i.variation;
     """, (order["key"],))
-    # new_versions = cur.fetchall()
 
-    # files = set()
-    # for v in new_versions:
-    #     files.update(v["files"])
-    # for f in files:
-    #     try:
-    #         storage.copy(f, "item", "item_version")
-    #     except Exception:
-    #         pass
-
-    # TODO: subtract from item quantity
+    cur.execute("""
+        UPDATE item i
+        SET quantity = GREATEST(i.quantity - sub.total_quantity, 0)
+        FROM (
+            SELECT item_key, SUM(quantity) AS total_quantity
+            FROM order_item
+            WHERE order_key = %s
+            GROUP BY item_key
+        ) sub
+        WHERE sub.item_key = i.key;
+    """, (order["key"],))
 
     order["timeline"]["created"] = f"{datetime.now(timezone.utc)}"
     order["timeline"]["delivery_date"
