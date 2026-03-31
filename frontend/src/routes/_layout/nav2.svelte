@@ -7,9 +7,9 @@
 	<div class="block">
 		<a class:active={active == '/'} href="/">Home</a>
 		<a class:active={active == '/about'} href="/about">About</a>
-		<a class:active={active == '/contact'} href="/contact">Contact Us</a>
 		<a class:active={active == '/partner'} href="/partner">Partner</a>
 		<a class:active={active == '/blog'} href="/blog">Blog</a>
+		<a class:active={active == '/contact'} href="/contact">Contact Us</a>
 	</div>
 </div>
 

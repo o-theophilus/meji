@@ -55,24 +55,42 @@ export const faqs = [
         a: "Contact the seller first. If you need further help, reach out to Meji Support and we’ll assist you."
       },
       {
-        category: "Returns, Refunds & Support",
         q: "How do I request a refund?",
         a: "Go to your order in 'My Orders' and select the refund option, or contact the seller directly."
       },
       {
-        category: "Returns, Refunds & Support",
         q: "How long do refunds take?",
         a: "Refunds are typically processed within 3–7 business days after approval, depending on your payment provider."
       },
       {
-        category: "Returns, Refunds & Support",
         q: "Can I contact support directly?",
         a: "Yes. Use the contact form or reach out via email or phone for assistance."
       },
       {
-        category: "Returns, Refunds & Support",
         q: "Do you offer buyer protection?",
         a: "Yes. We work with sellers to ensure fair resolutions for issues related to orders and deliveries."
+      }
+    ]
+  },
+
+  {
+    category: "Partnership",
+    items: [
+      {
+        q: "Do you take ownership of my products?",
+        a: "No. Your products remain yours. We simply help you sell them to more customers."
+      },
+      {
+        q: "How do I get paid?",
+        a: "Payments are made based on agreed terms after successful sales."
+      },
+      {
+        q: "How many sales can I expect?",
+        a: "Sales depend on product demand, pricing, and availability — but we actively promote and push your products to maximize results."
+      },
+      {
+        q: "What happens to unsold products?",
+        a: "This depends on the partnership model — we'll agree on how inventory is handled upfront."
       }
     ]
   }

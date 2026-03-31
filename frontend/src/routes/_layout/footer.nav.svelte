@@ -12,7 +12,7 @@
 	<div class="block">
 		<div class="title">Discover</div>
 		<Link href="/blog">Blog</Link>
-		<Link href="/contact">Partner</Link>
+		<Link href="/partner">Partner</Link>
 		<Link href="/faq">FAQ</Link>
 	</div>
 	<div class="block">

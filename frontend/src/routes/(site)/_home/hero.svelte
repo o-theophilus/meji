@@ -2,17 +2,12 @@
 	import { Button } from '$lib/button';
 	import Bubble from './hero.bubble.svelte';
 	import Customer from './hero.customer.svelte';
-	import Nav from './hero.nav.svelte';
 	import Wave from './hero.wave.svelte';
 </script>
 
 <section>
 	<div class="wave">
 		<Wave />
-	</div>
-
-	<div class="nav">
-		<Nav />
 	</div>
 
 	<div class="block">
@@ -55,10 +50,6 @@
 	section {
 		position: relative;
 		overflow: hidden;
-	}
-
-	.nav {
-		position: relative;
 	}
 
 	.wave {

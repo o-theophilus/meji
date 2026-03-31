@@ -43,10 +43,10 @@ def create_session(cur, user_key, login=False, remember=False):
 
 def copy_like_n_cart(cur, user_key, anon_key):
     cur.execute("""
-        INSERT INTO "like" (user_key, entity_key, entity_type)
-        SELECT %s, entity_key, 'item'
+        INSERT INTO "like" (user_key, item_key)
+        SELECT %s, item_key
         FROM "like"
-        WHERE user_key = %s AND entity_type = 'item'
+        WHERE user_key = %s AND item_key IS NOT NULL
         ON CONFLICT DO NOTHING;
     """, (user_key, anon_key))
     cur.execute("""
