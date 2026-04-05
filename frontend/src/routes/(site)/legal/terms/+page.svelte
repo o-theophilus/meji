@@ -1,4 +1,5 @@
 <script>
+	import { Tag } from '$lib/button';
 	import { Content, PageTitle, TOC, TOCList } from '$lib/layout';
 	import { Datetime, Log, Marked, Meta, SideMenu } from '$lib/macro';
 	import Contact from '../../contact/contact.svelte';
@@ -36,10 +37,10 @@
 		</div>
 
 		<div>
-			<div class="date">
+			<Tag>
 				<em> Last Updated: </em>
 				<Datetime datetime="20 mar 2026"></Datetime>
-			</div>
+			</Tag>
 
 			<div class="margdown_content">
 				<Marked {content}></Marked>
@@ -57,10 +58,6 @@
 	.block {
 		display: flex;
 		gap: 16px;
-	}
-
-	.date {
-		font-size: 0.7rem;
 	}
 
 	.nav {

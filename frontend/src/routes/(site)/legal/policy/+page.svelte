@@ -1,4 +1,5 @@
 <script>
+	import { Tag } from '$lib/button';
 	import { Content, PageTitle, TOC, TOCList } from '$lib/layout';
 	import { Datetime, Icon, Log, Marked, Meta, SideMenu } from '$lib/macro';
 	import Contact from '../../contact/contact.svelte';
@@ -37,22 +38,31 @@
 		</div>
 
 		<div>
-			<div class="date">
-				<em> Last Updated: </em>
-				<Datetime datetime="20 mar 2026"></Datetime>
-			</div>
-
 			<div class="section_title" id="privacyPolicy">
 				<Icon icon="shield-user" size="24"></Icon>
 				Privacy Policy
 			</div>
+			<br />
+			<Tag>
+				<em> Last Updated: </em>
+				<Datetime datetime="20 mar 2026"></Datetime>
+			</Tag>
+
 			<div class="privacyPolicy">
 				<Marked content={privacyPolicy}></Marked>
 			</div>
+			<br />
+			<br />
 			<div class="section_title" id="cookiesPolicy">
 				<Icon icon="cookie" size="24"></Icon>
 				Cookies Policy
 			</div>
+			<br />
+			<Tag>
+				<em> Last Updated: </em>
+				<Datetime datetime="20 mar 2026"></Datetime>
+			</Tag>
+
 			<div class="cookiesPolicy">
 				<Marked content={cookiesPolicy}></Marked>
 			</div>
@@ -69,10 +79,6 @@
 	.container {
 		display: flex;
 		gap: 16px;
-	}
-
-	.date {
-		font-size: 0.7rem;
 	}
 
 	.sub_title {
@@ -98,7 +104,6 @@
 		background-color: var(--bg2);
 		padding: 16px;
 		border-radius: 8px;
-		margin-top: 40px;
 		font-size: 2rem;
 		font-weight: 800;
 		color: var(--ft1);

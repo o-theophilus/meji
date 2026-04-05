@@ -26,7 +26,7 @@
 	--bg1: light-dark(hsl(210, 21%, 89%), hsl(0, 0%, 10%));
 	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
 	
-	--mobileWidth: 800px;
+	--mobileWidth: 1200px;
 	--headerHeight: 80px;
 	--headerHeight2: 56px;
 }

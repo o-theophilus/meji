@@ -18,7 +18,7 @@ def db_close(con, cur):
     cur.close()
     con.close()
 
-
+@bp.get("/fix")
 def create_tables():
     con, cur = db_open()
 
@@ -28,14 +28,16 @@ def create_tables():
         DROP TABLE IF EXISTS session CASCADE;
         DROP TABLE IF EXISTS log CASCADE;
         DROP TABLE IF EXISTS code CASCADE;
-        DROP TABLE IF EXISTS report CASCADE;
         DROP TABLE IF EXISTS block CASCADE;
         DROP TABLE IF EXISTS item CASCADE;
+        DROP TABLE IF EXISTS item_version CASCADE;
+        DROP TABLE IF EXISTS advert CASCADE;
+        DROP TABLE IF EXISTS blog CASCADE;
         DROP TABLE IF EXISTS comment CASCADE;
+        DROP TABLE IF EXISTS report CASCADE;
         DROP TABLE IF EXISTS "like" CASCADE;
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
-        DROP TABLE IF EXISTS item_version CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
 
         CREATE TABLE IF NOT EXISTS "user" (

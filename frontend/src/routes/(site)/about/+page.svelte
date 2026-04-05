@@ -2,8 +2,6 @@
 	import { Button } from '$lib/button';
 	import { Content, PageTitle } from '$lib/layout';
 	import { Icon, Log, Meta } from '$lib/macro';
-	import { faqs } from '../faq/faq';
-	import Group from '../faq/group.svelte';
 
 	let ops = $state({ open: null });
 </script>
@@ -16,10 +14,10 @@
 
 <PageTitle>
 	{#snippet title()}
-		Have products to sell?
+		A Better Way to Shop
 	{/snippet}
 	{#snippet copy()}
-		Let us help you reach more customers and grow your business.
+		Meji is a modern shopping experience built on a simple idea — quality over noise.
 
 		<br />
 		<br />
@@ -28,136 +26,172 @@
 			--button-background-color="var(--cl1)"
 			--button-color="white"
 			--button-outline-color="transparent"
-			href="/contact"
+			href="/shop"
 		>
-			Partner with us!
+			Shop Now
 		</Button>
 	{/snippet}
 </PageTitle>
 
 <Content>
 	<div class="title">
-		If you have quality products and want to increase your sales without worrying about marketing or
-		operations, we want you as a partner.
+		In a world of endless options and overwhelming marketplaces, we offer something different: a
+		carefully curated collection of products, thoughtfully selected for their design, usefulness,
+		and value.
+	</div>
+
+	<div class="margin flex reverse">
+		<div class="div">
+			<div class="title">Our Philosophy</div>
+			<br />
+			<div class="text">
+				We believe shopping should feel effortless, not exhausting.
+				<br />
+				<br />
+				That means:
+
+				<ul>
+					<li>No clutter</li>
+					<li>No unnecessary choices</li>
+					<li>No compromise on quality</li>
+				</ul>
+
+				Just products you can trust — presented in a way that respects your time and attention.
+			</div>
+		</div>
+
+		<img src="/image/about_1.jpg" alt="contact us" />
+	</div>
+
+	<div class="margin card_area two mini">
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="target" size="24"></Icon>
+			</div>
+			<div class="title">Our Mission</div>
+			To redefine online shopping through simplicity, clarity, and trust.
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="telescope" size="24"></Icon>
+			</div>
+			<div class="title">Our Vision</div>
+			To build a brand people return to — not because they have to, but because they want to.
+		</div>
 	</div>
 
 	<div class="margin flex">
 		<div class="div">
-			<div class="title">You might be wondering… how?</div>
+			<div class="title">Our Story</div>
 			<br />
 			<div class="text">
-				We bring the customers, you bring the products.
+				Meji was created out of frustration with how complicated online shopping had become.
 				<br />
-				We handle listing, marketing, and sales — so you can focus on supplying while earning consistently.
+				<br />
+				Too many platforms focus on volume instead of value — overwhelming users with choices while offering
+				little guidance or assurance.
+				<br />
+				<br />
+
+				We chose a different path.
+				<br />
+				<br />
+
+				By focusing on a single, carefully managed store, we maintain complete control over quality,
+				presentation, and customer experience.
+				<br />
+				<br />
+
+				The result is a platform that feels refined, trustworthy, and easy to use.
 			</div>
 		</div>
 
-		<img src="/image/partner_1.jpg" alt="contact us" />
+		<img src="/image/about_2.jpg" alt="contact us" />
 	</div>
 
-	<div class="margin block bg">
-		<div class="title center">Ready to Become a Partner?</div>
+	<div class="margin card_area">
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="sparkles" size="24"></Icon>
+			</div>
+			<div class="bold">Curated Selection</div>
+			Every product is intentionally chosen for its quality, design, and real-world usefulness
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="badge-check" size="24"></Icon>
+			</div>
+			<div class="bold">Quality You Can Trust</div>
+			Each item is vetted to meet a consistent, high standard
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="circle" size="24"></Icon>
+			</div>
+			<div class="bold">Simplicity First</div>
+			No clutter, no overwhelm - just a clean, focused shopping experience
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="compass" size="24"></Icon>
+			</div>
+			<div class="bold">Effortless Discovery</div>
+			Find what you need quickly without endless scrolling
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="route" size="24"></Icon>
+			</div>
+			<div class="bold">Seamless Journey</div>
+			From browsing to checkout to delivery, everything just flows
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="layout-grid" size="24"></Icon>
+			</div>
+			<div class="bold">Refined Interface</div>
+			A fast, modern platform designed to respect your time and attention
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="repeat" size="24"></Icon>
+			</div>
+			<div class="bold">Consistency in Every Order</div>
+			Reliable products, predictable quality, every time
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="user-check" size="24"></Icon>
+			</div>
+			<div class="bold">Built Around You</div>
+			Designed for people who value efficiency, clarity, and intention
+		</div>
+		<div class="card center">
+			<div class="icon">
+				<Icon icon="shield" size="24"></Icon>
+			</div>
+			<div class="bold">Confidence in Every Choice</div>
+			Shop knowing each product has been carefully selected for you
+		</div>
+	</div>
+
+	<div class="margin block center">
+		<div class="title">Looking Ahead</div>
+
+		We are constantly evolving — refining our selection, improving our experience, and raising our
+		standards.
+		<br />
+		<br />
+		Because great shopping isn't just about buying things. It's about confidence in every choice you
+		make.
+
 		<Button
 			--button-background-color="var(--cl1)"
 			--button-color="white"
 			--button-outline-color="transparent"
 			href="/contact"
 		>
-			Apply Now
-		</Button>
-	</div>
-
-	<div class="margin">
-		<div class="title center">As a Partner, you get</div>
-
-		<div class="card_area">
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="users" size="24"></Icon>
-				</div>
-				Access to our growing customer base
-			</div>
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="trending-up" size="24"></Icon>
-				</div>
-				Increased sales without running ads
-			</div>
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="layout-grid" size="24"></Icon>
-				</div>
-				Professional product listing & presentation
-			</div>
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="package" size="24"></Icon>
-				</div>
-				Order management handled for you
-			</div>
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="wallet" size="24"></Icon>
-				</div>
-				Reliable payouts
-			</div>
-			<div class="card center">
-				<div class="icon">
-					<Icon icon="headset" size="24"></Icon>
-				</div>
-				Ongoing business support
-			</div>
-		</div>
-	</div>
-
-	<div class="margin title">
-		Earn more by reaching customers you wouldn’t normally access — without the stress of selling
-		yourself.
-	</div>
-
-	<div class="margin flex">
-		<div>
-			<div class="title">This is perfect for businesses and individuals who:</div>
-
-			<ul>
-				<li>Have quality products to supply</li>
-				<li>Want to increase sales</li>
-				<li>Prefer to focus on production or sourcing</li>
-				<li>Need help with marketing and distribution</li>
-			</ul>
-		</div>
-
-		<img src="/image/partner_2.jpg" alt="contact us" />
-	</div>
-
-	<div class="margin">
-		<div class="title">FAQ</div>
-		{#each faqs as x}
-			{#if x.category == 'Partnership'}
-				<Group {ops} category={x}></Group>
-			{/if}
-		{/each}
-	</div>
-
-	<!-- <div class="margin">
-		<div class="title">HOW IT WORKS</div>
-		<ol>
-			<li>Apply to become a partner</li>
-			<li>Share your product details</li>
-			<li>We list and promote your products</li>
-			<li>We sell and pay you</li>
-		</ol>
-	</div> -->
-
-	<div class="margin block">
-		<div class="title center">Ready to start selling more?</div>
-		<Button
-			--button-background-color="var(--cl1)"
-			--button-color="white"
-			--button-outline-color="transparent"
-			href="/contact"
-		>
-			Become a Partner Today
+			Shop Now
 		</Button>
 	</div>
 </Content>
@@ -172,6 +206,12 @@
 		color: var(--ft1);
 		line-height: 120%;
 		font-weight: 600;
+	}
+
+	.bold {
+		font-weight: 600;
+		font-size: 1.2rem;
+		color: var(--ft1);
 	}
 
 	.center {
@@ -198,6 +238,10 @@
 			flex-direction: row;
 			align-items: center;
 
+			&.reverse {
+				flex-direction: row-reverse;
+			}
+
 			& > * {
 				width: 50%;
 			}
@@ -210,12 +254,6 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 24px;
-
-		&.bg {
-			padding: 40px 24px;
-			border-radius: 8px;
-			background-color: var(--bg2);
-		}
 	}
 
 	.card_area {
@@ -225,7 +263,14 @@
 		gap: 8px;
 
 		@media screen and (min-width: 580px) {
-			grid-template-columns: repeat(3, 1fr);
+			&:not(.two) {
+				grid-template-columns: repeat(3, 1fr);
+			}
+		}
+
+		&.mini {
+			max-width: 800px;
+			margin: auto;
 		}
 
 		.card {

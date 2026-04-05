@@ -6,7 +6,7 @@
 	<div class="block">
 		<div class="title">Quick Links</div>
 		<Link href="/">Home</Link>
-		<Link href="/#about">About</Link>
+		<Link href="/about">About</Link>
 		<Link href="/contact">Contact Us</Link>
 	</div>
 	<div class="block">
