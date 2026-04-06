@@ -17,10 +17,9 @@
 <div class="bottom_nav">
 	<div class="block">
 		{#each buttons as x}
-			{@const active = x.href.split('/')[1] == page.url.pathname.split('/')[1]}
-			<a class:active href={x.href} data-sveltekit-preload-data>
+			<a class:active={x.href == page.url.pathname} href={x.href} data-sveltekit-preload-data>
 				<div class="center">
-					<Icon icon={!active ? x.icon : `${x.icon}_active`} size="16" />
+					<Icon icon={x.href == page.url.pathname ? `${x.icon}_active` : x.icon} size="16" />
 					{x.name}
 
 					{#if x.count > 0}
@@ -70,8 +69,8 @@
 			display: flex;
 			align-items: center;
 
-			max-width: var(--mobileWidth);
-			height: var(--headerHeight2);
+			max-width: var(--pageWidth);
+			height: var(--headerHeight);
 			margin: auto;
 		}
 
@@ -127,7 +126,7 @@
 		}
 
 		/* &:hover { */
-			/* background-color: var(--bg1); */
+		/* background-color: var(--bg1); */
 		/* } */
 
 		& .center {

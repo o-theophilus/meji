@@ -14,28 +14,28 @@
 	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
 />
 
-<PageTitle>
-	{#snippet title()}
-		Have products to sell?
-	{/snippet}
-	{#snippet copy()}
-		Let us help you reach more customers and grow your business.
-
-		<br />
-		<br />
-		<br />
-		<Button
-			--button-background-color="var(--cl1)"
-			--button-color="white"
-			--button-outline-color="transparent"
-			href="/contact"
-		>
-			Partner with us!
-		</Button>
-	{/snippet}
-</PageTitle>
-
 <Content>
+	<PageTitle>
+		{#snippet title()}
+			Have products to sell?
+		{/snippet}
+		{#snippet copy()}
+			Let us help you reach more customers and grow your business.
+
+			<br />
+			<br />
+
+			<Button
+				--button-background-color="var(--cl1)"
+				--button-color="white"
+				--button-outline-color="transparent"
+				href="/contact"
+			>
+				Partner with us!
+			</Button>
+		{/snippet}
+	</PageTitle>
+
 	<div class="title">
 		If you have quality products and want to increase your sales without worrying about marketing or
 		operations, we want you as a partner.

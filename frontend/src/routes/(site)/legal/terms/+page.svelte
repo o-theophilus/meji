@@ -14,23 +14,23 @@
 <Log entity_type={'page'} />
 <Meta title="Terms & Conditions" description="The rules and guidelines for using Meji." />
 
-<PageTitle>
-	{#snippet title()}
-		Terms & Conditions
-	{/snippet}
-	{#snippet copy()}
-		The rules and guidelines for using Meji — outlining your rights, responsibilities, and how our
-		platform works.
-	{/snippet}
-</PageTitle>
-
 {#snippet nav()}
 	<TOC>
 		<TOCList container=".margdown_content" tag="h3" onclick={() => menu.onclick()}></TOCList>
 	</TOC>
 {/snippet}
 
-<Content --content-width="calc(var(--mobileWidth))">
+<Content --content-width="calc(var(--pageWidth))">
+	<PageTitle>
+		{#snippet title()}
+			Terms & Conditions
+		{/snippet}
+		{#snippet copy()}
+			The rules and guidelines for using Meji — outlining your rights, responsibilities, and how our
+			platform works.
+		{/snippet}
+	</PageTitle>
+
 	<div class="block">
 		<div class="nav">
 			{@render nav()}
@@ -49,7 +49,7 @@
 		</div>
 	</div>
 
-	<SideMenu bind:this={menu} --side_menu-bottom="calc(var(--headerHeight2) + 1px)">
+	<SideMenu bind:this={menu} --side_menu-bottom="calc(var(--headerHeight) + 1px)">
 		{@render nav()}
 	</SideMenu>
 </Content>

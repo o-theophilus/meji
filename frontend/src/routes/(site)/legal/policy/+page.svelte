@@ -11,27 +11,28 @@
 <Log entity_type={'page'} />
 <Meta title="Policy" description="How we collect, use, and protect your information." />
 
-<PageTitle>
-	{#snippet title()}
-		Privacy & Data Policy
-	{/snippet}
-	{#snippet copy()}
-		How we collect, use, and protect your information — including how cookies and tracking
-		technologies work on Meji.
-	{/snippet}
-</PageTitle>
 
 {#snippet nav()}
-	<TOC>
-		<a href="#privacyPolicy" class="sub_title" onclick={() => menu.onclick()}>Privacy Policy</a>
-		<TOCList container=".privacyPolicy " tag="h3" onclick={() => menu.onclick()}></TOCList>
-
-		<a href="#cookiesPolicy" class="sub_title" onclick={() => menu.onclick()}>Cookies Policy</a>
-		<TOCList container=".cookiesPolicy" tag="h3" onclick={() => menu.onclick()}></TOCList>
-	</TOC>
+<TOC>
+	<a href="#privacyPolicy" class="sub_title" onclick={() => menu.onclick()}>Privacy Policy</a>
+	<TOCList container=".privacyPolicy " tag="h3" onclick={() => menu.onclick()}></TOCList>
+	
+	<a href="#cookiesPolicy" class="sub_title" onclick={() => menu.onclick()}>Cookies Policy</a>
+	<TOCList container=".cookiesPolicy" tag="h3" onclick={() => menu.onclick()}></TOCList>
+</TOC>
 {/snippet}
 
-<Content --content-width="calc(var(--mobileWidth))">
+<Content>
+	<PageTitle>
+		{#snippet title()}
+			Privacy & Data Policy
+		{/snippet}
+		{#snippet copy()}
+			How we collect, use, and protect your information — including how cookies and tracking
+			technologies work on Meji.
+		{/snippet}
+	</PageTitle>
+
 	<div class="container">
 		<div class="nav">
 			{@render nav()}
@@ -70,7 +71,7 @@
 		</div>
 	</div>
 
-	<SideMenu bind:this={menu} --side_menu-bottom="calc(var(--headerHeight2) + 1px)">
+	<SideMenu bind:this={menu} --side_menu-bottom="calc(var(--headerHeight) + 1px)">
 		{@render nav()}
 	</SideMenu>
 </Content>

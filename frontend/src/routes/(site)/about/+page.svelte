@@ -12,28 +12,28 @@
 	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
 />
 
-<PageTitle>
-	{#snippet title()}
-		A Better Way to Shop
-	{/snippet}
-	{#snippet copy()}
-		Meji is a modern shopping experience built on a simple idea — quality over noise.
-
-		<br />
-		<br />
-		<br />
-		<Button
-			--button-background-color="var(--cl1)"
-			--button-color="white"
-			--button-outline-color="transparent"
-			href="/shop"
-		>
-			Shop Now
-		</Button>
-	{/snippet}
-</PageTitle>
-
 <Content>
+	<PageTitle>
+		{#snippet title()}
+			A Better Way to Shop
+		{/snippet}
+		{#snippet copy()}
+			Meji is a modern shopping experience built on a simple idea — quality over noise.
+
+			<br />
+			<br />
+			<Button
+				--button-background-color="var(--cl1)"
+				--button-color="white"
+				--button-outline-color="transparent"
+				href="/shop"
+				icon="shop"
+			>
+				Shop Now
+			</Button>
+		{/snippet}
+	</PageTitle>
+
 	<div class="title">
 		In a world of endless options and overwhelming marketplaces, we offer something different: a
 		carefully curated collection of products, thoughtfully selected for their design, usefulness,

@@ -205,7 +205,7 @@
 
 	.floater {
 		position: sticky;
-		bottom: var(--headerHeight2);
+		bottom: var(--headerHeight);
 
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);

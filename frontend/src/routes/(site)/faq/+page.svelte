@@ -11,16 +11,17 @@
 <Log entity_type={'page'} />
 <Meta title="FAQ" description="Need quick answers? Find solutions to common questions below." />
 
-<PageTitle>
-	{#snippet title()}
-		Frequently Asked Questions
-	{/snippet}
-	{#snippet copy()}
-		Need quick answers? Find solutions to common questions below.
-	{/snippet}
-</PageTitle>
 
 <Content>
+	<PageTitle>
+		{#snippet title()}
+			Frequently Asked Questions
+		{/snippet}
+		{#snippet copy()}
+			Need quick answers? Find solutions to common questions below.
+		{/snippet}
+	</PageTitle>
+	
 	{#each faqs as x}
 		<div class="categoty">
 			{x.category}

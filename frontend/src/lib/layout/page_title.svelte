@@ -3,37 +3,19 @@
 </script>
 
 <section>
-	<div class="block">
-		<div class="title">
-			{@render title?.()}
-		</div>
-		<div class="copy">
-			{@render copy?.()}
-		</div>
+	<div class="title">
+		{@render title?.()}
+	</div>
+	<div class="copy">
+		{@render copy?.()}
 	</div>
 </section>
 
 <style>
 	section {
-		padding-top: 24px;
-		background-color: var(--title-background-color, var(--bg1));
-	}
-	.block {
-		max-width: var(--title-width, var(--mobileWidth));
-		width: 100%;
-		margin: auto;
-		padding-left: 16px;
-		padding-right: 16px;
 		padding-top: var(--title-padding-top, 80px);
 		padding-bottom: var(--title-padding-bottom, 80px);
 		text-align: center;
-
-		@media screen and (min-width: 580px) {
-			& {
-				padding-left: 24px;
-				padding-right: 24px;
-			}
-		}
 	}
 
 	.title {
@@ -41,9 +23,9 @@
 		font-weight: 800;
 		color: var(--ft1);
 		margin: auto;
-		max-width: 600px;
+		max-width: 580px;
 	}
-	
+
 	.copy {
 		margin: auto;
 		font-size: 1.2rem;

@@ -2,9 +2,9 @@
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Login } from '$lib/auth';
-	import { LinkArrow } from '$lib/button';
+	import { Button, LinkArrow } from '$lib/button';
 	import { Dialogue } from '$lib/info';
-	import { Content } from '$lib/layout';
+	import { Content, PageTitle } from '$lib/layout';
 	import { Log, Meta, ToTop } from '$lib/macro';
 	import { module, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
@@ -48,9 +48,31 @@
 	description="Meji is your No. 1 trusted online shopping destination in Nigeria."
 />
 
-<Hero />
+<Content>
+	<PageTitle>
+		{#snippet title()}
+			Shopping made easy
+		{/snippet}
+		{#snippet copy()}
+			Whoever said money can't buy happiness basically didn't know where to go shopping.
 
-<Content --content-width="1200px" --content-height="100%">
+			<br />
+			<br />
+
+			<Button
+				--button-background-color="var(--cl1)"
+				--button-color="white"
+				--button-outline-color="transparent"
+				href="/contact"
+				icon2="arrow-right"
+			>
+				Shop Now
+			</Button>
+		{/snippet}
+	</PageTitle>
+
+	<Hero />
+
 	<Advert space="home_1" --advert-margin-bottom="80px" />
 
 	<Tags />

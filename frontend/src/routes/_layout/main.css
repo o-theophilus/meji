@@ -1,12 +1,14 @@
-@media(prefers-color-scheme: dark){
-	:root:has(main.system_theme){
+@media(prefers-color-scheme: dark) {
+	:root:has(main.system_theme) {
 		color-scheme: light dark;
 	}
 }
-:root:has(main.light_theme){
+
+:root:has(main.light_theme) {
 	color-scheme: light;
 }
-:root:has(main.dark_theme){
+
+:root:has(main.dark_theme) {
 	color-scheme: dark;
 }
 
@@ -15,7 +17,7 @@
 	--yellow: rgb(255, 162, 0);
 	--overlay: rgba(128, 128, 128, 0.5);
 	--input: hsla(230, 30%, 41%, 0.1);
-	
+
 	--ft1: light-dark(hsl(0, 0%, 5%), hsl(0, 0%, 95%));
 	--ft2: light-dark(hsl(0, 0%, 30%), hsl(0, 0%, 60%));
 	--ol: light-dark(hsl(0, 0%, 85%), hsl(0, 0%, 25%));
@@ -25,24 +27,19 @@
 	--bg2: light-dark(hsl(213, 43%, 96%), hsl(0, 0%, 15%));
 	--bg1: light-dark(hsl(210, 21%, 89%), hsl(0, 0%, 10%));
 	--bg: light-dark(hsl(0, 0%, 100%), hsl(0, 0%, 5%));
-	
-	--mobileWidth: 1200px;
-	--headerHeight: 80px;
-	--headerHeight2: 56px;
+
+	--pageWidth: 1200px;
+	--headerHeight: 56px;
 }
 
-@media screen and (min-width: 580px) {
-	:root {
-		--headerHeight2: 80px;
-	}
-}
+
 
 :root,
 textarea,
 select,
 input,
 button {
-	font-family:"Lexend", sans-serif;
+	font-family: "Lexend", sans-serif;
 	font-size: 14px;
 
 }
@@ -51,7 +48,7 @@ button {
 	line-height: 150%;
 	margin: 0;
 	padding: 0;
-	
+
 	box-sizing: border-box;
 	outline: none;
 	-webkit-tap-highlight-color: transparent;
@@ -84,9 +81,11 @@ hr {
 	align-items: center;
 	flex-wrap: wrap;
 }
-.line.space{
+
+.line.space {
 	justify-content: space-between;
 }
-.line.nowrap{
+
+.line.nowrap {
 	flex-wrap: nowrap;
 }

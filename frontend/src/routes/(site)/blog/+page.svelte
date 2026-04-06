@@ -46,16 +46,17 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-<PageTitle>
-	{#snippet title()}
-		Blog{blogs.length > 1 ? 's' : ''}
-	{/snippet}
-	{#snippet copy()}
-		This page showcases a collection of interesting blogs and projects that I have worked on
-	{/snippet}
-</PageTitle>
 
 <Content --content-height="auto">
+	<PageTitle>
+		{#snippet title()}
+			Blog{blogs.length > 1 ? 's' : ''}
+		{/snippet}
+		{#snippet copy()}
+			This page showcases a collection of interesting blogs and projects that I have worked on
+		{/snippet}
+	</PageTitle>
+	
 	<div class="line space">
 		<div></div>
 		{#if app.user.access.includes('blog.add')}

@@ -1,9 +1,7 @@
 <script>
 	import { Icon } from '$lib/macro';
-	import { app } from '$lib/store.svelte.js';
 	import Menu from './header.menu.svelte';
-
-	import Notification from './header.notification.svelte';
+	import Nav from './header.nav.svelte';
 
 	let trim = (name, length) => {
 		let temp = name.split(' ')[0];
@@ -17,15 +15,8 @@
 			<Icon icon="logo" size="32" />
 			Meji
 		</a>
-		<div class="line">
-			<Notification />
-			{#if app.login}
-				<div class="name">
-					Hello, {trim(app.user.name, 20)}
-				</div>
-			{/if}
-			<Menu></Menu>
-		</div>
+		<Nav></Nav>
+		<Menu></Menu>
 	</div>
 </section>
 
@@ -39,19 +30,15 @@
 		justify-content: space-between;
 		align-items: center;
 		gap: 16px;
-		flex-wrap: wrap;
 
 		min-height: var(--headerHeight);
-		max-width: var(--mobileWidth);
+		max-width: var(--pageWidth);
 		width: 100%;
 		margin: auto;
-		padding: 16px;
+		padding: 0 16px;
 
 		@media screen and (min-width: 580px) {
-			& {
-				padding-left: 24px;
-				padding-right: 24px;
-			}
+			padding: 0 24px;
 		}
 	}
 
@@ -66,13 +53,5 @@
 		text-decoration: none;
 
 		transition: color 0.2s ease-in-out;
-	}
-
-	.line {
-		gap: 16px;
-	}
-
-	.name {
-		font-size: 0.8rem;
 	}
 </style>

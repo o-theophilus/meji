@@ -69,6 +69,42 @@
 						</div>
 					</div>
 				</a>
+			{/if}
+
+			<a
+				href="/about"
+				class="menu_item hide"
+				onclick={() => {
+					open = false;
+					can_close = false;
+				}}>About</a
+			>
+			<a
+				href="/partner"
+				class="menu_item hide"
+				onclick={() => {
+					open = false;
+					can_close = false;
+				}}>Partner</a
+			>
+			<a
+				href="/blog"
+				class="menu_item hide"
+				onclick={() => {
+					open = false;
+					can_close = false;
+				}}>Blog</a
+			>
+			<a
+				href="/contact"
+				class="menu_item hide"
+				onclick={() => {
+					open = false;
+					can_close = false;
+				}}>Contact Us</a
+			>
+
+			{#if app.login}
 				{#if app.user.access.length}
 					<a
 						href="/admin"
@@ -76,8 +112,10 @@
 						onclick={() => {
 							open = false;
 							can_close = false;
-						}}>Admin</a
+						}}
 					>
+						Admin
+					</a>
 				{/if}
 				<a
 					href="/orders"
@@ -151,6 +189,12 @@
 		padding: 8px;
 		background-color: transparent;
 		border-top: 1px solid var(--ol);
+
+		@media screen and (min-width: 580px) {
+			&.hide {
+				display: none;
+			}
+		}
 	}
 
 	a {

@@ -169,7 +169,7 @@
 <style>
 	.floater {
 		position: sticky;
-		bottom: var(--headerHeight2);
+		bottom: var(--headerHeight);
 
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
@@ -177,7 +177,7 @@
 
 	.floater_block {
 		padding: 16px 24px;
-		max-width: var(--mobileWidth);
+		max-width: var(--pageWidth);
 		margin: auto;
 	}
 

@@ -10,16 +10,16 @@
 	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
 />
 
-<PageTitle>
-	{#snippet title()}
-		How Can We Help You Today?
-	{/snippet}
-	{#snippet copy()}
-		Get support for your orders, payments, and inquiries — fast, simple, and reliable.
-	{/snippet}
-</PageTitle>
-
 <Content>
+	<PageTitle>
+		{#snippet title()}
+			How Can We Help You Today?
+		{/snippet}
+		{#snippet copy()}
+			Get support for your orders, payments, and inquiries — fast, simple, and reliable.
+		{/snippet}
+	</PageTitle>
+
 	<div class="contact">
 		<a href="tel:+2348067397793" class="card">
 			<div class="icon">
