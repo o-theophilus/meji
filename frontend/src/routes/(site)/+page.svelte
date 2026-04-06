@@ -8,7 +8,7 @@
 	import { Log, Meta, ToTop } from '$lib/macro';
 	import { module, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
-	import { About, Advert, CTA, FAQ, Hero, ItemGroup, ItemGroup2, Tags } from './_home';
+	import { About, Advert, CTA, FAQ, Hero, ItemGroup, ItemGroup2, Tags, Testimonial } from './_home';
 
 	let { data } = $props();
 	let new_arrivals = $derived(data.new_arrivals);
@@ -96,6 +96,7 @@
 	</ItemGroup2>
 
 	<About></About>
+	<!-- <Testimonial></Testimonial> -->
 	<FAQ></FAQ>
 	<CTA></CTA>
 	<ToTop />

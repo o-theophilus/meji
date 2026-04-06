@@ -5,7 +5,7 @@
 
 {#if tags.length > 0}
 	<section>
-		<div class="title">Shop for furnitures, clothings and more from Meji</div>
+		<div class="title">Shop for furnitures, clothings and more</div>
 
 		<div class="block">
 			{#each tags as tag, i}

@@ -26,29 +26,35 @@
 		font-size: 1.8rem;
 		font-weight: 800;
 		margin: 32px;
+		color: var(--ft1);
 
 		text-align: center;
 	}
 
 	.img {
-		margin: 32px;
-		margin-bottom: 0;
+		margin: 0 32px;
 		line-height: 0;
-	}
+		flex-shrink: 0;
 
-	img {
-		height: 300px;
-		/* width: 100%; */
+		img {
+			max-width: 340px;
+			height: 100%;
+			width: 100%;
+		}
 	}
 
 	@media screen and (min-width: 800px) {
 		section {
 			flex-direction: unset;
-			align-items: flex-end;
 		}
 
 		.title {
 			text-align: left;
+		}
+
+		.img {
+			margin: 32px 32px 0 0;
+			align-self: flex-end;
 		}
 	}
 </style>

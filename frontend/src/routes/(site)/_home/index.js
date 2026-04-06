@@ -6,3 +6,4 @@ export { default as ItemGroup } from './item_group.svelte';
 export { default as ItemGroup2 } from './item_group2.svelte';
 export { default as CTA } from './cta.svelte';
 export { default as Tags } from './tags.svelte';
+export { default as Testimonial } from './testimonial.svelte';
