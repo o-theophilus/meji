@@ -134,23 +134,14 @@
 		<div class="title">FAQ</div>
 		{#each faqs as x}
 			{#if x.category == 'Partnership'}
-				<Group {ops} category={x}></Group>
+				<Group bind:ops category={x}></Group>
 			{/if}
 		{/each}
 	</div>
 
-	<!-- <div class="margin">
-		<div class="title">HOW IT WORKS</div>
-		<ol>
-			<li>Apply to become a partner</li>
-			<li>Share your product details</li>
-			<li>We list and promote your products</li>
-			<li>We sell and pay you</li>
-		</ol>
-	</div> -->
-
-	<div class="margin block">
-		<div class="title center">Ready to start selling more?</div>
+	<div class="margin center">
+		<div class="title">Ready to start selling more?</div>
+		<br />
 		<Button
 			--button-background-color="var(--cl1)"
 			--button-color="white"

@@ -18,7 +18,6 @@ def db_close(con, cur):
     cur.close()
     con.close()
 
-@bp.get("/fix")
 def create_tables():
     con, cur = db_open()
 

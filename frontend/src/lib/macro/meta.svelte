@@ -7,11 +7,11 @@
 		image = `${page.url.origin}/image/hero_image.png`
 	} = $props();
 
-	title = `${title} | Meji.ng`;
+	title = `${title} | Meji`;
 	description = description ? description : title;
 
 	if (page.route.id == '/') {
-		title = 'Meji.ng';
+		title = 'Meji';
 	}
 </script>
 

@@ -1,22 +1,13 @@
 <script>
-	import Bubble from './hero.bubble.svelte';
-	import Customer from './hero.customer.svelte';
 </script>
 
 <section>
 	<div class="title">
-		Whoever said money can't buy happiness basically didn't know where to go shopping.
+		You don't need more options. You need the right ones. Every product on Meji is chosen with
+		intention — so you spend less time searching and more time enjoying what you buy.
 	</div>
 
-	<div class="image_area">
-		<div class="bubble">
-			<Bubble />
-		</div>
-
-		<div class="customers">
-			<Customer />
-		</div>
-
+	<div class="img">
 		<img src="/image/hero_image.png" alt="hero" />
 	</div>
 </section>
@@ -26,11 +17,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
-		gap: 24px;
-
-		padding: 28px;
-		padding-bottom: 0;
 
 		background-color: var(--bg);
 		border-radius: 8px;
@@ -39,38 +25,26 @@
 	.title {
 		font-size: 1.8rem;
 		font-weight: 800;
+		margin: 32px;
 
 		text-align: center;
-		color: var(--cl1);
 	}
 
-	.image_area {
-		position: relative;
+	.img {
+		margin: 32px;
+		margin-bottom: 0;
+		line-height: 0;
+	}
 
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		img {
-			height: 300px;
-		}
-
-		.bubble {
-			position: absolute;
-			top: 20px;
-			right: -20px;
-		}
-
-		.customers {
-			position: absolute;
-			top: 150px;
-			left: -20px;
-		}
+	img {
+		height: 300px;
+		/* width: 100%; */
 	}
 
 	@media screen and (min-width: 800px) {
 		section {
 			flex-direction: unset;
+			align-items: flex-end;
 		}
 
 		.title {

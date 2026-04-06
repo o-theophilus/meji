@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/state';
+	import { Icon } from '$lib/macro';
 </script>
 
 <div class="nav">
@@ -11,11 +12,20 @@
 		<a class:active={page.url.pathname == '/contact'} href="/contact">Contact Us</a>
 	</div>
 
-	<!-- <div class="group">
-		<a class:active={page.url.pathname == '/shop'} href="/shop">Shop</a>
-		<a class:active={page.url.pathname == '/save'} href="/save">Save</a>
-		<a class:active={page.url.pathname == '/cart'} href="/cart">Cart</a>
-	</div> -->
+	<div class="group shop">
+		<a class:active={page.url.pathname == '/shop'} href="/shop">
+			<Icon icon="shop{page.url.pathname == '/shop' ? '_active' : ''}"></Icon>
+			Shop
+		</a>
+		<a class:active={page.url.pathname == '/save'} href="/save">
+			<Icon icon="bookmark{page.url.pathname == '/save' ? '_active' : ''}"></Icon>
+			Save
+		</a>
+		<a class:active={page.url.pathname == '/cart'} href="/cart">
+			<Icon icon="cart{page.url.pathname == '/cart' ? '_active' : ''}"></Icon>
+			Cart
+		</a>
+	</div>
 </div>
 
 <style>
@@ -57,6 +67,13 @@
 		.group {
 			display: flex;
 			align-items: center;
+
+			&.shop {
+				display: none;
+				@media screen and (min-width: 800px) {
+					display: flex;
+				}
+			}
 		}
 	}
 
@@ -65,11 +82,13 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
+		gap: 8px;
 
 		height: var(--headerHeight);
 		padding: 16px;
 		text-decoration: none;
 		color: var(--ft2);
+		fill: var(--ft2);
 		font-size: 0.8rem;
 
 		transition: background-color 0.2s ease-in-out;
@@ -77,11 +96,13 @@
 		&.active {
 			anchor-name: --active;
 			color: var(--ft1);
+			fill: var(--ft1);
 			background-color: var(--bg2);
 		}
 
 		&:hover {
 			color: var(--ft1);
+			fill: var(--ft1);
 			background-color: var(--bg1);
 		}
 	}

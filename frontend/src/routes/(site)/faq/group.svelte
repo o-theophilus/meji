@@ -1,7 +1,7 @@
 <script>
 	import { Card } from '$lib/layout';
 
-	let { category, ops } = $props();
+	let { category, ops = $bindable() } = $props();
 </script>
 
 {#snippet card(faq)}

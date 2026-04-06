@@ -23,6 +23,7 @@
 <style>
 	section {
 		border-bottom: 1px solid var(--ol);
+		background-color: var(--bg);
 	}
 
 	.block {

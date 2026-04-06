@@ -1,87 +1,33 @@
 <script>
-	import { Card } from '$lib/layout';
-	import { faqs } from './faq';
+	import { LinkArrow } from '$lib/button';
+	import { faqs } from '../faq/faq';
+	import Group from '../faq/group.svelte';
 
-	let status = $state(null);
+	let ops = $state({ open: null });
 </script>
 
-<!-- TODO: review text -->
+<div class="margin">
+	<div class="title">FAQ</div>
+	{#each faqs as x}
+		{#if x.category == 'Orders & Shipping'}
+			<Group bind:ops category={x}></Group>
+		{/if}
+	{/each}
 
-<section id="faq">
-	<div class="left">
-		<span class="page_title">Frequently Asked Questions</span>
-		<br />
-		<br />
-		<span class="text">
-			Everything you need to know about shopping, selling, and enjoying the Meji experience
-		</span>
-	</div>
+	<br />
 
-	<div class="cards">
-		{#each faqs as faq, i}
-			<Card
-				open={status == i}
-				onclick={() => {
-					if (status == i) {
-						status = null;
-					} else {
-						status = i;
-					}
-				}}
-			>
-				{#snippet title()}
-					<div class="q">
-						{faq.q}
-					</div>
-				{/snippet}
-				<div class="a">
-					{faq.a}
-				</div>
-			</Card>
-		{/each}
-	</div>
-</section>
+	<LinkArrow href="/faq">View More</LinkArrow>
+</div>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		gap: 24px;
-
-		margin-top: 120px;
-		background-color: var(--bg);
-		padding: 24px;
-		border-radius: 8px;
-
-		@media screen and (min-width: 580px) {
-			& {
-				flex-direction: unset;
-			}
-		}
-
-		& .left,
-		& .cards {
-			width: 100%;
-		}
+	.margin {
+		margin: 160px 0;
 	}
 
-	.cards {
-		--card-outline-color: var(--ol);
-		--card-title-padding: 12px 16px;
-		--card-content-padding: 0 16px 16px 16px;
-		--card-background-color: var(--bg3);
-
-		& .q {
-			font-weight: 800;
-			font-size: 0.9rem;
-			color: var(--ft1);
-			display: flex;
-			align-items: center;
-		}
-
-		& .a {
-			font-size: 0.8rem;
-			color: var(--ft2);
-		}
+	.title {
+		font-size: 2rem;
+		color: var(--ft1);
+		line-height: 120%;
+		font-weight: 600;
 	}
 </style>

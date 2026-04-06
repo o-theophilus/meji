@@ -115,7 +115,7 @@ def default_admin():
             email,
             generate_password_hash(
                 os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [f"{x}:{y[0]}" for x in access_pass for y in access_pass[x]]
+            [f"{x}.{y[0]}" for x in access_pass for y in access_pass[x]]
         ))
         user = cur.fetchone()
 

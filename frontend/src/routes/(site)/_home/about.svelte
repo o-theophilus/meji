@@ -2,114 +2,127 @@
 	import { Icon } from '$lib/macro';
 </script>
 
-<section id="about">
-	<div class="row_1">
-		<div class="title">Why buy from Meji</div>
-		<div class="text">
-			Meji is your No. 1 trusted online shopping destination in Nigeria. At Meji, we provide you
-			with a seamless shopping experience, offering a wide range of products right at your
-			fingertips. Whether you're looking for fashion items for men, women, or children, or searching
-			for other essentials, we've got you covered.
-		</div>
+<section class="margin center">
+	<div class="title">Why buy from Meji</div>
+	<br />
+	<div class="text">
+		Meji is your No. 1 trusted online shopping destination in Nigeria. At Meji, we provide you with
+		a seamless shopping experience, offering a wide range of products right at your fingertips.
+		Whether you're looking for fashion items for men, women, or children, or searching for other
+		essentials, we've got you covered.
 	</div>
 
-	<div class="row_2">
+	<div class="card_area">
 		<div class="card">
-			<Icon icon="change" size="56" />
-			<div class="title">Convenience Delivered</div>
-			<div class="text">
-				We understand the value of time and convenience. That's why Meji offers you the ease of
-				shopping from anywhere, at any time. Our user-friendly platform allows you to browse and
-				purchase your desired items with just a few clicks. Plus, we ensure swift and reliable
-				delivery directly to your doorstep.
+			<div class="icon">
+				<Icon icon="sparkles" size="24" />
 			</div>
+			<div class="bold">Curated Selection</div>
+			Only products that meet our standard make it here
 		</div>
 
 		<div class="card">
-			<Icon icon="offer" size="56" />
-			<div class="title">Secure Payment Solutions</div>
-			<div class="text">
-				At Meji, your security is our top priority. With our trusted online shopping payment
-				methods, you can enjoy stress-free transactions. We prioritize the safety of your personal
-				and financial information, allowing you to shop with peace of mind.
+			<div class="icon">
+				<Icon icon="shield-check" size="24" />
 			</div>
+			<div class="bold">Reliable Quality</div>
+			Consistency you can depend on, every time
 		</div>
 
 		<div class="card">
-			<Icon icon="time" size="56" />
-			<div class="title">24/7 Services</div>
-			<div class="text">
-				We're dedicated to serving you around the clock. Shop online anytime, any day, and
-				experience our exceptional customer service. Our team is here to assist you with any
-				inquiries or support you may need throughout your shopping journey.
+			<div class="icon">
+				<Icon icon="zap" size="24" />
 			</div>
+			<div class="bold">Effortless Shopping</div>
+			A clean, fast experience from start to finish
+		</div>
+
+		<div class="card">
+			<div class="icon">
+				<Icon icon="lock" size="24" />
+			</div>
+			<div class="bold">Secure Payments</div>
+			Safe, trusted transactions with every purchase
+		</div>
+
+		<div class="card">
+			<div class="icon">
+				<Icon icon="truck" size="24" />
+			</div>
+			<div class="bold">Fast, Reliable Delivery</div>
+			Your order, delivered smoothly and on time
+		</div>
+
+		<div class="card">
+			<div class="icon">
+				<Icon icon="clock" size="24" />
+			</div>
+			<div class="bold">Always Available</div>
+			Shop anytime, with support when you need it
 		</div>
 	</div>
 </section>
 
 <style>
-	section {
-		text-align: center;
-		margin-top: 120px;
+	.margin {
+		margin: 160px 0;
 	}
 
-	.row_1,
-	.row_2 {
-		display: flex;
-		justify-content: center;
-		flex-direction: column;
-		gap: 16px;
-	}
-
-	.row_1 {
-		padding: 0 16px;
+	.title {
+		font-size: 2rem;
 		color: var(--ft1);
-		align-items: center;
-
-		& .title {
-			font-weight: 800;
-			font-size: 2rem;
-		}
-
-		& .text {
-			font-size: 1.2rem;
-			max-width: 740px;
-		}
+		line-height: 120%;
+		font-weight: 600;
 	}
-	.row_2 {
-		margin-top: 32px;
-		flex-direction: column;
 
-		@media screen and (min-width: 800px) {
-			& {
-				flex-direction: row;
+	.text {
+		max-width: 600px;
+		margin: auto;
+	}
+
+	.bold {
+		font-weight: 600;
+		font-size: 1.2rem;
+		color: var(--ft1);
+	}
+
+	.center {
+		text-align: center;
+	}
+
+	.card_area {
+		margin-top: 40px;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+
+		@media screen and (min-width: 580px) {
+			&:not(.two) {
+				grid-template-columns: repeat(3, 1fr);
 			}
 		}
 
-		& .card {
+		.card {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			gap: 16px;
 
 			background-color: var(--bg3);
+			padding: 24px 16px;
 			border-radius: 8px;
-			padding: 32px;
-			/* width: 100%; */
-			/* height: 100%; */
-			fill: var(--cl1);
-			outline: 1px solid var(--ol);
-			outline-offset: -1px;
-		}
 
-		& .title {
-			font-weight: 800;
-			font-size: 1.4rem;
-			color: var(--ft1);
-			margin: 16px 0;
-		}
+			.icon {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				color: var(--ft2);
 
-		& .text {
-			max-width: 450px;
+				width: 48px;
+				aspect-ratio: 1;
+				border-radius: 40%;
+				background-color: var(--bg1);
+			}
 		}
 	}
 </style>

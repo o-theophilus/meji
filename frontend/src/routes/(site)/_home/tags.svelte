@@ -1,11 +1,11 @@
 <script>
 	import { page_state } from '$lib/store.svelte.js';
-	let tags = ['male', 'palm', 'female'];
+	let tags = ['Furniture', 'Cloth', 'Shoe'];
 </script>
 
 {#if tags.length > 0}
 	<section>
-		<div class="page_title">Shop devices, accessories and more from the Meji</div>
+		<div class="title">Shop for furnitures, clothings and more from Meji</div>
 
 		<div class="block">
 			{#each tags as tag, i}
@@ -23,9 +23,8 @@
 
 <style>
 	section {
-		max-width: 720px;
-		margin: auto;
-		margin-top: 16px;
+		max-width: 800px;
+		margin: 160px auto;
 		text-align: center;
 	}
 	.block {
@@ -40,6 +39,11 @@
 		}
 	}
 
+	.title{
+		font-size: 2rem;
+		font-weight: 600;
+		color: var(--ft1);
+	}
 	button {
 		all: unset;
 		cursor: pointer;

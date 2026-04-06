@@ -8,7 +8,7 @@
 	import { Log, Meta, ToTop } from '$lib/macro';
 	import { module, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
-	import { About, Advert, FAQ, Hero, ItemGroup, ItemGroup2, Shop, Tags } from './_home';
+	import { About, Advert, CTA, FAQ, Hero, ItemGroup, ItemGroup2, Tags } from './_home';
 
 	let { data } = $props();
 	let new_arrivals = $derived(data.new_arrivals);
@@ -51,10 +51,10 @@
 <Content>
 	<PageTitle>
 		{#snippet title()}
-			Shopping made easy
+			Shopping, refined.
 		{/snippet}
 		{#snippet copy()}
-			Whoever said money can't buy happiness basically didn't know where to go shopping.
+			Discover products selected for their quality, design, and everyday usefulness.
 
 			<br />
 			<br />
@@ -63,7 +63,7 @@
 				--button-background-color="var(--cl1)"
 				--button-color="white"
 				--button-outline-color="transparent"
-				href="/contact"
+				href="/shop"
 				icon2="arrow-right"
 			>
 				Shop Now
@@ -72,9 +72,7 @@
 	</PageTitle>
 
 	<Hero />
-
 	<Advert space="home_1" --advert-margin-bottom="80px" />
-
 	<Tags />
 
 	<ItemGroup id="new_arrivals" items={new_arrivals}>
@@ -99,6 +97,6 @@
 
 	<About></About>
 	<FAQ></FAQ>
-	<Shop></Shop>
+	<CTA></CTA>
 	<ToTop />
 </Content>

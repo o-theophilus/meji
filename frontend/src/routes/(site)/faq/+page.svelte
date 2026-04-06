@@ -27,7 +27,7 @@
 			{x.category}
 		</div>
 
-		<Group {ops} category={x}></Group>
+		<Group bind:ops category={x}></Group>
 	{/each}
 	<Contact></Contact>
 </Content>
