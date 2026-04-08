@@ -1,3 +1,5 @@
+import { error } from '@sveltejs/kit';
+
 export async function handle({ event, resolve }) {
     let resp = await fetch(`${import.meta.env.VITE_BACKEND}/init`, {
         method: 'post',
@@ -13,6 +15,5 @@ export async function handle({ event, resolve }) {
         return await resolve(event);
     }
 
-    throw new Error(404, `Error status: ${resp.status}`)
-
+    throw error(404, `Error status: ${resp.status}`)
 }
