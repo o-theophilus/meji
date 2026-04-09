@@ -63,7 +63,7 @@ def add_file(key):
 
     file_names = []
     for x in files:
-        filename = storage.save(x, "blog")
+        filename = storage.save(x, blog["title"], "blog")
         file_names.append(filename)
 
     cur.execute("""

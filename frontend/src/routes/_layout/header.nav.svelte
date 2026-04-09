@@ -1,11 +1,11 @@
 <script>
 	import { page } from '$app/state';
 	import { Icon } from '$lib/macro';
+	import { app } from '$lib/store.svelte.js';
 </script>
 
 <div class="nav">
 	<div class="group">
-		<!-- <a class:active={page.url.pathname == '/'} href="/">Home</a> -->
 		<a class:active={page.url.pathname == '/about'} href="/about">About</a>
 		<a class:active={page.url.pathname == '/partner'} href="/partner">Partner</a>
 		<a class:active={page.url.pathname == '/blog'} href="/blog">Blog</a>
@@ -20,10 +20,26 @@
 		<a class:active={page.url.pathname == '/save'} href="/save">
 			<Icon icon="bookmark{page.url.pathname == '/save' ? '_active' : ''}"></Icon>
 			Save
+
+			{#if app.likes.length > 0}
+				{#key app.likes.length}
+					<div class="count" in:scale={{ easing: quadIn }}>
+						{app.likes.length}
+					</div>
+				{/key}
+			{/if}
 		</a>
 		<a class:active={page.url.pathname == '/cart'} href="/cart">
 			<Icon icon="cart{page.url.pathname == '/cart' ? '_active' : ''}"></Icon>
 			Cart
+
+			{#if app.cart_items.length > 0}
+				{#key app.cart_items.length}
+					<div class="count" in:scale={{ easing: quadIn }}>
+						{app.cart_items.length}
+					</div>
+				{/key}
+			{/if}
 		</a>
 	</div>
 </div>
@@ -78,6 +94,8 @@
 	}
 
 	a {
+		position: relative;
+
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -105,5 +123,23 @@
 			fill: var(--ft1);
 			background-color: var(--bg1);
 		}
+	}
+
+	.count {
+		position: absolute;
+		top: 15px;
+		left: 27px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+
+		font-size: 0.6rem;
+		background-color: var(--cl1);
+		color: white;
 	}
 </style>

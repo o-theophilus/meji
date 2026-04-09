@@ -21,6 +21,8 @@
 			}
 		});
 		resp = await resp.json();
+		console.log(resp);
+		
 		loading.close();
 
 		if (resp.status == 200) {
@@ -173,6 +175,10 @@
 
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
+
+		@media screen and (min-width: 800px) {
+			bottom: 0;
+		}
 	}
 
 	.floater_block {

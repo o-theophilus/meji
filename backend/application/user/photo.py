@@ -38,7 +38,7 @@ def add_photo():
         old_photo = user["photo"]
         storage.delete(user["photo"], "user")
 
-    file_name = storage.save(file, "user")
+    file_name = storage.save(file, user["username"], "user")
 
     cur.execute("""
         UPDATE "user"

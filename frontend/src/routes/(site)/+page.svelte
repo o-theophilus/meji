@@ -96,7 +96,7 @@
 	</ItemGroup2>
 
 	<About></About>
-	<!-- <Testimonial></Testimonial> -->
+	<Testimonial></Testimonial>
 	<FAQ></FAQ>
 	<CTA></CTA>
 	<ToTop />

@@ -1,5 +1,9 @@
 <script>
+	import { RoundButton } from '$lib/button';
 	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
+	import Rating from '../[slug]/review/rating.svelte';
 
 	let testimonials = [
 		{
@@ -64,38 +68,47 @@
 		}
 	];
 
-	let current_index = $state(0);
-
-	let prev_index = $derived((current_index - 1 + testimonials.length) % testimonials.length);
-	let next_index = $derived((current_index + 1) % testimonials.length);
-
-	function next() {
-		current_index = (current_index + 1) % testimonials.length;
-	}
-
-	function prev() {
-		current_index = (current_index - 1 + testimonials.length) % testimonials.length;
-	}
+	let index = $state(0);
+	let prev_index = $derived((index - 1 + testimonials.length) % testimonials.length);
+	let next_index = $derived((index + 1) % testimonials.length);
+	const next = () => (index = (index + 1) % testimonials.length);
+	const prev = () => (index = (index - 1 + testimonials.length) % testimonials.length);
 </script>
 
 <div class="margin">
-	<div class="title">Testimonials</div>
+	<div class="title">Trusted by customers who value simplicity</div>
+	<br />
 	<br />
 
 	<div class="carousel">
-		<button class="nav-btn" onclick={prev}>&lt;</button>
+		<RoundButton icon="chevron-left" onclick={prev}></RoundButton>
 		<div class="cards">
-			{#each [prev_index, current_index, next_index] as idx, pos}
-				<div class="card" class:active={pos === 1} transition:flip={{ duration: 300 }}>
+			{#each [prev_index, index, next_index] as idx, pos (idx)}
+				<div
+					class="card"
+					class:active={pos === 1}
+					animate:flip={{ delay: 0, duration: 500, easing: cubicInOut }}
+					transition:slide
+				>
 					<div class="bold">{testimonials[idx].name}</div>
-					{#if pos === 1}
+					<div class="details">
+						<Rating value={testimonials[idx].rating}></Rating>
 						<div>{testimonials[idx].comment}</div>
-						<div>Rating: {testimonials[idx].rating} / 5</div>
-					{/if}
+					</div>
 				</div>
 			{/each}
 		</div>
-		<button class="nav-btn" onclick={next}>&gt;</button>
+
+		<div class="card_one">
+			<div class="card">
+				<div class="bold">{testimonials[index].name}</div>
+				<div class="details">
+					<Rating value={testimonials[index].rating}></Rating>
+					<div>{testimonials[index].comment}</div>
+				</div>
+			</div>
+		</div>
+		<RoundButton icon="chevron-right" onclick={next}></RoundButton>
 	</div>
 </div>
 
@@ -120,36 +133,56 @@
 	.carousel {
 		display: flex;
 		align-items: center;
-		gap: 20px;
 		justify-content: center;
-	}
-
-	.nav-btn {
-		background: none;
-		border: none;
-		font-size: 2rem;
-		cursor: pointer;
-		color: var(--ft1);
-		padding: 10px;
+		gap: 20px;
 	}
 
 	.cards {
 		display: flex;
-		gap: 20px;
 		align-items: center;
+		gap: 20px;
+
+		&:not(.active) {
+			display: none;
+			@media screen and (min-width: 720px) {
+				display: flex;
+			}
+		}
+	}
+
+	.card_one {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+
+		&:not(.active) {
+			display: block;
+			@media screen and (min-width: 720px) {
+				display: none;
+			}
+		}
 	}
 
 	.card {
 		background-color: var(--bg3);
 		padding: 24px 16px;
 		border-radius: 8px;
-		min-width: 200px;
 		text-align: center;
-		transition: transform 0.3s ease;
-	}
+		width: 100%;
 
-	.card.active {
-		transform: scale(1.1);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		.details {
+			display: grid;
+			grid-template-rows: 0fr;
+
+			div {
+				overflow: hidden;
+			}
+
+			margin-top: 12px;
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+			gap: 4px;
+		}
 	}
 </style>

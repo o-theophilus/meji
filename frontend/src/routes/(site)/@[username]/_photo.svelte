@@ -9,6 +9,7 @@
 	let error = $state({});
 	let input;
 	let dragover = $state(false);
+	let src = $derived(item.photo || '/select_photo.png');
 
 	const validate = () => {
 		error = {};
@@ -78,11 +79,11 @@
 
 <Form title="{item.type} Photo" error={error.error}>
 	<img
-		src={item.photo}
+		{src}
 		alt={item.name}
 		class:dragover
 		class:no_photo={!has_photo}
-		onerror={(e) => (e.target.src = '/no_photo.png')}
+		onerror={(e) => (src = '/no_photo.png')}
 		onclick={() => {
 			if (!has_photo) {
 				input.click();

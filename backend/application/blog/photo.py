@@ -48,7 +48,7 @@ def add_photo(key):
         old_photo = blog["photo"]
         storage.delete(blog["photo"], "blog")
 
-    file_name = storage.save(file, "blog")
+    file_name = storage.save(file, blog["title"], "blog")
 
     cur.execute("""
         UPDATE blog

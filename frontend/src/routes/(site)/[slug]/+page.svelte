@@ -233,6 +233,10 @@
 
 			align-self: flex-start;
 		}
+
+		.floater {
+			bottom: 0;
+		}
 	}
 
 	.line.status {

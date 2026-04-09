@@ -29,7 +29,8 @@ def add_photo(key):
         })
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
-    if not cur.fetchone() or 'files' not in request.files:
+    item = cur.fetchone()
+    if not item or 'files' not in request.files:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -89,7 +90,7 @@ def add_photo(key):
     for x in files:
         dim = Image.open(x).size
         dim = f"{dim[0]}x{dim[1]}"
-        filename = storage.save(x, "item_advert")
+        filename = storage.save(x, item["name"], "item_advert")
         advert["photo"][dim] = filename
 
     cur.execute("""

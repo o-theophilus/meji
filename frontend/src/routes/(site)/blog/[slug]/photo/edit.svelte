@@ -84,7 +84,7 @@
 		alt={blog.name}
 		class:dragover
 		class:no_photo={!has_photo}
-		onerror={() => (src = '/file_error.png')}
+		onerror={() => (src = '/no_photo.png')}
 		onclick={() => {
 			if (!has_photo) {
 				input.click();
