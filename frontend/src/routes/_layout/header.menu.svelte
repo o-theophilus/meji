@@ -1,5 +1,5 @@
 <script>
-	import { Login, Logout } from '$lib/auth';
+	import { Login } from '$lib/auth';
 	import { Button, Hamburger } from '$lib/button';
 	import { Avatar } from '$lib/macro';
 	import { app, module } from '$lib/store.svelte.js';
@@ -132,8 +132,10 @@
 						onclick={() => {
 							open = false;
 							can_close = false;
-						}}>Logs</a
+						}}
 					>
+						Logs
+					</a>
 				{/if}
 			{/if}
 			<div class="menu_item theme">
@@ -142,7 +144,34 @@
 			</div>
 			<div class="menu_item logout">
 				{#if app.login}
-					<Logout />
+					<Button
+						icon="log-out"
+						--button-height="40px"
+						--button-font-size="0.8rem"
+						--button-background-color-hover="red"
+						onclick={async () => {
+							open = false;
+							can_close = false;
+
+							let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
+								method: 'delete',
+								headers: {
+									'Content-Type': 'application/json',
+									Authorization: app.token
+								}
+							});
+
+							resp = await resp.json();
+
+							if (resp.status == 200) {
+								app.token = resp.token;
+								app.login = false;
+								document.location = '/';
+							}
+						}}
+					>
+						Logout
+					</Button>
 				{:else}
 					<Button
 						icon="log-in"

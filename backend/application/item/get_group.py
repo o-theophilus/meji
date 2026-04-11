@@ -33,8 +33,6 @@ def customer_view(cur, user_key, item_key):
     cur.execute("""
         WITH ordered_views AS (
             SELECT
-                log.user_key,
-                log.entity_key AS current_item,
                 LEAD(log.entity_key) OVER (
                     PARTITION BY log.user_key
                     ORDER BY log.date_created
@@ -43,7 +41,8 @@ def customer_view(cur, user_key, item_key):
             WHERE
                 log.entity_type = 'item'
                 AND log.action = 'viewed'
-                AND log.user_key != %s
+                and log.user_key != %s
+                AND log.entity_key != %s
         )
         SELECT
             item.*,
@@ -51,8 +50,7 @@ def customer_view(cur, user_key, item_key):
         FROM ordered_views ov
         JOIN item ON item.key::TEXT = ov.next_item
         WHERE
-            ov.current_item = %s
-            AND ov.next_item IS NOT NULL
+            ov.next_item IS NOT NULL
             AND item.status = 'active'
         GROUP BY item.key
         ORDER BY view_count DESC

@@ -44,11 +44,17 @@ def create_session(cur, user_key, login=False, remember=False):
 def copy_like_n_cart(cur, user_key, anon_key):
     cur.execute("""
         INSERT INTO "like" (user_key, item_key)
-        SELECT %s, item_key
-        FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL
-        ON CONFLICT DO NOTHING;
-    """, (user_key, anon_key))
+        SELECT %s, l.item_key
+        FROM "like" l
+        WHERE l.user_key = %s
+        AND l.item_key IS NOT NULL
+        AND NOT EXISTS (
+            SELECT 1
+            FROM "like" existing
+            WHERE existing.user_key = %s
+                AND existing.item_key = l.item_key
+        );
+    """, (user_key, anon_key, user_key))
     cur.execute("""
         DELETE FROM "like"
         WHERE user_key = %s;
