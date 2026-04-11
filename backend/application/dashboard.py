@@ -2,11 +2,9 @@ from flask import Blueprint, jsonify, request
 
 from .postgres import db_close, db_open
 from .tools import get_session
+from .order.get import order_status
 
 bp = Blueprint("dashboard", __name__)
-
-
-order_status = ['created', 'processing', 'enroute', 'delivered', 'canceled']
 
 
 def new_users(cur, interval):
@@ -168,7 +166,7 @@ def order_revenue(cur, interval):
                     END
                 ) AS prev_value
             FROM "order" o
-            WHERE o.status NOT IN ('cart', 'canceled', 'returned')
+            WHERE o.status NOT IN ('cart', 'canceled', 'returning', 'returned')
         )
 
         SELECT

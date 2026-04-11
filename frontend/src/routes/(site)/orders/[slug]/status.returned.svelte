@@ -32,7 +32,7 @@
 
 		loading.open('Loading . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/order/${module.value.order.key}/status/returned`,
+			`${import.meta.env.VITE_BACKEND}/orders/${module.value.order.key}/status/returned`,
 			{
 				method: 'put',
 				headers: {
@@ -50,7 +50,7 @@
 			module.open(Dialogue, {
 				status: 200,
 				title: 'Order Returned',
-				message: 'The returned order has been received by you', 
+				message: 'The returned order has been received by you',
 				buttons: [
 					{
 						name: 'Ok',
@@ -81,13 +81,7 @@
 
 	<div class="line">
 		<Button icon="x" onclick={() => module.close()}>Close</Button>
-		<Button
-			icon="trash-2"
-			onclick={validate}
-			--button-background-color="darkred"
-			--button-background-color-hover="red"
-			--button-color-hover="white">Received Order</Button
-		>
+		<Button onclick={validate}>Received Order</Button>
 	</div>
 </Form>
 

@@ -480,8 +480,7 @@ def processing(key):
 
     if (
         not order 
-        or order["status"] != "created"
-        or order["status"] != "enroute"
+        or order["status"] not in ("created", "enroute")
     ):
         db_close(con, cur)
         return jsonify({
@@ -516,7 +515,8 @@ def processing(key):
         }
     )
 
-    del order["timeline"]["enroute"]
+    if "enroute" in order["timeline"]:
+        del order["timeline"]["enroute"]
     order["timeline"]["processing"] = f"{datetime.now(timezone.utc)}"
 
 
@@ -874,7 +874,7 @@ def returning_(key):
     if (
         datetime.now(timezone.utc) - datetime.fromisoformat(
             order["timeline"]["delivered"].replace("Z", "+00:00")
-        ) < timedelta(days=7)
+        ) > timedelta(days=7)
     ):
         db_close(con, cur)
         return jsonify({

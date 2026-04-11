@@ -8,13 +8,18 @@
 	import ReturnedForm from './status.returned.svelte';
 	import ReturningForm from './status.returning.svelte';
 
-	let { order,items, update } = $props();
+	let { order, items, update } = $props();
 	let return_time_left = $derived.by(() => {
-		const delivered = new Date(order.timeline.delivered);
+		let delivered = new Date(order.timeline.delivered);
 		if (isNaN(delivered)) return 0;
-		delivered.setHours(0, 0, 0, 0);
 
-		return Math.max(0, 7 * 24 * 60 * 60 * 1000 - (Date.now() - delivered.getTime()));
+		delivered = Date.UTC(
+			delivered.getUTCFullYear(),
+			delivered.getUTCMonth(),
+			delivered.getUTCDate()
+		);
+
+		return Math.max(0, 7 * 24 * 60 * 60 * 1000 - (Date.now() - delivered));
 	});
 </script>
 
@@ -44,20 +49,20 @@
 		</Button>
 	{:else if order.status == 'delivered' && app.user.key == order.user_key && return_time_left > 0}
 		<Button
-			icon="trash-2"
+			icon="undo-2"
 			--button-background-color="darkred"
 			--button-background-color-hover="red"
 			--button-color-hover="white"
 			onclick={() => module.open(ReturningForm, { order, items, update })}
 		>
-			Return Order
+			Return Order ({Math.ceil(return_time_left / (24 * 60 * 60 * 1000))} day{Math.ceil(
+				return_time_left / (24 * 60 * 60 * 1000)
+			) > 1
+				? 's'
+				: ''} left)
 		</Button>
 	{:else if order.status == 'returning' && app.user.access.includes('order.status.returned')}
 		<Button
-			icon="trash-2"
-			--button-background-color="darkred"
-			--button-background-color-hover="red"
-			--button-color-hover="white"
 			onclick={() => module.open(ReturnedForm, { order, items, update })}
 		>
 			Receive Returned Order

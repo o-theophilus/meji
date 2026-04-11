@@ -32,7 +32,7 @@
 
 		loading.open('Loading . . .');
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/order/${module.value.order.key}/status/returning`,
+			`${import.meta.env.VITE_BACKEND}/orders/${module.value.order.key}/status/returning`,
 			{
 				method: 'put',
 				headers: {
@@ -50,7 +50,7 @@
 			module.open(Dialogue, {
 				status: 200,
 				title: 'Return Order',
-				message: `Kindly return the ordered item${module.value.items.length > 1 ? 's' : ''} within 3 days of requesting this return.`,
+				message: `Kindly return the ordered item${module.value.items.length > 1 ? 's' : ''} within the next 3 days of requesting this return.`,
 				buttons: [
 					{
 						name: 'Ok',
@@ -82,7 +82,7 @@
 	<div class="line">
 		<Button icon="x" onclick={() => module.close()}>Close</Button>
 		<Button
-			icon="trash-2"
+			icon="undo-2"
 			onclick={validate}
 			--button-background-color="darkred"
 			--button-background-color-hover="red"

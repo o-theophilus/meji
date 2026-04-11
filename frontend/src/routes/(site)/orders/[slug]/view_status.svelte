@@ -8,8 +8,8 @@
 <div class="status_block">
 	{#if order.status == 'canceled'}
 		<div class="status canceled">canceled</div>
-	{:else if order.status == 'delivered'}
-		<div class="status active">delivered</div>
+	<!-- {:else if order.status == 'delivered'}
+		<div class="status active">delivered</div> -->
 	{:else if order.status == 'returned'}
 		<div class="status canceled">returned</div>
 	{:else}
@@ -18,10 +18,12 @@
 				<div class="name">
 					{x}
 				</div>
-				<div class="date">
-					<Datetime datetime={order.timeline[x]} type="date_numeric" />
-					<Datetime datetime={order.timeline[x]} type="time_12h" />
-				</div>
+				{#key order.status}
+					<div class="date">
+						<Datetime datetime={order.timeline[x]} type="date_numeric" />
+						<Datetime datetime={order.timeline[x]} type="time_12h" />
+					</div>
+				{/key}
 			</div>
 		{/each}
 		{#if order.status == 'returning'}
