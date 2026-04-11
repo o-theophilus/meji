@@ -66,11 +66,18 @@ access_pass = {
     "order": [
         ['view', 1],
         ['edit_delivery_date', 2],
-        ['edit_status', 2],
-        ['cancel', 2],
-        ['email_order_created', 3],
-        ['email_order_canceled', 3],
-        ['email_order_delivered', 3]
+
+        ['status.processing', 2],
+        ['status.enroute', 2],
+        ['status.delivered', 2],
+        ['status.canceled', 2],
+        ['status.returned', 2],
+
+        ['email.created', 3],
+        ['email.delivered', 3],
+        ['email.canceled', 3],
+        ['email.returning', 3],
+        ['email.returned', 3],
     ],
     "report": [
         ['view', 1],

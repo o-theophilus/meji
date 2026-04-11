@@ -8,7 +8,6 @@ from psycopg2.extras import Json
 from ..cart.get import get_cart_items
 from ..log import log
 from ..postgres import db_close, db_open
-# from ..storage import storage
 from ..tools import get_session, send_mail
 from .get import order_status
 
@@ -122,7 +121,12 @@ def order_check():
             discount = min(discount, applies_to)
 
     pay = total_order + order["delivery_cost"] - discount
-    pay = max(pay, 0)
+    if pay <= 0:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
     db_close(con, cur)
     return jsonify({
@@ -150,7 +154,7 @@ def cart_to_order():
 
     cur.execute("""
         SELECT email FROM "user"
-        WHERE 'order.email_order_created' = ANY(access);
+        WHERE 'order.email.created' = ANY(access);
     """)
     admins_to_notify = cur.fetchall()
 
@@ -454,8 +458,8 @@ def delivery_date(key):
     })
 
 
-@bp.put("/orders/<key>/status")
-def status(key):
+@bp.put("/orders/<key>/status/processing")
+def processing(key):
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -464,7 +468,7 @@ def status(key):
         return jsonify(session)
     user = session["user"]
 
-    if "order.edit_status" not in user["access"]:
+    if "order.status.processing" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
@@ -473,36 +477,171 @@ def status(key):
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-    if not order:
+
+    if (
+        not order 
+        or order["status"] != "created"
+        or order["status"] != "enroute"
+    ):
         db_close(con, cur)
         return jsonify({
             "status": 400,
             "error": "invalid request"
         })
 
-    cur.execute(
-        """SELECT * FROM "user" WHERE key = %s;""",
-        (order["user_key"],))
-    order_user = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email_order_delivered' = ANY(access);
-    """)
-    admins = cur.fetchall()
+    comment = request.json.get("comment", "").strip()
+   
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
 
-    status = request.json.get("status")
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed order status",
+        entity_type="order",
+        entity_key=order["key"],
+        misc={
+            "from": order['status'],
+            "to": "processing",
+            "comment": comment
+        }
+    )
+
+    del order["timeline"]["enroute"]
+    order["timeline"]["processing"] = f"{datetime.now(timezone.utc)}"
+
+
+    cur.execute("""
+        UPDATE "order"
+            SET status = 'processing', timeline = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(order["timeline"]), order["key"]))
+    order = cur.fetchone()
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "order": order
+    })
+
+
+@bp.put("/orders/<key>/status/enroute")
+def enroute(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "order.status.enroute" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 403,
+            "error": "unauthorized access"
+        })
+
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+
+    if (
+        not order 
+        or order["status"] != "processing"
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    comment = request.json.get("comment", "").strip()
+   
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed order status",
+        entity_type="order",
+        entity_key=order["key"],
+        misc={
+            "from": order['status'],
+            "to": "enroute",
+            "comment": comment
+        }
+    )
+
+    order["timeline"]["enroute"] = f"{datetime.now(timezone.utc)}"
+
+    cur.execute("""
+        UPDATE "order"
+            SET status = 'enroute', timeline = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(order["timeline"]), order["key"]))
+    order = cur.fetchone()
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "order": order
+    })
+
+
+@bp.put("/orders/<key>/status/delivered")
+def delivered(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "order.status.delivered" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 403,
+            "error": "unauthorized access"
+        })
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.delivered' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
     if (
-        not order_user
-        or admins == []
-        or not status
-        or status not in order_status[:-1]
+        not order 
+        or order["status"] != "enroute"
+        or not admins
         or not email_template_user
         or not email_template_admin
-        or order["status"] in ["delivered", "canceled"]
     ):
         db_close(con, cur)
         return jsonify({
@@ -521,10 +660,12 @@ def status(key):
             "status": 400,
             **error
         })
-
-    i = order_status.index(order["status"])
-    j = order_status.index(status)
-    if i + 1 != j and i - 1 != j:
+    
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
+    if not order_user:
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -539,40 +680,33 @@ def status(key):
         entity_key=order["key"],
         misc={
             "from": order['status'],
-            "to": status,
+            "to": "delivered",
             "comment": comment
         }
     )
 
-    i = order_status.index(status)
-    for x in order_status[i+1:]:
-        if x in order["timeline"]:
-            del order["timeline"][x]
-
-    if status != "created":
-        order["timeline"][status] = f"{datetime.now(timezone.utc)}"
+    order["timeline"]["delivered"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
         UPDATE "order"
-            SET status = %s, timeline = %s
+            SET status = 'delivered', timeline = %s
         WHERE key = %s RETURNING *;
-    """, (status, Json(order["timeline"]), order["key"]))
+    """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
-    if status == "delivered":
-        send_mail(
-            order_user["email"],
-            "Order Delivered - Thank you",
-            email_template_user.format(name=order_user["name"])
+    send_mail(
+        order_user["email"],
+        "Order Delivered - Thank you",
+        email_template_user.format(name=order_user["name"])
+    )
+    send_mail(
+        [x["email"] for x in admins],
+        "Order Delivered",
+        email_template_admin.format(
+            name=order_user["name"],
+            username=order_user["username"]
         )
-        send_mail(
-            [x["email"] for x in admins],
-            "Order Delivered",
-            email_template_admin.format(
-                name=order_user["name"],
-                username=order_user["username"]
-            )
-        )
+    )
 
     db_close(con, cur)
     return jsonify({
@@ -581,8 +715,8 @@ def status(key):
     })
 
 
-@bp.delete("/orders/<key>/status")
-def cancel(key):
+@bp.put("/orders/<key>/status/canceled")
+def canceled(key):
     con, cur = db_open()
 
     session = get_session(cur, True)
@@ -591,42 +725,31 @@ def cancel(key):
         return jsonify(session)
     user = session["user"]
 
-    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
-    order = cur.fetchone()
-    if not order:
-        db_close(con, cur)
-        return jsonify({
-            "status": 400,
-            "error": "invalid request"
-        })
-
-    if "order.cancel" not in user["access"]:
+    if "order.status.canceled" not in user["access"]:
         db_close(con, cur)
         return jsonify({
             "status": 403,
             "error": "unauthorized access"
         })
-
-    cur.execute(
-        """SELECT * FROM "user" WHERE key = %s;""",
-        (order["user_key"],))
-    order_user = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order:email_order_canceled' = ANY(access);
-    """)
-    admins = cur.fetchall()
-
+    
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.canceled' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
     if (
-        not order_user
-        or admins == []
+        not order
+        or order["status"] not in ['created', 'processing', 'enroute']
+        or not admins
         or not email_template_user
         or not email_template_admin
-        or order["status"] in ["delivered", "canceled"]
     ):
         db_close(con, cur)
         return jsonify({
@@ -645,14 +768,29 @@ def cancel(key):
             "status": 400,
             **error
         })
+    
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
+    if not order_user:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
 
     log(
         cur=cur,
         user_key=user["key"],
-        action="canceled order",
+        action="changed order status",
         entity_type="order",
         entity_key=order["key"],
-        misc={"comment": comment}
+        misc={
+            "from": order['status'],
+            "to": "canceled",
+            "comment": comment
+        }
     )
 
     order["timeline"]["canceled"] = f"{datetime.now(timezone.utc)}"
@@ -672,6 +810,212 @@ def cancel(key):
     send_mail(
         [x["email"] for x in admins],
         "Order Canceled",
+        email_template_admin.format(
+            name=order_user["name"],
+            username=order_user["username"]
+        )
+    )
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "order": order
+    })
+
+
+@bp.put("/orders/<key>/status/returning")
+def returning_(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    comment = request.json.get("comment", "").strip()
+    email_template_user = request.json.get("email_template_user")
+    email_template_admin = request.json.get("email_template_admin")
+
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.returning' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
+    if (
+        not order 
+        or user["key"] != order["user_key"]
+        or order["status"] != "delivered" 
+        or not admins
+        or not email_template_user
+        or not email_template_admin
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 403,
+            "error": "invalid request"
+        })
+    
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    if (
+        datetime.now(timezone.utc) - datetime.fromisoformat(
+            order["timeline"]["delivered"].replace("Z", "+00:00")
+        ) < timedelta(days=7)
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 403,
+            "error": """The order is outside the return window. 
+                You can only return the order within 7 days of delivery."""
+        })
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="returning order",
+        entity_type="order",
+        entity_key=order["key"],
+        misc={"comment": comment}
+    )
+
+    order["timeline"]["returning"] = f"{datetime.now(timezone.utc)}"
+
+    cur.execute("""
+        UPDATE "order"
+        SET status = 'returning', timeline = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(order["timeline"]), order["key"]))
+    order = cur.fetchone()
+
+    send_mail(
+        user["email"],
+        "Returning Order",
+        email_template_user.format(name=user["name"])
+    )
+    send_mail(
+        [x["email"] for x in admins],
+        "Returning Order",
+        email_template_admin.format(
+            name=user["name"],
+            username=user["username"]
+        )
+    )
+
+    db_close(con, cur)
+    return jsonify({
+        "status": 200,
+        "order": order
+    })
+
+
+@bp.put("/orders/<key>/status/returned")
+def returned(key):
+    con, cur = db_open()
+
+    session = get_session(cur, True)
+    if session["status"] != 200:
+        db_close(con, cur)
+        return jsonify(session)
+    user = session["user"]
+
+    if "order.status.returned" not in user["access"]:
+        db_close(con, cur)
+        return jsonify({
+            "status": 403,
+            "error": "unauthorized access"
+        })
+    
+    comment = request.json.get("comment", "").strip()
+    email_template_user = request.json.get("email_template_user")
+    email_template_admin = request.json.get("email_template_admin")
+
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.returned' = ANY(access);
+    """)
+    admins = cur.fetchall()
+
+    if (
+        not order 
+        or order["status"] != "returning" 
+        or not admins
+        or not email_template_user
+        or not email_template_admin
+    ):
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            **error
+        })
+
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
+    if not order_user:
+        db_close(con, cur)
+        return jsonify({
+            "status": 400,
+            "error": "invalid request"
+        })
+
+    log(
+        cur=cur,
+        user_key=order_user["key"],
+        action="returned order",
+        entity_type="order",
+        entity_key=order["key"],
+        misc={
+            "admin": user["key"],
+            "comment": comment
+        }
+    )
+
+    order["timeline"]["returned"] = f"{datetime.now(timezone.utc)}"
+
+    cur.execute("""
+        UPDATE "order"
+        SET status = 'returned', timeline = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(order["timeline"]), order["key"]))
+    order = cur.fetchone()
+
+    send_mail(
+        order_user["email"],
+        "Order Returned",
+        email_template_user.format(name=order_user["name"])
+    )
+    send_mail(
+        [x["email"] for x in admins],
+        "Order Returned",
         email_template_admin.format(
             name=order_user["name"],
             username=order_user["username"]

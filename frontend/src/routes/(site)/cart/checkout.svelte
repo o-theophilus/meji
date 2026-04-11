@@ -4,10 +4,18 @@
 	import { Button } from '$lib/button';
 	import { Dialogue, Note } from '$lib/info';
 	import { app, loading, module, scroll } from '$lib/store.svelte.js';
-	import Email_Admin from '../orders/[slug]/email/create_admin.svelte';
-	import Email_User from '../orders/[slug]/email/create_user.svelte';
+	import { onMount } from 'svelte';
+	import Email_Admin from '../orders/[slug]/status.create.email.admin.svelte';
+	import Email_User from '../orders/[slug]/status.create.email.user.svelte';
 	let email_template_admin;
 	let email_template_user;
+
+	let paystack;
+	onMount(async () => {
+		const module = await import('@paystack/inline-js');
+		let Paystack = module.default;
+		paystack = new Paystack();
+	});
 
 	let { ops = $bindable() } = $props();
 
@@ -21,17 +29,16 @@
 			}
 		});
 		resp = await resp.json();
-		console.log(resp);
-		
 		loading.close();
 
 		if (resp.status == 200) {
-			const paystack = PaystackPop.setup({
+			paystack.checkout({
 				key: import.meta.env.VITE_PAYSTACK_KEY,
 				email: app.user.email,
 				amount: resp.pay * 100,
-				callback: (resp2) => {
-					submit(resp2.reference);
+
+				onLoad: (response) => {
+					console.log('onLoad: ', response);
 				},
 				onCancel: () => {
 					module.open(Dialogue, {
@@ -48,9 +55,28 @@
 							}
 						]
 					});
+				},
+				onError: (error) => {
+					module.open(Dialogue, {
+						status: 400,
+						title: 'Payment Error',
+						message: error.message,
+						buttons: [
+							{
+								name: 'Ok',
+								icon: 'ok',
+								fn: () => {
+									module.close();
+								}
+							}
+						]
+					});
+				},
+				onSuccess: (transaction) => {
+					console.log(transaction);
+					submit(transaction.reference);
 				}
 			});
-			paystack.openIframe();
 		} else {
 			ops.error = resp;
 		}
@@ -110,10 +136,6 @@
 		return Math.max(sum, 0);
 	});
 </script>
-
-<svelte:head>
-	<script src="https://js.paystack.co/v2/inline.js"></script>
-</svelte:head>
 
 <div class="floater">
 	<div class="floater_block">

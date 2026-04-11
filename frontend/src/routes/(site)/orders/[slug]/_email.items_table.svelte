@@ -1,5 +1,5 @@
 <script>
-	import Value from '../../../cart/1_cart/variation_value.svelte';
+	import Value from '../../cart/1_cart/variation_value.svelte';
 	let { items = [] } = $props();
 </script>
 

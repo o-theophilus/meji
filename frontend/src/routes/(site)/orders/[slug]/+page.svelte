@@ -3,19 +3,15 @@
 	import { Content } from '$lib/layout';
 	import { Datetime, Log, Meta } from '$lib/macro';
 	import { app, module } from '$lib/store.svelte.js';
-	import Table from './_items_table.svelte';
-	import Receiver from './_receiver.svelte';
-	import CancelForm from './form.cancel.svelte';
+	import Table from './_page.items_table.svelte';
+	import Receiver from './_page.receiver.svelte';
 	import DateForm from './form.date.svelte';
-	import StatusForm from './form.status.svelte';
-	import StatusView from './status_view.svelte';
+	import StatusControl from './status.svelte';
+	import StatusView from './view_status.svelte';
 
 	let { data } = $props();
 	let order = $state(data.order);
-
 	let items = data.items;
-	console.log(items[0]);
-	let status = data._status;
 	let coupon = data.coupon;
 
 	let discount = $derived.by(() => {
@@ -40,13 +36,6 @@
 		return _discount;
 	});
 
-	let move = $derived.by(() => {
-		let i = status.indexOf(order.status);
-		let next = i == status.length - 2 ? null : status[i + 1];
-		let prev = i == 0 ? null : status[i - 1];
-		return { prev, next };
-	});
-
 	const update = (new_order) => {
 		order = new_order;
 	};
@@ -55,7 +44,6 @@
 <Log entity_type={'page'} />
 <Meta title="Order" />
 
-<!-- TODO: implement refund -->
 <Content --content-padding-top="1px">
 	<div class="line">
 		<RoundButton icon="arrow-left" href="/orders"></RoundButton>
@@ -71,7 +59,7 @@
 	</div>
 
 	<div class="label">Status</div>
-	<StatusView {status} {order}></StatusView>
+	<StatusView {order}></StatusView>
 
 	<br />
 	<div class="card">
@@ -134,40 +122,9 @@
 		{/if}
 	</div>
 
-	{#if !['delivered', 'canceled'].includes(order.status)}
-		<br />
-		<div class="line">
-			{#if app.user.access.includes('order.edit_status')}
-				{#if move.prev}
-					<Button
-						icon="arrow-left"
-						onclick={() => module.open(StatusForm, { order, items, update, status: move.prev })}
-					></Button>
-				{/if}
-				{#if move.next}
-					<Button
-						icon2="arrow-right"
-						onclick={() => module.open(StatusForm, { order, items, update, status: move.next })}
-					>
-						<span class="caps">
-							{move.next}
-						</span>
-					</Button>
-				{/if}
-			{/if}
-			{#if app.user.access.includes('order.cancel')}
-				<Button
-					icon="trash-2"
-					--button-background-color="darkred"
-					--button-background-color-hover="red"
-					--button-color-hover="white"
-					onclick={() => module.open(CancelForm, { order, items, update, status: 'canceled' })}
-				>
-					Cancel Order
-				</Button>
-			{/if}
-		</div>
-	{/if}
+	<br />
+
+	<StatusControl {order} {items} {update}></StatusControl>
 </Content>
 
 <style>
@@ -176,10 +133,6 @@
 	}
 	.page_title_block .label {
 		text-transform: uppercase;
-	}
-
-	.caps {
-		text-transform: capitalize;
 	}
 
 	.hr {

@@ -9,9 +9,9 @@ from ..tools import get_session
 bp = Blueprint("order_get", __name__)
 
 
-order_status = ['created', 'processing', 'enroute', 'delivered',
-                'canceled']
-# TODO: returned
+order_status = ['created', 'processing', 'enroute',
+                'delivered',
+                'canceled', 'returning', 'returned']
 
 
 @bp.get("/orders/<key>")
@@ -79,7 +79,6 @@ def get(key):
         "status": 200,
         "order": order,
         "items": items,
-        "_status": order_status,
         "coupon": coupon_schema(coupon) if coupon else None
     })
 

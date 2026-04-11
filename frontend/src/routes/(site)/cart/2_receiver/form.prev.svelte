@@ -2,7 +2,7 @@
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
-	import Receiver from '../../orders/[slug]/_receiver.svelte';
+	import Receiver from '../../orders/[slug]/_page.receiver.svelte';
 
 	let form = $state({
 		name: '',

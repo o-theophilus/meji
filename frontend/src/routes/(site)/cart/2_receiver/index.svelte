@@ -5,7 +5,7 @@
 	import { Datetime, Icon } from '$lib/macro';
 	import { module } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
-	import Receiver from '../../orders/[slug]/_receiver.svelte';
+	import Receiver from '../../orders/[slug]/_page.receiver.svelte';
 	import EditForm from './form.edit.svelte';
 	import PrevForm from './form.prev.svelte';
 

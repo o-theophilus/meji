@@ -1,6 +1,8 @@
 <script>
 	import { Datetime } from '$lib/macro';
-	let { status, order } = $props();
+	let { order } = $props();
+
+	let status = ['created', 'processing', 'enroute', 'delivered'];
 </script>
 
 <div class="status_block">
@@ -8,20 +10,29 @@
 		<div class="status canceled">canceled</div>
 	{:else if order.status == 'delivered'}
 		<div class="status active">delivered</div>
+	{:else if order.status == 'returned'}
+		<div class="status canceled">returned</div>
 	{:else}
 		{#each status as x}
-			{#if x != 'canceled'}
-				<div class="status" class:active={x == order.status}>
-					<div class="name">
-						{x}
-					</div>
-					<div class="date">
-						<Datetime datetime={order.timeline[x]} type="date_numeric" />
-						<Datetime datetime={order.timeline[x]} type="time_12h" />
-					</div>
+			<div class="status" class:active={x == order.status}>
+				<div class="name">
+					{x}
 				</div>
-			{/if}
+				<div class="date">
+					<Datetime datetime={order.timeline[x]} type="date_numeric" />
+					<Datetime datetime={order.timeline[x]} type="time_12h" />
+				</div>
+			</div>
 		{/each}
+		{#if order.status == 'returning'}
+			<div class="status" class:active={'returning' == order.status}>
+				<div class="name">returning</div>
+				<div class="date">
+					<Datetime datetime={order.timeline['returning']} type="date_numeric" />
+					<Datetime datetime={order.timeline['returning']} type="time_12h" />
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 

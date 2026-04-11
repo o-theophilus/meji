@@ -1,7 +1,9 @@
 <script>
 	import { page } from '$app/state';
 	import { EmailTemplate } from '$lib/layout';
-	import Table from './_items_table.svelte';
+	import Date from './_email.date.svelte';
+	import Table from './_email.items_table.svelte';
+	import User from './_email.receiver.svelte';
 
 	let { order, items } = $props();
 </script>
@@ -10,7 +12,7 @@
 	Dear {'{'}name{'}'},
 	<br />
 	<br />
-	Your order:
+	We are currently processing your order:
 	<a
 		style="text-decoration: none; color: #1d9bf0; text-transform: uppercase;"
 		href="{page.url.origin}/orders/{order.key}"
@@ -18,9 +20,10 @@
 	>
 		{order.key.substring(0, 8)}
 	</a>
-	has been canceled.
 
 	<Table {items} />
+	<User label="Receiver" receiver={order.receiver}></User>
+	<Date datetime={order.timeline.delivery_date}></Date>
 
 	<hr style="border-color: gray; margin: 24px 0;" />
 

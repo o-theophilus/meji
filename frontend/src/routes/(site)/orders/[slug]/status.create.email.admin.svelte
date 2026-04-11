@@ -1,18 +1,18 @@
 <script>
 	import { page } from '$app/state';
 	import { EmailTemplate } from '$lib/layout';
-	import Date from './_date.svelte';
-	import Table from './_items_table.svelte';
-	import User from './_user.svelte';
+	import Date from './_email.date.svelte';
+	import Table from './_email.items_table.svelte';
+	import User from './_email.receiver.svelte';
 
-	let { order, datetime, items } = $props();
+	let { order, items } = $props();
 </script>
 
 <EmailTemplate>
-	Dear {'{'}name{'}'},
+	Dear Admin,
 	<br />
 	<br />
-	Your order:
+	Kindly see the order
 	<a
 		style="text-decoration: none; color: #1d9bf0; text-transform: uppercase;"
 		href="{page.url.origin}/orders/{order.key}"
@@ -20,7 +20,16 @@
 	>
 		{order.key.substring(0, 8)}
 	</a>
-	has been delivered.
+	from
+
+	<a
+		style="text-decoration: none; color: #1d9bf0;"
+		href="{page.url.origin}/@{'{'}username{'}'}"
+		target="_blank"
+	>
+		{'{'}name{'}'}
+	</a>
+	below.
 
 	<Table {items} />
 	<User label="Receiver" receiver={order.receiver}></User>
@@ -28,6 +37,9 @@
 
 	<hr style="border-color: gray; margin: 24px 0;" />
 
+	Please check the order details and take necessary actions.
+	<br />
+	<br />
 	Best regards,
 	<br />
 	<br />

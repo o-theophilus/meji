@@ -1,39 +1,26 @@
 <script>
 	import { page } from '$app/state';
 	import { EmailTemplate } from '$lib/layout';
-	import Date from './_date.svelte';
-	import Table from './_items_table.svelte';
-	import User from './_user.svelte';
+	import Table from './_email.items_table.svelte';
 
 	let { order, items } = $props();
 </script>
 
 <EmailTemplate>
-	Dear Admin,
+	Dear {'{'}name{'}'},
 	<br />
 	<br />
-	Kindly see the order
+	You have requested to return your order:
 	<a
 		style="text-decoration: none; color: #1d9bf0; text-transform: uppercase;"
 		href="{page.url.origin}/orders/{order.key}"
 		target="_blank"
 	>
 		{order.key.substring(0, 8)}
-	</a>
-	from
-
-	<a
-		style="text-decoration: none; color: #1d9bf0;"
-		href="{page.url.origin}/@{'{'}username{'}'}"
-		target="_blank"
-	>
-		{'{'}name{'}'}
-	</a>
-	below.
+	</a>. Kindly return the ordered item{items.length > 1 ? 's' : ''} within 3 days of requesting this
+	return.
 
 	<Table {items} />
-	<User label="Receiver" receiver={order.receiver}></User>
-	<Date datetime={order.timeline.delivery_date}></Date>
 
 	<hr style="border-color: gray; margin: 24px 0;" />
 
