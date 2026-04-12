@@ -7,8 +7,8 @@ from ..coupon import coupon_schema
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session
+from .delivery import get_areas
 from .get import get_cart_items
-from .delivery import get_delivery_price, get_areas
 
 bp = Blueprint("cart", __name__)
 
@@ -119,7 +119,8 @@ def add_to_cart():
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "items": items.json["items"]
+        "cart": items.json["cart"],
+        "items": items.json["items"],
     })
 
 
@@ -179,6 +180,7 @@ def remove_from_cart():
     db_close(con, cur)
     return jsonify({
         "status": 200,
+        "cart": items.json["cart"],
         "items": items.json["items"]
     })
 
@@ -260,6 +262,7 @@ def quantity():
     db_close(con, cur)
     return jsonify({
         "status": 200,
+        "cart": items.json["cart"],
         "items": items.json["items"]
     })
 
@@ -333,7 +336,7 @@ def receiver():
             error["country"] = "This field is required"
         elif len(country) > 20:
             error["country"] = "This field cannot exceed 20 characters"
-        
+
         if error:
             db_close(con, cur)
             return jsonify({
@@ -352,46 +355,8 @@ def receiver():
                 "country": country,
             }
         }
-
-        
-        # TODO: this should be recalculated if:
-        #  item is removed from card 
-        #  or item quantity changes
-        cur.execute("""
-            SELECT
-                item.package,
-                item.status,
-                order_item.variation, order_item.quantity,
-                item.quantity AS available_quantity
-            FROM order_item
-            LEFT JOIN "order" ON "order".key = order_item.order_key
-            LEFT JOIN item ON order_item.item_key = item.key
-            WHERE "order".key = %s
-        ;""", (cart["key"],))
-        items = cur.fetchall()
-
-        packages = []
-        pickup_areas = []
-        for x in items:
-            for _ in range(x["quantity"]):
-                packages.append({
-                    "length": x["package"]["length"],
-                    "breadth": x["package"]["breadth"],
-                    "height": x["package"]["height"],
-                    "weight": x["package"]["weight"],
-                })
-                if x["package"]["area"] not in pickup_areas:
-                    pickup_areas.append(x["package"]["area"])
-
-        prices = []
-        for x in pickup_areas:
-            price = get_delivery_price(x, area, packages)
-            prices.append(price)
-
-        delivery_cost = sum(prices) / len(prices) if prices else 0
     else:
         receiver = {}
-        delivery_cost = 0
 
     log(
         cur=cur,
@@ -406,15 +371,16 @@ def receiver():
     )
 
     cur.execute("""
-        UPDATE "order" SET receiver = %s, delivery_cost = %s
-        WHERE key = %s RETURNING *;
-    """, (Json(receiver), delivery_cost, cart["key"]))
-    cart = cur.fetchone()
+        UPDATE "order" SET receiver = %s WHERE key = %s;
+    """, (Json(receiver), cart["key"]))
+
+    items = get_cart_items(cur)
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "cart": cart
+        "cart": items.json["cart"],
+        "items": items.json["items"]
     })
 
 

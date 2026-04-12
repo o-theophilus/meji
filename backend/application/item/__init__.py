@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
 from werkzeug.security import check_password_hash
 
+from ..cart.delivery import get_areas
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, item_schema, reserved_words
@@ -214,10 +215,13 @@ def edit(key):
             error["error"] = "unauthorized access"
         elif type(package) is not dict:
             error["error"] = "Invalid request"
-        # TODO: add more validation for package
-        # if not isinstance(package, (int, float)) or package < 0:
-        #     error["package"] = "Please enter a valid number"
-    
+        elif (
+            "area" in package
+            and package["area"]
+            and package["area"] not in get_areas()
+        ):
+            error["area"] = "Invalid selection"
+
     if error:
         db_close(con, cur)
         return jsonify({

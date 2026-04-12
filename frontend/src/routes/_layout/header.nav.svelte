@@ -2,6 +2,8 @@
 	import { page } from '$app/state';
 	import { Icon } from '$lib/macro';
 	import { app } from '$lib/store.svelte.js';
+	import { quadIn } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 </script>
 
 <div class="nav">
@@ -47,6 +49,7 @@
 <style>
 	.nav {
 		position: relative;
+		z-index: 0;
 
 		display: none;
 		align-items: center;
@@ -71,6 +74,7 @@
 			right: anchor(right);
 			left: anchor(left);
 			height: 4px;
+			z-index: 1;
 
 			background-color: var(--cl1);
 			border-radius: var(--toggle-border-radius, 4px);

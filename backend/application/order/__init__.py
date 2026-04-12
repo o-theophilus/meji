@@ -5,11 +5,10 @@ import requests
 from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
 
-from ..cart.get import get_cart_items
+from ..cart.get import get_cart_items, has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, send_mail
-from .get import order_status
 
 bp = Blueprint("order", __name__)
 
@@ -36,24 +35,7 @@ def order_check():
             "error": "invalid request"
         })
 
-    if (
-        "name" not in order["receiver"]
-        or not order["receiver"]["name"]
-        or "phone" not in order["receiver"]
-        or not order["receiver"]["phone"]
-        or "email" not in order["receiver"]
-        or not order["receiver"]["email"]
-        or "address" not in order["receiver"]
-        or order["receiver"]["address"] == {}
-        or "address" not in order["receiver"]["address"]
-        or not order["receiver"]["address"]["address"]
-        or "state" not in order["receiver"]["address"]
-        or not order["receiver"]["address"]["state"]
-        or "country" not in order["receiver"]["address"]
-        or not order["receiver"]["address"]["country"]
-        or "postal_code" not in order["receiver"]["address"]
-        or not order["receiver"]["address"]["postal_code"]
-    ):
+    if not has_adderss(order["receiver"]):
         db_close(con, cur)
         return jsonify({
             "status": 400,
@@ -479,7 +461,7 @@ def processing(key):
     order = cur.fetchone()
 
     if (
-        not order 
+        not order
         or order["status"] not in ("created", "enroute")
     ):
         db_close(con, cur)
@@ -489,7 +471,7 @@ def processing(key):
         })
 
     comment = request.json.get("comment", "").strip()
-   
+
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -518,7 +500,6 @@ def processing(key):
     if "enroute" in order["timeline"]:
         del order["timeline"]["enroute"]
     order["timeline"]["processing"] = f"{datetime.now(timezone.utc)}"
-
 
     cur.execute("""
         UPDATE "order"
@@ -555,7 +536,7 @@ def enroute(key):
     order = cur.fetchone()
 
     if (
-        not order 
+        not order
         or order["status"] != "processing"
     ):
         db_close(con, cur)
@@ -565,7 +546,7 @@ def enroute(key):
         })
 
     comment = request.json.get("comment", "").strip()
-   
+
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -637,7 +618,7 @@ def delivered(key):
     admins = cur.fetchall()
 
     if (
-        not order 
+        not order
         or order["status"] != "enroute"
         or not admins
         or not email_template_user
@@ -660,7 +641,7 @@ def delivered(key):
             "status": 400,
             **error
         })
-    
+
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
         (order["user_key"],))
@@ -731,7 +712,7 @@ def canceled(key):
             "status": 403,
             "error": "unauthorized access"
         })
-    
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
@@ -768,7 +749,7 @@ def canceled(key):
             "status": 400,
             **error
         })
-    
+
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
         (order["user_key"],))
@@ -846,9 +827,9 @@ def returning_(key):
     admins = cur.fetchall()
 
     if (
-        not order 
+        not order
         or user["key"] != order["user_key"]
-        or order["status"] != "delivered" 
+        or order["status"] != "delivered"
         or not admins
         or not email_template_user
         or not email_template_admin
@@ -858,7 +839,7 @@ def returning_(key):
             "status": 403,
             "error": "invalid request"
         })
-    
+
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -879,7 +860,7 @@ def returning_(key):
         db_close(con, cur)
         return jsonify({
             "status": 403,
-            "error": """The order is outside the return window. 
+            "error": """The order is outside the return window.
                 You can only return the order within 7 days of delivery."""
         })
 
@@ -938,7 +919,7 @@ def returned(key):
             "status": 403,
             "error": "unauthorized access"
         })
-    
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
@@ -952,8 +933,8 @@ def returned(key):
     admins = cur.fetchall()
 
     if (
-        not order 
-        or order["status"] != "returning" 
+        not order
+        or order["status"] != "returning"
         or not admins
         or not email_template_user
         or not email_template_admin

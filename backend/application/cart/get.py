@@ -3,9 +3,32 @@ from flask import Blueprint, jsonify, request
 from ..coupon.get import coupon_schema
 from ..postgres import db_close, db_open
 from ..tools import get_session
-from .delivery import get_areas
+from .delivery import get_areas, get_delivery_price
 
 bp = Blueprint("cart_get_items", __name__)
+
+
+def has_adderss(x):
+    if (
+        "name" not in x
+        or not x["name"]
+        or "phone" not in x
+        or not x["phone"]
+        or "email" not in x
+        or not x["email"]
+        or "address" not in x
+        or x["address"] == {}
+        or "address" not in x["address"]
+        or not x["address"]["address"]
+        or "area" not in x["address"]
+        or x["address"]["area"] not in get_areas()
+        or "state" not in x["address"]
+        or not x["address"]["state"]
+        or "country" not in x["address"]
+        or not x["address"]["country"]
+    ):
+        return False
+    return True
 
 
 @bp.get("/cart")
@@ -37,7 +60,8 @@ def get_cart_items(cur=None):
             item.key, item.slug, item.name, item.price, item.status,
             item.quantity AS available_quantity,
             COALESCE(item.files[1], NULL) as photo,
-            order_item.variation, order_item.quantity
+            order_item.variation, order_item.quantity,
+            item.package
         FROM order_item
         LEFT JOIN "order" ON "order".key = order_item.order_key
         LEFT JOIN item ON order_item.item_key = item.key
@@ -46,7 +70,18 @@ def get_cart_items(cur=None):
     ;""", (cart["key"],))
     items = cur.fetchall()
 
+    delivery_cost = 0
+    if has_adderss(cart["receiver"]) and items:
+        delivery_cost = get_delivery_price(
+            items, cart["receiver"]["address"]["area"])
+    cur.execute("""
+        UPDATE "order" SET delivery_cost = %s
+        WHERE key = %s RETURNING *;
+    """, (delivery_cost, cart["key"]))
+    cart = cur.fetchone()
+
     for x in items:
+        del x["package"]
         x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 

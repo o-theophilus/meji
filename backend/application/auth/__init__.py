@@ -3,10 +3,11 @@ import re
 from uuid import uuid4
 
 from flask import Blueprint, jsonify, request
+from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..blog.get import get_blog_tags
-from ..cart.get import get_cart_items
+from ..cart.get import get_cart_items, has_adderss
 from ..item.get import get_item_tags
 from ..log import log
 from ..postgres import db_close, db_open
@@ -97,10 +98,21 @@ def copy_like_n_cart(cur, user_key, anon_key):
             AND u.variation = a.variation
         )
     """, (in_cart["key"], anon_key, in_cart["key"]))
+
     cur.execute("""
         DELETE FROM "order"
         WHERE user_key = %s AND status = 'cart'
+        RETURNING key, receiver
     """, (anon_key,))
+    out_cart = cur.fetchone()
+    if has_adderss(out_cart["receiver"]):
+        cur.execute("""
+            UPDATE "order" SET receiver = %s WHERE key = %s;
+        """, (Json(out_cart["receiver"]), in_cart["key"]))
+
+    cur.execute("""
+        UPDATE coupon SET order_key = NULL WHERE order_key = %s;
+    """, (out_cart["key"],))
 
 
 @bp.get("/admin/default")

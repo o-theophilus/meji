@@ -40,6 +40,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
+			ops.cart = resp.cart;
 			app.cart_items = resp.items;
 			notify.open('Item removed from cart');
 			page_state.clear('cart');
@@ -80,6 +81,7 @@
 			resp = await resp.json();
 
 			if (resp.status == 200) {
+				ops.cart = resp.cart;
 				app.cart_items = resp.items;
 				page_state.clear('cart');
 			} else {
