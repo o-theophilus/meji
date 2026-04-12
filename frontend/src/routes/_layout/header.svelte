@@ -1,5 +1,8 @@
 <script>
+	import { Login } from '$lib/auth';
+	import { Button } from '$lib/button';
 	import { Icon } from '$lib/macro';
+	import { app, module } from '$lib/store.svelte.js';
 	import Menu from './header.menu.svelte';
 	import Nav from './header.nav.svelte';
 
@@ -16,7 +19,19 @@
 			Meji
 		</a>
 		<Nav></Nav>
-		<Menu></Menu>
+		<div class="right">
+			{#if !app.login}
+				<Button
+					icon="log-in"
+					--button-height="40px"
+					--button-font-size="0.8rem"
+					onclick={() => module.open(Login)}
+				>
+					Login
+				</Button>
+			{/if}
+			<Menu></Menu>
+		</div>
 	</div>
 </section>
 
@@ -40,6 +55,11 @@
 
 		@media screen and (min-width: 580px) {
 			padding: 0 24px;
+		}
+
+		.right {
+			display: flex;
+			gap: 8px;
 		}
 	}
 

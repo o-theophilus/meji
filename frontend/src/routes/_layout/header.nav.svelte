@@ -104,10 +104,10 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		gap: 8px;
+		gap: 4px;
 
 		height: var(--headerHeight);
-		padding: 16px;
+		padding: 12px;
 		text-decoration: none;
 		color: var(--ft2);
 		fill: var(--ft2);

@@ -72,7 +72,7 @@
 	</PageTitle>
 
 	<Hero />
-	<Advert space="home_1" --advert-margin-bottom="80px" />
+	<Advert space="home_1" --advert-margin-top="80px"  --advert-margin-bottom="80px" />
 	<Tags />
 
 	<ItemGroup id="new_arrivals" items={new_arrivals}>

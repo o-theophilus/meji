@@ -1,8 +1,7 @@
 <script>
-	import { Login } from '$lib/auth';
 	import { Button, Hamburger } from '$lib/button';
 	import { Avatar } from '$lib/macro';
-	import { app, module } from '$lib/store.svelte.js';
+	import { app } from '$lib/store.svelte.js';
 	import { cubicInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Theme from './header.menu.theme.svelte';
@@ -142,8 +141,8 @@
 				Theme
 				<Theme />
 			</div>
-			<div class="menu_item logout">
-				{#if app.login}
+			{#if app.login}
+				<div class="menu_item logout">
 					<Button
 						icon="log-out"
 						--button-height="40px"
@@ -172,17 +171,8 @@
 					>
 						Logout
 					</Button>
-				{:else}
-					<Button
-						icon="log-in"
-						--button-height="40px"
-						--button-font-size="0.8rem"
-						onclick={() => module.open(Login)}
-					>
-						Login
-					</Button>
-				{/if}
-			</div>
+				</div>
+			{/if}
 		</div>
 	{/if}
 </section>
