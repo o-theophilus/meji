@@ -1,6 +1,7 @@
 <script>
+	import { page } from '$app/state';
 	import { Button } from '$lib/button';
-	import { IG } from '$lib/input';
+	import { Dropdown, IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
 
@@ -10,9 +11,9 @@
 		phone: cart.receiver?.phone || '',
 		email: cart.receiver?.email || '',
 		address: cart.receiver?.address?.address || '',
-		state: cart.receiver?.address?.state || '',
-		country: cart.receiver?.address?.country || '',
-		postal_code: cart.receiver?.address?.postal_code || ''
+		area: cart.receiver?.address?.area || '',
+		state: 'Lagos',
+		country: 'Nigeria'
 	});
 	let error = $state({});
 
@@ -59,10 +60,6 @@
 			error.country = 'This field is required';
 		} else if (form.country.length > 20) {
 			error.country = 'This field cannot exceed 20 characters';
-		}
-
-		if (form.postal_code && form.postal_code.length > 10) {
-			error.postal_code = 'This field cannot exceed 10 characters';
 		}
 
 		Object.keys(error).length === 0 && submit();
@@ -154,6 +151,12 @@
 		required
 	/>
 
+	<IG name="Area" error={error.area}>
+		{#snippet input()}
+			<Dropdown icon="map-pin" list={page.data.areas} bind:value={form.area}></Dropdown>
+		{/snippet}
+	</IG>
+
 	<IG
 		name="State"
 		icon="map-pin"
@@ -161,7 +164,7 @@
 		placeholder="State here"
 		type="text"
 		bind:value={form.state}
-		required
+		disabled
 	/>
 
 	<IG
@@ -171,16 +174,7 @@
 		placeholder="Country here"
 		type="text"
 		bind:value={form.country}
-		required
-	/>
-
-	<IG
-		name="Postal Code"
-		icon="hash"
-		error={error.postal_code}
-		placeholder="Postal Code here"
-		type="text"
-		bind:value={form.postal_code}
+		disabled
 	/>
 
 	<Button

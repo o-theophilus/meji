@@ -7,4 +7,5 @@ export { default as Quantity } from "./quantity/index.svelte"
 export { default as Comment } from "./review/index.svelte"
 export { default as Status } from "./status/index.svelte"
 export { default as Variation } from "./variation/index.svelte"
+export { default as Package } from "./package/index.svelte"
 

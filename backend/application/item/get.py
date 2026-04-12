@@ -6,6 +6,7 @@ from ..postgres import db_close, db_open
 from ..tools import get_session, item_schema
 from .get_group import (customer_view, recently_viewed, recommended,
                         similar_items)
+from ..cart.delivery import get_areas
 
 bp = Blueprint("item_get", __name__)
 
@@ -82,7 +83,8 @@ def get(key):
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "item": item_schema(item)
+        "item": item_schema(item),
+        "areas": get_areas()
     })
 
 

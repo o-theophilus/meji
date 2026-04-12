@@ -13,7 +13,13 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DROP TABLE IF EXISTS model CASCADE;
+        ALTER TABLE item
+        ADD COLUMN IF NOT EXISTS package JSONB DEFAULT '{}'::JSONB;
+    """)
+
+    cur.execute("""
+        ALTER TABLE item_version
+        ADD COLUMN IF NOT EXISTS package JSONB DEFAULT '{}'::JSONB;
     """)
 
     db_close(con, cur)

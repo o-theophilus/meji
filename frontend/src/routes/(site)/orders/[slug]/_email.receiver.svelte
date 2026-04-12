@@ -22,10 +22,7 @@ Name: {receiver.name} <br />
 Email: {receiver.email} <br />
 {#if receiver.address}
 	Address: {receiver.address.address},
+	{receiver.address.area},
 	{receiver.address.state},
-	{receiver.address.country}
-	{#if receiver.address.postal_code}
-		<br />
-		Postal Code: {receiver.address.postal_code}
-	{/if}
+	{receiver.address.country}.
 {/if}

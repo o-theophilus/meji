@@ -105,7 +105,8 @@ def create_tables():
             specification JSONB DEFAULT '{}'::JSONB,
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
-            quantity INT DEFAULT 10
+            quantity INT DEFAULT 10,
+            package JSONB DEFAULT '{}'::JSONB,
         );
 
         CREATE TABLE IF NOT EXISTS item_version (
@@ -122,6 +123,7 @@ def create_tables():
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 0,
+            package JSONB DEFAULT '{}'::JSONB,
             item_key UUID REFERENCES item(key) ON DELETE SET NULL
         );
 

@@ -90,6 +90,10 @@
 			color: var(--ft1);
 		}
 
+		&.disabled{
+			opacity: 0.6;
+		}
+
 		&.number,
 		&.rating {
 			width: fit-content;

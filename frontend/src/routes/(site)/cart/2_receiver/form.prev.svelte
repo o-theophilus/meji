@@ -4,15 +4,6 @@
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import Receiver from '../../orders/[slug]/_page.receiver.svelte';
 
-	let form = $state({
-		name: '',
-		phone: '',
-		email: '',
-		address: '',
-		state: '',
-		country: '',
-		postal_code: ''
-	});
 	let error = $state({});
 
 	const submit = async (form) => {
@@ -53,9 +44,9 @@
 								phone: receiver.phone,
 								email: receiver.email,
 								address: receiver.address.address,
+								area: receiver.address.area,
 								state: receiver.address.state,
-								country: receiver.address.country,
-								postal_code: receiver.address.postal_code
+								country: receiver.address.country
 							});
 						}}
 					>

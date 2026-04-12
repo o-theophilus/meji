@@ -64,10 +64,6 @@
 	}
 
 	.title {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-
 		font-weight: 800;
 		color: var(--ft1);
 	}

@@ -29,8 +29,9 @@
 				this.cart.receiver?.phone &&
 				this.cart.receiver?.email &&
 				this.cart.receiver?.address?.address &&
-				this.cart.receiver?.address?.state &&
-				this.cart.receiver?.address?.country
+				this.cart.receiver?.address?.area
+				// this.cart.receiver?.address?.state &&
+				// this.cart.receiver?.address?.country
 			);
 		},
 		get delivery_date() {

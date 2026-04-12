@@ -8,6 +8,7 @@ from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session
 from .get import get_cart_items
+from .delivery import get_delivery_price, get_areas
 
 bp = Blueprint("cart", __name__)
 
@@ -268,7 +269,7 @@ def quantity():
 def receiver():
     con, cur = db_open()
 
-    session = get_session(cur, True)
+    session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
@@ -292,9 +293,9 @@ def receiver():
         phone = request.json.get("phone", "").replace(" ", "")
         email = request.json.get("email", "").strip()
         address = request.json.get("address")
-        state = request.json.get("state")
-        country = request.json.get("country")
-        postal_code = request.json.get("postal_code")
+        area = request.json.get("area")
+        state = "Lagos"
+        country = 'Nigeria'
 
         if not name:
             error["name"] = "This field is required"
@@ -318,6 +319,11 @@ def receiver():
         elif len(address) > 255:
             error["address"] = "This field cannot exceed 255 characters"
 
+        if not area:
+            error["area"] = "This field is required"
+        elif area not in get_areas():
+            error["area"] = "Invalid selection"
+
         if not state:
             error["state"] = "This field is required"
         elif len(state) > 20:
@@ -327,10 +333,7 @@ def receiver():
             error["country"] = "This field is required"
         elif len(country) > 20:
             error["country"] = "This field cannot exceed 20 characters"
-
-        if postal_code and len(postal_code) > 10:
-            error["postal_code"] = "This field cannot exceed 10 characters"
-
+        
         if error:
             db_close(con, cur)
             return jsonify({
@@ -344,13 +347,48 @@ def receiver():
             "email": email,
             "address": {
                 "address": address,
+                "area": area,
                 "state": state,
                 "country": country,
-                "postal_code": postal_code
             }
         }
 
-        delivery_cost = 1500
+        
+        # TODO: this should be recalculated if:
+        #  item is removed from card 
+        #  or item quantity changes
+        cur.execute("""
+            SELECT
+                item.package,
+                item.status,
+                order_item.variation, order_item.quantity,
+                item.quantity AS available_quantity
+            FROM order_item
+            LEFT JOIN "order" ON "order".key = order_item.order_key
+            LEFT JOIN item ON order_item.item_key = item.key
+            WHERE "order".key = %s
+        ;""", (cart["key"],))
+        items = cur.fetchall()
+
+        packages = []
+        pickup_areas = []
+        for x in items:
+            for _ in range(x["quantity"]):
+                packages.append({
+                    "length": x["package"]["length"],
+                    "breadth": x["package"]["breadth"],
+                    "height": x["package"]["height"],
+                    "weight": x["package"]["weight"],
+                })
+                if x["package"]["area"] not in pickup_areas:
+                    pickup_areas.append(x["package"]["area"])
+
+        prices = []
+        for x in pickup_areas:
+            price = get_delivery_price(x, area, packages)
+            prices.append(price)
+
+        delivery_cost = sum(prices) / len(prices) if prices else 0
     else:
         receiver = {}
         delivery_cost = 0
@@ -384,7 +422,7 @@ def receiver():
 def add_coupon():
     con, cur = db_open()
 
-    session = get_session(cur, True)
+    session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
@@ -459,7 +497,7 @@ def add_coupon():
 def remove_coupon():
     con, cur = db_open()
 
-    session = get_session(cur, True)
+    session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)

@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from ..coupon.get import coupon_schema
 from ..postgres import db_close, db_open
 from ..tools import get_session
+from .delivery import get_areas
 
 bp = Blueprint("cart_get_items", __name__)
 
@@ -76,5 +77,6 @@ def get_cart_items(cur=None):
         "cart": cart,
         "items": items,
         "previous_receivers": previous_receivers,
+        "areas": get_areas(),
         "coupon": coupon_schema(coupon) if coupon else None
     })

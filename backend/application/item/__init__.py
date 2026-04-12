@@ -110,6 +110,7 @@ def edit(key):
     information = item["information"]
     variation = item["variation"]
     quantity = item["quantity"]
+    package = item["package"]
 
     if "status" in request.json:
         status = request.json.get("status")
@@ -207,6 +208,16 @@ def edit(key):
         if not isinstance(quantity, int) or quantity < 0:
             error["quantity"] = "Please enter a valid number"
 
+    if "package" in request.json:
+        package = request.json.get("package", {})
+        if "item.edit_package" not in user["access"]:
+            error["error"] = "unauthorized access"
+        elif type(package) is not dict:
+            error["error"] = "Invalid request"
+        # TODO: add more validation for package
+        # if not isinstance(package, (int, float)) or package < 0:
+        #     error["package"] = "Please enter a valid number"
+    
     if error:
         db_close(con, cur)
         return jsonify({
@@ -218,12 +229,12 @@ def edit(key):
         UPDATE item
         SET status= %s, slug = %s, date_created= %s, name = %s, tags= %s,
         price = %s, price_old = %s,
-        information= %s, variation= %s, quantity= %s
+        information= %s, variation= %s, quantity= %s, package = %s
         WHERE key = %s RETURNING *;
     """, (
         status, slug, date_created, name, tags,
         Decimal(price), Decimal(price_old),
-        information, Json(variation), quantity,
+        information, Json(variation), quantity, Json(package),
         item["key"]
     ))
     item = cur.fetchone()
