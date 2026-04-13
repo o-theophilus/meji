@@ -37,6 +37,8 @@
 	onMount(() => set(value));
 </script>
 
+<!-- TODO: price and package dimensions shoild be float -->
+
 <div class="block">
 	<form onsubmit={(e) => e.preventDefault()}>
 		<Button {disabled} icon="minus" tabindex={-1} onclick={() => set('decrease')}></Button>
