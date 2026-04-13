@@ -318,7 +318,10 @@ def cart_to_order():
         order["key"]
     ))
     order = cur.fetchone()
-    get_cart_items(cur)
+    cur.execute(
+        """INSERT INTO "order" (user_key) VALUES (%s);""", 
+        (user["key"],)
+    )
 
     log(
         cur=cur,

@@ -89,7 +89,6 @@ def sales_chart(cur, interval):
     """)
 
     rows = cur.fetchall()
-    print(rows)
 
     return [
         {

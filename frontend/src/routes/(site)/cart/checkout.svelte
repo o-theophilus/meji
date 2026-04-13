@@ -103,6 +103,7 @@
 
 		if (resp.status == 200) {
 			app.cart_items = [];
+			page_state.clear('cart');
 			goto(`/orders/${resp.order.key}`);
 
 			module.open(Dialogue, {
