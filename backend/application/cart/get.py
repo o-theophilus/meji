@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from ..coupon.get import coupon_schema
 from ..postgres import db_close, db_open
 from ..tools import get_session
-from .delivery import get_areas, get_delivery_price
+from .delivery import get_areas
 
 bp = Blueprint("cart_get_items", __name__)
 
@@ -63,25 +63,17 @@ def get_cart_items(cur=None):
             order_item.variation, order_item.quantity,
             item.package
         FROM order_item
-        LEFT JOIN "order" ON "order".key = order_item.order_key
         LEFT JOIN item ON order_item.item_key = item.key
-        WHERE "order".key = %s
+        WHERE order_item.order_key = %s
         ORDER BY order_item.date_created DESC
     ;""", (cart["key"],))
     items = cur.fetchall()
 
-    delivery_cost = 0
-    if has_adderss(cart["receiver"]) and items:
-        delivery_cost = get_delivery_price(
-            items, cart["receiver"]["address"]["area"])
-    cur.execute("""
-        UPDATE "order" SET delivery_cost = %s
-        WHERE key = %s RETURNING *;
-    """, (delivery_cost, cart["key"]))
-    cart = cur.fetchone()
-
     for x in items:
-        del x["package"]
+        # TODO: might want to hide address
+        # i only use the area frontend,
+        # so i can just return the area and not the whole address
+        # del x["package"]
         x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 

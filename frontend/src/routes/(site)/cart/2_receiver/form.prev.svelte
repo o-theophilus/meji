@@ -1,7 +1,7 @@
 <script>
 	import { Button } from '$lib/button';
 	import { Form } from '$lib/layout';
-	import { app, loading, module, notify } from '$lib/store.svelte.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 	import Receiver from '../../orders/[slug]/_page.receiver.svelte';
 
 	let error = $state({});
@@ -22,6 +22,7 @@
 		if (resp.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = resp.cart;
+			page_state.set_data('cart', resp);
 			module.close();
 		} else {
 			error = resp;

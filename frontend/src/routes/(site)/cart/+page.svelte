@@ -10,6 +10,7 @@
 	import Receiver from './2_receiver/index.svelte';
 	import Coupons from './3_coupon/index.svelte';
 	import Checkout from './checkout.svelte';
+	import { get_delivery_cost } from './delivery.js';
 
 	let { data } = $props();
 
@@ -23,6 +24,15 @@
 		coupon: data.coupon,
 		agree: false,
 		error: {},
+
+		get item_ckeck() {
+			for (const item of app.cart_items) {
+				if (item.status != 'active' || item.quantity > item.available_quantity) {
+					return false;
+				}
+			}
+			return true;
+		},
 		get has_receiver() {
 			return !!(
 				this.cart.receiver?.name &&
@@ -34,11 +44,13 @@
 				this.cart.receiver?.address?.country
 			);
 		},
+
 		get delivery_date() {
 			const nextWeek = new Date();
 			nextWeek.setDate(nextWeek.getDate() + 7);
 			return nextWeek;
 		},
+
 		get total_order() {
 			let total = 0;
 			for (const i of app.cart_items) {
@@ -46,6 +58,15 @@
 			}
 			return total;
 		},
+
+		get delivery_cost() {
+			let dc = 0;
+			if (this.has_receiver) {
+				dc = get_delivery_cost(app.cart_items, this.cart.receiver.address.area);
+			}
+			return dc;
+		},
+
 		get discount() {
 			let _discount = 0;
 			if (this.coupon) {
@@ -53,7 +74,7 @@
 				if (this.coupon.benefit.applies_to == 'total order') {
 					applies_to = this.total_order;
 				} else if (this.coupon.benefit.applies_to == 'delivery fee') {
-					applies_to = this.has_receiver ? ops.cart.delivery_cost : 0;
+					applies_to = this.has_receiver ? this.cart.delivery_cost : 0;
 				}
 
 				if (this.coupon.benefit.value_unit == 'flat') {
@@ -79,13 +100,18 @@
 
 			return condition_met;
 		},
-		get item_ckeck() {
-			for (const item of app.cart_items) {
-				if (item.status != 'active' || item.quantity > item.available_quantity) {
-					return false;
-				}
+
+		get pay() {
+			let sum = this.total_order;
+			if (this.has_receiver) {
+				sum += Number(this.delivery_cost);
 			}
-			return true;
+			if (this.coupon && this.discount_condition_met) {
+				sum -= this.discount;
+				// TODO: what is there is no receiver?
+			}
+
+			return Math.max(sum, 0);
 		}
 	});
 </script>

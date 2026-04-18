@@ -3,7 +3,7 @@
 	import { Button } from '$lib/button';
 	import { Dropdown, IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { app, loading, module, notify } from '$lib/store.svelte.js';
+	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
 
 	let cart = module.value.ops.cart;
 	let form = $state({
@@ -81,6 +81,7 @@
 		if (resp.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = resp.cart;
+			page_state.set_data('cart', resp);
 			module.close();
 		} else {
 			error = resp;
@@ -103,6 +104,7 @@
 		if (resp.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = resp.cart;
+			page_state.set_data('cart', resp);
 			module.close();
 		} else {
 			error = resp;

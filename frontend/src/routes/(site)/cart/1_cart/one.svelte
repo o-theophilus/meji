@@ -2,7 +2,7 @@
 	import { Button, RoundButton } from '$lib/button';
 	import { Note } from '$lib/info';
 	import { Input } from '$lib/input';
-	import { app, notify, page_state } from '$lib/store.svelte.js';
+	import { app, page_state } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
 	import Value from './variation_value.svelte';
 
@@ -40,10 +40,7 @@
 		resp = await resp.json();
 
 		if (resp.status == 200) {
-			ops.cart = resp.cart;
 			app.cart_items = resp.items;
-			notify.open('Item removed from cart');
-			page_state.clear('cart');
 		} else {
 			error = resp;
 		}
@@ -81,9 +78,7 @@
 			resp = await resp.json();
 
 			if (resp.status == 200) {
-				ops.cart = resp.cart;
 				app.cart_items = resp.items;
-				page_state.clear('cart');
 			} else {
 				error = resp;
 			}

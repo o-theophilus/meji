@@ -13,6 +13,8 @@
 	app.cart_items = data.locals.cart_items;
 	app.item_tags = data.locals.item_tags;
 	app.blog_tags = data.locals.blog_tags;
+	app.axis_map = data.locals.axis_map;
+	app.price_map = data.locals.price_map;
 </script>
 
 <main class="{app.user.theme}_theme">

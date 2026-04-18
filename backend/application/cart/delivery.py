@@ -159,50 +159,40 @@ def get_axis_from_area(area):
     return None
 
 
-def get_delivery_price(items, to_area, delivery_type=None):
-
-    pickup_areas = []
-    total_weight = 0
-    total_volume = 0
-    for x in items:
-        for _ in range(x["quantity"]):
-            total_weight += x["package"].get("weight", 0)
-            total_volume += (
-                x["package"].get("length", 0)
-                * x["package"].get("breadth", 0)
-                * x["package"].get("height", 0)
-            )
-            area = x["package"].get("area", "igando")
-            if area not in pickup_areas:
-                pickup_areas.append(area)
-
+def get_highest_price(items, to_area, delivery_type=None):
+    price = 0
     to_axis = get_axis_from_area(to_area)
 
-    price = 0
-    for x in pickup_areas:
-        from_axis = get_axis_from_area(x)
+    for x in items:
+        from_area = x["package"].get("area", "igando")
+        from_axis = get_axis_from_area(from_area)
+
         route = price_map[from_axis][to_axis]
         _price = route[
             "express"] if delivery_type == "express" else route["price"]
         if _price > price:
             price = _price
 
+    return price
+
+
+def get_delivery_cost(items, to_area, delivery_type=None):
+    total_weight = 0
+    total_volume = 0
+    for x in items:
+        total_weight += x["package"].get("weight", 0) * x["quantity"]
+        total_volume += (
+            x["package"].get("length", 0)
+            * x["package"].get("breadth", 0)
+            * x["package"].get("height", 0)
+            * x["quantity"]
+        )
     volumetric_weight = total_volume / 5000
     chargeable_weight = max(total_weight, volumetric_weight)
 
-    print("price :", price)
-    print("total_weight :", total_weight)
-    print("total_volume :", total_volume)
-    print("volumetric_weight :", volumetric_weight)
-    print("chargeable_weight :", chargeable_weight)
-
+    cost = get_highest_price(items, to_area, delivery_type)
     if chargeable_weight > 5:
-        price += (chargeable_weight - 5) * 500
-
-    print("price :", price)
-
+        cost += (chargeable_weight - 5) * 500
     if total_volume > 200000:
-        price += 1000
-
-    print("price :", price)
-    return int(price)
+        cost += 1000
+    return int(cost)

@@ -7,6 +7,7 @@ from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..blog.get import get_blog_tags
+from ..cart.delivery import axis_map, price_map
 from ..cart.get import get_cart_items, has_adderss
 from ..item.get import get_item_tags
 from ..log import log
@@ -205,7 +206,9 @@ def init():
         "likes": likes,
         "cart_items": cart_items,
         "item_tags": item_tags,
-        "blog_tags": blog_tags
+        "blog_tags": blog_tags,
+        "axis_map": axis_map,
+        "price_map": price_map
     })
 
 

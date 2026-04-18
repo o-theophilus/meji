@@ -11,7 +11,7 @@ export const load = async ({ fetch, url, parent, depends, params }) => {
 		}
 		page_state.state[page_name] = {
 			searchParams: sp,
-			data: [],
+			data: null,
 			loaded: false
 		}
 		// } else if (page_state.state[page_name].loaded) {

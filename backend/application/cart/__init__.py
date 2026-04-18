@@ -114,14 +114,9 @@ def add_to_cart():
         }
     )
 
-    items = get_cart_items(cur)
-
+    resp = get_cart_items(cur)
     db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": items.json["cart"],
-        "items": items.json["items"],
-    })
+    return resp
 
 
 @bp.delete("/cart")
@@ -175,14 +170,9 @@ def remove_from_cart():
             }
         )
 
-    items = get_cart_items(cur)
-
+    resp = get_cart_items(cur)
     db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": items.json["cart"],
-        "items": items.json["items"]
-    })
+    return resp
 
 
 @bp.post("/cart/quantity")
@@ -257,14 +247,9 @@ def quantity():
         }
     )
 
-    items = get_cart_items(cur)
-
+    resp = get_cart_items(cur)
     db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": items.json["cart"],
-        "items": items.json["items"]
-    })
+    return resp
 
 
 @bp.delete("/cart/receiver")
@@ -374,14 +359,9 @@ def receiver():
         UPDATE "order" SET receiver = %s WHERE key = %s;
     """, (Json(receiver), cart["key"]))
 
-    items = get_cart_items(cur)
-
+    resp = get_cart_items(cur)
     db_close(con, cur)
-    return jsonify({
-        "status": 200,
-        "cart": items.json["cart"],
-        "items": items.json["items"]
-    })
+    return resp
 
 
 @bp.post("/cart/coupon")
@@ -455,7 +435,7 @@ def add_coupon():
     db_close(con, cur)
     return jsonify({
         "status": 200,
-        "coupon": coupon_schema(coupon, user["access"])
+        "coupon": coupon_schema(coupon)
     })
 
 

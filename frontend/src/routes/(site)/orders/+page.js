@@ -1,5 +1,5 @@
+import { loading, page_state } from "$lib/store.svelte.js";
 import { error } from '@sveltejs/kit';
-import { loading, page_state } from "$lib/store.svelte.js"
 
 export const load = async ({ fetch, url, parent, depends }) => {
 	depends(true)
@@ -14,7 +14,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 		}
 		page_state.state[page_name] = {
 			searchParams: sp,
-			data: [],
+			data: null,
 			loaded: false
 		}
 	} else if (page_state.state[page_name].loaded) {

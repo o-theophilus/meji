@@ -78,10 +78,9 @@
 		loading.close();
 
 		if (resp.status == 200) {
-			app.cart_items = resp.items;
 			notify.open('Item added to cart');
+			app.cart_items = resp.items;
 			module.close();
-			page_state.clear('cart');
 		} else {
 			reverse_modify();
 			error = resp;

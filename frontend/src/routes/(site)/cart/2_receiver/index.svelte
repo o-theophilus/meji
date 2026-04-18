@@ -27,7 +27,7 @@
 				<div class="c">
 					<div class="a">Delivery Fee</div>
 					<div class="b" transition:slide>
-						₦{Number(ops.cart.delivery_cost).toLocaleString()}
+						₦{Number(ops.delivery_cost).toLocaleString()}
 					</div>
 				</div>
 			{/if}
@@ -79,7 +79,7 @@
 		<div class="line space total">
 			<span class="a">Delivery Fee</span>
 			<div class="b">
-				₦{Number(ops.cart.delivery_cost).toLocaleString()}
+				₦{Number(ops.delivery_cost).toLocaleString()}
 			</div>
 		</div>
 	{/if}

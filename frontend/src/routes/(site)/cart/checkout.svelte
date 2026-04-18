@@ -123,18 +123,6 @@
 			ops.error = resp;
 		}
 	};
-
-	let pay = $derived.by(() => {
-		let sum = ops.total_order;
-		if (ops.has_receiver) {
-			sum += Number(ops.cart.delivery_cost);
-		}
-		if (ops.coupon && ops.discount_condition_met) {
-			sum -= ops.discount;
-		}
-
-		return Math.max(sum, 0);
-	});
 </script>
 
 <div class="floater">
@@ -142,7 +130,7 @@
 		<div class="line space">
 			<div class="total">Total Amount</div>
 			<div class="cost">
-				₦{pay.toLocaleString()}
+				₦{ops.pay.toLocaleString()}
 			</div>
 		</div>
 
