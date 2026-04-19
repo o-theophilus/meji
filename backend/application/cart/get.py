@@ -70,10 +70,9 @@ def get_cart_items(cur=None):
     items = cur.fetchall()
 
     for x in items:
-        # TODO: might want to hide address
-        # i only use the area frontend,
-        # so i can just return the area and not the whole address
-        # del x["metadata"]
+        if "address" in x["metadata"]:
+            del x["metadata"]["address"]
+
         x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 

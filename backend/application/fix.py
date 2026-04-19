@@ -8,7 +8,6 @@ from .tools import access_pass
 bp = Blueprint("fix", __name__)
 
 
-# @bp.get("/fix")
 def quick_fix():
     con, cur = db_open()
 
@@ -28,6 +27,7 @@ def quick_fix():
     })
 
 
+@bp.get("/fix")
 def fix_access():
     con, cur = db_open()
 

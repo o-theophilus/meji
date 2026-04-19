@@ -252,17 +252,16 @@ def cart_to_order():
             "error": "invalid transaction"
         })
 
-    # TODO: also copy metadata
     cur.execute("""
         INSERT INTO item_version(
             item_key, status, date_created, slug, name,
             tags, price, price_old, information, specification,
-            files, variation, quantity
+            files, variation, quantity, metadata
         )
         SELECT
             i.key, i.status, i.date_created, i.slug, i.name,
             i.tags, i.price, i.price_old, i.information, i.specification,
-            i.files, i.variation, i.quantity
+            i.files, i.variation, i.quantity, i.metadata
         FROM order_item oi
         JOIN item i ON i.key = oi.item_key
         WHERE oi.order_key = %s
@@ -278,6 +277,7 @@ def cart_to_order():
             AND v.specification = i.specification
             AND v.files = i.files
             AND v.variation = i.variation
+            AND v.metadata = i.metadata
         );
     """, (order["key"],))
 
@@ -295,7 +295,8 @@ def cart_to_order():
         AND v.information = i.information
         AND v.specification = i.specification
         AND v.files = i.files
-        AND v.variation = i.variation;
+        AND v.variation = i.variation
+        AND v.metadata = i.metadata;
     """, (order["key"],))
 
     cur.execute("""

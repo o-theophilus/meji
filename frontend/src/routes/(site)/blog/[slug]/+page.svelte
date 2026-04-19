@@ -76,7 +76,6 @@
 	});
 
 	afterNavigate(() => hard_update(blog));
-	// TODO: test
 </script>
 
 {#key blog.key}
