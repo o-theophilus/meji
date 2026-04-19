@@ -5,6 +5,7 @@
 	import { slide } from 'svelte/transition';
 
 	let { onclick } = $props();
+	
 	const buttons = [
 		{
 			name: 'Dashboard',
