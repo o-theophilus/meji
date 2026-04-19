@@ -15,12 +15,12 @@ def drive():
     return sb.storage.from_('meji')
 
 
-def save_test(file, path=""):
+def save_test(file, filename, path=""):
     photo = Image.open(file).convert('RGBA')
     white = Image.new('RGBA', photo.size, (255, 255, 255))
     photo = Image.alpha_composite(white, photo).convert('RGB')
 
-    filename = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
+    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
     photo.save(f"static/{path}{filename}")
 
     return filename
@@ -66,7 +66,7 @@ def get_all_test(path=""):
     return file_names
 
 
-def save_live(file, path=""):
+def save_live(file, filename, path=""):
     photo = Image.open(file).convert('RGBA')
     white = Image.new('RGBA', photo.size, (255, 255, 255))
     photo = Image.alpha_composite(white, photo).convert('RGB')
@@ -75,7 +75,7 @@ def save_live(file, path=""):
     photo.save(file_io, format="JPEG")
     file_io.seek(0)
 
-    filename = f"{uuid4().hex}_{photo.size[0]}x{photo.size[1]}.jpg"
+    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
     drive().upload(
         f"{path}{filename}",
         file_io.getvalue(),
@@ -147,11 +147,11 @@ def get_path(path=""):
 
 class storage:
     @staticmethod
-    def save(file, path=""):
+    def save(file, filename, path=""):
         if test:
-            return save_test(file, get_path(path))
+            return save_test(file, filename, get_path(path))
         else:
-            return save_live(file, get_path(path))
+            return save_live(file, filename, get_path(path))
 
     def copy(filename, path="", path2=""):
         if test:

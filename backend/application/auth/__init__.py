@@ -106,15 +106,14 @@ def copy_like_n_cart(cur, user_key, anon_key):
         RETURNING key, receiver
     """, (anon_key,))
     out_cart = cur.fetchone()
-    if out_cart:
-        if has_adderss(out_cart["receiver"]):
-            cur.execute("""
-                UPDATE "order" SET receiver = %s WHERE key = %s;
-            """, (Json(out_cart["receiver"]), in_cart["key"]))
-
+    if has_adderss(out_cart["receiver"]):
         cur.execute("""
-            UPDATE coupon SET order_key = NULL WHERE order_key = %s;
-        """, (out_cart["key"],))
+            UPDATE "order" SET receiver = %s WHERE key = %s;
+        """, (Json(out_cart["receiver"]), in_cart["key"]))
+
+    cur.execute("""
+        UPDATE coupon SET order_key = NULL WHERE order_key = %s;
+    """, (out_cart["key"],))
 
 
 @bp.get("/admin/default")
@@ -184,6 +183,10 @@ def init():
         user = anon(cur)
         token = create_session(cur, user["key"])
         login = False
+        cur.execute(
+            """INSERT INTO "order" (user_key) VALUES (%s);""", 
+            (user["key"],)
+        )
 
         log(
             cur=cur,
