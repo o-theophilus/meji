@@ -10,8 +10,8 @@
 		Comment,
 		Date,
 		Information,
+		Metadata,
 		Name,
-		Package,
 		Photo,
 		Price,
 		Quantity,
@@ -142,7 +142,7 @@
 			<Variation {item} {edit_mode} {update} />
 			<Information {item} {edit_mode} {update} />
 			<Quantity {item} {edit_mode} {update} />
-			<Package {item} {edit_mode} {update} />
+			<Metadata {item} {edit_mode} {update} />
 			<Comment {item} {comments} {loading} />
 		</div>
 	</div>

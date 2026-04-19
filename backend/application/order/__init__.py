@@ -5,11 +5,11 @@ import requests
 from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
 
-from ..cart.get import get_cart_items, has_adderss
+from ..cart.delivery import get_delivery_cost
+from ..cart.get import has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, send_mail
-from ..cart.delivery import get_delivery_cost
 
 bp = Blueprint("order", __name__)
 
@@ -49,7 +49,7 @@ def order_check():
             item.quantity AS available_quantity,
             item.status,
             order_item.quantity,
-            item.package
+            item.metadata
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE order_item.order_key = %s;
@@ -166,7 +166,7 @@ def cart_to_order():
         SELECT
             item.price,
             order_item.quantity,
-            item.package
+            item.metadata
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
         WHERE order_item.order_key = %s;
@@ -252,6 +252,7 @@ def cart_to_order():
             "error": "invalid transaction"
         })
 
+    # TODO: also copy metadata
     cur.execute("""
         INSERT INTO item_version(
             item_key, status, date_created, slug, name,
@@ -328,7 +329,7 @@ def cart_to_order():
     ))
     order = cur.fetchone()
     cur.execute(
-        """INSERT INTO "order" (user_key) VALUES (%s);""", 
+        """INSERT INTO "order" (user_key) VALUES (%s);""",
         (user["key"],)
     )
 

@@ -104,11 +104,7 @@
 		if (resp.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = resp.cart;
-<<<<<<< HEAD
 			page_state.set_data('cart', resp);
-=======
-			page_state.clear('cart');
->>>>>>> a3406ba807eb77c13a9f3b780fa25231d4894a09
 			module.close();
 		} else {
 			error = resp;

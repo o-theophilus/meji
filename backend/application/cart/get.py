@@ -61,7 +61,7 @@ def get_cart_items(cur=None):
             item.quantity AS available_quantity,
             COALESCE(item.files[1], NULL) as photo,
             order_item.variation, order_item.quantity,
-            item.package
+            item.metadata
         FROM order_item
         LEFT JOIN item ON order_item.item_key = item.key
         WHERE order_item.order_key = %s
@@ -73,7 +73,7 @@ def get_cart_items(cur=None):
         # TODO: might want to hide address
         # i only use the area frontend,
         # so i can just return the area and not the whole address
-        # del x["package"]
+        # del x["metadata"]
         x["photo"] = f"{request.host_url}photo/item/{x['photo']}" if x[
             "photo"] else None
 

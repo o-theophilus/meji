@@ -37,7 +37,7 @@
 	onMount(() => set(value));
 </script>
 
-<!-- TODO: price and package dimensions shoild be float -->
+<!-- TODO: price and metadata dimensions shoild be float -->
 
 <div class="block">
 	<form onsubmit={(e) => e.preventDefault()}>

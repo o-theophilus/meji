@@ -14,12 +14,12 @@ def quick_fix():
 
     cur.execute("""
         ALTER TABLE item
-        ADD COLUMN IF NOT EXISTS package JSONB DEFAULT '{}'::JSONB;
+        RENAME COLUMN package TO metadata;
     """)
 
     cur.execute("""
         ALTER TABLE item_version
-        ADD COLUMN IF NOT EXISTS package JSONB DEFAULT '{}'::JSONB;
+        RENAME COLUMN package TO metadata;
     """)
 
     db_close(con, cur)

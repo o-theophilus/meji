@@ -164,7 +164,7 @@ def get_highest_price(items, to_area, delivery_type=None):
     to_axis = get_axis_from_area(to_area)
 
     for x in items:
-        from_area = x["package"].get("area", "igando")
+        from_area = x["metadata"].get("area", "igando")
         from_axis = get_axis_from_area(from_area)
 
         route = price_map[from_axis][to_axis]
@@ -180,11 +180,11 @@ def get_delivery_cost(items, to_area, delivery_type=None):
     total_weight = 0
     total_volume = 0
     for x in items:
-        total_weight += x["package"].get("weight", 0) * x["quantity"]
+        total_weight += x["metadata"].get("weight", 0) * x["quantity"]
         total_volume += (
-            x["package"].get("length", 0)
-            * x["package"].get("breadth", 0)
-            * x["package"].get("height", 0)
+            x["metadata"].get("length", 0)
+            * x["metadata"].get("breadth", 0)
+            * x["metadata"].get("height", 0)
             * x["quantity"]
         )
     volumetric_weight = total_volume / 5000

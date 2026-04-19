@@ -35,14 +35,14 @@
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			},
-			body: JSON.stringify({ package: form })
+			body: JSON.stringify({ metadata: form })
 		});
 		resp = await resp.json();
 		loading.close();
 
 		if (resp.status == 200) {
 			module.value.update(resp.item);
-			notify.open('Package Saved');
+			notify.open('Metadata Saved');
 			module.close();
 		} else {
 			error = resp;
@@ -51,7 +51,7 @@
 </script>
 
 <Form
-	title="Edit Package"
+	title="Edit Metadata"
 	description="This information is used to determine the delivery cost"
 	error={error.error}
 >

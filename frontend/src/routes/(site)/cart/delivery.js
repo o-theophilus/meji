@@ -20,8 +20,8 @@ const get_highest_price = (items, to_area, delivery_type = null) => {
 	let price = 0;
 	const to_axis = get_axis_from_area(to_area, app.axis_map);
 
-	for (const x of items) {
-		const from_area = x.package?.area || 'igando';
+	for (const item of items) {
+		const from_area = item.metadata?.area || 'igando';
 		const from_axis = get_axis_from_area(from_area, app.axis_map);
 
 		const route = app.price_map[from_axis][to_axis];
@@ -38,13 +38,13 @@ const get_highest_price = (items, to_area, delivery_type = null) => {
 export const get_delivery_cost = (items, toArea, delivery_type = null) => {
 	let totalWeight = 0;
 	let totalVolume = 0;
-	for (const x of items) {
-		totalWeight += (x.package.weight || 0) * x.quantity;
+	for (const item of items) {
+		totalWeight += (item.metadata.weight || 0) * item.quantity;
 		totalVolume +=
-			(x.package.length || 0)
-			* (x.package.breadth || 0)
-			* (x.package.height || 0)
-			* x.quantity;;
+			(item.metadata.length || 0)
+			* (item.metadata.breadth || 0)
+			* (item.metadata.height || 0)
+			* item.quantity;;
 
 	}
 	const volumetricWeight = totalVolume / 5000;

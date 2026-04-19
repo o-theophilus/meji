@@ -4,7 +4,7 @@
 	import Form from './form.svelte';
 
 	let { item, edit_mode, update } = $props();
-	let edit = $derived(app.user.access.includes('item.edit_package') && edit_mode);
+	let edit = $derived(app.user.access.includes('item.edit_metadata') && edit_mode);
 </script>
 
 <div class="area" class:edit>
@@ -17,17 +17,17 @@
 					update
 				})}
 		>
-			Edit Package
+			Edit Metadata
 		</Edit_Button>
-		<div class="title">Package</div>
+		<div class="title">Metadata</div>
 
 		<div class="details">
-			<span class="label">Length</span> <span>{item.package.length}cm</span>
-			<span class="label">Breadth</span> <span>{item.package.breadth}cm</span>
-			<span class="label">Height</span> <span>{item.package.height}cm</span>
-			<span class="label">Weight</span> <span>{item.package.weight}kg</span>
-			<span class="label">Address</span> <span>{item.package.address}</span>
-			<span class="label">Area</span> <span>{item.package.area}</span>
+			<span class="label">Length</span> <span>{item.metadata.length}cm</span>
+			<span class="label">Breadth</span> <span>{item.metadata.breadth}cm</span>
+			<span class="label">Height</span> <span>{item.metadata.height}cm</span>
+			<span class="label">Weight</span> <span>{item.metadata.weight}kg</span>
+			<span class="label">Address</span> <span>{item.metadata.address}</span>
+			<span class="label">Area</span> <span>{item.metadata.area}</span>
 		</div>
 	{/if}
 </div>
