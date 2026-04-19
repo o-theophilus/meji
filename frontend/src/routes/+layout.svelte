@@ -18,14 +18,14 @@
 	app.axis_map = data.locals.axis_map;
 	app.price_map = data.locals.price_map;
 
-	let menu = $state();
+	let admin_nav = $state();
 </script>
 
 <main class="{app.user.theme}_theme">
 	{#if page.url.pathname.startsWith('/admin')}
 		<div class="admin">
 			<div class="admin_nav">
-				<AdminNav onclick={() => menu.onclick()}></AdminNav>
+				<AdminNav onclick={() => admin_nav.onclick()}></AdminNav>
 			</div>
 
 			<div class="admin_content">
@@ -35,8 +35,8 @@
 				{@render children()}
 			</div>
 
-			<SideMenu bind:this={menu}>
-				<AdminNav onclick={() => menu.onclick()}></AdminNav>
+			<SideMenu bind:this={admin_nav}>
+				<AdminNav onclick={() => admin_nav.onclick()}></AdminNav>
 			</SideMenu>
 		</div>
 	{:else}

@@ -154,7 +154,7 @@
 						--button-padding-x="0"
 						--number-pading-x="0"
 						--input-min-width="40px"
-						type="number"
+						type="quantity"
 						value={item.quantity}
 						min={1}
 						max={item.available_quantity}

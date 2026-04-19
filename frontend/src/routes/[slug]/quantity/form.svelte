@@ -49,7 +49,7 @@
 		name="Quantity"
 		error={error.quantity}
 		placeholder="Quantity here"
-		type="number"
+		type="quantity"
 		bind:value={form.quantity}
 	/>
 

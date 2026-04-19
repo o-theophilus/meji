@@ -60,6 +60,7 @@
 		error={error.length}
 		placeholder="Length (cm) here"
 		type="number"
+		icon="ruler-dimension-line"
 		bind:value={form.length}
 	/>
 
@@ -68,6 +69,7 @@
 		error={error.breadth}
 		placeholder="Breadth (cm) here"
 		type="number"
+		icon="ruler-dimension-line"
 		bind:value={form.breadth}
 	/>
 
@@ -76,6 +78,7 @@
 		error={error.height}
 		placeholder="Height (cm) here"
 		type="number"
+		icon="ruler-dimension-line"
 		bind:value={form.height}
 	/>
 
@@ -84,6 +87,7 @@
 		error={error.weight}
 		placeholder="Weight (kg) here"
 		type="number"
+		icon="scale"
 		bind:value={form.weight}
 	/>
 

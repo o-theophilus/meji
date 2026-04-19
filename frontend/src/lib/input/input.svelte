@@ -4,6 +4,7 @@
 	import Code from './code.svelte';
 	import Number from './number.svelte';
 	import Check from './password.checker.svelte';
+	import Quantity from './quantity.svelte';
 	import Rating from './rating.svelte';
 
 	let { value = $bindable(), show_password = $bindable(), type, icon, right, ...props } = $props();
@@ -19,8 +20,12 @@
 		<Code bind:value {...props}></Code>
 	</div>
 {:else if type == 'number'}
-	<div class="input number" class:disabled={props.disabled}>
-		<Number bind:value {...props}></Number>
+	<div class="input" class:disabled={props.disabled}>
+		<Number bind:value {icon} {...props}></Number>
+	</div>
+{:else if type == 'quantity'}
+	<div class="input quantity" class:disabled={props.disabled}>
+		<Quantity bind:value {...props}></Quantity>
 	</div>
 {:else if type == 'rating'}
 	<div class="input rating" class:disabled={props.disabled}>
@@ -90,11 +95,11 @@
 			color: var(--ft1);
 		}
 
-		&.disabled{
+		&.disabled {
 			opacity: 0.6;
 		}
 
-		&.number,
+		&.quantity,
 		&.rating {
 			width: fit-content;
 		}

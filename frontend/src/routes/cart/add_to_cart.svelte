@@ -2,7 +2,7 @@
 	import { Button } from '$lib/button';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { app, loading, module, notify, page_state } from '$lib/store.svelte.js';
+	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import Value from '../[slug]/variation/value.svelte';
 
 	let item = { ...module.value };
@@ -107,7 +107,7 @@
 		</IG>
 	{/each}
 
-	<IG name="Quantity" error={error.quantity} type="number" bind:value={form.quantity} />
+	<IG name="Quantity" error={error.quantity} type="quantity" bind:value={form.quantity} />
 
 	<Button icon="cart" onclick={validate}>Add to Cart</Button>
 </Form>

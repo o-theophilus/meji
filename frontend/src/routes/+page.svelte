@@ -75,6 +75,17 @@
 	<Advert space="home_1" --advert-margin-top="80px"  --advert-margin-bottom="80px" />
 	<Tags />
 
+
+	<!--  TODO:
+	4. Featured Collection
+
+✔ Smart merge
+👉 Use tabs or subtle filters:
+
+Best
+New
+Offers
+ -->
 	<ItemGroup id="new_arrivals" items={new_arrivals}>
 		{#snippet _title()}
 			<div class="page_title">New Arrivals</div>
