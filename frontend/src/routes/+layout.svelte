@@ -1,7 +1,9 @@
 <script>
+	import { page } from '$app/state';
 	import { Notify } from '$lib/info';
+	import { SideMenu } from '$lib/macro';
 	import { app } from '$lib/store.svelte.js';
-	import { Loading, Module } from './_layout/index.js';
+	import { AdminNav, Footer, Header, Loading, MobileNav, Module } from './_layout/index.js';
 	import './_layout/main.css';
 
 	let { data, children } = $props();
@@ -15,10 +17,40 @@
 	app.blog_tags = data.locals.blog_tags;
 	app.axis_map = data.locals.axis_map;
 	app.price_map = data.locals.price_map;
+
+	let menu = $state();
 </script>
 
 <main class="{app.user.theme}_theme">
-	{@render children()}
+	{#if page.url.pathname.startsWith('/admin')}
+		<div class="admin">
+			<div class="admin_nav">
+				<AdminNav onclick={() => menu.onclick()}></AdminNav>
+			</div>
+
+			<div class="admin_content">
+				<div class="admin_header">
+					<Header />
+				</div>
+				{@render children()}
+			</div>
+
+			<SideMenu bind:this={menu}>
+				<AdminNav onclick={() => menu.onclick()}></AdminNav>
+			</SideMenu>
+		</div>
+	{:else}
+		<div class="page_header">
+			<Header />
+		</div>
+
+		{@render children()}
+
+		<Footer />
+		<div class="page_mobile_nav">
+			<MobileNav />
+		</div>
+	{/if}
 
 	<Module />
 	<Loading />
@@ -36,8 +68,52 @@
 			color 0.2s ease-in-out;
 	}
 
-	.nav {
+	.page_header {
+		z-index: 1;
+		@media screen and (min-width: 800px) {
+			position: sticky;
+			top: 0;
+		}
+	}
+
+	.page_mobile_nav {
 		position: sticky;
 		bottom: 0;
+
+		@media screen and (min-width: 800px) {
+			display: none;
+		}
+	}
+
+	.admin {
+		display: flex;
+
+		.admin_nav {
+			display: none;
+			position: sticky;
+			top: 0;
+			flex-shrink: 0;
+			height: 100vh;
+			border-right: 1px solid var(--ol);
+
+			transition: width 0.2s ease-in-out;
+
+			@media screen and (min-width: 600px) {
+				width: 56px;
+				display: block;
+			}
+
+			@media screen and (min-width: 700px) {
+				width: 180px;
+			}
+		}
+
+		.admin_content {
+			width: 100%;
+		}
+
+		.admin_header {
+			background-color: var(--bg);
+		}
 	}
 </style>
