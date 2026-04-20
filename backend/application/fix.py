@@ -13,12 +13,12 @@ def quick_fix():
 
     cur.execute("""
         ALTER TABLE item
-        RENAME COLUMN package TO metadata;
+        ADD COLUMN metadata JSONB DEFAULT '{}'::JSONB;
     """)
 
     cur.execute("""
         ALTER TABLE item_version
-        RENAME COLUMN package TO metadata;
+        ADD COLUMN metadata JSONB DEFAULT '{}'::JSONB;
     """)
 
     db_close(con, cur)

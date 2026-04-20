@@ -1,6 +1,6 @@
 <script>
 	import { page_state } from '$lib/store.svelte.js';
-	let tags = ['Furniture', 'Cloth', 'Shoe'];
+	let tags = ['Furniture', 'Fashion', 'Shoe'];
 </script>
 
 {#if tags.length > 0}
