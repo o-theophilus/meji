@@ -1,0 +1,257 @@
+<script>
+	import { afterNavigate, replaceState } from '$app/navigation';
+	import { page } from '$app/state';
+	import { Button, Switch } from '$lib/button';
+	import { Note } from '$lib/info';
+	import { Content } from '$lib/layout';
+	import { Log, Meta, Share } from '$lib/macro';
+	import { app, module, page_state } from '$lib/store.svelte.js';
+	import {
+		Comment,
+		Date,
+		Information,
+		Metadata,
+		Name,
+		Photo,
+		Price,
+		Quantity,
+		Status,
+		Variation
+	} from '.';
+	import AddCart from '../cart/add_to_cart.svelte';
+	import Like from '../shop/like.svelte';
+	import Similar from './item_group.svelte';
+
+	let { data } = $props();
+	let item = $derived(data.item);
+	let comments = $state({});
+	let item_group = $state([]);
+	let edit_mode = $state(false);
+	let loading = $state(false);
+	let is_admin = app.user.access.some((x) =>
+		[
+			'item.add',
+			'item.edit_status',
+			'item.edit_file',
+			'item.edit_date',
+			'item.edit_name',
+			'item.edit_tag',
+			'item.edit_price',
+			'item.edit_information',
+			'item.edit_files',
+			'item.edit_variation',
+			'item.edit_quantity',
+			'item.advert'
+		].includes(x)
+	);
+
+	const update = (data) => {
+		item = data;
+		page_state.clear('home');
+		page_state.clear('shop');
+		page_state.clear('save');
+		page_state.clear('cart');
+	};
+
+	afterNavigate(async () => {
+		loading = true;
+
+		if (page.url.searchParams.has('edit') && is_admin) {
+			page.url.searchParams.delete('edit');
+			edit_mode = true;
+			queueMicrotask(() => replaceState(page.url.href));
+		} else {
+			edit_mode = false;
+		}
+
+		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/after`, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: app.token
+			}
+		});
+		resp = await resp.json();
+
+		comments = {};
+		item_group = [];
+		if (resp.status == 200) {
+			comments = resp.comments;
+			item_group = resp.item_group;
+		}
+		loading = false;
+	});
+</script>
+
+{#key item.key}
+	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
+{/key}
+
+<Meta
+	title={item.name}
+	description={item.information && item.information.length > 100
+		? item.information.slice(0, 100) + '...'
+		: item.information}
+	image={item.photo}
+/>
+
+<Content --content-background-color="var(--bg)">
+	{#if item.item_slug}
+		<Note status="201" note="Item Updated"
+			>This item has been updated since your order. You are viewing the purchased version.
+		</Note>
+	{:else if is_admin}
+		<Switch
+			--toggle-height="21px"
+			--toggle-font-size="0.8rem"
+			--toggle-padding-x="8px"
+			list={['', 'edit']}
+			value={!edit_mode ? '' : 'edit'}
+			onclick={() => {
+				edit_mode = !edit_mode;
+			}}
+		/>
+
+		<br />
+	{/if}
+
+	{#if edit_mode && app.user.access.includes('item.edit_status')}
+		<div class="line status">
+			<Status {item} {update}></Status>
+		</div>
+	{/if}
+
+	<div class="photo_info">
+		<div class="photo">
+			<Photo bind:item {edit_mode} {update} />
+		</div>
+
+		<div class="info">
+			<Date {item} {edit_mode} {update} />
+			<Name {item} {edit_mode} {update} />
+			<Price {item} {edit_mode} {update}>
+				{#if !item.item_slug}
+					<div class="line">
+						<Like {item} />
+						<Button
+							icon="share-2"
+							onclick={() => module.open(Share, { ...item, entity_type: 'item' })}
+						></Button>
+					</div>
+				{/if}
+			</Price>
+			<Variation {item} {edit_mode} {update} />
+			<Information {item} {edit_mode} {update} />
+			<Quantity {item} {edit_mode} {update} />
+			<Metadata {item} {edit_mode} {update} />
+			<Comment {item} {comments} {loading} />
+		</div>
+	</div>
+</Content>
+
+<div class="floater">
+	<div class="floater_block">
+		{#if item.item_slug}
+			<Button
+				--button-background-color="color-mix(in srgb, var(--yellow), transparent 80%)"
+				--button-outline-color="color-mix(in srgb, var(--yellow), transparent 70%)"
+				--button-color="var(--yellow)"
+				href="/{item.item_slug}"
+				onclick={() => (app.item = item.latest)}
+				onmouseenter={() => (app.item = item.latest)}
+			>
+				View latest version
+			</Button>
+		{:else if item.status == 'active' && item.quantity > 0}
+			<Button
+				--button-background-color="var(--cl1)"
+				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
+				--button-color="hsl(0, 0%, 95%)"
+				--button-color-hover="hsl(0, 0%, 95%)"
+				icon="cart"
+				onclick={() => module.open(AddCart, item)}>Add to Chat</Button
+			>
+		{:else}
+			<Button
+				--button-background-color="color-mix(in srgb, red, transparent 80%)"
+				--button-outline-color="color-mix(in srgb, red, transparent 70%)"
+				--button-color="red"
+			>
+				{#if item.status != 'active'}
+					Unavailable
+				{:else if item.quantity == 0}
+					Out of stock
+				{/if}
+			</Button>
+		{/if}
+
+		<Button
+			icon="whatsapp"
+			href="https://api.whatsapp.com/send?phone=+2349113717298&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji.ng%20{page
+				.url.href}"
+			target="_blank"
+		>
+			Chat
+		</Button>
+	</div>
+</div>
+
+{#if item_group.length}
+	<Content --content-height --content-padding-top="1px">
+		{#each item_group as group}
+			<Similar {group} {loading} />
+		{/each}
+	</Content>
+{/if}
+
+<style>
+	.photo_info {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.photo,
+	.info {
+		width: 100%;
+	}
+
+	.floater {
+		position: sticky;
+		bottom: var(--headerHeight);
+
+		background-color: var(--bg);
+		border-top: 1px solid var(--ol);
+
+		& .floater_block {
+			display: flex;
+			gap: 4px;
+			flex-wrap: wrap;
+
+			padding: 8px 24px;
+			width: fit-content;
+			margin: auto;
+		}
+	}
+
+	@media screen and (min-width: 800px) {
+		.photo_info {
+			flex-direction: unset;
+			position: relative;
+		}
+
+		.photo {
+			position: sticky;
+			top: 16px;
+
+			align-self: flex-start;
+		}
+
+		.floater {
+			bottom: 0;
+		}
+	}
+
+	.line.status {
+		margin-bottom: 8px;
+	}
+</style>

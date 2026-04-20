@@ -7,13 +7,14 @@ from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..blog.get import get_blog_tags
+from ..cart.delivery import axis_map, price_map
 from ..cart.get import get_cart_items, has_adderss
 from ..item.get import get_item_tags
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import (access_pass, check_code, generate_code, get_session,
-                     reserved_words, send_mail, user_schema)
+from ..tools import (check_code, generate_code, get_session, reserved_words,
+                     send_mail, user_schema)
 from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
@@ -115,56 +116,6 @@ def copy_like_n_cart(cur, user_key, anon_key):
     """, (out_cart["key"],))
 
 
-@bp.get("/admin/default")
-def default_admin():
-    con, cur = db_open()
-    email = os.environ["MAIL_USERNAME"]
-
-    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
-    if not cur.fetchone():
-        cur.execute("""
-                INSERT INTO "user"
-                (status, name, username, email, password, access)
-                VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
-            """, (
-            "active",
-            "Theophilus",
-            "omni",
-            email,
-            generate_password_hash(
-                os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [f"{x}.{y[0]}" for x in access_pass for y in access_pass[x]]
-        ))
-        user = cur.fetchone()
-
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="created",
-            entity_type="user",
-            entity_key=user["key"]
-        )
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="signedup",
-            entity_type="user",
-            entity_key=user["key"]
-        )
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="activated account",
-            entity_type="user",
-            entity_key=user["key"]
-        )
-
-    db_close(con, cur)
-    return jsonify({
-        "status": 200
-    })
-
-
 @bp.post("/init")
 def init():
     con, cur = db_open()
@@ -183,7 +134,7 @@ def init():
         token = create_session(cur, user["key"])
         login = False
         cur.execute(
-            """INSERT INTO "order" (user_key) VALUES (%s);""", 
+            """INSERT INTO "order" (user_key) VALUES (%s);""",
             (user["key"],)
         )
 
@@ -208,7 +159,9 @@ def init():
         "likes": likes,
         "cart_items": cart_items,
         "item_tags": item_tags,
-        "blog_tags": blog_tags
+        "blog_tags": blog_tags,
+        "axis_map": axis_map,
+        "price_map": price_map
     })
 
 

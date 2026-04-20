@@ -1,81 +1,37 @@
 <script>
-	import { Button } from '$lib/button';
+	import { Icon } from '$lib/macro';
 	import { onMount } from 'svelte';
-	let { value = $bindable(), disabled, min = 0, max = undefined, ondone } = $props();
+	let { value = $bindable(), disabled, ondone, icon } = $props();
 
 	let ready = false;
+	const round = (num, dp = 2) => Math.round((num + Number.EPSILON) * 10 ** dp) / 10 ** dp;
 
 	const set = (val) => {
-		if (val === 'increase') {
-			value += 1;
-		} else if (val === 'decrease') {
-			value -= 1;
-		} else {
-			const num = Number(val);
-
-			if (!Number.isNaN(num)) {
-				value = num;
-			} else {
-				value = 0;
-			}
-		}
-
-		const maxNum = Number(max);
-		const minNum = Number(min);
-
-		if (!Number.isNaN(maxNum) && value > maxNum) {
-			value = maxNum;
-		}
-
-		if (!Number.isNaN(minNum) && value < minNum) {
-			value = minNum;
-		}
-
+		const num = Number(val);
+		value = Number.isNaN(num) ? 0 : num;
+		value = round(Number(value), 2);
 		if (ready) ondone?.(value);
-		ready = true;
 	};
-	onMount(() => set(value));
+
+	onMount(() => {
+		set(value);
+		ready = true;
+	});
 </script>
 
-<!-- TODO: price and package dimensions shoild be float -->
-
-<div class="block">
-	<form onsubmit={(e) => e.preventDefault()}>
-		<Button {disabled} icon="minus" tabindex={-1} onclick={() => set('decrease')}></Button>
-	</form>
-
+<div class="input" class:disabled>
+	{#if icon}
+		<div class="icon">
+			<Icon {icon}></Icon>
+		</div>
+	{/if}
 	<input
 		type="number"
+		min="0"
 		bind:value
 		{disabled}
 		onkeydown={(e) => {
-			const allowedKeys = [
-				'Backspace',
-				'Delete',
-				'Tab',
-				'Escape',
-				'Enter',
-				'Home',
-				'End',
-				'ArrowLeft',
-				'ArrowRight',
-				'0',
-				'1',
-				'2',
-				'3',
-				'4',
-				'5',
-				'6',
-				'7',
-				'8',
-				'9'
-			];
-
-			if (e.ctrlKey) {
-				return;
-			}
-
-			if (!allowedKeys.includes(e.key)) {
+			if (['-', 'e'].includes(e.key.toLowerCase())) {
 				e.preventDefault();
 				return;
 			}
@@ -83,62 +39,46 @@
 		onpaste={(e) => {
 			e.preventDefault();
 			let data = (e.clipboardData || window.clipboardData).getData('text');
-			data = data.replace(/\D/g, '');
-			set(parseInt(data));
+			data = data.replace(/[^0-9.]/g, '');
+
+			const parts = data.split('.');
+			if (parts.length > 2) {
+				data = parts[0] + '.' + parts.slice(1).join('');
+			}
+
+			set(data);
 		}}
-		onblur={() => set(value)}
+		onblur={() => {
+			set(value);
+		}}
 	/>
-
-	<div class="width_helper">
-		{value}
-	</div>
-
-	<form onsubmit={(e) => e.preventDefault()}>
-		<Button {disabled} icon="plus" tabindex={-1} onclick={() => set('increase')}></Button>
-	</form>
 </div>
 
 <style>
-	.block {
-		position: relative;
-
+	.input {
 		display: flex;
 		align-items: center;
-		padding: 2px;
-
-		width: fit-content;
-
-		--button-height: var(--number-height, 44px);
-		--button-width: var(--number-width, 44px);
+		width: 100%;
 	}
 
-	.width_helper {
-		visibility: hidden;
-		padding: 0 var(--number-pading-x, 16px);
-		min-width: var(--input-min-width, 60px);
+	.icon {
+		line-height: 0;
+		padding-left: 16px;
+		flex-shrink: 0;
 	}
-
 	input {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		right: var(--button-width);
-		left: var(--button-width);
-
+		width: 100%;
+		height: var(--input-height, 56px);
 		border: none;
+		padding: 0 var(--input-padding-x, 16px);
 
-		font-size: var(--input-font-size, 1rem);
-		text-align: center;
 		background-color: transparent;
+		color: var(--ft1);
 	}
 
 	input[type='number']::-webkit-outer-spin-button,
 	input[type='number']::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
-	}
-
-	form {
-		line-height: 0;
 	}
 </style>

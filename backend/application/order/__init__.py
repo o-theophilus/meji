@@ -5,7 +5,8 @@ import requests
 from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
 
-from ..cart.get import get_cart_items, has_adderss
+from ..cart.delivery import get_delivery_cost
+from ..cart.get import has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, send_mail
@@ -45,13 +46,13 @@ def order_check():
     cur.execute("""
         SELECT
             item.price,
-            item.quantity,
+            item.quantity AS available_quantity,
             item.status,
-            order_item.quantity AS order_quantity
+            order_item.quantity,
+            item.metadata
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
-        WHERE
-            order_item.order_key = %s;
+        WHERE order_item.order_key = %s;
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
@@ -64,17 +65,20 @@ def order_check():
     for x in items:
         if (
             x["status"] != 'active'
-            or x["order_quantity"] == 0
-            or x["order_quantity"] > x["quantity"]
+            or x["quantity"] == 0
+            or x["quantity"] > x["available_quantity"]
         ):
             return jsonify({
                 "status": 400,
                 "error": "Some items in your cart are no longer available"
             })
 
-    total_order = sum(x["price"] * x["order_quantity"] for x in items)
-    discount = 0
+    total_order = sum(x["price"] * x["quantity"] for x in items)
 
+    delivery_cost = get_delivery_cost(
+        items, order["receiver"]["address"]["area"])
+
+    discount = 0
     cur.execute("""
         SELECT * FROM coupon WHERE order_key = %s;
     """, (order["key"],))
@@ -92,7 +96,7 @@ def order_check():
             if coupon["benefit"]["applies_to"] == 'total order':
                 applies_to = total_order
             elif coupon["benefit"]["applies_to"] == 'delivery fee':
-                applies_to = order["delivery_cost"]
+                applies_to = delivery_cost
 
             if coupon["benefit"]["value_unit"] == 'flat':
                 discount = coupon["benefit"]["value"]
@@ -102,7 +106,7 @@ def order_check():
 
             discount = min(discount, applies_to)
 
-    pay = total_order + order["delivery_cost"] - discount
+    pay = total_order + delivery_cost - discount
     if pay <= 0:
         db_close(con, cur)
         return jsonify({
@@ -158,13 +162,14 @@ def cart_to_order():
         })
 
     cur.execute("""
+
         SELECT
-            item.*,
-            order_item.quantity AS order_quantity
+            item.price,
+            order_item.quantity,
+            item.metadata
         FROM order_item
         LEFT JOIN item ON item.key = order_item.item_key
-        WHERE
-            order_item.order_key = %s;
+        WHERE order_item.order_key = %s;
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
@@ -174,9 +179,12 @@ def cart_to_order():
             "error": "invalid request"
         })
 
-    total_order = sum(x["price"] * x["order_quantity"] for x in items)
-    discount = 0
+    total_order = sum(x["price"] * x["quantity"] for x in items)
 
+    delivery_cost = get_delivery_cost(
+        items, order["receiver"]["address"]["area"])
+
+    discount = 0
     cur.execute("""
         SELECT * FROM coupon WHERE order_key = %s;
     """, (order["key"],))
@@ -194,7 +202,7 @@ def cart_to_order():
             if coupon["benefit"]["applies_to"] == 'total order':
                 applies_to = total_order
             elif coupon["benefit"]["applies_to"] == 'delivery fee':
-                applies_to = order["delivery_cost"]
+                applies_to = delivery_cost
 
             if coupon["benefit"]["value_unit"] == 'flat':
                 discount = coupon["benefit"]["value"]
@@ -204,7 +212,7 @@ def cart_to_order():
 
             discount = min(discount, applies_to)
 
-    pay = total_order + order["delivery_cost"] - discount
+    pay = total_order + delivery_cost - discount
     pay = max(pay, 0)
 
     cur.execute(
@@ -248,12 +256,12 @@ def cart_to_order():
         INSERT INTO item_version(
             item_key, status, date_created, slug, name,
             tags, price, price_old, information, specification,
-            files, variation, quantity
+            files, variation, quantity, metadata
         )
         SELECT
             i.key, i.status, i.date_created, i.slug, i.name,
             i.tags, i.price, i.price_old, i.information, i.specification,
-            i.files, i.variation, i.quantity
+            i.files, i.variation, i.quantity, i.metadata
         FROM order_item oi
         JOIN item i ON i.key = oi.item_key
         WHERE oi.order_key = %s
@@ -269,6 +277,7 @@ def cart_to_order():
             AND v.specification = i.specification
             AND v.files = i.files
             AND v.variation = i.variation
+            AND v.metadata = i.metadata
         );
     """, (order["key"],))
 
@@ -286,7 +295,8 @@ def cart_to_order():
         AND v.information = i.information
         AND v.specification = i.specification
         AND v.files = i.files
-        AND v.variation = i.variation;
+        AND v.variation = i.variation
+        AND v.metadata = i.metadata;
     """, (order["key"],))
 
     cur.execute("""
@@ -309,17 +319,18 @@ def cart_to_order():
         UPDATE "order"
         SET
             status = 'created',
-            order_cost = %s, timeline = %s,
+            order_cost = %s, delivery_cost = %s,
+            timeline = %s,
             payment = %s,  payment_reference = %s
         WHERE key = %s RETURNING *;
     """, (
-        total_order, Json(order["timeline"]),
+        total_order, delivery_cost, Json(order["timeline"]),
         pay, reference,
         order["key"]
     ))
     order = cur.fetchone()
     cur.execute(
-        """INSERT INTO "order" (user_key) VALUES (%s);""", 
+        """INSERT INTO "order" (user_key) VALUES (%s);""",
         (user["key"],)
     )
 

@@ -2,18 +2,22 @@ import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import { page } from '$app/state';
 
+
 export const app = $state({
 	user: {},
 	login: false,
 	highlight: null,
 	likes: [],
 	cart_items: [],
-
+	
 	item: {},
 	blog: {},
 	item_tags: [],
 	blog_tags: [],
-
+	
+	axis_map: {},
+	price_map: {},
+	
 	token_name: 'token',
 	get token() {
 		let cookies = document.cookie.split(';');
@@ -82,14 +86,14 @@ export let notify = $state({
 });
 
 
-
-
 export const page_state = $state({
 	state: {},
+	get searchParams() { return this.state[page.data.page_name].searchParams },
+
 	clear(page_name) {
 		this.state[page_name] = {
 			searchParams: {},
-			data: [],
+			data: null,
 			loaded: false
 		}
 	},
@@ -114,7 +118,11 @@ export const page_state = $state({
 		}
 		this.refresh();
 	},
-	get searchParams() { return this.state[page.data.page_name].searchParams }
+	set_data(page_name, obj) {
+		if (this.state[page_name]) {
+			this.state[page_name].data = obj;
+		}
+	}
 })
 
 

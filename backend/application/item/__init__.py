@@ -111,7 +111,7 @@ def edit(key):
     information = item["information"]
     variation = item["variation"]
     quantity = item["quantity"]
-    package = item["package"]
+    metadata = item["metadata"]
 
     if "status" in request.json:
         status = request.json.get("status")
@@ -209,16 +209,16 @@ def edit(key):
         if not isinstance(quantity, int) or quantity < 0:
             error["quantity"] = "Please enter a valid number"
 
-    if "package" in request.json:
-        package = request.json.get("package", {})
-        if "item.edit_package" not in user["access"]:
+    if "metadata" in request.json:
+        metadata = request.json.get("metadata", {})
+        if "item.edit_metadata" not in user["access"]:
             error["error"] = "unauthorized access"
-        elif type(package) is not dict:
+        elif type(metadata) is not dict:
             error["error"] = "Invalid request"
         elif (
-            "area" in package
-            and package["area"]
-            and package["area"] not in get_areas()
+            "area" in metadata
+            and metadata["area"]
+            and metadata["area"] not in get_areas()
         ):
             error["area"] = "Invalid selection"
 
@@ -233,12 +233,12 @@ def edit(key):
         UPDATE item
         SET status= %s, slug = %s, date_created= %s, name = %s, tags= %s,
         price = %s, price_old = %s,
-        information= %s, variation= %s, quantity= %s, package = %s
+        information= %s, variation= %s, quantity= %s, metadata = %s
         WHERE key = %s RETURNING *;
     """, (
         status, slug, date_created, name, tags,
         Decimal(price), Decimal(price_old),
-        information, Json(variation), quantity, Json(package),
+        information, Json(variation), quantity, Json(metadata),
         item["key"]
     ))
     item = cur.fetchone()
