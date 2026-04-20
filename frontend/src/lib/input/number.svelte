@@ -61,6 +61,11 @@
 		width: 100%;
 	}
 
+	.icon {
+		line-height: 0;
+		padding-left: 16px;
+		flex-shrink: 0;
+	}
 	input {
 		width: 100%;
 		height: var(--input-height, 56px);
@@ -75,11 +80,5 @@
 	input[type='number']::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
-	}
-
-	.icon {
-		line-height: 0;
-		padding-left: 16px;
-		flex-shrink: 0;
 	}
 </style>

@@ -56,7 +56,7 @@
 <Form title="Edit Price" error={error.error}>
 	<IG
 		name="Price (₦)"
-		icon="square-pen"
+		icon="banknote"
 		error={error.price}
 		placeholder="Price here"
 		type="number"
@@ -65,7 +65,7 @@
 
 	<IG
 		name="Old Price (₦)"
-		icon="square-pen"
+		icon="banknote"
 		error={error.price_old}
 		placeholder="Old Price here"
 		type="number"

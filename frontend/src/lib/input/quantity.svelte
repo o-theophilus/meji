@@ -2,30 +2,21 @@
 	import { Button } from '$lib/button';
 	import { onMount } from 'svelte';
 
-	let {
-		value = $bindable(),
-		disabled = false,
-		min = 0,
-		max = undefined,
-		step = 1,
-		ondone
-	} = $props();
+	let { value = $bindable(), disabled = false, min = 0, max = null, ondone } = $props();
 
 	let ready = false;
 
 	const set = (val) => {
-		if (val === 'increase' || val === 'decrease') {
-			const num = Number(value) || 0;
-			value = val === 'increase' ? num + step : num - step;
-		} else {
-			if (val === '') {
-				value = '';
-				if (ready) ondone?.(value);
-				return;
-			}
+		let num = Number(val);
+		let action = null;
+		if (val == 'increase' || val == 'decrease') {
+			num = Number(value);
+			action = val;
+		}
 
-			const num = Number(val);
-			value = Number.isNaN(num) ? 0 : num;
+		value = Number.isNaN(num) ? 0 : num;
+		if (action) {
+			value = action == 'increase' ? value + 1 : value - 1;
 		}
 
 		const maxNum = max != null ? Number(max) : null;
@@ -48,38 +39,16 @@
 	</form>
 
 	<input
-		type="text"
-		inputmode="numeric"
-		pattern="[0-9]*"
+		type="number"
+		min="0"
+		bind:value
 		{disabled}
-		{value}
 		oninput={(e) => set(e.target.value)}
 		onkeydown={(e) => {
-			const allowedKeys = [
-				'Backspace',
-				'Delete',
-				'Tab',
-				'Escape',
-				'Enter',
-				'Home',
-				'End',
-				'ArrowLeft',
-				'ArrowRight',
-				'ArrowUp',
-				'ArrowDown',
-				'0',
-				'1',
-				'2',
-				'3',
-				'4',
-				'5',
-				'6',
-				'7',
-				'8',
-				'9'
-			];
-
-			if (e.ctrlKey || e.metaKey) return;
+			if (['.', '-', 'e'].includes(e.key.toLowerCase())) {
+				e.preventDefault();
+				return;
+			}
 
 			if (e.key === 'ArrowUp') {
 				e.preventDefault();
@@ -92,22 +61,15 @@
 				set('decrease');
 				return;
 			}
-
-			if (!allowedKeys.includes(e.key)) {
-				e.preventDefault();
-			}
 		}}
 		onpaste={(e) => {
 			e.preventDefault();
 			let data = (e.clipboardData || window.clipboardData).getData('text');
 			data = data.replace(/\D/g, '');
-
-			const num = parseInt(data);
-			set(Number.isNaN(num) ? '' : num);
+			set(data);
 		}}
 		onblur={() => {
-			if (value === '') set(min ?? 0);
-			else set(value);
+			set(value);
 		}}
 	/>
 
@@ -152,6 +114,11 @@
 		font-size: var(--input-font-size, 1rem);
 		text-align: center;
 		background-color: transparent;
+	}
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
 
 	form {
