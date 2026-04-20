@@ -10,8 +10,10 @@
 		<div class="block">
 			{#each tags as tag, i}
 				<button onclick={() => page_state.goto('shop', { tag })}>
-					<img src="/image/item_{i + 1}.png" alt="" />
-					<div>
+					<div class="img">
+						<img src="/image/item_{i + 1}.png" alt="" />
+					</div>
+					<div class="details">
 						{tag}
 						<div class="shop">Shop Now</div>
 					</div>
@@ -39,11 +41,12 @@
 		}
 	}
 
-	.title{
+	.title {
 		font-size: 2rem;
 		font-weight: 600;
 		color: var(--ft1);
 	}
+
 	button {
 		all: unset;
 		cursor: pointer;
@@ -51,35 +54,49 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
 
 		width: 100%;
 		aspect-ratio: 1;
 		border-radius: 10%;
-		padding: 16px;
 
 		background-color: var(--bg3);
 		text-decoration: none;
 		color: var(--ft2);
 
+		transition: background-color 0.2s ease-in-out;
+
 		&:hover {
 			background-color: var(--bg2);
 
-			& img {
-				width: 70%;
+			img{
+
+				transform: scale(1.05);
+			}
+		}
+		
+		.img {
+			width: 100%;
+			height: max-content;
+			aspect-ratio: 4/3;
+			padding: 16px;
+			padding-bottom: 0;
+			
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+				transition: transform 0.2s ease-in-out;
 			}
 		}
 
-		& img {
-			width: 70%;
-			aspect-ratio: 1;
-			transition: width 0.2s ease-in-out;
-		}
-	}
+		.details {
+			padding: 16px;
 
-	.shop {
-		color: var(--cl1);
-		font-weight: 800;
-		font-size: 0.9rem;
+			.shop {
+				color: var(--cl1);
+				font-weight: 800;
+				font-size: 0.9rem;
+			}
+		}
 	}
 </style>
