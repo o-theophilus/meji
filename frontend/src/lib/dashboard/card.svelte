@@ -1,5 +1,5 @@
 <script>
-	let { title, data = [], children } = $props();
+	let { title, children } = $props();
 </script>
 
 <div class="card">
@@ -18,7 +18,9 @@
 	}
 
 	.title {
+		color: var(--ft1);
 		font-weight: 800;
 		font-size: 0.8rem;
+		margin-bottom: 8px;
 	}
 </style>

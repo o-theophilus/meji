@@ -2,13 +2,13 @@
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Login } from '$lib/auth';
-	import { Button, LinkArrow } from '$lib/button';
+	import { Button } from '$lib/button';
 	import { Dialogue } from '$lib/info';
 	import { Content, PageTitle } from '$lib/layout';
 	import { Log, Meta, ToTop } from '$lib/macro';
-	import { module, page_state } from '$lib/store.svelte.js';
+	import { module } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
-	import { About, Advert, CTA, FAQ, Hero, ItemGroup, ItemGroup2, Tags, Testimonial } from './_home';
+	import { About, Advert, CTA, FAQ, Hero, ItemGroup, Tags, Testimonial } from './_home';
 
 	let { data } = $props();
 	let new_arrivals = $derived(data.new_arrivals);
@@ -72,40 +72,9 @@
 	</PageTitle>
 
 	<Hero />
-	<Advert space="home_1" --advert-margin-top="80px"  --advert-margin-bottom="80px" />
+	<Advert space="home_1" --advert-margin-top="80px" --advert-margin-bottom="80px" />
 	<Tags />
-
-
-	<!--  TODO:
-	4. Featured Collection
-
-✔ Smart merge
-👉 Use tabs or subtle filters:
-
-Best
-New
-Offers
- -->
-	<ItemGroup id="new_arrivals" items={new_arrivals}>
-		{#snippet _title()}
-			<div class="page_title">New Arrivals</div>
-			<LinkArrow
-				onclick={() => page_state.goto('shop', { order: 'latest' })}
-				--link-font-size="0.8rem">See All</LinkArrow
-			>
-		{/snippet}
-	</ItemGroup>
-
-	<ItemGroup2 id="discount" items={discount}>
-		{#snippet _title()}
-			<div class="page_title">Discounted Items</div>
-			<LinkArrow
-				onclick={() => page_state.goto('shop', { order: 'discount' })}
-				--link-font-size="0.8rem">See All</LinkArrow
-			>
-		{/snippet}
-	</ItemGroup2>
-
+	<ItemGroup></ItemGroup>
 	<About></About>
 	<Testimonial></Testimonial>
 	<FAQ></FAQ>

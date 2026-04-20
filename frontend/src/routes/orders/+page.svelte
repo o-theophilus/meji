@@ -104,7 +104,7 @@
 	</div>
 </Content>
 
-<Content --content-padding-top="1px" --content-width="100%">
+<Content --content-padding-top="1px">
 	{#each orders as order (order.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
 			<One {order} />

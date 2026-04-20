@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from ..postgres import db_close, db_open
 from ..tools import access_pass, get_session, user_schema
+from .dashboard import dashboard
 
 bp = Blueprint("user_get", __name__)
 
@@ -25,6 +26,7 @@ def get(key):
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
+    viewer = session["user"]
 
     cur.execute("""
         SELECT
@@ -44,6 +46,10 @@ def get(key):
             "error": "Oops! The user you're looking for doesn't exist"
         })
 
+    _dashboard = {}
+    if viewer["key"] == user["key"]:
+        _dashboard = dashboard(cur, user["key"])
+
     _access = {}
     for x in access_pass:
         if x not in _access:
@@ -57,7 +63,8 @@ def get(key):
     return jsonify({
         "status": 200,
         "user": user_schema(user),
-        "access": _access
+        "dashboard": _dashboard,
+        "access": _access,
     })
 
 

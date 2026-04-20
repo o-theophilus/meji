@@ -9,7 +9,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
         throw error(404, "Unauthorized access")
     }
 
-    let page_name = "dashboard"
+    let page_name = "admin_dashboard"
     if (!page_state.state[page_name]) {
         let sp = {}
         for (let [key, value] of url.searchParams) {

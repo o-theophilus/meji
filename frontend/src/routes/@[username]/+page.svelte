@@ -1,8 +1,8 @@
 <script>
-	import { Button, LinkArrow, RoundButton, Switch } from '$lib/button';
+	import { Button, RoundButton, Switch } from '$lib/button';
 	import { Content } from '$lib/layout';
 	import { Avatar, Icon, Log, Meta } from '$lib/macro';
-	import { app, module, page_state } from '$lib/store.svelte.js';
+	import { app, module } from '$lib/store.svelte.js';
 	import Block from './_block.svelte';
 	import Name from './_name.svelte';
 	import Phone from './_phone.svelte';
@@ -11,6 +11,7 @@
 	import Report from './_report.svelte';
 	import Username from './_username.svelte';
 	import Access from './access/form.svelte';
+	import Dashboard from './dashboard.svelte';
 	import Delete from './delete/form.svelte';
 	import Email from './email/1_email.svelte';
 	import Password from './password/1_email.svelte';
@@ -157,15 +158,8 @@
 		</div>
 	{/if}
 
-	{#if app.user.access.includes('log.view')}
-		<div class="center pad">
-			<LinkArrow
-				--link-font-size="0.8rem"
-				onclick={() => page_state.goto('log', { u_search: user.key })}
-			>
-				View Logs
-			</LinkArrow>
-		</div>
+	{#if app.login && user.key == app.user.key}
+		<Dashboard></Dashboard>
 	{/if}
 </Content>
 
@@ -178,9 +172,5 @@
 	.center {
 		text-align: center;
 		justify-content: center;
-	}
-
-	.pad {
-		margin: 16px 0;
 	}
 </style>

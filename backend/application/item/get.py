@@ -417,7 +417,7 @@ def get_comments(key, _page_size=24, cur=None):
             COUNT(*) FILTER (WHERE parent_key IS NULL) AS total_parent
         FROM comment
         WHERE item_key = %s;
-    """, (key,))
+    """, (item["key"],))
     total = cur.fetchone()
     total_comment = total["total_comment"]
     total_parent = total["total_parent"]
@@ -508,7 +508,7 @@ def home_page():
     con, cur = db_open()
 
     new_arrivals = get_items(cur, "latest", 8).json['items']
-    discount = get_items(cur, "discount", 16).json['items']
+    discount = get_items(cur, "discount", 8).json['items']
 
     db_close(con, cur)
     return jsonify({

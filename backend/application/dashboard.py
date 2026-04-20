@@ -8,7 +8,7 @@ from .order.get import order_status
 from .postgres import db_close, db_open
 from .tools import access_pass, get_session
 
-bp = Blueprint("dashboard", __name__)
+bp = Blueprint("admin_dashboard", __name__)
 
 
 def default_admin(cur):
@@ -97,7 +97,6 @@ def new_users(cur, interval):
 def top_users(cur):
     cur.execute("""
         SELECT
-            u.key,
             u.username,
             u.name,
             COUNT(o.key) AS orders,
@@ -230,6 +229,7 @@ def order_revenue(cur, interval):
 
 
 def order_recent(cur):
+    # TODO: subtract coupon from total
     cur.execute("""
         SELECT
             o.key,
@@ -335,10 +335,7 @@ def dashboard():
         "1 month": "1 month",
     }
 
-    searchParams = {
-        "interval": "24 hours",
-    }
-
+    searchParams = {"interval": "24 hours", }
     interval = request.args.get("interval", searchParams["interval"])
 
     _new_users = new_users(cur, intervals[interval])

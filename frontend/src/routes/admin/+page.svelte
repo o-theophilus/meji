@@ -1,6 +1,5 @@
 <script>
 	import { replaceState } from '$app/navigation';
-	import { page } from '$app/state';
 	import { LinkArrow } from '$lib/button/';
 	import { Card, Doughnut, LineChart, Summary, Table } from '$lib/dashboard';
 	import { Dropdown } from '$lib/input';
@@ -8,14 +7,13 @@
 	import { Log, Meta } from '$lib/macro';
 	import { page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
+
 	let { data } = $props();
+	let dashboard = $state(data);
+
 	let { filters } = data;
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
-
-	let order_recent = $state([]);
-	let item_top_purchase = $state([]);
-	let top_users = $state([]);
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -26,21 +24,28 @@
 			}
 		}
 
-		for (let x of page.data.order_recent) {
+		for (let x of dashboard.order_recent) {
 			x.id = `#${x.key.substring(0, 8)}`;
+			x.href = `/orders/${x.key}`;
 			x.customer = x.name;
+			x.href2 = `/@${x.username}`;
 			x.total = `₦${Number(x.total).toLocaleString()}`;
-			order_recent.push(x);
 		}
 
-		for (let x of page.data.item_top_purchase) {
+		for (let x of dashboard.item_low_quantity) {
+			x.href = `/${x.slug}`;
+		}
+
+		for (let x of dashboard.top_users) {
+			x.href = `/@${x.username}`;
+		}
+
+		for (let x of dashboard.item_top_purchase) {
 			x.revenue = `₦${Number(x.total).toLocaleString()}`;
-			item_top_purchase.push(x);
 		}
 
-		for (let x of page.data.top_users) {
+		for (let x of dashboard.top_users) {
 			x.spent = `₦${Number(x.spent).toLocaleString()}`;
-			top_users.push(x);
 		}
 	});
 
@@ -75,7 +80,7 @@
 			<Card>
 				<Summary
 					title="Sales {searchParams.interval}"
-					data={page.data.order_revenue}
+					data={dashboard.order_revenue}
 					money
 					icon="banknote"
 					interval={searchParams.interval}
@@ -84,7 +89,7 @@
 			<Card>
 				<Summary
 					title="Orders {searchParams.interval}"
-					data={page.data.order_count}
+					data={dashboard.order_count}
 					icon="receipt-text"
 					interval={searchParams.interval}
 				></Summary>
@@ -92,7 +97,7 @@
 			<Card>
 				<Summary
 					title="New Users {searchParams.interval}"
-					data={page.data.new_users}
+					data={dashboard.new_users}
 					icon="User"
 					interval={searchParams.interval}
 				></Summary>
@@ -100,7 +105,7 @@
 			<Card>
 				<Summary
 					title="Item Available"
-					data={page.data.item_available}
+					data={dashboard.item_available}
 					icon="box"
 					interval={searchParams.interval}
 				></Summary>
@@ -109,38 +114,39 @@
 
 		<div class="margin">
 			<Card title="SALES CHART">
-				{#key page.data.sales_chart}
-					<LineChart data={page.data.sales_chart}></LineChart>
+				{#key dashboard.sales_chart}
+					<LineChart data={dashboard.sales_chart}></LineChart>
 				{/key}
 			</Card>
 		</div>
 
-		<div class="order_container margin">
+		<div class="two margin">
 			<Card title="RECENT ORDERS">
-				<Table data={order_recent} headers={['id', 'customer', 'total', 'status']}></Table>
+				<Table
+					data={dashboard.order_recent}
+					columns={['id:href', 'customer:href2', 'total', 'status']}
+				></Table>
 
 				<LinkArrow href="/orders" --link-font-size="0.7rem">View more</LinkArrow>
+			</Card>
+
+			<Card title="Low Stock">
+				<Table data={dashboard.item_low_quantity} columns={['name:href', 'quantity']}></Table>
 			</Card>
 		</div>
 
 		<div class="margin">
 			<Card title="ORDERS STATUS">
-				<Doughnut data={page.data.order_summary}></Doughnut>
-			</Card>
-		</div>
-
-		<div class="margin">
-			<Card title="Low Stock">
-				<Table data={page.data.item_low_quantity} headers={['name', 'quantity']}></Table>
+				<Doughnut data={dashboard.order_summary}></Doughnut>
 			</Card>
 		</div>
 
 		<div class="two margin">
 			<Card title="TOP PRODUCTS">
-				<Table data={item_top_purchase} headers={['name', 'units', 'revenue']}></Table>
+				<Table data={dashboard.item_top_purchase} columns={['name', 'units', 'revenue']}></Table>
 			</Card>
 			<Card title="TOP Customers">
-				<Table data={top_users} headers={['name', 'orders', 'spent']}></Table>
+				<Table data={dashboard.top_users} columns={['name:href', 'orders', 'spent']}></Table>
 			</Card>
 		</div>
 
