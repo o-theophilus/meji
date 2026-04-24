@@ -218,15 +218,15 @@
 	.floater {
 		position: sticky;
 		bottom: var(--headerHeight);
-
+		
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
-
+		
 		& .floater_block {
 			display: flex;
 			gap: 4px;
 			flex-wrap: wrap;
-
+			
 			padding: 8px 24px;
 			width: fit-content;
 			margin: auto;
@@ -238,10 +238,10 @@
 			flex-direction: unset;
 			position: relative;
 		}
-
+		
 		.photo {
 			position: sticky;
-			top: 16px;
+			top: calc(16px + var(--headerHeight));
 
 			align-self: flex-start;
 		}

@@ -58,19 +58,21 @@
 <style>
 	.img {
 		position: relative;
-		background-color: var(--bg1);
 		border-radius: 8px;
 		overflow: hidden;
+		background-color: var(--bg1);
+		background-image: url(/image/bg.png);
+		background-size: 50%;
 
-		& img {
+		img {
 			display: block;
 
 			width: 100%;
 			aspect-ratio: 1;
-			object-fit: cover;
+			object-fit: contain;
 		}
 
-		& .edit {
+		.edit {
 			position: absolute;
 			bottom: 8px;
 			left: 8px;
@@ -87,7 +89,7 @@
 		flex-wrap: wrap;
 		margin-top: 16px;
 
-		& img {
+		img {
 			width: var(--size);
 			height: var(--size);
 			border-radius: 4px;

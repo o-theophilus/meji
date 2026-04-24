@@ -29,7 +29,7 @@
 			{#if Number(item.price)}
 				₦{Number(item.price).toLocaleString()}
 			{:else}
-				<span> Nil </span>
+				<span> No Price </span>
 			{/if}
 		</div>
 
