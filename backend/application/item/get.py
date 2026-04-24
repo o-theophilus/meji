@@ -154,7 +154,7 @@ def get_items(cur=None, _order="latest", _page_size=24):
     tags = tag.split(",") if tag else []
     if tags != []:
         tag_query = f"AND cardinality(item.tags) > 0 AND item.tags {op} %s"
-        params.append(tags)
+        params.append([x.lower() for x in tags])
 
     params.append(page_size)
     params.append((page_no - 1) * page_size)

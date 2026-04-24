@@ -236,7 +236,7 @@ def edit(key):
         information= %s, variation= %s, quantity= %s, metadata = %s
         WHERE key = %s RETURNING *;
     """, (
-        status, slug, date_created, name, tags,
+        status, slug, date_created, name, [x.lower() for x in tags],
         Decimal(price), Decimal(price_old),
         information, Json(variation), quantity, Json(metadata),
         item["key"]
