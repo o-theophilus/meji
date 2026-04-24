@@ -9,7 +9,7 @@
 
 		<div class="block">
 			{#each tags as tag, i}
-				<button onclick={() => page_state.goto('shop', { tag })}>
+				<button onclick={() => page_state.goto('shop', { tag: tag.toLowerCase() })}>
 					<div class="img">
 						<img src="/image/item_{i + 1}.png" alt="" />
 					</div>
