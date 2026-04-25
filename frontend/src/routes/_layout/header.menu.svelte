@@ -116,7 +116,7 @@
 						Admin
 					</a>
 				{/if}
-				<a
+				<!-- <a
 					href="/orders"
 					class="menu_item"
 					onclick={() => {
@@ -135,7 +135,7 @@
 					>
 						Logs
 					</a>
-				{/if}
+				{/if} -->
 			{/if}
 			<div class="menu_item theme">
 				Theme

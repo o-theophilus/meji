@@ -32,12 +32,6 @@
 	});
 </script>
 
-<br />
-<br />
-<br />
-<br />
-<br />
-
 <div class="container">
 	<div class="two margin">
 		<Card>
