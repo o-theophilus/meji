@@ -163,13 +163,15 @@
 			</Button>
 		{:else if item.status == 'active' && item.quantity > 0}
 			<Button
-				--button-background-color="var(--cl1)"
-				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
-				--button-color="hsl(0, 0%, 95%)"
-				--button-color-hover="hsl(0, 0%, 95%)"
+				--button-background-color="var(--cl3)"
+				--button-background-color-hover="var(--cl3_)"
+				--button-color="white"
+				--button-outline-color="transparent"
 				icon="cart"
-				onclick={() => module.open(AddCart, item)}>Add to Chat</Button
+				onclick={() => module.open(AddCart, item)}
 			>
+				Add to Chat
+			</Button>
 		{:else}
 			<Button
 				--button-background-color="color-mix(in srgb, red, transparent 80%)"
@@ -218,15 +220,15 @@
 	.floater {
 		position: sticky;
 		bottom: var(--headerHeight);
-		
+
 		background-color: var(--bg);
 		border-top: 1px solid var(--ol);
-		
+
 		& .floater_block {
 			display: flex;
 			gap: 4px;
 			flex-wrap: wrap;
-			
+
 			padding: 8px 24px;
 			width: fit-content;
 			margin: auto;
@@ -238,7 +240,7 @@
 			flex-direction: unset;
 			position: relative;
 		}
-		
+
 		.photo {
 			position: sticky;
 			top: calc(16px + var(--headerHeight));

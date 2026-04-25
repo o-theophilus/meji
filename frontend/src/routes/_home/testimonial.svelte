@@ -119,6 +119,7 @@
 
 	.title {
 		font-size: 2rem;
+		text-align: center;
 		color: var(--ft1);
 		line-height: 120%;
 		font-weight: 600;

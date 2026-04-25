@@ -129,9 +129,10 @@
 	</IG>
 
 	<Button
-		--button-background-color="var(--cl1)"
+		--button-background-color="var(--cl3)"
+		--button-background-color-hover="var(--cl3_)"
+		--button-color="white"
 		--button-outline-color="transparent"
-		--button-color="hsl(0, 0%, 95%)"
 		icon2="send-horizontal"
 		onclick={validate}>Contact Support</Button
 	>

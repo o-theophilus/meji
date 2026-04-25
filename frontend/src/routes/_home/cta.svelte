@@ -8,7 +8,8 @@
 	<div class="text">The best deals are just a click away.</div>
 	<br />
 	<Button
-		--button-background-color="var(--cl1)"
+		--button-background-color="var(--cl3)"
+		--button-background-color-hover="var(--cl3_)"
 		--button-color="white"
 		--button-outline-color="transparent"
 		href="/shop"

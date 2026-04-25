@@ -42,6 +42,6 @@
 
 	:focus,
 	:hover {
-		color: var(--link-color-hover, color-mix(in srgb, var(--cl1), black 30%));
+		color: var(--link-color-hover, var(--cl1_));
 	}
 </style>

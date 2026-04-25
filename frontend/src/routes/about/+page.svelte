@@ -23,11 +23,12 @@
 			<br />
 			<br />
 			<Button
-				--button-background-color="var(--cl1)"
+				--button-background-color="var(--cl3)"
+				--button-background-color-hover="var(--cl3_)"
 				--button-color="white"
 				--button-outline-color="transparent"
 				href="/shop"
-				icon="shop"
+				icon2="arrow-right"
 			>
 				Shop Now
 			</Button>
@@ -186,10 +187,12 @@
 		make.
 
 		<Button
-			--button-background-color="var(--cl1)"
+			--button-background-color="var(--cl3)"
+			--button-background-color-hover="var(--cl3_)"
 			--button-color="white"
 			--button-outline-color="transparent"
-			href="/contact"
+			href="/shop"
+			icon2="arrow-right"
 		>
 			Shop Now
 		</Button>

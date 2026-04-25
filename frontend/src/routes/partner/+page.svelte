@@ -26,7 +26,8 @@
 			<br />
 
 			<Button
-				--button-background-color="var(--cl1)"
+				--button-background-color="var(--cl3)"
+				--button-background-color-hover="var(--cl3_)"
 				--button-color="white"
 				--button-outline-color="transparent"
 				href="/contact"
@@ -58,7 +59,8 @@
 	<div class="margin block bg">
 		<div class="title center">Ready to Become a Partner?</div>
 		<Button
-			--button-background-color="var(--cl1)"
+			--button-background-color="var(--cl3)"
+			--button-background-color-hover="var(--cl3_)"
 			--button-color="white"
 			--button-outline-color="transparent"
 			href="/contact"
@@ -143,7 +145,8 @@
 		<div class="title">Ready to start selling more?</div>
 		<br />
 		<Button
-			--button-background-color="var(--cl1)"
+			--button-background-color="var(--cl3)"
+			--button-background-color-hover="var(--cl3_)"
 			--button-color="white"
 			--button-outline-color="transparent"
 			href="/contact"

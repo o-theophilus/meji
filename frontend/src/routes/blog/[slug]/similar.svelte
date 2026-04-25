@@ -92,17 +92,17 @@
 		display: flex;
 		gap: 16px;
 
-		& .link {
+		 .link {
 			text-decoration: none;
-			color: var(--link-color, var(--link));
+			color: var(--ft1);
 			font-weight: 700;
-
+			
 			line-height: 10%;
-
+			
 			transition: color 0.2s ease-in-out;
-
+			
 			&:hover {
-				color: var(--link-color-hover, color-mix(in srgb, var(--link), black 30%));
+				color: var(--cl1_);
 			}
 		}
 
