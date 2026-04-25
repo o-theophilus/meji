@@ -103,7 +103,7 @@ def top_users(cur):
             SUM(o.order_cost + o.delivery_cost) AS spent
         FROM "order" o
         LEFT JOIN "user" u ON o.user_key = u.key
-        WHERE o.status NOT IN ('cart','canceled','returned')
+        WHERE o.status NOT IN ('cart','canceled','returning','returned')
         GROUP BY u.key, u.username, u.name
         ORDER BY spent DESC
         LIMIT 5;
@@ -211,7 +211,7 @@ def order_revenue(cur, interval):
                     END
                 ) AS prev_value
             FROM "order" o
-            WHERE o.status NOT IN ('cart', 'canceled', 'returning', 'returned')
+            WHERE o.status NOT IN ('cart','canceled','returning','returned')
         )
 
         SELECT
@@ -280,23 +280,22 @@ def item_low_quantity(cur):
 def item_top_purchase(cur, interval):
     cur.execute(f"""
         SELECT
-            i.name,
-            i.slug,
+            iv.item_key,
+            iv.slug,
+            iv.name,
             SUM(oi.quantity) AS units,
-            SUM(oi.quantity * i.price) AS total
-        FROM order_item oi
-        JOIN "order" o ON o.key = oi.order_key
-        JOIN item_version i
-            ON i.key = oi.item_key
-        WHERE o.status NOT IN ('cart', 'canceled', 'returned')
+            SUM(oi.quantity * iv.price) AS total
+        FROM "order" o
+        LEFT JOIN order_item oi ON o.key = oi.order_key
+        LEFT JOIN item_version iv ON iv.key = oi.item_version_key
+        WHERE o.status NOT IN ('cart','canceled','returning','returned')
         AND (o.timeline->>'created')::timestamp
             >= NOW() - INTERVAL '{interval}'
-        GROUP BY i.item_key, i.name, i.slug
+        GROUP BY iv.item_key, iv.name, iv.slug
         ORDER BY units DESC
         LIMIT 10;
     """)
     return cur.fetchall()
-    # TODO: JOIN item_version
 
 
 # def coupon_usage(cur):

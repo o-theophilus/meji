@@ -2,11 +2,11 @@ from math import ceil
 
 from flask import Blueprint, jsonify, request
 
+from ..cart.delivery import get_areas
 from ..postgres import db_close, db_open
 from ..tools import get_session, item_schema
 from .get_group import (customer_view, recently_viewed, recommended,
                         similar_items)
-from ..cart.delivery import get_areas
 
 bp = Blueprint("item_get", __name__)
 
@@ -253,6 +253,23 @@ def get_comments(key, _page_size=24, cur=None):
         })
 
     cur.execute(f"""
+        WITH sub_c AS (
+            SELECT parent_key, COUNT(*) AS reply_count
+            FROM comment
+            WHERE parent_key IS NOT NULL
+            GROUP BY parent_key
+        ),
+
+        l AS (
+            SELECT
+                comment_key,
+                COUNT(*) FILTER (WHERE reaction = 'like') -
+                COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
+            FROM "like"
+            WHERE comment_key IS NOT NULL
+            GROUP BY comment_key
+        )
+
         SELECT
             c.key, c.date_created, c.comment, c.rating,
             u.key AS user_key, u.name, u.username, u.photo,
@@ -261,23 +278,8 @@ def get_comments(key, _page_size=24, cur=None):
 
         FROM comment c
         JOIN "user" u ON u.key = c.user_key
-
-        LEFT JOIN (
-            SELECT parent_key, COUNT(*) AS reply_count
-            FROM comment
-            WHERE parent_key IS NOT NULL
-            GROUP BY parent_key
-        ) sub_c ON sub_c.parent_key = c.key
-
-        LEFT JOIN (
-            SELECT
-                comment_key,
-                COUNT(*) FILTER (WHERE reaction = 'like') -
-                COUNT(*) FILTER (WHERE reaction = 'dislike') AS most_like
-            FROM "like"
-            WHERE comment_key IS NOT NULL
-            GROUP BY comment_key
-        ) l ON l.comment_key = c.key
+        LEFT JOIN sub_c ON sub_c.parent_key = c.key
+        LEFT JOIN l ON l.comment_key = c.key
 
         WHERE c.item_key = %s AND c.parent_key IS NULL
         ORDER BY {order_by[order]} {order_dir[order]}, c.key DESC
@@ -392,22 +394,32 @@ def get_comments(key, _page_size=24, cur=None):
         WITH purchase_check AS (
             SELECT EXISTS (
                 SELECT 1
-                FROM item_version item
-                JOIN order_item ON item.key = order_item.item_key
-                JOIN "order" o ON order_item.order_key = o.key
-                WHERE o.user_key = %s AND item.key = %s
+                FROM "order" o
+                LEFT JOIN order_item oi ON o.key = oi.order_key
+                LEFT JOIN item_version iv ON oi.item_version_key = iv.key
+                WHERE
+                    o.user_key = %s
                     AND o.status = 'delivered'
+                    AND iv.item_key = %s
             ) AS has_purchased
-        )
-        SELECT
-            has_purchased,
-            has_purchased
-            AND NOT EXISTS (
-                SELECT 1 FROM comment
-                WHERE comment.user_key = %s
+        ),
+
+        comment_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM comment
+                WHERE
+                    comment.user_key = %s
                     AND comment.item_key = %s
-            ) AS can_comment
-        FROM purchase_check;
+                    AND comment.parent_key IS NULL
+            ) AS has_commented
+        )
+
+        SELECT
+            purchase_check.has_purchased,
+            purchase_check.has_purchased AND NOT comment_check.has_commented
+                AS can_comment
+        FROM purchase_check, comment_check
     """, (user["key"], item["key"], user["key"], item["key"]))
     user_comment_info = cur.fetchone()
 

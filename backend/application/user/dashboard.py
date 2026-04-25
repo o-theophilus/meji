@@ -39,13 +39,14 @@ def give_feedback(cur, user_key):
     cur.execute("""
         SELECT iv.name, iv.slug
 
-        FROM  "order" o
+        FROM "order" o
         LEFT JOIN order_item oi ON o.key = oi.order_key
         LEFT JOIN item_version iv ON oi.item_version_key = iv.key
-        LEFT JOIN comment c ON iv.item_key = c.item_key AND c.user_key = %s
+        LEFT JOIN item i ON iv.item_key = i.key
+        LEFT JOIN comment c ON i.key = c.item_key AND c.user_key = %s
         WHERE o.user_key = %s
             AND o.status = 'delivered'
-            AND iv.status = 'active'
+            AND i.status = 'active'
             AND c.key IS NULL
         ORDER BY (o.timeline->>'delivered')::timestamp DESC
         LIMIT 6;

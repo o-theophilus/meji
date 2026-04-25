@@ -404,20 +404,32 @@ def add_comment(key):
         WITH purchase_check AS (
             SELECT EXISTS (
                 SELECT 1
-                FROM item_version i
-                JOIN "order" o ON o.key = i.order_key
-                WHERE o.user_key = %s AND i.item_key = %s
+                FROM "order" o
+                LEFT JOIN order_item oi ON o.key = oi.order_key
+                LEFT JOIN item_version iv ON oi.item_version_key = iv.key
+                WHERE
+                    o.user_key = %s
                     AND o.status = 'delivered'
+                    AND iv.item_key = %s
             ) AS has_purchased
+        ),
+
+        comment_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM comment
+                WHERE
+                    comment.user_key = %s
+                    AND comment.item_key = %s
+                    AND comment.parent_key IS NULL
+            ) AS has_commented
         )
+
         SELECT
-            has_purchased,
-            has_purchased
-            AND NOT EXISTS (
-                SELECT 1 FROM comment
-                WHERE comment.user_key = %s AND comment.item_key = %s
-            ) AS can_comment
-        FROM purchase_check;
+            purchase_check.has_purchased,
+            purchase_check.has_purchased AND NOT comment_check.has_commented
+                AS can_comment
+        FROM purchase_check, comment_check
     """, (user["key"], item["key"], user["key"], item["key"]))
     user_comment_info = cur.fetchone()
 
