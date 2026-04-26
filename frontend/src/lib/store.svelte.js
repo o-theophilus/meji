@@ -12,7 +12,8 @@ export const app = $state({
 	
 	item: {},
 	blog: {},
-	item_tags: [],
+	item_all_tags: [],
+	item_featured_tags: [],
 	blog_tags: [],
 	
 	axis_map: {},

@@ -24,6 +24,7 @@ def create_tables():
 
     cur.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
     cur.execute("""
+        DROP TABLE IF EXISTS app CASCADE;
         DROP TABLE IF EXISTS "user" CASCADE;
         DROP TABLE IF EXISTS session CASCADE;
         DROP TABLE IF EXISTS log CASCADE;
@@ -39,6 +40,11 @@ def create_tables():
         DROP TABLE IF EXISTS "order" CASCADE;
         DROP TABLE IF EXISTS order_item CASCADE;
         DROP TABLE IF EXISTS coupon CASCADE;
+
+        CREATE TABLE IF NOT EXISTS app (
+            key TEXT PRIMARY KEY,
+            value JSONB DEFAULT '{}'::JSONB
+        );
 
         CREATE TABLE IF NOT EXISTS "user" (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),

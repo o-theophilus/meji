@@ -11,28 +11,6 @@ from .get_group import (customer_view, recently_viewed, recommended,
 bp = Blueprint("item_get", __name__)
 
 
-def get_item_tags(cur=None):
-    cur.execute("SELECT tags FROM item WHERE status = 'active';")
-    temp = cur.fetchall()
-
-    tags = []
-    for x in temp:
-        tags += x["tags"]
-
-    tags_count = []
-    unique_tags = []
-    for x in tags:
-        if x not in unique_tags:
-            unique_tags.append(x)
-            tags_count.append({
-                "tag":  x,
-                "count":  tags.count(x)
-            })
-
-    tags_count = sorted(tags_count, key=lambda d: d["count"], reverse=True)
-    return [x["tag"] for x in tags_count]
-
-
 @bp.get("/items/<key>")
 def get(key):
     con, cur = db_open()

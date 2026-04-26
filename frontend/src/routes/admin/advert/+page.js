@@ -5,6 +5,9 @@ export const load = async ({ fetch, url, parent, depends }) => {
 	depends(true)
 
 	let a = await parent();
+	if (!a.locals.user.access.includes("item.advert")) {
+		throw error(400, "Unauthorized access")
+	}
 
 	let page_name = "adverts"
 	if (!page_state.state[page_name]) {

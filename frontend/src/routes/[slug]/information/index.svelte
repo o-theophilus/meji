@@ -52,9 +52,11 @@
 		{#if item.tags.length}
 			<div class="line">
 				{#each item.tags as x}
-					<Tag onclick={() => page_state.goto('shop', { tag: x })}>
-						{x}
-					</Tag>
+					{#if app.item_featured_tags.includes(x)}
+						<Tag onclick={() => page_state.goto('shop', { tag: x })}>
+							{x}
+						</Tag>
+					{/if}
 				{/each}
 			</div>
 		{:else if edit_tag}

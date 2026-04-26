@@ -23,7 +23,10 @@ access_pass = {
     ],
     "admin": [
         ['manage_files', 3],
-        ['maintenance', 3]
+        ['maintenance', 3],
+        ['tag.featured', 3],
+        ['tag.rename', 3],
+        ['tag.delete', 3],
     ],
     "item": [
         ['add', 2],

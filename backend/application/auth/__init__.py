@@ -6,10 +6,10 @@ from flask import Blueprint, jsonify, request
 from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from ..api.item_tag import get_iten_tags
 from ..blog.get import get_blog_tags
 from ..cart.delivery import axis_map, price_map
 from ..cart.get import get_cart_items, has_adderss
-from ..item.get import get_item_tags
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
@@ -147,7 +147,7 @@ def init():
         )
 
     likes = get_user_like(cur, user["key"])
-    item_tags = get_item_tags(cur)
+    item_tags = get_iten_tags(cur).json
     blog_tags = get_blog_tags(cur)
 
     db_close(con, cur)
@@ -158,7 +158,8 @@ def init():
         "login": login,
         "likes": likes,
         "cart_items": cart_items,
-        "item_tags": item_tags,
+        "item_all_tags": item_tags["all"],
+        "item_featured_tags": item_tags["featured"],
         "blog_tags": blog_tags,
         "axis_map": axis_map,
         "price_map": price_map

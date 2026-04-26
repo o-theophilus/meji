@@ -13,13 +13,10 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        ALTER TABLE item
-        ADD COLUMN metadata JSONB DEFAULT '{}'::JSONB;
-    """)
-
-    cur.execute("""
-        ALTER TABLE item_version
-        ADD COLUMN metadata JSONB DEFAULT '{}'::JSONB;
+        CREATE TABLE IF NOT EXISTS app (
+            key TEXT PRIMARY KEY,
+            value JSONB DEFAULT '{}'::JSONB
+        );
     """)
 
     db_close(con, cur)

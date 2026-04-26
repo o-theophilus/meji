@@ -4,6 +4,8 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module, notify } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { cubicInOut } from 'svelte/easing';
 
 	let error = $state({});
 	let init = module.value.tags;
@@ -19,8 +21,8 @@
 			.filter((v, i, arr) => arr.indexOf(v) === i)
 	);
 	let unused_tags = $derived.by(() => {
-		if (!app.item_tags) return [];
-		return app.item_tags.filter((i) => !tags.includes(i));
+		if (!app.item_all_tags) return [];
+		return app.item_all_tags.filter((i) => !tags.includes(i));
 	});
 
 	const validate = () => {
@@ -68,12 +70,12 @@
 			tags_string = module.value.name.split(' ').join(', ');
 		}
 
-		if (!app.item_tags) {
+		if (!app.item_all_tags) {
 			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
 			resp = await resp.json();
 
 			if (resp.status == 200) {
-				app.item_tags = resp.tags;
+				app.item_all_tags = resp.tags;
 			}
 		}
 		_loading = false;
@@ -90,15 +92,27 @@
 		onblur={() => clean_value()}
 	/>
 
-	<div class="tags">
-		{#each unused_tags as x}
-			<Tag
-				onclick={() => {
-					clean_value(x);
-				}}>{x}</Tag
-			>
-		{/each}
-	</div>
+	<IG name="All">
+		{#snippet input()}
+			<div class="tags">
+				{#each unused_tags as x (x)}
+					<div
+						class="tag"
+						class:featured={app.item_featured_tags.includes(x)}
+						animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}
+					>
+						<Tag
+							onclick={() => {
+								clean_value(x);
+							}}
+						>
+							{x}
+						</Tag>
+					</div>
+				{/each}
+			</div>
+		{/snippet}
+	</IG>
 
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
@@ -109,13 +123,21 @@
 		flex-wrap: wrap;
 		gap: 4px;
 
-		height: 200px;
+		max-height: 200px;
 		padding: 8px;
 		overflow: auto;
-		margin: 16px 0;
 
 		outline: 1px solid var(--ol);
 		outline-offset: -1px;
 		border-radius: 4px;
+	}
+
+	.featured {
+		--tag-background-color: var(--cl1);
+		--button-background-color-hover: var(--cl1_);
+		--tag-color: white;
+		--button-color-hover: white;
+		--tag-outline-color: transparent;
+		--tag-outline-color-hover: transparent;
 	}
 </style>

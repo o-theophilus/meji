@@ -13,7 +13,8 @@
 	app.login = data.locals.login;
 	app.likes = data.locals.likes;
 	app.cart_items = data.locals.cart_items;
-	app.item_tags = data.locals.item_tags;
+	app.item_all_tags = data.locals.item_all_tags;
+	app.item_featured_tags = data.locals.item_featured_tags;
 	app.blog_tags = data.locals.blog_tags;
 	app.axis_map = data.locals.axis_map;
 	app.price_map = data.locals.price_map;

@@ -3,7 +3,7 @@ from flask_cors import CORS
 
 from . import (api, auth, blog, cart, comment, coupon, dashboard, fix, item,
                log, order, postgres, report, storage, user)
-from .api import file_error
+from .api import file_error, item_tag
 from .auth import forgot
 from .blog import file as blog_file
 from .blog import get as blog_get
@@ -46,6 +46,7 @@ def create_app(conf=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(forgot.bp)
     app.register_blueprint(file_error.bp)
+    app.register_blueprint(item_tag.bp)
     app.register_blueprint(report.bp)
     app.register_blueprint(report_get.bp)
     app.register_blueprint(user.bp)

@@ -106,8 +106,8 @@
 			</div>
 
 			<div class="tags">
-				{#if app.item_tags.length}
-					{#each app.item_tags as x}
+				{#if app.item_featured_tags.length}
+					{#each app.item_featured_tags as x}
 						{#if x.toLowerCase().includes(filter.toLowerCase())}
 							<Checkbox
 								value={selected.includes(x)}

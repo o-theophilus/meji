@@ -20,7 +20,6 @@
 			.filter((v, i, arr) => arr.indexOf(v) === i)
 	);
 	let unused_tags = $derived.by(() => {
-		if (!app.blog_tags) return [];
 		return app.blog_tags.filter((i) => !tags.includes(i));
 	});
 
@@ -80,22 +79,35 @@
 		onblur={() => clean_value()}
 	/>
 
-	<div class="line">
-		{#each unused_tags as x}
-			<Tag
-				onclick={() => {
-					clean_value(x);
-				}}>{x}</Tag
-			>
-		{/each}
-	</div>
+	<IG name="All">
+		{#snippet input()}
+			<div class="tags">
+				{#each unused_tags as x}
+					<Tag
+						onclick={() => {
+							clean_value(x);
+						}}>{x}</Tag
+					>
+				{/each}
+			</div>
+		{/snippet}
+	</IG>
 
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>
 
 <style>
-	.line {
-		margin: 16px 0;
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
 		gap: 4px;
+
+		max-height: 200px;
+		padding: 8px;
+		overflow: auto;
+
+		outline: 1px solid var(--ol);
+		outline-offset: -1px;
+		border-radius: 4px;
 	}
 </style>

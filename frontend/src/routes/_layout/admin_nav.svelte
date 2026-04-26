@@ -5,7 +5,7 @@
 	import { slide } from 'svelte/transition';
 
 	let { onclick } = $props();
-	
+
 	const buttons = [
 		{
 			name: 'Dashboard',
@@ -48,6 +48,15 @@
 			href: '/admin/advert',
 			access: app.user.access.includes('item.advert'),
 			icon: 'megaphone'
+		},
+		{
+			name: 'Item Tag',
+			href: '/admin/item_tag',
+			access:
+				app.user.access.includes('admin.tag.featured') ||
+				app.user.access.includes('admin.tag.rename') ||
+				app.user.access.includes('admin.tag.delete'),
+			icon: 'tags'
 		},
 		{
 			name: 'Coupons',
