@@ -138,10 +138,11 @@
 		<div class="checkout">
 			<Button
 				icon="cart"
-				--button-background-color="var(--cl1)"
-				--button-background-color-hover="color-mix(in srgb, var(--cl1), black 50%)"
-				--button-color="hsl(0, 0%, 95%)"
-				--button-color-hover="hsl(0, 0%, 95%)"
+				--button-background-color="var(--cl3)"
+				--button-background-color-hover="var(--cl3_)"
+				--button-color="white"
+				--button-color-hover="white"
+				--button-outline-color="transparent"
 				onclick={() => {
 					if (!app.login) {
 						module.open(Login);

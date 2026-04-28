@@ -5,7 +5,7 @@
 	// get facebook username
 	// thread account
 	let platforms = [
-		{ icon: 'whatsapp', href: 'https://wa.me/2348067397793/?text=Hello%20Theophilus' },
+		{ icon: 'whatsapp', href: 'https://wa.me/2347077033699/?text=Hello%20Meji' },
 		{ icon: 'twitter', href: 'https://x.com/shop_meji_ng' },
 		// { icon: 'github', href: 'https://github.com/o-theophilus' },
 		// { icon: "discord", href: 'https://discord.com/users/theophilus#6682' },

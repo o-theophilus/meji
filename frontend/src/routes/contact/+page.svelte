@@ -21,12 +21,12 @@
 	</PageTitle>
 
 	<div class="contact">
-		<a href="tel:+2348067397793" class="card">
+		<a href="tel:+2347077033699" class="card">
 			<div class="icon">
 				<Icon icon="phone" size="24"></Icon>
 			</div>
 			<div class="label">Call</div>
-			<div class="value">+234 806 739 7793</div>
+			<div class="value">+234 707 703 3699</div>
 		</a>
 		<a href="mailto:shop.meji.ng@gmail.com" class="card">
 			<!-- TODO: replace gmail with zoho -->
@@ -37,7 +37,7 @@
 			<div class="value">shop.meji.ng&#8203;@gmail.com</div>
 		</a>
 
-		<a href="https://wa.me/2348067397793/?text=Hello%20Theophilus" target="_blank" class="card">
+		<a href="https://wa.me/2347077033699/?text=Hello%20Meji" target="_blank" class="card">
 			<div class="icon">
 				<Icon icon="whatsapp" size="24"></Icon>
 			</div>

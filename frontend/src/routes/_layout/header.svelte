@@ -22,9 +22,14 @@
 		<div class="right">
 			{#if !app.login}
 				<Button
-					icon="log-in"
+					--button-background-color="var(--cl3)"
+					--button-background-color-hover="var(--cl3_)"
+					--button-color="white"
+					--button-color-hover="white"
+					--button-outline-color="transparent"
 					--button-height="40px"
 					--button-font-size="0.8rem"
+					icon="log-in"
 					onclick={() => module.open(Login)}
 				>
 					Login
