@@ -107,6 +107,7 @@
 		outline: 2px solid transparent;
 		object-fit: cover;
 		cursor: pointer;
+		background-color: var(--bg1);
 
 		transition: outline-color 0.2s ease-in-out;
 	}

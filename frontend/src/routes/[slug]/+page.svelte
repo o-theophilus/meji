@@ -91,7 +91,7 @@
 	description={item.information && item.information.length > 100
 		? item.information.slice(0, 100) + '...'
 		: item.information}
-	image={item.photo}
+	image={`${item.files[0]}/256`}
 />
 
 <Content --content-background-color="var(--bg)">

@@ -1,11 +1,11 @@
-from flask import Blueprint, send_file, abort
-from PIL import Image, ImageOps
-from io import BytesIO
-from uuid import uuid4
 import os
-from supabase import create_client
+from io import BytesIO
 from pathlib import Path
+from uuid import uuid4
 
+from flask import Blueprint, abort, send_file
+from PIL import Image, ImageFilter, ImageOps
+from supabase import create_client
 
 bp = Blueprint("storage", __name__)
 
@@ -17,11 +17,25 @@ def drive():
 
 def save_test(file, filename, path=""):
     photo = Image.open(file).convert('RGBA')
-    white = Image.new('RGBA', photo.size, (255, 255, 255))
-    photo = Image.alpha_composite(white, photo).convert('RGB')
 
-    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
-    photo.save(f"static/{path}{filename}")
+    size = min(max(photo.size), 1024)
+
+    bg = ImageOps.fit(photo, (size, size), Image.Resampling.LANCZOS)
+    bg = ImageOps.grayscale(bg).convert("RGBA")
+    bg = bg.filter(ImageFilter.GaussianBlur(radius=10))
+
+    fg = ImageOps.contain(photo, (size, size),
+                          Image.Resampling.LANCZOS).convert("RGBA")
+    fg_layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    x = (size - fg.width) // 2
+    y = (size - fg.height) // 2
+    fg_layer.paste(fg, (x, y), fg)
+
+    final = Image.alpha_composite(bg, fg_layer).convert("RGB")
+
+    filename = f"{filename}-{uuid4().hex[:8]}-{final.size[
+        0]}x{final.size[1]}.jpg"
+    final.save(f"static/{path}{filename}")
 
     return filename
 
@@ -68,14 +82,28 @@ def get_all_test(path=""):
 
 def save_live(file, filename, path=""):
     photo = Image.open(file).convert('RGBA')
-    white = Image.new('RGBA', photo.size, (255, 255, 255))
-    photo = Image.alpha_composite(white, photo).convert('RGB')
+
+    size = min(max(photo.size), 1024)
+
+    bg = ImageOps.fit(photo, (size, size), Image.Resampling.LANCZOS)
+    bg = ImageOps.grayscale(bg).convert("RGBA")
+    bg = bg.filter(ImageFilter.GaussianBlur(radius=10))
+
+    fg = ImageOps.contain(photo, (size, size),
+                          Image.Resampling.LANCZOS).convert("RGBA")
+    fg_layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    x = (size - fg.width) // 2
+    y = (size - fg.height) // 2
+    fg_layer.paste(fg, (x, y), fg)
+
+    final = Image.alpha_composite(bg, fg_layer).convert("RGB")
 
     file_io = BytesIO()
-    photo.save(file_io, format="JPEG")
+    final.save(file_io, format="JPEG")
     file_io.seek(0)
 
-    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
+    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[
+        0]}x{photo.size[1]}.jpg"
     drive().upload(
         f"{path}{filename}",
         file_io.getvalue(),

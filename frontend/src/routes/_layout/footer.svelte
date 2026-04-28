@@ -19,7 +19,7 @@
 						<Icon icon="logo" size="32" />
 						Meji
 					</a>
-					<span class="tiny"> Your best online shopping experince </span>
+					<span class="tiny"> Shopping, refined. </span>
 				</div>
 				<Socials />
 			</div>

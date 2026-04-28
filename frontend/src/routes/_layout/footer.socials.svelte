@@ -7,11 +7,8 @@
 	let platforms = [
 		{ icon: 'whatsapp', href: 'https://wa.me/2347077033699/?text=Hello%20Meji' },
 		{ icon: 'twitter', href: 'https://x.com/shop_meji_ng' },
-		// { icon: 'github', href: 'https://github.com/o-theophilus' },
-		// { icon: "discord", href: 'https://discord.com/users/theophilus#6682' },
 		{ icon: 'facebook', href: 'https://web.facebook.com/profile.php?id=61587524220060' },
 		{ icon: 'instagram', href: 'https://www.instagram.com/shop_meji_ng/' },
-		// { icon: 'linkedin', href: 'https://www.linkedin.com/in/o-theophilus/' },
 		{ icon: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng/' }
 	];
 </script>

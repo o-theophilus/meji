@@ -61,8 +61,6 @@
 		border-radius: 8px;
 		overflow: hidden;
 		background-color: var(--bg1);
-		background-image: url(/image/bg.png);
-		background-size: 50%;
 
 		img {
 			display: block;
