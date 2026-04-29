@@ -46,17 +46,17 @@
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
 
-
 <Content --content-height="auto">
 	<PageTitle>
 		{#snippet title()}
-			Blog{blogs.length > 1 ? 's' : ''}
+			Insights, inspiration, and ideas to elevate your everyday.
 		{/snippet}
 		{#snippet copy()}
-			This page showcases a collection of interesting blogs and projects that I have worked on
+			Explore stories on style, design, and smart living—curated to help you discover better
+			products and make confident choices on Meji.
 		{/snippet}
 	</PageTitle>
-	
+
 	<div class="line space">
 		<div></div>
 		{#if app.user.access.includes('blog.add')}
