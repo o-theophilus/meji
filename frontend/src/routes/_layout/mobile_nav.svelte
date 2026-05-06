@@ -125,8 +125,10 @@
 			}
 		}
 
-		&:hover {
-			background-color: var(--bg1);
+		@media (hover: hover) {
+			&:hover {
+				background-color: var(--bg1);
+			}
 		}
 
 		& .center {

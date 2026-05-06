@@ -28,13 +28,12 @@
 			<div class="label">Call</div>
 			<div class="value">+234 707 703 3699</div>
 		</a>
-		<a href="mailto:shop.meji.ng@gmail.com" class="card">
-			<!-- TODO: replace gmail with zoho -->
+		<a href="mailto:admin@meji.ng" class="card">
 			<div class="icon">
 				<Icon icon="mail" size="24"></Icon>
 			</div>
 			<div class="label">Email</div>
-			<div class="value">shop.meji.ng&#8203;@gmail.com</div>
+			<div class="value">admin@meji.ng</div>
 		</a>
 
 		<a href="https://wa.me/2347077033699/?text=Hello%20Meji" target="_blank" class="card">
@@ -59,7 +58,6 @@
 			<div class="value">Lagos, Nigeria.</div>
 		</a>
 		<a href="/faq" class="card">
-			<!-- TODO: replace gmail with zoho -->
 			<div class="icon">
 				<Icon icon="message-circle-question-mark" size="24"></Icon>
 			</div>

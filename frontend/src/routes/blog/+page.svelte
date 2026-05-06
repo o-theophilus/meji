@@ -43,7 +43,7 @@
 <Log entity_type={'page'} />
 <Meta
 	title="Blogs"
-	description="This page showcases a collection of interesting blogs and projects that I have worked on"
+	description="Explore stories on style, design, and smart living—curated to help you discover better products and make confident choices on Meji."
 />
 
 <Content --content-height="auto">
