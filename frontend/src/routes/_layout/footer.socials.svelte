@@ -1,22 +1,22 @@
 <script>
 	import { Icon } from '$lib/macro';
 
-	// TODO:
-	// get facebook username
-	// thread account
+	// TODO: get facebook username
 	let platforms = [
-		{ icon: 'whatsapp', href: 'https://wa.me/2347077033699?text=Hello Meji' },
-		{ icon: 'twitter', href: 'https://x.com/shop_meji_ng' },
-		{ icon: 'facebook', href: 'https://web.facebook.com/profile.php?id=61587524220060' },
-		{ icon: 'instagram', href: 'https://www.instagram.com/shop_meji_ng/' },
-		{ icon: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng/' }
+		{ name: 'whatsapp', href: 'https://wa.me/2347077033699?text=Hello Meji' },
+		{ name: 'twitter', href: 'https://x.com/shop_meji_ng' },
+		{ name: 'facebook', href: 'https://web.facebook.com/profile.php?id=61587524220060' },
+		{ name: 'instagram', href: 'https://www.instagram.com/shop_meji_ng' },
+		// { name: 'threads', href: 'https://www.threads.com/@shop_meji_ng' },
+		// { name: 'bluesky', href: 'https://shop-meji-ng.bsky.social' },
+		{ name: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng/' }
 	];
 </script>
 
 <div class="line">
-	{#each platforms as { icon, href }}
+	{#each platforms as { name, href }}
 		<a {href} target="_blank" rel="noopener noreferrer">
-			<Icon {icon} />
+			<Icon icon={name} />
 		</a>
 	{/each}
 </div>
