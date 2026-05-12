@@ -6,7 +6,7 @@
 	<b> Dear {'{'}name{'}'}, </b>
 	<br />
 	<br />
-	To change your password, please use the following Code:
+	Use the code below to confirm your password change.
 	<br />
 	<br />
 	<div
@@ -20,20 +20,8 @@
 	>
 		<b> {'{'}code{'}'} </b>
 	</div>
-	<br />
-	<br />
-	Please enter this Code on the password change form to validate your request. Please note that the Code
-	is only valid for a limited time.
-	<br />
-	<br />
-	If you did not request this change, please disregard this message.
-	<br />
-	<br />
-	If you have any questions or need further assistance, please don't hesitate to reach out to me.
-	<br />
-	<br />
-	Best regards,
-	<br />
-	<br />
-	<b>Meji.ng</b>
+	<br /> <br />
+	This code is valid for a limited time. If you didn't request this, you can safely ignore this email.
+	<br /> <br />
+	<b>Meji</b>
 </EmailTemplate>

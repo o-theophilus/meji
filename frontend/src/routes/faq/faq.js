@@ -4,11 +4,11 @@ export const faqs = [
     items: [
       {
         q: "How do I track my order?",
-        a: "Once your order ships, you’ll receive a confirmation email with tracking details. You can also track it in your Meji account under 'My Orders'."
+        a: "Once your order ships, you\'ll receive a confirmation email with tracking details. You can also track it in your Meji account under 'My Orders'."
       },
       {
         q: "How long does shipping take?",
-        a: "Orders are processed within 1–3 business days. Delivery typically takes 3–7 days locally and 10–21 days internationally."
+        a: "Orders are processed within 1-3 business days. Delivery typically takes 3-7 days locally and 10–21 days internationally."
       },
       {
         q: "Why are shipping costs different?",
@@ -52,7 +52,7 @@ export const faqs = [
     items: [
       {
         q: "What if my package is lost or damaged?",
-        a: "Contact the seller first. If you need further help, reach out to Meji Support and we’ll assist you."
+        a: "Contact the seller first. If you need further help, reach out to Meji Support and we\'ll assist you."
       },
       {
         q: "How do I request a refund?",
@@ -60,7 +60,7 @@ export const faqs = [
       },
       {
         q: "How long do refunds take?",
-        a: "Refunds are typically processed within 3–7 business days after approval, depending on your payment provider."
+        a: "Refunds are typically processed within 3-7 business days after approval, depending on your payment provider."
       },
       {
         q: "Can I contact support directly?",

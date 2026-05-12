@@ -5,9 +5,7 @@
 <EmailTemplate>
 	<b>Hello {'{'}name{'}'},</b>
 	<br /><br />
-	Welcome to my portfolio website! Thank you for signing up. I'm excited to have you as part of my community.
-	You'll find my latest works and blog posts on design, development, and industry trends. I hope you
-	find it inspiring and informative.
+	Welcome to Meji.
 	<br /><br />
 	To complete you signup, please confirm your email address using the Code below:
 	<br /><br />
@@ -23,13 +21,7 @@
 		<b>{'{'}code{'}'}</b>
 	</div>
 	<br /><br />
-	Enter this Code on the confirmation form. Note that it is valid for a limited time. If you didn't request
-	this, please disregard this message.
+	This code is valid for a limited time. If you didn't request this, you can safely ignore this email.
 	<br /><br />
-	If you have any questions or comments, feel free to reach out. I'd love to hear from you. Thank you
-	again for joining. I look forward to connecting with you!
-	<br /><br />
-	Best regards,
-	<br /><br />
-	<b>Meji.ng</b>
+	<b>Meji</b>
 </EmailTemplate>

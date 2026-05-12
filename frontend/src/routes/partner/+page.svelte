@@ -113,7 +113,7 @@
 	</div>
 
 	<div class="margin title">
-		Earn more by reaching customers you wouldn’t normally access — without the stress of selling
+		Earn more by reaching customers you wouldn't normally access — without the stress of selling
 		yourself.
 	</div>
 

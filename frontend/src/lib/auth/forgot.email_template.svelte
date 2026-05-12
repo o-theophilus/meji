@@ -4,11 +4,9 @@
 
 <EmailTemplate>
 	<b> Hello {'{'}name{'}'}, </b>
-	<br />
-	<br />
-	To reset your password, please use the following Code:
-	<br />
-	<br />
+	<br /><br />
+	Use the code below to reset your password.
+	<br /><br />
 	<div
 		style="
 	text-align: center;
@@ -21,18 +19,7 @@
 		<b> {'{'}code{'}'} </b>
 	</div>
 	<br />
-	Please enter this Code on the password reset form to validate your request. Please note that the Code
-	is only valid for a limited time.
-	<br />
-	<br />
-	If you did not request this change, please disregard this message.
-	<br />
-	<br />
-	If you have any questions or need further assistance, please don't hesitate to reach out to me.
-	<br />
-	<br />
-	Best regards,
-	<br />
-	<br />
-	<b> Meji.ng</b>
+	This code is valid for a limited time. If you didn't request this, you can safely ignore this email.
+	<br /><br />
+	<b> Meji</b>
 </EmailTemplate>

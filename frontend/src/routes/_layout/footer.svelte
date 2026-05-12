@@ -27,7 +27,7 @@
 			<Nav />
 		</footer>
 
-		<div class="copyright tiny">Copyright &copy 2026 | Meji.ng. All rights reserved.</div>
+		<div class="copyright tiny">Copyright &copy 2026 | Meji. All rights reserved.</div>
 	</Content>
 </div>
 

@@ -15,13 +15,13 @@
 		{
 			name: 'Chioma K.',
 			photo: 'user2.png',
-			comment: 'I didn’t have to second guess anything. Everything felt intentional.',
+			comment: 'I didn\'t have to second guess anything. Everything felt intentional.',
 			rating: 4.5
 		},
 		{
 			name: 'Tunde O.',
 			photo: 'user3.png',
-			comment: 'Fast delivery and exactly what I expected. That’s rare these days.',
+			comment: 'Fast delivery and exactly what I expected. That\'s rare these days.',
 			rating: 5
 		},
 		{
@@ -45,13 +45,13 @@
 		{
 			name: 'Victor U.',
 			photo: 'user7.png',
-			comment: 'Finally a store that doesn’t overwhelm you with options.',
+			comment: 'Finally a store that doesn\'t overwhelm you with options.',
 			rating: 5
 		},
 		{
 			name: 'Kemi A.',
 			photo: 'user8.png',
-			comment: 'Everything feels refined. You can trust what you’re buying.',
+			comment: 'Everything feels refined. You can trust what you\'re buying.',
 			rating: 4.5
 		},
 		{
@@ -63,7 +63,7 @@
 		{
 			name: 'Ngozi N.',
 			photo: 'user10.png',
-			comment: 'Great experience overall. I’ll definitely be coming back.',
+			comment: 'Great experience overall. I\'ll definitely be coming back.',
 			rating: 4.5
 		}
 	];

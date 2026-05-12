@@ -5,13 +5,11 @@
 <EmailTemplate>
 	<b>Hello {'{'}name{'}'},</b>
 	<br /><br />
-	Your account has been successfully deleted from my website. All your data has been permanently removed.
+	Your account has been successfully deleted.
 	<br /><br />
-	If this was a mistake or you change your mind later, you're always welcome to create a new account.
+	All associated data has been permanently removed from our system.
 	<br /><br />
-	Thank you for being part of my journey.
+	If this wasn't you, please contact support immediately.
 	<br /><br />
-	Best regards,
-	<br /><br />
-	<b>Meji.ng</b>
+	<b>Meji</b>
 </EmailTemplate>
