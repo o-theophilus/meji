@@ -3,7 +3,7 @@
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module } from '$lib/store.svelte.js';
-	import EmailTemplate from './forgot.template.svelte';
+	import EmailTemplate from './forgot.email_template.svelte';
 	import Code from './forgot_2.code.svelte';
 	import Login from './login.svelte';
 	import Signup from './signup.svelte';

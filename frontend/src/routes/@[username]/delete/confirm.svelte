@@ -4,7 +4,7 @@
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
 	import { app, loading, module } from '$lib/store.svelte.js';
-	import EmailTemplate from './template.svelte';
+	import EmailTemplate from './email_template.svelte';
 
 	let form = $state({});
 	let error = $state({});

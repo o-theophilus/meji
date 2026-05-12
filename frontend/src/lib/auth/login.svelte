@@ -5,7 +5,7 @@
 	import { Form } from '$lib/layout';
 	import { app, loading, module } from '$lib/store.svelte.js';
 	import Confirm from './confirm.svelte';
-	import EmailTemplate from './confirm.template.svelte';
+	import EmailTemplate from './confirm.email_template.svelte';
 	import Forgot from './forgot_1.email.svelte';
 	import Signup from './signup.svelte';
 
