@@ -188,7 +188,7 @@
 
 		<Button
 			icon="whatsapp"
-			href="https://api.whatsapp.com/send?phone=+2349113717298&text=Hi%0AI want to make enquiry concerning ${item.name} on Meji%20{page
+			href="https://wa.me/2347077033699?text=Hello Meji%0A%0AI want to make enquiry concerning {item.name} on Meji%0A%0A{page
 				.url.href}"
 			target="_blank"
 		>

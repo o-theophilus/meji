@@ -1,11 +1,11 @@
 <script>
 	import { Icon } from '$lib/macro';
 
-	// TODO: get whatsapp
+	// TODO:
 	// get facebook username
 	// thread account
 	let platforms = [
-		{ icon: 'whatsapp', href: 'https://wa.me/2347077033699/?text=Hello%20Meji' },
+		{ icon: 'whatsapp', href: 'https://wa.me/2347077033699?text=Hello Meji' },
 		{ icon: 'twitter', href: 'https://x.com/shop_meji_ng' },
 		{ icon: 'facebook', href: 'https://web.facebook.com/profile.php?id=61587524220060' },
 		{ icon: 'instagram', href: 'https://www.instagram.com/shop_meji_ng/' },

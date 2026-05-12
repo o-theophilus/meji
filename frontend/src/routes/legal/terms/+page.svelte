@@ -9,7 +9,6 @@
 </script>
 
 <!-- TODO: review text -->
-<!-- TODO: review all email template -->
 
 <Log entity_type={'page'} />
 <Meta title="Terms & Conditions" description="The rules and guidelines for using Meji." />

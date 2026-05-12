@@ -36,7 +36,7 @@
 			<div class="value">admin@meji.ng</div>
 		</a>
 
-		<a href="https://wa.me/2347077033699/?text=Hello%20Meji" target="_blank" class="card">
+		<a href="https://wa.me/2347077033699?text=Hello Meji" target="_blank" class="card">
 			<div class="icon">
 				<Icon icon="whatsapp" size="24"></Icon>
 			</div>
