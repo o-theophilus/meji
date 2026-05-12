@@ -15,6 +15,7 @@ margin: auto;
 		style="
 		padding: 20px 40px;
 		display: flex;
+		align-items: center;
 		"
 	>
 		<img
@@ -23,11 +24,12 @@ margin: auto;
 			style="
 		width: 30px;
 		height: 30px;
+		object-fit: contain;
 		"
 		/>
 		<b
 			style="
-		font-size: x-large;
+		font-size: 1.2rem;
 		margin-left: 10px;
 	"
 			>Meji

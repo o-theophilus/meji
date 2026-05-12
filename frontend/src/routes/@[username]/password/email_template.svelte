@@ -20,7 +20,7 @@
 	>
 		<b> {'{'}code{'}'} </b>
 	</div>
-	<br /> <br />
+	<br />
 	This code is valid for a limited time. If you didn't request this, you can safely ignore this email.
 	<br /> <br />
 	<b>Meji</b>
