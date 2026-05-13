@@ -62,9 +62,7 @@
 
 	<div class="margin">
 		<Card title="Activity Log">
-			<Table
-				data={dashboard.activity_log}
-				columns={['date_created:date', 'action', 'entity_type', 'entity_key']}
+			<Table data={dashboard.activity_log} columns={['date_created:date', 'action', 'entity_key']}
 			></Table>
 
 			{#if app.user.access.includes('log.view')}

@@ -88,6 +88,10 @@ def activity_log(cur, user_key):
         LIMIT 6;
     """, (user_key,))
     data = cur.fetchall()
+    for x in data:
+        if x["entity_type"] == "page":
+            x["action"] = "viewed page"
+
     return data
 
 
