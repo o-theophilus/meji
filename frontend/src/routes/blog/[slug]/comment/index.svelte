@@ -20,6 +20,7 @@
 	let total_page = $derived(comment_resp.total_page);
 	let order_by = $derived(comment_resp.order_by);
 	let searchParams = $derived(comment_resp.searchParams);
+	let pagination = $state();
 
 	let open = $derived(comments?.length > 0);
 
@@ -97,6 +98,7 @@
 					bind:value={searchParams.order}
 					onchange={(v) => {
 						searchParams.page_no = 1;
+						pagination.reset();
 						load();
 					}}
 				/>
@@ -132,6 +134,7 @@
 
 		<Pagination
 			{total_page}
+			bind:this={pagination}
 			bind:value={searchParams.page_no}
 			ondone={(v) => {
 				load();

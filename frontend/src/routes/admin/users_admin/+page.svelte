@@ -17,6 +17,7 @@
 	let { order_by } = data;
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
+	let pagination = $state();
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -39,6 +40,7 @@
 		bind:value={searchParams.search}
 		ondone={(v) => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -55,6 +57,7 @@
 				bind:value={searchParams.entity_type}
 				onchange={(v) => {
 					searchParams.page_no = 1;
+					pagination.reset();
 					searchParams.action = defaultParams.action;
 					page_state.set({
 						entity_type: v == defaultParams.entity_type ? '' : v,
@@ -72,6 +75,7 @@
 				bind:value={searchParams.action}
 				onchange={(v) => {
 					searchParams.page_no = 1;
+					pagination.reset();
 					page_state.set({ action: v == defaultParams.action ? '' : v });
 				}}
 			/>
@@ -93,6 +97,7 @@
 			bind:value={searchParams.order}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				page_state.set({ order: v == defaultParams.order ? '' : v });
 			}}
 		/>
@@ -113,6 +118,7 @@
 
 	<Pagination
 		{total_page}
+		bind:this={pagination}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;

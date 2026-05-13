@@ -19,6 +19,7 @@
 	let { view } = data;
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
+	let pagination = $state();
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -43,6 +44,7 @@
 		bind:value={searchParams.search}
 		ondone={(v) => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -61,6 +63,7 @@
 					bind:value={searchParams.view}
 					onchange={(v) => {
 						searchParams.page_no = 1;
+						pagination.reset();
 						page_state.set({ view: v == defaultParams.view ? '' : v });
 					}}
 				/>
@@ -77,6 +80,7 @@
 				bind:value={searchParams.status}
 				onchange={(v) => {
 					searchParams.page_no = 1;
+					pagination.reset();
 					page_state.set({ status: v == defaultParams.status ? '' : v });
 				}}
 			/>
@@ -98,6 +102,7 @@
 			bind:value={searchParams.order}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				page_state.set({ order: v == defaultParams.order ? '' : v });
 			}}
 		/>
@@ -118,6 +123,7 @@
 
 	<Pagination
 		{total_page}
+		bind:this={pagination}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;

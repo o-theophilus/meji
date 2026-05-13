@@ -25,6 +25,10 @@
 		ondone?.(value);
 	};
 	onMount(() => (value_rt = value));
+
+	export const reset = () => {
+		value_rt = 1;
+	};
 </script>
 
 {#if total_page > 1}

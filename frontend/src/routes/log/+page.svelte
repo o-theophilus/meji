@@ -17,6 +17,7 @@
 	let search_query = $derived(data.search_query);
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
+	let pagination = $state();
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -43,6 +44,7 @@
 				bind:value={searchParams.u_search}
 				ondone={(v) => {
 					searchParams.page_no = 1;
+					pagination.reset();
 					page_state.set({ u_search: v });
 				}}
 			></Search>
@@ -57,6 +59,7 @@
 			bind:value={searchParams.entity_type}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				searchParams.action = 'all';
 				page_state.set({
 					entity_type: v == defaultParams.entity_type ? '' : v,
@@ -71,6 +74,7 @@
 			bind:value={searchParams.action}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				page_state.set({ action: v == defaultParams.action ? '' : v });
 			}}
 			--select-width="100%"
@@ -82,6 +86,7 @@
 		bind:value={searchParams.e_search}
 		ondone={(v) => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			page_state.set({ e_search: v });
 		}}
 	></Search>
@@ -90,7 +95,7 @@
 <Content --content-padding-top="1px">
 	{#each logs as log (log.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {log} bind:searchParams />
+			<One {log} {pagination} bind:searchParams />
 		</div>
 	{:else}
 		<PageNote>
@@ -101,6 +106,7 @@
 
 	<Pagination
 		{total_page}
+		bind:this={pagination}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;

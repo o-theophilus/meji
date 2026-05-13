@@ -3,7 +3,7 @@
 	import { app, page_state } from '$lib/store.svelte.js';
 	import { slide } from 'svelte/transition';
 
-	let { log, searchParams = $bindable() } = $props();
+	let { log, pagination, searchParams = $bindable() } = $props();
 	let misc = $state(false);
 
 	let href = $state('');
@@ -53,6 +53,7 @@
 			class="misc"
 			onclick={() => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				searchParams.u_search = log.user.key;
 				page_state.set({ u_search: log.user.key });
 			}}
@@ -72,6 +73,7 @@
 			class="misc"
 			onclick={() => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				searchParams.e_search = log.entity.key;
 				page_state.set({ e_search: log.entity.key });
 			}}

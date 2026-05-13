@@ -17,6 +17,7 @@
 	let order_by = $derived(data.order_by);
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
+	let pagination = $state();
 
 	const update = (a, b) => {
 		items = a;
@@ -49,6 +50,7 @@
 		bind:value={searchParams.search}
 		ondone={(v) => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -71,6 +73,7 @@
 			bind:value={searchParams.order}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				page_state.set({ order: v == defaultParams.order ? '' : v });
 			}}
 		/>
@@ -79,6 +82,7 @@
 	<FilterNote
 		onclick={() => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			searchParams.search = '';
 			page_state.set({ search: '' });
 		}}
@@ -103,6 +107,7 @@
 
 	<Pagination
 		{total_page}
+		bind:this={pagination}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;

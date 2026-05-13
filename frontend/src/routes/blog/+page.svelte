@@ -22,6 +22,7 @@
 	let _status = $derived(data._status);
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
+	let pagination = $state();
 
 	const update = (a, b) => {
 		blogs = a;
@@ -76,6 +77,7 @@
 		bind:value={searchParams.search}
 		ondone={(v) => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			page_state.set({ search: v });
 		}}
 	></Search>
@@ -94,6 +96,7 @@
 					bind:value={searchParams.status}
 					onchange={(v) => {
 						searchParams.page_no = 1;
+						pagination.reset();
 						page_state.set({ status: v == defaultParams.status ? '' : v });
 					}}
 				/>
@@ -103,6 +106,7 @@
 				bind:value={searchParams.tag}
 				ondone={(v) => {
 					searchParams.page_no = 1;
+					pagination.reset();
 					page_state.set({ tag: v });
 				}}
 			/>
@@ -124,6 +128,7 @@
 			bind:value={searchParams.order}
 			onchange={(v) => {
 				searchParams.page_no = 1;
+				pagination.reset();
 				page_state.set({ order: v == defaultParams.order ? '' : v });
 			}}
 		/>
@@ -132,6 +137,7 @@
 	<FilterNote
 		onclick={() => {
 			searchParams.page_no = 1;
+			pagination.reset();
 			searchParams.search = '';
 			searchParams.tag = '';
 			tags.clear();
@@ -158,6 +164,7 @@
 
 	<Pagination
 		{total_page}
+		bind:this={pagination}
 		bind:value={searchParams.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
