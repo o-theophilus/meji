@@ -41,8 +41,8 @@
 	};
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Order" />
+<Log action={'viewed order'} entity_key={order.key} entity_type={'order'} />
 
 <Content --content-padding-top="1px">
 	<div class="line">

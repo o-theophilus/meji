@@ -102,7 +102,7 @@ def add_photo(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action=f"added item advert photo{'s' if files != [] else ''}",
+        action="added item advert photo(s)",
         entity_type="item",
         entity_key=advert["key"],
         misc={"from": old_photo, "to": advert["photo"]}

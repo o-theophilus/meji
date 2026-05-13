@@ -46,11 +46,11 @@
 	let tags = $state();
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Review"
 	description="Read honest reviews and ratings from verified customers to help you make confident buying decisions."
 />
+<Log action={'viewed item review'} entity_key={item.key} entity_type={'item'} />
 
 <Content --content-height="auto" --content-padding-bottom="0">
 	<div class="line">

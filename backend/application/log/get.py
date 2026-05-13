@@ -75,10 +75,9 @@ def get_many():
             ) AS user,
 
             jsonb_build_object(
-                'key', log.entity_key,
+                'key', COALESCE(usr.username, item.slug, blog.slug, log.entity_key),
                 'type', log.entity_type,
-                'name', COALESCE(usr.name, item.name, comment.comment,
-                    log.entity_key)
+                'name', COALESCE(usr.name, item.name, blog.title, log.entity_key)
             ) AS entity,
 
             COUNT(*) OVER() AS _count
@@ -86,13 +85,13 @@ def get_many():
         FROM log
         LEFT JOIN "user" ON log.user_key = "user".key
         LEFT JOIN "user" usr ON log.entity_key = usr.key::TEXT
-            AND (log.entity_type = 'user' OR log.entity_type = 'admin')
+            AND log.entity_type = 'user'
         LEFT JOIN
             item ON log.entity_key = item.key::TEXT
             AND log.entity_type = 'item'
         LEFT JOIN
-            comment ON log.entity_key = comment.key::TEXT
-            AND log.entity_type = 'comment'
+            blog ON log.entity_key = blog.key::TEXT
+            AND log.entity_type = 'blog'
 
         WHERE
             (%s = '' OR CONCAT_WS(
@@ -100,8 +99,11 @@ def get_many():
             ) ILIKE %s)
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
-            AND (%s = '' OR CONCAT_WS(
-                ', ', log.entity_key, usr.name, usr.email, item.name
+            AND (%s = '' OR CONCAT_WS(', ', 
+                log.entity_key,
+                usr.name, usr.username, usr.email, 
+                item.name, item.slug,
+                blog.title, blog.slug
             ) ILIKE %s)
         ORDER BY log.date_created DESC
         LIMIT %s OFFSET %s;
@@ -114,25 +116,34 @@ def get_many():
     ))
     logs = cur.fetchall()
 
+
     for x in logs:
-        if x["entity"]["type"] == "page":
-            x["action"] = "viewed"
+        misc = {}
+        for key,  val in x["misc"].items():
+            misc[key] = str(val)
+        x["misc"] = misc
 
-        elif x["entity"]["type"] == "report":
-            x["entity"]["name"] = x["entity"]["name"][-10:]
+    # if x["entity"]["type"] == "app":
+    # x["entity"]["type"] = None
 
-        elif x["entity"]["type"] == "comment":
-            length = 20
-            ellipsis = "..." if len(x["entity"]["name"]) > length else ""
-            x["entity"]["name"] = f"{x['entity']['name'][:length]}{ellipsis}"
+    #     if x["entity"]["type"] == "page":
+    #         x["action"] = "viewed"
 
-        elif x["entity"]["type"] == "user":
-            if x["action"] == "viewed":
-                if x["user"]["key"] == x["entity"]["key"]:
-                    x["entity"]["type"] = "profile"
-            elif x["action"] == "changed_theme":
-                x["entity"]["type"] = ""
-                x["entity"]["key"] = ""
+    #     elif x["entity"]["type"] == "report":
+    #         x["entity"]["name"] = x["entity"]["name"][-10:]
+
+    #     elif x["entity"]["type"] == "comment":
+    #         length = 20
+    #         ellipsis = "..." if len(x["entity"]["name"]) > length else ""
+    #         x["entity"]["name"] = f"{x['entity']['name'][:length]}{ellipsis}"
+
+    #     elif x["entity"]["type"] == "user":
+    #         if x["action"] == "viewed":
+    #             if x["user"]["key"] == x["entity"]["key"]:
+    #                 x["entity"]["type"] = "profile"
+    #         elif x["action"] == "changed_theme":
+    #             x["entity"]["type"] = ""
+    #             x["entity"]["key"] = ""
 
     sq = search_query(cur)
     db_close(con, cur)

@@ -15,7 +15,7 @@ def recently_viewed(cur, user_key, item_key):
             WHERE
                 item.status = 'active'
                 AND log.user_key = %s
-                AND log.action = 'viewed'
+                AND log.action = 'viewed item'
                 AND log.entity_type = 'item'
                 AND log.entity_key != %s
             ORDER BY
@@ -40,7 +40,7 @@ def customer_view(cur, user_key, item_key):
             FROM log
             WHERE
                 log.entity_type = 'item'
-                AND log.action = 'viewed'
+                AND log.action = 'viewed item'
                 and log.user_key != %s
                 AND log.entity_key != %s
         )

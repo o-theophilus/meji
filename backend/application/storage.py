@@ -15,9 +15,8 @@ def drive():
     return sb.storage.from_('meji')
 
 
-def save_test(file, filename, path=""):
-    photo = Image.open(file).convert('RGBA')
-
+def adjust_photo(photo):
+    photo = photo.convert('RGBA')
     size = min(max(photo.size), 1024)
 
     bg = ImageOps.fit(photo, (size, size), Image.Resampling.LANCZOS)
@@ -31,11 +30,17 @@ def save_test(file, filename, path=""):
     y = (size - fg.height) // 2
     fg_layer.paste(fg, (x, y), fg)
 
-    final = Image.alpha_composite(bg, fg_layer).convert("RGB")
+    return Image.alpha_composite(bg, fg_layer).convert("RGB")
 
-    filename = f"{filename}-{uuid4().hex[:8]}-{final.size[
-        0]}x{final.size[1]}.jpg"
-    final.save(f"static/{path}{filename}")
+
+def save_test(file, filename, path="", adjust=False):
+    photo = Image.open(file)
+    if adjust:
+        photo = adjust_photo(photo)
+
+    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
+    photo = photo.convert("RGB")
+    photo.save(f"static/{path}{filename}")
 
     return filename
 
@@ -80,35 +85,18 @@ def get_all_test(path=""):
     return file_names
 
 
-def save_live(file, filename, path=""):
-    photo = Image.open(file).convert('RGBA')
+def save_live(file, filename, path="", adjust=False):
+    photo = Image.open(file)
+    if adjust:
+        photo = adjust_photo(photo)
 
-    size = min(max(photo.size), 1024)
-
-    bg = ImageOps.fit(photo, (size, size), Image.Resampling.LANCZOS)
-    bg = ImageOps.grayscale(bg).convert("RGBA")
-    bg = bg.filter(ImageFilter.GaussianBlur(radius=10))
-
-    fg = ImageOps.contain(photo, (size, size),
-                          Image.Resampling.LANCZOS).convert("RGBA")
-    fg_layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    x = (size - fg.width) // 2
-    y = (size - fg.height) // 2
-    fg_layer.paste(fg, (x, y), fg)
-
-    final = Image.alpha_composite(bg, fg_layer).convert("RGB")
-
+    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[0]}x{photo.size[1]}.jpg"
     file_io = BytesIO()
-    final.save(file_io, format="JPEG")
+    photo = photo.convert("RGB")
+    photo.save(file_io, format="JPEG")
     file_io.seek(0)
-
-    filename = f"{filename}-{uuid4().hex[:8]}-{photo.size[
-        0]}x{photo.size[1]}.jpg"
-    drive().upload(
-        f"{path}{filename}",
-        file_io.getvalue(),
-        {'content-type': 'image/jpeg'}
-    )
+    drive().upload(f"{path}{filename}", file_io.getvalue(),
+                   {'content-type': 'image/jpeg'})
 
     return filename
 
@@ -175,11 +163,11 @@ def get_path(path=""):
 
 class storage:
     @staticmethod
-    def save(file, filename, path=""):
+    def save(file, filename, path="", adjust=False):
         if test:
-            return save_test(file, filename, get_path(path))
+            return save_test(file, filename, get_path(path), adjust)
         else:
-            return save_live(file, filename, get_path(path))
+            return save_live(file, filename, get_path(path), adjust)
 
     def copy(filename, path="", path2=""):
         if test:

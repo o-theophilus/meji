@@ -67,7 +67,7 @@ def recently_viewed(cur, user_key):
             WHERE
                 item.status = 'active'
                 AND log.user_key = %s
-                AND log.action = 'viewed'
+                AND log.action = 'viewed item'
                 AND log.entity_type = 'item'
             ORDER BY
                 item.key,

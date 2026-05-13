@@ -177,7 +177,7 @@ def get_blogs(cur=None):
             SELECT entity_key, COUNT(DISTINCT user_key) AS _count
             FROM log
             WHERE entity_type = 'blog'
-                AND action = 'viewed'
+                AND action = 'viewed blog'
             GROUP BY entity_key
         ) v ON v.entity_key = blog.key::TEXT
 
@@ -419,7 +419,7 @@ def get_engagement(cur, key, user_key):
 
     cur.execute("""
         SELECT COUNT(DISTINCT user_key) FROM log
-        WHERE entity_type = 'blog' AND action = 'viewed' AND entity_key = %s;
+        WHERE entity_type = 'blog' AND action = 'viewed blog' AND entity_key = %s;
     """, (key,))
     view_count = cur.fetchone()["count"]
 

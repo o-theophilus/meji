@@ -16,7 +16,7 @@
 </script>
 
 <Meta title="Coupon" />
-<Log action={'viewed'} entity_key={coupon.key} entity_type={'user'} />
+<Log action={'viewed coupon'} entity_key={coupon.key} entity_type={'coupon'} />
 
 <Content --content-height="auto">
 	<div class="line">

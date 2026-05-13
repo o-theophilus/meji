@@ -79,7 +79,7 @@
 </script>
 
 {#key blog.key}
-	<Log action={'viewed'} entity_key={blog.key} entity_type={'blog'} />
+	<Log action={'viewed blog'} entity_key={blog.key} entity_type={'blog'} />
 {/key}
 <Meta title={blog.title} description={blog.description} image={blog.photo} />
 

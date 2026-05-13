@@ -83,7 +83,7 @@
 </script>
 
 {#key item.key}
-	<Log action={'viewed'} entity_key={item.key} entity_type={'item'} />
+	<Log action={'viewed item'} entity_key={item.key} entity_type={'item'} />
 {/key}
 
 <Meta

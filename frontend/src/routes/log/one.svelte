@@ -1,21 +1,32 @@
 <script>
-	import { Datetime, Icon } from '$lib/macro';
+	import { Datetime } from '$lib/macro';
 	import { app, page_state } from '$lib/store.svelte.js';
+	import { slide } from 'svelte/transition';
 
 	let { log, searchParams = $bindable() } = $props();
+	let misc = $state(false);
+
+	console.log(log);
 
 	let href = $state('');
-	if (log.entity.type == 'post') {
+	if (log.entity.type == 'item') {
 		href = `/${log.entity.key}`;
+	} else if (log.entity.type == 'blog') {
+		href = `/blog/${log.entity.key}`;
 	} else if (log.entity.type == 'report') {
 		href = `/admin/report?search=${log.entity.key}`;
 	} else if (log.entity.type == 'page') {
 		href = log.entity.key;
-	} else if (['user', 'admin'].includes(log.entity.type) && log.entity.key) {
+	} else if (log.entity.type == 'user') {
 		href = `/@${log.entity.key}`;
 	} else if (log.entity.type == 'comment') {
 		href = `/${log.misc.post_key}#${log.entity.key}`;
 	}
+
+	// TODO: handle the href
+	// added comment to blog
+	// added comment to item
+	// added item to cart
 </script>
 
 <section>
@@ -38,18 +49,19 @@
 
 	{#if log.user.key && app.user.access.includes('log.view_others')}
 		<button
+			class="misc"
 			onclick={() => {
 				searchParams.page_no = 1;
 				searchParams.u_search = log.user.key;
 				page_state.set({ u_search: log.user.key });
 			}}
 		>
-			<Icon icon="square-chevron-up"></Icon>
+			[search]
 		</button>
 	{/if}
 
 	{log.action}
-	{log.entity.type}
+	<!-- {log.entity.type} -->
 
 	{#if href}
 		<a class="break" {href} data-sveltekit-preload-data="off">
@@ -57,28 +69,36 @@
 		</a>
 
 		<button
+			class="misc"
 			onclick={() => {
 				searchParams.page_no = 1;
 				searchParams.e_search = log.entity.key;
 				page_state.set({ e_search: log.entity.key });
 			}}
 		>
-			<Icon icon="square-chevron-up"></Icon>
+			[search]
 		</button>
 	{/if}
 
-	{#if log.misc}
-		{#each Object.entries(log.misc) as [key, val]}
-			,
-			{key}:
-			{#if log.entity.type == 'voucher' && key == 'validity'}
-				<Datetime datetime={val} type="date" />
-			{:else}
-				<span class="break">
-					{val}
-				</span>
-			{/if}
-		{/each}
+	{#if Object.keys(log.misc).length}
+		<button class="misc" onclick={() => (misc = !misc)}> [expand] </button>
+
+		{#if misc}
+			<div transition:slide>
+				{#each Object.entries(log.misc) as [key, val]}
+					<hr />
+					{key}:
+					<br />
+					{#if log.entity.type == 'voucher' && key == 'validity'}
+						<Datetime datetime={val} type="date" />
+					{:else}
+						<span class="break">
+							{val}
+						</span>
+					{/if}
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </section>
 
@@ -124,18 +144,24 @@
 		text-decoration: none;
 		font-weight: 700;
 	}
-	button {
-		color: var(--cl1);
-		border: none;
-		background-color: transparent;
+	.misc {
+		all: unset;
 		cursor: pointer;
+
+		color: var(--cl1);
+		font-size: 0.7rem;
 	}
 
-	button:hover,
+	.misc:hover,
 	a:hover {
 		color: var(--cl1_b);
 	}
+
 	.break {
 		word-wrap: break-word;
+	}
+
+	hr {
+		margin: 8px 0;
 	}
 </style>

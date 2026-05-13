@@ -415,7 +415,7 @@ def add_comment(key):
     log(
         cur=cur,
         user_key=user["key"],
-        action="added comment",
+        action="added comment to blog",
         entity_type="blog",
         entity_key=blog["key"],
         misc={

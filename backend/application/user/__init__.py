@@ -507,7 +507,7 @@ def set_access(key):
     log(
         cur=cur,
         user_key=me["key"],
-        action="changed access",
+        action="changed user access",
         entity_type="user",
         entity_key=user["key"],
         misc={"from": user["access"], "to": access}
