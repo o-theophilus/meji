@@ -36,11 +36,11 @@
 	let tags = $state();
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Save"
 	description="Keep track of your favorite items and come back to them anytime you're ready to shop."
 />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">Save</div>

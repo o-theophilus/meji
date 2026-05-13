@@ -6,27 +6,28 @@
 	let { log, searchParams = $bindable() } = $props();
 	let misc = $state(false);
 
-	console.log(log);
-
 	let href = $state('');
-	if (log.entity.type == 'item') {
+	if (!log.entity) {
+		href = '';
+	} else if (log.entity.type == 'item') {
 		href = `/${log.entity.key}`;
+		if (log.action == 'added comment to item') {
+			href = `/${log.entity.key}/review#${log.misc.comment_key}`;
+		}
 	} else if (log.entity.type == 'blog') {
 		href = `/blog/${log.entity.key}`;
-	} else if (log.entity.type == 'report') {
-		href = `/admin/report?search=${log.entity.key}`;
-	} else if (log.entity.type == 'page') {
-		href = log.entity.key;
+		if (log.action == 'added comment to blog') {
+			href = `/blog/${log.entity.key}#${log.misc.comment_key}`;
+		}
 	} else if (log.entity.type == 'user') {
 		href = `/@${log.entity.key}`;
-	} else if (log.entity.type == 'comment') {
-		href = `/${log.misc.post_key}#${log.entity.key}`;
+	} else if (log.entity.type == 'page') {
+		href = log.entity.key;
+		// } else if (log.entity.type == 'report') {
+		// 	href = `/admin/report?search=${log.entity.key}`;
+		// } else if (log.entity.type == 'comment') {
+		// 	href = `/${log.misc.post_key}#${log.entity.key}`;
 	}
-
-	// TODO: handle the href
-	// added comment to blog
-	// added comment to item
-	// added item to cart
 </script>
 
 <section>
@@ -61,7 +62,6 @@
 	{/if}
 
 	{log.action}
-	<!-- {log.entity.type} -->
 
 	{#if href}
 		<a class="break" {href} data-sveltekit-preload-data="off">
@@ -89,7 +89,7 @@
 					<hr />
 					{key}:
 					<br />
-					{#if log.entity.type == 'voucher' && key == 'validity'}
+					{#if log.entity?.type == 'voucher' && key == 'validity'}
 						<Datetime datetime={val} type="date" />
 					{:else}
 						<span class="break">

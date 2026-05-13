@@ -29,8 +29,8 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="All Admin" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">Admin</div>

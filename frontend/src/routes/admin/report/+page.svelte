@@ -36,8 +36,8 @@
 	};
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="All Users" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">

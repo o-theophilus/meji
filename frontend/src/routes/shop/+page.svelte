@@ -1,5 +1,6 @@
 <script>
 	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Button } from '$lib/button';
 	import { PageNote } from '$lib/info';
 	import { Dropdown, Pagination, Search } from '$lib/input';
@@ -40,11 +41,13 @@
 	let tags = $state();
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Shop"
 	description="This page showcases a collection of interesting blogs and projects that I have worked on"
 />
+{#key page.url}
+	<Log entity_type={'page'} />
+{/key}
 
 <Content --content-height="auto">
 	<div class="line space">

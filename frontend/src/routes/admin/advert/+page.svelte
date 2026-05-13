@@ -30,8 +30,8 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Item Adverts" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">

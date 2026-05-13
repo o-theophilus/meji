@@ -10,8 +10,8 @@
 
 <!-- TODO: review text -->
 
-<Log entity_type={'page'} />
 <Meta title="Terms & Conditions" description="The rules and guidelines for using Meji." />
+<Log entity_type={'page'} />
 
 {#snippet nav()}
 	<TOC>

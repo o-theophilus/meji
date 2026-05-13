@@ -8,8 +8,8 @@
 
 <!-- TODO: review text -->
 
-<Log entity_type={'page'} />
 <Meta title="Policy" description="How we collect, use, and protect your information." />
+<Log entity_type={'page'} />
 
 
 {#snippet nav()}

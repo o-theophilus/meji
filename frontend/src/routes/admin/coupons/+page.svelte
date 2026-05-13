@@ -36,8 +36,8 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="All Coupons" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="line space">

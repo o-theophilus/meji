@@ -42,11 +42,11 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Home"
 	description="Meji is your No. 1 trusted online shopping destination in Nigeria."
 />
+<Log entity_type="page" />
 
 <Content>
 	<PageTitle>

@@ -55,8 +55,8 @@
 	];
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Admin Dashboard" />
+<Log entity_type={'page'} />
 
 <Content>
 	<div class="page_title">Admin Dashboard</div>

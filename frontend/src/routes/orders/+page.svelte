@@ -31,8 +31,8 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="All Orders" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">

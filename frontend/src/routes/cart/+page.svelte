@@ -116,11 +116,11 @@
 	});
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Cart"
 	description="Review your selected items, adjust quantities, and proceed securely to checkout."
 />
+<Log entity_type={'page'} />
 
 <Content --content-padding-top="1px">
 	<div class="page_title">Cart</div>

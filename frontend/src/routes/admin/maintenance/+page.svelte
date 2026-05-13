@@ -24,8 +24,8 @@
 	};
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Maintenance" />
+<Log entity_type={'page'} />
 
 <Content>
 	<div class="page_title">Maintenance</div>

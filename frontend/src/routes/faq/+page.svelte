@@ -8,8 +8,8 @@
 	let ops = $state({ open: null });
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="FAQ" description="Need quick answers? Find solutions to common questions below." />
+<Log entity_type={'page'} />
 
 
 <Content>

@@ -52,8 +52,8 @@
 	};
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Manage / Excess Files" />
+<Log entity_type={'page'} />
 
 <Content>
 	<div class="page_title">Photo Error</div>

@@ -6,11 +6,11 @@
 	let ops = $state({ open: null });
 </script>
 
-<Log entity_type={'page'} />
 <Meta
 	title="Contact Us"
 	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
 />
+<Log entity_type={'page'} />
 
 <Content>
 	<PageTitle>

@@ -32,8 +32,8 @@
 	};
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Blocked User{blocks.length > 1 ? 's' : ''}" />
+<Log entity_type={'page'} />
 
 <Content --content-height="auto">
 	<div class="page_title">

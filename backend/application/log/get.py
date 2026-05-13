@@ -116,34 +116,19 @@ def get_many():
     ))
     logs = cur.fetchall()
 
-
     for x in logs:
         misc = {}
         for key,  val in x["misc"].items():
             misc[key] = str(val)
         x["misc"] = misc
 
-    # if x["entity"]["type"] == "app":
-    # x["entity"]["type"] = None
-
-    #     if x["entity"]["type"] == "page":
-    #         x["action"] = "viewed"
-
-    #     elif x["entity"]["type"] == "report":
-    #         x["entity"]["name"] = x["entity"]["name"][-10:]
-
-    #     elif x["entity"]["type"] == "comment":
-    #         length = 20
-    #         ellipsis = "..." if len(x["entity"]["name"]) > length else ""
-    #         x["entity"]["name"] = f"{x['entity']['name'][:length]}{ellipsis}"
-
-    #     elif x["entity"]["type"] == "user":
-    #         if x["action"] == "viewed":
-    #             if x["user"]["key"] == x["entity"]["key"]:
-    #                 x["entity"]["type"] = "profile"
-    #         elif x["action"] == "changed_theme":
-    #             x["entity"]["type"] = ""
-    #             x["entity"]["key"] = ""
+        if x["action"] == "changed theme":
+            del x["entity"]
+        elif x["action"] == "viewed user" and x["user"]["username"] == x["entity"]["key"]:
+            x["action"] = "viewed profile"
+            del x["entity"]
+        elif x["entity"]["type"] == "page":
+            x["action"] = "viewed page"
 
     sq = search_query(cur)
     db_close(con, cur)

@@ -10,8 +10,8 @@
 	import Rename from './form.rename.svelte';
 </script>
 
-<Log entity_type={'page'} />
 <Meta title="Manage Tags" />
+<Log entity_type={'page'} />
 
 <Content>
 	<div class="page_title">Manage Tags</div>
