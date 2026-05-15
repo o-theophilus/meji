@@ -14,6 +14,7 @@
 		<a class:active={page.url.pathname == '/contact'} href="/contact">Contact Us</a>
 	</div>
 
+	<!-- TODO: fix the admin menu -->
 	<div class="group shop">
 		<a class:active={page.url.pathname == '/shop'} href="/shop">
 			<Icon icon="shop{page.url.pathname == '/shop' ? '_active' : ''}"></Icon>

@@ -9,7 +9,7 @@
 		{ name: 'instagram', href: 'https://www.instagram.com/shop_meji_ng' },
 		// { name: 'threads', href: 'https://www.threads.com/@shop_meji_ng' },
 		// { name: 'bluesky', href: 'https://shop-meji-ng.bsky.social' },
-		{ name: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng/' }
+		{ name: 'youtube', href: 'https://www.youtube.com/@shop_meji_ng' }
 	];
 </script>
 

@@ -19,6 +19,9 @@
 		font-size: 0.8rem;
 		position: sticky;
 		top: 24px;
+		@media screen and (min-width: 800px) {
+			top: calc(var(--headerHeight) + 24px);
+		}
 		height: fit-content;
 		border-radius: 8px;
 		overflow: hidden;

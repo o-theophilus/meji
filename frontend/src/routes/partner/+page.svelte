@@ -9,8 +9,8 @@
 </script>
 
 <Meta
-	title="Contact Us"
-	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
+	title="Partner"
+	description="Let us help you reach more customers and grow your business."
 />
 <Log entity_type={'page'} />
 

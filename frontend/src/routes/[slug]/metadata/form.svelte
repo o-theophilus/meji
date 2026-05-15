@@ -106,5 +106,7 @@
 		{/snippet}
 	</IG>
 
+	<!-- TODO: collect delivert time -->
+
 	<Button icon2="send-horizontal" onclick={validate}>Submit</Button>
 </Form>

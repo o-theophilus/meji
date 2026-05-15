@@ -8,7 +8,7 @@
 	let _group = [
 		{
 			title: 'Best Sellers',
-			items: [], // TODO
+			items: [], // TODO: Best Sellers
 			order: 'rating',
 			icon: 'trending-up'
 		},

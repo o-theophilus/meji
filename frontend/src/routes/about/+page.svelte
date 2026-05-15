@@ -7,8 +7,8 @@
 </script>
 
 <Meta
-	title="Contact Us"
-	description="Get support for your orders, payments, and inquiries — fast, simple, and reliable."
+	title="About Us"
+	description="Meji is a modern shopping experience built on a simple idea — quality over noise."
 />
 <Log entity_type={'page'} />
 

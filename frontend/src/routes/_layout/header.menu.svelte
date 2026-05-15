@@ -76,32 +76,40 @@
 				onclick={() => {
 					open = false;
 					can_close = false;
-				}}>About</a
+				}}
 			>
+				About
+			</a>
 			<a
 				href="/partner"
 				class="menu_item hide"
 				onclick={() => {
 					open = false;
 					can_close = false;
-				}}>Partner</a
+				}}
 			>
+				Partner
+			</a>
 			<a
 				href="/blog"
 				class="menu_item hide"
 				onclick={() => {
 					open = false;
 					can_close = false;
-				}}>Blog</a
+				}}
 			>
+				Blog
+			</a>
 			<a
 				href="/contact"
 				class="menu_item hide"
 				onclick={() => {
 					open = false;
 					can_close = false;
-				}}>Contact Us</a
+				}}
 			>
+				Contact Us
+			</a>
 
 			{#if app.login}
 				{#if app.user.access.length}
