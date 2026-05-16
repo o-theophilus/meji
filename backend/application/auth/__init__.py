@@ -14,7 +14,7 @@ from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
 from ..tools import (check_code, generate_code, get_session, reserved_words,
-                     send_mail, user_schema)
+                     send_mail, user_schema, get_client_info)
 from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
@@ -143,7 +143,8 @@ def init():
             user_key=user["key"],
             action="created",
             entity_type="user",
-            entity_key=user["key"]
+            entity_key=user["key"],
+            misc={**get_client_info()}
         )
 
     likes = get_user_like(cur, user["key"])
@@ -430,12 +431,8 @@ def login():
         entity_key=user["key"],
         misc={
             "type": "user",
-            "key": anon_user["key"]
-            # TODO: alco collect
-            # Last login IP
-            # Device type (mobile/desktop)
-            # browser and OS from user agent
-            # Approx location (optional)
+            "key": anon_user["key"],
+            **get_client_info()
         }
     )
     log(
