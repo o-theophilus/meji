@@ -21,7 +21,7 @@
 			</div>
 		{/snippet}
 		<div class="a">
-			{faq.a}
+			{@html faq.a}
 		</div>
 	</Card>
 {/snippet}

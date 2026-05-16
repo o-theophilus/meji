@@ -1,14 +1,13 @@
 export let content = `
 1. ### Introductions
 
-	Welcome to Meji! These Terms and Conditions govern your use of the Meji platform (the "Site") and our services for buying and selling unique, artisanal, and locally sourced products. By accessing or using our Site, you agree to be bound by these Terms.
+	Welcome to Meji! These Terms and Conditions govern your use of the Meji platform (the "Site") and our services for selling unique, artisanal, and locally sourced products. By accessing or using our Site, you agree to be bound by these Terms.
 
 1. ### Definitions
 
 	- **"Meji," "we," "us," or "our"** refers to the Meji platform and its operators
 	- **"User," "you," or "your"** refers to any individual accessing the Site
 	- **"Buyer"** refers to a User purchasing products on Meji
-	- **"Seller"** refers to a User listing and selling products on Meji
 	- **"Content"** includes text, images, photos, audio, video, and all other data
 	- **"Products"** refers to items listed for sale on Meji
 
@@ -30,107 +29,59 @@ export let content = `
 		- Accept responsibility for all activities under your account
 
 	1. ###### Account Termination
-		We reserve the right to suspend or terminate your account at our sole discretion, including for violation of these Terms.
-
+		We may, at our discretion, terminate or suspend your account with or without notice, for conduct that we believe:
+		- Violates these Terms
+		- Is harmful to other Users
+		- Is harmful to our business interests
+		- Is unlawful
 
 1. ### Buying on Meji
 
 	1. ###### Product Listings
-		- Sellers create their own listings
-		- We do not warrant the completeness or reliability of any listing
+		- We strive to provide accurate and up-to-date product information, but we do not guarantee that all descriptions are error-free or complete
+		- Products sold on Meji are curated and may be fulfilled directly by us or our trusted partners.
 		- Colors may appear slightly different on various screens
 		- Natural variations in handmade items are not considered defects
 
 	1. ###### Order Process
-		Placing an order constitutes an offer to buy. The sale is finalized when:
-		1. The Seller accepts the order
-		1. Payment is processed successfully
-		1. Order confirmation is sent
+		- A sale is considered final when payment is successfully processed and an order confirmation is issued.
+
+		- We may refuse or cancel any order for reasons including but not limited to:
+			1. Product availability
+			1. Errors in pricing or description
+			1. Suspected fraud or unauthorized transactions
 
 	1. ###### Pricing and Payment
-		- Prices are set by Sellers
 		- You agree to pay the full amount (item price + shipping + applicable taxes)
-		- All payments are processed through secure third-party providers
-
-1. ### Selling on Meji
-
-	1. ###### Seller Responsibilities
-		As a Seller, you agree to:
-		- Provide accurate, complete product information
-		- Ship items as described and within stated timelines
-		- Honor your return and refund policies
-		- Comply with all applicable laws and regulations
-
-	1. ###### Prohibited Items
-		You may not sell items that are:
-		- Illegal or regulated substances
-		- Counterfeit or stolen goods
-		- Hazardous materials
-		- Items that infringe on intellectual property rights
-		- Live animals
-		- Weapons or ammunition
-
-1. ### Fees
-
-	1. ######  Seller Fees
-		Meji charges a commission on completed sales. Current fees:
-		- Listing fee: [Specify amount or "Free"]
-		- Transaction fee: [Specify percentage]
-		- Payment processing fee: [Specify percentage]
-
-	1. ######  Buyer Fees
-		Buyers pay:
-		- Product price (set by Seller)
-		- Shipping costs (set by Seller)
-		- Applicable sales tax
+		- Payments are processed through secure third-party providers
+		- We are not responsible for payment failures caused by third-party services
+		- Orders will not be processed until payment is successfully completed
 
 1. ### Shipping and Delivery
 
-	1. ###### Shipping Responsibility
-		Sellers are responsible for:
-		- Safe packaging and shipping
-		- Providing tracking information
-		- Meeting stated delivery timelines
-		- Compliance with shipping regulations
+	We aim to ensure timely and secure delivery. However, we are not liable for delays caused by:
+	- Courier services
+	- Weather conditions
+	- Customs or regulatory delays
 
-	1. ###### Delivery Issues
-		Meji is not responsible for:
-		- Shipping delays
-		- Damage during transit
-		- Customs delays or fees
-		- Incorrect delivery addresses
+	Risk of loss passes to you once the product is delivered to the address provided at checkout.
 
 1. ### Returns and Refunds
 
-	1. ###### Seller Policies
-		Each Seller sets their own return and refund policies, which must be clearly displayed in their shop.
-
-	1. ###### General Guidelines
-		- Items must be returned in original condition
-		- Return shipping costs are typically buyer's responsibility
-		- Custom or personalized items may not be returnable
-
-	1. ###### Dispute Resolution
-		In case of disputes:
-		1. Contact the Seller directly
-		1. If unresolved, contact Meji support
-		1. We may mediate but are not party to the transaction
+	- Returns are accepted only for defective, damaged, or incorrect items unless otherwise stated.
+	- Items must be returned within 7 days of delivery
+	- Items must be unused and in original packaging
+	- Approved refunds will be processed within 7 business days
+	- Shipping fees are non-refundable unless the return is due to our error
+	- We may refuse returns that do not meet these conditions
 
 1. ### Intellectual Property
 
 	1. ###### Meji's Intellectual Property
 		All Site content, features, and functionality are owned by Meji and protected by international copyright laws.
 
-	1. ###### Seller Content
-		Sellers retain rights to their:
-		- Product designs
-		- Product photographs
-		- Brand names and logos
-
-		By posting Content, Sellers grant Meji a license to display that Content on the platform.
-
 	1. ###### Copyright Infringement
-		If you believe your intellectual property has been infringed, contact us at [copyright@meji.com] with:
+		If you believe your intellectual property has been infringed, [contact us](https://meji.ng/contact) with:
 		- Identification of the copyrighted work
 		- Location of the infringing material
 		- Your contact information
@@ -139,20 +90,15 @@ export let content = `
 1. ### User Conduct
 
 	You agree not to:
-	- Use the Site for illegal purposes
-	- Post false, misleading, or deceptive Content
-	- Harass, abuse, or harm other Users
-	- Use automated systems to access the Site
-	- Interfere with Site security or functionality
-	- Circumvent any Site features or protections
+	- Use the Site for unlawful, harmful, or fraudulent purposes
+	- Attempt to gain unauthorized access to systems
+	- Interfere with platform security or performance
+	- Use bots or scraping tools without permission
+	- Post misleading, abusive, or harmful content
 
-1. ### Limitation of Liability
+1. ### Dispute Resolution
 
-	To the maximum extent permitted by law, Meji shall not be liable for:
-	- Indirect, incidental, or consequential damages
-	- Loss of profits, data, or business opportunities
-	- Damages related to User transactions
-	- Third-party actions or content
+	We encourage you to [contact us](https://meji.ng/contact) first to resolve any disputes.
 
 1. ### Disclaimer of Warranties
 
@@ -162,51 +108,39 @@ export let content = `
 	- Non-infringement
 	- Accuracy or reliability
 
-1. ### Indemnification
 
-	You agree to indemnify and hold harmless Meji, its affiliates, and their respective officers, directors, employees, and agents from any claims, damages, or expenses arising from:
-	- Your use of the Site
-	- Your violation of these Terms
-	- Your violation of any rights of another
+1. ### Limitation of Liability
 
-1. ### Termination
+	To the maximum extent permitted by law, Meji shall not be liable for, or responsible in any way for:
 
-	We may terminate or suspend your account immediately, without prior notice, for conduct that we believe:
-	- Violates these Terms
-	- Is harmful to other Users
-	- Is harmful to our business interests
-	- Is unlawful
+	- Indirect, incidental, consequential, special, or punitive damages
+	- Losses arising from User transactions or use of the Site
+	- Delays, failures, or disruptions caused by third-party service providers, including payment processors, logistics partners, or infrastructure providers
+	- Delays, failures, or disruptions caused by events beyond our reasonable control, including natural disasters, strikes, internet outages, or government actions (Force Majeure)
 
-1. ### Changes to Terms
-
-	We reserve the right to modify these Terms at any time. We will notify Users of material changes by:
-	- Posting on the Site
-	- Sending email notifications
-	- Updating the "Last Updated" date
-
-	Your continued use after changes constitutes acceptance of the modified Terms.
+	In all cases, Meji's total liability shall not exceed the total amount paid by you for the specific order giving rise to the claim.
 
 1. ### Governing Law
 
-	These Terms shall be governed by and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law provisions.
+	These Terms shall be governed by and construed in accordance with the laws of Nigeria, without regard to its conflict of law provisions.
+	
+	Your use of the Site is also governed by our [Privacy Policy](https://meji.ng/policy).
+	
 
-1. ### Dispute Resolution
+1. ### Modifications and Changes
 
-	1. ###### Informal Resolution
-		We encourage you to contact us first at [support@meji.com] to resolve any disputes.
+	We reserve the right to modify, suspend, or discontinue any part of the Site at any time without notice. We may also update these Terms from time to time. Material changes will be communicated by posting on the Site, sending email notifications, or updating the “Last Updated” date.
 
-	1. ###### Binding Arbitration
-		Any unresolved disputes shall be resolved through binding arbitration in accordance with [Arbitration Rules/Organization].
+	Your continued use of the Site after changes take effect constitutes acceptance of the updated Terms.
 
-1. ### Severability
 
-	If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.
+1. ### General Provisions
 
-1. ### Entire Agreement
+	If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions will continue in full force and effect.
 
-	These Terms constitute the entire agreement between you and Meji regarding the Site and supersede all prior agreements and understandings.
+	These Terms constitute the entire agreement between you and Meji regarding the use of the Site and supersede all prior agreements or understandings.
 
 ---
 
-*Thank you for being part of the Meji community. We're proud to connect artisans with customers who appreciate handmade, unique products.*
+*Thank you for being part of the Meji community.*
 	`

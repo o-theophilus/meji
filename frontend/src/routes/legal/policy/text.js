@@ -1,7 +1,7 @@
 export let privacyPolicy = `
 1. ### Introduction
 
-	Welcome to Meji ("we," "our," or "us"). We are committed to protecting your privacy and handling your personal information with care. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website [meji.com] and use our services.
+	Welcome to Meji. We are committed to protecting your privacy and handling your personal information with care. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
 
 	By using Meji, you agree to the collection and use of information in accordance with this policy. If you do not agree with the terms of this Privacy Policy, please do not access the Site.
 
@@ -12,7 +12,6 @@ export let privacyPolicy = `
 		We collect information you provide when you:
 		- Create an account
 		- Make a purchase
-		- List products for sale
 		- Contact customer support
 		- Subscribe to our newsletter
 		- Participate in surveys or promotions
@@ -21,8 +20,7 @@ export let privacyPolicy = `
 		This information may include:
 		- **Personal Information:** Name, email address, phone number, billing and shipping addresses
 		- **Payment Information:** Credit card details (processed securely by our payment processors)
-		- **Seller Information:** Business name, tax ID, bank account information for payouts
-		- **User Content:** Product descriptions, reviews, photos, messages to other users
+		- **User Content:** Reviews, Comments, photos, messages to other users
 
 	1. ##### Information Collected Automatically
 
@@ -30,8 +28,7 @@ export let privacyPolicy = `
 		- **Device Information:** IP address, browser type, operating system
 		- **Usage Data:** Pages visited, time spent, links clicked
 		- **Transaction Information:** Purchase history, items viewed, search queries
-		- **Location Data:** Approximate location based on IP address
-		- **Cookies and Tracking Technologies:** See Section 7 for details
+		- **Cookies and Tracking Technologies:** See cookies policy section below for details
 
 	1. ##### Information from Third Parties
 
@@ -48,7 +45,6 @@ export let privacyPolicy = `
 
 	1. ##### To Provide Our Services
 		- Process transactions and fulfill orders
-		- Facilitate communication between buyers and sellers
 		- Provide customer support
 		- Verify your identity and prevent fraud
 		- Manage your account and preferences
@@ -71,27 +67,17 @@ export let privacyPolicy = `
 		- Protect the rights and safety of our users
 		- Prevent fraudulent activities
 
-1. ### Legal Basis for Processing (GDPR)
-
-	For users in the European Economic Area (EEA), we process your personal data based on:
-	- **Consent:** When you opt-in to receive marketing communications
-	- **Contractual Necessity:** To fulfill our obligations under our Terms
-	- **Legal Obligation:** To comply with applicable laws
-	- **Legitimate Interests:** To improve our services and prevent fraud
-
 1. ### How We Share Your Information
 
 	1. ##### With Other Users
-		- **Buyers and Sellers:** When you transact, we share necessary information (e.g., shipping address with sellers)
 		- **Public Profiles:** Your public profile information is visible to other users
+		- **Reviews and Comments:** When you leave a review or comment on an item, this will be visible to other users.
 
 	1. ##### With Service Providers
 		We share information with trusted third parties who help us operate our business:
-		- Payment processors (Stripe, PayPal, etc.)
-		- Shipping carriers (USPS, FedEx, UPS, etc.)
-		- Cloud hosting providers
+		- Payment processors (Paystack, Stripe, PayPal, etc.)
+		- Shipping carriers (inDrive, USPS, FedEx, UPS, etc.)
 		- Analytics and marketing services
-		- Customer support platforms
 
 	1. ##### For Legal Reasons
 		We may disclose information if required by:
@@ -114,34 +100,10 @@ export let privacyPolicy = `
 	- **Secure Storage:** Industry-standard security for data storage
 	- **Regular Audits:** Security assessments and vulnerability testing
 
-	However, no method of transmission over the Internet or electronic storage is 100% secure. We cannot guarantee absolute security.
-
-1. ### Cookies and Tracking Technologies
-
-	1. ##### Types of Cookies We Use
-		- **Essential Cookies:** Required for basic site functionality
-		- **Performance Cookies:** Collect anonymous usage data
-		- **Functionality Cookies:** Remember your preferences
-		- **Advertising Cookies:** Deliver relevant ads
-
-	1. ##### Third-Party Cookies
-		We use services that may set cookies, including:
-		- Google Analytics
-		- Facebook Pixel
-		- Advertising networks
-
-	1. ##### Cookie Management
-		You can control cookies through your browser settings:
-		- Block or delete cookies
-		- Set preferences for different websites
-		- Use browser extensions for enhanced control
-
-		Note: Disabling cookies may affect site functionality.
-
 1. ### Your Rights and Choices
 
 	1. ##### Access and Correction
-		You can access and update your information through your account settings. For other requests, contact us at [privacy@meji.com].
+		You can access and update your information through your account settings. For other requests, please [contact us](https://meji.ng/contact).
 
 	1. ##### Data Portability
 		You can request a copy of your data in a structured, machine-readable format.
@@ -155,19 +117,9 @@ export let privacyPolicy = `
 		- Adjusting notification settings in your account
 		- Contacting us directly
 
-	1. ##### Do Not Track
-		We do not currently respond to Do Not Track signals. We will update this policy if our practices change.
-
 1. ### Children's Privacy
 
-	Meji is not intended for children under 16. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.
-
-1. ### International Data Transfers
-
-	Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place, including:
-	- Standard Contractual Clauses
-	- Privacy Shield certification (where applicable)
-	- Binding Corporate Rules
+	Meji is not intended for children under 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please [contact us](https://meji.ng/contact) immediately.
 
 1. ### Data Retention
 
@@ -197,25 +149,7 @@ export let privacyPolicy = `
 
 1. ### Contact Information
 
-	For privacy-related questions or requests, contact us:
-
-	**Data Protection Officer:** [DPO Name or Contact Information]  
-	**Email:** [privacy@meji.com]  
-	**Address:** [Your Company Address]  
-	**Phone:** [Your Phone Number]
-
-	For users in the EEA, you have the right to lodge a complaint with your local data protection authority.
-
-1. ### California Privacy Rights
-
-	California residents have additional rights under the CCPA/CPRA:
-	- Right to know what personal information is collected
-	- Right to delete personal information
-	- Right to opt-out of sale of personal information
-	- Right to non-discrimination for exercising privacy rights
-
-	To exercise these rights, contact us at [privacy@meji.com] or through our website.
-
+	For privacy-related questions or requests, [contact us](https://meji.ng/contact)
 ---
 
 *This Privacy Policy was created to be transparent about our practices and to help you make informed decisions about your data.*
@@ -270,9 +204,4 @@ export const cookiesPolicy = `
 	- Use privacy-focused extensions
 
 	Note: Disabling cookies may affect some features of the site.
-
-1. ### Updates to This Policy
-
-	We may update this Cookies Policy from time to time. Changes will be posted on this page.
-
 `;

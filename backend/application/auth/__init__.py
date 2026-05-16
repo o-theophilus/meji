@@ -431,6 +431,11 @@ def login():
         misc={
             "type": "user",
             "key": anon_user["key"]
+            # TODO: alco collect
+            # Last login IP
+            # Device type (mobile/desktop)
+            # browser and OS from user agent
+            # Approx location (optional)
         }
     )
     log(

@@ -8,8 +8,6 @@
 	let menu = $state();
 </script>
 
-<!-- TODO: review text -->
-
 <Meta title="Terms & Conditions" description="The rules and guidelines for using Meji." />
 <Log entity_type={'page'} />
 
@@ -25,7 +23,7 @@
 			Terms & Conditions
 		{/snippet}
 		{#snippet copy()}
-			The rules and guidelines for using Meji — outlining your rights, responsibilities, and how our
+			The rules and guidelines for using Meji, outlining your rights, responsibilities, and how our
 			platform works.
 		{/snippet}
 	</PageTitle>
@@ -38,7 +36,7 @@
 		<div>
 			<Tag>
 				<em> Last Updated: </em>
-				<Datetime datetime="20 mar 2026"></Datetime>
+				<Datetime datetime="16 may 2026"></Datetime>
 			</Tag>
 
 			<div class="margdown_content">

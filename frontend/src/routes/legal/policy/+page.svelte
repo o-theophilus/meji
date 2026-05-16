@@ -6,20 +6,17 @@
 	import { cookiesPolicy, privacyPolicy } from './text';
 </script>
 
-<!-- TODO: review text -->
-
 <Meta title="Policy" description="How we collect, use, and protect your information." />
 <Log entity_type={'page'} />
 
-
 {#snippet nav()}
-<TOC>
-	<a href="#privacyPolicy" class="sub_title" onclick={() => menu.onclick()}>Privacy Policy</a>
-	<TOCList container=".privacyPolicy " tag="h3" onclick={() => menu.onclick()}></TOCList>
-	
-	<a href="#cookiesPolicy" class="sub_title" onclick={() => menu.onclick()}>Cookies Policy</a>
-	<TOCList container=".cookiesPolicy" tag="h3" onclick={() => menu.onclick()}></TOCList>
-</TOC>
+	<TOC>
+		<a href="#privacyPolicy" class="sub_title" onclick={() => menu.onclick()}>Privacy Policy</a>
+		<TOCList container=".privacyPolicy " tag="h3" onclick={() => menu.onclick()}></TOCList>
+
+		<a href="#cookiesPolicy" class="sub_title" onclick={() => menu.onclick()}>Cookies Policy</a>
+		<TOCList container=".cookiesPolicy" tag="h3" onclick={() => menu.onclick()}></TOCList>
+	</TOC>
 {/snippet}
 
 <Content>
@@ -46,7 +43,7 @@
 			<br />
 			<Tag>
 				<em> Last Updated: </em>
-				<Datetime datetime="20 mar 2026"></Datetime>
+				<Datetime datetime="16 may 2026"></Datetime>
 			</Tag>
 
 			<div class="privacyPolicy">
@@ -61,7 +58,7 @@
 			<br />
 			<Tag>
 				<em> Last Updated: </em>
-				<Datetime datetime="20 mar 2026"></Datetime>
+				<Datetime datetime="16 may 2026"></Datetime>
 			</Tag>
 
 			<div class="cookiesPolicy">
