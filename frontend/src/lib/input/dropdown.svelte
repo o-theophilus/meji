@@ -80,8 +80,8 @@
 
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		gap: 8px;
+		justify-content: var(--select-justify, center);
+		gap: var(--select-gap, 8px);
 
 		width: var(--select-width, unset);
 		min-width: var(--select-height, 48px);

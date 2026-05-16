@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, jsonify
-
+from psycopg2.extras import Json
 from .postgres import db_close, db_open
 from .tools import access_pass
 
@@ -13,23 +13,18 @@ def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        DELETE FROM log
-        WHERE entity_type = 'page' AND action = '/3dhub'
-    ;""")
-    cur.execute("""
-        DELETE FROM log
-        WHERE entity_type = 'page' AND action = '/@omni'
-    ;""")
-    cur.execute("""
-        UPDATE log
-        SET action = '/orders'
-        WHERE entity_type = 'page' AND action = '/order'
-    ;""")
-    cur.execute("""
-        UPDATE log
-        SET entity_type = 'blog', action = 'viewed blog'
-        WHERE entity_type = 'post' AND action = 'viewed'
-    ;""")
+        UPDATE item
+        SET metadata = %s
+    ;""", (
+        Json({
+            "length": 0,
+            "breadth": 0,
+            "height": 0,
+            "weight": 0,
+            "area": "ijanikin",
+            "prep_time": 7
+        }),
+    ))
 
     db_close(con, cur)
     return jsonify({

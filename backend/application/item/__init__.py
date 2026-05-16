@@ -56,9 +56,18 @@ def add_item():
         slug = f"{slug[:89]}-{str(uuid4().hex)[:10]}"
 
     cur.execute("""
-        INSERT INTO item (name, slug)
-        VALUES (%s, %s) RETURNING *;
-    """, (name, slug))
+        INSERT INTO item (name, slug, metadata)
+        VALUES (%s, %s, %s) RETURNING *;
+    """, (name, slug,
+          Json({
+              "length": 0,
+              "breadth": 0,
+              "height": 0,
+              "weight": 0,
+              "area": "igando",
+              "prep_time": 7
+          })
+          ))
     item = cur.fetchone()
 
     log(
@@ -215,12 +224,55 @@ def edit(key):
             error["error"] = "unauthorized access"
         elif type(metadata) is not dict:
             error["error"] = "Invalid request"
-        elif (
-            "area" in metadata
-            and metadata["area"]
-            and metadata["area"] not in get_areas()
-        ):
-            error["area"] = "Invalid selection"
+        else:
+            if (
+                "length" not in metadata
+                or not (
+                    isinstance(metadata["length"], float)
+                    or isinstance(metadata["length"], int)
+                )
+                or metadata["length"] < 0
+            ):
+                error["length"] = "Please enter a valid dimension"
+            if (
+                "breadth" not in metadata
+                or not (
+                    isinstance(metadata["breadth"], float)
+                    or isinstance(metadata["breadth"], int)
+                )
+                or metadata["breadth"] < 0
+            ):
+                error["breadth"] = "Please enter a valid dimension"
+            if (
+                "height" not in metadata
+                or not (
+                    isinstance(metadata["height"], float)
+                    or isinstance(metadata["height"], int)
+                )
+                or metadata["height"] < 0
+            ):
+                error["height"] = "Please enter a valid dimension"
+            if (
+                "weight" not in metadata
+                or not (
+                    isinstance(metadata["weight"], float)
+                    or isinstance(metadata["weight"], int)
+                )
+                or metadata["weight"] < 0
+            ):
+                error["weight"] = "Please enter a valid dimension"
+            if (
+                "prep_time" not in metadata
+                or not isinstance(metadata["prep_time"], int)
+                or metadata["prep_time"] < 0
+            ):
+                error["prep_time"] = "Please enter a valid number"
+            if (
+                "area" in metadata
+                and metadata["area"]
+                and metadata["area"] not in get_areas()
+            ):
+                error["area"] = "Invalid selection"
 
     if error:
         db_close(con, cur)

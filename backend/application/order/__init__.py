@@ -311,9 +311,14 @@ def cart_to_order():
         WHERE sub.item_key = i.key;
     """, (order["key"],))
 
+    prep_time = 0
+    for x in items:
+        if x["metadata"]["prep_time"] > prep_time:
+            prep_time = x["metadata"]["prep_time"]
+
     order["timeline"]["created"] = f"{datetime.now(timezone.utc)}"
-    order["timeline"]["delivery_date"
-                      ] = f"{datetime.now(timezone.utc) + timedelta(days=7)}"
+    order["timeline"]["delivery_date"] = f"{datetime.now(
+        timezone.utc) + timedelta(days=prep_time)}"
 
     cur.execute("""
         UPDATE "order"

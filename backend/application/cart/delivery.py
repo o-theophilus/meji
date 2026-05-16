@@ -45,7 +45,7 @@ axis_map = {
     "badagry_axis": {
         "label": "Badagry Axis (Far West)",
         "areas": [
-            "Badagry", "Ojo", "Satellite Town"
+            "Badagry", "Ojo", "Satellite Town", "Okokomaiko", "Ijanikin"
         ]
     }
 }

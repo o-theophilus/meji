@@ -46,8 +46,15 @@
 		},
 
 		get delivery_date() {
+			let prep_time = 0;
+			for (const item of app.cart_items) {
+				if (item.metadata.prep_time > prep_time) {
+					prep_time = item.metadata.prep_time;
+				}
+			}
+
 			const nextWeek = new Date();
-			nextWeek.setDate(nextWeek.getDate() + 7);
+			nextWeek.setDate(nextWeek.getDate() + prep_time);
 			return nextWeek;
 		},
 

@@ -13,7 +13,13 @@
 			onclick={() =>
 				module.open(Form, {
 					key: item.key,
-					quantity: item.quantity,
+					length: item.metadata.length,
+					breadth: item.metadata.breadth,
+					height: item.metadata.height,
+					weight: item.metadata.weight,
+					address: item.metadata.address,
+					area: item.metadata.area,
+					prep_time: item.metadata.prep_time,
 					update
 				})}
 		>
@@ -28,6 +34,7 @@
 			<span class="label">Weight</span> <span>{item.metadata.weight}kg</span>
 			<span class="label">Address</span> <span>{item.metadata.address}</span>
 			<span class="label">Area</span> <span>{item.metadata.area}</span>
+			<span class="label">Prep Time</span> <span>{item.metadata.prep_time} days</span>
 		</div>
 	{/if}
 </div>
