@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let { data = [] } = $props();
+	let { data = [], colors = [] } = $props();
 	let canvas;
 
 	onMount(() => {
@@ -15,7 +15,8 @@
 				datasets: [
 					{
 						data: counts,
-						backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#22c55e', '#ef4444'],
+						backgroundColor:
+							colors.length > 0 ? colors : ['#94a3b8', '#3b82f6', '#f59e0b', '#22c55e', '#ef4444'],
 						borderWidth: 0
 					}
 				]

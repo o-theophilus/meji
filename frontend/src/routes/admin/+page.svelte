@@ -15,6 +15,42 @@
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
+	let order_summary = $derived.by(() => {
+		let temp = [];
+		for (let x of dashboard.order_summary) {
+			if (x.label != 'cart') {
+				temp.push(x);
+			}
+		}
+		return temp;
+	});
+
+	let conversion_rate = $derived.by(() => {
+		let temp = [];
+		for (let x of dashboard.order_summary) {
+			if (x.label == 'cart') {
+				temp.push(x);
+			} else if (x.label == 'created') {
+				temp.push({ label: 'checkout', count: x.count });
+			}
+		}
+		return temp;
+	});
+
+	let conversion_rate_percent = $derived.by(() => {
+		let count = 0;
+		let total = 0;
+		for (let x of dashboard.order_summary) {
+			if (x.label == 'cart') {
+				total += x.count;
+			} else if (x.label == 'created') {
+				count += x.count;
+				total += x.count;
+			}
+		}
+
+		return Math.round((count * 100) / total);
+	});
 	onMount(() => {
 		const sp = page_state.searchParams;
 		if (Object.keys(sp).length) {
@@ -47,12 +83,10 @@
 		for (let x of dashboard.top_users) {
 			x.spent = `₦${Number(x.spent).toLocaleString()}`;
 		}
-	});
 
-	let cartData = [
-		{ label: 'Abandoned', count: 3 },
-		{ label: 'Checkout', count: 3 }
-	];
+		// order_summary = dashboard.order_summary.filters((x) => x.label != 'cart');
+		// console.log(dashboard.order_summary);
+	});
 </script>
 
 <Meta title="Admin Dashboard" />
@@ -113,7 +147,7 @@
 		</div>
 
 		<div class="margin">
-			<Card title="SALES CHART">
+			<Card title="Sales Chart">
 				{#key dashboard.sales_chart}
 					<LineChart data={dashboard.sales_chart}></LineChart>
 				{/key}
@@ -121,7 +155,7 @@
 		</div>
 
 		<div class="two margin">
-			<Card title="RECENT ORDERS">
+			<Card title="Recent Orders">
 				<Table
 					data={dashboard.order_recent}
 					columns={['id:href', 'customer:href2', 'total', 'status']}
@@ -136,23 +170,23 @@
 		</div>
 
 		<div class="margin">
-			<Card title="ORDERS STATUS">
-				<Doughnut data={dashboard.order_summary}></Doughnut>
+			<Card title="Orders Status">
+				<Doughnut data={order_summary}></Doughnut>
 			</Card>
 		</div>
 
 		<div class="two margin">
-			<Card title="TOP PRODUCTS">
+			<Card title="Top Products">
 				<Table data={dashboard.item_top_purchase} columns={['name', 'units', 'revenue']}></Table>
 			</Card>
-			<Card title="TOP Customers">
+			<Card title="Top Customers">
 				<Table data={dashboard.top_users} columns={['name:href', 'orders', 'spent']}></Table>
 			</Card>
 		</div>
 
 		<div class="margin three">
-			<Card title="Conversion Rate (50%)">
-				<Doughnut data={cartData}></Doughnut>
+			<Card title="Conversion Rate ({conversion_rate_percent}%)">
+				<Doughnut data={conversion_rate} colors={['#ef4444', '#22c55e']}></Doughnut>
 			</Card>
 
 			<Card title="Coupon Usage">

@@ -246,13 +246,14 @@ def order_recent(cur):
 
 
 def order_summary(cur):
+    os = ["cart", *order_status]
     cur.execute("""
         SELECT s.status AS label, COUNT(o.*) AS count
         FROM unnest(%s::text[]) AS s(status)
         LEFT JOIN "order" o ON o.status = s.status
         GROUP BY s.status
         ORDER BY array_position(%s, s.status);
-    """, (order_status, order_status))
+    """, (os, os))
     return cur.fetchall()
 
 
