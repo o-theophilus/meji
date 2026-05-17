@@ -19,7 +19,7 @@ def coupon_schema(x, access=[]):
     x["valid_until"] = x["valid_until"].strftime(
         "%Y-%m-%d") if x["valid_until"] else None
 
-    if "coupon:view_code" not in access:
+    if "coupon.view_code" not in access:
         x["code"] = "**********"
 
     discount = ""

@@ -53,12 +53,8 @@
 					<div class="c">
 						<div class="a">Discount</div>
 						<div class="b" transition:slide>
-							{#if ops.discount_condition_met}
-								{#if ops.discount}
-									-
-								{/if}
-
-								₦{Number(ops.discount).toLocaleString()}
+							{#if ops.discount_condition_met && ops.discount}
+								- ₦{Number(ops.discount).toLocaleString()}
 							{:else}
 								0
 							{/if}
@@ -107,18 +103,13 @@
 		{/if}
 
 		<Button icon="trash-2" onclick={() => module.open(Remove, { ops })}>Remove Coupon</Button>
-		<!-- {:else} -->
-		<!-- <Button icon="square-pen" onclick={() => module.open(Add, { ops })}>Add Coupon</Button> -->
 	{/if}
 
 	<div class="line space total">
 		<span class="a"> Discount</span>
 		<div class="b">
-			{#if ops.discount_condition_met}
-				{#if ops.discount}
-					-
-				{/if}
-				₦{Number(ops.discount).toLocaleString()}
+			{#if ops.discount_condition_met && ops.discount}
+				- ₦{Number(ops.discount).toLocaleString()}
 			{:else}
 				0
 			{/if}

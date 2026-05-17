@@ -229,12 +229,11 @@ def order_revenue(cur, interval):
 
 
 def order_recent(cur):
-    # TODO: subtract coupon from total
     cur.execute("""
         SELECT
             o.key,
             o.status,
-            o.order_cost + o.delivery_cost AS total,
+            o.payment,
             u.username,
             u.name
         FROM "order" o

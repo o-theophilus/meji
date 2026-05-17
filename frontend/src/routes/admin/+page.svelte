@@ -29,7 +29,7 @@
 			x.href = `/orders/${x.key}`;
 			x.customer = x.name;
 			x.href2 = `/@${x.username}`;
-			x.total = `₦${Number(x.total).toLocaleString()}`;
+			x.total = `₦${Number(x.payment).toLocaleString()}`;
 		}
 
 		for (let x of dashboard.item_low_quantity) {

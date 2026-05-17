@@ -11,7 +11,7 @@
 	onMount(() => {
 		for (let x of dashboard.order_recent) {
 			x.id = `#${x.key.substring(0, 8)}`;
-			x.total = `₦${Number(x.total).toLocaleString()}`;
+			x.total = `₦${Number(x.payment).toLocaleString()}`;
 			x.href = `/orders/${x.key}`;
 		}
 
@@ -44,7 +44,7 @@
 	</div>
 
 	<div class="order_container margin">
-		<Card title="RECENT ORDERS">
+		<Card title="Recent Orders">
 			<Table data={dashboard.order_recent} columns={['id:href', 'total', 'status']}></Table>
 			<LinkArrow href="/orders" --link-font-size="0.7rem">View more</LinkArrow>
 		</Card>
@@ -62,7 +62,7 @@
 
 	<div class="margin">
 		<Card title="Activity Log">
-			<Table data={dashboard.activity_log} columns={['date_created:date', 'action', 'entity_key']}
+			<Table data={dashboard.activity_log} columns={['date', 'action', 'entity_key']}
 			></Table>
 
 			{#if app.user.access.includes('log.view')}

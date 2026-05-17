@@ -16,7 +16,7 @@ const get_axis_from_area = (area) => {
 	return null;
 }
 
-const get_highest_price = (items, to_area, delivery_type = null) => {	
+const get_highest_price = (items, to_area, delivery_type = null) => {
 	let price = 0;
 	const to_axis = get_axis_from_area(to_area, app.axis_map);
 

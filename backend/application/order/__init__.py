@@ -10,6 +10,7 @@ from ..cart.get import has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, send_mail
+from decimal import Decimal
 
 bp = Blueprint("order", __name__)
 
@@ -106,7 +107,7 @@ def order_check():
 
             discount = min(discount, applies_to)
 
-    pay = total_order + delivery_cost - discount
+    pay = total_order + Decimal(delivery_cost) - Decimal(str(discount))
     if pay <= 0:
         db_close(con, cur)
         return jsonify({
@@ -212,8 +213,7 @@ def cart_to_order():
 
             discount = min(discount, applies_to)
 
-    pay = total_order + delivery_cost - discount
-    pay = max(pay, 0)
+    pay = total_order + Decimal(delivery_cost) - Decimal(str(discount))
 
     cur.execute(
         """SELECT * FROM "order" WHERE payment_reference = %s;""",

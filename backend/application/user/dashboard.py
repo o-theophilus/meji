@@ -18,14 +18,13 @@ def last_order_date(cur, user_key):
     return cur.fetchone()
 
 
+# TODO: collect logs for failed ops
 def order_recent(cur, user_key):
-    # TODO: subtract coupon from total
-    # TODO: collect logs for failed ops
     cur.execute("""
         SELECT
             o.key,
             o.status,
-            o.order_cost + o.delivery_cost AS total
+            o.payment
         FROM "order" o
         LEFT JOIN "user" u ON o.user_key = u.key
         WHERE o.status != 'cart' AND o.user_key = %s

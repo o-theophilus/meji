@@ -38,10 +38,10 @@
 			icon: 'user-x'
 		},
 		{
-			name: 'File Error',
-			href: '/admin/file_error',
-			access: app.user.access.includes('admin.manage_files'),
-			icon: 'file-warning'
+			name: 'Coupons',
+			href: '/admin/coupons',
+			access: app.user.access.includes('coupon.view'),
+			icon: 'ticket-percent'
 		},
 		{
 			name: 'Adverts',
@@ -59,10 +59,10 @@
 			icon: 'tags'
 		},
 		{
-			name: 'Coupons',
-			href: '/admin/coupons',
-			access: app.user.access.includes('coupon.view'),
-			icon: 'ticket-percent'
+			name: 'File Error',
+			href: '/admin/file_error',
+			access: app.user.access.includes('admin.manage_files'),
+			icon: 'file-warning'
 		},
 		{
 			name: 'Maintenance',

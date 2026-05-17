@@ -13,6 +13,8 @@
 	import { get_delivery_cost } from './delivery.js';
 
 	let { data } = $props();
+	console.log(data.cart);
+	
 
 	onMount(() => {
 		app.cart_items = data.items;
@@ -81,7 +83,7 @@
 				if (this.coupon.benefit.applies_to == 'total order') {
 					applies_to = this.total_order;
 				} else if (this.coupon.benefit.applies_to == 'delivery fee') {
-					applies_to = this.has_receiver ? this.cart.delivery_cost : 0;
+					applies_to = this.has_receiver ? this.delivery_cost : 0;
 				}
 
 				if (this.coupon.benefit.value_unit == 'flat') {
@@ -115,7 +117,6 @@
 			}
 			if (this.coupon && this.discount_condition_met) {
 				sum -= this.discount;
-				// TODO: what is there is no receiver?
 			}
 
 			return Math.max(sum, 0);

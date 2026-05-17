@@ -30,10 +30,10 @@
 								<a href={row[col.type]}>
 									{row[col.name]}
 								</a>
-							{:else if col.type == 'date'}
+							<!-- {:else if col.type == 'date'}
 								<Datetime datetime={row[col.name]} type="date_numeric"></Datetime>
 								<br />
-								<Datetime datetime={row[col.name]} type="time_12h"></Datetime>
+								<Datetime datetime={row[col.name]} type="time_12h"></Datetime> -->
 							{:else}
 								{row[col.name]}
 							{/if}

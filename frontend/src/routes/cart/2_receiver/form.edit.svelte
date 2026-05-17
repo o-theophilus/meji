@@ -155,7 +155,20 @@
 
 	<IG name="Area" error={error.area}>
 		{#snippet input()}
-			<Dropdown icon="map-pin" list={page.data.areas} bind:value={form.area}></Dropdown>
+			<Dropdown
+				--select-color="var(--ft2)"
+				--select-color-hover="var(--ft2)"
+				--select-background-color="var(--input)"
+				--select-background-color-hover="var(--input)"
+				--select-outline-color="var(--input)"
+				--select-outline-color-hover="var(--ft1)"
+				--select-width="calc(100% - 2 * 16px)"
+				--select-justify="left"
+				--select-gap="16px"
+				icon="map-pin"
+				list={page.data.areas}
+				bind:value={form.area}
+			></Dropdown>
 		{/snippet}
 	</IG>
 
