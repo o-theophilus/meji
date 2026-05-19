@@ -246,15 +246,30 @@ def order_recent(cur):
 
 
 def order_summary(cur):
-    os = ["cart", *order_status]
     cur.execute("""
         SELECT s.status AS label, COUNT(o.*) AS count
         FROM unnest(%s::text[]) AS s(status)
         LEFT JOIN "order" o ON o.status = s.status
         GROUP BY s.status
         ORDER BY array_position(%s, s.status);
-    """, (os, os))
+    """, (order_status, order_status))
     return cur.fetchall()
+
+
+def conversion_rate(cur):
+    cur.execute("""
+        SELECT
+            COUNT(*) FILTER (WHERE o.status = 'cart') AS cart,
+            COUNT(*) FILTER (WHERE o.status != 'cart') AS checkout
+        FROM "order" o
+        LEFT JOIN order_item oi ON o.key = oi.order_key
+        WHERE oi.key IS NOT NULL;
+    """)
+    row = cur.fetchone()
+    return [
+        {"label": "cart", "count": row["cart"]},
+        {"label": "checkout", "count": row["checkout"]}
+    ]
 
 
 def item_available(cur):
@@ -340,6 +355,7 @@ def dashboard():
     _new_users = new_users(cur, intervals[interval])
     _top_users = top_users(cur)
     _order_summary = order_summary(cur)
+    _conversion_rate = conversion_rate(cur)
     _sales_chart = sales_chart(cur, intervals[interval])
     _order_revenue = order_revenue(cur, intervals[interval])
     _order_count = order_count(cur, intervals[interval])
@@ -354,6 +370,7 @@ def dashboard():
         "new_users": _new_users,
         "top_users": _top_users,
         "order_summary": _order_summary,
+        "conversion_rate": _conversion_rate,
         "sales_chart": _sales_chart,
         "order_revenue": _order_revenue,
         "order_count": _order_count,

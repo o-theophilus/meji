@@ -15,42 +15,24 @@
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 
-	let order_summary = $derived.by(() => {
-		let temp = [];
-		for (let x of dashboard.order_summary) {
-			if (x.label != 'cart') {
-				temp.push(x);
-			}
-		}
-		return temp;
-	});
+	let conversion_rate = $state(0);
+	// let conversion_rate_percent = $derived.by(() => {
+	// 	let count = 0;
+	// 	let total = 0;
+	// 		// for (let x of dashboard.conversion_rate) {
+	// 		// 	if (x.label == 'cart') {
+	// 		// 		total += x.count;
+	// 		// 	} else if (x.label == 'checkout') {
+	// 		// 		count += x.count;
+	// 		// 		total += x.count;
+	// 		// 	}
+	// 		// }
 
-	let conversion_rate = $derived.by(() => {
-		let temp = [];
-		for (let x of dashboard.order_summary) {
-			if (x.label == 'cart') {
-				temp.push(x);
-			} else if (x.label == 'created') {
-				temp.push({ label: 'checkout', count: x.count });
-			}
-		}
-		return temp;
-	});
+	// 	console.log(dashboard.conversion_rate);
 
-	let conversion_rate_percent = $derived.by(() => {
-		let count = 0;
-		let total = 0;
-		for (let x of dashboard.order_summary) {
-			if (x.label == 'cart') {
-				total += x.count;
-			} else if (x.label == 'created') {
-				count += x.count;
-				total += x.count;
-			}
-		}
+	// 	return Math.round((count * 100) / total);
+	// });
 
-		return Math.round((count * 100) / total);
-	});
 	onMount(() => {
 		const sp = page_state.searchParams;
 		if (Object.keys(sp).length) {
@@ -84,8 +66,17 @@
 			x.spent = `₦${Number(x.spent).toLocaleString()}`;
 		}
 
-		// order_summary = dashboard.order_summary.filters((x) => x.label != 'cart');
-		// console.log(dashboard.order_summary);
+		let count = 0;
+		let total = 0;
+		for (let x of dashboard.conversion_rate) {
+			if (x.label == 'cart') {
+				total += x.count;
+			} else if (x.label == 'checkout') {
+				count += x.count;
+				total += x.count;
+			}
+		}
+		conversion_rate = Math.round((count * 100) / total);
 	});
 </script>
 
@@ -171,7 +162,7 @@
 
 		<div class="margin">
 			<Card title="Orders Status">
-				<Doughnut data={order_summary}></Doughnut>
+				<Doughnut data={dashboard.order_summary}></Doughnut>
 			</Card>
 		</div>
 
@@ -185,8 +176,8 @@
 		</div>
 
 		<div class="margin three">
-			<Card title="Conversion Rate ({conversion_rate_percent}%)">
-				<Doughnut data={conversion_rate} colors={['#ef4444', '#22c55e']}></Doughnut>
+			<Card title="Conversion Rate ({conversion_rate}%)">
+				<Doughnut data={dashboard.conversion_rate} colors={['#ef4444', '#22c55e']}></Doughnut>
 			</Card>
 
 			<Card title="Coupon Usage">

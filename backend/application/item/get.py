@@ -67,7 +67,7 @@ def get(key):
 
 
 @bp.get("/items")
-def get_items(cur=None, _order="latest", _page_size=24):
+def get_items(cur=None, _order="latest", _tag="", _page_size=24):
     close_conn = not cur
     if not cur:
         con, cur = db_open()
@@ -109,7 +109,7 @@ def get_items(cur=None, _order="latest", _page_size=24):
     searchParams = {
         "search": "",
         "status": "active",
-        "tag": "",
+        "tag": _tag,
         "order": _order,
         "page_no": 1,
         "page_size": _page_size
@@ -497,14 +497,17 @@ def after_get(key):
 def home_page():
     con, cur = db_open()
 
-    new_arrivals = get_items(cur, "latest", 8).json['items']
-    discount = get_items(cur, "discount", 8).json['items']
+    new_arrivals = get_items(cur, "latest", _page_size=8).json['items']
+    discount = get_items(cur, "discount", _page_size=8).json['items']
+    tag = get_items(
+        cur, "latest", _tag="hot pick", _page_size=8).json['items']
 
     db_close(con, cur)
     return jsonify({
         "status": 200,
         "new_arrivals": new_arrivals,
-        "discount": discount
+        "discount": discount,
+        "tag": tag,
     })
 
 

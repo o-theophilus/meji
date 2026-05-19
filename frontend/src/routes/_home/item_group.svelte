@@ -8,7 +8,7 @@
 	let _group = [
 		{
 			title: 'Best Sellers',
-			items: [], // TODO: Best Sellers
+			items: page.data.tag,
 			order: 'rating',
 			icon: 'trending-up'
 		},
@@ -41,9 +41,14 @@
 			<div class="tabs">
 				{#each group as g, i}
 					{#if g.items.length}
-						<button onclick={() => (active = i)} class:active={active == i}>
+						<button onclick={() => (active = i)} class:active={active == i} title={g.title}>
 							<Icon icon={g.icon}></Icon>
-							{g.title}
+							<soan class="name">
+								{g.title.split(' ')[0]}
+							</soan>
+							<soan class="name_long">
+								{g.title}
+							</soan>
 						</button>
 					{/if}
 				{/each}
@@ -82,6 +87,7 @@
 		outline-offset: -1px;
 		position: relative;
 		z-index: 0;
+
 		&::before {
 			content: '';
 			position: absolute;
@@ -157,6 +163,24 @@
 				color: var(--ft1);
 				fill: var(--ft1);
 				background-color: var(--bg2);
+			}
+
+			.name,
+			.name_long {
+				display: none;
+			}
+			@media screen and (min-width: 380px) {
+				.name {
+					display: inline;
+				}
+			}
+			@media screen and (min-width: 500px) {
+				.name {
+					display: none;
+				}
+				.name_long {
+					display: inline;
+				}
 			}
 		}
 	}
