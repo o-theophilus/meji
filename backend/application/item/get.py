@@ -500,7 +500,7 @@ def home_page():
     new_arrivals = get_items(cur, "latest", _page_size=8).json['items']
     discount = get_items(cur, "discount", _page_size=8).json['items']
     tag = get_items(
-        cur, "latest", _tag="hot pick", _page_size=8).json['items']
+        cur, "latest", _tag="hot pick 🔥", _page_size=8).json['items']
 
     db_close(con, cur)
     return jsonify({
