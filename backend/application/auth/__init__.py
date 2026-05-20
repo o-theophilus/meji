@@ -423,6 +423,7 @@ def login():
 
     token = create_session(cur, user["key"], True, remember)
 
+    cinfo = get_client_info()
     log(
         cur=cur,
         user_key=user["key"],
@@ -432,7 +433,7 @@ def login():
         misc={
             "type": "user",
             "key": anon_user["key"],
-            **get_client_info()
+            **cinfo
         }
     )
     log(
@@ -444,6 +445,7 @@ def login():
         misc={
             "entity_type": "user",
             "entity_key": user["key"],
+            **cinfo
         }
     )
 
@@ -471,6 +473,7 @@ def logout():
 
     token = create_session(cur, anon_user["key"])
 
+    cinfo = get_client_info()
     log(
         cur=cur,
         user_key=user["key"],
@@ -480,6 +483,7 @@ def logout():
         misc={
             "entity_type": "user",
             "entity_key": anon_user["key"],
+            **cinfo
         }
     )
     log(
@@ -491,6 +495,7 @@ def logout():
         misc={
             "entity_type": "user",
             "entity_key": user["key"],
+            **cinfo
         }
     )
 

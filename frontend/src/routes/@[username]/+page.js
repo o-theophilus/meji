@@ -1,11 +1,7 @@
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ parent, fetch, params }) => {
-	let a = await parent();
-	// TODO: should users be loggedin to view profile page?
-	if (a.locals.user.key == params.username) {
-		// return { user: a.locals.user }
-	}
+	let a = await parent();	
 
 	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/users/${params.username}`, {
 		method: 'get',

@@ -10,23 +10,25 @@
 	if (!log.entity) {
 		href = '';
 	} else if (log.entity.type == 'item') {
-		href = `/${log.entity.key}`;
+		href = `/${log.entity.slug}`;
 		if (log.action == 'added comment to item') {
-			href = `/${log.entity.key}/review#${log.misc.comment_key}`;
+			href = `/${log.entity.slug}/review#${log.misc.comment_key}`;
 		}
 	} else if (log.entity.type == 'blog') {
-		href = `/blog/${log.entity.key}`;
+		href = `/blog/${log.entity.slug}`;
 		if (log.action == 'added comment to blog') {
-			href = `/blog/${log.entity.key}#${log.misc.comment_key}`;
+			href = `/blog/${log.entity.slug}#${log.misc.comment_key}`;
 		}
 	} else if (log.entity.type == 'user') {
-		href = `/@${log.entity.key}`;
+		href = `/@${log.entity.slug}`;
 	} else if (log.entity.type == 'page') {
-		href = log.entity.key;
+		href = log.entity.slug;
+		console.log(log);
+
 		// } else if (log.entity.type == 'report') {
-		// 	href = `/admin/report?search=${log.entity.key}`;
+		// 	href = `/admin/report?search=${log.entity.slug}`;
 		// } else if (log.entity.type == 'comment') {
-		// 	href = `/${log.misc.post_key}#${log.entity.key}`;
+		// 	href = `/${log.misc.post_key}#${log.entity.slug}`;
 	}
 </script>
 
@@ -74,8 +76,8 @@
 			onclick={() => {
 				searchParams.page_no = 1;
 				pagination.reset();
-				searchParams.e_search = log.entity.key;
-				page_state.set({ e_search: log.entity.key });
+				searchParams.e_search = log.entity.slug;
+				page_state.set({ e_search: log.entity.slug });
 			}}
 		>
 			[search]

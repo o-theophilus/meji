@@ -1,5 +1,4 @@
 <script>
-	import { Datetime } from '$lib/macro';
 	let { data, columns } = $props();
 
 	let _cols = [];
@@ -30,10 +29,6 @@
 								<a href={row[col.type]}>
 									{row[col.name]}
 								</a>
-							<!-- {:else if col.type == 'date'}
-								<Datetime datetime={row[col.name]} type="date_numeric"></Datetime>
-								<br />
-								<Datetime datetime={row[col.name]} type="time_12h"></Datetime> -->
 							{:else}
 								{row[col.name]}
 							{/if}

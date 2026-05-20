@@ -1,11 +1,11 @@
 <script>
 	import { replaceState } from '$app/navigation';
 	import { LinkArrow } from '$lib/button/';
-	import { Card, Doughnut, LineChart, Summary, Table } from '$lib/dashboard';
+	import { Activity, Card, Doughnut, LineChart, Summary, Table } from '$lib/dashboard';
 	import { Dropdown } from '$lib/input';
 	import { Content } from '$lib/layout';
 	import { Log, Meta } from '$lib/macro';
-	import { page_state } from '$lib/store.svelte.js';
+	import { app, page_state } from '$lib/store.svelte.js';
 	import { onMount } from 'svelte';
 
 	let { data } = $props();
@@ -16,22 +16,6 @@
 	let defaultParams = $state(data.searchParams);
 
 	let conversion_rate = $state(0);
-	// let conversion_rate_percent = $derived.by(() => {
-	// 	let count = 0;
-	// 	let total = 0;
-	// 		// for (let x of dashboard.conversion_rate) {
-	// 		// 	if (x.label == 'cart') {
-	// 		// 		total += x.count;
-	// 		// 	} else if (x.label == 'checkout') {
-	// 		// 		count += x.count;
-	// 		// 		total += x.count;
-	// 		// 	}
-	// 		// }
-
-	// 	console.log(dashboard.conversion_rate);
-
-	// 	return Math.round((count * 100) / total);
-	// });
 
 	onMount(() => {
 		const sp = page_state.searchParams;
@@ -199,16 +183,20 @@
 
 		<br />
 
-		<Card title="ACTIVITY FEED">
-			Display: Columns
-			<br />
-			<br />
-			New order placed | time
-			<br />
-			Product updated | time
-			<br />
-			Customer registered | time
-		</Card>
+		<div class="margin">
+			<Card title="Activity Log">
+				<Activity data={dashboard.activity_log}></Activity>
+
+				{#if app.user.access.includes('log.view')}
+					<LinkArrow
+						--link-font-size="0.7rem"
+						onclick={() => page_state.goto('log', { u_search: app.user.key })}
+					>
+						View Logs
+					</LinkArrow>
+				{/if}
+			</Card>
+		</div>
 	</div>
 </Content>
 

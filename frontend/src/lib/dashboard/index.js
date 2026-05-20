@@ -4,4 +4,5 @@ export { default as Doughnut } from "./doughnut.svelte"
 export { default as Feeds } from "./feeds.svelte"
 export { default as Summary } from "./summary.svelte"
 export { default as Table } from "./table.svelte"
+export { default as Activity } from "./activity.svelte"
 

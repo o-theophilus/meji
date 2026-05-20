@@ -81,18 +81,63 @@ def recently_viewed(cur, user_key):
 
 def activity_log(cur, user_key):
     cur.execute("""
-        SELECT *
-        FROM log
-        WHERE user_key = %s
-        ORDER BY date_created DESC
+        WITH _log AS (
+            SELECT
+                DISTINCT ON (log.user_key, log.entity_type, log.entity_key)
+                log.key,
+                log.date_created,
+                log.status,
+                log.action,
+                log.user_key,
+                log.entity_key,
+
+                jsonb_build_object(
+                    'slug', COALESCE(usr.username, item.slug, blog.slug,
+                        log.entity_key),
+                    'type', log.entity_type,
+                    'name', COALESCE(usr.name, item.name, blog.title,
+                        log.entity_key)
+                ) AS entity,
+
+                COUNT(*) OVER() AS _count
+
+            FROM log
+            LEFT JOIN "user" usr ON log.entity_key = usr.key::TEXT
+                AND log.entity_type = 'user'
+            LEFT JOIN
+                item ON log.entity_key = item.key::TEXT
+                AND log.entity_type = 'item'
+            LEFT JOIN
+                blog ON log.entity_key = blog.key::TEXT
+                AND log.entity_type = 'blog'
+
+            WHERE
+                log.user_key = %s
+                AND NOT (
+                    log.entity_type = 'user' AND log.action = 'changed theme'
+                )
+
+            ORDER BY
+                log.user_key,
+                log.entity_type,
+                log.entity_key,
+                log.date_created DESC
+        )
+
+        SELECT * FROM _log
+        ORDER BY _log.date_created DESC
         LIMIT 6;
     """, (user_key,))
-    data = cur.fetchall()
-    for x in data:
-        if x["entity_type"] == "page":
+    logs = cur.fetchall()
+
+    for x in logs:
+        if x["action"] == "viewed user" and x["user_key"] == x["entity_key"]:
+            x["action"] = "viewed profile"
+            del x["entity"]
+        elif x["entity"]["type"] == "page":
             x["action"] = "viewed page"
 
-    return data
+    return logs
 
 
 def dashboard(cur, user_key):

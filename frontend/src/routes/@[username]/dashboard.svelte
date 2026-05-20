@@ -3,7 +3,7 @@
 	import { app, page_state } from '$lib/store.svelte.js';
 
 	import { LinkArrow } from '$lib/button';
-	import { Card, Summary, Table } from '$lib/dashboard';
+	import { Activity, Card, Summary, Table } from '$lib/dashboard';
 	import { onMount } from 'svelte';
 
 	let dashboard = $state(page.data.dashboard);
@@ -24,10 +24,6 @@
 			x.action = 'give feedback';
 			x.href = `/${x.slug}`;
 			x.href2 = `/${x.slug}/review`;
-		}
-
-		for (let x of dashboard.activity_log) {
-			x.date = x.date_created; //TODO: format this to 20/04/2026 8:34 pm
 		}
 	});
 </script>
@@ -62,8 +58,7 @@
 
 	<div class="margin">
 		<Card title="Activity Log">
-			<Table data={dashboard.activity_log} columns={['date', 'action', 'entity_key']}
-			></Table>
+			<Activity data={dashboard.activity_log}></Activity>
 
 			{#if app.user.access.includes('log.view')}
 				<LinkArrow
@@ -93,18 +88,6 @@
 			}
 		}
 	}
-
-	/* .four {
-		display: grid;
-		gap: 16px;
-		grid-template-columns: repeat(2, 1fr);
-
-		@container (min-width: 600px) {
-			& {
-				grid-template-columns: repeat(4, 1fr);
-			}
-		}
-	} */
 
 	.margin {
 		margin-top: 16px;

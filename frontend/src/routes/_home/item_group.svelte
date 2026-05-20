@@ -9,20 +9,23 @@
 		{
 			title: 'Best Sellers',
 			items: page.data.tag,
-			order: 'rating',
-			icon: 'trending-up'
+			icon: 'trending-up',
+			order: 'latest',
+			tag: 'hot pick 🔥'
 		},
 		{
 			title: 'New Arrivals',
 			items: page.data.new_arrivals,
+			icon: 'sparkles',
 			order: 'latest',
-			icon: 'sparkles'
+			tag: ''
 		},
 		{
 			title: 'Discount Items',
 			items: page.data.discount,
+			icon: 'badge-percent',
 			order: 'discount',
-			icon: 'badge-percent'
+			tag: ''
 		}
 	];
 
@@ -58,7 +61,11 @@
 		{#if group[active].items.length}
 			<div class="view_more">
 				<LinkArrow
-					onclick={() => page_state.goto('shop', { order: group[active].order })}
+					onclick={() =>
+						page_state.goto('shop', {
+							order: group[active].order,
+							...(group[active].tag && { tag: group[active].tag })
+						})}
 					--link-font-size="0.8rem"
 				>
 					See All

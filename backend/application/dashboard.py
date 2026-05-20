@@ -330,6 +330,72 @@ def item_top_purchase(cur, interval):
 #     return cur.fetchall()
 
 
+def activity_log(cur):
+    cur.execute("""
+        WITH _log AS (
+            SELECT
+                DISTINCT ON (log.user_key, log.entity_type, log.entity_key)
+                log.key,
+                log.date_created,
+                log.status,
+                log.action,
+                log.user_key,
+                log.entity_key,
+
+                jsonb_build_object(
+                    'key', "user".key,
+                    'username', "user".username,
+                    'name', "user".name
+                ) AS user,
+
+                jsonb_build_object(
+                    'slug', COALESCE(usr.username, item.slug, blog.slug,
+                        log.entity_key),
+                    'type', log.entity_type,
+                    'name', COALESCE(usr.name, item.name, blog.title,
+                        log.entity_key)
+                ) AS entity,
+
+                COUNT(*) OVER() AS _count
+
+            FROM log
+            LEFT JOIN "user" ON log.user_key = "user".key
+            LEFT JOIN "user" usr ON log.entity_key = usr.key::TEXT
+                AND log.entity_type = 'user'
+            LEFT JOIN
+                item ON log.entity_key = item.key::TEXT
+                AND log.entity_type = 'item'
+            LEFT JOIN
+                blog ON log.entity_key = blog.key::TEXT
+                AND log.entity_type = 'blog'
+
+            WHERE NOT (
+                    log.entity_type = 'user' AND log.action = 'changed theme'
+                )
+
+            ORDER BY
+                log.user_key,
+                log.entity_type,
+                log.entity_key,
+                log.date_created DESC
+        )
+
+        SELECT * FROM _log
+        ORDER BY _log.date_created DESC
+        LIMIT 12;
+    """)
+    logs = cur.fetchall()
+
+    for x in logs:
+        if x["action"] == "viewed user" and x["user_key"] == x["entity_key"]:
+            x["action"] = "viewed profile"
+            del x["entity"]
+        elif x["entity"]["type"] == "page":
+            x["action"] = "viewed page"
+
+    return logs
+
+
 @bp.get("/dashboard")
 def dashboard():
     con, cur = db_open()
@@ -338,7 +404,6 @@ def dashboard():
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
-    # user = session["user"]
 
     default_admin(cur)
 
@@ -363,6 +428,7 @@ def dashboard():
     _item_available = item_available(cur)
     _item_low_quantity = item_low_quantity(cur)
     _item_top_purchase = item_top_purchase(cur, intervals[interval])
+    _activity_log = activity_log(cur)
 
     db_close(con, cur)
     return jsonify({
@@ -378,6 +444,7 @@ def dashboard():
         "item_available": _item_available,
         "item_low_quantity": _item_low_quantity,
         "item_top_purchase": _item_top_purchase,
+        "activity_log": _activity_log,
         "searchParams": searchParams,
         "filters": list(intervals.keys()),
     })

@@ -67,6 +67,8 @@ def get_many():
             log.status,
             log.misc,
             log.action,
+            log.user_key,
+            log.entity_key,
 
             jsonb_build_object(
                 'key', "user".key,
@@ -75,9 +77,11 @@ def get_many():
             ) AS user,
 
             jsonb_build_object(
-                'key', COALESCE(usr.username, item.slug, blog.slug, log.entity_key),
+                'slug', COALESCE(usr.username, item.slug, blog.slug,
+                    log.entity_key),
                 'type', log.entity_type,
-                'name', COALESCE(usr.name, item.name, blog.title, log.entity_key)
+                'name', COALESCE(usr.name, item.name, blog.title,
+                    log.entity_key)
             ) AS entity,
 
             COUNT(*) OVER() AS _count
@@ -99,9 +103,9 @@ def get_many():
             ) ILIKE %s)
             AND (%s = 'all' OR log.entity_type = %s)
             AND (%s = 'all' OR log.action = %s)
-            AND (%s = '' OR CONCAT_WS(', ', 
+            AND (%s = '' OR CONCAT_WS(', ',
                 log.entity_key,
-                usr.name, usr.username, usr.email, 
+                usr.name, usr.username, usr.email,
                 item.name, item.slug,
                 blog.title, blog.slug
             ) ILIKE %s)
@@ -122,9 +126,9 @@ def get_many():
             misc[key] = str(val)
         x["misc"] = misc
 
-        if x["action"] == "changed theme":
+        if x["action"] in ["changed theme", "logged in", "logged out"]:
             del x["entity"]
-        elif x["action"] == "viewed user" and x["user"]["username"] == x["entity"]["key"]:
+        elif x["action"] == "viewed user" and x["user_key"] == x["entity_key"]:
             x["action"] = "viewed profile"
             del x["entity"]
         elif x["entity"]["type"] == "page":
