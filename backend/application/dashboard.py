@@ -1,57 +1,11 @@
-import os
 
 from flask import Blueprint, jsonify, request
-from werkzeug.security import generate_password_hash
 
-from .log import log
 from .order.get import order_status
 from .postgres import db_close, db_open
-from .tools import access_pass, get_session
+from .tools import get_session
 
 bp = Blueprint("admin_dashboard", __name__)
-
-
-def default_admin(cur):
-    email = os.environ["MAIL_USERNAME"]
-
-    cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
-    if not cur.fetchone():
-        cur.execute("""
-                INSERT INTO "user"
-                (status, name, username, email, password, access)
-                VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;
-            """, (
-            "active",
-            "Theophilus",
-            "omni",
-            email,
-            generate_password_hash(
-                os.environ["MAIL_PASSWORD"], method="scrypt"),
-            [f"{x}.{y[0]}" for x in access_pass for y in access_pass[x]]
-        ))
-        user = cur.fetchone()
-
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="created",
-            entity_type="user",
-            entity_key=user["key"]
-        )
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="signedup",
-            entity_type="user",
-            entity_key=user["key"]
-        )
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="activated account",
-            entity_type="user",
-            entity_key=user["key"]
-        )
 
 
 def new_users(cur, interval):
@@ -404,8 +358,6 @@ def dashboard():
     if session["status"] != 200:
         db_close(con, cur)
         return jsonify(session)
-
-    default_admin(cur)
 
     intervals = {
         "today": "1 day",

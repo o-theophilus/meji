@@ -13,8 +13,8 @@ from ..cart.get import get_cart_items, has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import (check_code, generate_code, get_session, reserved_words,
-                     send_mail, user_schema, get_client_info)
+from ..tools import (access_pass, check_code, generate_code, get_client_info,
+                     get_session, reserved_words, send_mail, user_schema)
 from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
@@ -314,8 +314,15 @@ def confirm():
         })
 
     cur.execute("""
-        UPDATE "user" SET status = 'active' WHERE key = %s;
-    """, (user["key"],))
+        UPDATE "user"
+        SET status = 'active', access = %s
+        WHERE key = %s;
+    """, (
+        [f"{x}.{y[0]}" for x in access_pass for y in access_pass[x]] if (
+            user["email"] == os.environ["MAIL_USERNAME"]
+        ) else user["access"],
+        user["key"]
+    ))
 
     log(
         cur=cur,

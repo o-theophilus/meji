@@ -23,7 +23,7 @@
 </script>
 
 <main class="{app.user.theme}_theme">
-	{#if page.url.pathname.startsWith('/admin')}
+	{#if page.url.pathname.startsWith('/admin') && app.login && app.user.access.length}
 		<div class="admin">
 			<div class="admin_nav">
 				<AdminNav onclick={() => admin_nav.onclick()}></AdminNav>

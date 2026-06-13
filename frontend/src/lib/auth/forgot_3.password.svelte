@@ -8,7 +8,7 @@
 
 	let form = $state({ ...module.value });
 	let error = $state({});
-	let show_password = false;
+	let show_password = $state(false);
 
 	const validate_submit = async () => {
 		error = {};
@@ -73,6 +73,7 @@
 		bind:value={form.password}
 		type="password++"
 		placeholder="Password here"
+		bind:show_password
 	></IG>
 
 	<IG
@@ -82,6 +83,7 @@
 		bind:value={form.confirm_password}
 		type="password"
 		placeholder="Password here"
+		bind:show_password
 	/>
 
 	<Button icon2="send-horizontal" onclick={validate_submit}>Submit</Button>
