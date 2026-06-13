@@ -113,7 +113,7 @@ def create_tables():
             files TEXT[] DEFAULT '{}'::TEXT[],
             variation JSONB DEFAULT '{}'::JSONB,
             quantity INT DEFAULT 10,
-            metadata JSONB DEFAULT '{}'::JSONB,
+            metadata JSONB DEFAULT '{}'::JSONB
         );
 
         CREATE TABLE IF NOT EXISTS item_version (

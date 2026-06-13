@@ -41,7 +41,7 @@
 				<Icon icon="whatsapp" size="24"></Icon>
 			</div>
 			<div class="label">Chat</div>
-			<div class="value">WHatsapp</div>
+			<div class="value">Whatsapp</div>
 		</a>
 	</div>
 

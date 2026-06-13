@@ -35,7 +35,7 @@ def create_app(conf=None):
 
         return jsonify({
             "status": 200,
-            "message": "Welcome to Meji.ng"
+            "message": "Welcome to Meji"
         })
 
     app.register_blueprint(storage.bp)
