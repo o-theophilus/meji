@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..coupon.get import coupon_schema
 from ..postgres import db_close, db_open
@@ -41,7 +41,7 @@ def get_cart_items(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -98,11 +98,11 @@ def get_cart_items(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "cart": cart,
         "items": items,
         "previous_receivers": previous_receivers,
         "areas": get_areas(),
         "coupon": coupon_schema(coupon) if coupon else None
-    })
+    }, 200

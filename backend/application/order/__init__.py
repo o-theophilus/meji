@@ -1,8 +1,9 @@
 import os
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 import requests
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..cart.delivery import get_delivery_cost
@@ -10,7 +11,6 @@ from ..cart.get import has_adderss
 from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import get_session, send_mail
-from decimal import Decimal
 
 bp = Blueprint("order", __name__)
 
@@ -22,7 +22,7 @@ def order_check():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -32,17 +32,17 @@ def order_check():
     order = cur.fetchone()
     if not order:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     if not has_adderss(order["receiver"]):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "incomplete receiver information"
-        })
+        }, 400
 
     cur.execute("""
         SELECT
@@ -58,10 +58,10 @@ def order_check():
     items = cur.fetchall()
     if len(items) == 0:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     for x in items:
         if (
@@ -69,10 +69,10 @@ def order_check():
             or x["quantity"] == 0
             or x["quantity"] > x["available_quantity"]
         ):
-            return jsonify({
+            return {
                 "status": 400,
                 "error": "Some items in your cart are no longer available"
-            })
+            }, 400
 
     total_order = sum(x["price"] * x["quantity"] for x in items)
 
@@ -110,16 +110,16 @@ def order_check():
     pay = total_order + Decimal(delivery_cost) - Decimal(str(discount))
     if pay <= 0:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "pay": pay
-    })
+    }, 200
 
 
 @bp.post("/order")
@@ -129,7 +129,7 @@ def cart_to_order():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -157,10 +157,10 @@ def cart_to_order():
         or not email_template_user
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     cur.execute("""
 
@@ -175,10 +175,10 @@ def cart_to_order():
     items = cur.fetchall()
     if len(items) == 0:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     total_order = sum(x["price"] * x["quantity"] for x in items)
 
@@ -220,10 +220,10 @@ def cart_to_order():
         (reference,))
     if cur.fetchone():
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     resp = requests.get(
         f"https://api.paystack.co/transaction/verify/{reference}",
@@ -247,10 +247,10 @@ def cart_to_order():
         or resp["data"]["currency"] != "NGN"
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid transaction"
-        })
+        }, 400
 
     cur.execute("""
         INSERT INTO item_version(
@@ -379,10 +379,10 @@ def cart_to_order():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order,
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/delivery_date")
@@ -392,24 +392,24 @@ def delivery_date(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.edit_delivery_date" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
     if not order or order["status"] != "created":
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     error = {}
     delivery_date = request.json.get("delivery_date", "").strip()
@@ -427,10 +427,10 @@ def delivery_date(key):
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -453,10 +453,10 @@ def delivery_date(key):
     order = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/processing")
@@ -466,15 +466,15 @@ def processing(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.status.processing" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
@@ -484,10 +484,10 @@ def processing(key):
         or order["status"] not in ("created", "enroute")
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     comment = request.json.get("comment", "").strip()
 
@@ -498,10 +498,10 @@ def processing(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -528,10 +528,10 @@ def processing(key):
     order = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/enroute")
@@ -541,15 +541,15 @@ def enroute(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.status.enroute" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
@@ -559,10 +559,10 @@ def enroute(key):
         or order["status"] != "processing"
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     comment = request.json.get("comment", "").strip()
 
@@ -573,10 +573,10 @@ def enroute(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -601,10 +601,10 @@ def enroute(key):
     order = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/delivered")
@@ -614,15 +614,15 @@ def delivered(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.status.delivered" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
@@ -644,10 +644,10 @@ def delivered(key):
         or not email_template_admin
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     error = {}
     if not comment:
@@ -656,10 +656,10 @@ def delivered(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
@@ -667,10 +667,10 @@ def delivered(key):
     order_user = cur.fetchone()
     if not order_user:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -709,10 +709,10 @@ def delivered(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/canceled")
@@ -722,15 +722,15 @@ def canceled(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.status.canceled" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
@@ -752,10 +752,10 @@ def canceled(key):
         or not email_template_admin
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     error = {}
     if not comment:
@@ -764,10 +764,10 @@ def canceled(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
@@ -775,10 +775,10 @@ def canceled(key):
     order_user = cur.fetchone()
     if not order_user:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -817,10 +817,10 @@ def canceled(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/returning")
@@ -830,7 +830,7 @@ def returning_(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     comment = request.json.get("comment", "").strip()
@@ -854,10 +854,10 @@ def returning_(key):
         or not email_template_admin
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "invalid request"
-        })
+        }, 403
 
     error = {}
     if not comment:
@@ -866,10 +866,10 @@ def returning_(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     if (
         datetime.now(timezone.utc) - datetime.fromisoformat(
@@ -877,11 +877,11 @@ def returning_(key):
         ) > timedelta(days=7)
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": """The order is outside the return window.
                 You can only return the order within 7 days of delivery."""
-        })
+        }, 403
 
     log(
         cur=cur,
@@ -916,10 +916,10 @@ def returning_(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200
 
 
 @bp.put("/orders/<key>/status/returned")
@@ -929,15 +929,15 @@ def returned(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "order.status.returned" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
@@ -959,10 +959,10 @@ def returned(key):
         or not email_template_admin
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     error = {}
     if not comment:
@@ -971,10 +971,10 @@ def returned(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
@@ -982,10 +982,10 @@ def returned(key):
     order_user = cur.fetchone()
     if not order_user:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -1023,7 +1023,7 @@ def returned(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order
-    })
+    }, 200

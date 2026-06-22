@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
 from ..api.file_error import get_file_error
 from ..postgres import db_close, db_open
@@ -14,7 +14,7 @@ def notification():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     nots = []
@@ -52,7 +52,7 @@ def notification():
             })
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "nots": nots
-    })
+    }, 200

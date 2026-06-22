@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from .order.get import order_status
 from .postgres import db_close, db_open
@@ -357,7 +357,7 @@ def dashboard():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
 
     intervals = {
         "today": "1 day",
@@ -383,7 +383,7 @@ def dashboard():
     _activity_log = activity_log(cur)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "new_users": _new_users,
         "top_users": _top_users,
@@ -399,4 +399,4 @@ def dashboard():
         "activity_log": _activity_log,
         "searchParams": searchParams,
         "filters": list(intervals.keys()),
-    })
+    }, 200

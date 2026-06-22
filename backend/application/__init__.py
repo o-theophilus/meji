@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 
 from . import (api, auth, blog, cart, comment, coupon, dashboard, fix, item,
@@ -33,10 +33,10 @@ def create_app(conf=None):
     @app.route("/")
     def index():
 
-        return jsonify({
+        return {
             "status": 200,
             "message": "Welcome to Meji"
-        })
+        }, 200
 
     app.register_blueprint(storage.bp)
     app.register_blueprint(postgres.bp)

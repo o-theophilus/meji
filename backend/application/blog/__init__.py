@@ -2,7 +2,7 @@ import os
 import re
 from uuid import uuid4
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from werkzeug.security import check_password_hash
 
 from ..log import log
@@ -21,15 +21,15 @@ def add():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "blog.add" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     title = request.json.get("title")
 
@@ -40,10 +40,10 @@ def add():
         error["title"] = "This field cannot exceed 100 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', title.lower()))
     slug = slug[:100]
@@ -69,12 +69,12 @@ def add():
     blogs = get_blogs(cur)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog),
         "blogs": blogs.json["blogs"],
         "total_page": blogs.json["total_page"]
-    })
+    }, 200
 
 
 @bp.put("/blogs/<key>")
@@ -84,17 +84,17 @@ def edit(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
 
@@ -201,10 +201,10 @@ def edit(key):
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE blog
@@ -229,10 +229,10 @@ def edit(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog)
-    })
+    }, 200
 
 
 @bp.delete("/blogs/<key>")
@@ -242,7 +242,7 @@ def delete(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     password = request.json.GET("password")
@@ -256,19 +256,19 @@ def delete(key):
         error = "Incorrect password"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         DELETE FROM blog WHERE key = %s;
@@ -287,9 +287,9 @@ def delete(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/blogs/<key>/like")
@@ -299,7 +299,7 @@ def like(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     reaction = request.json.get("reaction")
@@ -308,10 +308,10 @@ def like(key):
     blog = cur.fetchone()
     if not blog or reaction not in ["like", "dislike"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND blog_key = %s;
@@ -355,10 +355,10 @@ def like(key):
     reactions = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         **reactions
-    })
+    }, 200
 
 
 @bp.post("/blogs/<key>/comments")
@@ -368,7 +368,7 @@ def add_comment(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -377,10 +377,10 @@ def add_comment(key):
     blog = cur.fetchone()
     if not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     parent_key = request.json.get("parent_key")
     if parent_key:
@@ -388,10 +388,10 @@ def add_comment(key):
         parent = cur.fetchone()
         if not parent or parent["parent_key"] is not None:
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 400,
                 "error": "Invalid request"
-            })
+            }, 400
 
     comment = request.json.get("comment", "").strip()
     error = {}
@@ -401,10 +401,10 @@ def add_comment(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         INSERT INTO comment (user_key, blog_key, comment, parent_key)

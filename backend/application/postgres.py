@@ -1,7 +1,7 @@
 import os
 
 import psycopg2
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from psycopg2.extras import Json, RealDictCursor
 
 bp = Blueprint("postgres", __name__)
@@ -232,9 +232,9 @@ def create_tables():
     """)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 def copy_db():
@@ -283,6 +283,6 @@ def copy_db():
     to_cur.close()
     to_con.close()
 
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

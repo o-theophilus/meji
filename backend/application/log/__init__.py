@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
-from ..tools import get_session
+
 from ..postgres import db_close, db_open
+from ..tools import get_session
 
 bp = Blueprint("log", __name__)
 
@@ -26,7 +27,7 @@ def log(
             if session["status"] != 200:
                 if close_conn:
                     db_close(con, cur)
-                return jsonify(session)
+                return session
             user_key = session["user"]["key"]
         if not action:
             action = request.json.get("action")
@@ -47,6 +48,6 @@ def log(
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

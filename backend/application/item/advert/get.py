@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ...postgres import db_close, db_open
 from ...tools import get_session
@@ -25,26 +25,26 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "item.advert" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "advert": advert_schema(advert) if advert else advert,
         "spaces": spaces,
         "sizes": sizes
-    })
+    }, 200
 
 
 @bp.get("/adverts")
@@ -58,7 +58,7 @@ def get_many(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -111,7 +111,7 @@ def get_many(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
         "order_by": list(order_by.keys()),
@@ -120,4 +120,4 @@ def get_many(cur=None):
         "searchParams": searchParams,
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
-    })
+    }, 200

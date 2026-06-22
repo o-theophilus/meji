@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import uuid4
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 from werkzeug.security import check_password_hash
 
@@ -24,15 +24,15 @@ def add_item():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "item.add" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     name = ' '.join(request.json.get("name", "").strip().split())
 
@@ -43,10 +43,10 @@ def add_item():
         error["name"] = "This field cannot exceed 100 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', name.lower()))
     slug = slug[:100]
@@ -81,12 +81,12 @@ def add_item():
     items = get_items(cur)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "item": item_schema(item),
         "items": items.json["items"],
         "total_page": items.json["total_page"]
-    })
+    }, 200
 
 
 @bp.put("/items/<key>")
@@ -96,17 +96,17 @@ def edit(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
 
@@ -276,10 +276,10 @@ def edit(key):
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE item
@@ -305,10 +305,10 @@ def edit(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "item": item_schema(item)
-    })
+    }, 200
 
 
 @bp.delete("/items/<key>")
@@ -318,7 +318,7 @@ def delete(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     password = request.json.get("password")
@@ -332,19 +332,19 @@ def delete(key):
         error = "Incorrect password"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         DELETE FROM item WHERE key = %s;
@@ -359,9 +359,9 @@ def delete(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/items/<key>/like")
@@ -371,17 +371,17 @@ def like(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     item = cur.fetchone()
     if not item:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND item_key = %s;
@@ -408,10 +408,10 @@ def like(key):
     likes = get_user_like(cur, user["key"])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "likes": likes
-    })
+    }, 200
 
 
 @bp.post("/items/<key>/comments")
@@ -421,7 +421,7 @@ def add_comment(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -430,27 +430,27 @@ def add_comment(key):
     item = cur.fetchone()
     if not item:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     parent_key = request.json.get("parent_key")
     if parent_key:
         if "comment.reply" not in user["access"]:
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 403,
                 "error": "unauthorized access"
-            })
+            }, 403
 
         cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
         if not cur.fetchone():
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 400,
                 "error": "Invalid request"
-            })
+            }, 400
 
     cur.execute("""
         WITH purchase_check AS (
@@ -486,10 +486,10 @@ def add_comment(key):
     user_comment_info = cur.fetchone()
 
     if not user_comment_info["can_comment"]:
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     rating = request.json.get("rating", 0)
     comment = request.json.get("comment", "").strip()
@@ -503,10 +503,10 @@ def add_comment(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         INSERT INTO comment (user_key, item_key, rating,

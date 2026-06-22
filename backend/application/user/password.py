@@ -1,6 +1,6 @@
 import re
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..log import log
@@ -17,16 +17,16 @@ def password_1_email():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     email_template = request.json.get("email_template")
     if not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     send_mail(
         user["email"],
@@ -39,9 +39,9 @@ def password_1_email():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/user/password/2")
@@ -51,21 +51,21 @@ def password_2_code():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "code": error
-        })
+        }, 400
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/user/password/3")
@@ -75,16 +75,16 @@ def password_3_password():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     password = request.json.get("password")
     confirm_password = request.json.get("confirm_password")
@@ -110,10 +110,10 @@ def password_3_password():
          does not match"""
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE "user" SET password = %s WHERE key = %s;
@@ -132,6 +132,6 @@ def password_3_password():
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

@@ -2,7 +2,7 @@ import os
 import re
 from uuid import uuid4
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -152,7 +152,7 @@ def init():
     blog_tags = get_blog_tags(cur)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(user),
         "token": token,
@@ -164,7 +164,7 @@ def init():
         "blog_tags": blog_tags,
         "axis_map": axis_map,
         "price_map": price_map
-    })
+    }, 200
 
 
 @bp.post("/signup")
@@ -174,7 +174,7 @@ def signup():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     name = ' '.join(request.json.get("name", "").strip().split())
@@ -185,10 +185,10 @@ def signup():
 
     if session["login"] or not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
 
@@ -228,10 +228,10 @@ def signup():
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     if email_user:
         user = email_user
@@ -277,9 +277,9 @@ def signup():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/confirm")
@@ -291,27 +291,27 @@ def confirm():
     error = None
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     user = cur.fetchone()
     if not user or user["status"] != 'signedup':
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE "user"
@@ -335,9 +335,9 @@ def confirm():
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/login")
@@ -347,16 +347,16 @@ def login():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     anon_user = session["user"]
 
     email_template = request.json.get("email_template")
     if session["login"] or not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     email = request.json.get("email")
     password = request.json.get("password")
@@ -369,10 +369,10 @@ def login():
         error["password"] = "This field is required"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     user = None
     if anon_user["email"] == email or anon_user["username"] == email:
@@ -389,18 +389,18 @@ def login():
         or not check_password_hash(user["password"], password)
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "your email or password is incorrect"
-        })
+        }, 400
 
     cur.execute("SELECT * FROM block WHERE user_key = %s;", (user["key"],))
     if cur.fetchone():
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "account blocked"
-        })
+        }, 400
 
     if user["status"] == "signedup":
         send_mail(
@@ -414,10 +414,10 @@ def login():
             )
         )
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "not active"
-        })
+        }, 400
 
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
@@ -457,10 +457,10 @@ def login():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "token": token
-    })
+    }, 200
 
 
 @bp.delete("/logout")
@@ -470,7 +470,7 @@ def logout():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
     anon_user = anon(cur)
 
@@ -507,11 +507,11 @@ def logout():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(anon_user),
         "token": token
-    })
+    }, 200
 
 
 @bp.delete("/deactivate")
@@ -521,7 +521,7 @@ def deactivate():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     password = request.json.get("password")
@@ -530,10 +530,10 @@ def deactivate():
 
     if not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
     if not password:
@@ -542,10 +542,10 @@ def deactivate():
         error["password"] = "Incorrect password"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE blog
@@ -591,8 +591,8 @@ def deactivate():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(anon_user),
         "token": token
-    })
+    }, 200

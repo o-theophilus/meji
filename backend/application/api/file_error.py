@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -18,16 +18,16 @@ def get_file_error(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "admin.manage_files" not in user["access"]:
         if close_conn:
             db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT photo FROM "user";""")
     users_photo = cur.fetchall()
@@ -57,15 +57,17 @@ def get_file_error(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
-        "unused_item_photo": [f"{request.host_url}photo/item/{x}"
-                   for x in item_store_photo if x not in item_photo],
-        "unused_user_photo": [f"{request.host_url}photo/user/{x}"
-                   for x in user_store_photo if x not in users_photo],
+        "unused_item_photo": [
+            f"{request.host_url}photo/item/{x}"
+            for x in item_store_photo if x not in item_photo],
+        "unused_user_photo": [
+            f"{request.host_url}photo/user/{x}"
+            for x in user_store_photo if x not in users_photo],
         "users": users_with_missing_photo,
         "items": items_with_missing_photo
-    })
+    }, 200
 
 
 @bp.delete("/file_error")
@@ -75,15 +77,15 @@ def delete_file():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "admin.manage_files" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     photos = request.json.get("photos")
     entity = request.json.get("entity")
@@ -93,10 +95,10 @@ def delete_file():
         or not entity or entity not in ["user", "item"]
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     for x in photos:
         storage.delete(x.split("/")[-1], entity)
@@ -114,6 +116,6 @@ def delete_file():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

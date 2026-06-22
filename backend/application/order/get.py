@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..coupon.get import coupon_schema
 from ..postgres import db_close, db_open
@@ -21,7 +21,7 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
 
     cur.execute("""
         SELECT * FROM "order" WHERE key = %s;
@@ -29,20 +29,20 @@ def get(key):
     order = cur.fetchone()
     if not order:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 404,
             "error": "Oops! The order you're looking for doesn't exist"
-        })
+        }, 404
 
     if (
         order["user_key"] != session["user"]["key"]
         and "order.view" not in session["user"]["access"]
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""
         SELECT
@@ -75,12 +75,12 @@ def get(key):
     coupon = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "order": order,
         "items": items,
         "coupon": coupon_schema(coupon) if coupon else None
-    })
+    }, 200
 
 
 @bp.get("/orders")
@@ -90,7 +90,7 @@ def get_many():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -171,7 +171,7 @@ def get_many():
     orders = cur.fetchall()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "orders": orders,
         "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0,
@@ -179,4 +179,4 @@ def get_many():
         "searchParams": searchParams,
         "_status": order_status,
         "view": ['me', 'all'],
-    })
+    }, 200

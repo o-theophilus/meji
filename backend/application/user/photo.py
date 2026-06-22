@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify, request
-from ..postgres import db_open, db_close
-from ..tools import get_session, user_schema
-from ..log import log
-from ..storage import storage
+from flask import Blueprint, request
 
+from ..log import log
+from ..postgres import db_close, db_open
+from ..storage import storage
+from ..tools import get_session, user_schema
 
 bp = Blueprint("user_photo", __name__)
 
@@ -15,23 +15,23 @@ def add_photo():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if 'file' not in request.files:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid file"
-        })
+        }, 400
 
     old_photo = None
     if user["photo"]:
@@ -64,10 +64,10 @@ def add_photo():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(user)
-    })
+    }, 200
 
 
 @bp.delete("/user/photo")
@@ -77,15 +77,15 @@ def delete_photo():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if not user["photo"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     storage.delete(user["photo"], "user")
 
@@ -107,7 +107,7 @@ def delete_photo():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(user)
-    })
+    }, 200

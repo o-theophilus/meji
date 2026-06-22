@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..log import log
@@ -53,11 +53,11 @@ def get_iten_tags(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "featured": featured,
         "all": _all
-    })
+    }, 200
 
 
 @bp.post("/items/tag/featured")
@@ -67,15 +67,15 @@ def featured():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "admin.tag.featured" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "unauthorized access"
-        })
+        }, 400
 
     cur.execute("""SELECT value FROM app WHERE key = 'featured_tag';""")
     _featured = cur.fetchone()["value"]["value"]
@@ -91,10 +91,10 @@ def featured():
         error["tags"] = "No changes were made"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     _all = all_tags(cur)
     _new = [x.lower() for x in _new]
@@ -120,11 +120,11 @@ def featured():
     item_tag = get_iten_tags(cur).json
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "featured": item_tag["featured"],
         "all": item_tag["all"],
-    })
+    }, 200
 
 
 @bp.post("/items/tag/rename")
@@ -134,15 +134,15 @@ def rename():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "admin.tag.rename" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "unauthorized access"
-        })
+        }, 400
 
     old = request.json.get("old")
     tag = request.json.get("tag")
@@ -156,10 +156,10 @@ def rename():
         error["tags"] = "No changes were made"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     old = old.lower()
     tag = tag.lower()
@@ -188,11 +188,11 @@ def rename():
     item_tag = get_iten_tags(cur).json
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "featured": item_tag["featured"],
         "all": item_tag["all"],
-    })
+    }, 200
 
 
 @bp.post("/items/tag/delete")
@@ -202,15 +202,15 @@ def delete():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "admin.tag.delete" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "unauthorized access"
-        })
+        }, 400
 
     tags = request.json.get("tags")
 
@@ -221,10 +221,10 @@ def delete():
         error["tags"] = "This field is required"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     tags = [x.lower() for x in tags]
 
@@ -250,8 +250,8 @@ def delete():
     item_tag = get_iten_tags(cur).json
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "featured": item_tag["featured"],
         "all": item_tag["all"],
-    })
+    }, 200

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -15,15 +15,15 @@ def resolve(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "report.resolve" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("SELECT * FROM report WHERE key = %s;", (key,))
     report = cur.fetchone()
@@ -33,10 +33,10 @@ def resolve(key):
         or report["status"] != "active"
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     comment = request.json.get("comment", "").strip()
     handle = request.json.get("handle", False)
@@ -114,15 +114,15 @@ def dismiss(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "report.resolve" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("SELECT * FROM report WHERE key = %s;", (key,))
     report = cur.fetchone()
@@ -132,10 +132,10 @@ def dismiss(key):
         or report["status"] != "active"
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     comment = request.json.get("comment", "").strip()
 

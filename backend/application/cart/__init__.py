@@ -1,6 +1,6 @@
 import re
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..coupon import coupon_schema
@@ -20,7 +20,7 @@ def add_to_cart():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     item_key = request.json.get("key")
@@ -38,10 +38,10 @@ def add_to_cart():
 
     if not item or not cart or type(variation) is not dict:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
     if item["status"] != "active":
@@ -50,10 +50,10 @@ def add_to_cart():
         error["error"] = "Sorry, this item is currently out of stock"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     if not isinstance(quantity, int) or quantity < 1:
         error["quantity"] = "Please enter a valid number"
@@ -72,10 +72,10 @@ def add_to_cart():
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         SELECT * FROM order_item
@@ -126,7 +126,7 @@ def remove_from_cart():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     item_key = request.json.get("key")
@@ -134,10 +134,10 @@ def remove_from_cart():
 
     if not item_key or type(variation) is not dict:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         SELECT * FROM "order"
@@ -146,10 +146,10 @@ def remove_from_cart():
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     cur.execute("""
         DELETE FROM order_item
@@ -182,7 +182,7 @@ def quantity():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     item_key = request.json.get("key")
@@ -206,10 +206,10 @@ def quantity():
 
     if not item or not cart or not order_item or type(variation) is not dict:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = None
     if item["status"] != "active":
@@ -223,10 +223,10 @@ def quantity():
         error = f"Only {item['quantity']} item{s} available in stock"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE order_item SET quantity = %s WHERE key = %s
@@ -260,7 +260,7 @@ def receiver():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -270,10 +270,10 @@ def receiver():
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     if request.method == "POST":
         error = {}
@@ -324,10 +324,10 @@ def receiver():
 
         if error:
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 400,
                 **error
-            })
+            }, 400
 
         receiver = {
             "name": name,
@@ -371,7 +371,7 @@ def add_coupon():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -381,10 +381,10 @@ def add_coupon():
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     code = request.json.get("code", "").strip()
 
@@ -409,10 +409,10 @@ def add_coupon():
             error = "This coupon has expired"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "code": error
-        })
+        }, 400
 
     cur.execute("""
         UPDATE coupon SET order_key = %s WHERE key = %s
@@ -433,10 +433,10 @@ def add_coupon():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": coupon_schema(coupon)
-    })
+    }, 200
 
 
 @bp.delete("/cart/coupon")
@@ -446,7 +446,7 @@ def remove_coupon():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -456,10 +456,10 @@ def remove_coupon():
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     cur.execute(
         'SELECT * FROM coupon WHERE order_key = %s;',
@@ -467,10 +467,10 @@ def remove_coupon():
     coupon = cur.fetchone()
     if not coupon:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     cur.execute("""
         UPDATE coupon SET order_key = NULL WHERE key = %s;
@@ -489,7 +489,7 @@ def remove_coupon():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": None
-    })
+    }, 200

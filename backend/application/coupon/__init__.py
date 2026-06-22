@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..log import log
@@ -20,15 +20,15 @@ def add():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "coupon.add" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     applies_to = request.json.get("applies_to")
     value = request.json.get("value")
@@ -49,10 +49,10 @@ def add():
         error["condition_unit"] = "This field is required"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         INSERT INTO coupon (code, benefit) VALUES (%s, %s) RETURNING *;
@@ -80,12 +80,12 @@ def add():
     coupons = get_many(cur)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"]),
         "coupons": coupons.json["coupons"],
         "total_page": coupons.json["total_page"]
-    })
+    }, 200
 
 
 @bp.delete("/coupons/<key>")
@@ -95,17 +95,17 @@ def delete(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
 
@@ -117,10 +117,10 @@ def delete(key):
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""
         DELETE FROM coupon WHERE key = %s;
@@ -136,9 +136,9 @@ def delete(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.put("/coupons/<key>/validity")
@@ -148,24 +148,24 @@ def set_validity(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "coupon.edit_validity" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
 
@@ -184,10 +184,10 @@ def set_validity(key):
 
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     if (
         coupon["valid_from"]
@@ -198,10 +198,10 @@ def set_validity(key):
         == coupon["valid_until"].strftime("%Y-%m-%d")
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "No changes were made"
-        })
+        }, 400
 
     if valid_from < datetime.now(timezone.utc).date():
         error["valid_from"] = "Cannot set date in the past"
@@ -209,10 +209,10 @@ def set_validity(key):
         error["valid_until"] = 'Cannot set date earlier or equal to start date'
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     old_coupon = coupon
     cur.execute("""
@@ -235,10 +235,10 @@ def set_validity(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
-    })
+    }, 200
 
 
 @bp.delete("/coupons/<key>/validity")
@@ -248,24 +248,24 @@ def clear_validity(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "coupon.edit_validity" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     old_coupon = coupon
     cur.execute("""
@@ -288,7 +288,7 @@ def clear_validity(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
-    })
+    }, 200

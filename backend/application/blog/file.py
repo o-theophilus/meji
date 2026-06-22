@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -16,24 +16,24 @@ def add_file(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "blog.edit_files" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if 'files' not in request.files or not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = ""
     files = []
@@ -56,10 +56,10 @@ def add_file(key):
         if not error:
             error = "no file"
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     file_names = []
     for x in files:
@@ -90,11 +90,11 @@ def add_file(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog),
         "error": error
-    })
+    }, 200
 
 
 @bp.put("/blogs/<key>/file")
@@ -104,15 +104,15 @@ def order_delete_file(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "blog.edit_files" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
@@ -121,19 +121,19 @@ def order_delete_file(key):
 
     if not blog or not files or type(files) is not list:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     files = [p.split("/")[-1] for p in files]
 
     if not all(x in blog["files"] for x in files):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     for x in blog["files"]:
         if x not in files:
@@ -163,7 +163,7 @@ def order_delete_file(key):
     blog = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog)
-    })
+    }, 200

@@ -3,7 +3,7 @@
 	import { Dialogue, Note } from '$lib/info';
 	import { IG } from '$lib/input';
 	import { Form } from '$lib/layout';
-	import { loading, module } from '$lib/store.svelte.js';
+	import { app, loading, module } from '$lib/store.svelte.js';
 	import Login from './login.svelte';
 
 	let form = $state({
@@ -28,7 +28,8 @@
 		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/confirm`, {
 			method: 'post',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				Authorization: app.token
 			},
 			body: JSON.stringify(form)
 		});

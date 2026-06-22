@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..postgres import db_close, db_open
 from ..tools import get_session
@@ -52,30 +52,30 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""SELECT * FROM coupon WHERE key = %s""", (key,))
     coupon = cur.fetchone()
     if not coupon:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 404,
             "error": "Oops! The item you're looking for doesn't exist"
-        })
+        }, 404
 
     if "coupon.view" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
-    })
+    }, 200
 
 
 @bp.get("/coupons")
@@ -88,16 +88,16 @@ def get_many(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "coupon.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     order_by = {
         'latest': 'date_created',
@@ -145,7 +145,7 @@ def get_many(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "coupons": [coupon_schema(x) for x in coupons],
         "total_page": ceil(total_page / page_size),
@@ -155,4 +155,4 @@ def get_many(cur=None):
         "condition_unit": coupon_condition_unit,
         "searchParams": searchParams,
         "_status": ['all', 'inactive', 'active', 'used', 'expired']
-    })
+    }, 200

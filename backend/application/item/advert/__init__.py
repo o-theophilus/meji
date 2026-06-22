@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from PIL import Image
 from psycopg2.extras import Json
 
@@ -18,24 +18,24 @@ def add_photo(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "item.advert" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     item = cur.fetchone()
     if not item or 'files' not in request.files:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
@@ -81,10 +81,10 @@ def add_photo(key):
         if not error:
             error = "no file"
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": error
-        })
+        }, 400
 
     old_photo = advert["photo"]
     for x in files:
@@ -113,10 +113,10 @@ def add_photo(key):
     out = {
         "status": 200,
         "advert": advert_schema(advert),
-    }
+    }, 200
     if error:
-        out["error"] = error
-    return jsonify(out)
+        out[0]["error"] = error
+    return out
 
 
 @bp.put("/items/<key>/advert")
@@ -126,15 +126,15 @@ def set_photo(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "item.advert" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     photo_selected = request.json.get("photo_selected")
     spaces_selected = request.json.get("spaces_selected")
@@ -153,10 +153,10 @@ def set_photo(key):
         or not all(y in spaces for y in spaces_selected)
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     new_advert_photo = {}
     for key, val in advert["photo"].items():
@@ -201,7 +201,7 @@ def set_photo(key):
         )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "advert": advert_schema(advert) if advert else None
-    })
+    }, 200

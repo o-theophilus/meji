@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..blog.get import get_comments as get_blog_comments
 from ..item.get import get_comments as get_item_comments
@@ -16,27 +16,27 @@ def delete(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
     comment = cur.fetchone()
     if not comment:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     misc = {}
 
     if comment["user_key"] != user["key"]:
         if "comment.delete_others" not in user["access"]:
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 403,
                 "error": "unauthorized access"
-            })
+            }, 403
 
         _comment = request.json.get("comment", "").strip()
 
@@ -47,10 +47,10 @@ def delete(key):
             error["comment"] = "This field cannot exceed 500 characters"
         if error:
             db_close(con, cur)
-            return jsonify({
+            return {
                 "status": 400,
                 **error
-            })
+            }, 400
 
         misc["comment"] = _comment
 
@@ -80,7 +80,7 @@ def like(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     reaction = request.json.get("reaction")
@@ -89,10 +89,10 @@ def like(key):
     comment = cur.fetchone()
     if not comment or reaction not in ["like", "dislike"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND comment_key = %s;
@@ -136,10 +136,10 @@ def like(key):
     reactions = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         **reactions
-    })
+    }, 200
 
 
 @bp.post("/comments/<key>/report")
@@ -149,7 +149,7 @@ def report(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     comment = request.json.get("comment", "").strip()
@@ -157,10 +157,10 @@ def report(key):
 
     if type(tags) is not list:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
     if not comment:
@@ -169,18 +169,18 @@ def report(key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
     reported_comment = cur.fetchone()
     if not reported_comment:
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute("""
         INSERT INTO report (reporter_key, reporter_comment, tags,
@@ -204,6 +204,6 @@ def report(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

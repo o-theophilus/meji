@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..postgres import db_close, db_open
 from ..tools import get_session
@@ -18,16 +18,16 @@ def get_many(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "report.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     order_by = {
         'latest': 'report.date_created',
@@ -176,7 +176,7 @@ def get_many(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "reports": reports,
         "order_by": list(order_by.keys()),
@@ -184,4 +184,4 @@ def get_many(cur=None):
         "type": ["all", "user", "comment"],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
-    })
+    }, 200

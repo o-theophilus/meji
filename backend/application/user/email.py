@@ -1,7 +1,7 @@
 import os
 import re
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -18,16 +18,16 @@ def email_1_old_email():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     email_template = request.json.get("email_template")
     if not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     send_mail(
         user["email"],
@@ -39,9 +39,9 @@ def email_1_old_email():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/user/email/2")
@@ -51,21 +51,21 @@ def email_2_old_code():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "code_1": error
-        })
+        }, 400
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/user/email/3")
@@ -75,24 +75,24 @@ def email_3_new_email():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     email_template = request.json.get("email_template")
     if not email_template:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     email = request.json.get("email")
     error = None
@@ -102,26 +102,26 @@ def email_3_new_email():
         error = "Invalid email address"
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "email": error
-        })
+        }, 400
 
     if user["email"] == email:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "email": "please use a different email form your current email"
-        })
+        }, 400
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "email": "email is already in use"
-        })
+        }, 400
 
     send_mail(
         email,
@@ -134,9 +134,9 @@ def email_3_new_email():
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/user/email/4")
@@ -146,56 +146,56 @@ def email_4_new_code():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     email = request.json.get("email")
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     if user["email"] == email:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = check_code(cur, user["key"], email, "code_2")
     if error:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     if user["email"] == os.environ["MAIL_USERNAME"]:
         cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "LoL"
-        })
+        }, 400
 
     log(
         cur=cur,
@@ -217,7 +217,7 @@ def email_4_new_code():
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(user)
-    })
+    }, 200

@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..postgres import db_close, db_open
 from ..tools import get_session
@@ -31,7 +31,7 @@ def get_many():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     searchParams = {
@@ -52,10 +52,10 @@ def get_many():
 
     if "log.view" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     if "log.view_others" not in user["access"]:
         u_search = user["key"]
@@ -136,10 +136,10 @@ def get_many():
 
     sq = search_query(cur)
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "logs": logs,
         "searchParams": searchParams,
         "search_query": sq,
         "total_page": ceil(logs[0]["_count"] / page_size) if logs else 0
-    })
+    }, 200

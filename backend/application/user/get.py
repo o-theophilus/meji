@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..postgres import db_close, db_open
 from ..tools import access_pass, get_session, user_schema
@@ -25,7 +25,7 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     viewer = session["user"]
 
     cur.execute("""
@@ -41,10 +41,10 @@ def get(key):
 
     if not user:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 404,
             "error": "Oops! The user you're looking for doesn't exist"
-        })
+        }, 404
 
     _dashboard = {}
     if viewer["key"] == user["key"]:
@@ -60,12 +60,12 @@ def get(key):
                 _access[x][y[1]].append(y[0])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "user": user_schema(user),
         "dashboard": _dashboard,
         "access": _access,
-    })
+    }, 200
 
 
 @bp.get("/users")
@@ -75,14 +75,14 @@ def get_users():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
 
     if "user.view" not in session["user"]["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     order_by = {
         'latest': 'date_created',
@@ -136,14 +136,14 @@ def get_users():
     users = cur.fetchall()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "_status": ['anonymous', 'signedup', 'active'],
-    })
+    }, 200
 
 
 @bp.get("/users/admin")
@@ -153,15 +153,15 @@ def get_admins():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "user.set_access" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     order_by = {
         'latest': '"user".date_created',
@@ -226,14 +226,14 @@ def get_admins():
                 access[x].append(y[0])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "access": access,
-    })
+    }, 200
 
 
 @bp.get("/users/blocked")
@@ -246,16 +246,16 @@ def get_blocked(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "block.view" not in user["access"]:
         if close_conn:
             db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     order_by = {
         'latest': 'date_created',
@@ -330,10 +330,10 @@ def get_blocked(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blocks": blocks,
         "total_page": ceil(blocks[0]["_count"] / page_size) if blocks else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-    })
+    }, 200

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -16,32 +16,32 @@ def add_photo(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "blog.edit_photo" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if 'file' not in request.files or not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid file"
-        })
+        }, 400
 
     old_photo = None
     if blog["photo"]:
@@ -74,10 +74,10 @@ def add_photo(key):
     )
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog)
-    })
+    }, 200
 
 
 @bp.delete("/blogs/<key>/photo")
@@ -87,24 +87,24 @@ def delete_photo(key):
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "blog.edit_photo" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog or not blog["photo"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     storage.delete(blog["photo"], "blog")
 
@@ -139,7 +139,7 @@ def delete_photo(key):
     blog = cur.fetchone()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog)
-    })
+    }, 200

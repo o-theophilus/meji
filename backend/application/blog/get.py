@@ -2,7 +2,7 @@ import os
 import re
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..postgres import db_close, db_open
 from ..tools import get_session
@@ -47,7 +47,7 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""
@@ -57,10 +57,10 @@ def get(key):
 
     if not blog:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 404,
             "error": "Oops! The blog you're looking for doesn't exist"
-        })
+        }, 404
 
     if (
         blog["status"] != "active"
@@ -68,16 +68,16 @@ def get(key):
         and "blog.edit_status" not in user["access"]
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blog": blog_schema(blog)
-    })
+    }, 200
 
 
 @bp.get("/blogs")
@@ -90,7 +90,7 @@ def get_blogs(cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -205,14 +205,14 @@ def get_blogs(cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "blogs": [blog_schema(x) for x in blogs],
         "order_by": list(order_by.keys()),
         "_status": ['active', 'draft'],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
-    })
+    }, 200
 
 
 @bp.get("/blogs/<key>/comments")
@@ -225,7 +225,7 @@ def get_comments(key, cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -388,14 +388,14 @@ def get_comments(key, cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "comments": comments,
         "order_by": list(order_by.keys()),
         "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
         "searchParams": searchParams,
-    })
+    }, 200
 
 
 def get_engagement(cur, key, user_key):
@@ -419,7 +419,8 @@ def get_engagement(cur, key, user_key):
 
     cur.execute("""
         SELECT COUNT(DISTINCT user_key) FROM log
-        WHERE entity_type = 'blog' AND action = 'viewed blog' AND entity_key = %s;
+        WHERE entity_type = 'blog' AND action = 'viewed blog'
+        AND entity_key = %s;
     """, (key,))
     view_count = cur.fetchone()["count"]
 
@@ -499,7 +500,7 @@ def after_blog(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     engagement = get_engagement(cur, key, user["key"])
@@ -508,10 +509,10 @@ def after_blog(key):
     similar = get_similar(cur, key)
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "engagement": engagement,
         "author": author,
         "comment_resp": comment_resp,
         "similar": similar
-    })
+    }, 200

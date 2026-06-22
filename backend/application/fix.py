@@ -1,7 +1,8 @@
 import os
 
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from psycopg2.extras import Json
+
 from .postgres import db_close, db_open
 from .tools import access_pass
 
@@ -27,9 +28,9 @@ def quick_fix():
     ))
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 def fix_access():
@@ -43,6 +44,6 @@ def fix_access():
     ))
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200

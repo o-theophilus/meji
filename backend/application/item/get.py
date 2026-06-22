@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..cart.delivery import get_areas
 from ..postgres import db_close, db_open
@@ -18,7 +18,7 @@ def get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "v" in request.args:
@@ -42,10 +42,10 @@ def get(key):
 
     if not item:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 404,
             "error": "Oops! The item you're looking for doesn't exist"
-        })
+        }, 404
 
     if (
         item["status"] != "active"
@@ -53,17 +53,17 @@ def get(key):
         and "item.edit_status" not in user["access"]
     ):
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "item": item_schema(item),
         "areas": get_areas()
-    })
+    }, 200
 
 
 @bp.get("/items")
@@ -76,7 +76,7 @@ def get_items(cur=None, _order="latest", _tag="", _page_size=24):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if (
@@ -166,14 +166,14 @@ def get_items(cur=None, _order="latest", _tag="", _page_size=24):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "_status": ['active', 'draft']
-    })
+    }, 200
 
 
 @bp.get("/items/<key>/comments")
@@ -186,7 +186,7 @@ def get_comments(key, _page_size=24, cur=None):
     if session["status"] != 200:
         if close_conn:
             db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -225,10 +225,10 @@ def get_comments(key, _page_size=24, cur=None):
     if not item:
         if close_conn:
             db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     cur.execute(f"""
         WITH sub_c AS (
@@ -414,7 +414,7 @@ def get_comments(key, _page_size=24, cur=None):
 
     if close_conn:
         db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "item": item,
         "comments": comments,
@@ -425,7 +425,7 @@ def get_comments(key, _page_size=24, cur=None):
         "searchParams": searchParams,
         "has_purchased": user_comment_info["has_purchased"],
         "can_comment": user_comment_info["can_comment"],
-    })
+    }, 200
 
 
 @bp.get("/items/<key>/after")
@@ -435,16 +435,16 @@ def after_get(key):
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     if not cur.fetchone():
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 400,
             "error": "invalid request"
-        })
+        }, 400
 
     item_group = []
     _similar_items = similar_items(cur, key)
@@ -486,11 +486,11 @@ def after_get(key):
     comments = get_comments(key, 3, cur).json
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "comments": comments,
         "item_group": item_group
-    })
+    }, 200
 
 
 @bp.get("/items/home")
@@ -503,12 +503,12 @@ def home_page():
         cur, "latest", _tag="hot pick 🔥", _page_size=8).json['items']
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "new_arrivals": new_arrivals,
         "discount": discount,
         "tag": tag,
-    })
+    }, 200
 
 
 @bp.get("/items/like")
@@ -518,7 +518,7 @@ def like_page():
     session = get_session(cur)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     order_by = {
@@ -583,10 +583,10 @@ def like_page():
     items = cur.fetchall()
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200,
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-    })
+    }, 200

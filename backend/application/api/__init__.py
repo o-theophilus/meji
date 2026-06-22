@@ -1,7 +1,7 @@
 import os
 import re
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..log import log
 from ..postgres import db_close, db_open
@@ -78,22 +78,22 @@ def user_delete_session():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "maintenance.session" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     delete_session(cur, user["key"])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/maintenance/anonymous")
@@ -103,22 +103,22 @@ def user_delete_anonymous():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "maintenance.anonymous" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     delete_session(cur, user["key"])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/maintenance/coupon")
@@ -128,22 +128,22 @@ def user_expire_coupon():
     session = get_session(cur, True)
     if session["status"] != 200:
         db_close(con, cur)
-        return jsonify(session)
+        return session
     user = session["user"]
 
     if "maintenance.coupon" not in user["access"]:
         db_close(con, cur)
-        return jsonify({
+        return {
             "status": 403,
             "error": "unauthorized access"
-        })
+        }, 403
 
     expire_coupon(cur, user["key"])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.get("/cron")
@@ -160,9 +160,9 @@ def cron():
     expire_coupon(cur, user["key"])
 
     db_close(con, cur)
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
 
 
 @bp.post("/contact")
@@ -174,10 +174,10 @@ def footer_send_email():
     message = request.json.get("message")
 
     if not email_template:
-        return jsonify({
+        return {
             "status": 400,
             "error": "Invalid request"
-        })
+        }, 400
 
     error = {}
     if not name:
@@ -195,10 +195,10 @@ def footer_send_email():
     if not message:
         error["message"] = "This field is required"
     if error:
-        return jsonify({
+        return {
             "status": 400,
             **error
-        })
+        }, 400
 
     message = email_template.format(
         name=name, email=email, message=message)
@@ -209,6 +209,6 @@ def footer_send_email():
         message
     )
 
-    return jsonify({
+    return {
         "status": 200
-    })
+    }, 200
