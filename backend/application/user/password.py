@@ -24,9 +24,9 @@ def password_1_email():
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     send_mail(
         user["email"],
@@ -58,9 +58,9 @@ def password_2_code():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "code": error
-        }, 400
+        }, 422
 
     db_close(con, cur)
     return {
@@ -82,9 +82,9 @@ def password_3_password():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     password = request.json.get("password")
     confirm_password = request.json.get("confirm_password")
@@ -111,9 +111,9 @@ def password_3_password():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE "user" SET password = %s WHERE key = %s;

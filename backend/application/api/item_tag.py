@@ -73,9 +73,9 @@ def featured():
     if "admin.tag.featured" not in user["access"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
-        }, 400
+        }, 403
 
     cur.execute("""SELECT value FROM app WHERE key = 'featured_tag';""")
     _featured = cur.fetchone()["value"]["value"]
@@ -92,9 +92,9 @@ def featured():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     _all = all_tags(cur)
     _new = [x.lower() for x in _new]
@@ -140,9 +140,9 @@ def rename():
     if "admin.tag.rename" not in user["access"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
-        }, 400
+        }, 403
 
     old = request.json.get("old")
     tag = request.json.get("tag")
@@ -157,9 +157,9 @@ def rename():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     old = old.lower()
     tag = tag.lower()
@@ -208,9 +208,9 @@ def delete():
     if "admin.tag.delete" not in user["access"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 403,
             "error": "unauthorized access"
-        }, 400
+        }, 403
 
     tags = request.json.get("tags")
 
@@ -222,9 +222,9 @@ def delete():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     tags = [x.lower() for x in tags]
 

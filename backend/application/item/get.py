@@ -226,9 +226,9 @@ def get_comments(key, _page_size=24, cur=None):
         if close_conn:
             db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     cur.execute(f"""
         WITH sub_c AS (
@@ -442,9 +442,9 @@ def after_get(key):
     if not cur.fetchone():
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     item_group = []
     _similar_items = similar_items(cur, key)

@@ -21,13 +21,20 @@ def email_1_old_email():
         return session
     user = session["user"]
 
+    if user["email"] == os.environ["MAIL_USERNAME"]:
+        db_close(con, cur)
+        return {
+            "status": 403,
+            "error": "Invalid request"
+        }, 403
+
     email_template = request.json.get("email_template")
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     send_mail(
         user["email"],
@@ -58,9 +65,9 @@ def email_2_old_code():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "code_1": error
-        }, 400
+        }, 422
 
     db_close(con, cur)
     return {
@@ -82,17 +89,17 @@ def email_3_new_email():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     email_template = request.json.get("email_template")
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     email = request.json.get("email")
     error = None
@@ -103,25 +110,25 @@ def email_3_new_email():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "email": error
-        }, 400
+        }, 422
 
     if user["email"] == email:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "email": "please use a different email form your current email"
-        }, 400
+        }, 422
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "email": "email is already in use"
-        }, 400
+        }, 422
 
     send_mail(
         email,
@@ -149,53 +156,53 @@ def email_4_new_code():
         return session
     user = session["user"]
 
+    if user["email"] == os.environ["MAIL_USERNAME"]:
+        cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
+        db_close(con, cur)
+        return {
+            "status": 403,
+            "error": "Invalid request"
+        }, 403
+
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     email = request.json.get("email")
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     if user["email"] == email:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     error = check_code(cur, user["key"], email, "code_2")
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
-
-    if user["email"] == os.environ["MAIL_USERNAME"]:
-        cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "LoL"
-        }, 400
+        }, 422
 
     log(
         cur=cur,

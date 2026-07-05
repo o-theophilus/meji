@@ -41,9 +41,9 @@ def add():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', title.lower()))
     slug = slug[:100]
@@ -92,11 +92,9 @@ def edit(key):
     if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
-
-    error = {}
+        }, 404
 
     title = blog["title"]
     slug = blog["slug"]
@@ -106,6 +104,8 @@ def edit(key):
     tags = blog["tags"]
     author_key = blog["author_key"]
     status = blog["status"]
+
+    error = {}
 
     if "title" in request.json:
         title = request.json.get("title", "").strip()
@@ -245,30 +245,34 @@ def delete(key):
         return session
     user = session["user"]
 
-    password = request.json.GET("password")
-
-    error = None
     if "blog.edit_status" not in user["access"]:
-        error = "unauthorized access"
-    elif not password:
-        error = "This field is required"
-    elif not check_password_hash(user["password"], password):
-        error = "Incorrect password"
-    if error:
         db_close(con, cur)
         return {
-            "status": 400,
-            "error": error
-        }, 400
+            "status": 403,
+            "error": "unauthorized access"
+        }, 403
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    password = request.json.GET("password")
+    error = None
+    if not password:
+        error = "This field is required"
+    elif not check_password_hash(user["password"], password):
+        error = "Incorrect password"
+    if error:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": error
+        }, 422
 
     cur.execute("""
         DELETE FROM blog WHERE key = %s;
@@ -306,12 +310,19 @@ def like(key):
 
     cur.execute("""SELECT * FROM blog WHERE key = %s;""", (key,))
     blog = cur.fetchone()
-    if not blog or reaction not in ["like", "dislike"]:
+    if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if reaction not in ["like", "dislike"]:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND blog_key = %s;
@@ -378,22 +389,23 @@ def add_comment(key):
     if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     parent_key = request.json.get("parent_key")
+    comment = request.json.get("comment", "").strip()
+
     if parent_key:
         cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
         parent = cur.fetchone()
         if not parent or parent["parent_key"] is not None:
             db_close(con, cur)
             return {
-                "status": 400,
+                "status": 404,
                 "error": "Invalid request"
-            }, 400
+            }, 404
 
-    comment = request.json.get("comment", "").strip()
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -402,9 +414,9 @@ def add_comment(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO comment (user_key, blog_key, comment, parent_key)

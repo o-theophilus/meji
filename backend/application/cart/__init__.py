@@ -27,34 +27,32 @@ def add_to_cart():
     quantity = request.json.get("quantity", 1)
     variation = request.json.get("variation", {})
 
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
-    item = cur.fetchone()
-
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
-
-    if not item or not cart or type(variation) is not dict:
+    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
+    item = cur.fetchone()
+    if (
+        not cart
+        or not item
+        or item["status"] != "active"
+        or item["quantity"] == 0
+    ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if type(variation) is not dict:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = {}
-    if item["status"] != "active":
-        error["error"] = "This item is not currently available"
-    elif item["quantity"] == 0:
-        error["error"] = "Sorry, this item is currently out of stock"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            **error
-        }, 400
-
     if not isinstance(quantity, int) or quantity < 1:
         error["quantity"] = "Please enter a valid number"
     elif quantity > item["quantity"]:
@@ -73,9 +71,9 @@ def add_to_cart():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         SELECT * FROM order_item
@@ -129,27 +127,26 @@ def remove_from_cart():
         return session
     user = session["user"]
 
+    cur.execute("""
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
+    if not cart:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
     item_key = request.json.get("key")
     variation = request.json.get("variation", {})
 
     if not item_key or type(variation) is not dict:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
-
-    cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "invalid request"
-        }, 400
+        }, 422
 
     cur.execute("""
         DELETE FROM order_item
@@ -189,34 +186,39 @@ def quantity():
     quantity = request.json.get("quantity", 1)
     variation = request.json.get("variation", {})
 
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
-    item = cur.fetchone()
-
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
-
+    cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
+    item = cur.fetchone()
     cur.execute("""
         SELECT * FROM order_item
         WHERE order_key = %s AND item_key = %s AND variation = %s;
-    """, (cart["key"], item["key"], Json(variation)))
+    """, (cart["key"], item_key, Json(variation)))
     order_item = cur.fetchone()
-
-    if not item or not cart or not order_item or type(variation) is not dict:
+    if (
+        not item
+        or item["status"] != "active"
+        or item["quantity"] == 0
+        or not cart
+        or not order_item
+    ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if type(variation) is not dict:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = None
-    if item["status"] != "active":
-        error = "This item is not currently available"
-    elif item["quantity"] == 0:
-        error = "Sorry, this item is currently out of stock"
-    elif not isinstance(quantity, int) or quantity < 1:
+    if not isinstance(quantity, int) or quantity < 1:
         error = "Please enter a valid number"
     elif quantity > item["quantity"]:
         s = "s" if item['quantity'] > 1 else ""
@@ -224,9 +226,9 @@ def quantity():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE order_item SET quantity = %s WHERE key = %s
@@ -264,16 +266,15 @@ def receiver():
     user = session["user"]
 
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     if request.method == "POST":
         error = {}
@@ -325,9 +326,9 @@ def receiver():
         if error:
             db_close(con, cur)
             return {
-                "status": 400,
+                "status": 422,
                 **error
-            }, 400
+            }, 422
 
         receiver = {
             "name": name,
@@ -375,44 +376,53 @@ def add_coupon():
     user = session["user"]
 
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
     if not cart:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     code = request.json.get("code", "").strip()
 
     error = None
-    coupon = None
     if not code:
         error = "This field is required"
     elif len(code) != 10:
         error = "This must be 10 characters"
-    if not error:
-        cur.execute(
-            'SELECT * FROM coupon WHERE LOWER(code) = %s;',
-            (code.lower(),))
-        coupon = cur.fetchone()
-        if not coupon:
-            error = "Invalid coupon code"
-        elif coupon["status"] == "inactive":
-            error = "this coupon is inactive"
-        elif coupon["status"] == "used":
-            error = "This coupon has been used"
-        elif coupon["status"] == "expired":
-            error = "This coupon has expired"
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "code": error
-        }, 400
+        }, 422
+
+    cur.execute(
+        'SELECT * FROM coupon WHERE LOWER(code) = %s;',
+        (code.lower(),))
+    coupon = cur.fetchone()
+    if not coupon:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "code": "Invalid coupon code"
+        }, 404
+
+    if coupon["status"] == "inactive":
+        error = "this coupon is inactive"
+    elif coupon["status"] == "used":
+        error = "This coupon has been used"
+    elif coupon["status"] == "expired":
+        error = "This coupon has expired"
+    if error:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "code": error
+        }, 422
 
     cur.execute("""
         UPDATE coupon SET order_key = %s WHERE key = %s
@@ -450,27 +460,19 @@ def remove_coupon():
     user = session["user"]
 
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
-    if not cart:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "invalid request"
-        }, 400
-
     cur.execute(
         'SELECT * FROM coupon WHERE order_key = %s;',
         (cart["key"],))
     coupon = cur.fetchone()
-    if not coupon:
+    if not cart or not coupon:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     cur.execute("""
         UPDATE coupon SET order_key = NULL WHERE key = %s;

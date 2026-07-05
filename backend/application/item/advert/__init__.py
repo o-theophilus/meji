@@ -30,12 +30,19 @@ def add_photo(key):
 
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     item = cur.fetchone()
-    if not item or 'files' not in request.files:
+    if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
+
+    if 'files' not in request.files:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "invalid request"
+        }, 422
 
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
@@ -82,9 +89,9 @@ def add_photo(key):
             error = "no file"
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": error
-        }, 400
+        }, 422
 
     old_photo = advert["photo"]
     for x in files:
@@ -136,27 +143,30 @@ def set_photo(key):
             "error": "unauthorized access"
         }, 403
 
-    photo_selected = request.json.get("photo_selected")
-    spaces_selected = request.json.get("spaces_selected")
-
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key, ))
     item = cur.fetchone()
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
+    if not item or not advert:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
 
+    photo_selected = request.json.get("photo_selected")
+    spaces_selected = request.json.get("spaces_selected")
     if (
-        not item
-        or not advert
-        or type(photo_selected) is not list
+        type(photo_selected) is not list
         or type(spaces_selected) is not list
         or not all(y in sizes for y in photo_selected)
         or not all(y in spaces for y in spaces_selected)
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid request"
-        }, 400
+        }, 422
 
     new_advert_photo = {}
     for key, val in advert["photo"].items():

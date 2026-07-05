@@ -27,12 +27,19 @@ def add_file(key):
 
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
-    if 'files' not in request.files or not item:
+    if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if 'files' not in request.files:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = ""
     files = []
@@ -52,9 +59,9 @@ def add_file(key):
             error = "no file"
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": error
-        }, 400
+        }, 422
 
     file_names = []
     for x in files:
@@ -111,24 +118,28 @@ def order_delete_file(key):
 
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
+    if not item:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "Invalid request"
+        }, 404
 
     files = request.json.get("files")
-
     if not item or type(files) is not list:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     files = [p.split("/")[-1] for p in files]
-
     if not all(x in item["files"] for x in files):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     # for x in item["files"]:
     #     if x not in files:

@@ -50,9 +50,9 @@ def add():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO coupon (code, benefit) VALUES (%s, %s) RETURNING *;
@@ -103,24 +103,22 @@ def delete(key):
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = {}
-
     comment = request.json.get("comment", "").strip()
     if not comment:
         error["note"] = "This field is required"
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
-
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         DELETE FROM coupon WHERE key = %s;
@@ -163,31 +161,27 @@ def set_validity(key):
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = {}
-
     valid_from = request.json.get("valid_from")
     valid_until = request.json.get("valid_until")
-
     try:
         valid_from = datetime.strptime(valid_from, "%Y-%m-%d").date()
     except Exception:
         error["valid_from"] = "invalid input"
-
     try:
         valid_until = datetime.strptime(valid_until, "%Y-%m-%d").date()
     except Exception:
         error["valid_until"] = "invalid input"
-
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     if (
         coupon["valid_from"]
@@ -199,9 +193,9 @@ def set_validity(key):
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "No changes were made"
-        }, 400
+        }, 422
 
     if valid_from < datetime.now(timezone.utc).date():
         error["valid_from"] = "Cannot set date in the past"
@@ -210,9 +204,9 @@ def set_validity(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     old_coupon = coupon
     cur.execute("""
@@ -263,9 +257,9 @@ def clear_validity(key):
     if not coupon or coupon["status"] == "used":
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     old_coupon = coupon
     cur.execute("""

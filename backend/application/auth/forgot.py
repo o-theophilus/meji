@@ -16,14 +16,14 @@ def forgot_1_email():
     con, cur = db_open()
 
     email_template = request.json.get("email_template")
+    email = request.json.get("email")
+
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
-
-    email = request.json.get("email")
+        }, 422
 
     error = None
     if not email:
@@ -33,20 +33,18 @@ def forgot_1_email():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "email": error
-        }, 400
+        }, 422
 
-    cur.execute("""
-        SELECT * FROM "user" WHERE email = %s
-    ;""", (email,))
+    cur.execute("""SELECT * FROM "user" WHERE email = %s;""", (email,))
     user = cur.fetchone()
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "email": "there is no user registered with this email"
-        }, 400
+        }, 404
 
     send_mail(
         user["email"],
@@ -72,26 +70,26 @@ def forgot_2_code():
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     cur.execute("""SELECT * FROM "user" WHERE email = %s;""", (email,))
     user = cur.fetchone()
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "code": error
-        }, 400
+        }, 422
 
     db_close(con, cur)
     return {
@@ -104,32 +102,29 @@ def forgot_3_password():
     con, cur = db_open()
 
     email = request.json.get("email")
-
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
-    cur.execute("""
-        SELECT * FROM "user" WHERE email = %s
-    ;""", (email,))
+    cur.execute("""SELECT * FROM "user" WHERE email = %s;""", (email,))
     user = cur.fetchone()
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     password = request.json.get("password")
     confirm_password = request.json.get("confirm_password")
@@ -155,9 +150,9 @@ def forgot_3_password():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE "user" SET password = %s WHERE key = %s;

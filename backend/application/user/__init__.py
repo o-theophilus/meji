@@ -27,9 +27,9 @@ def theme():
     if theme not in ["light", "dark", "system"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     log(
         cur=cur,
@@ -149,15 +149,23 @@ def report(key):
         return session
     user = session["user"]
 
+    cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
+    user2 = cur.fetchone()
+    if not user2:
+        return {
+            "status": 404,
+            "error": "Invalid request"
+        }, 404
+
     comment = request.json.get("comment", "").strip()
     tags = request.json.get("tags")
 
     if type(tags) is not list:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     error = {}
     if not comment:
@@ -167,23 +175,15 @@ def report(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
-
-    cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    reported_user = cur.fetchone()
-    if not reported_user:
-        return {
-            "status": 400,
-            "error": "Invalid request"
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO report (reporter_key, reporter_comment,
             tags, reported_key)
         VALUES (%s, %s, %s, %s) RETURNING *;
-    """, (user["key"], comment, tags, reported_user["key"]))
+    """, (user["key"], comment, tags, user2["key"]))
     report = cur.fetchone()
 
     log(
@@ -191,7 +191,7 @@ def report(key):
         user_key=user["key"],
         action="reported user",
         entity_type="user",
-        entity_key=reported_user["key"],
+        entity_key=user2["key"],
         misc={
             "report_key": report["key"]
         }
@@ -211,11 +211,9 @@ def block(key):
     if session["status"] != 200:
         db_close(con, cur)
         return session
-    me = session["user"]
+    user = session["user"]
 
-    comment = request.json.get("comment", "").strip()
-
-    if "user.block" not in me["access"]:
+    if "user.block" not in user["access"]:
         db_close(con, cur)
         return {
             "status": 403,
@@ -223,21 +221,20 @@ def block(key):
         }, 403
 
     cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user = cur.fetchone()
-
+    user2 = cur.fetchone()
     if (
-        not user
-        or user["key"] == me["key"]
-        or user["status"] != "active"
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        not user2
+        or user2["key"] == user["key"]
+        or user2["status"] != "active"
+        or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
-
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
+    comment = request.json.get("comment", "").strip()
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -246,24 +243,24 @@ def block(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO block (admin_key, user_key, comment)
         VALUES (%s, %s, %s);
-    """, (me["key"], user["key"], comment))
+    """, (user["key"], user2["key"], comment))
 
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
-    """, (user["key"],))
+    """, (user2["key"],))
 
     log(
         cur=cur,
-        user_key=me["key"],
+        user_key=user["key"],
         action="blocked user",
-        entity_key=user["key"],
+        entity_key=user2["key"],
         entity_type="user",
         misc={"comment":  comment}
     )
@@ -277,12 +274,12 @@ def block(key):
         LEFT JOIN block ON "user".key = block.user_key
         WHERE "user".key::TEXT = %s OR "user".username = %s;
     """, (key, key))
-    user = cur.fetchone()
+    user2 = cur.fetchone()
 
     db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user2)
     }, 200
 
 
@@ -294,11 +291,9 @@ def unblock(key):
     if session["status"] != 200:
         db_close(con, cur)
         return session
-    me = session["user"]
+    user = session["user"]
 
-    comment = request.json.get("comment", "").strip()
-
-    if "block.unblock" not in me["access"]:
+    if "block.unblock" not in user["access"]:
         db_close(con, cur)
         return {
             "status": 403,
@@ -306,20 +301,20 @@ def unblock(key):
         }, 403
 
     cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user = cur.fetchone()
-
+    user2 = cur.fetchone()
     if (
-        not user
-        or user["key"] == me["key"]
-        or user["status"] != "active"
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        not user2
+        or user2["key"] == user["key"]
+        or user2["status"] != "active"
+        or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
+    comment = request.json.get("comment", "").strip()
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -328,17 +323,17 @@ def unblock(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
-    cur.execute("DELETE FROM block WHERE user_key = %s;", (user["key"],))
+    cur.execute("DELETE FROM block WHERE user_key = %s;", (user2["key"],))
 
     log(
         cur=cur,
-        user_key=me["key"],
+        user_key=user["key"],
         action="unblocked user",
-        entity_key=user["key"],
+        entity_key=user2["key"],
         entity_type="user",
         misc={"comment":  comment}
     )
@@ -360,21 +355,21 @@ def profile_action(key):
     if session["status"] != 200:
         db_close(con, cur)
         return session
-    me = session["user"]
+    user = session["user"]
 
     cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user = cur.fetchone()
+    user2 = cur.fetchone()
     if (
-        not user
-        or user["key"] == me["key"]
-        or user["key"] != "active"
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        not user2
+        or user2["key"] == user["key"]
+        or user2["key"] != "active"
+        or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     _actions = request.json.get("actions")
     comment = request.json.get("comment")
@@ -387,24 +382,24 @@ def profile_action(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     actions = []
     error = None
     if "reset_name" in _actions:
-        if "user.reset_name" in me["access"]:
+        if "user.reset_name" in user["access"]:
             actions.append("name")
         else:
             error = "unauthorized access"
     if "reset_username" in _actions:
-        if "user.reset_username" in me["access"]:
+        if "user.reset_username" in user["access"]:
             actions.append("username")
         else:
             error = "unauthorized access"
     if "reset_photo" in _actions:
-        if "user.reset_photo" in me["access"]:
+        if "user.reset_photo" in user["access"]:
             actions.append("photo")
         else:
             error = "unauthorized access"
@@ -423,19 +418,19 @@ def profile_action(key):
         UPDATE "user" SET name = %s, username = %s, photo = %s
         WHERE key = %s RETURNING *;
     """, (
-        f"user {_key[-8:]}" if "name" in actions else user["name"],
-        f"user_{_key[:8]}" if "username" in actions else user["username"],
-        None if "photo" in actions else user["photo"],
-        user["key"]
+        f"user {_key[-8:]}" if "name" in actions else user2["name"],
+        f"user_{_key[:8]}" if "username" in actions else user2["username"],
+        None if "photo" in actions else user2["photo"],
+        user2["key"]
     ))
-    user = cur.fetchone()
+    user2 = cur.fetchone()
 
     log(
         cur=cur,
-        user_key=me["key"],
+        user_key=user["key"],
         action="reset user details",
         entity_type="user",
-        entity_key=user["key"],
+        entity_key=user2["key"],
         misc={
             "field(s)": ", ".join(actions),
             "comment": comment
@@ -445,7 +440,7 @@ def profile_action(key):
     db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user2)
     }, 200
 
 
@@ -457,9 +452,9 @@ def set_access(key):
     if session["status"] != 200:
         db_close(con, cur)
         return session
-    me = session["user"]
+    user = session["user"]
 
-    if "user.set_access" not in me["access"]:
+    if "user.set_access" not in user["access"]:
         db_close(con, cur)
         return {
             "status": 403,
@@ -467,54 +462,57 @@ def set_access(key):
         }, 403
 
     cur.execute('SELECT * FROM "user" WHERE key = %s;', (key,))
-    user = cur.fetchone()
-
-    access = request.json.get("access")
-
+    user2 = cur.fetchone()
     if (
-        not user
-        or not access
-        or type(access) is not list
-        or user["key"] == me["key"]
-        or user["status"] != "active"
-        or user["email"] == os.environ["MAIL_USERNAME"]
+        not user2
+        or user2["key"] == user["key"]
+        or user2["status"] != "active"
+        or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
+    access = request.json.get("access")
     password = request.json.get("password")
+
+    if not access or type(access) is not list:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = None
     if not password:
         error = "This field is required"
-    elif not check_password_hash(me["password"], password):
+    elif not check_password_hash(user["password"], password):
         error = "incorrect password"
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "password": error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE "user" SET access = %s WHERE key = %s RETURNING *;
-    """, (access, user["key"]))
-    user = cur.fetchone()
+    """, (access, user2["key"]))
+    user2 = cur.fetchone()
 
     log(
         cur=cur,
-        user_key=me["key"],
+        user_key=user["key"],
         action="changed user access",
         entity_type="user",
-        entity_key=user["key"],
-        misc={"from": user["access"], "to": access}
+        entity_key=user2["key"],
+        misc={"from": user2["access"], "to": access}
     )
 
     db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user2)
     }, 200

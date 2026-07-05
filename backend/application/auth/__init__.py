@@ -127,7 +127,7 @@ def init():
         user = session["user"]
         token = request.headers.get("Authorization")
         login = session["login"]
-        cart_items = get_cart_items(cur).json["items"]
+        cart_items = get_cart_items(cur)[0]["items"]
 
     else:
         user = anon(cur)
@@ -148,7 +148,7 @@ def init():
         )
 
     likes = get_user_like(cur, user["key"])
-    item_tags = get_iten_tags(cur).json
+    item_tags = get_iten_tags(cur)[0]
     blog_tags = get_blog_tags(cur)
 
     db_close(con, cur)
@@ -177,18 +177,25 @@ def signup():
         return session
     user = session["user"]
 
+    if session["login"]:
+        db_close(con, cur)
+        return {
+            "status": 401,
+            "error": "Invalid request"
+        }, 401
+
     name = ' '.join(request.json.get("name", "").strip().split())
     email = request.json.get("email", "").strip()
     password = request.json.get("password")
     confirm_password = request.json.get("confirm_password")
     email_template = request.json.get("email_template")
 
-    if session["login"] or not email_template:
+    if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     error = {}
 
@@ -229,9 +236,9 @@ def signup():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     if email_user:
         user = email_user
@@ -292,26 +299,26 @@ def confirm():
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     user = cur.fetchone()
     if not user or user["status"] != 'signedup':
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = check_code(cur, user["key"], user["email"])
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE "user"
@@ -348,19 +355,26 @@ def login():
     if session["status"] != 200:
         db_close(con, cur)
         return session
-    anon_user = session["user"]
+    user = session["user"]
 
-    email_template = request.json.get("email_template")
-    if session["login"] or not email_template:
+    if session["login"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 401,
             "error": "Invalid request"
-        }, 400
+        }, 401
 
+    email_template = request.json.get("email_template")
     email = request.json.get("email")
     password = request.json.get("password")
     remember = request.json.get("remember", False)
+
+    if not email_template:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = {}
     if not email:
@@ -370,88 +384,88 @@ def login():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
-    user = None
-    if anon_user["email"] == email or anon_user["username"] == email:
-        user = anon_user
+    user2 = None
+    if user["email"] == email or user["username"] == email:
+        user2 = user
     else:
         cur.execute("""
             SELECT * FROM "user" WHERE email = %s OR username = %s;
         """, (email, email))
-        user = cur.fetchone()
+        user2 = cur.fetchone()
 
     if (
-        not user
-        or user["status"] not in ['signedup', 'active']
-        or not check_password_hash(user["password"], password)
+        not user2
+        or user2["status"] not in ['signedup', 'active']
+        or not check_password_hash(user2["password"], password)
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "your email or password is incorrect"
-        }, 400
+        }, 422
 
-    cur.execute("SELECT * FROM block WHERE user_key = %s;", (user["key"],))
+    cur.execute("SELECT * FROM block WHERE user_key = %s;", (user2["key"],))
     if cur.fetchone():
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 401,
             "error": "account blocked"
-        }, 400
+        }, 401
 
-    if user["status"] == "signedup":
+    if user2["status"] == "signedup":
         send_mail(
-            user["email"],
+            user2["email"],
             "Welcome to my portfolio website! \
             Complete your signup with this Code",
             email_template.format(
-                name=user["name"],
+                name=user2["name"],
                 code=generate_code(
-                    cur, user["key"], user["email"], "login")
+                    cur, user2["key"], user2["email"], "login")
             )
         )
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 401,
             "error": "not active"
-        }, 400
+        }, 401
 
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
-    """, (anon_user["key"],))
+    """, (user["key"],))
 
-    if anon_user["status"] == "anonymous":
-        copy_like_n_cart(cur, user["key"], anon_user["key"])
+    if user["status"] == "anonymous":
+        copy_like_n_cart(cur, user2["key"], user["key"])
         cur.execute("""DELETE FROM "user" WHERE key = %s;""",
-                    (anon_user["key"],))
+                    (user["key"],))
 
-    token = create_session(cur, user["key"], True, remember)
+    token = create_session(cur, user2["key"], True, remember)
 
     cinfo = get_client_info()
     log(
         cur=cur,
-        user_key=user["key"],
+        user_key=user2["key"],
         action="logged in",
         entity_type="user",
-        entity_key=user["key"],
+        entity_key=user2["key"],
         misc={
             "type": "user",
-            "key": anon_user["key"],
+            "key": user["key"],
             **cinfo
         }
     )
     log(
         cur=cur,
-        user_key=anon_user["key"],
+        user_key=user["key"],
         action="logged out",
         entity_type="user",
-        entity_key=anon_user["key"],
+        entity_key=user["key"],
         misc={
             "entity_type": "user",
-            "entity_key": user["key"],
+            "entity_key": user2["key"],
             **cinfo
         }
     )
@@ -531,9 +545,9 @@ def deactivate():
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     error = {}
     if not password:
@@ -543,9 +557,9 @@ def deactivate():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         UPDATE blog

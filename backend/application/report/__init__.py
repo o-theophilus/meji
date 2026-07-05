@@ -34,9 +34,9 @@ def resolve(key):
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     comment = request.json.get("comment", "").strip()
     handle = request.json.get("handle", False)
@@ -133,9 +133,9 @@ def dismiss(key):
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     comment = request.json.get("comment", "").strip()
 

@@ -26,23 +26,22 @@ def order_check():
     user = session["user"]
 
     cur.execute("""
-        SELECT * FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     order = cur.fetchone()
     if not order:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     if not has_adderss(order["receiver"]):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "incomplete receiver information"
-        }, 400
+        }, 422
 
     cur.execute("""
         SELECT
@@ -59,9 +58,9 @@ def order_check():
     if len(items) == 0:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     for x in items:
         if (
@@ -70,9 +69,9 @@ def order_check():
             or x["quantity"] > x["available_quantity"]
         ):
             return {
-                "status": 400,
+                "status": 422,
                 "error": "Some items in your cart are no longer available"
-            }, 400
+            }, 422
 
     total_order = sum(x["price"] * x["quantity"] for x in items)
 
@@ -133,37 +132,32 @@ def cart_to_order():
     user = session["user"]
 
     cur.execute("""
-        SELECT *
-        FROM "order"
-        WHERE user_key = %s AND status = 'cart';
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     order = cur.fetchone()
-
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.created' = ANY(access);
-    """)
-    admins_to_notify = cur.fetchall()
+    if not order:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
 
     reference = request.json.get("reference")
     email_template_admin = request.json.get("email_template_admin")
     email_template_user = request.json.get("email_template_user")
 
     if (
-        not order
-        or admins_to_notify == []
-        or not reference
+        not reference
         or not email_template_admin
         or not email_template_user
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid request"
-        }, 400
+        }, 422
 
     cur.execute("""
-
         SELECT
             item.price,
             order_item.quantity,
@@ -176,9 +170,9 @@ def cart_to_order():
     if len(items) == 0:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     total_order = sum(x["price"] * x["quantity"] for x in items)
 
@@ -364,6 +358,14 @@ def cart_to_order():
             }
         )
 
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.created' = ANY(access);
+    """)
+    admins_to_notify = cur.fetchall()
+    if not admins_to_notify:
+        admins_to_notify = [os.environ["MAIL_USERNAME"]]
+
     send_mail(
         user["email"],
         "Processing Order",
@@ -407,9 +409,9 @@ def delivery_date(key):
     if not order or order["status"] != "created":
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     error = {}
     delivery_date = request.json.get("delivery_date", "").strip()
@@ -428,9 +430,9 @@ def delivery_date(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     log(
         cur=cur,
@@ -478,19 +480,17 @@ def processing(key):
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-
     if (
         not order
         or order["status"] not in ("created", "enroute")
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     comment = request.json.get("comment", "").strip()
-
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -499,9 +499,9 @@ def processing(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     log(
         cur=cur,
@@ -553,19 +553,17 @@ def enroute(key):
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-
     if (
         not order
         or order["status"] != "processing"
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "invalid request"
-        }, 400
+        }, 404
 
     comment = request.json.get("comment", "").strip()
-
     error = {}
     if not comment:
         error["comment"] = "This field is required"
@@ -574,9 +572,9 @@ def enroute(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     log(
         cur=cur,
@@ -624,30 +622,28 @@ def delivered(key):
             "error": "unauthorized access"
         }, 403
 
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    if not order or order["status"] != "enroute":
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.delivered' = ANY(access);
-    """)
-    admins = cur.fetchall()
 
-    if (
-        not order
-        or order["status"] != "enroute"
-        or not admins
-        or not email_template_user
-        or not email_template_admin
-    ):
+    if not email_template_user or not email_template_admin:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid request"
-        }, 400
+        }, 422
 
     error = {}
     if not comment:
@@ -657,20 +653,9 @@ def delivered(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
-
-    cur.execute(
-        """SELECT * FROM "user" WHERE key = %s;""",
-        (order["user_key"],))
-    order_user = cur.fetchone()
-    if not order_user:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "invalid request"
-        }, 400
+        }, 422
 
     log(
         cur=cur,
@@ -694,17 +679,36 @@ def delivered(key):
     """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
+    cur.execute("""
+        SELECT * FROM "user" WHERE key = %s;
+    """, (order["user_key"],))
+    user2 = cur.fetchone()
+    if not user2:
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.delivered' = ANY(access);
+    """)
+    admins_to_notify = cur.fetchall()
+    if not admins_to_notify:
+        admins_to_notify = [os.environ["MAIL_USERNAME"]]
+
     send_mail(
-        order_user["email"],
+        user2["email"],
         "Order Delivered - Thank you",
-        email_template_user.format(name=order_user["name"])
+        email_template_user.format(name=user2["name"])
     )
     send_mail(
-        [x["email"] for x in admins],
+        [x["email"] for x in admins_to_notify],
         "Order Delivered",
         email_template_admin.format(
-            name=order_user["name"],
-            username=order_user["username"]
+            name=user2["name"],
+            username=user2["username"]
         )
     )
 
@@ -732,30 +736,28 @@ def canceled(key):
             "error": "unauthorized access"
         }, 403
 
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    if (
+        not order
+        or order["status"] not in ['created', 'processing', 'enroute']
+    ):
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
-    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
-    order = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.canceled' = ANY(access);
-    """)
-    admins = cur.fetchall()
-
-    if (
-        not order
-        or order["status"] not in ['created', 'processing', 'enroute']
-        or not admins
-        or not email_template_user
-        or not email_template_admin
-    ):
+    if not email_template_user or not email_template_admin:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid request"
-        }, 400
+        }, 422
 
     error = {}
     if not comment:
@@ -765,34 +767,11 @@ def canceled(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
-    cur.execute(
-        """SELECT * FROM "user" WHERE key = %s;""",
-        (order["user_key"],))
-    order_user = cur.fetchone()
-    if not order_user:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "invalid request"
-        }, 400
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order status",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": order['status'],
-            "to": "canceled",
-            "comment": comment
-        }
-    )
-
+    old_order = order
     order["timeline"]["canceled"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
@@ -802,18 +781,42 @@ def canceled(key):
     """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
+    cur.execute(
+        """SELECT * FROM "user" WHERE key = %s;""",
+        (order["user_key"],))
+    order_user = cur.fetchone()
     send_mail(
         order_user["email"],
         "Order Canceled",
         email_template_user.format(name=order_user["name"])
     )
-    send_mail(
-        [x["email"] for x in admins],
-        "Order Canceled",
-        email_template_admin.format(
-            name=order_user["name"],
-            username=order_user["username"]
+
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.canceled' = ANY(access);
+    """)
+    admins = cur.fetchall()
+    if admins:
+        send_mail(
+            [x["email"] for x in admins],
+            "Order Canceled",
+            email_template_admin.format(
+                name=order_user["name"],
+                username=order_user["username"]
+            )
         )
+
+    log(
+        cur=cur,
+        user_key=user["key"],
+        action="changed order status",
+        entity_type="order",
+        entity_key=order["key"],
+        misc={
+            "from": old_order['status'],
+            "to": "canceled",
+            "comment": comment
+        }
     )
 
     db_close(con, cur)
@@ -833,31 +836,29 @@ def returning_(key):
         return session
     user = session["user"]
 
-    comment = request.json.get("comment", "").strip()
-    email_template_user = request.json.get("email_template_user")
-    email_template_admin = request.json.get("email_template_admin")
-
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.returning' = ANY(access);
-    """)
-    admins = cur.fetchall()
-
     if (
         not order
         or user["key"] != order["user_key"]
         or order["status"] != "delivered"
-        or not admins
-        or not email_template_user
-        or not email_template_admin
     ):
         db_close(con, cur)
         return {
-            "status": 403,
+            "status": 404,
             "error": "invalid request"
-        }, 403
+        }, 404
+
+    comment = request.json.get("comment", "").strip()
+    email_template_user = request.json.get("email_template_user")
+    email_template_admin = request.json.get("email_template_admin")
+
+    if not email_template_user or not email_template_admin:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "invalid request"
+        }, 422
 
     error = {}
     if not comment:
@@ -867,9 +868,9 @@ def returning_(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     if (
         datetime.now(timezone.utc) - datetime.fromisoformat(
@@ -878,10 +879,10 @@ def returning_(key):
     ):
         db_close(con, cur)
         return {
-            "status": 403,
+            "status": 422,
             "error": """The order is outside the return window.
                 You can only return the order within 7 days of delivery."""
-        }, 403
+        }, 422
 
     log(
         cur=cur,
@@ -906,14 +907,21 @@ def returning_(key):
         "Returning Order",
         email_template_user.format(name=user["name"])
     )
-    send_mail(
-        [x["email"] for x in admins],
-        "Returning Order",
-        email_template_admin.format(
-            name=user["name"],
-            username=user["username"]
+
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.returning' = ANY(access);
+    """)
+    admins = cur.fetchall()
+    if admins:
+        send_mail(
+            [x["email"] for x in admins],
+            "Returning Order",
+            email_template_admin.format(
+                name=user["name"],
+                username=user["username"]
+            )
         )
-    )
 
     db_close(con, cur)
     return {
@@ -939,30 +947,28 @@ def returned(key):
             "error": "unauthorized access"
         }, 403
 
+    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
+    order = cur.fetchone()
+    if (
+        not order
+        or order["status"] != "returning"
+    ):
+        db_close(con, cur)
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
     comment = request.json.get("comment", "").strip()
     email_template_user = request.json.get("email_template_user")
     email_template_admin = request.json.get("email_template_admin")
 
-    cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
-    order = cur.fetchone()
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.returned' = ANY(access);
-    """)
-    admins = cur.fetchall()
-
-    if (
-        not order
-        or order["status"] != "returning"
-        or not admins
-        or not email_template_user
-        or not email_template_admin
-    ):
+    if not email_template_user or not email_template_admin:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid request"
-        }, 400
+        }, 422
 
     error = {}
     if not comment:
@@ -972,20 +978,42 @@ def returned(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
+
+    order["timeline"]["returned"] = f"{datetime.now(timezone.utc)}"
+    cur.execute("""
+        UPDATE "order"
+        SET status = 'returned', timeline = %s
+        WHERE key = %s RETURNING *;
+    """, (Json(order["timeline"]), order["key"]))
+    order = cur.fetchone()
 
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
         (order["user_key"],))
     order_user = cur.fetchone()
-    if not order_user:
-        db_close(con, cur)
-        return {
-            "status": 400,
-            "error": "invalid request"
-        }, 400
+    send_mail(
+        order_user["email"],
+        "Order Returned",
+        email_template_user.format(name=order_user["name"])
+    )
+
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.returned' = ANY(access);
+    """)
+    admins = cur.fetchall()
+    if admins:
+        send_mail(
+            [x["email"] for x in admins],
+            "Order Returned",
+            email_template_admin.format(
+                name=order_user["name"],
+                username=order_user["username"]
+            )
+        )
 
     log(
         cur=cur,
@@ -997,29 +1025,6 @@ def returned(key):
             "admin": user["key"],
             "comment": comment
         }
-    )
-
-    order["timeline"]["returned"] = f"{datetime.now(timezone.utc)}"
-
-    cur.execute("""
-        UPDATE "order"
-        SET status = 'returned', timeline = %s
-        WHERE key = %s RETURNING *;
-    """, (Json(order["timeline"]), order["key"]))
-    order = cur.fetchone()
-
-    send_mail(
-        order_user["email"],
-        "Order Returned",
-        email_template_user.format(name=order_user["name"])
-    )
-    send_mail(
-        [x["email"] for x in admins],
-        "Order Returned",
-        email_template_admin.format(
-            name=order_user["name"],
-            username=order_user["username"]
-        )
     )
 
     db_close(con, cur)

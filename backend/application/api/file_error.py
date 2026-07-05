@@ -96,9 +96,9 @@ def delete_file():
     ):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     for x in photos:
         storage.delete(x.split("/")[-1], entity)

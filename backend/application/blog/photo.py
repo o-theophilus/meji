@@ -28,20 +28,27 @@ def add_photo(key):
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
-    if 'file' not in request.files or not blog:
+    if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if 'file' not in request.files:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid file"
-        }, 400
+        }, 422
 
     old_photo = None
     if blog["photo"]:
@@ -102,9 +109,9 @@ def delete_photo(key):
     if not blog or not blog["photo"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     storage.delete(blog["photo"], "blog")
 

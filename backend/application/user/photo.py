@@ -21,17 +21,17 @@ def add_photo():
     if 'file' not in request.files:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "invalid file"
-        }, 400
+        }, 422
 
     old_photo = None
     if user["photo"]:
@@ -83,9 +83,9 @@ def delete_photo():
     if not user["photo"]:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     storage.delete(user["photo"], "user")
 

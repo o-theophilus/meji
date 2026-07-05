@@ -44,9 +44,9 @@ def add_item():
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     slug = re.sub('-+', '-', re.sub('[^a-zA-Z0-9]', '-', name.lower()))
     slug = slug[:100]
@@ -104,9 +104,9 @@ def edit(key):
     if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     error = {}
 
@@ -321,30 +321,34 @@ def delete(key):
         return session
     user = session["user"]
 
-    password = request.json.get("password")
-
-    error = None
     if "item.edit_status" not in user["access"]:
-        error = "unauthorized access"
-    elif not password:
-        error = "This field is required"
-    elif not check_password_hash(user["password"], password):
-        error = "Incorrect password"
-    if error:
         db_close(con, cur)
         return {
-            "status": 400,
-            "error": error
-        }, 400
+            "status": 403,
+            "error": "unauthorized access"
+        }, 403
 
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    password = request.json.get("password")
+    error = None
+    if not password:
+        error = "This field is required"
+    elif not check_password_hash(user["password"], password):
+        error = "Incorrect password"
+    if error:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": error
+        }, 422
 
     cur.execute("""
         DELETE FROM item WHERE key = %s;
@@ -379,9 +383,9 @@ def like(key):
     if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND item_key = %s;
@@ -431,9 +435,9 @@ def add_comment(key):
     if not item:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
     parent_key = request.json.get("parent_key")
     if parent_key:
@@ -448,9 +452,9 @@ def add_comment(key):
         if not cur.fetchone():
             db_close(con, cur)
             return {
-                "status": 400,
+                "status": 404,
                 "error": "Invalid request"
-            }, 400
+            }, 404
 
     cur.execute("""
         WITH purchase_check AS (
@@ -487,9 +491,9 @@ def add_comment(key):
 
     if not user_comment_info["can_comment"]:
         return {
-            "status": 400,
+            "status": 403,
             "error": "Invalid request"
-        }, 400
+        }, 403
 
     rating = request.json.get("rating", 0)
     comment = request.json.get("comment", "").strip()
@@ -504,9 +508,9 @@ def add_comment(key):
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO comment (user_key, item_key, rating,

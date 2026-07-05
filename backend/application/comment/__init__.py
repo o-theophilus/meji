@@ -24,10 +24,11 @@ def delete(key):
     if not comment:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
 
+    _comment = request.json.get("comment", "").strip()
     misc = {}
 
     if comment["user_key"] != user["key"]:
@@ -38,8 +39,6 @@ def delete(key):
                 "error": "unauthorized access"
             }, 403
 
-        _comment = request.json.get("comment", "").strip()
-
         error = {}
         if not _comment:
             error["comment"] = "This field is required"
@@ -48,9 +47,9 @@ def delete(key):
         if error:
             db_close(con, cur)
             return {
-                "status": 400,
+                "status": 422,
                 **error
-            }, 400
+            }, 422
 
         misc["comment"] = _comment
 
@@ -83,16 +82,23 @@ def like(key):
         return session
     user = session["user"]
 
-    reaction = request.json.get("reaction")
-
     cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
     comment = cur.fetchone()
-    if not comment or reaction not in ["like", "dislike"]:
+    if not comment:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    reaction = request.json.get("reaction")
+
+    if reaction not in ["like", "dislike"]:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND comment_key = %s;
@@ -152,43 +158,43 @@ def report(key):
         return session
     user = session["user"]
 
-    comment = request.json.get("comment", "").strip()
+    cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
+    comment = cur.fetchone()
+    if not comment:
+        return {
+            "status": 404,
+            "error": "Comment not found"
+        }, 404
+
+    _comment = request.json.get("comment", "").strip()
     tags = request.json.get("tags")
 
     if type(tags) is not list:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     error = {}
-    if not comment:
+    if not _comment:
         error["comment"] = "This field is required"
-    elif len(comment) > 500:
+    elif len(_comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             **error
-        }, 400
-
-    cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
-    reported_comment = cur.fetchone()
-    if not reported_comment:
-        return {
-            "status": 400,
-            "error": "Invalid request"
-        }, 400
+        }, 422
 
     cur.execute("""
         INSERT INTO report (reporter_key, reporter_comment, tags,
             reported_key, reported_comment_key)
         VALUES (%s, %s, %s, %s, %s) RETURNING *;
     """, (
-        user["key"], comment, tags,
-        reported_comment["user_key"], reported_comment["key"])
+        user["key"], _comment, tags,
+        comment["user_key"], comment["key"])
     )
     report = cur.fetchone()
 
@@ -197,7 +203,7 @@ def report(key):
         user_key=user["key"],
         action="reported comment",
         entity_type="comment",
-        entity_key=reported_comment["key"],
+        entity_key=comment["key"],
         misc={
             "report_key": report["key"]
         }

@@ -28,12 +28,19 @@ def add_file(key):
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
-    if 'files' not in request.files or not blog:
+    if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    if 'files' not in request.files:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     error = ""
     files = []
@@ -57,9 +64,9 @@ def add_file(key):
             error = "no file"
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": error
-        }, 400
+        }, 422
 
     file_names = []
     for x in files:
@@ -116,24 +123,28 @@ def order_delete_file(key):
 
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
-
-    files = request.json.get("files")
-
-    if not blog or not files or type(files) is not list:
+    if not blog:
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 404,
             "error": "Invalid request"
-        }, 400
+        }, 404
+
+    files = request.json.get("files")
+    if not files or type(files) is not list:
+        db_close(con, cur)
+        return {
+            "status": 422,
+            "error": "Invalid request"
+        }, 422
 
     files = [p.split("/")[-1] for p in files]
-
     if not all(x in blog["files"] for x in files):
         db_close(con, cur)
         return {
-            "status": 400,
+            "status": 422,
             "error": "Invalid request"
-        }, 400
+        }, 422
 
     for x in blog["files"]:
         if x not in files:
