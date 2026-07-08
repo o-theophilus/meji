@@ -3,7 +3,7 @@ from math import ceil
 from flask import Blueprint, request
 
 from ..cart.delivery import get_areas
-from ..comment.get import get_item_comments
+from ..comment.get import many_items
 from ..tools import item_schema, session
 from .get_group import (customer_view, recently_viewed, recommended,
                         similar_items)
@@ -207,7 +207,7 @@ def after_get(cur, user, key):
 
     return {
         "status": 200,
-        "comments": get_item_comments(cur, key, user["key"], 3),
+        "comments": many_items(cur, key, user["key"], 3),
         "item_group": item_group
     }, 200
 

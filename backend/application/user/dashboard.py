@@ -18,7 +18,6 @@ def last_order_date(cur, user_key):
     return cur.fetchone()
 
 
-# TODO: collect logs for failed ops
 def order_recent(cur, user_key):
     cur.execute("""
         SELECT

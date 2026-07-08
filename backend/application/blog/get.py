@@ -4,7 +4,7 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ..comment.get import get_blog_comments
+from ..comment.get import many_blogs
 from ..tools import session
 
 bp = Blueprint("blog_get", __name__)
@@ -300,6 +300,6 @@ def after_blog(cur, user, key):
         "status": 200,
         "engagement": get_engagement(cur, key, user["key"]),
         "author": get_author(cur, key),
-        "comment_resp": get_blog_comments(cur, key, user["key"]),
+        "comment_resp": many_blogs(cur, key, user["key"]),
         "similar": get_similar(cur, key)
     }, 200

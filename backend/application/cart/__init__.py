@@ -6,6 +6,7 @@ from psycopg2.extras import Json
 from ..coupon import coupon_schema
 from ..tools import log, rate_limit, session
 from .delivery import get_areas
+from .get import cart_items
 
 bp = Blueprint("cart", __name__)
 
@@ -92,11 +93,9 @@ def add(cur, user):
         ;""", (cart["key"], item_key, Json(variation), quantity))
     order_item = cur.fetchone()
 
-    # TODO: fix ths get in frontend
-    # resp = get_cart_items(cur)
-
     return {
         "status": 200,
+        "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
             "misc": {
@@ -144,11 +143,9 @@ def remove(cur, user):
             "error": "invalid request"
         }, 404
 
-    # TODO: fix ths get in frontend
-    # resp = get_cart_items(cur)
-
     return {
         "status": 200,
+        "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
             "misc": {
@@ -217,11 +214,9 @@ def quantity(cur, user):
     ;""", (quantity, order_item["key"]))
     order_item = cur.fetchone()
 
-    # TODO: fix ths get in frontend
-    # resp = get_cart_items(cur)
-
     return {
         "status": 200,
+        "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
             "misc": {
@@ -325,11 +320,9 @@ def receiver(cur, user):
     """, (Json(receiver), cart["key"]))
     cart = cur.fetchone()
 
-    # TODO: fix ths get in frontend
-    # resp = get_cart_items(cur)
-
     return {
         "status": 200,
+        "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
             "misc": {

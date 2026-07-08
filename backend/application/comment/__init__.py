@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 
 from ..tools import log, rate_limit, session
+from .get import many_blogs, many_items
 
 bp = Blueprint("comment", __name__)
 
@@ -48,11 +49,13 @@ def add_blog_comment(cur, user, key):
     """, (user["key"], key, comment, parent_key))
     comment = cur.fetchone()
 
-    # TODO: fix ths get in frontend
-    # comments = get_comments(blog["key"], cur)
+    blogs = many_blogs(cur, key, user["key"])
 
     return {
         "status": 200,
+        "comments": blogs["comments"],
+        "total_comment": blogs["total_comment"],
+        "total_page": blogs["total_page"],
         "log": {
             "entity_key": comment["key"],
             "misc": {
@@ -154,11 +157,16 @@ def add_item_comment(cur, user, key):
     """, (user["key"], key, rating, comment, parent_key))
     comment = cur.fetchone()
 
-    # TODO: fix ths get in frontend
-    # comments = get_comments(key, cur=cur)
+    items = many_items(cur, key, user["key"])
 
     return {
         "status": 200,
+        "comments": items["comments"],
+        "total_page": items["total_page"],
+        "total_comment": items["total_comment"],
+        "ratings": items["ratings"],
+        "has_purchased": items["has_purchased"],
+        "can_comment": items["can_comment"],
         "log": {
             "entity_key": comment["key"],
             "misc": {
@@ -207,14 +215,24 @@ def delete(cur, user, key):
 
     cur.execute("DELETE FROM comment WHERE key = %s;", (comment["key"],))
 
-    # TODO: fix ths get in frontend
-    # if comment["entity_key"] == "item":
-    #     comments = get_item_comments(comment["entity_key"], cur=cur)
-    # else:
-    #     comments = get_blog_comments(comment["entity_key"], cur=cur)
+    entity = {}
+    if comment["entity_key"] == "item":
+        items = many_items(cur, key, user["key"])
+        entity["comments"] = items["comments"]
+        entity["total_comment"] = items["total_comment"]
+        entity["total_page"] = items["total_page"]
+        entity["ratings"] = items["ratings"]
+        entity["has_purchased"] = items["has_purchased"]
+        entity["can_comment"] = items["can_comment"]
+    else:
+        blogs = many_blogs(cur, key, user["key"])
+        entity["comments"] = blogs["comments"]
+        entity["total_comment"] = blogs["total_comment"]
+        entity["total_page"] = blogs["total_page"]
 
     return {
         "status": 200,
+        **entity,
         "log": {
             "entity_key": comment["key"],
             "misc": misc
