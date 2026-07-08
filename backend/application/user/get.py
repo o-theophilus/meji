@@ -2,8 +2,7 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ..postgres import db_close, db_open
-from ..tools import access_pass, get_session, user_schema
+from ..tools import access_pass, session, user_schema
 from .dashboard import dashboard
 
 bp = Blueprint("user_get", __name__)
@@ -19,15 +18,8 @@ def get_user_like(cur, user_key):
 
 
 @bp.get("/users/<key>")
-def get(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    viewer = session["user"]
-
+@session(False)
+def get(cur, viewer, key):
     cur.execute("""
         SELECT
             "user".*,
@@ -40,7 +32,6 @@ def get(key):
     user = cur.fetchone()
 
     if not user:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Oops! The user you're looking for doesn't exist"
@@ -59,7 +50,6 @@ def get(key):
                     _access[x][y[1]] = []
                 _access[x][y[1]].append(y[0])
 
-    db_close(con, cur)
     return {
         "status": 200,
         "user": user_schema(user),
@@ -69,16 +59,9 @@ def get(key):
 
 
 @bp.get("/users")
-def get_users():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-
+@session(True)
+def get_users(cur, _user):
     if "user.view" not in session["user"]["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -135,7 +118,6 @@ def get_users():
     ))
     users = cur.fetchall()
 
-    db_close(con, cur)
     return {
         "status": 200,
         "users": [user_schema(x) for x in users],
@@ -147,22 +129,8 @@ def get_users():
 
 
 @bp.get("/users/admin")
-def get_admins():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "user.set_access" not in user["access"]:
-        db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
+@session(True)
+def get_admins(cur):
     order_by = {
         'latest': '"user".date_created',
         'oldest': '"user".date_created',
@@ -225,7 +193,6 @@ def get_admins():
             for y in access_pass[x]:
                 access[x].append(y[0])
 
-    db_close(con, cur)
     return {
         "status": 200,
         "users": [user_schema(x) for x in users],
@@ -233,107 +200,4 @@ def get_admins():
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
         "access": access,
-    }, 200
-
-
-@bp.get("/users/blocked")
-def get_blocked(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        if close_conn:
-            db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "block.view" not in user["access"]:
-        if close_conn:
-            db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
-    order_by = {
-        'latest': 'date_created',
-        'oldest': 'date_created'
-    }
-    order_dir = {
-        'latest': 'DESC',
-        'oldest': 'ASC'
-    }
-
-    searchParams = {
-        "search": "",
-        "order": "latest",
-        "page_no": 1,
-        "page_size": 24
-    }
-    search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
-    page_size = min(page_size, 100)
-
-    cur.execute(f"""
-        SELECT
-            block.key,
-            block.date_created,
-            block.comment,
-
-            jsonb_build_object(
-                'key', admin.key,
-                'name', admin.name,
-                'username', admin.username,
-                'photo', admin.photo
-            ) AS admin,
-
-            jsonb_build_object(
-                'key', "user".key,
-                'name', "user".name,
-                'username', "user".username,
-                'photo', "user".photo
-            ) AS "user",
-
-            COUNT(*) OVER() AS _count
-
-        FROM block
-        LEFT JOIN "user" admin ON block.admin_key = admin.key
-        LEFT JOIN "user" ON block.user_key = "user".key
-
-        WHERE
-            (%s = '' OR CONCAT_WS(', ',
-                block.key, block.comment,
-                "user".key, "user".name, "user".email,
-                admin.key, admin.name, admin.email
-            ) ILIKE %s)
-        ORDER BY {order_by[order]} {order_dir[order]}, block.key DESC
-        LIMIT %s OFFSET %s;
-    """, (
-        search, f"%{search}%",
-        page_size, (page_no - 1) * page_size
-    ))
-    blocks = cur.fetchall()
-
-    for x in blocks:
-        x["admin"]["photo"] = (
-            f"{request.host_url}photo/user/{x['admin']['photo']}"
-            if x["admin"]["photo"] else None
-        )
-        x["user"]["photo"] = (
-            f"{request.host_url}photo/user/{x['user']['photo']}"
-            if x["user"]["photo"] else None
-        )
-
-    if close_conn:
-        db_close(con, cur)
-    return {
-        "status": 200,
-        "blocks": blocks,
-        "total_page": ceil(blocks[0]["_count"] / page_size) if blocks else 0,
-        "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
     }, 200

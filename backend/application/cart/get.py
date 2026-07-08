@@ -1,8 +1,7 @@
 from flask import Blueprint, request
 
 from ..coupon.get import coupon_schema
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import session
 from .delivery import get_areas
 
 bp = Blueprint("cart_get_items", __name__)
@@ -31,28 +30,16 @@ def has_adderss(x):
     return True
 
 
-@bp.get("/cart")
-def get_cart_items(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        if close_conn:
-            db_close(con, cur)
-        return session
-    user = session["user"]
-
+def cart_items(cur, user_key):
     cur.execute("""
         SELECT * FROM "order"
         WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
+    """, (user_key,))
     cart = cur.fetchone()
     if not cart:
         cur.execute("""
             INSERT INTO "order" (user_key) VALUES (%s) RETURNING *
-        ;""", (user["key"],))
+        ;""", (user_key,))
         cart = cur.fetchone()
 
     cur.execute("""
@@ -87,7 +74,7 @@ def get_cart_items(cur=None):
             o.receiver::jsonb,
             (o.timeline->>'delivered')::timestamptz DESC
         LIMIT 5;
-    """, (user["key"],))
+    """, (user_key,))
     previous_receivers = cur.fetchall()
     previous_receivers = [x['receiver'] for x in previous_receivers]
 
@@ -96,8 +83,6 @@ def get_cart_items(cur=None):
     """, (cart["key"],))
     coupon = cur.fetchone()
 
-    if close_conn:
-        db_close(con, cur)
     return {
         "status": 200,
         "cart": cart,
@@ -105,4 +90,10 @@ def get_cart_items(cur=None):
         "previous_receivers": previous_receivers,
         "areas": get_areas(),
         "coupon": coupon_schema(coupon) if coupon else None
-    }, 200
+    }
+
+
+@bp.get("/cart")
+@session(False)
+def _get_cart_items(cur, user):
+    return cart_items(cur, user["key"]), 200

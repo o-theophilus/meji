@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint
-from psycopg2.extras import Json
+# from psycopg2.extras import Json
 
 from .postgres import db_close, db_open
 from .tools import access_pass
@@ -9,23 +9,37 @@ from .tools import access_pass
 bp = Blueprint("fix", __name__)
 
 
-# @bp.get("/fix")
+@bp.get("/fix")
 def quick_fix():
     con, cur = db_open()
 
     cur.execute("""
-        UPDATE item
-        SET metadata = %s
-    ;""", (
-        Json({
-            "length": 0,
-            "breadth": 0,
-            "height": 0,
-            "weight": 0,
-            "area": "ijanikin",
-            "prep_time": 7
-        }),
-    ))
+        CREATE TABLE IF NOT EXISTS rate_limit_log (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            endpoint TEXT NOT NULL,
+            date_created TIMESTAMPTZ DEFAULT NOW()
+        );
+        CREATE INDEX idx_rate_limit_lookup
+            ON rate_limit_log (user_key, endpoint, date_created);
+    """)
+
+    cur.execute("""
+        ALTER TABLE log
+        ALTER COLUMN entity_key DROP NOT NULL;
+    """)
+
+    cur.execute("""
+        DROP TABLE IF EXISTS session CASCADE;
+        CREATE TABLE IF NOT EXISTS session (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            date_created TIMESTAMPTZ DEFAULT now(),
+            date_updated TIMESTAMPTZ DEFAULT now(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            login BOOL NOT NULL DEFAULT FALSE,
+            remember BOOL NOT NULL DEFAULT FALSE
+        );
+    """)
 
     db_close(con, cur)
     return {

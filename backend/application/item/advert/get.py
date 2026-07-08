@@ -2,8 +2,7 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ...postgres import db_close, db_open
-from ...tools import get_session
+from ...tools import session
 
 bp = Blueprint("advert_get", __name__)
 
@@ -19,17 +18,9 @@ def advert_schema(advert):
 
 
 @bp.get("/items/<key>/advert")
-def get(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+def get(cur, user, key):
     if "item.advert" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -38,10 +29,9 @@ def get(key):
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "advert": advert_schema(advert) if advert else advert,
+        "advert": advert_schema(advert) if advert else None,
         "spaces": spaces,
         "sizes": sizes
     }, 200
@@ -49,18 +39,8 @@ def get(key):
 
 @bp.get("/adverts")
 @bp.get("/advert_display")
-def get_many(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        if close_conn:
-            db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+def many(cur, user):
     order_by = {
         'name (a-z)': 'item.name',
         'name (z-a)': 'item.name'
@@ -109,8 +89,6 @@ def get_many(cur=None):
     ))
     adverts = cur.fetchall()
 
-    if close_conn:
-        db_close(con, cur)
     return {
         "status": 200,
         "adverts": [advert_schema(x) for x in adverts],

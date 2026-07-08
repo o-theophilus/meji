@@ -6,21 +6,20 @@ from flask import Blueprint, request
 from psycopg2.extras import Json
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..api.item_tag import get_iten_tags
+from ..api.item_tag import all_tags, featured_tags
 from ..blog.get import get_blog_tags
 from ..cart.delivery import axis_map, price_map
-from ..cart.get import get_cart_items, has_adderss
-from ..log import log
-from ..postgres import db_close, db_open
+from ..cart.get import cart_items, has_adderss
 from ..storage import storage
 from ..tools import (access_pass, check_code, generate_code, get_client_info,
-                     get_session, reserved_words, send_mail, user_schema)
+                     log, rate_limit, reserved_words, send_mail, session,
+                     user_schema)
 from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
 
 
-def anon(cur):
+def new_user(cur):
     key = uuid4().hex
     cur.execute("""
         INSERT INTO "user" (name, username, email, password)
@@ -117,20 +116,18 @@ def copy_like_n_cart(cur, user_key, anon_key):
 
 
 @bp.post("/init")
-def init():
-    con, cur = db_open()
+@session(False)
+def init(cur, session):
 
-    session = get_session(cur)
-
-    cart_items = []
+    _cart_items = []
     if session["status"] == 200:
         user = session["user"]
         token = request.headers.get("Authorization")
         login = session["login"]
-        cart_items = get_cart_items(cur)[0]["items"]
+        _cart_items = cart_items(cur, user["key"])["items"]
 
     else:
-        user = anon(cur)
+        user = new_user(cur)
         token = create_session(cur, user["key"])
         login = False
         cur.execute(
@@ -138,29 +135,24 @@ def init():
             (user["key"],)
         )
 
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="created",
-            entity_type="user",
-            entity_key=user["key"],
-            misc={**get_client_info()}
-        )
+        cur.execute("""
+            INSERT INTO log (
+                user_key, action, entity_type, misc
+            ) VALUES (%s, 'auth.init', 'user', %s);
+        """, (user["key"], get_client_info()))
 
     likes = get_user_like(cur, user["key"])
-    item_tags = get_iten_tags(cur)[0]
     blog_tags = get_blog_tags(cur)
 
-    db_close(con, cur)
     return {
         "status": 200,
         "user": user_schema(user),
         "token": token,
         "login": login,
         "likes": likes,
-        "cart_items": cart_items,
-        "item_all_tags": item_tags["all"],
-        "item_featured_tags": item_tags["featured"],
+        "cart_items": _cart_items,
+        "item_all_tags": all_tags(cur),
+        "item_featured_tags": featured_tags(cur),
         "blog_tags": blog_tags,
         "axis_map": axis_map,
         "price_map": price_map
@@ -168,17 +160,11 @@ def init():
 
 
 @bp.post("/signup")
-def signup():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if session["login"]:
-        db_close(con, cur)
+@session(False)
+@rate_limit(10, 1)
+@log("user")
+def signup(cur, user):
+    if user["login"]:
         return {
             "status": 401,
             "error": "Invalid request"
@@ -191,7 +177,6 @@ def signup():
     email_template = request.json.get("email_template")
 
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -234,7 +219,6 @@ def signup():
         match"""
 
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -243,7 +227,7 @@ def signup():
     if email_user:
         user = email_user
     elif user["status"] != "anonymous":
-        user = anon(cur)
+        user = new_user(cur)
 
     username = re.sub(
         '-+', '-', re.sub('[^a-zA-Z0-9]', '-', name.lower()))[:20]
@@ -266,14 +250,6 @@ def signup():
     ))
     user = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="signedup",
-        entity_type="user",
-        entity_key=user["key"]
-    )
-
     send_mail(
         user["email"],
         "Welcome to my portfolio website! Complete your signup with this Code",
@@ -283,21 +259,19 @@ def signup():
         )
     )
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/confirm")
-def confirm():
-    con, cur = db_open()
+@session(False)
+@rate_limit(10, 1)
+@log("user")
+def confirm(cur, _user):
 
     email = request.json.get("email")
-
-    error = None
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -306,15 +280,14 @@ def confirm():
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     user = cur.fetchone()
     if not user or user["status"] != 'signedup':
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
+    error = None
     error = check_code(cur, user["key"], user["email"])
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -331,34 +304,20 @@ def confirm():
         user["key"]
     ))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="activated account",
-        entity_type="user",
-        entity_key=user["key"]
-    )
-
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/login")
-def login():
-    con, cur = db_open()
+@session(False)
+@rate_limit(10, 1)
+@log("user")
+def login(cur, user):
 
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if session["login"]:
-        db_close(con, cur)
+    if user["login"]:
         return {
             "status": 401,
             "error": "Invalid request"
@@ -370,7 +329,6 @@ def login():
     remember = request.json.get("remember", False)
 
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -382,7 +340,6 @@ def login():
     if not password:
         error["password"] = "This field is required"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -402,7 +359,6 @@ def login():
         or user2["status"] not in ['signedup', 'active']
         or not check_password_hash(user2["password"], password)
     ):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "your email or password is incorrect"
@@ -410,7 +366,6 @@ def login():
 
     cur.execute("SELECT * FROM block WHERE user_key = %s;", (user2["key"],))
     if cur.fetchone():
-        db_close(con, cur)
         return {
             "status": 401,
             "error": "account blocked"
@@ -427,7 +382,6 @@ def login():
                     cur, user2["key"], user2["email"], "login")
             )
         )
-        db_close(con, cur)
         return {
             "status": 401,
             "error": "not active"
@@ -444,106 +398,55 @@ def login():
 
     token = create_session(cur, user2["key"], True, remember)
 
-    cinfo = get_client_info()
-    log(
-        cur=cur,
-        user_key=user2["key"],
-        action="logged in",
-        entity_type="user",
-        entity_key=user2["key"],
-        misc={
-            "type": "user",
-            "key": user["key"],
-            **cinfo
-        }
-    )
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="logged out",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={
-            "entity_type": "user",
-            "entity_key": user2["key"],
-            **cinfo
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "token": token
+        "token": token,
+        "log": {
+            "misc": {
+                "from_key": user["key"],
+                "from_name": user["name"],
+                **get_client_info()
+            }
+        }
     }, 200
 
 
 @bp.delete("/logout")
-def logout():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-    anon_user = anon(cur)
-
+@session(True)
+@rate_limit(10, 1)
+@log("user")
+def logout(cur, user):
     cur.execute("""
         DELETE FROM session WHERE user_key = %s;
     """, (user["key"],))
 
-    token = create_session(cur, anon_user["key"])
+    user2 = new_user(cur)
+    token = create_session(cur, user2["key"])
 
-    cinfo = get_client_info()
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="logged out",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={
-            "entity_type": "user",
-            "entity_key": anon_user["key"],
-            **cinfo
-        }
-    )
-    log(
-        cur=cur,
-        user_key=anon_user["key"],
-        action="created",
-        entity_type="user",
-        entity_key=anon_user["key"],
-        misc={
-            "entity_type": "user",
-            "entity_key": user["key"],
-            **cinfo
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(anon_user),
-        "token": token
+        "user": user_schema(user2),
+        "token": token,
+        "log": {
+            "misc": {
+                "to_key": user2["key"],
+                "to_name": user2["name"],
+                **get_client_info()
+            }
+        }
     }, 200
 
 
 @bp.delete("/deactivate")
-def deactivate():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(10, 1)
+@log("user")
+def deactivate(cur, user):
     password = request.json.get("password")
-    comment = request.json.get("comment")
+    note = request.json.get("note", "").strip()
     email_template = request.json.get("email_template")
 
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -555,7 +458,6 @@ def deactivate():
     elif not check_password_hash(user["password"], password):
         error["password"] = "Incorrect password"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -575,28 +477,8 @@ def deactivate():
     cur.execute("""DELETE FROM "user" WHERE key = %s;""", (user["key"],))
 
     storage.delete(user["photo"], "user")
-    anon_user = anon(cur)
-    token = create_session(cur, anon_user["key"])
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted account",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={"comment": comment} if comment else {}
-    )
-    log(
-        cur=cur,
-        user_key=anon_user["key"],
-        action="created",
-        entity_type="user",
-        entity_key=anon_user["key"],
-        misc={
-            "entity_type": "user",
-            "entity_key": user["key"],
-        }
-    )
+    user2 = new_user(cur)
+    token = create_session(cur, user2["key"])
 
     send_mail(
         user["email"],
@@ -604,9 +486,15 @@ def deactivate():
         email_template.format(name=user["name"])
     )
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(anon_user),
-        "token": token
+        "user": user_schema(user2),
+        "token": token,
+        "log": {
+            "misc": {
+                "note": note,
+                "to_key": user2["key"],
+                "to_name": user2["name"]
+            }
+        }
     }, 200

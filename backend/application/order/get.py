@@ -3,8 +3,7 @@ from math import ceil
 from flask import Blueprint, request
 
 from ..coupon.get import coupon_schema
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import session
 
 bp = Blueprint("order_get", __name__)
 
@@ -15,20 +14,13 @@ order_status = ['created', 'processing', 'enroute',
 
 
 @bp.get("/orders/<key>")
-def get(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-
+@session(False)
+def get(cur, _user, key):
     cur.execute("""
         SELECT * FROM "order" WHERE key = %s;
     """, (key,))
     order = cur.fetchone()
     if not order:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Oops! The order you're looking for doesn't exist"
@@ -38,7 +30,6 @@ def get(key):
         order["user_key"] != session["user"]["key"]
         and "order.view" not in session["user"]["access"]
     ):
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -74,7 +65,6 @@ def get(key):
     """, (order["key"],))
     coupon = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
         "order": order,
@@ -84,15 +74,8 @@ def get(key):
 
 
 @bp.get("/orders")
-def get_many():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+def many(cur, user):
     order_by = {
         'latest': 'o.date_created',
         'oldest': 'o.date_created',
@@ -170,7 +153,6 @@ def get_many():
     ))
     orders = cur.fetchall()
 
-    db_close(con, cur)
     return {
         "status": 200,
         "orders": orders,

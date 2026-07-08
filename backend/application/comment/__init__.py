@@ -1,28 +1,182 @@
 from flask import Blueprint, request
 
-from ..blog.get import get_comments as get_blog_comments
-from ..item.get import get_comments as get_item_comments
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 
 bp = Blueprint("comment", __name__)
 
 
+@bp.post("/comments/blogs/<key>")
+@session(True)
+@rate_limit(20, 1)
+@log("comment")
+def add_blog_comment(cur, user, key):
+    cur.execute("""
+        SELECT * FROM blog WHERE slug = %s OR key = %s;
+    """, (key, key))
+    if not cur.fetchone():
+        return {
+            "status": 404,
+            "error": "Invalid request"
+        }, 404
+
+    parent_key = request.json.get("parent_key")
+    comment = request.json.get("comment", "").strip()
+
+    if parent_key:
+        cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
+        parent = cur.fetchone()
+        if not parent or parent["parent_key"] is not None:
+            return {
+                "status": 404,
+                "error": "Invalid request"
+            }, 404
+
+    error = {}
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        return {
+            "status": 422,
+            **error
+        }, 422
+
+    cur.execute("""
+        INSERT INTO comment (user_key, blog_key, comment, parent_key)
+        VALUES (%s, %s, %s, %s) RETURNING *;
+    """, (user["key"], key, comment, parent_key))
+    comment = cur.fetchone()
+
+    # TODO: fix ths get in frontend
+    # comments = get_comments(blog["key"], cur)
+
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": comment["key"],
+            "misc": {
+                "entity_key": key,
+                "entity_type": "blog"
+            }
+        }
+    }, 200
+
+
+@bp.post("/comments/items/<key>")
+@session(True)
+@rate_limit(20, 1)
+@log("comment")
+def add_item_comment(cur, user, key):
+    cur.execute("""
+        SELECT * FROM item WHERE slug = %s OR key = %s;
+    """, (key, key))
+    if not cur.fetchone():
+        return {
+            "status": 404,
+            "error": "Invalid request"
+        }, 404
+
+    parent_key = request.json.get("parent_key")
+    if parent_key:
+        if "comment.reply" not in user["access"]:
+            return {
+                "status": 403,
+                "error": "unauthorized access"
+            }, 403
+
+        cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
+        if not cur.fetchone():
+            return {
+                "status": 404,
+                "error": "Invalid request"
+            }, 404
+
+    cur.execute("""
+        WITH purchase_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM "order" o
+                LEFT JOIN order_item oi ON o.key = oi.order_key
+                LEFT JOIN item_version iv ON oi.item_version_key = iv.key
+                WHERE
+                    o.user_key = %s
+                    AND o.status = 'delivered'
+                    AND iv.item_key = %s
+            ) AS has_purchased
+        ),
+
+        comment_check AS (
+            SELECT EXISTS (
+                SELECT 1
+                FROM comment
+                WHERE
+                    comment.user_key = %s
+                    AND comment.item_key = %s
+                    AND comment.parent_key IS NULL
+            ) AS has_commented
+        )
+
+        SELECT
+            purchase_check.has_purchased,
+            purchase_check.has_purchased AND NOT comment_check.has_commented
+                AS can_comment
+        FROM purchase_check, comment_check
+    """, (user["key"], key, user["key"], key))
+    user_comment_info = cur.fetchone()
+
+    if not user_comment_info["can_comment"]:
+        return {
+            "status": 403,
+            "error": "Invalid request"
+        }, 403
+
+    rating = request.json.get("rating", 0)
+    comment = request.json.get("comment", "").strip()
+    error = {}
+    if rating not in [1, 2, 3, 4, 5]:
+        error["rating"] = "This field is required"
+
+    if not comment:
+        error["comment"] = "This field is required"
+    elif len(comment) > 500:
+        error["comment"] = "This field cannot exceed 500 characters"
+    if error:
+        return {
+            "status": 422,
+            **error
+        }, 422
+
+    cur.execute("""
+        INSERT INTO comment (user_key, item_key, rating,
+            comment, parent_key)
+        VALUES (%s, %s, %s, %s, %s) RETURNING *;
+    """, (user["key"], key, rating, comment, parent_key))
+    comment = cur.fetchone()
+
+    # TODO: fix ths get in frontend
+    # comments = get_comments(key, cur=cur)
+
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": comment["key"],
+            "misc": {
+                "entity_key": key,
+                "entity_type": "item"
+            }
+        }
+    }, 200
+
+
 @bp.delete("/comments/<key>")
-def delete(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("comment")
+def delete(cur, user, key):
     cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
     comment = cur.fetchone()
     if not comment:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -33,7 +187,6 @@ def delete(key):
 
     if comment["user_key"] != user["key"]:
         if "comment.delete_others" not in user["access"]:
-            db_close(con, cur)
             return {
                 "status": 403,
                 "error": "unauthorized access"
@@ -45,7 +198,6 @@ def delete(key):
         elif len(_comment) > 500:
             error["comment"] = "This field cannot exceed 500 characters"
         if error:
-            db_close(con, cur)
             return {
                 "status": 422,
                 **error
@@ -55,37 +207,29 @@ def delete(key):
 
     cur.execute("DELETE FROM comment WHERE key = %s;", (comment["key"],))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted comment",
-        entity_type="comment",
-        entity_key=comment["key"],
-        misc=misc
-    )
+    # TODO: fix ths get in frontend
+    # if comment["entity_key"] == "item":
+    #     comments = get_item_comments(comment["entity_key"], cur=cur)
+    # else:
+    #     comments = get_blog_comments(comment["entity_key"], cur=cur)
 
-    if comment["entity_key"] == "item":
-        comments = get_item_comments(comment["entity_key"], cur=cur)
-    else:
-        comments = get_blog_comments(comment["entity_key"], cur=cur)
-    db_close(con, cur)
-    return comments
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": comment["key"],
+            "misc": misc
+        }
+    }, 200
 
 
 @bp.post("/comments/<key>/like")
-def like(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("comment")
+def like(cur, user, key):
     cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
     comment = cur.fetchone()
     if not comment:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -94,7 +238,6 @@ def like(key):
     reaction = request.json.get("reaction")
 
     if reaction not in ["like", "dislike"]:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -121,14 +264,6 @@ def like(key):
             SET date_created = now(), reaction = %s WHERE key = %s;
         """, (reaction, user_reaction["key"]))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action=f"{un}{reaction} comment",
-        entity_type="comment",
-        entity_key=comment["key"]
-    )
-
     cur.execute("""
         SELECT
             COUNT(CASE WHEN user_key != %s
@@ -141,75 +276,13 @@ def like(key):
     """, (user["key"], user["key"], user["key"], comment["key"]))
     reactions = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        **reactions
-    }, 200
-
-
-@bp.post("/comments/<key>/report")
-def report(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    cur.execute("""SELECT * FROM comment WHERE key = %s;""", (key,))
-    comment = cur.fetchone()
-    if not comment:
-        return {
-            "status": 404,
-            "error": "Comment not found"
-        }, 404
-
-    _comment = request.json.get("comment", "").strip()
-    tags = request.json.get("tags")
-
-    if type(tags) is not list:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            "error": "Invalid request"
-        }, 422
-
-    error = {}
-    if not _comment:
-        error["comment"] = "This field is required"
-    elif len(_comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("""
-        INSERT INTO report (reporter_key, reporter_comment, tags,
-            reported_key, reported_comment_key)
-        VALUES (%s, %s, %s, %s, %s) RETURNING *;
-    """, (
-        user["key"], _comment, tags,
-        comment["user_key"], comment["key"])
-    )
-    report = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="reported comment",
-        entity_type="comment",
-        entity_key=comment["key"],
-        misc={
-            "report_key": report["key"]
+        **reactions,
+        "log": {
+            "entity_key": key,
+            "misc": {
+                "action": f"{un}{reaction}"
+            }
         }
-    )
-
-    db_close(con, cur)
-    return {
-        "status": 200
     }, 200

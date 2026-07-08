@@ -2,33 +2,12 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import session
 
 bp = Blueprint("report_get", __name__)
 
 
-@bp.get("/reports")
-def get_many(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        if close_conn:
-            db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "report.view" not in user["access"]:
-        if close_conn:
-            db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
+def many(cur):
     order_by = {
         'latest': 'report.date_created',
         'oldest': 'report.date_created'
@@ -174,8 +153,6 @@ def get_many(cur=None):
     ))
     total_page = cur.fetchone()["count"]
 
-    if close_conn:
-        db_close(con, cur)
     return {
         "status": 200,
         "reports": reports,
@@ -184,4 +161,15 @@ def get_many(cur=None):
         "type": ["all", "user", "comment"],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
-    }, 200
+    }
+
+
+@bp.get("/reports")
+@session(True)
+def get_many(cur, user):
+    if "report.view" not in user["access"]:
+        return {
+            "status": 403,
+            "error": "unauthorized access"
+        }, 403
+    return many(cur), 200

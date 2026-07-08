@@ -2,27 +2,19 @@ from flask import Blueprint, request
 from PIL import Image
 from psycopg2.extras import Json
 
-from ...log import log
-from ...postgres import db_close, db_open
 from ...storage import storage
-from ...tools import get_session
+from ...tools import log, rate_limit, session
 from .get import advert_schema, sizes, spaces
 
 bp = Blueprint("advert", __name__)
 
 
 @bp.post("/items/<key>/advert")
-def add_photo(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def add_photo(cur, user, key):
     if "item.advert" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -31,14 +23,12 @@ def add_photo(key):
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
         }, 404
 
     if 'files' not in request.files:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -51,14 +41,6 @@ def add_photo(key):
             INSERT INTO advert (key) VALUES (%s) RETURNING *;
         """, (key,))
         advert = cur.fetchone()
-
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="created item advert",
-            entity_type="item",
-            entity_key=advert["key"],
-        )
 
     error = ""
     picked_dimension = []
@@ -87,7 +69,6 @@ def add_photo(key):
     if files == []:
         if not error:
             error = "no file"
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -106,38 +87,31 @@ def add_photo(key):
     """, (Json(advert["photo"]), advert["key"]))
     advert = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added item advert photo(s)",
-        entity_type="item",
-        entity_key=advert["key"],
-        misc={"from": old_photo, "to": advert["photo"]}
-    )
-
-    db_close(con, cur)
-
     out = {
         "status": 200,
         "advert": advert_schema(advert),
-    }, 200
+        "log": {
+            "entity_key": advert["key"],
+            "misc": {
+                "from": old_photo,
+                "to": advert["photo"]
+            }
+
+        }
+    }
+
     if error:
-        out[0]["error"] = error
-    return out
+        out["error"] = error
+
+    return out, 200
 
 
 @bp.put("/items/<key>/advert")
-def set_photo(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def set_photo(cur, user, key):
     if "item.advert" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -148,7 +122,6 @@ def set_photo(key):
     cur.execute("""SELECT * FROM advert WHERE key = %s;""", (key,))
     advert = cur.fetchone()
     if not item or not advert:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -162,7 +135,6 @@ def set_photo(key):
         or not all(y in sizes for y in photo_selected)
         or not all(y in spaces for y in spaces_selected)
     ):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -175,43 +147,33 @@ def set_photo(key):
         else:
             new_advert_photo[key] = val
 
-    if new_advert_photo != {}:
-        old_advert = advert
+    misc = {
+        "from photo": advert["photo"],
+        "to photo": {},
+        "from space": advert["space"],
+        "to space": {},
+    }
+
+    if new_advert_photo == {}:
+        cur.execute("""
+            DELETE FROM advert WHERE WHERE key = %s;
+        """, (advert["key"],))
+        advert = None
+    else:
         cur.execute("""
             UPDATE advert SET photo = %s, space = %s
             WHERE key = %s RETURNING *;
         """, (Json(new_advert_photo), spaces_selected, advert["key"],))
         advert = cur.fetchone()
 
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="edited item advert",
-            entity_type="item",
-            entity_key=advert["key"],
-            misc={
-                "from photo": old_advert["photo"],
-                "to photo": advert["photo"],
-                "from space": old_advert["space"],
-                "to space": advert["space"],
-            }
-        )
-    else:
-        cur.execute("""
-            DELETE FROM advert WHERE WHERE key = %s;
-        """, (advert["key"],))
-        advert = None
+        misc["to photo"] = advert["photo"]
+        misc["to space"] = advert["space"]
 
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="deleted item advert",
-            entity_type="item",
-            entity_key=advert["key"],
-        )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "advert": advert_schema(advert) if advert else None
+        "advert": advert_schema(advert) if advert else None,
+        "log": {
+            "entity_key": advert["key"],
+            "misc": misc
+        }
     }, 200

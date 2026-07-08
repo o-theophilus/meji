@@ -4,7 +4,6 @@ import re
 from flask import Blueprint, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..log import log
 from ..postgres import db_close, db_open
 from ..tools import access_pass, check_code, generate_code, send_mail
 
@@ -160,13 +159,6 @@ def forgot_3_password():
         generate_password_hash(password, method="scrypt"),
         user["key"]
     ))
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed password",
-        entity_type="user",
-        entity_key=user["key"]
-    )
 
     if user["status"] != "active":
         cur.execute("""
@@ -178,13 +170,12 @@ def forgot_3_password():
                 user["email"] == os.environ["MAIL_USERNAME"]
             ) else user["access"],
             user["key"]))
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="activated account",
-            entity_type="user",
-            entity_key=user["key"]
-        )
+
+        cur.execute("""
+            INSERT INTO log (
+                user_key, action, entity_type
+            ) VALUES (%s, 'auth.confirm', 'user');
+        """, (user["key"],))
 
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 

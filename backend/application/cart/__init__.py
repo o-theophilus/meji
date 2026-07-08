@@ -4,49 +4,44 @@ from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..coupon import coupon_schema
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 from .delivery import get_areas
-from .get import get_cart_items
 
 bp = Blueprint("cart", __name__)
 
 
 @bp.post("/cart")
-def add_to_cart():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def add(cur, user):
+    cur.execute("""
+        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
+    """, (user["key"],))
+    cart = cur.fetchone()
+    if not cart:
+        return {
+            "status": 404,
+            "error": "Invalid request"
+        }, 404
 
     item_key = request.json.get("key")
     quantity = request.json.get("quantity", 1)
     variation = request.json.get("variation", {})
 
-    cur.execute("""
-        SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
-    """, (user["key"],))
-    cart = cur.fetchone()
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (item_key,))
     item = cur.fetchone()
     if (
-        not cart
-        or not item
+        not item
         or item["status"] != "active"
         or item["quantity"] == 0
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if type(variation) is not dict:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -69,7 +64,6 @@ def add_to_cart():
             error[x] = f"Please select a {x}"
 
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -98,41 +92,33 @@ def add_to_cart():
         ;""", (cart["key"], item_key, Json(variation), quantity))
     order_item = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added item to cart",
-        entity_type="cart",
-        entity_key=cart["key"],
-        misc={
-            "entity_type": "item",
-            "entity_key": order_item["item_key"],
-            "variation": order_item["variation"],
-            "quantity": order_item["quantity"]
-        }
-    )
+    # TODO: fix ths get in frontend
+    # resp = get_cart_items(cur)
 
-    resp = get_cart_items(cur)
-    db_close(con, cur)
-    return resp
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
+                "entity_type": "item",
+                "entity_key": order_item["item_key"],
+                "variation": order_item["variation"],
+                "quantity": order_item["quantity"]
+            }
+        }
+    }, 200
 
 
 @bp.delete("/cart")
-def remove_from_cart():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def remove(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
     if not cart:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -142,7 +128,6 @@ def remove_from_cart():
     variation = request.json.get("variation", {})
 
     if not item_key or type(variation) is not dict:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -153,35 +138,33 @@ def remove_from_cart():
         WHERE order_key = %s AND item_key = %s AND variation = %s
         RETURNING *
     ;""", (cart["key"], item_key, Json(variation)))
-    if cur.fetchone():
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="removed item from cart",
-            entity_type="cart",
-            entity_key=cart["key"],
-            misc={
+    if not cur.fetchone():
+        return {
+            "status": 404,
+            "error": "invalid request"
+        }, 404
+
+    # TODO: fix ths get in frontend
+    # resp = get_cart_items(cur)
+
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
                 "entity_type": "item",
                 "entity_key": item_key,
                 "variation": variation
             }
-        )
-
-    resp = get_cart_items(cur)
-    db_close(con, cur)
-    return resp
+        }
+    }, 200
 
 
 @bp.post("/cart/quantity")
-def quantity():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def quantity(cur, user):
     item_key = request.json.get("key")
     quantity = request.json.get("quantity", 1)
     variation = request.json.get("variation", {})
@@ -204,14 +187,12 @@ def quantity():
         or not cart
         or not order_item
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if type(variation) is not dict:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -224,53 +205,47 @@ def quantity():
         s = "s" if item['quantity'] > 1 else ""
         error = f"Only {item['quantity']} item{s} available in stock"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
         }, 422
 
+    previous = order_item
     cur.execute("""
         UPDATE order_item SET quantity = %s WHERE key = %s
+        RETURNING *
     ;""", (quantity, order_item["key"]))
+    order_item = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="updated cart item quantity",
-        entity_type="cart",
-        entity_key=cart["key"],
-        misc={
-            "entity_type": "item",
-            "entity_key": order_item["item_key"],
-            "variation": order_item["variation"],
-            "from_quantity": order_item["quantity"],
-            "to_quantity": quantity
+    # TODO: fix ths get in frontend
+    # resp = get_cart_items(cur)
+
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
+                "entity_type": "item",
+                "entity_key": order_item["item_key"],
+                "variation": order_item["variation"],
+                "from_quantity": previous["quantity"],
+                "to_quantity": order_item["quantity"],
+            }
         }
-    )
-
-    resp = get_cart_items(cur)
-    db_close(con, cur)
-    return resp
+    }, 200
 
 
 @bp.delete("/cart/receiver")
 @bp.post("/cart/receiver")
-def receiver():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def receiver(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
     if not cart:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -324,7 +299,6 @@ def receiver():
             error["country"] = "This field cannot exceed 20 characters"
 
         if error:
-            db_close(con, cur)
             return {
                 "status": 422,
                 **error
@@ -344,43 +318,38 @@ def receiver():
     else:
         receiver = {}
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited cart receiver",
-        entity_type="cart",
-        entity_key=cart["key"],
-        misc={
-            "from": cart["receiver"],
-            "to": receiver
-        }
-    )
-
+    previous = cart
     cur.execute("""
-        UPDATE "order" SET receiver = %s WHERE key = %s;
+        UPDATE "order" SET receiver = %s WHERE key = %s
+        RETURNING *;
     """, (Json(receiver), cart["key"]))
+    cart = cur.fetchone()
 
-    resp = get_cart_items(cur)
-    db_close(con, cur)
-    return resp
+    # TODO: fix ths get in frontend
+    # resp = get_cart_items(cur)
+
+    return {
+        "status": 200,
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
+                "from": previous["receiver"],
+                "to": cart["receiver"],
+            }
+        }
+    }, 200
 
 
 @bp.post("/cart/coupon")
-def add_coupon():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def add_coupon(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     cart = cur.fetchone()
     if not cart:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -394,7 +363,6 @@ def add_coupon():
     elif len(code) != 10:
         error = "This must be 10 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "code": error
@@ -405,7 +373,6 @@ def add_coupon():
         (code.lower(),))
     coupon = cur.fetchone()
     if not coupon:
-        db_close(con, cur)
         return {
             "status": 404,
             "code": "Invalid coupon code"
@@ -418,7 +385,6 @@ def add_coupon():
     elif coupon["status"] == "expired":
         error = "This coupon has expired"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "code": error
@@ -430,35 +396,24 @@ def add_coupon():
     """, (cart["key"], coupon["key"]))
     coupon = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added coupon to cart",
-        entity_type="cart",
-        entity_key=cart["key"],
-        misc={
-            "entity_type": "coupon",
-            "entity_key": coupon["key"]
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "coupon": coupon_schema(coupon)
+        "coupon": coupon_schema(coupon),
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
+                "entity_type": "coupon",
+                "entity_key": coupon["key"]
+            }
+        }
     }, 200
 
 
 @bp.delete("/cart/coupon")
-def remove_coupon():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("cart")
+def remove_coupon(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
@@ -468,7 +423,6 @@ def remove_coupon():
         (cart["key"],))
     coupon = cur.fetchone()
     if not cart or not coupon:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -478,20 +432,14 @@ def remove_coupon():
         UPDATE coupon SET order_key = NULL WHERE key = %s;
     """, (coupon["key"],))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="removed coupon from cart",
-        entity_type="cart",
-        entity_key=cart["key"],
-        misc={
-            "entity_type": "coupon",
-            "entity_key": coupon["key"]
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "coupon": None
+        "coupon": None,
+        "log": {
+            "entity_key": cart["key"],
+            "misc": {
+                "entity_type": "coupon",
+                "entity_key": coupon["key"]
+            }
+        }
     }, 200

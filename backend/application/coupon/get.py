@@ -2,8 +2,7 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import session
 
 bp = Blueprint("coupon_get", __name__)
 
@@ -46,59 +45,29 @@ def coupon_schema(x, access=[]):
 
 
 @bp.get("/coupons/<key>")
-def get(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+def get(cur, user, key):
     cur.execute("""SELECT * FROM coupon WHERE key = %s""", (key,))
     coupon = cur.fetchone()
     if not coupon:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Oops! The item you're looking for doesn't exist"
         }, 404
 
     if "coupon.view" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
         }, 403
 
-    db_close(con, cur)
     return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
     }, 200
 
 
-@bp.get("/coupons")
-def get_many(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        if close_conn:
-            db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "coupon.view" not in user["access"]:
-        if close_conn:
-            db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
+def many(cur):
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
@@ -143,8 +112,6 @@ def get_many(cur=None):
     cur.execute("SELECT COUNT(*) FROM coupon")
     total_page = cur.fetchone()["count"]
 
-    if close_conn:
-        db_close(con, cur)
     return {
         "status": 200,
         "coupons": [coupon_schema(x) for x in coupons],
@@ -155,4 +122,15 @@ def get_many(cur=None):
         "condition_unit": coupon_condition_unit,
         "searchParams": searchParams,
         "_status": ['all', 'inactive', 'active', 'used', 'expired']
-    }, 200
+    }
+
+
+@bp.get("/coupons")
+@session(True)
+def get_many(cur, user):
+    if "coupon.view" not in user["access"]:
+        return {
+            "status": 403,
+            "error": "unauthorized access"
+        }, 403
+    return many(cur), 200

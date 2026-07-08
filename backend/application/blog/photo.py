@@ -1,26 +1,18 @@
 from flask import Blueprint, request
 
-from ..log import log
-from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 from .get import blog_schema
 
 bp = Blueprint("blog_photo", __name__)
 
 
 @bp.put("/blogs/<key>/photo")
-def add_photo(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def add(cur, user, key):
     if "blog.edit_photo" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -29,14 +21,12 @@ def add_photo(key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if 'file' not in request.files:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -44,61 +34,40 @@ def add_photo(key):
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid file"
         }, 422
 
-    old_photo = None
     if blog["photo"]:
-        old_photo = blog["photo"]
         storage.delete(blog["photo"], "blog")
-
     file_name = storage.save(file, blog["title"], "blog")
 
+    old_blog = blog
     cur.execute("""
-        UPDATE blog
-        SET photo = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        file_name,
-        blog["key"]
-    ))
+        UPDATE blog SET photo = %s WHERE key = %s RETURNING *;
+    """, (file_name, blog["key"]))
     blog = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="updated blog photo",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc={
-            "from": old_photo,
-            "to": file_name
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "blog": blog_schema(blog)
+        "blog": blog_schema(blog),
+        "log": {
+            "entity_key": blog["key"],
+            "misc": {
+                "from": old_blog["photo"],
+                "to": blog["photo"]
+            }
+        }
     }, 200
 
 
 @bp.delete("/blogs/<key>/photo")
-def delete_photo(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def delete(cur, user, key):
     if "blog.edit_photo" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -107,7 +76,6 @@ def delete_photo(key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog or not blog["photo"]:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -115,38 +83,22 @@ def delete_photo(key):
 
     storage.delete(blog["photo"], "blog")
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted blog photo",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc={"photo": blog["photo"]}
-    )
-
-    if blog["status"] == "active":
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="edited blog",
-            entity_type="blog",
-            entity_key=blog["key"],
-            misc={"status": "draft"}
-        )
-
+    old_blog = blog
     cur.execute("""
         UPDATE blog
-        SET photo = NULL, status = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        "draft" if blog["status"] == "active" else blog["status"],
-        blog["key"]
-    ))
+        SET photo = NULL, status = 'draft'
+        WHERE key = %s RETURNING *;
+    """, (blog["key"],))
     blog = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "blog": blog_schema(blog)
+        "blog": blog_schema(blog),
+        "log": {
+            "entity_key": blog["key"],
+            "misc": {
+                "photo": old_blog["photo"],
+                "status": "draft"
+            }
+        }
     }, 200

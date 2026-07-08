@@ -8,36 +8,27 @@ from psycopg2.extras import Json
 
 from ..cart.delivery import get_delivery_cost
 from ..cart.get import has_adderss
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session, send_mail
+from ..tools import log, rate_limit, send_mail, session
 
 bp = Blueprint("order", __name__)
 
 
 @bp.get("/order/check")
-def order_check():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def order_check(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     order = cur.fetchone()
     if not order:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
         }, 404
 
     if not has_adderss(order["receiver"]):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "incomplete receiver information"
@@ -56,7 +47,6 @@ def order_check():
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -108,13 +98,11 @@ def order_check():
 
     pay = total_order + Decimal(delivery_cost) - Decimal(str(discount))
     if pay <= 0:
-        db_close(con, cur)
         return {
             "status": 400,
             "error": "invalid request"
         }, 400
 
-    db_close(con, cur)
     return {
         "status": 200,
         "pay": pay
@@ -122,21 +110,15 @@ def order_check():
 
 
 @bp.post("/order")
-def cart_to_order():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def cart_to_order(cur, user):
     cur.execute("""
         SELECT * FROM "order" WHERE user_key = %s AND status = 'cart';
     """, (user["key"],))
     order = cur.fetchone()
     if not order:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -151,7 +133,6 @@ def cart_to_order():
         or not email_template_admin
         or not email_template_user
     ):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -168,7 +149,6 @@ def cart_to_order():
     """, (order["key"],))
     items = cur.fetchall()
     if len(items) == 0:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -213,7 +193,6 @@ def cart_to_order():
         """SELECT * FROM "order" WHERE payment_reference = %s;""",
         (reference,))
     if cur.fetchone():
-        db_close(con, cur)
         return {
             "status": 400,
             "error": "invalid request"
@@ -240,7 +219,6 @@ def cart_to_order():
         or "currency" not in resp["data"]
         or resp["data"]["currency"] != "NGN"
     ):
-        db_close(con, cur)
         return {
             "status": 400,
             "error": "invalid transaction"
@@ -333,30 +311,20 @@ def cart_to_order():
         (user["key"],)
     )
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="created order",
-        entity_type="order",
-        entity_key=order["key"],
-    )
-
     if discount > 0:
         cur.execute("""
             UPDATE coupon SET status = 'used'
             WHERE key = %s RETURNING *;
         """, (coupon["key"],))
-        log(
-            cur=cur,
-            user_key=user["key"],
-            action="used coupon",
-            entity_type="order",
-            entity_key=order["key"],
-            misc={
-                "entity_type": "coupon",
-                "entity_key": coupon["key"]
-            }
-        )
+
+        cur.execute("""
+            INSERT INTO log (
+                user_key, action, entity_type, entity_key, misc
+            ) VALUES (%s, 'coupon.use', 'coupon', %s, %s);
+        """, (
+            user["key"], coupon["key"],
+            {"entity_type": "order", "entity_key": order["key"]}
+        ))
 
     cur.execute("""
         SELECT email FROM "user"
@@ -380,25 +348,21 @@ def cart_to_order():
         )
     )
 
-    db_close(con, cur)
     return {
         "status": 200,
         "order": order,
+        "log": {
+            "entity_key": order["key"],
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/delivery_date")
-def delivery_date(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def delivery_date(cur, user, key):
     if "order.edit_delivery_date" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -407,7 +371,6 @@ def delivery_date(key):
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
     if not order or order["status"] != "created":
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -428,24 +391,12 @@ def delivery_date(key):
             error["error"] = "Invalid date format"
 
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order delivery date",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": f"{order["timeline"]['delivery_date']}",
-            "to": delivery_date
-        }
-    )
-
+    previous = order
     order["timeline"]["delivery_date"] = delivery_date
 
     cur.execute("""
@@ -454,25 +405,25 @@ def delivery_date(key):
     """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": f"{previous["timeline"]['delivery_date']}",
+                "to": f"{order["timeline"]['delivery_date']}",
+            }
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/processing")
-def processing(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def processing(cur, user, key):
     if "order.status.processing" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -484,7 +435,6 @@ def processing(key):
         not order
         or order["status"] not in ("created", "enroute")
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -497,25 +447,12 @@ def processing(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order status",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": order['status'],
-            "to": "processing",
-            "comment": comment
-        }
-    )
-
+    previous = order
     if "enroute" in order["timeline"]:
         del order["timeline"]["enroute"]
     order["timeline"]["processing"] = f"{datetime.now(timezone.utc)}"
@@ -527,25 +464,25 @@ def processing(key):
     """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": previous['status'],
+                "comment": comment
+            }
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/enroute")
-def enroute(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def enroute(cur, user, key):
     if "order.status.enroute" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -557,7 +494,6 @@ def enroute(key):
         not order
         or order["status"] != "processing"
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -570,25 +506,12 @@ def enroute(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order status",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": order['status'],
-            "to": "enroute",
-            "comment": comment
-        }
-    )
-
+    previous = order
     order["timeline"]["enroute"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
@@ -598,25 +521,26 @@ def enroute(key):
     """, (Json(order["timeline"]), order["key"]))
     order = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": previous['status'],
+                "comment": comment
+            }
+
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/delivered")
-def delivered(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def delivered(cur, user, key):
     if "order.status.delivered" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -625,7 +549,6 @@ def delivered(key):
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
     if not order or order["status"] != "enroute":
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -639,7 +562,6 @@ def delivered(key):
     order = cur.fetchone()
 
     if not email_template_user or not email_template_admin:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -651,25 +573,12 @@ def delivered(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order status",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": order['status'],
-            "to": "delivered",
-            "comment": comment
-        }
-    )
-
+    previous = order
     order["timeline"]["delivered"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
@@ -683,54 +592,46 @@ def delivered(key):
         SELECT * FROM "user" WHERE key = %s;
     """, (order["user_key"],))
     user2 = cur.fetchone()
-    if not user2:
-        db_close(con, cur)
-        return {
-            "status": 404,
-            "error": "invalid request"
-        }, 404
-
-    cur.execute("""
-        SELECT email FROM "user"
-        WHERE 'order.email.delivered' = ANY(access);
-    """)
-    admins_to_notify = cur.fetchall()
-    if not admins_to_notify:
-        admins_to_notify = [os.environ["MAIL_USERNAME"]]
-
     send_mail(
         user2["email"],
         "Order Delivered - Thank you",
         email_template_user.format(name=user2["name"])
     )
-    send_mail(
-        [x["email"] for x in admins_to_notify],
-        "Order Delivered",
-        email_template_admin.format(
-            name=user2["name"],
-            username=user2["username"]
-        )
-    )
 
-    db_close(con, cur)
+    cur.execute("""
+        SELECT email FROM "user"
+        WHERE 'order.email.delivered' = ANY(access);
+    """)
+    admins = cur.fetchall()
+    if admins:
+        send_mail(
+            [x["email"] for x in admins],
+            "Order Delivered",
+            email_template_admin.format(
+                name=user2["name"],
+                username=user2["username"]
+            )
+        )
+
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": previous['status'],
+                "comment": comment
+            }
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/canceled")
-def canceled(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def canceled(cur, user, key):
     if "order.status.canceled" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -742,7 +643,6 @@ def canceled(key):
         not order
         or order["status"] not in ['created', 'processing', 'enroute']
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -753,7 +653,6 @@ def canceled(key):
     email_template_admin = request.json.get("email_template_admin")
 
     if not email_template_user or not email_template_admin:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -765,13 +664,12 @@ def canceled(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    old_order = order
+    previous = order
     order["timeline"]["canceled"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
@@ -784,11 +682,11 @@ def canceled(key):
     cur.execute(
         """SELECT * FROM "user" WHERE key = %s;""",
         (order["user_key"],))
-    order_user = cur.fetchone()
+    user2 = cur.fetchone()
     send_mail(
-        order_user["email"],
+        user2["email"],
         "Order Canceled",
-        email_template_user.format(name=order_user["name"])
+        email_template_user.format(name=user2["name"])
     )
 
     cur.execute("""
@@ -801,41 +699,30 @@ def canceled(key):
             [x["email"] for x in admins],
             "Order Canceled",
             email_template_admin.format(
-                name=order_user["name"],
-                username=order_user["username"]
+                name=user2["name"],
+                username=user2["username"]
             )
         )
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed order status",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "from": old_order['status'],
-            "to": "canceled",
-            "comment": comment
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": previous['status'],
+                "comment": comment
+            }
+
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/returning")
-def returning_(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def returning_(cur, user, key):
     cur.execute("""SELECT * FROM "order" WHERE key = %s;""", (key,))
     order = cur.fetchone()
     if (
@@ -843,7 +730,6 @@ def returning_(key):
         or user["key"] != order["user_key"]
         or order["status"] != "delivered"
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -854,7 +740,6 @@ def returning_(key):
     email_template_admin = request.json.get("email_template_admin")
 
     if not email_template_user or not email_template_admin:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -866,7 +751,6 @@ def returning_(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -877,22 +761,13 @@ def returning_(key):
             order["timeline"]["delivered"].replace("Z", "+00:00")
         ) > timedelta(days=7)
     ):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": """The order is outside the return window.
                 You can only return the order within 7 days of delivery."""
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="returning order",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={"comment": comment}
-    )
-
+    previous = order
     order["timeline"]["returning"] = f"{datetime.now(timezone.utc)}"
 
     cur.execute("""
@@ -923,25 +798,25 @@ def returning_(key):
             )
         )
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "from": previous['status'],
+                "comment": comment
+            }
+        }
     }, 200
 
 
 @bp.put("/orders/<key>/status/returned")
-def returned(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("order")
+def returned(cur, user, key):
     if "order.status.returned" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -953,7 +828,6 @@ def returned(key):
         not order
         or order["status"] != "returning"
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "invalid request"
@@ -964,7 +838,6 @@ def returned(key):
     email_template_admin = request.json.get("email_template_admin")
 
     if not email_template_user or not email_template_admin:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid request"
@@ -976,7 +849,6 @@ def returned(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -1015,20 +887,14 @@ def returned(key):
             )
         )
 
-    log(
-        cur=cur,
-        user_key=order_user["key"],
-        action="returned order",
-        entity_type="order",
-        entity_key=order["key"],
-        misc={
-            "admin": user["key"],
-            "comment": comment
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "order": order
+        "order": order,
+        "log": {
+            "entity_key": order["key"],
+            "misc": {
+                "admin": user["key"],
+                "comment": comment
+            }
+        }
     }, 200

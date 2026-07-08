@@ -5,27 +5,19 @@ from uuid import uuid4
 from flask import Blueprint, request
 from werkzeug.security import check_password_hash
 
-from ..log import log
-from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session, reserved_words
-from .get import blog_schema, get_blogs, get_comments
+from ..tools import log, rate_limit, reserved_words, session
+from .get import blog_schema, many
 
 bp = Blueprint("blog", __name__)
 
 
 @bp.post("/blogs")
-def add():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def add(cur, user):
     if "blog.add" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -39,7 +31,6 @@ def add():
     elif len(title) > 100:
         error["title"] = "This field cannot exceed 100 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -58,39 +49,24 @@ def add():
     """, (title, slug, user["key"],))
     blog = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="created blog",
-        entity_type="blog",
-        entity_key=blog["key"],
-    )
-
-    blogs = get_blogs(cur)
-
-    db_close(con, cur)
     return {
         "status": 200,
         "blog": blog_schema(blog),
-        "blogs": blogs.json["blogs"],
-        "total_page": blogs.json["total_page"]
+        "blogs": many(cur, user),
+        "log": {
+            "entity_key": blog["key"],
+        }
     }, 200
 
 
 @bp.put("/blogs/<key>")
-def edit(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def edit(cur, user, key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -200,7 +176,6 @@ def edit(key):
             error["status"] = "no content"
 
     if error:
-        db_close(con, cur)
         return {
             "status": 400,
             **error
@@ -219,34 +194,22 @@ def edit(key):
     ))
     blog = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited blog",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc=request.json
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "blog": blog_schema(blog)
+        "blog": blog_schema(blog),
+        "log": {
+            "entity_key": blog["key"],
+            "misc": request.json
+        }
     }, 200
 
 
 @bp.delete("/blogs/<key>")
-def delete(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def delete(cur, user, key):
     if "blog.edit_status" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -255,7 +218,6 @@ def delete(key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -268,7 +230,6 @@ def delete(key):
     elif not check_password_hash(user["password"], password):
         error = "Incorrect password"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -282,43 +243,29 @@ def delete(key):
     for x in blog["files"]:
         storage.delete(x, "blog")
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted blog",
-        entity_type="blog",
-        entity_key=blog["key"]
-    )
-
-    db_close(con, cur)
     return {
-        "status": 200
+        "status": 200,
+        "log": {
+            "entity_key": blog["key"],
+        }
     }, 200
 
 
 @bp.post("/blogs/<key>/like")
-def like(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def like(cur, user, key):
     reaction = request.json.get("reaction")
 
     cur.execute("""SELECT * FROM blog WHERE key = %s;""", (key,))
-    blog = cur.fetchone()
-    if not blog:
-        db_close(con, cur)
+    if not cur.fetchone():
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if reaction not in ["like", "dislike"]:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -326,7 +273,7 @@ def like(key):
 
     cur.execute("""
         SELECT * FROM "like" WHERE user_key = %s AND blog_key = %s;
-    """, (user["key"], blog["key"]))
+    """, (user["key"], key))
     user_reaction = cur.fetchone()
 
     un = ""
@@ -345,96 +292,25 @@ def like(key):
             SET date_created = now(), reaction = %s WHERE key = %s;
         """, (reaction, user_reaction["key"]))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action=f"{un}{reaction} blog",
-        entity_type="blog",
-        entity_key=blog["key"],
-    )
-
     cur.execute("""
         SELECT
-            COUNT(CASE WHEN user_key != %s
+            COUNT(CASE WHEN user_key != %s`
                 AND reaction = 'like' THEN 1 END) AS others_like,
             COUNT(CASE WHEN user_key != %s
                 AND reaction = 'dislike' THEN 1 END) AS others_dislike,
             MAX(CASE WHEN user_key = %s THEN reaction END) AS user_reaction
         FROM "like"
         WHERE blog_key = %s;
-    """, (user["key"], user["key"], user["key"], blog["key"]))
+    """, (user["key"], user["key"], user["key"], key))
     reactions = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        **reactions
-    }, 200
-
-
-@bp.post("/blogs/<key>/comments")
-def add_comment(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM blog WHERE slug = %s OR key = %s;
-    """, (key, key))
-    blog = cur.fetchone()
-    if not blog:
-        db_close(con, cur)
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    parent_key = request.json.get("parent_key")
-    comment = request.json.get("comment", "").strip()
-
-    if parent_key:
-        cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
-        parent = cur.fetchone()
-        if not parent or parent["parent_key"] is not None:
-            db_close(con, cur)
-            return {
-                "status": 404,
-                "error": "Invalid request"
-            }, 404
-
-    error = {}
-    if not comment:
-        error["comment"] = "This field is required"
-    elif len(comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("""
-        INSERT INTO comment (user_key, blog_key, comment, parent_key)
-        VALUES (%s, %s, %s, %s) RETURNING *;
-    """, (user["key"], blog["key"], comment, parent_key))
-    comment = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added comment to blog",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc={
-            "comment_key": comment["key"]
+        **reactions,
+        "log": {
+            "entity_key": key,
+            "misc": {
+                "action": f"{un}{reaction}"
+            }
         }
-    )
-
-    comments = get_comments(blog["key"], cur)
-    db_close(con, cur)
-    return comments
+    }, 200

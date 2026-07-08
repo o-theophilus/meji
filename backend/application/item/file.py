@@ -1,25 +1,17 @@
 from flask import Blueprint, request
 
-from ..log import log
-from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session, item_schema
+from ..tools import item_schema, log, rate_limit, session
 
 bp = Blueprint("item_file", __name__)
 
 
 @bp.post("/items/<key>/file")
-def add_file(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def add_file(cur, user, key):
     if "item.edit_file" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -28,14 +20,12 @@ def add_file(key):
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if 'files' not in request.files:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -57,7 +47,6 @@ def add_file(key):
     if files == []:
         if not error:
             error = "no file"
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -79,38 +68,26 @@ def add_file(key):
     ))
     item = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added photo to item",
-        entity_type="item",
-        entity_key=item["key"],
-        misc={
-            "added": ", ".join(file_names),
-            "error": error
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
         "item": item_schema(item),
-        "error": error
+        "error": error,
+        "log": {
+            "entity_key": item["key"],
+            "misc": {
+                "added": ", ".join(file_names),
+                "error": error
+            }
+        }
     }, 200
 
 
 @bp.put("/items/<key>/file")
-def order_delete_file(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def order_delete_file(cur, user, key):
     if "item.edit_file" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -119,7 +96,6 @@ def order_delete_file(key):
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -127,7 +103,6 @@ def order_delete_file(key):
 
     files = request.json.get("files")
     if not item or type(files) is not list:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -135,7 +110,6 @@ def order_delete_file(key):
 
     files = [p.split("/")[-1] for p in files]
     if not all(x in item["files"] for x in files):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -145,31 +119,24 @@ def order_delete_file(key):
     #     if x not in files:
     #         storage.delete(x, "item")
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited item photo",
-        entity_type="item",
-        entity_key=item["key"],
-        misc={
-            "from": item["files"],
-            "to": files
-        }
-    )
-
+    previous = item
     cur.execute("""
-        UPDATE item
-        SET files = %s
-        WHERE key = %s
-        RETURNING *;
+        UPDATE item SET files = %s
+        WHERE key = %s RETURNING *;
     """, (
         files,
         item["key"]
     ))
     item = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "item": item_schema(item)
+        "item": item_schema(item),
+        "": {
+            "entity_key": item["key"],
+            "misc": {
+                "from": previous["files"],
+                "to": item["files"],
+            }
+        }
     }, 200

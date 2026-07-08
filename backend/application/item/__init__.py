@@ -8,27 +8,19 @@ from psycopg2.extras import Json
 from werkzeug.security import check_password_hash
 
 from ..cart.delivery import get_areas
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session, item_schema, reserved_words
+from ..tools import item_schema, log, rate_limit, reserved_words, session
 from ..user.get import get_user_like
-from .get import get_comments, get_items
+from .get import get_items
 
 bp = Blueprint("item", __name__)
 
 
 @bp.post("/items")
-def add_item():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def add_item(cur, user):
     if "item.add" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -42,7 +34,6 @@ def add_item():
     elif len(name) > 100:
         error["name"] = "This field cannot exceed 100 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -70,39 +61,27 @@ def add_item():
           ))
     item = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="created item",
-        entity_type="item",
-        entity_key=item["key"],
-    )
-
     items = get_items(cur)
 
-    db_close(con, cur)
     return {
         "status": 200,
         "item": item_schema(item),
         "items": items.json["items"],
-        "total_page": items.json["total_page"]
+        "total_page": items.json["total_page"],
+        "log": {
+            "entity_key": item["key"]
+        }
     }, 200
 
 
 @bp.put("/items/<key>")
-def edit(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def edit(cur, user, key):
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -275,7 +254,6 @@ def edit(key):
                 error["area"] = "Invalid selection"
 
     if error:
-        db_close(con, cur)
         return {
             "status": 400,
             **error
@@ -295,34 +273,22 @@ def edit(key):
     ))
     item = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited item",
-        entity_type="item",
-        entity_key=item["key"],
-        misc=request.json
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "item": item_schema(item)
+        "item": item_schema(item),
+        "log": {
+            "entity_key": item["key"],
+            "misc": request.json
+        }
     }, 200
 
 
 @bp.delete("/items/<key>")
-def delete(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def delete(cur, user, key):
     if "item.edit_status" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -331,7 +297,6 @@ def delete(key):
     cur.execute('SELECT * FROM item WHERE key = %s;', (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -344,7 +309,6 @@ def delete(key):
     elif not check_password_hash(user["password"], password):
         error = "Incorrect password"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -354,34 +318,22 @@ def delete(key):
         DELETE FROM item WHERE key = %s;
     """, (item["key"],))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted item",
-        entity_type="item",
-        entity_key=item["key"],
-    )
-
-    db_close(con, cur)
     return {
-        "status": 200
+        "status": 200,
+        "log": {
+            "entity_key": item["key"],
+        }
     }, 200
 
 
 @bp.post("/items/<key>/like")
-def like(key):
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("item")
+def like(cur, user, key):
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     item = cur.fetchone()
     if not item:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -401,135 +353,15 @@ def like(key):
         cur.execute("""DELETE FROM "like" WHERE key = %s;""", (
             user_reaction["key"],))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action=f"{'un' if user_reaction else ''}like item",
-        entity_type="item",
-        entity_key=item["key"],
-    )
-
     likes = get_user_like(cur, user["key"])
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "likes": likes
-    }, 200
-
-
-@bp.post("/items/<key>/comments")
-def add_comment(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    cur.execute("""
-        SELECT * FROM item WHERE slug = %s OR key = %s;
-    """, (key, key))
-    item = cur.fetchone()
-    if not item:
-        db_close(con, cur)
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    parent_key = request.json.get("parent_key")
-    if parent_key:
-        if "comment.reply" not in user["access"]:
-            db_close(con, cur)
-            return {
-                "status": 403,
-                "error": "unauthorized access"
-            }, 403
-
-        cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
-        if not cur.fetchone():
-            db_close(con, cur)
-            return {
-                "status": 404,
-                "error": "Invalid request"
-            }, 404
-
-    cur.execute("""
-        WITH purchase_check AS (
-            SELECT EXISTS (
-                SELECT 1
-                FROM "order" o
-                LEFT JOIN order_item oi ON o.key = oi.order_key
-                LEFT JOIN item_version iv ON oi.item_version_key = iv.key
-                WHERE
-                    o.user_key = %s
-                    AND o.status = 'delivered'
-                    AND iv.item_key = %s
-            ) AS has_purchased
-        ),
-
-        comment_check AS (
-            SELECT EXISTS (
-                SELECT 1
-                FROM comment
-                WHERE
-                    comment.user_key = %s
-                    AND comment.item_key = %s
-                    AND comment.parent_key IS NULL
-            ) AS has_commented
-        )
-
-        SELECT
-            purchase_check.has_purchased,
-            purchase_check.has_purchased AND NOT comment_check.has_commented
-                AS can_comment
-        FROM purchase_check, comment_check
-    """, (user["key"], item["key"], user["key"], item["key"]))
-    user_comment_info = cur.fetchone()
-
-    if not user_comment_info["can_comment"]:
-        return {
-            "status": 403,
-            "error": "Invalid request"
-        }, 403
-
-    rating = request.json.get("rating", 0)
-    comment = request.json.get("comment", "").strip()
-    error = {}
-    if rating not in [1, 2, 3, 4, 5]:
-        error["rating"] = "This field is required"
-
-    if not comment:
-        error["comment"] = "This field is required"
-    elif len(comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("""
-        INSERT INTO comment (user_key, item_key, rating,
-            comment, parent_key)
-        VALUES (%s, %s, %s, %s, %s) RETURNING *;
-    """, (user["key"], item["key"], rating, comment, parent_key))
-    comment = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added comment",
-        entity_type="item",
-        entity_key=item["key"],
-        misc={
-            "comment_key": comment["key"]
+        "likes": likes,
+        "log": {
+            "entity_key": item["key"],
+            "misc": {
+                "action": f"{'un' if user_reaction else ''}like"
+            }
         }
-    )
-
-    comments = get_comments(item["key"], cur=cur)
-    db_close(con, cur)
-    return comments
+    }, 200

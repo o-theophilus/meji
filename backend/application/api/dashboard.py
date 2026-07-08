@@ -1,9 +1,8 @@
 
 from flask import Blueprint, request
 
-from .order.get import order_status
-from .postgres import db_close, db_open
-from .tools import get_session
+from ..order.get import order_status
+from ..tools import rate_limit, session
 
 bp = Blueprint("admin_dashboard", __name__)
 
@@ -351,14 +350,9 @@ def activity_log(cur):
 
 
 @bp.get("/dashboard")
-def dashboard():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-
+@session(True)
+@rate_limit(20, 1)
+def dashboard(cur, _user):
     intervals = {
         "today": "1 day",
         "24 hours": "24 hours",
@@ -382,7 +376,6 @@ def dashboard():
     _item_top_purchase = item_top_purchase(cur, intervals[interval])
     _activity_log = activity_log(cur)
 
-    db_close(con, cur)
     return {
         "status": 200,
         "new_users": _new_users,

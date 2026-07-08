@@ -27,7 +27,7 @@
 		loading.open('Sending Report . . .');
 
 		let resp = await fetch(
-			`${import.meta.env.VITE_BACKEND}/comments/${module.value.comment.key}/report`,
+			`${import.meta.env.VITE_BACKEND}/reports/comments/${module.value.comment.key}`,
 			{
 				method: 'post',
 				headers: {

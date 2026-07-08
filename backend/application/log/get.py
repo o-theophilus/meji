@@ -2,8 +2,7 @@ from math import ceil
 
 from flask import Blueprint, request
 
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import session
 
 bp = Blueprint("log_get", __name__)
 
@@ -25,15 +24,8 @@ def search_query(cur):
 
 
 @bp.get("/logs")
-def get_many():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+def many(cur, user):
     searchParams = {
         "u_search": "",
         "entity_type": "all",
@@ -51,7 +43,6 @@ def get_many():
     page_size = min(page_size, 100)
 
     if "log.view" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -134,12 +125,10 @@ def get_many():
         elif x["entity"]["type"] == "page":
             x["action"] = "viewed page"
 
-    sq = search_query(cur)
-    db_close(con, cur)
     return {
         "status": 200,
         "logs": logs,
         "searchParams": searchParams,
-        "search_query": sq,
+        "search_query": search_query(cur),
         "total_page": ceil(logs[0]["_count"] / page_size) if logs else 0
     }, 200

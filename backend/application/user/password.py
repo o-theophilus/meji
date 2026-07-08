@@ -3,26 +3,18 @@ import re
 from flask import Blueprint, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import check_code, generate_code, get_session, send_mail
+from ..tools import (check_code, generate_code, log, rate_limit, send_mail,
+                     session)
 
 bp = Blueprint("user_password", __name__)
 
 
 @bp.post("/user/password/1")
-def password_1_email():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+def password_1_email(cur, user):
     email_template = request.json.get("email_template")
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -38,49 +30,34 @@ def password_1_email():
         )
     )
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/user/password/2")
-def password_2_code():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+def password_2_code(cur, user):
     error = check_code(cur, user["key"], user["email"])
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "code": error
         }, 422
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/user/password/3")
-def password_3_password():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def password_3_password(cur, user):
     error = check_code(cur, user["key"], user["email"])
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -109,7 +86,6 @@ def password_3_password():
         error["confirm_password"] = """Password and confirm_password password
          does not match"""
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -121,17 +97,9 @@ def password_3_password():
         generate_password_hash(password, method="scrypt"),
         user["key"]
     ))
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed password",
-        entity_type="user",
-        entity_key=user["key"]
-    )
 
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
-    db_close(con, cur)
     return {
-        "status": 200
+        "status": 200,
     }, 200

@@ -1,26 +1,18 @@
 from flask import Blueprint, request
 
-from ..log import log
-from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 from .get import blog_schema
 
 bp = Blueprint("blog_file", __name__)
 
 
 @bp.post("/blogs/<key>/file")
-def add_file(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def add_file(cur, user, key):
     if "blog.edit_files" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -29,14 +21,12 @@ def add_file(key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
         }, 404
 
     if 'files' not in request.files:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -62,7 +52,6 @@ def add_file(key):
     if files == []:
         if not error:
             error = "no file"
-        db_close(con, cur)
         return {
             "status": 422,
             "error": error
@@ -84,38 +73,26 @@ def add_file(key):
     ))
     blog = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="added file to blog",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc={
-            "added": ", ".join(file_names),
-            "error": error
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
         "blog": blog_schema(blog),
-        "error": error
+        "error": error,
+        "log": {
+            "entity_key": blog["key"],
+            "misc": {
+                "added": ", ".join(file_names),
+                "error": error
+            }
+        }
     }, 200
 
 
 @bp.put("/blogs/<key>/file")
-def order_delete_file(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("blog")
+def order_delete_file(cur, user, key):
     if "blog.edit_files" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -124,7 +101,6 @@ def order_delete_file(key):
     cur.execute('SELECT * FROM blog WHERE key = %s;', (key,))
     blog = cur.fetchone()
     if not blog:
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -132,7 +108,6 @@ def order_delete_file(key):
 
     files = request.json.get("files")
     if not files or type(files) is not list:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -140,7 +115,6 @@ def order_delete_file(key):
 
     files = [p.split("/")[-1] for p in files]
     if not all(x in blog["files"] for x in files):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -150,31 +124,20 @@ def order_delete_file(key):
         if x not in files:
             storage.delete(x, "blog")
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited blog files",
-        entity_type="blog",
-        entity_key=blog["key"],
-        misc={
-            "from": blog["files"],
-            "to": files
-        }
-    )
-
+    old_blog = blog
     cur.execute("""
-        UPDATE blog
-        SET files = %s
-        WHERE key = %s
-        RETURNING *;
-    """, (
-        files,
-        blog["key"]
-    ))
+        UPDATE blog SET files = %s WHERE key = %s RETURNING *;
+    """, (files, blog["key"]))
     blog = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "blog": blog_schema(blog)
+        "blog": blog_schema(blog),
+        "log": {
+            "entity_key": blog["key"],
+            "misc": {
+                "from": old_blog["files"],
+                "to": blog["files"],
+            }
+        }
     }, 200

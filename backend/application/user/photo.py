@@ -1,25 +1,17 @@
 from flask import Blueprint, request
 
-from ..log import log
-from ..postgres import db_close, db_open
 from ..storage import storage
-from ..tools import get_session, user_schema
+from ..tools import log, rate_limit, session, user_schema
 
 bp = Blueprint("user_photo", __name__)
 
 
 @bp.put("/user/photo")
-def add_photo():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def add_photo(cur, user):
     if 'file' not in request.files:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -27,61 +19,45 @@ def add_photo():
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "invalid file"
         }, 422
 
-    old_photo = None
     if user["photo"]:
-        old_photo = user["photo"]
         storage.delete(user["photo"], "user")
 
     file_name = storage.save(file, user["username"], "user")
 
+    previous = user
     cur.execute("""
-        UPDATE "user"
-        SET photo = %s
-        WHERE key = %s
-        RETURNING *;
+        UPDATE "user" SET photo = %s
+        WHERE key = %s RETURNING *;
     """, (
         file_name,
         user["key"]
     ))
     user = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="updated profile photo",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={
-            "from": old_photo,
-            "to": file_name
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user),
+        "log": {
+            "entity_key": user["key"],
+            "misc": {
+                "from": previous["photo"],
+                "to": user["photo"],
+            }
+        }
     }, 200
 
 
 @bp.delete("/user/photo")
-def delete_photo():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def delete_photo(cur, user):
     if not user["photo"]:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -89,6 +65,7 @@ def delete_photo():
 
     storage.delete(user["photo"], "user")
 
+    previous = user
     cur.execute("""
         UPDATE "user"
         SET photo = NULL
@@ -97,17 +74,14 @@ def delete_photo():
     """, (user["key"],))
     user = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted profile photo",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={"photo": user["photo"]}
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user),
+        "log": {
+            "entity_key": user["key"],
+            "misc": {
+                "from": previous["photo"],
+                "to": None,
+            }
+        }
     }, 200

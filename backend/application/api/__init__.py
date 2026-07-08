@@ -2,10 +2,10 @@ import os
 import re
 
 from flask import Blueprint, request
+from psycopg2.extras import Json
 
-from ..log import log
 from ..postgres import db_close, db_open
-from ..tools import get_session, send_mail
+from ..tools import log, rate_limit, send_mail, session
 
 bp = Blueprint("api", __name__)
 
@@ -23,16 +23,15 @@ def delete_session(cur, user_key):
         RETURNING key;
     """)
     sessions = cur.fetchall()
-    log(
-        cur=cur,
-        user_key=user_key,
-        action="cleaned up expired sessions",
-        entity_type="app",
-        entity_key="maintenance",
-        misc={
-            "deleted_sessions": [x["key"] for x in sessions],
-        }
-    )
+
+    cur.execute("""
+        INSERT INTO log (
+            user_key, action, entity_type, misc
+        ) VALUES (%s, 'api.delete_session', 'app', %s);
+    """, (
+        user_key,
+        Json({"deleted_sessions": [x["key"] for x in sessions]})
+    ))
 
 
 def delete_anonymous(cur, user_key):
@@ -43,16 +42,15 @@ def delete_anonymous(cur, user_key):
         RETURNING key;
     """)
     users = cur.fetchall()
-    log(
-        cur=cur,
-        user_key=user_key,
-        action="cleaned up anonymous users",
-        entity_type="app",
-        entity_key="maintenance",
-        misc={
-            "deleted_users": [x["key"] for x in users],
-        }
-    )
+
+    cur.execute("""
+        INSERT INTO log (
+            user_key, action, entity_type, misc
+        ) VALUES (%s, 'api.delete_anonymous', 'app', %s);
+    """, (
+        user_key,
+        Json({"deleted_users": [x["key"] for x in users]})
+    ))
 
 
 def expire_coupon(cur, user_key):
@@ -62,52 +60,36 @@ def expire_coupon(cur, user_key):
         RETURNING key;
     """)
     for coupon in cur.fetchall():
-        log(
-            cur=cur,
-            user_key=user_key,
-            action="expired coupon",
-            entity_key=coupon["key"],
-            entity_type="coupon"
-        )
+        cur.execute("""
+            INSERT INTO log (
+                user_key, action, entity_type, entity_key
+            ) VALUES (%s, 'coupon.expire', 'coupon', %s);
+        """, (user_key, coupon["key"]))
 
 
+@session(True)
+@rate_limit(20, 1)
+@log("app")
 @bp.post("/maintenance/session")
-def user_delete_session():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+def user_delete_session(cur, user):
     if "maintenance.session" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
         }, 403
 
     delete_session(cur, user["key"])
-
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/maintenance/anonymous")
-def user_delete_anonymous():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("app")
+def user_delete_anonymous(cur, user):
     if "maintenance.anonymous" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -115,24 +97,17 @@ def user_delete_anonymous():
 
     delete_session(cur, user["key"])
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/maintenance/coupon")
-def user_expire_coupon():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("app")
+def user_expire_coupon(cur, user):
     if "maintenance.coupon" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -140,7 +115,6 @@ def user_expire_coupon():
 
     expire_coupon(cur, user["key"])
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
@@ -166,8 +140,9 @@ def cron():
 
 
 @bp.post("/contact")
-def footer_send_email():
-
+@session(False)
+@rate_limit(20, 1)
+def footer_send_email(_cur, _user):
     email_template = request.json.get("email_template")
     name = request.json.get("name")
     email = request.json.get("email")

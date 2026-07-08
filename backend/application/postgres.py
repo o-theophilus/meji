@@ -67,7 +67,7 @@ def create_tables():
             date_created TIMESTAMPTZ DEFAULT now(),
             date_updated TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
-            login TEXT NOT NULL DEFAULT 'false',
+            login BOOL NOT NULL DEFAULT FALSE,
             remember BOOL NOT NULL DEFAULT FALSE
         );
 
@@ -76,11 +76,20 @@ def create_tables():
             date_created TIMESTAMPTZ DEFAULT now(),
             user_key UUID NOT NULL,
             action TEXT NOT NULL,
-            entity_key TEXT NOT NULL,
+            entity_key TEXT,
             entity_type TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT '200',
             misc JSONB DEFAULT '{}'::JSONB
         );
+
+        CREATE TABLE IF NOT EXISTS rate_limit_log (
+            key UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_key UUID NOT NULL REFERENCES "user"(key) ON DELETE CASCADE,
+            endpoint TEXT NOT NULL,
+            date_created TIMESTAMPTZ DEFAULT NOW()
+        );
+        CREATE INDEX idx_rate_limit_lookup
+            ON rate_limit_log (user_key, endpoint, date_created);
 
         CREATE TABLE IF NOT EXISTS code (
             key UUID PRIMARY KEY DEFAULT gen_random_uuid(),

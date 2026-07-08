@@ -4,27 +4,19 @@ from uuid import uuid4
 from flask import Blueprint, request
 from psycopg2.extras import Json
 
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 from .get import (coupon_applies_to, coupon_condition_unit, coupon_schema,
-                  coupon_value_unit, get_many)
+                  coupon_value_unit, many)
 
 bp = Blueprint("coupon", __name__)
 
 
 @bp.post("/coupons")
-def add():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("coupon")
+def add(cur, user):
     if "coupon.add" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -48,7 +40,6 @@ def add():
     if not condition_unit or condition_unit not in coupon_condition_unit:
         error["condition_unit"] = "This field is required"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -69,39 +60,27 @@ def add():
     ))
     coupon = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="created coupon",
-        entity_type="coupon",
-        entity_key=coupon["key"],
-    )
+    coupons = many(cur)
 
-    coupons = get_many(cur)
-
-    db_close(con, cur)
     return {
         "status": 200,
         "coupon": coupon_schema(coupon, user["access"]),
         "coupons": coupons.json["coupons"],
-        "total_page": coupons.json["total_page"]
+        "total_page": coupons.json["total_page"],
+        "log": {
+            "entity_key": coupon["key"]
+        }
     }, 200
 
 
 @bp.delete("/coupons/<key>")
-def delete(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("coupon")
+def delete(cur, user, key):
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -114,7 +93,6 @@ def delete(key):
     elif len(comment) > 500:
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -124,33 +102,21 @@ def delete(key):
         DELETE FROM coupon WHERE key = %s;
     """, (coupon["key"],))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted coupon",
-        entity_type="coupon",
-        entity_key=coupon["key"],
-        misc={"comment": comment}
-    )
-
-    db_close(con, cur)
     return {
-        "status": 200
+        "status": 200,
+        "log": {
+            "entity_key": coupon["key"],
+            "misc": {"comment": comment}
+        }
     }, 200
 
 
 @bp.put("/coupons/<key>/validity")
-def set_validity(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("coupon")
+def set_validity(cur, user, key):
     if "coupon.edit_validity" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -159,7 +125,6 @@ def set_validity(key):
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -177,7 +142,6 @@ def set_validity(key):
     except Exception:
         error["valid_until"] = "invalid input"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -191,7 +155,6 @@ def set_validity(key):
         and valid_until.strftime("%Y-%m-%d")
         == coupon["valid_until"].strftime("%Y-%m-%d")
     ):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "No changes were made"
@@ -202,51 +165,38 @@ def set_validity(key):
     if (valid_until) <= valid_from:
         error["valid_until"] = 'Cannot set date earlier or equal to start date'
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
         }, 422
 
-    old_coupon = coupon
+    previous = coupon
     cur.execute("""
         UPDATE coupon SET status = 'active', valid_from = %s, valid_until = %s
         WHERE key = %s RETURNING *;
     """, (valid_from, valid_until, coupon["key"]))
     coupon = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed coupon validity",
-        entity_type="coupon",
-        entity_key=coupon["key"],
-        misc={
-            "from": f'{old_coupon[
-                "valid_from"]} - {old_coupon["valid_until"]}',
-            "to": f'{coupon["valid_from"]} - {coupon["valid_until"]}',
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "coupon": coupon_schema(coupon, user["access"])
+        "coupon": coupon_schema(coupon, user["access"]),
+        "log": {
+            "entity_key": coupon["key"],
+            "misc": {
+                "from": f'{previous[
+                    "valid_from"]} - {previous["valid_until"]}',
+                "to": f'{coupon["valid_from"]} - {coupon["valid_until"]}',
+            }
+        }
     }, 200
 
 
 @bp.delete("/coupons/<key>/validity")
-def clear_validity(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("coupon")
+def clear_validity(cur, user, key):
     if "coupon.edit_validity" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -255,7 +205,6 @@ def clear_validity(key):
     cur.execute('SELECT * FROM coupon WHERE key = %s;', (key,))
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -269,20 +218,14 @@ def clear_validity(key):
     """, (coupon["key"],))
     coupon = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="cleared coupon validity",
-        entity_type="coupon",
-        entity_key=coupon["key"],
-        misc={
-            "from": f'{old_coupon[
-                "valid_from"]} - {old_coupon["valid_until"]}',
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "coupon": coupon_schema(coupon, user["access"])
+        "coupon": coupon_schema(coupon, user["access"]),
+        "log": {
+            "entity_key": coupon["key"],
+            "misc": {
+                "from": f'{old_coupon[
+                    "valid_from"]} - {old_coupon["valid_until"]}',
+            }
+        }
     }, 200

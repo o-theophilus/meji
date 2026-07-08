@@ -5,66 +5,46 @@ from uuid import uuid4
 from flask import Blueprint, request
 from werkzeug.security import check_password_hash
 
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session, reserved_words, user_schema
-from .get import get_blocked
+from ..tools import log, rate_limit, reserved_words, session, user_schema
 
 bp = Blueprint("user", __name__)
 
 
 @bp.post("/user/theme")
-def theme():
-    con, cur = db_open()
-
-    session = get_session(cur)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(False)
+@rate_limit(20, 1)
+@log("user")
+def theme(cur, user):
     theme = request.json.get("theme")
     if theme not in ["light", "dark", "system"]:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed theme",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={
-            "from": user["theme"],
-            "to": theme
-        }
-    )
-
+    previous = user
     cur.execute("""
         UPDATE "user" SET theme = %s WHERE key = %s RETURNING *
     ;""", (theme, user["key"]))
     user = cur.fetchone()
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user),
+        "log": {
+            "misc": {
+                "from": previous["theme"],
+                "to": user["theme"],
+            }
+        }
     }, 200
 
 
 @bp.put("/user")
-def edit_user():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def edit_user(cur, user):
     error = {}
 
     name = user["name"]
@@ -110,7 +90,6 @@ def edit_user():
             error["phone"] = "This field cannot exceed 20 characters"
 
     if error:
-        db_close(con, cur)
         return {
             "status": 400,
             **error
@@ -123,240 +102,20 @@ def edit_user():
     """, (name, username, phone, user["key"]))
     user = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited profile",
-        entity_type="user",
-        entity_key=user["key"],
-        misc=request.json
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
-    }, 200
-
-
-@bp.post("/users/<key>/report")
-def report(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user2 = cur.fetchone()
-    if not user2:
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    comment = request.json.get("comment", "").strip()
-    tags = request.json.get("tags")
-
-    if type(tags) is not list:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            "error": "Invalid request"
-        }, 422
-
-    error = {}
-    if not comment:
-        error["comment"] = "This field is required"
-    elif len(comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("""
-        INSERT INTO report (reporter_key, reporter_comment,
-            tags, reported_key)
-        VALUES (%s, %s, %s, %s) RETURNING *;
-    """, (user["key"], comment, tags, user2["key"]))
-    report = cur.fetchone()
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="reported user",
-        entity_type="user",
-        entity_key=user2["key"],
-        misc={
-            "report_key": report["key"]
+        "user": user_schema(user),
+        "log": {
+            "misc": request.json
         }
-    )
-
-    db_close(con, cur)
-    return {
-        "status": 200
-    }, 200
-
-
-@bp.post("/users/<key>/block")
-def block(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "user.block" not in user["access"]:
-        db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
-    cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user2 = cur.fetchone()
-    if (
-        not user2
-        or user2["key"] == user["key"]
-        or user2["status"] != "active"
-        or user2["email"] == os.environ["MAIL_USERNAME"]
-    ):
-        db_close(con, cur)
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    comment = request.json.get("comment", "").strip()
-    error = {}
-    if not comment:
-        error["comment"] = "This field is required"
-    elif len(comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("""
-        INSERT INTO block (admin_key, user_key, comment)
-        VALUES (%s, %s, %s);
-    """, (user["key"], user2["key"], comment))
-
-    cur.execute("""
-        DELETE FROM session WHERE user_key = %s;
-    """, (user2["key"],))
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="blocked user",
-        entity_key=user2["key"],
-        entity_type="user",
-        misc={"comment":  comment}
-    )
-
-    cur.execute("""
-        SELECT
-            "user".*,
-            CASE WHEN block.user_key IS NOT NULL
-                THEN true ELSE false END AS blocked
-        FROM "user"
-        LEFT JOIN block ON "user".key = block.user_key
-        WHERE "user".key::TEXT = %s OR "user".username = %s;
-    """, (key, key))
-    user2 = cur.fetchone()
-
-    db_close(con, cur)
-    return {
-        "status": 200,
-        "user": user_schema(user2)
-    }, 200
-
-
-@bp.delete("/users/<key>/block")
-def unblock(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
-    if "block.unblock" not in user["access"]:
-        db_close(con, cur)
-        return {
-            "status": 403,
-            "error": "unauthorized access"
-        }, 403
-
-    cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
-    user2 = cur.fetchone()
-    if (
-        not user2
-        or user2["key"] == user["key"]
-        or user2["status"] != "active"
-        or user2["email"] == os.environ["MAIL_USERNAME"]
-    ):
-        db_close(con, cur)
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    comment = request.json.get("comment", "").strip()
-    error = {}
-    if not comment:
-        error["comment"] = "This field is required"
-    elif len(comment) > 500:
-        error["comment"] = "This field cannot exceed 500 characters"
-    if error:
-        db_close(con, cur)
-        return {
-            "status": 422,
-            **error
-        }, 422
-
-    cur.execute("DELETE FROM block WHERE user_key = %s;", (user2["key"],))
-
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="unblocked user",
-        entity_key=user2["key"],
-        entity_type="user",
-        misc={"comment":  comment}
-    )
-
-    blocks = get_blocked(cur).json["blocks"]
-
-    db_close(con, cur)
-    return {
-        "status": 200,
-        "blocks": blocks
     }, 200
 
 
 @bp.put("/users/<key>/action")
-def profile_action(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def profile_action(cur, user, key):
     cur.execute("""SELECT * FROM "user" WHERE key = %s;""", (key,))
     user2 = cur.fetchone()
     if (
@@ -365,7 +124,6 @@ def profile_action(key):
         or user2["key"] != "active"
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -380,7 +138,6 @@ def profile_action(key):
     if not comment:
         error["comment"] = "This field is required"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -407,7 +164,6 @@ def profile_action(key):
     if actions == []:
         error = "Invalid request"
     if error:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": error
@@ -425,37 +181,25 @@ def profile_action(key):
     ))
     user2 = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="reset user details",
-        entity_type="user",
-        entity_key=user2["key"],
-        misc={
-            "field(s)": ", ".join(actions),
-            "comment": comment
-        }
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user2)
+        "user": user_schema(user2),
+        "log": {
+            "entity_key": user2["key"],
+            "misc": {
+                "field(s)": ", ".join(actions),
+                "comment": comment
+            }
+        }
     }, 200
 
 
 @bp.put("/users/<key>/access")
-def set_access(key):
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def set_access(cur, user, key):
     if "user.set_access" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -469,7 +213,6 @@ def set_access(key):
         or user2["status"] != "active"
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
-        db_close(con, cur)
         return {
             "status": 404,
             "error": "Invalid request"
@@ -479,7 +222,6 @@ def set_access(key):
     password = request.json.get("password")
 
     if not access or type(access) is not list:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -491,28 +233,25 @@ def set_access(key):
     elif not check_password_hash(user["password"], password):
         error = "incorrect password"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "password": error
         }, 422
 
+    previous = user2
     cur.execute("""
         UPDATE "user" SET access = %s WHERE key = %s RETURNING *;
     """, (access, user2["key"]))
     user2 = cur.fetchone()
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed user access",
-        entity_type="user",
-        entity_key=user2["key"],
-        misc={"from": user2["access"], "to": access}
-    )
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user2)
+        "user": user_schema(user2),
+        "log": {
+            "entity_key": user2["key"],
+            "misc": {
+                "from": previous["access"],
+                "to": user2["access"],
+            }
+        }
     }, 200

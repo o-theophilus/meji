@@ -3,26 +3,17 @@ import re
 
 from flask import Blueprint, request
 
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import (check_code, generate_code, get_session, send_mail,
-                     user_schema)
+from ..tools import (check_code, generate_code, log, rate_limit, send_mail,
+                     session, user_schema)
 
 bp = Blueprint("user_email", __name__)
 
 
 @bp.post("/user/email/1")
-def email_1_old_email():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+def email_1_old_email(cur, user):
     if user["email"] == os.environ["MAIL_USERNAME"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "Invalid request"
@@ -30,7 +21,6 @@ def email_1_old_email():
 
     email_template = request.json.get("email_template")
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -45,49 +35,33 @@ def email_1_old_email():
         )
     )
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/user/email/2")
-def email_2_old_code():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+def email_2_old_code(cur, user):
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "code_1": error
         }, 422
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/user/email/3")
-def email_3_new_email():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+def email_3_new_email(cur, user):
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -95,7 +69,6 @@ def email_3_new_email():
 
     email_template = request.json.get("email_template")
     if not email_template:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -108,14 +81,12 @@ def email_3_new_email():
     elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         error = "Invalid email address"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "email": error
         }, 422
 
     if user["email"] == email:
-        db_close(con, cur)
         return {
             "status": 422,
             "email": "please use a different email form your current email"
@@ -124,7 +95,6 @@ def email_3_new_email():
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
-        db_close(con, cur)
         return {
             "status": 422,
             "email": "email is already in use"
@@ -140,25 +110,18 @@ def email_3_new_email():
         )
     )
 
-    db_close(con, cur)
     return {
         "status": 200
     }, 200
 
 
 @bp.post("/user/email/4")
-def email_4_new_code():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("user")
+def email_4_new_code(cur, user):
     if user["email"] == os.environ["MAIL_USERNAME"]:
         cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "Invalid request"
@@ -166,7 +129,6 @@ def email_4_new_code():
 
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -174,14 +136,12 @@ def email_4_new_code():
 
     email = request.json.get("email")
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
         }, 422
 
     if user["email"] == email:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -190,7 +150,6 @@ def email_4_new_code():
     cur.execute('SELECT * FROM "user" WHERE email = %s;', (email,))
     exist = cur.fetchone()
     if exist:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
@@ -198,24 +157,12 @@ def email_4_new_code():
 
     error = check_code(cur, user["key"], email, "code_2")
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             "error": "Invalid request"
         }, 422
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="changed email",
-        entity_type="user",
-        entity_key=user["key"],
-        misc={
-            "from": user['email'],
-            "to": email
-        }
-    )
-
+    previous = user
     cur.execute("""
         UPDATE "user" SET email = %s WHERE key = %s RETURNING *;
     """, (email, user["key"]))
@@ -223,8 +170,14 @@ def email_4_new_code():
 
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
-    db_close(con, cur)
     return {
         "status": 200,
-        "user": user_schema(user)
+        "user": user_schema(user),
+        "log": {
+            "misc": {
+                "from": previous['email'],
+                "to": user['email'],
+            }
+
+        }
     }, 200

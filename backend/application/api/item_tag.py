@@ -2,14 +2,12 @@
 from flask import Blueprint, request
 from psycopg2.extras import Json
 
-from ..log import log
-from ..postgres import db_close, db_open
-from ..tools import get_session
+from ..tools import log, rate_limit, session
 
 bp = Blueprint("item_tag", __name__)
 
 
-def all_tags(cur=None):
+def all_tags(cur):
     cur.execute("SELECT tags FROM item WHERE status = 'active';")
     temp = cur.fetchall()
 
@@ -31,12 +29,7 @@ def all_tags(cur=None):
     return [x["tag"] for x in tags_count]
 
 
-@bp.get("/items/tag/featured")
-def get_iten_tags(cur=None):
-    close_conn = not cur
-    if not cur:
-        con, cur = db_open()
-
+def featured_tags(cur):
     cur.execute("""SELECT value FROM app WHERE key = 'featured_tag';""")
     featured = cur.fetchone()
     if not featured:
@@ -49,29 +42,16 @@ def get_iten_tags(cur=None):
     featured = featured["value"]["value"]
 
     _all = all_tags(cur)
-    featured = [x for x in _all if x in featured]
 
-    if close_conn:
-        db_close(con, cur)
-    return {
-        "status": 200,
-        "featured": featured,
-        "all": _all
-    }, 200
+    return [x for x in _all if x in featured]
 
 
 @bp.post("/items/tag/featured")
-def featured():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("app")
+def featured(cur, user):
     if "admin.tag.featured" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -90,7 +70,6 @@ def featured():
     elif set(_new) == set(_featured):
         error["tags"] = "No changes were made"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -105,40 +84,25 @@ def featured():
         WHERE key = 'featured_tag';
     """, (Json({"value": featured}),))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="edited featured tag",
-        entity_type="app",
-        entity_key='app',
-        misc={
-            "from": _featured,
-            "to": featured,
-        }
-    )
-
-    item_tag = get_iten_tags(cur).json
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "featured": item_tag["featured"],
-        "all": item_tag["all"],
+        "featured": featured_tags(cur),
+        "all": all_tags(cur),
+        "log": {
+            "misc": {
+                "from": _featured,
+                "to": featured,
+            }
+        }
     }, 200
 
 
 @bp.post("/items/tag/rename")
-def rename():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("app")
+def rename(cur, user):
     if "admin.tag.rename" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -155,7 +119,6 @@ def rename():
     elif old and old == tag:
         error["tags"] = "No changes were made"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -173,40 +136,25 @@ def rename():
         WHERE %s = ANY(tags);
     """, (old, tag, old))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="renamed tag",
-        entity_type="app",
-        entity_key='app',
-        misc={
-            "from": old,
-            "to": tag,
-        }
-    )
-
-    item_tag = get_iten_tags(cur).json
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "featured": item_tag["featured"],
-        "all": item_tag["all"],
+        "featured": featured_tags(cur),
+        "all": all_tags(cur),
+        "log": {
+            "misc": {
+                "from": old,
+                "to": tag,
+            }
+        }
     }, 200
 
 
 @bp.post("/items/tag/delete")
-def delete():
-    con, cur = db_open()
-
-    session = get_session(cur, True)
-    if session["status"] != 200:
-        db_close(con, cur)
-        return session
-    user = session["user"]
-
+@session(True)
+@rate_limit(20, 1)
+@log("app")
+def delete(cur, user):
     if "admin.tag.delete" not in user["access"]:
-        db_close(con, cur)
         return {
             "status": 403,
             "error": "unauthorized access"
@@ -220,7 +168,6 @@ def delete():
     elif type(tags) is not list:
         error["tags"] = "This field is required"
     if error:
-        db_close(con, cur)
         return {
             "status": 422,
             **error
@@ -238,20 +185,11 @@ def delete():
         WHERE tags && %s;
     """, (tags, tags))
 
-    log(
-        cur=cur,
-        user_key=user["key"],
-        action="deleted tags",
-        entity_type="app",
-        entity_key='app',
-        misc={"tags": tags, }
-    )
-
-    item_tag = get_iten_tags(cur).json
-
-    db_close(con, cur)
     return {
         "status": 200,
-        "featured": item_tag["featured"],
-        "all": item_tag["all"],
+        "featured": featured_tags(cur),
+        "all": all_tags(cur),
+        "log": {
+            "misc": {"tags": tags, }
+        }
     }, 200
