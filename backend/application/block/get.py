@@ -7,15 +7,6 @@ from ..tools import session
 bp = Blueprint("block_get", __name__)
 
 
-def get_user_like(cur, user_key):
-    cur.execute("""
-        SELECT item_key FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL;
-    """, (user_key,))
-    likes = cur.fetchall()
-    return [x["item_key"] for x in likes]
-
-
 def get_blocked(cur, user):
     if "block.view" not in user["access"]:
         return {

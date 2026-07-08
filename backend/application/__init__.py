@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 
-from . import (api, auth, block, blog, cart, comment, coupon, fix, item, log,
-               order, postgres, report, storage, user)
+from . import (api, auth, block, blog, cart, comment, coupon, fix, item, like,
+               log, order, postgres, report, storage, user)
 from .api import dashboard, file_error, item_tag
 from .auth import forgot
 from .block import get as block_get
@@ -15,6 +15,7 @@ from .item import advert
 from .item import file as item_file
 from .item import get as item_get
 from .item.advert import get as advert_get
+from .like import get as like_get
 from .log import get as log_get
 from .order import get as order_get
 from .report import get as report_get
@@ -62,6 +63,8 @@ def create_app(conf=None):
     app.register_blueprint(item_get.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(comment.bp)
+    app.register_blueprint(like.bp)
+    app.register_blueprint(like_get.bp)
     app.register_blueprint(blog_file.bp)
     app.register_blueprint(blog_get.bp)
     app.register_blueprint(blog_photo.bp)

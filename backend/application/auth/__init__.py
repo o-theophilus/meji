@@ -10,11 +10,11 @@ from ..api.item_tag import all_tags, featured_tags
 from ..blog.get import get_blog_tags
 from ..cart.delivery import axis_map, price_map
 from ..cart.get import cart_items, has_adderss
+from ..like.get import get_user_like
 from ..storage import storage
 from ..tools import (access_pass, check_code, generate_code, get_client_info,
                      log, rate_limit, reserved_words, send_mail, session,
                      user_schema)
-from ..user.get import get_user_like
 
 bp = Blueprint("auth", __name__)
 
@@ -117,14 +117,14 @@ def copy_like_n_cart(cur, user_key, anon_key):
 
 @bp.post("/init")
 @session(False)
-def init(cur, session):
+def init(cur, _session):
 
-    _cart_items = []
-    if session["status"] == 200:
-        user = session["user"]
+    ci = []
+    if _session["status"] == 200:
+        user = _session["user"]
         token = request.headers.get("Authorization")
-        login = session["login"]
-        _cart_items = cart_items(cur, user["key"])["items"]
+        login = user.pop("login")
+        ci = cart_items(cur, user["key"])["items"]
 
     else:
         user = new_user(cur)
@@ -139,21 +139,18 @@ def init(cur, session):
             INSERT INTO log (
                 user_key, action, entity_type, misc
             ) VALUES (%s, 'auth.init', 'user', %s);
-        """, (user["key"], get_client_info()))
-
-    likes = get_user_like(cur, user["key"])
-    blog_tags = get_blog_tags(cur)
+        """, (user["key"], Json(get_client_info())))
 
     return {
         "status": 200,
         "user": user_schema(user),
         "token": token,
         "login": login,
-        "likes": likes,
-        "cart_items": _cart_items,
+        "likes": get_user_like(cur, user["key"]),
+        "cart_items": ci,
         "item_all_tags": all_tags(cur),
         "item_featured_tags": featured_tags(cur),
-        "blog_tags": blog_tags,
+        "blog_tags": get_blog_tags(cur),
         "axis_map": axis_map,
         "price_map": price_map
     }, 200

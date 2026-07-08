@@ -8,15 +8,6 @@ from .dashboard import dashboard
 bp = Blueprint("user_get", __name__)
 
 
-def get_user_like(cur, user_key):
-    cur.execute("""
-        SELECT item_key FROM "like"
-        WHERE user_key = %s AND item_key IS NOT NULL;
-    """, (user_key,))
-    likes = cur.fetchall()
-    return [x["item_key"] for x in likes]
-
-
 @bp.get("/users/<key>")
 @session(False)
 def get(cur, viewer, key):

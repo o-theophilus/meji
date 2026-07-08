@@ -9,7 +9,6 @@ from werkzeug.security import check_password_hash
 
 from ..cart.delivery import get_areas
 from ..tools import item_schema, log, rate_limit, reserved_words, session
-from ..user.get import get_user_like
 from .get import get_items
 
 bp = Blueprint("item", __name__)
@@ -322,46 +321,5 @@ def delete(cur, user, key):
         "status": 200,
         "log": {
             "entity_key": item["key"],
-        }
-    }, 200
-
-
-@bp.post("/items/<key>/like")
-@session(True)
-@rate_limit(20, 1)
-@log("item")
-def like(cur, user, key):
-    cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
-    item = cur.fetchone()
-    if not item:
-        return {
-            "status": 404,
-            "error": "Invalid request"
-        }, 404
-
-    cur.execute("""
-        SELECT * FROM "like" WHERE user_key = %s AND item_key = %s;
-    """, (user["key"], item["key"]))
-    user_reaction = cur.fetchone()
-
-    if not user_reaction:
-        cur.execute("""
-            INSERT INTO "like" (user_key, item_key)
-            VALUES (%s, %s);
-        """, (user["key"], item["key"]))
-    else:
-        cur.execute("""DELETE FROM "like" WHERE key = %s;""", (
-            user_reaction["key"],))
-
-    likes = get_user_like(cur, user["key"])
-
-    return {
-        "status": 200,
-        "likes": likes,
-        "log": {
-            "entity_key": item["key"],
-            "misc": {
-                "action": f"{'un' if user_reaction else ''}like"
-            }
         }
     }, 200
