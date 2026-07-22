@@ -23,7 +23,7 @@
 	const submit = async () => {
 		loading.open('Creating Item . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items${page.url.search}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -31,11 +31,11 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.items, resp.total_page);
+		if (response.status == 200) {
+			module.value.update(result.items, result.total_page);
 			module.open(Dialogue, {
 				message: 'Item Created',
 				buttons: [
@@ -43,14 +43,14 @@
 						name: 'OK',
 						icon: 'check',
 						fn: () => {
-							goto(`/${resp.item.slug}?edit`);
+							goto(`/${result.item.slug}?edit`);
 							module.close();
 						}
 					}
 				]
 			});
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

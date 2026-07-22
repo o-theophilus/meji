@@ -19,9 +19,9 @@
 	let items = $derived(data.items);
 	let total_page = $derived(data.total_page);
 	let searchParams = $state({ ...data.searchParams });
-	let defaultParams = $state(data.searchParams);
-	let { order_by } = data;
-	let { _status } = data;
+	let defaultParams = $state({ ...data.searchParams });
+	let order_by = data.order_by;
+	let status = data.status;
 	let pagination = $state();
 
 	const update = (a, b) => {
@@ -83,7 +83,7 @@
 					--select-padding-x="8px"
 					--select-font-size="0.8rem"
 					label="Status: {searchParams.status}"
-					list={_status}
+					list={status}
 					icon="list-filter"
 					icon2="chevron-down"
 					bind:value={searchParams.status}

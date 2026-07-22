@@ -39,7 +39,7 @@
 		error = {};
 
 		loading.open('Saving Item . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -47,15 +47,15 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.item);
+		if (response.status == 200) {
+			module.value.update(result.item);
 			module.close();
-			notify.open(`Tag${resp.item.tags.length > 1 ? 's' : ''} Saved`);
+			notify.open(`Tag${result.item.tags.length > 1 ? 's' : ''} Saved`);
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 

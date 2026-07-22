@@ -15,23 +15,23 @@ export const load = async ({ fetch, url, parent }) => {
 	}
 
 	let a = await parent();
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/home`, {
+	let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/home`, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: a.locals.token
 		}
 	});
-	resp = await resp.json();
+	let result = await response.json();
 	loading.close()
 
-	if (resp.status == 200) {
-		resp.page_name = page_name
-		page_state.state[page_name].data = resp
+	if (response.status == 200) {
+		result.page_name = page_name
+		page_state.state[page_name].data = result
 		page_state.state[page_name].loaded = true
 
-		return resp
+		return result
 	} else {
-		throw error(resp.status, resp.error)
+		throw error(response.status, result.error)
 	}
 }

@@ -16,7 +16,7 @@
 	onmouseenter={() => prerender(item)}
 >
 	<img
-		src="{item.files[0]}/64"
+		src={item.files.length ? `${item.files[0]}/64` : '/no_photo.png'}
 		loading="lazy"
 		alt={item.name}
 		onerror={(e) => (e.target.src = '/no_photo.png')}

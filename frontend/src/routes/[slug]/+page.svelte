@@ -64,19 +64,19 @@
 			edit_mode = false;
 		}
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/after`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/after`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		let result = await response.json();
 
 		comments = {};
 		item_group = [];
-		if (resp.status == 200) {
-			comments = resp.comments;
-			item_group = resp.item_group;
+		if (response.status == 200) {
+			comments = result.comments;
+			item_group = result.item_group;
 		}
 		loading = false;
 	});

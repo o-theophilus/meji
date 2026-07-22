@@ -35,7 +35,6 @@ def get(cur, user, key):
 
     if not item:
         return {
-            "status": 404,
             "error": "Oops! The item you're looking for doesn't exist"
         }, 404
 
@@ -45,18 +44,16 @@ def get(cur, user, key):
         and "item.edit_status" not in user["access"]
     ):
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     return {
-        "status": 200,
         "item": item_schema(item),
         "areas": get_areas()
     }, 200
 
 
-def get_items(cur, user,  _order="latest", _tag="", _page_size=24):
+def get_many(cur, user,  _order="latest", _tag="", _page_size=24):
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
@@ -143,19 +140,18 @@ def get_items(cur, user,  _order="latest", _tag="", _page_size=24):
     items = cur.fetchall()
 
     return {
-        "status": 200,
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-        "_status": ['active', 'draft']
+        "status": ['active', 'draft']
     }
 
 
 @bp.get("/items")
 @session(False)
-def _get_items(cur, user):
-    return get_items(cur, user), 200
+def get_items(cur, user):
+    return get_many(cur, user), 200
 
 
 @bp.get("/items/<key>/after")
@@ -164,7 +160,6 @@ def after_get(cur, user, key):
     cur.execute("""SELECT * FROM item WHERE key = %s;""", (key,))
     if not cur.fetchone():
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -206,7 +201,6 @@ def after_get(cur, user, key):
         })
 
     return {
-        "status": 200,
         "comments": many_items(cur, key, user["key"], 3),
         "item_group": item_group
     }, 200
@@ -216,9 +210,8 @@ def after_get(cur, user, key):
 @session(False)
 def home_page(cur, user,):
     return {
-        "status": 200,
-        "new_arrivals": get_items(cur, user, "latest", _page_size=8)['items'],
-        "discount": get_items(cur, user, "discount", _page_size=8)['items'],
-        "tag": get_items(
+        "new_arrivals": get_many(cur, user, "latest", _page_size=8)['items'],
+        "discount": get_many(cur, user, "discount", _page_size=8)['items'],
+        "tag": get_many(
             cur, user, "latest", _tag="hot pick 🔥", _page_size=8)['items'],
     }, 200

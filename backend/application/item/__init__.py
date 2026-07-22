@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash
 
 from ..cart.delivery import get_areas
 from ..tools import item_schema, log, rate_limit, reserved_words, session
-from .get import get_items
+from .get import get_many
 
 bp = Blueprint("item", __name__)
 
@@ -18,10 +18,9 @@ bp = Blueprint("item", __name__)
 @session(True)
 @rate_limit(20, 1)
 @log("item")
-def add_item(cur, user):
+def add(cur, user):
     if "item.add" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -34,7 +33,6 @@ def add_item(cur, user):
         error["name"] = "This field cannot exceed 100 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -48,25 +46,25 @@ def add_item(cur, user):
     cur.execute("""
         INSERT INTO item (name, slug, metadata)
         VALUES (%s, %s, %s) RETURNING *;
-    """, (name, slug,
-          Json({
-              "length": 0,
-              "breadth": 0,
-              "height": 0,
-              "weight": 0,
-              "area": "igando",
-              "prep_time": 7
-          })
-          ))
+    """, (
+        name, slug,
+        Json({
+            "length": 0,
+            "breadth": 0,
+            "height": 0,
+            "weight": 0,
+            "area": "igando",
+            "prep_time": 7
+        })
+    ))
     item = cur.fetchone()
 
-    items = get_items(cur)
+    items = get_many(cur, user)
 
     return {
-        "status": 200,
         "item": item_schema(item),
-        "items": items.json["items"],
-        "total_page": items.json["total_page"],
+        "items": items["items"],
+        "total_page": items["total_page"],
         "log": {
             "entity_key": item["key"]
         }
@@ -82,7 +80,6 @@ def edit(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -254,7 +251,6 @@ def edit(cur, user, key):
 
     if error:
         return {
-            "status": 400,
             **error
         }, 400
 
@@ -273,7 +269,6 @@ def edit(cur, user, key):
     item = cur.fetchone()
 
     return {
-        "status": 200,
         "item": item_schema(item),
         "log": {
             "entity_key": item["key"],
@@ -289,7 +284,6 @@ def edit(cur, user, key):
 def delete(cur, user, key):
     if "item.edit_status" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -297,7 +291,6 @@ def delete(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -309,7 +302,6 @@ def delete(cur, user, key):
         error = "Incorrect password"
     if error:
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -318,7 +310,6 @@ def delete(cur, user, key):
     """, (item["key"],))
 
     return {
-        "status": 200,
         "log": {
             "entity_key": item["key"],
         }

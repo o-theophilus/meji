@@ -10,10 +10,6 @@
 	import { onMount } from 'svelte';
 	import { About, Advert, CTA, FAQ, Hero, ItemGroup, Tags, Testimonial } from './_home';
 
-	let { data } = $props();
-	let new_arrivals = $derived(data.new_arrivals);
-	let discount = $derived(data.discount);
-
 	const get_module = (x) => {
 		if (x == 'login') {
 			return Login;

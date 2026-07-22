@@ -5,17 +5,17 @@ export const load = async ({ fetch, params, parent, url }) => {
     if (app.item.slug == params.slug) return { item: app.item }
 
     let a = await parent();
-    let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${params.slug}${url.search}`, {
+    let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${params.slug}${url.search}`, {
         headers: {
             'Content-Type': 'application/json',
             Authorization: a.locals.token
         },
     });
-    resp = await resp.json();
+    let result = await response.json();
 
-    if (resp.status == 200) {
-        return resp
+    if (response.status == 200) {
+        return result
     } else {
-        throw error(resp.status, resp.error)
+        throw error(result.status, result.error)
     }
 }

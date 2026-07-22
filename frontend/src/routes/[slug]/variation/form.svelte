@@ -25,7 +25,7 @@
 		}
 
 		loading.open('Saving Item . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,15 +33,15 @@
 			},
 			body: JSON.stringify({ variation: ops.variation })
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.item);
+		if (response.status == 200) {
+			module.value.update(result.item);
 			module.close();
 			notify.open('Variation Saved');
 		} else {
-			ops.error = resp;
+			ops.error = result;
 		}
 	};
 </script>
