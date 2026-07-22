@@ -160,7 +160,7 @@
 							open = false;
 							can_close = false;
 
-							let resp = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
+							let result = await fetch(`${import.meta.env.VITE_BACKEND}/logout`, {
 								method: 'delete',
 								headers: {
 									'Content-Type': 'application/json',
@@ -168,10 +168,10 @@
 								}
 							});
 
-							resp = await resp.json();
+							result = await result.json();
 
-							if (resp.status == 200) {
-								app.token = resp.token;
+							if (result.status == 200) {
+								app.token = result.token;
 								app.login = false;
 								document.location = '/';
 							}

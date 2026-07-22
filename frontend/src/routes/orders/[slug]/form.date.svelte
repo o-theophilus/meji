@@ -27,7 +27,7 @@
 
 	const submit = async () => {
 		loading.open('Saving Order . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/orders/${module.value.key}/delivery_date`,
 			{
 				method: 'put',
@@ -38,15 +38,15 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.order);
+		if (result.status == 200) {
+			module.value.update(result.order);
 			module.close();
 			notify.open('Date Saved');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

@@ -29,7 +29,7 @@
 
 	const submit = async () => {
 		loading.open('Adding Comment . . .');
-		let resp = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/blogs/${blog.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
@@ -42,16 +42,16 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.comments, resp.total_comment, resp.total_page);
+		if (response.status == 200) {
+			module.value.update(result.comments, result.total_comment, result.total_page);
 			module.close();
 			notify.open('Comment Added');
 			scroll('#comment_section');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

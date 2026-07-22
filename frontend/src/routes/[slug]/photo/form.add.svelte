@@ -35,28 +35,28 @@
 		}
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 		input.value = '';
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			if (ops.files.length == 0) {
-				ops.active = resp.item.files[0];
+				ops.active = result.item.files[0];
 			}
-			ops.files = resp.item.files;
-			module.value.update(resp.item);
+			ops.files = result.item.files;
+			module.value.update(result.item);
 			notify.open('Photo added');
 
-			if (resp.error) ops.error = resp;
+			if (result.error) ops.error = result;
 		} else {
-			ops.error = resp;
+			ops.error = result;
 		}
 	};
 

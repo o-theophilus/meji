@@ -89,34 +89,34 @@
 		}
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			advert = resp.advert;
+		if (result.status == 200) {
+			advert = result.advert;
 			photo_selected = { ...advert.photo };
 			spaces_selected = [...advert.space];
-			if (resp.error) {
-				error.error = resp.error;
+			if (result.error) {
+				error.error = result.error;
 			}
 			set_active();
 			notify.open('Ads Photo added');
 			page_state.clear('adverts');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
 	const save = async () => {
 		loading.open('Saving . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -127,37 +127,37 @@
 				spaces_selected
 			})
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			advert = resp.advert;
+		if (result.status == 200) {
+			advert = result.advert;
 			photo_selected = { ...advert.photo };
 			spaces_selected = [...advert.space];
-			if (resp.error) {
-				error.error = resp.error;
+			if (result.error) {
+				error.error = result.error;
 			}
 			set_active();
 			notify.open('Ads Photo added');
 			page_state.clear('adverts');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
 	onMount(async () => {
 		loading.open('uploading . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		result = await result.json();
 
-		if (resp.status == 200) {
-			advert = resp.advert;
+		if (result.status == 200) {
+			advert = result.advert;
 			if (advert) {
 				photo_selected = { ...advert.photo };
 				spaces_selected = [...advert.space];
@@ -165,8 +165,8 @@
 				advert = null;
 				spaces_selected = [];
 			}
-			spaces = resp.spaces;
-			sizes = resp.sizes;
+			spaces = result.spaces;
+			sizes = result.sizes;
 			set_active();
 		}
 		loading.close();

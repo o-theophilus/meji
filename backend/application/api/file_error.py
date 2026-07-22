@@ -34,7 +34,6 @@ def file_error(cur):
     items_with_missing_photo = cur.fetchall()
 
     return {
-        "status": 200,
         "unused_item_photo": [
             f"{request.host_url}photo/item/{x}"
             for x in item_store_photo if x not in item_photo],
@@ -52,7 +51,6 @@ def file_error(cur):
 def _get_file_error(cur, user):
     if "admin.manage_files" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -66,7 +64,6 @@ def _get_file_error(cur, user):
 def delete_file(cur, user):
     if "admin.manage_files" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -78,7 +75,6 @@ def delete_file(cur, user):
         or not entity or entity not in ["user", "item"]
     ):
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -86,7 +82,6 @@ def delete_file(cur, user):
         storage.delete(x.split("/")[-1], entity)
 
     return {
-        "status": 200,
         "log": {
             "misc": {
                 "photo(s)": photos,

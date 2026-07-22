@@ -15,7 +15,6 @@ def like_item(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -34,7 +33,6 @@ def like_item(cur, user, key):
             user_reaction["key"],))
 
     return {
-        "status": 200,
         "likes": get_user_like(cur, user["key"]),
         "log": {
             "entity_key": item["key"],
@@ -55,13 +53,11 @@ def like_blog(cur, user, key):
     cur.execute("""SELECT * FROM blog WHERE key = %s;""", (key,))
     if not cur.fetchone():
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     if reaction not in ["like", "dislike"]:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -99,7 +95,6 @@ def like_blog(cur, user, key):
     reactions = cur.fetchone()
 
     return {
-        "status": 200,
         **reactions,
         "log": {
             "entity_key": key,
@@ -119,7 +114,6 @@ def like(cur, user, key):
     comment = cur.fetchone()
     if not comment:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -127,7 +121,6 @@ def like(cur, user, key):
 
     if reaction not in ["like", "dislike"]:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -165,7 +158,6 @@ def like(cur, user, key):
     reactions = cur.fetchone()
 
     return {
-        "status": 200,
         **reactions,
         "log": {
             "entity_key": key,

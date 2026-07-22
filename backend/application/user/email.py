@@ -15,14 +15,12 @@ bp = Blueprint("user_email", __name__)
 def email_1_old_email(cur, user):
     if user["email"] == os.environ["MAIL_USERNAME"]:
         return {
-            "status": 403,
             "error": "Invalid request"
         }, 403
 
     email_template = request.json.get("email_template")
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -36,7 +34,6 @@ def email_1_old_email(cur, user):
     )
 
     return {
-        "status": 200
     }, 200
 
 
@@ -47,12 +44,10 @@ def email_2_old_code(cur, user):
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         return {
-            "status": 422,
             "code_1": error
         }, 422
 
     return {
-        "status": 200
     }, 200
 
 
@@ -63,14 +58,12 @@ def email_3_new_email(cur, user):
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     email_template = request.json.get("email_template")
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -82,13 +75,11 @@ def email_3_new_email(cur, user):
         error = "Invalid email address"
     if error:
         return {
-            "status": 422,
             "email": error
         }, 422
 
     if user["email"] == email:
         return {
-            "status": 422,
             "email": "please use a different email form your current email"
         }, 422
 
@@ -96,7 +87,6 @@ def email_3_new_email(cur, user):
     exist = cur.fetchone()
     if exist:
         return {
-            "status": 422,
             "email": "email is already in use"
         }, 422
 
@@ -111,7 +101,6 @@ def email_3_new_email(cur, user):
     )
 
     return {
-        "status": 200
     }, 200
 
 
@@ -123,27 +112,23 @@ def email_4_new_code(cur, user):
     if user["email"] == os.environ["MAIL_USERNAME"]:
         cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
         return {
-            "status": 403,
             "error": "Invalid request"
         }, 403
 
     error = check_code(cur, user["key"], user["email"], "code_1")
     if error:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     email = request.json.get("email")
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     if user["email"] == email:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -151,14 +136,12 @@ def email_4_new_code(cur, user):
     exist = cur.fetchone()
     if exist:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     error = check_code(cur, user["key"], email, "code_2")
     if error:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -171,7 +154,6 @@ def email_4_new_code(cur, user):
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
     return {
-        "status": 200,
         "user": user_schema(user),
         "log": {
             "misc": {

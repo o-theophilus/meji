@@ -27,7 +27,7 @@
 	const submit = async () => {
 		error = {};
 		loading.open(`Deleting comment . . .`);
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/${module.value.comment.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
@@ -41,20 +41,20 @@
 			}
 		);
 		loading.close();
-		resp = await resp.json();
+		result = await result.json();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			module.value.update(
-				resp.comments,
-				resp.ratings,
-				resp.has_purchased,
-				resp.can_comment,
-				resp.total_page
+				result.comments,
+				result.ratings,
+				result.has_purchased,
+				result.can_comment,
+				result.total_page
 			);
 			module.close();
 			notify.open('Comment Deleted');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

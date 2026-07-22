@@ -15,7 +15,6 @@ def report_comment(cur, user, key):
     comment = cur.fetchone()
     if not comment:
         return {
-            "status": 404,
             "error": "Comment not found"
         }, 404
 
@@ -24,7 +23,6 @@ def report_comment(cur, user, key):
 
     if type(tags) is not list:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -35,7 +33,6 @@ def report_comment(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -50,7 +47,6 @@ def report_comment(cur, user, key):
     report = cur.fetchone()
 
     return {
-        "status": 200,
         "log": {
             "entity_key": report["key"],
             "misc": {
@@ -70,7 +66,6 @@ def report_user(cur, user, key):
     user2 = cur.fetchone()
     if not user2:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -79,7 +74,6 @@ def report_user(cur, user, key):
 
     if type(tags) is not list:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -90,7 +84,6 @@ def report_user(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -102,7 +95,6 @@ def report_user(cur, user, key):
     report = cur.fetchone()
 
     return {
-        "status": 200,
         "log": {
             "entity_key": report["key"],
             "misc": {
@@ -120,7 +112,6 @@ def report_user(cur, user, key):
 def dismiss(cur, user, key):
     if "report.resolve" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -132,7 +123,6 @@ def dismiss(cur, user, key):
         or report["status"] != "active"
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -152,7 +142,6 @@ def dismiss(cur, user, key):
     """, (user["key"], comment, key))
 
     return {
-        "status": 200,
         "reports": many(cur),
         "log": {
             "entity_key": report["key"],
@@ -167,7 +156,6 @@ def dismiss(cur, user, key):
 def resolve(cur, user, key):
     if "report.resolve" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -179,7 +167,6 @@ def resolve(cur, user, key):
         or report["status"] != "active"
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -240,7 +227,6 @@ def resolve(cur, user, key):
             ))
 
     return {
-        "status": 200,
         "reports": many(cur),
         "log": {
             "entity_key": report["key"]

@@ -43,7 +43,6 @@ def many_items(cur, key, user_key, page_size=24):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -230,7 +229,6 @@ def many_items(cur, key, user_key, page_size=24):
     total_parent = total["total_parent"]
 
     return {
-        "status": 200,
         "item": item,
         "comments": comments,
         "ratings": ratings,
@@ -403,7 +401,6 @@ def many_blogs(cur, key, user_key):
     total_parent = total["total_parent"]
 
     return {
-        "status": 200,
         "comments": comments,
         "order_by": list(order_by.keys()),
         "total_comment": total_comment,

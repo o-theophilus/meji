@@ -36,7 +36,6 @@ def create_app(conf=None):
     def index():
 
         return {
-            "status": 200,
             "message": "Welcome to Meji"
         }, 200
 

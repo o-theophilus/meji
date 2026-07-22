@@ -6,7 +6,7 @@
 	let { blog } = $props();
 
 	const prerender = () => {
-		app.post = blog;
+		app.blog = blog;
 	};
 	let src = $state(blog.photo ? `${blog.photo}/500` : '/no_photo.png');
 </script>

@@ -22,7 +22,6 @@ def add(cur, user):
     cart = cur.fetchone()
     if not cart:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -38,13 +37,11 @@ def add(cur, user):
         or item["quantity"] == 0
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     if type(variation) is not dict:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -66,7 +63,6 @@ def add(cur, user):
 
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -94,7 +90,6 @@ def add(cur, user):
     order_item = cur.fetchone()
 
     return {
-        "status": 200,
         "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
@@ -119,7 +114,6 @@ def remove(cur, user):
     cart = cur.fetchone()
     if not cart:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -128,7 +122,6 @@ def remove(cur, user):
 
     if not item_key or type(variation) is not dict:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -139,12 +132,10 @@ def remove(cur, user):
     ;""", (cart["key"], item_key, Json(variation)))
     if not cur.fetchone():
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
     return {
-        "status": 200,
         "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
@@ -185,13 +176,11 @@ def quantity(cur, user):
         or not order_item
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     if type(variation) is not dict:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -203,7 +192,6 @@ def quantity(cur, user):
         error = f"Only {item['quantity']} item{s} available in stock"
     if error:
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -215,7 +203,6 @@ def quantity(cur, user):
     order_item = cur.fetchone()
 
     return {
-        "status": 200,
         "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
@@ -242,7 +229,6 @@ def receiver(cur, user):
     cart = cur.fetchone()
     if not cart:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -295,7 +281,6 @@ def receiver(cur, user):
 
         if error:
             return {
-                "status": 422,
                 **error
             }, 422
 
@@ -321,7 +306,6 @@ def receiver(cur, user):
     cart = cur.fetchone()
 
     return {
-        "status": 200,
         "items": cart_items(cur, user["key"])["items"],
         "log": {
             "entity_key": cart["key"],
@@ -344,7 +328,6 @@ def add_coupon(cur, user):
     cart = cur.fetchone()
     if not cart:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -357,7 +340,6 @@ def add_coupon(cur, user):
         error = "This must be 10 characters"
     if error:
         return {
-            "status": 422,
             "code": error
         }, 422
 
@@ -367,7 +349,6 @@ def add_coupon(cur, user):
     coupon = cur.fetchone()
     if not coupon:
         return {
-            "status": 404,
             "code": "Invalid coupon code"
         }, 404
 
@@ -379,7 +360,6 @@ def add_coupon(cur, user):
         error = "This coupon has expired"
     if error:
         return {
-            "status": 422,
             "code": error
         }, 422
 
@@ -390,7 +370,6 @@ def add_coupon(cur, user):
     coupon = cur.fetchone()
 
     return {
-        "status": 200,
         "coupon": coupon_schema(coupon),
         "log": {
             "entity_key": cart["key"],
@@ -417,7 +396,6 @@ def remove_coupon(cur, user):
     coupon = cur.fetchone()
     if not cart or not coupon:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -426,7 +404,6 @@ def remove_coupon(cur, user):
     """, (coupon["key"],))
 
     return {
-        "status": 200,
         "coupon": None,
         "log": {
             "entity_key": cart["key"],

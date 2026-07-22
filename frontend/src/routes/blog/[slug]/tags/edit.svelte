@@ -37,7 +37,7 @@
 		error = {};
 
 		loading.open('Saving Blog . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -45,15 +45,15 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.blog);
+		if (result.status == 200) {
+			module.value.update(result.blog);
 			module.close();
-			notify.open(`Tag${resp.blog.tags.length > 1 ? 's' : ''} Saved`);
+			notify.open(`Tag${result.blog.tags.length > 1 ? 's' : ''} Saved`);
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 

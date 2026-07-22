@@ -13,18 +13,18 @@
 	onMount(async () => {
 		loading = true;
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/adverts?space=${space}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/adverts?space=${space}`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
 
-		resp = await resp.json();
+		result = await result.json();
 		loading = false;
 
-		if (resp.status == 200) {
-			for (const x of resp.adverts) {
+		if (result.status == 200) {
+			for (const x of result.adverts) {
 				if (x.photo['300x300'] && x.space.includes(space)) {
 					a300x300.push(x);
 				}

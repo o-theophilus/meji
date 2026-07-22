@@ -33,7 +33,7 @@
 
 	const submit = async () => {
 		loading.open('loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/3`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/3`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -41,14 +41,14 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open('Password changed');
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

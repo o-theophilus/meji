@@ -16,7 +16,6 @@ def add_blog_comment(cur, user, key):
     """, (key, key))
     if not cur.fetchone():
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -28,7 +27,6 @@ def add_blog_comment(cur, user, key):
         parent = cur.fetchone()
         if not parent or parent["parent_key"] is not None:
             return {
-                "status": 404,
                 "error": "Invalid request"
             }, 404
 
@@ -39,7 +37,6 @@ def add_blog_comment(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -52,7 +49,6 @@ def add_blog_comment(cur, user, key):
     blogs = many_blogs(cur, key, user["key"])
 
     return {
-        "status": 200,
         "comments": blogs["comments"],
         "total_comment": blogs["total_comment"],
         "total_page": blogs["total_page"],
@@ -76,7 +72,6 @@ def add_item_comment(cur, user, key):
     """, (key, key))
     if not cur.fetchone():
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -84,14 +79,12 @@ def add_item_comment(cur, user, key):
     if parent_key:
         if "comment.reply" not in user["access"]:
             return {
-                "status": 403,
                 "error": "unauthorized access"
             }, 403
 
         cur.execute("SELECT * FROM comment WHERE key = %s;", (parent_key,))
         if not cur.fetchone():
             return {
-                "status": 404,
                 "error": "Invalid request"
             }, 404
 
@@ -130,7 +123,6 @@ def add_item_comment(cur, user, key):
 
     if not user_comment_info["can_comment"]:
         return {
-            "status": 403,
             "error": "Invalid request"
         }, 403
 
@@ -146,7 +138,6 @@ def add_item_comment(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -160,7 +151,6 @@ def add_item_comment(cur, user, key):
     items = many_items(cur, key, user["key"])
 
     return {
-        "status": 200,
         "comments": items["comments"],
         "total_page": items["total_page"],
         "total_comment": items["total_comment"],
@@ -186,7 +176,6 @@ def delete(cur, user, key):
     comment = cur.fetchone()
     if not comment:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -196,7 +185,6 @@ def delete(cur, user, key):
     if comment["user_key"] != user["key"]:
         if "comment.delete_others" not in user["access"]:
             return {
-                "status": 403,
                 "error": "unauthorized access"
             }, 403
 
@@ -207,7 +195,6 @@ def delete(cur, user, key):
             error["comment"] = "This field cannot exceed 500 characters"
         if error:
             return {
-                "status": 422,
                 **error
             }, 422
 
@@ -231,7 +218,6 @@ def delete(cur, user, key):
         entity["total_page"] = blogs["total_page"]
 
     return {
-        "status": 200,
         **entity,
         "log": {
             "entity_key": comment["key"],

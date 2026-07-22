@@ -1,19 +1,19 @@
 import { error } from '@sveltejs/kit';
 
 export async function handle({ event, resolve }) {
-    let resp = await fetch(`${import.meta.env.VITE_BACKEND}/init`, {
+    let response = await fetch(`${import.meta.env.VITE_BACKEND}/init`, {
         method: 'post',
         headers: {
             'Content-Type': 'application/json',
             Authorization: event.cookies.get("token")
         }
     });
-    resp = await resp.json();
+    let result = await response.json();
 
-    if (resp.status == 200) {
-        event.locals = resp;
+    if (response.status == 200) {
+        event.locals = result;
         return await resolve(event);
     }
 
-    throw error(404, `Error status: ${resp.status}`)
+    throw error(404, `Error status: ${result.status}`)
 }

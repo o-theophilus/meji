@@ -16,7 +16,6 @@ bp = Blueprint("advert", __name__)
 def add_photo(cur, user, key):
     if "item.advert" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -24,13 +23,11 @@ def add_photo(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
     if 'files' not in request.files:
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -70,7 +67,6 @@ def add_photo(cur, user, key):
         if not error:
             error = "no file"
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -88,7 +84,6 @@ def add_photo(cur, user, key):
     advert = cur.fetchone()
 
     out = {
-        "status": 200,
         "advert": advert_schema(advert),
         "log": {
             "entity_key": advert["key"],
@@ -98,7 +93,7 @@ def add_photo(cur, user, key):
             }
 
         }
-    }
+    }, 200
 
     if error:
         out["error"] = error
@@ -113,7 +108,6 @@ def add_photo(cur, user, key):
 def set_photo(cur, user, key):
     if "item.advert" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -123,7 +117,6 @@ def set_photo(cur, user, key):
     advert = cur.fetchone()
     if not item or not advert:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -136,7 +129,6 @@ def set_photo(cur, user, key):
         or not all(y in spaces for y in spaces_selected)
     ):
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -170,7 +162,6 @@ def set_photo(cur, user, key):
         misc["to space"] = advert["space"]
 
     return {
-        "status": 200,
         "advert": advert_schema(advert) if advert else None,
         "log": {
             "entity_key": advert["key"],

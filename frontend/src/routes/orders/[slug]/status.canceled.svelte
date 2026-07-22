@@ -31,7 +31,7 @@
 		form.email_template_user = email_template_user.innerHTML.replace(/&amp;/g, '&');
 
 		loading.open('Canceling Order . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/order/${module.value.order.key}/status/canceled`,
 			{
 				method: 'put',
@@ -42,15 +42,15 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.order);
+		if (result.status == 200) {
+			module.value.update(result.order);
 			notify.open('Order Canceled');
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

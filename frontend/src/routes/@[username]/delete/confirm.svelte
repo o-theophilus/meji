@@ -25,7 +25,7 @@
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
 		loading.open('deleting . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/deactivate`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/deactivate`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,15 +33,15 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			app.token = resp.token;
+		if (response.status == 200) {
+			app.token = result.token;
 			app.login = false;
 			document.location = '/';
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

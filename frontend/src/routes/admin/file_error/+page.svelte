@@ -25,7 +25,7 @@
 		error = {};
 
 		loading.open(`Deleting ${entity} photo . . .`);
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/file_error`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/file_error`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,10 +33,10 @@
 			},
 			body: JSON.stringify({ photos, entity })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open(`${entity} photo${photos.length > 1 ? 's' : ''} deleted`);
 
 			if (entity == 'user') {
@@ -47,7 +47,7 @@
 				selected_item_photo = [];
 			}
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

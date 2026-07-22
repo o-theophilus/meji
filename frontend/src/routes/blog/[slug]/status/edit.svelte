@@ -23,7 +23,7 @@
 		error = {};
 
 		loading.open('Saving Blog . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -31,15 +31,15 @@
 			},
 			body: JSON.stringify({ status })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.blog);
+		if (result.status == 200) {
+			module.value.update(result.blog);
 			module.close();
 			notify.open('Status Changed');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

@@ -22,20 +22,20 @@
 	const make_payment = async () => {
 		ops.error = {};
 		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			paystack.checkout({
 				key: import.meta.env.VITE_PAYSTACK_KEY,
 				email: app.user.email,
-				amount: resp.pay * 100,
+				amount: result.pay * 100,
 
 				onLoad: (response) => {
 					console.log('onLoad: ', response);
@@ -78,7 +78,7 @@
 				}
 			});
 		} else {
-			ops.error = resp;
+			ops.error = result;
 		}
 	};
 
@@ -86,7 +86,7 @@
 		ops.error = {};
 
 		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -98,13 +98,13 @@
 				email_template_user: email_template_user.innerHTML.replace(/&amp;/g, '&')
 			})
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			app.cart_items = [];
 			page_state.clear('cart');
-			goto(`/orders/${resp.order.key}`);
+			goto(`/orders/${result.order.key}`);
 
 			module.open(Dialogue, {
 				status: 200,
@@ -121,7 +121,7 @@
 				]
 			});
 		} else {
-			ops.error = resp;
+			ops.error = result;
 		}
 	};
 </script>

@@ -16,7 +16,7 @@
 	let coupons = $derived(data.coupons);
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
-	let { _status } = data;
+	let { status } = data;
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 	let pagination = $state();
@@ -73,7 +73,7 @@
 			label="Status: {searchParams.status}"
 			icon="list-filter"
 			icon2="chevron-down"
-			list={_status}
+			list={status}
 			bind:value={searchParams.status}
 			onchange={(v) => {
 				searchParams.page_no = 1;

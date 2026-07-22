@@ -13,7 +13,6 @@ bp = Blueprint("item_file", __name__)
 def add_file(cur, user, key):
     if "item.edit_file" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -21,13 +20,11 @@ def add_file(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     if 'files' not in request.files:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -48,7 +45,6 @@ def add_file(cur, user, key):
         if not error:
             error = "no file"
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -69,7 +65,6 @@ def add_file(cur, user, key):
     item = cur.fetchone()
 
     return {
-        "status": 200,
         "item": item_schema(item),
         "error": error,
         "log": {
@@ -89,7 +84,6 @@ def add_file(cur, user, key):
 def order_delete_file(cur, user, key):
     if "item.edit_file" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -97,21 +91,18 @@ def order_delete_file(cur, user, key):
     item = cur.fetchone()
     if not item:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     files = request.json.get("files")
     if not item or type(files) is not list:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     files = [p.split("/")[-1] for p in files]
     if not all(x in item["files"] for x in files):
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -130,7 +121,6 @@ def order_delete_file(cur, user, key):
     item = cur.fetchone()
 
     return {
-        "status": 200,
         "item": item_schema(item),
         "": {
             "entity_key": item["key"],

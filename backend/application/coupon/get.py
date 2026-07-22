@@ -51,18 +51,15 @@ def get(cur, user, key):
     coupon = cur.fetchone()
     if not coupon:
         return {
-            "status": 404,
             "error": "Oops! The item you're looking for doesn't exist"
         }, 404
 
     if "coupon.view" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     return {
-        "status": 200,
         "coupon": coupon_schema(coupon, user["access"])
     }, 200
 
@@ -113,7 +110,6 @@ def many(cur):
     total_page = cur.fetchone()["count"]
 
     return {
-        "status": 200,
         "coupons": [coupon_schema(x) for x in coupons],
         "total_page": ceil(total_page / page_size),
         "order_by": list(order_by.keys()),
@@ -121,7 +117,7 @@ def many(cur):
         "value_unit": coupon_value_unit,
         "condition_unit": coupon_condition_unit,
         "searchParams": searchParams,
-        "_status": ['all', 'inactive', 'active', 'used', 'expired']
+        "status": ['all', 'inactive', 'active', 'used', 'expired']
     }
 
 
@@ -130,7 +126,6 @@ def many(cur):
 def get_many(cur, user):
     if "coupon.view" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
     return many(cur), 200

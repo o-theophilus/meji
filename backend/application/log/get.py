@@ -44,7 +44,6 @@ def many(cur, user):
 
     if "log.view" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -126,7 +125,6 @@ def many(cur, user):
             x["action"] = "viewed page"
 
     return {
-        "status": 200,
         "logs": logs,
         "searchParams": searchParams,
         "search_query": search_query(cur),

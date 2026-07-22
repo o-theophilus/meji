@@ -33,7 +33,7 @@
 
 	const submit = async () => {
 		loading.open('Adding Review . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/items/${item.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
@@ -46,21 +46,21 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			module.value.update(
-				resp.comments,
-				resp.ratings,
-				resp.has_purchased,
-				resp.can_comment,
-				resp.total_page
+				result.comments,
+				result.ratings,
+				result.has_purchased,
+				result.can_comment,
+				result.total_page
 			);
 			module.close();
 			notify.open('Review Added');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

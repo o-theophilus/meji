@@ -19,7 +19,6 @@ bp = Blueprint("blog", __name__)
 def add(cur, user):
     if "blog.add" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -32,7 +31,6 @@ def add(cur, user):
         error["title"] = "This field cannot exceed 100 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -50,7 +48,6 @@ def add(cur, user):
     blog = cur.fetchone()
 
     return {
-        "status": 200,
         "blog": blog_schema(blog),
         "blogs": many(cur, user),
         "log": {
@@ -68,7 +65,6 @@ def edit(cur, user, key):
     blog = cur.fetchone()
     if not blog:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -177,7 +173,6 @@ def edit(cur, user, key):
 
     if error:
         return {
-            "status": 400,
             **error
         }, 400
 
@@ -195,7 +190,6 @@ def edit(cur, user, key):
     blog = cur.fetchone()
 
     return {
-        "status": 200,
         "blog": blog_schema(blog),
         "log": {
             "entity_key": blog["key"],
@@ -211,7 +205,6 @@ def edit(cur, user, key):
 def delete(cur, user, key):
     if "blog.edit_status" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -219,7 +212,6 @@ def delete(cur, user, key):
     blog = cur.fetchone()
     if not blog:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -231,7 +223,6 @@ def delete(cur, user, key):
         error = "Incorrect password"
     if error:
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -244,7 +235,6 @@ def delete(cur, user, key):
         storage.delete(x, "blog")
 
     return {
-        "status": 200,
         "log": {
             "entity_key": blog["key"],
         }

@@ -84,7 +84,6 @@ def cart_items(cur, user_key):
     coupon = cur.fetchone()
 
     return {
-        "status": 200,
         "cart": cart,
         "items": items,
         "previous_receivers": previous_receivers,

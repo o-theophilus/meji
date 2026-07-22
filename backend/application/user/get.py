@@ -24,7 +24,6 @@ def get(cur, viewer, key):
 
     if not user:
         return {
-            "status": 404,
             "error": "Oops! The user you're looking for doesn't exist"
         }, 404
 
@@ -42,7 +41,6 @@ def get(cur, viewer, key):
                 _access[x][y[1]].append(y[0])
 
     return {
-        "status": 200,
         "user": user_schema(user),
         "dashboard": _dashboard,
         "access": _access,
@@ -54,7 +52,6 @@ def get(cur, viewer, key):
 def get_users(cur, _user):
     if "user.view" not in session["user"]["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -110,12 +107,11 @@ def get_users(cur, _user):
     users = cur.fetchall()
 
     return {
-        "status": 200,
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-        "_status": ['anonymous', 'signedup', 'active'],
+        "status": ['anonymous', 'signedup', 'active'],
     }, 200
 
 
@@ -185,7 +181,6 @@ def get_admins(cur):
                 access[x].append(y[0])
 
     return {
-        "status": 200,
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),

@@ -48,7 +48,7 @@
 
 	const submit = async () => {
 		loading.open('Updating Validity . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
 				method: 'put',
@@ -59,22 +59,22 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			page_state.clear('coupons');
-			module.value.update(resp.coupon);
+			module.value.update(result.coupon);
 			module.close();
 			notify.open('Validity Updated');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
 	const clear = async () => {
 		loading.open('Removing Validity . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
 				method: 'delete',
@@ -84,15 +84,15 @@
 				}
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.coupon);
+		if (result.status == 200) {
+			module.value.update(result.coupon);
 			module.close();
 			notify.open('Validity Removed');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

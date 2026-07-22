@@ -242,7 +242,6 @@ def create_tables():
 
     db_close(con, cur)
     return {
-        "status": 200
     }, 200
 
 
@@ -293,5 +292,4 @@ def copy_db():
     to_con.close()
 
     return {
-        "status": 200
     }, 200

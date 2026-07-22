@@ -18,7 +18,6 @@ def theme(cur, user):
     theme = request.json.get("theme")
     if theme not in ["light", "dark", "system"]:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -29,7 +28,6 @@ def theme(cur, user):
     user = cur.fetchone()
 
     return {
-        "status": 200,
         "user": user_schema(user),
         "log": {
             "misc": {
@@ -91,7 +89,6 @@ def edit_user(cur, user):
 
     if error:
         return {
-            "status": 400,
             **error
         }, 400
 
@@ -103,7 +100,6 @@ def edit_user(cur, user):
     user = cur.fetchone()
 
     return {
-        "status": 200,
         "user": user_schema(user),
         "log": {
             "misc": request.json
@@ -125,7 +121,6 @@ def profile_action(cur, user, key):
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -139,7 +134,6 @@ def profile_action(cur, user, key):
         error["comment"] = "This field is required"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -165,7 +159,6 @@ def profile_action(cur, user, key):
         error = "Invalid request"
     if error:
         return {
-            "status": 403,
             "error": error
         }, 403
 
@@ -182,7 +175,6 @@ def profile_action(cur, user, key):
     user2 = cur.fetchone()
 
     return {
-        "status": 200,
         "user": user_schema(user2),
         "log": {
             "entity_key": user2["key"],
@@ -201,7 +193,6 @@ def profile_action(cur, user, key):
 def set_access(cur, user, key):
     if "user.set_access" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -214,7 +205,6 @@ def set_access(cur, user, key):
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -223,7 +213,6 @@ def set_access(cur, user, key):
 
     if not access or type(access) is not list:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -234,7 +223,6 @@ def set_access(cur, user, key):
         error = "incorrect password"
     if error:
         return {
-            "status": 422,
             "password": error
         }, 422
 
@@ -245,7 +233,6 @@ def set_access(cur, user, key):
     user2 = cur.fetchone()
 
     return {
-        "status": 200,
         "user": user_schema(user2),
         "log": {
             "entity_key": user2["key"],

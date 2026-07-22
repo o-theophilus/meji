@@ -22,7 +22,6 @@ def advert_schema(advert):
 def get(cur, user, key):
     if "item.advert" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -30,7 +29,6 @@ def get(cur, user, key):
     advert = cur.fetchone()
 
     return {
-        "status": 200,
         "advert": advert_schema(advert) if advert else None,
         "spaces": spaces,
         "sizes": sizes
@@ -90,7 +88,6 @@ def many(cur, user):
     adverts = cur.fetchall()
 
     return {
-        "status": 200,
         "adverts": [advert_schema(x) for x in adverts],
         "order_by": list(order_by.keys()),
         "spaces": ["all", *spaces],

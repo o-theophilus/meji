@@ -142,7 +142,6 @@ def init(cur, _session):
         """, (user["key"], Json(get_client_info())))
 
     return {
-        "status": 200,
         "user": user_schema(user),
         "token": token,
         "login": login,
@@ -163,7 +162,6 @@ def init(cur, _session):
 def signup(cur, user):
     if user["login"]:
         return {
-            "status": 401,
             "error": "Invalid request"
         }, 401
 
@@ -175,7 +173,6 @@ def signup(cur, user):
 
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -217,7 +214,6 @@ def signup(cur, user):
 
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -257,7 +253,6 @@ def signup(cur, user):
     )
 
     return {
-        "status": 200
     }, 200
 
 
@@ -270,7 +265,6 @@ def confirm(cur, _user):
     email = request.json.get("email")
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -278,7 +272,6 @@ def confirm(cur, _user):
     user = cur.fetchone()
     if not user or user["status"] != 'signedup':
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -286,7 +279,6 @@ def confirm(cur, _user):
     error = check_code(cur, user["key"], user["email"])
     if error:
         return {
-            "status": 422,
             "error": error
         }, 422
 
@@ -304,7 +296,6 @@ def confirm(cur, _user):
     cur.execute("DELETE FROM code WHERE user_key = %s;", (user["key"],))
 
     return {
-        "status": 200
     }, 200
 
 
@@ -316,7 +307,6 @@ def login(cur, user):
 
     if user["login"]:
         return {
-            "status": 401,
             "error": "Invalid request"
         }, 401
 
@@ -327,7 +317,6 @@ def login(cur, user):
 
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -338,7 +327,6 @@ def login(cur, user):
         error["password"] = "This field is required"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -357,14 +345,12 @@ def login(cur, user):
         or not check_password_hash(user2["password"], password)
     ):
         return {
-            "status": 422,
             "error": "your email or password is incorrect"
         }, 422
 
     cur.execute("SELECT * FROM block WHERE user_key = %s;", (user2["key"],))
     if cur.fetchone():
         return {
-            "status": 401,
             "error": "account blocked"
         }, 401
 
@@ -380,7 +366,6 @@ def login(cur, user):
             )
         )
         return {
-            "status": 401,
             "error": "not active"
         }, 401
 
@@ -396,7 +381,6 @@ def login(cur, user):
     token = create_session(cur, user2["key"], True, remember)
 
     return {
-        "status": 200,
         "token": token,
         "log": {
             "misc": {
@@ -421,7 +405,6 @@ def logout(cur, user):
     token = create_session(cur, user2["key"])
 
     return {
-        "status": 200,
         "user": user_schema(user2),
         "token": token,
         "log": {
@@ -445,7 +428,6 @@ def deactivate(cur, user):
 
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -456,7 +438,6 @@ def deactivate(cur, user):
         error["password"] = "Incorrect password"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -484,7 +465,6 @@ def deactivate(cur, user):
     )
 
     return {
-        "status": 200,
         "user": user_schema(user2),
         "token": token,
         "log": {

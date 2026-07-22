@@ -22,7 +22,7 @@
 
 	const submit = async () => {
 		loading.open('loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/email/4`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/user/email/4`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -30,15 +30,15 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.user);
+		if (response.status == 200) {
+			module.value.update(result.user);
 			notify.open('Email changed');
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

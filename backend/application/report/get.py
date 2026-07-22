@@ -154,10 +154,9 @@ def many(cur):
     total_page = cur.fetchone()["count"]
 
     return {
-        "status": 200,
         "reports": reports,
         "order_by": list(order_by.keys()),
-        "_status": ["active", "resolved", "dismissed"],
+        "status": ["active", "resolved", "dismissed"],
         "type": ["all", "user", "comment"],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
@@ -169,7 +168,6 @@ def many(cur):
 def get_many(cur, user):
     if "report.view" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
     return many(cur), 200

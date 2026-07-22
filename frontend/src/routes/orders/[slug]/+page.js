@@ -2,17 +2,17 @@ import { error } from '@sveltejs/kit';
 
 export const load = async ({ fetch, parent, params }) => {
 	let a = await parent();
-	let resp = await fetch(`${import.meta.env.VITE_BACKEND}/orders/${params.slug}`, {
+	let result = await fetch(`${import.meta.env.VITE_BACKEND}/orders/${params.slug}`, {
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: a.locals.token
 		}
 	});
-	resp = await resp.json();
+	result = await result.json();
 
-	if (resp.status == 200) {
-		return resp
+	if (result.status == 200) {
+		return result
 	} else {
-		throw error(resp.status, resp.error)
+		throw error(result.status, result.error)
 	}
 }

@@ -74,13 +74,11 @@ def expire_coupon(cur, user_key):
 def user_delete_session(cur, user):
     if "maintenance.session" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     delete_session(cur, user["key"])
     return {
-        "status": 200
     }, 200
 
 
@@ -91,14 +89,12 @@ def user_delete_session(cur, user):
 def user_delete_anonymous(cur, user):
     if "maintenance.anonymous" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     delete_session(cur, user["key"])
 
     return {
-        "status": 200
     }, 200
 
 
@@ -109,14 +105,12 @@ def user_delete_anonymous(cur, user):
 def user_expire_coupon(cur, user):
     if "maintenance.coupon" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     expire_coupon(cur, user["key"])
 
     return {
-        "status": 200
     }, 200
 
 
@@ -135,7 +129,6 @@ def cron():
 
     db_close(con, cur)
     return {
-        "status": 200
     }, 200
 
 
@@ -150,7 +143,6 @@ def footer_send_email(_cur, _user):
 
     if not email_template:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -171,7 +163,6 @@ def footer_send_email(_cur, _user):
         error["message"] = "This field is required"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -185,5 +176,4 @@ def footer_send_email(_cur, _user):
     )
 
     return {
-        "status": 200
     }, 200

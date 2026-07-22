@@ -29,7 +29,7 @@
 			(x) => !(x.key == item.key && JSON.stringify(x.variation) == JSON.stringify(item.variation))
 		);
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -37,12 +37,12 @@
 			},
 			body: JSON.stringify({ key: item.key, variation: item.variation })
 		});
-		resp = await resp.json();
+		result = await result.json();
 
-		if (resp.status == 200) {
-			app.cart_items = resp.items;
+		if (result.status == 200) {
+			app.cart_items = result.items;
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
@@ -63,7 +63,7 @@
 	const submit = () => {
 		clearTimeout(timeout);
 		timeout = setTimeout(async () => {
-			let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
+			let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
 				method: 'post',
 				headers: {
 					'Content-Type': 'application/json',
@@ -75,12 +75,12 @@
 					variation: item.variation
 				})
 			});
-			resp = await resp.json();
+			result = await result.json();
 
-			if (resp.status == 200) {
-				app.cart_items = resp.items;
+			if (result.status == 200) {
+				app.cart_items = result.items;
 			} else {
-				error = resp;
+				error = result;
 			}
 		}, 1000);
 	};

@@ -14,7 +14,7 @@
 
 		loading.open(`Deleting comment . . .`);
 
-		let resp = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/${comment.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
@@ -27,15 +27,15 @@
 			}
 		);
 		loading.close();
-		resp = await resp.json();
+		let result = await response.json();
 
-		if (resp.status == 200) {
-			module.value.update(resp.comments, resp.total_comment, resp.total_page);
+		if (response.status == 200) {
+			module.value.update(result.comments, result.total_comment, result.total_page);
 			module.close();
 			notify.open('Comment Deleted');
 			scroll('#comment_section');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

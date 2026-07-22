@@ -48,7 +48,7 @@
 		ops.error = {};
 
 		loading.open('Saving . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -56,15 +56,15 @@
 			},
 			body: JSON.stringify({ files })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			ops.files = resp.item.files;
-			module.value.update(resp.item);
+		if (result.status == 200) {
+			ops.files = result.item.files;
+			module.value.update(result.item);
 			notify.open('Order Saved');
 		} else {
-			ops.error = resp;
+			ops.error = result;
 		}
 	};
 </script>

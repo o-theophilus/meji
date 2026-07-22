@@ -31,24 +31,24 @@
 		formData.append('file', file);
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
 			method: 'put',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 		input.value = '';
 
-		if (resp.status == 200) {
-			blog.photo = resp[blog.type].photo;
-			module.value.update(resp[blog.type]);
+		if (result.status == 200) {
+			blog.photo = result[blog.type].photo;
+			module.value.update(result[blog.type]);
 			has_photo = true;
 			notify.open('Photo updated');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
@@ -56,24 +56,24 @@
 		error = {};
 
 		loading.open('removing . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			blog.photo = null;
 
-			blog.update(resp[blog.type]);
+			blog.update(result[blog.type]);
 			has_photo = false;
 			notify.open('Photo removed');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

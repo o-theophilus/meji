@@ -13,16 +13,16 @@
 	};
 
 	onMount(async () => {
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/notification`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/notification`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		result = await result.json();
 
-		if (resp.status == 200) {
-			nots = resp.nots.map((x) => format(x));
+		if (result.status == 200) {
+			nots = result.nots.map((x) => format(x));
 		}
 	});
 

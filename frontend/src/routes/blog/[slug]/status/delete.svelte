@@ -25,7 +25,7 @@
 		error = {};
 
 		loading.open('Deleting Blog . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,15 +33,15 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			module.close();
 			notify.open('Blog Deleted');
 			goto('/blog');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

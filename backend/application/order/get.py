@@ -22,7 +22,6 @@ def get(cur, _user, key):
     order = cur.fetchone()
     if not order:
         return {
-            "status": 404,
             "error": "Oops! The order you're looking for doesn't exist"
         }, 404
 
@@ -31,7 +30,6 @@ def get(cur, _user, key):
         and "order.view" not in session["user"]["access"]
     ):
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -66,7 +64,6 @@ def get(cur, _user, key):
     coupon = cur.fetchone()
 
     return {
-        "status": 200,
         "order": order,
         "items": items,
         "coupon": coupon_schema(coupon) if coupon else None
@@ -154,11 +151,10 @@ def many(cur, user):
     orders = cur.fetchall()
 
     return {
-        "status": 200,
         "orders": orders,
         "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0,
         "order_by": list(order_by.keys()),
         "searchParams": searchParams,
-        "_status": order_status,
+        "status": order_status,
         "view": ['me', 'all'],
     }, 200

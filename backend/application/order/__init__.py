@@ -24,13 +24,11 @@ def order_check(cur, user):
     order = cur.fetchone()
     if not order:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
     if not has_adderss(order["receiver"]):
         return {
-            "status": 422,
             "error": "incomplete receiver information"
         }, 422
 
@@ -48,7 +46,6 @@ def order_check(cur, user):
     items = cur.fetchall()
     if len(items) == 0:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -59,7 +56,6 @@ def order_check(cur, user):
             or x["quantity"] > x["available_quantity"]
         ):
             return {
-                "status": 422,
                 "error": "Some items in your cart are no longer available"
             }, 422
 
@@ -99,12 +95,10 @@ def order_check(cur, user):
     pay = total_order + Decimal(delivery_cost) - Decimal(str(discount))
     if pay <= 0:
         return {
-            "status": 400,
             "error": "invalid request"
         }, 400
 
     return {
-        "status": 200,
         "pay": pay
     }, 200
 
@@ -120,7 +114,6 @@ def cart_to_order(cur, user):
     order = cur.fetchone()
     if not order:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -134,7 +127,6 @@ def cart_to_order(cur, user):
         or not email_template_user
     ):
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -150,7 +142,6 @@ def cart_to_order(cur, user):
     items = cur.fetchall()
     if len(items) == 0:
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -194,7 +185,6 @@ def cart_to_order(cur, user):
         (reference,))
     if cur.fetchone():
         return {
-            "status": 400,
             "error": "invalid request"
         }, 400
 
@@ -220,7 +210,6 @@ def cart_to_order(cur, user):
         or resp["data"]["currency"] != "NGN"
     ):
         return {
-            "status": 400,
             "error": "invalid transaction"
         }, 400
 
@@ -349,7 +338,6 @@ def cart_to_order(cur, user):
     )
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -364,7 +352,6 @@ def cart_to_order(cur, user):
 def delivery_date(cur, user, key):
     if "order.edit_delivery_date" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -372,7 +359,6 @@ def delivery_date(cur, user, key):
     order = cur.fetchone()
     if not order or order["status"] != "created":
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -392,7 +378,6 @@ def delivery_date(cur, user, key):
 
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -406,7 +391,6 @@ def delivery_date(cur, user, key):
     order = cur.fetchone()
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -425,7 +409,6 @@ def delivery_date(cur, user, key):
 def processing(cur, user, key):
     if "order.status.processing" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -436,7 +419,6 @@ def processing(cur, user, key):
         or order["status"] not in ("created", "enroute")
     ):
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -448,7 +430,6 @@ def processing(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -465,7 +446,6 @@ def processing(cur, user, key):
     order = cur.fetchone()
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -484,7 +464,6 @@ def processing(cur, user, key):
 def enroute(cur, user, key):
     if "order.status.enroute" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -495,7 +474,6 @@ def enroute(cur, user, key):
         or order["status"] != "processing"
     ):
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -507,7 +485,6 @@ def enroute(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -522,7 +499,6 @@ def enroute(cur, user, key):
     order = cur.fetchone()
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -542,7 +518,6 @@ def enroute(cur, user, key):
 def delivered(cur, user, key):
     if "order.status.delivered" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -550,7 +525,6 @@ def delivered(cur, user, key):
     order = cur.fetchone()
     if not order or order["status"] != "enroute":
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -563,7 +537,6 @@ def delivered(cur, user, key):
 
     if not email_template_user or not email_template_admin:
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -574,7 +547,6 @@ def delivered(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -614,7 +586,6 @@ def delivered(cur, user, key):
         )
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -633,7 +604,6 @@ def delivered(cur, user, key):
 def canceled(cur, user, key):
     if "order.status.canceled" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -644,7 +614,6 @@ def canceled(cur, user, key):
         or order["status"] not in ['created', 'processing', 'enroute']
     ):
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -654,7 +623,6 @@ def canceled(cur, user, key):
 
     if not email_template_user or not email_template_admin:
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -665,7 +633,6 @@ def canceled(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -705,7 +672,6 @@ def canceled(cur, user, key):
         )
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -731,7 +697,6 @@ def returning_(cur, user, key):
         or order["status"] != "delivered"
     ):
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -741,7 +706,6 @@ def returning_(cur, user, key):
 
     if not email_template_user or not email_template_admin:
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -752,7 +716,6 @@ def returning_(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -762,7 +725,6 @@ def returning_(cur, user, key):
         ) > timedelta(days=7)
     ):
         return {
-            "status": 422,
             "error": """The order is outside the return window.
                 You can only return the order within 7 days of delivery."""
         }, 422
@@ -799,7 +761,6 @@ def returning_(cur, user, key):
         )
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],
@@ -818,7 +779,6 @@ def returning_(cur, user, key):
 def returned(cur, user, key):
     if "order.status.returned" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -829,7 +789,6 @@ def returned(cur, user, key):
         or order["status"] != "returning"
     ):
         return {
-            "status": 404,
             "error": "invalid request"
         }, 404
 
@@ -839,7 +798,6 @@ def returned(cur, user, key):
 
     if not email_template_user or not email_template_admin:
         return {
-            "status": 422,
             "error": "invalid request"
         }, 422
 
@@ -850,7 +808,6 @@ def returned(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -888,7 +845,6 @@ def returned(cur, user, key):
         )
 
     return {
-        "status": 200,
         "order": order,
         "log": {
             "entity_key": order["key"],

@@ -25,7 +25,7 @@
 
 	const submit = async () => {
 		loading.open('loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/confirm`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/confirm`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,10 +33,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (response.status == 200) {
 			module.open(Dialogue, {
 				title: 'Signup Complete',
 				message: 'Your email has been activated successfully.',
@@ -51,7 +51,7 @@
 				]
 			});
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

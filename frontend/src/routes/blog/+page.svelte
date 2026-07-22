@@ -19,7 +19,7 @@
 	let blogs = $derived(data.blogs);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let _status = $derived(data._status);
+	let status = $derived(data.status);
 	let searchParams = $state({ ...data.searchParams });
 	let defaultParams = $state(data.searchParams);
 	let pagination = $state();
@@ -90,7 +90,7 @@
 					--select-padding-x="8px"
 					--select-font-size="0.8rem"
 					label="Status: {searchParams.status}"
-					list={_status}
+					list={status}
 					icon="list-filter"
 					icon2="chevron-down"
 					bind:value={searchParams.status}

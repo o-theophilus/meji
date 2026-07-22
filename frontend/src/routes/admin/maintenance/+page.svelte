@@ -6,20 +6,20 @@
 
 	const cron = async (endpoint, msg, method = 'post') => {
 		loading.open('Running maintenance...');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${endpoint}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}${endpoint}`, {
 			method: method,
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open(msg);
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

@@ -21,7 +21,7 @@
 
 	const submit = async () => {
 		loading.open('Adding Coupon . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -29,16 +29,16 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open('Coupon Added');
-			module.value.ops.coupon = resp.coupon;
-			page_state.state['cart'].data.coupon = resp.coupon;
+			module.value.ops.coupon = result.coupon;
+			page_state.state['cart'].data.coupon = result.coupon;
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

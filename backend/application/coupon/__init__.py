@@ -18,7 +18,6 @@ bp = Blueprint("coupon", __name__)
 def add(cur, user):
     if "coupon.add" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -41,7 +40,6 @@ def add(cur, user):
         error["condition_unit"] = "This field is required"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -63,7 +61,6 @@ def add(cur, user):
     coupons = many(cur)
 
     return {
-        "status": 200,
         "coupon": coupon_schema(coupon, user["access"]),
         "coupons": coupons.json["coupons"],
         "total_page": coupons.json["total_page"],
@@ -82,7 +79,6 @@ def delete(cur, user, key):
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -94,7 +90,6 @@ def delete(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -103,7 +98,6 @@ def delete(cur, user, key):
     """, (coupon["key"],))
 
     return {
-        "status": 200,
         "log": {
             "entity_key": coupon["key"],
             "misc": {"comment": comment}
@@ -118,7 +112,6 @@ def delete(cur, user, key):
 def set_validity(cur, user, key):
     if "coupon.edit_validity" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -126,7 +119,6 @@ def set_validity(cur, user, key):
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -143,7 +135,6 @@ def set_validity(cur, user, key):
         error["valid_until"] = "invalid input"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -156,7 +147,6 @@ def set_validity(cur, user, key):
         == coupon["valid_until"].strftime("%Y-%m-%d")
     ):
         return {
-            "status": 422,
             "error": "No changes were made"
         }, 422
 
@@ -166,7 +156,6 @@ def set_validity(cur, user, key):
         error["valid_until"] = 'Cannot set date earlier or equal to start date'
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -178,7 +167,6 @@ def set_validity(cur, user, key):
     coupon = cur.fetchone()
 
     return {
-        "status": 200,
         "coupon": coupon_schema(coupon, user["access"]),
         "log": {
             "entity_key": coupon["key"],
@@ -198,7 +186,6 @@ def set_validity(cur, user, key):
 def clear_validity(cur, user, key):
     if "coupon.edit_validity" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -206,7 +193,6 @@ def clear_validity(cur, user, key):
     coupon = cur.fetchone()
     if not coupon or coupon["status"] == "used":
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -219,7 +205,6 @@ def clear_validity(cur, user, key):
     coupon = cur.fetchone()
 
     return {
-        "status": 200,
         "coupon": coupon_schema(coupon, user["access"]),
         "log": {
             "entity_key": coupon["key"],

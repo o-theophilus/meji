@@ -23,7 +23,7 @@
 
 	const submit = async () => {
 		loading.open('loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/2`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/2`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -31,13 +31,13 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			module.open(Password, form);
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

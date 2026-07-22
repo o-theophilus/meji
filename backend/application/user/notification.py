@@ -45,6 +45,5 @@ def notification(cur, user):
             })
 
     return {
-        "status": 200,
         "nots": nots
     }, 200

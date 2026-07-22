@@ -32,7 +32,7 @@
 		error = {};
 
 		loading.open('Deleting Tags . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/delete`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/delete`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -40,16 +40,16 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			app.item_all_tags = resp.all;
-			app.item_featured_tags = resp.featured;
+		if (result.status == 200) {
+			app.item_all_tags = result.all;
+			app.item_featured_tags = result.featured;
 			module.close();
 			notify.open('Tags Deleted');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

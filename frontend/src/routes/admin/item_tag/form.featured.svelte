@@ -31,7 +31,7 @@
 		error = {};
 
 		loading.open('Saving Featured Tags . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/featured`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/featured`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -39,16 +39,16 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			app.item_all_tags = resp.all;
-			app.item_featured_tags = resp.featured;
+		if (result.status == 200) {
+			app.item_all_tags = result.all;
+			app.item_featured_tags = result.featured;
 			module.close();
 			notify.open('Featured Tags Saved');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

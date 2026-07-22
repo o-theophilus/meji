@@ -377,7 +377,6 @@ def dashboard(cur, _user):
     _activity_log = activity_log(cur)
 
     return {
-        "status": 200,
         "new_users": _new_users,
         "top_users": _top_users,
         "order_summary": _order_summary,

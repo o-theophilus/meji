@@ -66,7 +66,7 @@
 	const submit = async () => {
 		pre_modify();
 		loading.open('Adding item to cart . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -74,16 +74,16 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open('Item added to cart');
-			app.cart_items = resp.items;
+			app.cart_items = result.items;
 			module.close();
 		} else {
 			reverse_modify();
-			error = resp;
+			error = result;
 		}
 	};
 </script>

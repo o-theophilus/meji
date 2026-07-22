@@ -26,23 +26,23 @@ export const load = async ({ fetch, url, parent, depends }) => {
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/adverts`)
 	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
-	let resp = await fetch(backend.href, {
+	let result = await fetch(backend.href, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: a.locals.token
 		}
 	});
-	resp = await resp.json();
+	result = await result.json();
 	loading.close()
 
-	if (resp.status == 200) {
-		resp.page_name = page_name
-		page_state.state[page_name].data = resp
+	if (result.status == 200) {
+		result.page_name = page_name
+		page_state.state[page_name].data = result
 		page_state.state[page_name].loaded = true
 
-		return resp
+		return result
 	} else {
-		throw error(resp.status, resp.error)
+		throw error(result.status, result.error)
 	}
 }

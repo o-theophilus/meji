@@ -15,7 +15,6 @@ bp = Blueprint("user_block", __name__)
 def block(cur, user, key):
     if "user.block" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -28,7 +27,6 @@ def block(cur, user, key):
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -40,7 +38,6 @@ def block(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -65,7 +62,6 @@ def block(cur, user, key):
     user2 = cur.fetchone()
 
     return {
-        "status": 200,
         "user": user_schema(user2),
         "log": {
             "entity_key": user2["key"],
@@ -83,7 +79,6 @@ def block(cur, user, key):
 def unblock(cur, user, key):
     if "block.unblock" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -96,7 +91,6 @@ def unblock(cur, user, key):
         or user2["email"] == os.environ["MAIL_USERNAME"]
     ):
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -108,14 +102,12 @@ def unblock(cur, user, key):
         error["comment"] = "This field cannot exceed 500 characters"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
     cur.execute("DELETE FROM block WHERE user_key = %s;", (user2["key"],))
 
     return {
-        "status": 200,
         "blocks": get_blocked(cur)["blocks"],
         "log": {
             "entity_key": user2["key"],

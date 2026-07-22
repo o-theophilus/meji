@@ -30,24 +30,24 @@
 		formData.append('file', file);
 
 		loading.open('uploading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${item.slug}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}${item.slug}`, {
 			method: 'put',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 		input.value = '';
 
-		if (resp.status == 200) {
-			item.photo = resp[item.type].photo;
-			module.value.update(resp[item.type]);
+		if (response.status == 200) {
+			item.photo = result[item.type].photo;
+			module.value.update(result[item.type]);
 			has_photo = true;
 			notify.open('Photo updated');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 
@@ -55,24 +55,24 @@
 		error = {};
 
 		loading.open('removing . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}${item.slug}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}${item.slug}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (response.status == 200) {
 			item.photo = null;
 
-			item.update(resp[item.type]);
+			item.update(result[item.type]);
 			has_photo = false;
 			notify.open('Photo removed');
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

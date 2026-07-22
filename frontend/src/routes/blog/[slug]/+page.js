@@ -5,17 +5,17 @@ export const load = async ({ fetch, params, parent }) => {
     if (app.blog.slug == params.slug) return { blog: app.blog }
 
     let a = await parent();
-    let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${params.slug}`, {
+    let response = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${params.slug}`, {
         headers: {
             'Content-Type': 'application/json',
             Authorization: a.locals.token
         },
     });
-    resp = await resp.json();
+    let result = await response.json();
 
-    if (resp.status == 200) {
-        return resp
+    if (response.status == 200) {
+        return result
     } else {
-        throw error(resp.status, resp.error)
+        throw error(result.status, result.error)
     }
 }

@@ -20,7 +20,6 @@ def forgot_1_email():
     if not email_template:
         db_close(con, cur)
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -32,7 +31,6 @@ def forgot_1_email():
     if error:
         db_close(con, cur)
         return {
-            "status": 422,
             "email": error
         }, 422
 
@@ -41,7 +39,6 @@ def forgot_1_email():
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 404,
             "email": "there is no user registered with this email"
         }, 404
 
@@ -57,7 +54,6 @@ def forgot_1_email():
 
     db_close(con, cur)
     return {
-        "status": 200
     }, 200
 
 
@@ -69,7 +65,6 @@ def forgot_2_code():
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -78,7 +73,6 @@ def forgot_2_code():
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -86,13 +80,11 @@ def forgot_2_code():
     if error:
         db_close(con, cur)
         return {
-            "status": 422,
             "code": error
         }, 422
 
     db_close(con, cur)
     return {
-        "status": 200
     }, 200
 
 
@@ -104,7 +96,6 @@ def forgot_3_password():
     if not email or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
         db_close(con, cur)
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -113,7 +104,6 @@ def forgot_3_password():
     if not user or user["status"] not in ['signedup', 'active']:
         db_close(con, cur)
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -121,7 +111,6 @@ def forgot_3_password():
     if error:
         db_close(con, cur)
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
@@ -149,7 +138,6 @@ def forgot_3_password():
     if error:
         db_close(con, cur)
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -181,5 +169,4 @@ def forgot_3_password():
 
     db_close(con, cur)
     return {
-        "status": 200
     }, 200

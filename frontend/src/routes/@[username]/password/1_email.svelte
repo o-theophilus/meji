@@ -14,7 +14,7 @@
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
 		loading.open('Requesting Code . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/1`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/user/password/1`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -22,13 +22,13 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (response.status == 200) {
 			module.open(Code, form);
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

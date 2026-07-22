@@ -42,7 +42,7 @@
 	const submit = async () => {
 		loading.open('Creating Coupon . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/coupons${page.url.search}`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/coupons${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -50,11 +50,11 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.coupons, resp.total_page);
+		if (result.status == 200) {
+			module.value.update(result.coupons, result.total_page);
 			module.open(Dialogue, {
 				message: 'Coupon Created',
 				buttons: [
@@ -62,14 +62,14 @@
 						name: 'View Coupon',
 						icon: 'check',
 						fn: () => {
-							goto(`/admin/coupons/${resp.coupon.key}`);
+							goto(`/admin/coupons/${result.coupon.key}`);
 							module.close();
 						}
 					}
 				]
 			});
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

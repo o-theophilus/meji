@@ -53,7 +53,6 @@ def featured_tags(cur):
 def featured(cur, user):
     if "admin.tag.featured" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -71,7 +70,6 @@ def featured(cur, user):
         error["tags"] = "No changes were made"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -85,7 +83,6 @@ def featured(cur, user):
     """, (Json({"value": featured}),))
 
     return {
-        "status": 200,
         "featured": featured_tags(cur),
         "all": all_tags(cur),
         "log": {
@@ -104,7 +101,6 @@ def featured(cur, user):
 def rename(cur, user):
     if "admin.tag.rename" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -120,7 +116,6 @@ def rename(cur, user):
         error["tags"] = "No changes were made"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -137,7 +132,6 @@ def rename(cur, user):
     """, (old, tag, old))
 
     return {
-        "status": 200,
         "featured": featured_tags(cur),
         "all": all_tags(cur),
         "log": {
@@ -156,7 +150,6 @@ def rename(cur, user):
 def delete(cur, user):
     if "admin.tag.delete" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -169,7 +162,6 @@ def delete(cur, user):
         error["tags"] = "This field is required"
     if error:
         return {
-            "status": 422,
             **error
         }, 422
 
@@ -186,7 +178,6 @@ def delete(cur, user):
     """, (tags, tags))
 
     return {
-        "status": 200,
         "featured": featured_tags(cur),
         "all": all_tags(cur),
         "log": {

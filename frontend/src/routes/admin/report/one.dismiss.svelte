@@ -24,7 +24,7 @@
 		error = {};
 
 		loading.open('Resolving Report . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/reports/${module.value.report.key}?${new URLSearchParams(
 				module.value.searchParams
 			).toString()}`,
@@ -37,15 +37,15 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.reports, resp.total_page);
+		if (result.status == 200) {
+			module.value.update(result.reports, result.total_page);
 			notify.open('Report Resolved');
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

@@ -14,7 +14,6 @@ bp = Blueprint("blog_photo", __name__)
 def add(cur, user, key):
     if "blog.edit_photo" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -22,20 +21,17 @@ def add(cur, user, key):
     blog = cur.fetchone()
     if not blog:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
     if 'file' not in request.files:
         return {
-            "status": 422,
             "error": "Invalid request"
         }, 422
 
     file = request.files["file"]
     if file.content_type not in ['image/jpeg', 'image/png']:
         return {
-            "status": 422,
             "error": "invalid file"
         }, 422
 
@@ -50,7 +46,6 @@ def add(cur, user, key):
     blog = cur.fetchone()
 
     return {
-        "status": 200,
         "blog": blog_schema(blog),
         "log": {
             "entity_key": blog["key"],
@@ -69,7 +64,6 @@ def add(cur, user, key):
 def delete(cur, user, key):
     if "blog.edit_photo" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -77,7 +71,6 @@ def delete(cur, user, key):
     blog = cur.fetchone()
     if not blog or not blog["photo"]:
         return {
-            "status": 404,
             "error": "Invalid request"
         }, 404
 
@@ -92,7 +85,6 @@ def delete(cur, user, key):
     blog = cur.fetchone()
 
     return {
-        "status": 200,
         "blog": blog_schema(blog),
         "log": {
             "entity_key": blog["key"],

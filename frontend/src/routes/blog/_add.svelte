@@ -25,7 +25,7 @@
 	const submit = async () => {
 		loading.open('Creating Blog . . .');
 
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/blogs${page.url.search}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/blogs${page.url.search}`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,11 +33,11 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.blogs, resp.total_page);
+		if (response.status == 200) {
+			module.value.update(result.blogs, result.total_page);
 			module.open(Dialogue, {
 				message: 'Blog Created',
 				buttons: [
@@ -45,14 +45,14 @@
 						name: 'OK',
 						icon: 'check',
 						fn: () => {
-							goto(`/blog/${resp.blog.slug}?edit=true`);
+							goto(`/blog/${result.blog.slug}?edit=true`);
 							module.close();
 						}
 					}
 				]
 			});
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

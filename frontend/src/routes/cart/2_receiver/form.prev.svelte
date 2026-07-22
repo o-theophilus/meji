@@ -8,7 +8,7 @@
 
 	const submit = async (form) => {
 		loading.open('Loading . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -16,16 +16,16 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (result.status == 200) {
 			notify.open('Receiver Information Saved');
-			module.value.ops.cart = resp.cart;
-			page_state.set_data('cart', resp);
+			module.value.ops.cart = result.cart;
+			page_state.set_data('cart', result);
 			module.close();
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

@@ -10,7 +10,6 @@ bp = Blueprint("block_get", __name__)
 def get_blocked(cur, user):
     if "block.view" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
@@ -86,7 +85,6 @@ def get_blocked(cur, user):
         )
 
     return {
-        "status": 200,
         "blocks": blocks,
         "total_page": ceil(blocks[0]["_count"] / page_size) if blocks else 0,
         "order_by": list(order_by.keys()),
@@ -99,7 +97,6 @@ def get_blocked(cur, user):
 def _get_blocked(cur, user):
     if "user.set_access" not in user["access"]:
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 

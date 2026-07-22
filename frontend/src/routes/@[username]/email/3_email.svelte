@@ -30,7 +30,7 @@
 
 	const submit = async () => {
 		loading.open('Requesting Code . . .');
-		let resp = await fetch(`${import.meta.env.VITE_BACKEND}/user/email/3`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/user/email/3`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -38,13 +38,13 @@
 			},
 			body: JSON.stringify(form)
 		});
-		resp = await resp.json();
+		let result = await response.json();
 		loading.close();
 
-		if (resp.status == 200) {
+		if (response.status == 200) {
 			module.open(Code, { ...form, update: module.value.update });
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>

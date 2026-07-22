@@ -50,7 +50,6 @@ def get(cur, user, key):
 
     if not blog:
         return {
-            "status": 404,
             "error": "Oops! The blog you're looking for doesn't exist"
         }, 404
 
@@ -60,12 +59,10 @@ def get(cur, user, key):
         and "blog.edit_status" not in user["access"]
     ):
         return {
-            "status": 403,
             "error": "unauthorized access"
         }, 403
 
     return {
-        "status": 200,
         "blog": blog_schema(blog)
     }, 200
 
@@ -182,10 +179,9 @@ def many(cur, user):
     total_page = cur.fetchone()["count"]
 
     return {
-        "status": 200,
         "blogs": [blog_schema(x) for x in blogs],
         "order_by": list(order_by.keys()),
-        "_status": ['active', 'draft'],
+        "status": ['active', 'draft'],
         "total_page": ceil(total_page / page_size),
         "searchParams": searchParams
     }
@@ -297,7 +293,6 @@ def get_similar(cur, key):
 def after_blog(cur, user, key):
 
     return {
-        "status": 200,
         "engagement": get_engagement(cur, key, user["key"]),
         "author": get_author(cur, key),
         "comment_resp": many_blogs(cur, key, user["key"]),

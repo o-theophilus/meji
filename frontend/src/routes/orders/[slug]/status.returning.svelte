@@ -31,7 +31,7 @@
 		form.email_template_user = email_template_user.innerHTML.replace(/&amp;/g, '&');
 
 		loading.open('Loading . . .');
-		let resp = await fetch(
+		let result = await fetch(
 			`${import.meta.env.VITE_BACKEND}/orders/${module.value.order.key}/status/returning`,
 			{
 				method: 'put',
@@ -42,11 +42,11 @@
 				body: JSON.stringify(form)
 			}
 		);
-		resp = await resp.json();
+		result = await result.json();
 		loading.close();
 
-		if (resp.status == 200) {
-			module.value.update(resp.order);
+		if (result.status == 200) {
+			module.value.update(result.order);
 			module.open(Dialogue, {
 				status: 200,
 				title: 'Return Order',
@@ -62,7 +62,7 @@
 				]
 			});
 		} else {
-			error = resp;
+			error = result;
 		}
 	};
 </script>
