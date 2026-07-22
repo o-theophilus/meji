@@ -165,7 +165,7 @@ def many(cur):
 
 @bp.get("/reports")
 @session(True)
-def get_many(cur, user):
+def _many(cur, user):
     if "report.view" not in user["access"]:
         return {
             "error": "unauthorized access"

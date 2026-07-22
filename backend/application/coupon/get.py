@@ -123,7 +123,7 @@ def many(cur):
 
 @bp.get("/coupons")
 @session(True)
-def get_many(cur, user):
+def _many(cur, user):
     if "coupon.view" not in user["access"]:
         return {
             "error": "unauthorized access"

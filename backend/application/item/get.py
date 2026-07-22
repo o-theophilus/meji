@@ -3,7 +3,7 @@ from math import ceil
 from flask import Blueprint, request
 
 from ..cart.delivery import get_areas
-from ..comment.get import many_items
+from ..comment.get import many_item_comments
 from ..tools import item_schema, session
 from .get_group import (customer_view, recently_viewed, recommended,
                         similar_items)
@@ -53,7 +53,7 @@ def get(cur, user, key):
     }, 200
 
 
-def get_many(cur, user,  _order="latest", _tag="", _page_size=24):
+def many(cur, user,  _order="latest", _tag="", _page_size=24):
     order_by = {
         'latest': 'item.date_created',
         'oldest': 'item.date_created',
@@ -150,8 +150,8 @@ def get_many(cur, user,  _order="latest", _tag="", _page_size=24):
 
 @bp.get("/items")
 @session(False)
-def get_items(cur, user):
-    return get_many(cur, user), 200
+def _many(cur, user):
+    return many(cur, user), 200
 
 
 @bp.get("/items/<key>/after")
@@ -201,7 +201,7 @@ def after_get(cur, user, key):
         })
 
     return {
-        "comments": many_items(cur, key, user["key"], 3),
+        "comments": many_item_comments(cur, key, user["key"], 3),
         "item_group": item_group
     }, 200
 
@@ -210,8 +210,8 @@ def after_get(cur, user, key):
 @session(False)
 def home_page(cur, user,):
     return {
-        "new_arrivals": get_many(cur, user, "latest", _page_size=8)['items'],
-        "discount": get_many(cur, user, "discount", _page_size=8)['items'],
-        "tag": get_many(
+        "new_arrivals": many(cur, user, "latest", _page_size=8)['items'],
+        "discount": many(cur, user, "discount", _page_size=8)['items'],
+        "tag": many(
             cur, user, "latest", _tag="hot pick 🔥", _page_size=8)['items'],
     }, 200

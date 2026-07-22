@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash
 
 from ..cart.delivery import get_areas
 from ..tools import item_schema, log, rate_limit, reserved_words, session
-from .get import get_many
+from .get import many
 
 bp = Blueprint("item", __name__)
 
@@ -59,12 +59,12 @@ def add(cur, user):
     ))
     item = cur.fetchone()
 
-    items = get_many(cur, user)
+    _many = many(cur, user)
 
     return {
         "item": item_schema(item),
-        "items": items["items"],
-        "total_page": items["total_page"],
+        "items": _many["items"],
+        "total_page": _many["total_page"],
         "log": {
             "entity_key": item["key"]
         }

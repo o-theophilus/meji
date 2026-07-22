@@ -58,12 +58,12 @@ def add(cur, user):
     ))
     coupon = cur.fetchone()
 
-    coupons = many(cur)
+    _many = many(cur)
 
     return {
         "coupon": coupon_schema(coupon, user["access"]),
-        "coupons": coupons.json["coupons"],
-        "total_page": coupons.json["total_page"],
+        "coupons": _many.json["coupons"],
+        "total_page": _many.json["total_page"],
         "log": {
             "entity_key": coupon["key"]
         }

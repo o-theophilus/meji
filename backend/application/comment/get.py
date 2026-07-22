@@ -7,7 +7,7 @@ from ..tools import session
 bp = Blueprint("comment_get", __name__)
 
 
-def many_items(cur, key, user_key, page_size=24):
+def many_item_comments(cur, key, user_key, page_size=24):
     order_by = {
         'latest': 'date_created',
         'oldest': 'date_created',
@@ -241,7 +241,7 @@ def many_items(cur, key, user_key, page_size=24):
     }
 
 
-def many_blogs(cur, key, user_key):
+def many_blog_comments(cur, key, user_key):
     order_by = {
         'latest': 'c.date_created',
         'oldest': 'c.date_created',
@@ -411,11 +411,11 @@ def many_blogs(cur, key, user_key):
 
 @bp.get("/items/<key>/comments")
 @session(False)
-def get_many_items(cur, user, key):
-    return many_items(cur, key, user["key"]), 200
+def items(cur, user, key):
+    return many_item_comments(cur, key, user["key"]), 200
 
 
 @bp.get("/blogs/<key>/comments")
 @session(False)
-def get_many_blogs(cur, user, key):
-    return many_blogs(cur, key, user["key"]), 200
+def blogs(cur, user, key):
+    return many_blog_comments(cur, key, user["key"]), 200
