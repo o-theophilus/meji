@@ -11,7 +11,7 @@ export const load = async ({ fetch, url, parent, depends, params }) => {
 			sp[key] = value
 		}
 		page_state.state[page_name] = {
-			searchParams: sp,
+			search_params: sp,
 			data: null,
 			loaded: false
 		}
@@ -21,7 +21,7 @@ export const load = async ({ fetch, url, parent, depends, params }) => {
 
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/items/${params.slug}/comments`)
-	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
+	backend.search = new URLSearchParams(page_state.state[page_name].search_params);
 	let a = await parent();
 	let response = await fetch(backend.href, {
 		method: 'get',

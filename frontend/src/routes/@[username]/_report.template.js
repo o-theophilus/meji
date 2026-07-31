@@ -21,7 +21,6 @@ export let template = {
     "This comment contains explicit, offensive, or inappropriate language."
 }
 
-
 export let tags = [
   "harassment",
   "hate_speech",

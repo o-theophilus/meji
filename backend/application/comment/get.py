@@ -235,7 +235,7 @@ def many_item_comments(cur, key, user_key, page_size=24):
         "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
         "has_purchased": user_comment_info["has_purchased"],
         "can_comment": user_comment_info["can_comment"],
     }
@@ -405,7 +405,7 @@ def many_blog_comments(cur, key, user_key):
         "order_by": list(order_by.keys()),
         "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
-        "searchParams": search_params,
+        "search_params": search_params,
     }
 
 

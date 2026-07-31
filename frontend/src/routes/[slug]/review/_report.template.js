@@ -6,7 +6,6 @@ export let template = {
 	'Inappropriate language': "This comment contains inappropriate language that is offensive and disrespectful. It is not suitable for this platform and may be inappropriate for some readers."
 }
 
-
 export let tags = [
 	"abuse",
 	"inappropriate",

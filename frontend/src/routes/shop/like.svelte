@@ -17,16 +17,16 @@
 			app.likes.push(item.key);
 		}
 
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/like`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			app.likes = result.likes;
 			page_state.clear('save');
 		} else {

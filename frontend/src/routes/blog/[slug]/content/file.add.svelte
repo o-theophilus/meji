@@ -37,18 +37,18 @@
 		}
 
 		loading.open('uploading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${ops.key}/file`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${ops.key}/file`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 		input.value = '';
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			ops.files = result.blog.files;
 			module.value.update(result.blog);
 			notify.open('Photo added');

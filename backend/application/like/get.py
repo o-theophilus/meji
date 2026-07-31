@@ -84,5 +84,5 @@ def like_page(cur, user,):
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
     }, 200

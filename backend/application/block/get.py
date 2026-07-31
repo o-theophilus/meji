@@ -83,7 +83,7 @@ def get_blocked(cur):
         "blocks": blocks,
         "total_page": ceil(blocks[0]["_count"] / page_size) if blocks else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
     }
 
 

@@ -48,7 +48,7 @@
 
 	const submit = async () => {
 		loading.open('Updating Validity . . .');
-		let result = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
 				method: 'put',
@@ -59,10 +59,10 @@
 				body: JSON.stringify(form)
 			}
 		);
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			page_state.clear('coupons');
 			module.value.update(result.coupon);
 			module.close();
@@ -74,7 +74,7 @@
 
 	const clear = async () => {
 		loading.open('Removing Validity . . .');
-		let result = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}/validity`,
 			{
 				method: 'delete',
@@ -84,10 +84,10 @@
 				}
 			}
 		);
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(result.coupon);
 			module.close();
 			notify.open('Validity Removed');

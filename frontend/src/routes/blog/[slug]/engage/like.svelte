@@ -20,7 +20,7 @@
 			engagement.user_reaction = reaction;
 		}
 
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/like`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${blog.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -28,9 +28,9 @@
 			},
 			body: JSON.stringify({ reaction })
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			engagement.others_like = result.others_like;
 			engagement.others_dislike = result.others_dislike;
 			engagement.user_reaction = result.user_reaction;

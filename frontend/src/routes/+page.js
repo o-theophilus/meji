@@ -6,7 +6,7 @@ export const load = async ({ fetch, url, parent }) => {
 	let page_name = "home"
 	if (!page_state.state[page_name]) {
 		page_state.state[page_name] = {
-			searchParams: {},
+			search_params: {},
 			data: null,
 			loaded: false
 		}

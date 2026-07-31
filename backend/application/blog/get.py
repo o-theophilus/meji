@@ -183,7 +183,7 @@ def many(cur, user):
         "order_by": list(order_by.keys()),
         "status": ['active', 'draft'],
         "total_page": ceil(total_page / page_size),
-        "searchParams": search_params
+        "search_params": search_params
     }
 
 

@@ -33,9 +33,9 @@
 
 	const submit = async () => {
 		loading.open('Adding Review . . .');
-		let result = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/items/${item.key}?${new URLSearchParams(
-				module.value.searchParams
+				module.value.search_params
 			).toString()}`,
 			{
 				method: 'post',
@@ -46,10 +46,10 @@
 				body: JSON.stringify(form)
 			}
 		);
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(
 				result.comments,
 				result.ratings,

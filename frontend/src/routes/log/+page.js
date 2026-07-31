@@ -16,7 +16,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 			sp[key] = value
 		}
 		page_state.state[page_name] = {
-			searchParams: sp,
+			search_params: sp,
 			data: null,
 			loaded: false
 		}
@@ -25,18 +25,18 @@ export const load = async ({ fetch, url, parent, depends }) => {
 	}
 
 	let backend = new URL(`${import.meta.env.VITE_BACKEND}/logs`)
-	backend.search = new URLSearchParams(page_state.state[page_name].searchParams);
-	let result = await fetch(backend.href, {
+	backend.search = new URLSearchParams(page_state.state[page_name].search_params);
+	let response = await fetch(backend.href, {
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: a.locals.token
 		}
 	});
-	result = await result.json();
+	let result = await response.json();
 	loading.close()
 
-	if (result.status == 200) {
+	if (response.status == 200) {
 		result.page_name = page_name
 		page_state.state[page_name].data = result
 		page_state.state[page_name].loaded = true

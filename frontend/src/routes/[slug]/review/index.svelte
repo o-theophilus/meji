@@ -56,7 +56,7 @@
 	{#if open && !loading}
 		{#each comments as comment (comment.key)}
 			<div class="comment" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-				<One {item} {comment} searchParams={{ page_size: 3 }} {update}></One>
+				<One {item} {comment} search_params={{ page_size: 3 }} {update}></One>
 			</div>
 		{:else}
 			<PageNote>
@@ -92,7 +92,7 @@
 			{:else if can_comment}
 				<Button
 					icon="message-circle-plus"
-					onclick={() => module.open(Add, { item, search: { page_size: 3 }, update })}
+					onclick={() => module.open(Add, { item, search_params: { page_size: 3 }, update })}
 				>
 					Add review
 				</Button>

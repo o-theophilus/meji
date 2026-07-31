@@ -27,9 +27,9 @@
 	const submit = async () => {
 		error = {};
 		loading.open(`Deleting comment . . .`);
-		let result = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/comments/${module.value.comment.key}?${new URLSearchParams(
-				module.value.searchParams
+				module.value.search_params
 			).toString()}`,
 			{
 				method: 'delete',
@@ -41,9 +41,9 @@
 			}
 		);
 		loading.close();
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(
 				result.comments,
 				result.ratings,

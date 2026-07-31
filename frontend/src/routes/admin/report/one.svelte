@@ -6,7 +6,7 @@
 	import Dismiss from './one.dismiss.svelte';
 	import Resolve from './one.resolve.svelte';
 
-	let { report, update, searchParams } = $props();
+	let { report, update, search_params } = $props();
 	let open = $state(false);
 </script>
 
@@ -51,7 +51,7 @@
 						icon="check"
 						--button-font-size="0.8rem"
 						--button-height="32px"
-						onclick={() => module.open(Resolve, { report, update, searchParams })}
+						onclick={() => module.open(Resolve, { report, update, search_params })}
 					>
 						Resolve
 					</Button>
@@ -59,7 +59,7 @@
 						icon="check"
 						--button-font-size="0.8rem"
 						--button-height="32px"
-						onclick={() => module.open(Dismiss, { report, update, searchParams })}
+						onclick={() => module.open(Dismiss, { report, update, search_params })}
 					>
 						Dismiss
 					</Button>

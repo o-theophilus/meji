@@ -37,7 +37,7 @@
 		error = {};
 
 		loading.open('Saving Blog . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/blogs/${module.value.key}`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -45,10 +45,10 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(result.blog);
 			module.close();
 			notify.open(`Tag${result.blog.tags.length > 1 ? 's' : ''} Saved`);

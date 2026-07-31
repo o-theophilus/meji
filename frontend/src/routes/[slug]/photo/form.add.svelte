@@ -35,18 +35,18 @@
 		}
 
 		loading.open('uploading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${ops.key}/file`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 		input.value = '';
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			if (ops.files.length == 0) {
 				ops.active = result.item.files[0];
 			}

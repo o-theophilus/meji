@@ -23,8 +23,8 @@
 		error = {};
 
 		loading.open('Unblocking User . . .');
-		let result = await fetch(
-			`${import.meta.env.VITE_BACKEND}/users/${module.value.user.key}/block?${new URLSearchParams(module.value.searchParams).toString()}`,
+		let response = await fetch(
+			`${import.meta.env.VITE_BACKEND}/users/${module.value.user.key}/block?${new URLSearchParams(module.value.search_params).toString()}`,
 			{
 				method: 'delete',
 				headers: {
@@ -34,10 +34,10 @@
 				body: JSON.stringify(form)
 			}
 		);
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(result.blocks);
 			notify.open('User Unblocked');
 			module.close();

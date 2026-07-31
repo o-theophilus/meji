@@ -31,18 +31,18 @@
 		formData.append('file', file);
 
 		loading.open('uploading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
 			method: 'put',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 		input.value = '';
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			blog.photo = result[blog.type].photo;
 			module.value.update(result[blog.type]);
 			has_photo = true;
@@ -56,17 +56,17 @@
 		error = {};
 
 		loading.open('removing . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}${blog.slug}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			blog.photo = null;
 
 			blog.update(result[blog.type]);

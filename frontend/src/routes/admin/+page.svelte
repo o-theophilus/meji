@@ -12,17 +12,17 @@
 	let dashboard = $state(data);
 
 	let { filters } = data;
-	let searchParams = $state({ ...data.searchParams });
-	let defaultParams = $state(data.searchParams);
+	let search_params = $state({ ...data.search_params });
+	let default_params = $state(data.search_params);
 
 	let conversion_rate = $state(0);
 
 	onMount(() => {
-		const sp = page_state.searchParams;
+		const sp = page_state.search_params;
 		if (Object.keys(sp).length) {
 			queueMicrotask(() => replaceState(`?${new URLSearchParams(sp)}`));
-			for (const key of Object.keys(searchParams)) {
-				if (sp[key]) searchParams[key] = sp[key];
+			for (const key of Object.keys(search_params)) {
+				if (sp[key]) search_params[key] = sp[key];
 			}
 		}
 
@@ -74,13 +74,13 @@
 		--select-height="32px"
 		--select-padding-x="8px"
 		--select-font-size="0.8rem"
-		label="Interval: {searchParams.interval}"
+		label="Interval: {search_params.interval}"
 		icon="list-filter"
 		icon2="chevron-down"
 		list={filters}
-		bind:value={searchParams.interval}
+		bind:value={search_params.interval}
 		onchange={(v) => {
-			page_state.set({ interval: v == defaultParams.interval ? '' : v });
+			page_state.set({ interval: v == default_params.interval ? '' : v });
 		}}
 	/>
 
@@ -88,27 +88,27 @@
 		<div class="four margin">
 			<Card>
 				<Summary
-					title="Sales {searchParams.interval}"
+					title="Sales {search_params.interval}"
 					data={dashboard.order_revenue}
 					money
 					icon="banknote"
-					interval={searchParams.interval}
+					interval={search_params.interval}
 				></Summary>
 			</Card>
 			<Card>
 				<Summary
-					title="Orders {searchParams.interval}"
+					title="Orders {search_params.interval}"
 					data={dashboard.order_count}
 					icon="receipt-text"
-					interval={searchParams.interval}
+					interval={search_params.interval}
 				></Summary>
 			</Card>
 			<Card>
 				<Summary
-					title="New Users {searchParams.interval}"
+					title="New Users {search_params.interval}"
 					data={dashboard.new_users}
 					icon="User"
-					interval={searchParams.interval}
+					interval={search_params.interval}
 				></Summary>
 			</Card>
 			<Card>
@@ -116,7 +116,7 @@
 					title="Item Available"
 					data={dashboard.item_available}
 					icon="box"
-					interval={searchParams.interval}
+					interval={search_params.interval}
 				></Summary>
 			</Card>
 		</div>

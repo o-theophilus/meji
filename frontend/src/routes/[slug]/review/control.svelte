@@ -8,7 +8,7 @@
 	import Delete from './_delete.svelte';
 	import Report from './_report.svelte';
 
-	let { item, comment, update, searchParams, children } = $props();
+	let { item, comment, update, search_params, children } = $props();
 	let error = $state({});
 
 	let others_like = $state(comment.stats.others_like);
@@ -25,7 +25,7 @@
 			user_reaction = reaction;
 		}
 
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/comments/${comment.key}/like`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/comments/${comment.key}/like`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,9 +33,9 @@
 			},
 			body: JSON.stringify({ reaction })
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			others_like = result.others_like;
 			others_dislike = result.others_dislike;
 			user_reaction = result.user_reaction;
@@ -104,7 +104,7 @@
 					<div class="menu" transition:slide={{ delay: 0, duration: 200, easing: cubicInOut }}>
 						{#if comment.user.key == app.user.key || app.user.access.includes('comment.delete_others')}
 							{@render button('Delete', 'trash-2', () =>
-								module.open(Delete, { comment, update, searchParams })
+								module.open(Delete, { comment, update, search_params })
 							)}
 						{/if}
 

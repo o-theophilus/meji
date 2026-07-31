@@ -92,7 +92,7 @@ def many(cur, user):
         "order_by": list(order_by.keys()),
         "spaces": ["all", *spaces],
         "sizes": sizes,
-        "searchParams": search_params,
+        "search_params": search_params,
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
     }, 200

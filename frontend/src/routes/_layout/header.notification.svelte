@@ -13,15 +13,15 @@
 	};
 
 	onMount(async () => {
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/notification`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/notification`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			nots = result.nots.map((x) => format(x));
 		}
 	});

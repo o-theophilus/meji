@@ -22,16 +22,16 @@
 	const make_payment = async () => {
 		ops.error = {};
 		loading.open('Loading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/order/check`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			paystack.checkout({
 				key: import.meta.env.VITE_PAYSTACK_KEY,
 				email: app.user.email,
@@ -86,7 +86,7 @@
 		ops.error = {};
 
 		loading.open('Loading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/order`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -98,10 +98,10 @@
 				email_template_user: email_template_user.innerHTML.replace(/&amp;/g, '&')
 			})
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			app.cart_items = [];
 			page_state.clear('cart');
 			goto(`/orders/${result.order.key}`);

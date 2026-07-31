@@ -71,10 +71,10 @@
 		}
 
 		if (!app.item_all_tags) {
-			let result = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
-			result = await result.json();
+			let response = await fetch(`${import.meta.env.VITE_BACKEND}/tags`);
+			let result = await response.json();
 
-			if (result.status == 200) {
+			if (response.status == 200) {
 				app.item_all_tags = result.tags;
 			}
 		}

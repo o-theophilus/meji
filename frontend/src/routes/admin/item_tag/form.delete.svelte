@@ -32,7 +32,7 @@
 		error = {};
 
 		loading.open('Deleting Tags . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/delete`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/delete`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -40,10 +40,10 @@
 			},
 			body: JSON.stringify({ tags })
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			app.item_all_tags = result.all;
 			app.item_featured_tags = result.featured;
 			module.close();

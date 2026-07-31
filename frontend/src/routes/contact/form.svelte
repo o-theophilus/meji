@@ -43,7 +43,7 @@
 		form.email_template = email_template.innerHTML.replace(/&amp;/g, '&');
 
 		loading.open('Sending Email . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/contact`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/contact`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -51,10 +51,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			form = {};
 
 			module.open(Dialogue, {

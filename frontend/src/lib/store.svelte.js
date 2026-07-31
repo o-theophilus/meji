@@ -89,23 +89,23 @@ export let notify = $state({
 
 export const page_state = $state({
 	state: {},
-	get searchParams() { return this.state[page.data.page_name].searchParams },
+	get search_params() { return this.state[page.data.page_name].search_params },
 
 	clear(page_name) {
 		this.state[page_name] = {
-			searchParams: {},
+			search_params: {},
 			data: null,
 			loaded: false
 		}
 	},
 	goto(page_name, obj) {
 		this.clear(page_name);
-		this.state[page_name].searchParams = obj;
+		this.state[page_name].search_params = obj;
 		goto(`/${page_name}`);
 	},
 	refresh() {
 		this.state[page.data.page_name].loaded = false
-		let ss = new URLSearchParams(this.state[page.data.page_name].searchParams);
+		let ss = new URLSearchParams(this.state[page.data.page_name].search_params);
 		page.url.search = ss.toString()
 		loading.open()
 		goto(page.url.href, { replaceState: true, invalidate: [true] });
@@ -113,9 +113,9 @@ export const page_state = $state({
 	},
 	set(obj) {
 		for (const [key, val] of Object.entries(obj)) {
-			this.state[page.data.page_name].searchParams[key] = val
-			if (!val) delete this.state[page.data.page_name].searchParams[key]
-			if (key != "page_no") delete this.state[page.data.page_name].searchParams["page_no"]
+			this.state[page.data.page_name].search_params[key] = val
+			if (!val) delete this.state[page.data.page_name].search_params[key]
+			if (key != "page_no") delete this.state[page.data.page_name].search_params["page_no"]
 		}
 		this.refresh();
 	},

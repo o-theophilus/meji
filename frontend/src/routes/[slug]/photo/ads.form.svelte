@@ -89,17 +89,17 @@
 		}
 
 		loading.open('uploading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'post',
 			headers: {
 				Authorization: app.token
 			},
 			body: formData
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			advert = result.advert;
 			photo_selected = { ...advert.photo };
 			spaces_selected = [...advert.space];
@@ -116,7 +116,7 @@
 
 	const save = async () => {
 		loading.open('Saving . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			method: 'put',
 			headers: {
 				'Content-Type': 'application/json',
@@ -127,10 +127,10 @@
 				spaces_selected
 			})
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			advert = result.advert;
 			photo_selected = { ...advert.photo };
 			spaces_selected = [...advert.space];
@@ -148,15 +148,15 @@
 	onMount(async () => {
 		loading.open('uploading . . .');
 
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/${item.key}/advert`, {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			advert = result.advert;
 			if (advert) {
 				photo_selected = { ...advert.photo };

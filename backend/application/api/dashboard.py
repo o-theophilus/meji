@@ -389,6 +389,6 @@ def dashboard(cur, _user):
         "item_low_quantity": _item_low_quantity,
         "item_top_purchase": _item_top_purchase,
         "activity_log": _activity_log,
-        "searchParams": search_params,
+        "search_params": search_params,
         "filters": list(intervals.keys()),
     }, 200

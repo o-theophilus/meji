@@ -29,7 +29,7 @@
 			(x) => !(x.key == item.key && JSON.stringify(x.variation) == JSON.stringify(item.variation))
 		);
 
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/cart`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -37,9 +37,9 @@
 			},
 			body: JSON.stringify({ key: item.key, variation: item.variation })
 		});
-		result = await result.json();
+		let result = await response.json();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			app.cart_items = result.items;
 		} else {
 			error = result;
@@ -63,7 +63,7 @@
 	const submit = () => {
 		clearTimeout(timeout);
 		timeout = setTimeout(async () => {
-			let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
+			let response = await fetch(`${import.meta.env.VITE_BACKEND}/cart/quantity`, {
 				method: 'post',
 				headers: {
 					'Content-Type': 'application/json',
@@ -75,9 +75,9 @@
 					variation: item.variation
 				})
 			});
-			result = await result.json();
+			let result = await response.json();
 
-			if (result.status == 200) {
+			if (response.status == 200) {
 				app.cart_items = result.items;
 			} else {
 				error = result;

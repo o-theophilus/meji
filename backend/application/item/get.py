@@ -143,7 +143,7 @@ def many(cur, user,  _order="latest", _tag="", _page_size=24):
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
         "status": ['active', 'draft']
     }
 

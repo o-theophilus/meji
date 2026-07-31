@@ -15,17 +15,17 @@
 	let { order_by } = data;
 	let { spaces } = data;
 	let { sizes } = data;
-	let searchParams = $state({ ...data.searchParams });
-	let defaultParams = $state(data.searchParams);
+	let search_params = $state({ ...data.search_params });
+	let default_params = $state(data.search_params);
 	let total_page = $derived(data.total_page);
 	let pagination = $state();
 
 	onMount(() => {
-		const sp = page_state.searchParams;
+		const sp = page_state.search_params;
 		if (Object.keys(sp).length) {
 			queueMicrotask(() => replaceState(`?${new URLSearchParams(sp)}`));
-			for (const key of Object.keys(searchParams)) {
-				if (sp[key]) searchParams[key] = sp[key];
+			for (const key of Object.keys(search_params)) {
+				if (sp[key]) search_params[key] = sp[key];
 			}
 		}
 	});
@@ -40,9 +40,9 @@
 	</div>
 
 	<Search
-		bind:value={searchParams.search}
+		bind:value={search_params.search}
 		ondone={(v) => {
-			searchParams.page_no = 1;
+			search_params.page_no = 1;
 			pagination.reset();
 			page_state.set({ search: v });
 		}}
@@ -55,13 +55,13 @@
 			--select-font-size="0.8rem"
 			icon="list-filter"
 			icon2="chevron-down"
-			label="Space: {searchParams.space}"
+			label="Space: {search_params.space}"
 			list={spaces}
-			bind:value={searchParams.space}
+			bind:value={search_params.space}
 			onchange={(v) => {
-				searchParams.page_no = 1;
+				search_params.page_no = 1;
 				pagination.reset();
-				page_state.set({ space: v == defaultParams.space ? '' : v });
+				page_state.set({ space: v == default_params.space ? '' : v });
 			}}
 		/>
 		<Dropdown
@@ -76,12 +76,12 @@
 			list={order_by}
 			icon="arrow-down-up"
 			icon2="chevron-down"
-			label="Sort: {searchParams.order}"
-			bind:value={searchParams.order}
+			label="Sort: {search_params.order}"
+			bind:value={search_params.order}
 			onchange={(v) => {
-				searchParams.page_no = 1;
+				search_params.page_no = 1;
 				pagination.reset();
-				page_state.set({ order: v == defaultParams.order ? '' : v });
+				page_state.set({ order: v == default_params.order ? '' : v });
 			}}
 		/>
 	</div>
@@ -102,7 +102,7 @@
 	<Pagination
 		{total_page}
 		bind:this={pagination}
-		bind:value={searchParams.page_no}
+		bind:value={search_params.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

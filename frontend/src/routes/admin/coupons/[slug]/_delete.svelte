@@ -23,7 +23,7 @@
 
 	const submit = async () => {
 		loading.open('Deleteing Coupon . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/coupons/${module.value.coupon.key}`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -31,10 +31,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			page_state.clear('coupons');
 			notify.open('Coupon Deleted');
 			module.close();

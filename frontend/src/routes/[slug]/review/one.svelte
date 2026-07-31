@@ -6,20 +6,20 @@
 	import Control from './control.svelte';
 	import Details from './details.svelte';
 
-	let { item, comment, searchParams, update } = $props();
+	let { item, comment, search_params, update } = $props();
 </script>
 
 <div class="comment">
 	<div class="parent">
 		<Details {comment}></Details>
-		<Control {item} {comment} {searchParams} {update}>
+		<Control {item} {comment} {search_params} {update}>
 			{#if app.user.access.includes('comment.reply')}
 				<RoundButton
 					icon="reply"
 					onclick={() =>
 						module.open(Add, {
 							item,
-							searchParams,
+							search_params,
 							update,
 							parent: comment
 						})}
@@ -38,7 +38,7 @@
 						onclick={() =>
 							module.open(Delete, {
 								comment: reply,
-								searchParams,
+								search_params,
 								update
 							})}
 					></RoundButton>

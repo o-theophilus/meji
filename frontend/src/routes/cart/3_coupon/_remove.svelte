@@ -7,17 +7,17 @@
 
 	const submit = async () => {
 		loading.open('Removing Coupon . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/cart/coupon`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: app.token
 			}
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			notify.open('Coupon Removed');
 			module.value.ops.coupon = result.coupon;
 			page_state.state['cart'].data.coupon = result.coupon;

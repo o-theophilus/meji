@@ -116,7 +116,7 @@ def many(cur):
         "applies_to": coupon_applies_to,
         "value_unit": coupon_value_unit,
         "condition_unit": coupon_condition_unit,
-        "searchParams": search_params,
+        "search_params": search_params,
         "status": ['all', 'inactive', 'active', 'used', 'expired']
     }
 

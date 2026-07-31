@@ -159,7 +159,7 @@ def many(cur):
         "status": ["active", "resolved", "dismissed"],
         "type": ["all", "user", "comment"],
         "total_page": ceil(total_page / page_size),
-        "searchParams": search_params
+        "search_params": search_params
     }
 
 

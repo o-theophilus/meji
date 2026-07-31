@@ -67,7 +67,7 @@
 
 	const submit = async () => {
 		loading.open('Loading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -75,10 +75,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = result.cart;
 			page_state.set_data('cart', result);
@@ -90,7 +90,7 @@
 
 	const clear = async () => {
 		loading.open('Loading . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/cart/receiver`, {
 			method: 'delete',
 			headers: {
 				'Content-Type': 'application/json',
@@ -98,10 +98,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			notify.open('Receiver Information Saved');
 			module.value.ops.cart = result.cart;
 			page_state.set_data('cart', result);

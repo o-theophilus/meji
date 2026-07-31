@@ -126,7 +126,7 @@ def many(cur, user):
 
     return {
         "logs": logs,
-        "searchParams": search_params,
+        "search_params": search_params,
         "search_query": search_query(cur),
         "total_page": ceil(logs[0]["_count"] / page_size) if logs else 0
     }, 200

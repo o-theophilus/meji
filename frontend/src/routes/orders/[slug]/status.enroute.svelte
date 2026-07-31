@@ -24,7 +24,7 @@
 		error = {};
 
 		loading.open('Loading . . .');
-		let result = await fetch(
+		let response = await fetch(
 			`${import.meta.env.VITE_BACKEND}/orders/${module.value.order.key}/status/enroute`,
 			{
 				method: 'put',
@@ -35,10 +35,10 @@
 				body: JSON.stringify(form)
 			}
 		);
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			module.value.update(result.order);
 			notify.open('Order Status Updated');
 			module.close();

@@ -17,8 +17,8 @@
 	let total_page = $derived(data.total_page);
 	let { order_by } = data;
 	let { status } = data;
-	let searchParams = $state({ ...data.searchParams });
-	let defaultParams = $state(data.searchParams);
+	let search_params = $state({ ...data.search_params });
+	let default_params = $state(data.search_params);
 	let pagination = $state();
 
 	const update = (a, b) => {
@@ -27,11 +27,11 @@
 	};
 
 	onMount(() => {
-		const sp = page_state.searchParams;
+		const sp = page_state.search_params;
 		if (Object.keys(sp).length) {
 			queueMicrotask(() => replaceState(`?${new URLSearchParams(sp)}`));
-			for (const key of Object.keys(searchParams)) {
-				if (sp[key]) searchParams[key] = sp[key];
+			for (const key of Object.keys(search_params)) {
+				if (sp[key]) search_params[key] = sp[key];
 			}
 		}
 	});
@@ -57,9 +57,9 @@
 	</div>
 
 	<Search
-		bind:value={searchParams.search}
+		bind:value={search_params.search}
 		ondone={(v) => {
-			searchParams.page_no = 1;
+			search_params.page_no = 1;
 			pagination.reset();
 			page_state.set({ search: v });
 		}}
@@ -70,15 +70,15 @@
 			--select-height="32px"
 			--select-padding-x="8px"
 			--select-font-size="0.8rem"
-			label="Status: {searchParams.status}"
+			label="Status: {search_params.status}"
 			icon="list-filter"
 			icon2="chevron-down"
 			list={status}
-			bind:value={searchParams.status}
+			bind:value={search_params.status}
 			onchange={(v) => {
-				searchParams.page_no = 1;
+				search_params.page_no = 1;
 				pagination.reset();
-				page_state.set({ status: v == defaultParams.status ? '' : v });
+				page_state.set({ status: v == default_params.status ? '' : v });
 			}}
 		/>
 		<Dropdown
@@ -90,15 +90,15 @@
 			--select-color="var(--ft2)"
 			--select-color-hover="var(--ft1)"
 			--select-outline-color="transparent"
-			label="Sort: {searchParams.order}"
+			label="Sort: {search_params.order}"
 			list={order_by}
 			icon="arrow-down-up"
 			icon2="chevron-down"
-			bind:value={searchParams.order}
+			bind:value={search_params.order}
 			onchange={(v) => {
-				searchParams.page_no = 1;
+				search_params.page_no = 1;
 				pagination.reset();
-				page_state.set({ status: v == defaultParams.status ? '' : v });
+				page_state.set({ status: v == default_params.status ? '' : v });
 			}}
 		/>
 	</div>
@@ -107,7 +107,7 @@
 <Content --content-padding-top="1px">
 	{#each coupons as coupon (coupon.key)}
 		<div animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {coupon} all={searchParams.status == 'all'} />
+			<One {coupon} all={search_params.status == 'all'} />
 		</div>
 	{:else}
 		<PageNote>
@@ -119,7 +119,7 @@
 	<Pagination
 		{total_page}
 		bind:this={pagination}
-		bind:value={searchParams.page_no}
+		bind:value={search_params.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

@@ -37,7 +37,7 @@
 		error = {};
 
 		loading.open('Renaming Tag . . .');
-		let result = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/rename`, {
+		let response = await fetch(`${import.meta.env.VITE_BACKEND}/items/tag/rename`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json',
@@ -45,10 +45,10 @@
 			},
 			body: JSON.stringify(form)
 		});
-		result = await result.json();
+		let result = await response.json();
 		loading.close();
 
-		if (result.status == 200) {
+		if (response.status == 200) {
 			app.item_all_tags = result.all;
 			app.item_featured_tags = result.featured;
 			module.close();

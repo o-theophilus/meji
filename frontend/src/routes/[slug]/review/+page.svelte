@@ -22,8 +22,8 @@
 	let can_comment = $derived(data.can_comment);
 	let total_page = $derived(data.total_page);
 	let order_by = $derived(data.order_by);
-	let searchParams = $state({ ...data.searchParams });
-	let defaultParams = $state(data.searchParams);
+	let search_params = $state({ ...data.search_params });
+	let default_params = $state(data.search_params);
 	let pagination = $state();
 
 	const update = (rat, rev, hp, cr, tp) => {
@@ -35,11 +35,11 @@
 	};
 
 	onMount(() => {
-		const sp = page_state.searchParams;
+		const sp = page_state.search_params;
 		if (Object.keys(sp).length) {
 			queueMicrotask(() => replaceState(`?${new URLSearchParams(sp)}`));
-			for (const key of Object.keys(searchParams)) {
-				if (sp[key]) searchParams[key] = sp[key];
+			for (const key of Object.keys(search_params)) {
+				if (sp[key]) search_params[key] = sp[key];
 			}
 		}
 	});
@@ -80,11 +80,11 @@
 			list={order_by}
 			icon="arrow-down-up"
 			icon2="chevron-down"
-			bind:value={searchParams.order}
+			bind:value={search_params.order}
 			onchange={(v) => {
-				searchParams.page_no = 1;
+				search_params.page_no = 1;
 				pagination.reset();
-				page_state.set({ order: v == defaultParams.order ? '' : v });
+				page_state.set({ order: v == default_params.order ? '' : v });
 			}}
 		/>
 
@@ -114,7 +114,7 @@
 		{:else if can_comment}
 			<Button
 				icon="message-circle-plus"
-				onclick={() => module.open(Add, { item, searchParams, update })}
+				onclick={() => module.open(Add, { item, search_params, update })}
 			>
 				Add review
 			</Button>
@@ -125,7 +125,7 @@
 <Content>
 	{#each comments as comment (comment.key)}
 		<div class="comment" animate:flip={{ delay: 0, duration: 250, easing: cubicInOut }}>
-			<One {item} {comment} {searchParams} {update}></One>
+			<One {item} {comment} {search_params} {update}></One>
 		</div>
 	{:else}
 		<PageNote>
@@ -137,7 +137,7 @@
 	<Pagination
 		{total_page}
 		bind:this={pagination}
-		bind:value={searchParams.page_no}
+		bind:value={search_params.page_no}
 		ondone={(v) => {
 			if (v == 1) v = 0;
 			page_state.set({ page_no: v });

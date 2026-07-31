@@ -110,7 +110,7 @@ def get_users(cur, user):
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
         "status": ['anonymous', 'signedup', 'active'],
     }, 200
 
@@ -189,6 +189,6 @@ def get_admins(cur, user):
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": search_params,
+        "search_params": search_params,
         "access": access,
     }, 200
