@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from ..tools import log, rate_limit, session, user_schema
 from .get import get_blocked
 
-bp = Blueprint("user_block", __name__)
+bp = Blueprint("block", __name__)
 
 
 @bp.post("/users/<key>/block")
