@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from ..api.item_tag import all_tags, featured_tags
 from ..blog.get import get_blog_tags
 from ..cart.delivery import axis_map, price_map
-from ..cart.get import cart_items, has_adderss
+from ..cart.get import cart_items, has_address
 from ..like.get import get_user_like
 from ..storage import storage
 from ..tools import (access_pass, check_code, generate_code, get_client_info,
@@ -105,7 +105,7 @@ def copy_like_n_cart(cur, user_key, anon_key):
         RETURNING key, receiver
     """, (anon_key,))
     out_cart = cur.fetchone()
-    if has_adderss(out_cart["receiver"]):
+    if has_address(out_cart["receiver"]):
         cur.execute("""
             UPDATE "order" SET receiver = %s WHERE key = %s;
         """, (Json(out_cart["receiver"]), in_cart["key"]))

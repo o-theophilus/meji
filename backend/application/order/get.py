@@ -15,7 +15,7 @@ order_status = ['created', 'processing', 'enroute',
 
 @bp.get("/orders/<key>")
 @session(False)
-def get(cur, _user, key):
+def get(cur, user, key):
     cur.execute("""
         SELECT * FROM "order" WHERE key = %s;
     """, (key,))
@@ -26,8 +26,8 @@ def get(cur, _user, key):
         }, 404
 
     if (
-        order["user_key"] != session["user"]["key"]
-        and "order.view" not in session["user"]["access"]
+        order["user_key"] != user["key"]
+        and "order.view" not in user["access"]
     ):
         return {
             "error": "unauthorized access"
@@ -102,7 +102,7 @@ def many(cur, user):
         'delivery date ▲': 'ASC',
     }
 
-    searchParams = {
+    search_params = {
         "search": "",
         "status": "created",
         "view": "me",
@@ -110,12 +110,12 @@ def many(cur, user):
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    view = request.args.get("view", searchParams["view"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    search = request.args.get("search", search_params["search"]).strip()
+    status = request.args.get("status", search_params["status"])
+    view = request.args.get("view", search_params["view"])
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     user_key = user["key"]
@@ -154,7 +154,7 @@ def many(cur, user):
         "orders": orders,
         "total_page": ceil(orders[0]["_count"] / page_size) if orders else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "status": order_status,
         "view": ['me', 'all'],
     }, 200

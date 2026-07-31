@@ -37,16 +37,16 @@ def like_page(cur, user,):
         'costly': 'DESC'
     }
 
-    searchParams = {
+    search_params = {
         "search": "",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    search = request.args.get("search", search_params["search"]).strip()
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute(f"""
@@ -84,5 +84,5 @@ def like_page(cur, user,):
         "items": [item_schema(x) for x in items],
         "total_page": ceil(items[0]["_count"] / page_size) if items else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": search_params,
     }, 200

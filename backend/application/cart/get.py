@@ -7,7 +7,7 @@ from .delivery import get_areas
 bp = Blueprint("cart_get_items", __name__)
 
 
-def has_adderss(x):
+def has_address(x):
     if (
         "name" not in x
         or not x["name"]

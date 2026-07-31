@@ -360,8 +360,8 @@ def dashboard(cur, _user):
         "1 month": "1 month",
     }
 
-    searchParams = {"interval": "24 hours", }
-    interval = request.args.get("interval", searchParams["interval"])
+    search_params = {"interval": "24 hours", }
+    interval = request.args.get("interval", search_params["interval"])
 
     _new_users = new_users(cur, intervals[interval])
     _top_users = top_users(cur)
@@ -389,6 +389,6 @@ def dashboard(cur, _user):
         "item_low_quantity": _item_low_quantity,
         "item_top_purchase": _item_top_purchase,
         "activity_log": _activity_log,
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "filters": list(intervals.keys()),
     }, 200

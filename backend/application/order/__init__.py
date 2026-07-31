@@ -7,7 +7,7 @@ from flask import Blueprint, request
 from psycopg2.extras import Json
 
 from ..cart.delivery import get_delivery_cost
-from ..cart.get import has_adderss
+from ..cart.get import has_address
 from ..tools import log, rate_limit, send_mail, session
 
 bp = Blueprint("order", __name__)
@@ -27,7 +27,7 @@ def order_check(cur, user):
             "error": "invalid request"
         }, 404
 
-    if not has_adderss(order["receiver"]):
+    if not has_address(order["receiver"]):
         return {
             "error": "incomplete receiver information"
         }, 422

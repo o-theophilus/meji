@@ -27,14 +27,14 @@ def many_item_comments(cur, key, user_key, page_size=24):
         'rating ▲': 'ASC',
     }
 
-    searchParams = {
+    search_params = {
         "order": 'most relevant ▼',
         "page_no": 1,
         "page_size": page_size
     }
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute("""
@@ -235,7 +235,7 @@ def many_item_comments(cur, key, user_key, page_size=24):
         "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "has_purchased": user_comment_info["has_purchased"],
         "can_comment": user_comment_info["can_comment"],
     }
@@ -261,14 +261,14 @@ def many_blog_comments(cur, key, user_key):
         'most engaged': 'DESC',
     }
 
-    searchParams = {
+    search_params = {
         "order": 'most relevant',
         "page_no": 1,
         "page_size": 24
     }
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute(f"""
@@ -405,7 +405,7 @@ def many_blog_comments(cur, key, user_key):
         "order_by": list(order_by.keys()),
         "total_comment": total_comment,
         "total_page": ceil(total_parent / page_size),
-        "searchParams": searchParams,
+        "searchParams": search_params,
     }
 
 

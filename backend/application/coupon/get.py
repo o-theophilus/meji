@@ -51,7 +51,7 @@ def get(cur, user, key):
     coupon = cur.fetchone()
     if not coupon:
         return {
-            "error": "Oops! The item you're looking for doesn't exist"
+            "error": "Oops! The coupon you're looking for doesn't exist"
         }, 404
 
     if "coupon.view" not in user["access"]:
@@ -78,18 +78,18 @@ def many(cur):
         'costly': 'DESC',
     }
 
-    searchParams = {
+    search_params = {
         "search": "",
         "status": "active",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    search = request.args.get("search", search_params["search"]).strip()
+    status = request.args.get("status", search_params["status"])
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute(f"""
@@ -116,7 +116,7 @@ def many(cur):
         "applies_to": coupon_applies_to,
         "value_unit": coupon_value_unit,
         "condition_unit": coupon_condition_unit,
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "status": ['all', 'inactive', 'active', 'used', 'expired']
     }
 

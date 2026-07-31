@@ -10,7 +10,7 @@ bp = Blueprint("user_get", __name__)
 
 @bp.get("/users/<key>")
 @session(False)
-def get(cur, viewer, key):
+def get(cur, user, key):
     cur.execute("""
         SELECT
             "user".*,
@@ -20,16 +20,16 @@ def get(cur, viewer, key):
         LEFT JOIN block ON "user".key = block.user_key
         WHERE "user".key::TEXT = %s OR "user".username = %s;
     """, (key, key))
-    user = cur.fetchone()
+    user2 = cur.fetchone()
 
-    if not user:
+    if not user2:
         return {
             "error": "Oops! The user you're looking for doesn't exist"
         }, 404
 
     _dashboard = {}
-    if viewer["key"] == user["key"]:
-        _dashboard = dashboard(cur, user["key"])
+    if user["key"] == user2["key"]:
+        _dashboard = dashboard(cur, user2["key"])
 
     _access = {}
     for x in access_pass:
@@ -41,7 +41,7 @@ def get(cur, viewer, key):
                 _access[x][y[1]].append(y[0])
 
     return {
-        "user": user_schema(user),
+        "user": user_schema(user2),
         "dashboard": _dashboard,
         "access": _access,
     }, 200
@@ -49,8 +49,8 @@ def get(cur, viewer, key):
 
 @bp.get("/users")
 @session(True)
-def get_users(cur, _user):
-    if "user.view" not in session["user"]["access"]:
+def get_users(cur, user):
+    if "user.view" not in user["access"]:
         return {
             "error": "unauthorized access"
         }, 403
@@ -68,18 +68,18 @@ def get_users(cur, _user):
         'name (z-a)': 'DESC'
     }
 
-    searchParams = {
+    search_params = {
         "search": "",
         "status": "active",
         "order": "latest",
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"]).strip()
-    status = request.args.get("status", searchParams["status"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    search = request.args.get("search", search_params["search"]).strip()
+    status = request.args.get("status", search_params["status"])
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute(f"""
@@ -110,14 +110,19 @@ def get_users(cur, _user):
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "status": ['anonymous', 'signedup', 'active'],
     }, 200
 
 
 @bp.get("/users/admin")
 @session(True)
-def get_admins(cur):
+def get_admins(cur, user):
+    if "user.set_access" not in user["access"]:
+        return {
+            "error": "unauthorized access"
+        }, 403
+
     order_by = {
         'latest': '"user".date_created',
         'oldest': '"user".date_created',
@@ -131,7 +136,7 @@ def get_admins(cur):
         'name (z-a)': 'DESC'
     }
 
-    searchParams = {
+    search_params = {
         "entity_type": "all",
         "action": "all",
         "search": "",
@@ -139,12 +144,12 @@ def get_admins(cur):
         "page_no": 1,
         "page_size": 24
     }
-    entity_type = request.args.get("entity_type", searchParams["entity_type"])
-    action = request.args.get("action", searchParams["action"])
-    search = request.args.get("search", searchParams["search"]).strip()
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    entity_type = request.args.get("entity_type", search_params["entity_type"])
+    action = request.args.get("action", search_params["action"])
+    search = request.args.get("search", search_params["search"]).strip()
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     cur.execute(f"""
@@ -184,6 +189,6 @@ def get_admins(cur):
         "users": [user_schema(x) for x in users],
         "total_page": ceil(users[0]["_count"] / page_size) if users else 0,
         "order_by": list(order_by.keys()),
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "access": access,
     }, 200

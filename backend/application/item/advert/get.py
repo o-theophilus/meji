@@ -49,18 +49,18 @@ def many(cur, user):
         'name (z-a)': 'DESC'
     }
 
-    searchParams = {
+    search_params = {
         "search": "",
         "space": "all",
         "order": "name (a-z)",
         "page_no": 1,
         "page_size": 24
     }
-    search = request.args.get("search", searchParams["search"]).strip()
-    space = request.args.get("space", searchParams["space"])
-    order = request.args.get("order", searchParams["order"])
-    page_no = int(request.args.get("page_no", searchParams["page_no"]))
-    page_size = int(request.args.get("page_size", searchParams["page_size"]))
+    search = request.args.get("search", search_params["search"]).strip()
+    space = request.args.get("space", search_params["space"])
+    order = request.args.get("order", search_params["order"])
+    page_no = int(request.args.get("page_no", search_params["page_no"]))
+    page_size = int(request.args.get("page_size", search_params["page_size"]))
     page_size = min(page_size, 100)
 
     status = "active"
@@ -92,7 +92,7 @@ def many(cur, user):
         "order_by": list(order_by.keys()),
         "spaces": ["all", *spaces],
         "sizes": sizes,
-        "searchParams": searchParams,
+        "searchParams": search_params,
         "total_page": ceil(adverts[0][
             "total_items"] / page_size) if adverts else 0
     }, 200
