@@ -3,7 +3,7 @@ import { error } from '@sveltejs/kit';
 export const load = async ({ parent, fetch, params }) => {
 	let a = await parent();
 	if (!a.locals.user.access.includes("coupon.view")) {
-		throw error(400, "Unauthorized access")
+		throw error(403, "Unauthorized access")
 	}
 	let response = await fetch(`${import.meta.env.VITE_BACKEND}/coupons/${params.slug}`, {
 		headers: {

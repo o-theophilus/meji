@@ -6,7 +6,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 
 	let a = await parent();
 	if (!a.locals.user.access.includes("user.set_access")) {
-		throw error(400, "Unauthorized access")
+		throw error(403, "Unauthorized access")
 	}
 
 	let page_name = "admin_users"

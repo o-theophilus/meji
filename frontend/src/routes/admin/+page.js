@@ -6,7 +6,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 
 	let a = await parent();
 	if (!a.locals.login || a.locals.user.access.length == 0) {
-		throw error(404, "Unauthorized access")
+		throw error(403, "Unauthorized access")
 	}
 
 	let page_name = "admin_dashboard"

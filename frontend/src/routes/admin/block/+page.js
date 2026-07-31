@@ -6,7 +6,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 
 	let a = await parent();
 	if (!a.locals.user.access.includes("block.view")) {
-		throw error(400, "Unauthorized access")
+		throw error(403, "Unauthorized access")
 	}
 
 	let page_name = "block"

@@ -9,7 +9,7 @@ export const load = async ({ fetch, url, parent, depends }) => {
 		|| !a.locals.user.access.includes("admin.tag.rename")
 		|| !a.locals.user.access.includes("admin.tag.delete")
 	) {
-		throw error(400, "Unauthorized access")
+		throw error(403, "Unauthorized access")
 	}
 
 	return
